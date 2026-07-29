@@ -1,0 +1,172 @@
+# purpose: 本地开发与演示部署编排
+# content: Docker Compose 服务拓扑、构建上下文、端口映射、环境变量、数据卷、网络和条件启用服务
+# update_method: 服务组成、端口、环境变量、数据卷、构建方式、对象存储、数据库或部署策略变化时同步更新
+# owner: MoonBox
+# note: 适用于 MoonBox 项目；生产部署前必须由人工确认安全、凭据、网络和持久化策略
+
+name: ${COMPOSE_PROJECT_NAME:-MoonBox}
+
+x-harness-metadata:
+  document_type: docker-compose
+  product_name: "MoonBox"
+  product_code: "MoonBox"
+  deployment_stack: "docker-compose"
+  generation_note: "初始化时必须按项目能力替换占位符，并删除未启用 profile 的服务。"
+
+x-common-env: &common-env
+  APP_NAME: ${APP_NAME:-MoonBox}
+  APP_ENV: ${APP_ENV:-local}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  TZ: ${TZ:-Asia/Shanghai}
+
+x-common-service: &common-service
+  restart: unless-stopped
+  env_file:
+    - .env
+  networks:
+    - app-network
+
+services:
+  backend:
+    <<: *common-service
+    build:
+      context: ${BACKEND_BUILD_CONTEXT:-./src/backend}
+      dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
+    image: ${BACKEND_IMAGE:-MoonBox-backend:local}
+    container_name: ${BACKEND_CONTAINER_NAME:-MoonBox-backend}
+    environment:
+      <<: *common-env
+      SERVICE_NAME: backend
+      DATABASE_URL: ${DATABASE_URL:-MoonBox}
+      OBJECT_STORAGE_ENDPOINT: ${OBJECT_STORAGE_ENDPOINT:-MoonBox}
+    ports:
+      - "${HOST_PORT_BACKEND:-MoonBox}:${BACKEND_CONTAINER_PORT:-MoonBox}"
+    volumes:
+      - ./data/runtime/backend:/app/data
+      - ./data/tmp:/app/tmp
+    healthcheck:
+      test: ["CMD-SHELL", "${BACKEND_HEALTHCHECK_CMD:-curl -fsS http://localhost:${BACKEND_CONTAINER_PORT:-8000}/health || exit 1}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  web:
+    <<: *common-service
+    profiles:
+      - web
+    build:
+      context: ${WEB_BUILD_CONTEXT:-.}
+      dockerfile: ${WEB_DOCKERFILE:-MoonBox}
+    image: ${WEB_IMAGE:-MoonBox-web:local}
+    container_name: ${WEB_CONTAINER_NAME:-MoonBox-web}
+    environment:
+      <<: *common-env
+      SERVICE_NAME: web
+      API_BASE_URL: ${API_BASE_URL:-MoonBox}
+    ports:
+      - "${HOST_PORT_WEB:-MoonBox}:${WEB_CONTAINER_PORT:-MoonBox}"
+    depends_on:
+      backend:
+        condition: service_started
+
+  database:
+    <<: *common-service
+    profiles:
+      - database
+    image: ${DATABASE_IMAGE:-MoonBox}
+    container_name: ${DATABASE_CONTAINER_NAME:-MoonBox-database}
+    environment:
+      <<: *common-env
+      POSTGRES_DB: ${POSTGRES_DB:-MoonBox}
+      POSTGRES_USER: ${POSTGRES_USER:-MoonBox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-MoonBox}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-MoonBox}
+      MYSQL_USER: ${MYSQL_USER:-MoonBox}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-MoonBox}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-MoonBox}
+    ports:
+      - "${HOST_PORT_DATABASE:-MoonBox}:${DATABASE_CONTAINER_PORT:-MoonBox}"
+    volumes:
+      - database-data:/var/lib/database
+    healthcheck:
+      test: ["CMD-SHELL", "${DATABASE_HEALTHCHECK_CMD:-echo database healthcheck pending}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  object-storage:
+    <<: *common-service
+    profiles:
+      - object-storage
+    image: ${OBJECT_STORAGE_IMAGE:-MoonBox}
+    container_name: ${OBJECT_STORAGE_CONTAINER_NAME:-MoonBox-object-storage}
+    command: ${OBJECT_STORAGE_COMMAND:-MoonBox}
+    environment:
+      <<: *common-env
+      OBJECT_STORAGE_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY:-MoonBox}
+      OBJECT_STORAGE_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY:-MoonBox}
+    ports:
+      - "${HOST_PORT_OBJECT_STORAGE_API:-MoonBox}:${OBJECT_STORAGE_API_PORT:-MoonBox}"
+      - "${HOST_PORT_OBJECT_STORAGE_CONSOLE:-MoonBox}:${OBJECT_STORAGE_CONSOLE_PORT:-MoonBox}"
+    volumes:
+      - object-storage-data:/data
+
+  object-storage-init:
+    <<: *common-service
+    profiles:
+      - object-storage
+    image: ${OBJECT_STORAGE_INIT_IMAGE:-MoonBox}
+    container_name: ${OBJECT_STORAGE_INIT_CONTAINER_NAME:-MoonBox-object-storage-init}
+    depends_on:
+      object-storage:
+        condition: service_started
+    entrypoint: ${OBJECT_STORAGE_INIT_COMMAND:-MoonBox}
+
+  worker:
+    <<: *common-service
+    profiles:
+      - worker
+    build:
+      context: ${WORKER_BUILD_CONTEXT:-MoonBox}
+      dockerfile: ${WORKER_DOCKERFILE:-MoonBox}
+    image: ${WORKER_IMAGE:-MoonBox-worker:local}
+    container_name: ${WORKER_CONTAINER_NAME:-MoonBox-worker}
+    command: ${WORKER_COMMAND:-MoonBox}
+    environment:
+      <<: *common-env
+      SERVICE_NAME: worker
+    depends_on:
+      backend:
+        condition: service_started
+
+  algorithm:
+    <<: *common-service
+    profiles:
+      - algorithm
+    build:
+      context: ${ALGORITHM_BUILD_CONTEXT:-./src/algorithm}
+      dockerfile: ${ALGORITHM_DOCKERFILE:-Dockerfile}
+    image: ${ALGORITHM_IMAGE:-MoonBox-algorithm:local}
+    container_name: ${ALGORITHM_CONTAINER_NAME:-MoonBox-algorithm}
+    environment:
+      <<: *common-env
+      SERVICE_NAME: algorithm
+      MODEL_DIR: ${MODEL_DIR:-/app/models}
+    ports:
+      - "${HOST_PORT_ALGORITHM:-MoonBox}:${ALGORITHM_CONTAINER_PORT:-MoonBox}"
+    volumes:
+      - ./models:/app/models:ro
+      - ./data/runtime/algorithm:/app/data
+
+networks:
+  app-network:
+    name: ${COMPOSE_NETWORK_NAME:-MoonBox-network}
+    driver: bridge
+
+volumes:
+  database-data:
+    name: ${DATABASE_VOLUME_NAME:-MoonBox-database-data}
+  object-storage-data:
+    name: ${OBJECT_STORAGE_VOLUME_NAME:-MoonBox-object-storage-data}

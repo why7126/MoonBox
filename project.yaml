@@ -1,0 +1,191 @@
+schema:
+  name: pm-harness-project
+  version: "1.0"
+  metadata_style: yaml
+
+project:
+  name: MoonBox
+  code: MoonBox
+  description: MoonBox 是下一代 AI 软件研发基础设施，帮助个人和企业建立由 Agent 驱动的软件研发组织。
+  domain: AI 原生软件研发基础设施
+  lifecycle_stage: mvp
+  owner: MoonBox 产品团队
+
+users:
+  target_users:
+    - name: AI 创业者 / Founder
+      role: founder
+      primary_goal: 快速验证产品想法，用小团队完成大产品。
+    - name: 小型软件团队
+      role: product_engineering_team
+      primary_goal: 统一 AI 研发流程，沉淀项目知识，降低扩张成本。
+    - name: AI 原生企业团队
+      role: enterprise_innovation_team
+      primary_goal: 建立 AI 原生研发组织能力。
+
+product_forms:
+  web_public:
+    enabled: true
+    description: 品牌首页、登录入口和产品工作台。
+  web_admin:
+    enabled: true
+    description: 组织、Agent、Workflow、知识沉淀和治理后台。
+  api_service:
+    enabled: true
+    description: REST API 服务。
+  wechat_miniapp:
+    enabled: false
+  mobile:
+    enabled: false
+  desktop:
+    enabled: false
+  sdk:
+    enabled: false
+  algorithm_service:
+    enabled: false
+
+technology:
+  backend:
+    enabled: true
+    language: Python
+    runtime_version: "3.12"
+    framework: FastAPI
+    validation: Pydantic
+    package_manager: uv
+    orm_or_repository: Repository + SQLAlchemy
+    api_style: REST
+  frontend:
+    enabled: true
+    language: TypeScript
+    framework: React
+    css: TailWind
+    component_library: Shadcn/UI
+    state_management: React Query + Zustand
+    http_client: Axios
+    api_client_generator: Orval
+    package_manager: pnpm
+  database:
+    enabled: true
+    primary: SQLite
+    migration: Alembic
+    schema_source: src/backend/app/models 与 migrations
+  object_storage:
+    enabled: true
+    provider: MinIO
+    mode: single_bucket_with_prefix
+  media:
+    enabled: true
+    types:
+      image: true
+      video: false
+      audio: false
+      document: true
+  async_task:
+    enabled: true
+    stack: FastAPI BackgroundTasks
+  cache:
+    enabled: false
+  search:
+    enabled: false
+  ai_or_algorithm:
+    enabled: true
+    stack: Agent Workflow + external LLM API
+    local_model_enabled: false
+
+deployment:
+  mode: docker-compose
+  environments:
+    - name: local
+      purpose: 本地开发
+      enabled: true
+    - name: staging
+      purpose: 预发验证
+      enabled: false
+    - name: production
+      purpose: 生产环境
+      enabled: false
+  services:
+    - name: backend
+      type: backend
+      enabled: true
+      source: src/backend
+      internal_port: 8000
+      healthcheck: /health
+    - name: web
+      type: frontend
+      enabled: true
+      source: src/web
+      internal_port: 5173
+      healthcheck: /
+    - name: minio
+      type: object_storage
+      enabled: true
+      source: docker-compose.yml
+      internal_port: 9000
+      healthcheck: /minio/health/live
+  docker_compose:
+    enabled: true
+    file: docker-compose.yml
+  kubernetes:
+    enabled: false
+
+ports:
+  strategy: container_fixed_host_configurable
+  services:
+    - name: backend
+      container_port: 8000
+      host_default: 8000
+      env_var: BACKEND_PORT
+    - name: web
+      container_port: 5173
+      host_default: 5173
+      env_var: WEB_PORT
+    - name: minio
+      container_port: 9000
+      host_default: 9000
+      env_var: MINIO_API_PORT
+
+object_storage:
+  enabled: true
+  strategy: single_bucket_with_prefix
+  default_bucket: moonbox-assets
+  bucket_naming_rule: moonbox-{env}-assets
+  key_pattern: "{prefix}/{resource_type}/{uuid}.{ext}"
+  public_access_policy: private-by-default
+  signed_url_ttl: 900
+  cdn_enabled: false
+  prefixes:
+    images: images/
+    documents: documents/
+    tmp: tmp/
+
+ai:
+  coding_mode: OpenSpec + AI Agent
+  default_language: 中文
+  rules_required: true
+  document_governance_required: true
+  agent_tools:
+    agents_skills: true
+  default_commands:
+    intake: [/capture]
+    requirements: [/req-capture, /req-explore, /req-generate, /req-complete, /req-review, /req-opsx]
+    bugs: [/bug-capture, /bug-explore, /bug-generate, /bug-complete, /bug-review, /bug-opsx]
+    sprint: [/sprint-propose, /sprint-explore, /sprint-apply, /sprint-exps, /sprint-archive]
+    openspec: [/opsx-explore, /opsx-propose, /opsx-apply, /opsx-archive]
+    release: [/release-propose, /release-prepare, /release-publish]
+    image: [/image-prepare, /image-build]
+    bootstrap: [/initialize-project, /build-design-system, /build-api-standard, /build-test-framework]
+
+governance:
+  requirements_root: issues/requirements
+  bugs_root: issues/bugs
+  sprint_root: iterations
+  change_root: openspec/changes
+  spec_root: openspec/specs
+  test_root: tests
+
+validation:
+  directory_structure: python scripts/validate-directory-structure.py
+  generated_docs: python scripts/validate-generated-docs.py --strict
+  openspec: bash scripts/validate-openspec.sh
+  tests: bash scripts/run-tests.sh

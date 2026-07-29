@@ -1,0 +1,64 @@
+project: MoonBox
+project_name: MoonBox
+enabled: true
+spec_dir: openspec/specs
+change_dir: openspec/changes
+archive_dir: openspec/archive
+project_doc: openspec/project.md
+testing_mapping: openspec/testing-mapping.md
+language: zh-CN
+default_locale: zh-CN
+documentation_language: 中文
+change:
+  id_pattern: "^(add|change|fix|refactor|remove)-[a-z0-9-]+$"
+  allowed_prefixes: [add, change, fix, refactor, remove]
+  required_files: [proposal.md, design.md, tasks.md]
+  spec_delta_dir: specs
+  status_flow: [draft, proposed, approved, implemented, archived]
+spec:
+  modules:
+    - product-workspace
+    - agent-workflow
+    - knowledge-graph
+    - harness-runtime
+  require_scenarios: true
+  require_acceptance: true
+  require_traceability: true
+  allow_unimplemented_in_specs: false
+commands:
+  validate: bash scripts/validate-openspec.sh
+  propose: /opsx-propose
+  apply: /opsx-apply
+  archive: /opsx-archive
+  test_mapping_validate: python scripts/validate-test-framework.py
+archive:
+  require_completed_tasks: true
+  require_tests_recorded: true
+  require_docs_synced: true
+  require_specs_updated: true
+ai_guardrails:
+  must_read:
+    - AGENTS.md
+    - openspec/project.md
+  must_sync_when_changed:
+    - README.md
+    - AGENTS.md
+    - project.yaml
+    - docs/README.md
+    - docs/00-product-overview.md
+    - docs/01-architecture.md
+    - docs/02-deployment.md
+    - docs/03-api-index.md
+    - docs/04-database-design.md
+    - rules/document-governance.md
+    - rules/testing.md
+  forbidden:
+    - do_not_edit_code_without_reading_target_change
+    - do_not_modify_active_specs_without_change_trace
+    - do_not_archive_without_tests_and_docs_sync
+external_tracking:
+  enabled: false
+  system: internal-filesystem
+  requirement_root: issues/requirements
+  bug_root: issues/bugs
+  sprint_root: iterations
