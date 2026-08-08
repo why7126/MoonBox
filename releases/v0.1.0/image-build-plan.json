@@ -1,0 +1,437 @@
+{
+  "version": "v0.1.0",
+  "generated_at": "2026-08-09 00:35:35",
+  "image_required": true,
+  "image_required_rationale": "发布范围包含 Web、后端、数据库、Docker Compose、Dockerfile 和部署文档影响；后续必须执行 /image-prepare v0.1.0 与 /image-build v0.1.0 生成镜像计划和 manifest。",
+  "image_tag": "v0.1.0",
+  "platform": "linux/amd64",
+  "source_scope": {
+    "sprints": [
+      {
+        "id": "sprint-001",
+        "status": "completed",
+        "lifecycle_stage": "archive",
+        "source": "iterations/archive/sprint-001/sprint.yaml",
+        "release_note": "iterations/archive/sprint-001/release-note.md",
+        "acceptance_report": "iterations/archive/sprint-001/acceptance-report.md",
+        "note": "sprint.yaml 记录 8 个 REQ、0 个 BUG、17 个 Change；release-note 正式范围列出 REQ-0001 至 REQ-0007，REQ-0008 作为治理门禁需求仍按 sprint.yaml 纳入可追溯范围。"
+      }
+    ],
+    "requirements": [
+      {
+        "id": "REQ-0001-homepage",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-homepage-brand-visual",
+        "source": "issues/requirements/archive/REQ-0001-homepage/trace.md"
+      },
+      {
+        "id": "REQ-0002-login-page",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-login-page",
+        "source": "issues/requirements/archive/REQ-0002-login-page/trace.md"
+      },
+      {
+        "id": "REQ-0003-database-compatibility",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-database-compatibility",
+        "source": "issues/requirements/archive/REQ-0003-database-compatibility/trace.md"
+      },
+      {
+        "id": "REQ-0004-admin-user-management",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-admin-user-management",
+        "source": "issues/requirements/archive/REQ-0004-admin-user-management/trace.md"
+      },
+      {
+        "id": "REQ-0005-admin-auth-system",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-admin-auth-system",
+        "source": "issues/requirements/archive/REQ-0005-admin-auth-system/trace.md"
+      },
+      {
+        "id": "REQ-0006-admin-crud-list-template",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "add-admin-crud-list-template",
+        "source": "issues/requirements/archive/REQ-0006-admin-crud-list-template/trace.md"
+      },
+      {
+        "id": "REQ-0007-admin-user-first-login-activation",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "update-admin-user-first-login-activation",
+        "source": "issues/requirements/archive/REQ-0007-admin-user-first-login-activation/trace.md"
+      },
+      {
+        "id": "REQ-0008-prototype-driven-page-acceptance-gate",
+        "status": "done",
+        "iteration": "sprint-001",
+        "change": "enforce-prototype-driven-ui-gate",
+        "source": "issues/requirements/archive/REQ-0008-prototype-driven-page-acceptance-gate/trace.md"
+      }
+    ],
+    "bugs": [],
+    "changes": [
+      {
+        "id": "add-homepage-brand-visual",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-add-homepage-brand-visual/trace.md"
+      },
+      {
+        "id": "add-login-page",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-add-login-page/trace.md"
+      },
+      {
+        "id": "add-database-compatibility",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-add-database-compatibility/trace.md"
+      },
+      {
+        "id": "apply-projecttilesfst-spec-study",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-apply-projecttilesfst-spec-study/trace.md"
+      },
+      {
+        "id": "apply-projecttilesfst-governance-refinements",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-apply-projecttilesfst-governance-refinements/trace.md"
+      },
+      {
+        "id": "avoid-duplicate-spec-study-reports",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-avoid-duplicate-spec-study-reports/trace.md"
+      },
+      {
+        "id": "redact-spec-study-local-paths",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-07-redact-spec-study-local-paths/trace.md"
+      },
+      {
+        "id": "add-admin-user-management",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-add-admin-user-management/trace.md"
+      },
+      {
+        "id": "apply-projecttilesfst-command-order",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-apply-projecttilesfst-command-order/trace.md"
+      },
+      {
+        "id": "add-admin-auth-system",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-add-admin-auth-system/trace.md"
+      },
+      {
+        "id": "optimize-next-step-issue-identity",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-optimize-next-step-issue-identity/trace.md"
+      },
+      {
+        "id": "enforce-sprint-before-opsx",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-enforce-sprint-before-opsx/trace.md"
+      },
+      {
+        "id": "add-admin-crud-list-template",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-add-admin-crud-list-template/trace.md"
+      },
+      {
+        "id": "add-spec-logs-changelog",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-add-spec-logs-changelog/trace.md"
+      },
+      {
+        "id": "add-spec-logs-adoption-prompt-column",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-add-spec-logs-adoption-prompt-column/trace.md"
+      },
+      {
+        "id": "enforce-prototype-driven-ui-gate",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-enforce-prototype-driven-ui-gate/trace.md"
+      },
+      {
+        "id": "update-admin-user-first-login-activation",
+        "status": "archived",
+        "source": "openspec/archive/2026-08-08-update-admin-user-first-login-activation/trace.md"
+      }
+    ]
+  },
+  "release_input": {
+    "source": "release.json stable fields",
+    "hash": "04b9376151d1977130f2cf1ee34842d4d36a0d3a80b4a01164fc148f17e6e002",
+    "fields": {
+      "version": "v0.1.0",
+      "image_required": true,
+      "image_required_rationale": "发布范围包含 Web、后端、数据库、Docker Compose、Dockerfile 和部署文档影响；后续必须执行 /image-prepare v0.1.0 与 /image-build v0.1.0 生成镜像计划和 manifest。",
+      "image_tag": "v0.1.0",
+      "sprints": [
+        {
+          "id": "sprint-001",
+          "status": "completed",
+          "lifecycle_stage": "archive",
+          "source": "iterations/archive/sprint-001/sprint.yaml",
+          "release_note": "iterations/archive/sprint-001/release-note.md",
+          "acceptance_report": "iterations/archive/sprint-001/acceptance-report.md",
+          "note": "sprint.yaml 记录 8 个 REQ、0 个 BUG、17 个 Change；release-note 正式范围列出 REQ-0001 至 REQ-0007，REQ-0008 作为治理门禁需求仍按 sprint.yaml 纳入可追溯范围。"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "REQ-0001-homepage",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-homepage-brand-visual",
+          "source": "issues/requirements/archive/REQ-0001-homepage/trace.md"
+        },
+        {
+          "id": "REQ-0002-login-page",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-login-page",
+          "source": "issues/requirements/archive/REQ-0002-login-page/trace.md"
+        },
+        {
+          "id": "REQ-0003-database-compatibility",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-database-compatibility",
+          "source": "issues/requirements/archive/REQ-0003-database-compatibility/trace.md"
+        },
+        {
+          "id": "REQ-0004-admin-user-management",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-admin-user-management",
+          "source": "issues/requirements/archive/REQ-0004-admin-user-management/trace.md"
+        },
+        {
+          "id": "REQ-0005-admin-auth-system",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-admin-auth-system",
+          "source": "issues/requirements/archive/REQ-0005-admin-auth-system/trace.md"
+        },
+        {
+          "id": "REQ-0006-admin-crud-list-template",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "add-admin-crud-list-template",
+          "source": "issues/requirements/archive/REQ-0006-admin-crud-list-template/trace.md"
+        },
+        {
+          "id": "REQ-0007-admin-user-first-login-activation",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "update-admin-user-first-login-activation",
+          "source": "issues/requirements/archive/REQ-0007-admin-user-first-login-activation/trace.md"
+        },
+        {
+          "id": "REQ-0008-prototype-driven-page-acceptance-gate",
+          "status": "done",
+          "iteration": "sprint-001",
+          "change": "enforce-prototype-driven-ui-gate",
+          "source": "issues/requirements/archive/REQ-0008-prototype-driven-page-acceptance-gate/trace.md"
+        }
+      ],
+      "bugs": [],
+      "changes": [
+        {
+          "id": "add-homepage-brand-visual",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-add-homepage-brand-visual/trace.md"
+        },
+        {
+          "id": "add-login-page",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-add-login-page/trace.md"
+        },
+        {
+          "id": "add-database-compatibility",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-add-database-compatibility/trace.md"
+        },
+        {
+          "id": "apply-projecttilesfst-spec-study",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-apply-projecttilesfst-spec-study/trace.md"
+        },
+        {
+          "id": "apply-projecttilesfst-governance-refinements",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-apply-projecttilesfst-governance-refinements/trace.md"
+        },
+        {
+          "id": "avoid-duplicate-spec-study-reports",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-avoid-duplicate-spec-study-reports/trace.md"
+        },
+        {
+          "id": "redact-spec-study-local-paths",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-07-redact-spec-study-local-paths/trace.md"
+        },
+        {
+          "id": "add-admin-user-management",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-add-admin-user-management/trace.md"
+        },
+        {
+          "id": "apply-projecttilesfst-command-order",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-apply-projecttilesfst-command-order/trace.md"
+        },
+        {
+          "id": "add-admin-auth-system",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-add-admin-auth-system/trace.md"
+        },
+        {
+          "id": "optimize-next-step-issue-identity",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-optimize-next-step-issue-identity/trace.md"
+        },
+        {
+          "id": "enforce-sprint-before-opsx",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-enforce-sprint-before-opsx/trace.md"
+        },
+        {
+          "id": "add-admin-crud-list-template",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-add-admin-crud-list-template/trace.md"
+        },
+        {
+          "id": "add-spec-logs-changelog",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-add-spec-logs-changelog/trace.md"
+        },
+        {
+          "id": "add-spec-logs-adoption-prompt-column",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-add-spec-logs-adoption-prompt-column/trace.md"
+        },
+        {
+          "id": "enforce-prototype-driven-ui-gate",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-enforce-prototype-driven-ui-gate/trace.md"
+        },
+        {
+          "id": "update-admin-user-first-login-activation",
+          "status": "archived",
+          "source": "openspec/archive/2026-08-08-update-admin-user-first-login-activation/trace.md"
+        }
+      ],
+      "impact_scope": {
+        "web_admin": "管理后台登录、用户管理、CRUD 列表页模板和首次登录激活状态治理。",
+        "web_public": "官网首页品牌视觉与登录页入口体验。",
+        "miniapp": "none",
+        "backend": "后台认证 API、管理后台用户 API、会话记录、上传读取与权限边界。",
+        "database": "SQLite/MySQL 兼容路径、管理后台用户、会话和冻结前状态相关 schema。",
+        "object_storage": "管理后台头像上传与对象访问链路。",
+        "docker": "本地/生产 Compose、后端/Web Dockerfile、部署矩阵与镜像发布链路。"
+      },
+      "announcement": "announcement.mdx"
+    }
+  },
+  "build_env": {
+    "default": {
+      "path": "scripts/build-images.env",
+      "exists": true,
+      "safe_values": {
+        "IMAGE_BUILD_TAG": "v0.1.0",
+        "IMAGE_BUILD_PLATFORM": "linux/amd64",
+        "BACKEND_PYTHON_BASE_IMAGE": "python:3.12-slim",
+        "WEB_NODE_BASE_IMAGE": "node:22-alpine",
+        "WEB_NGINX_BASE_IMAGE": "nginx:1.27-alpine",
+        "IMAGE_BUILD_BACKEND_IMAGE": "moonbox-backend",
+        "IMAGE_BUILD_WEB_IMAGE": "moonbox-web",
+        "IMAGE_BUILD_BUILDER": "moonbox-builder",
+        "IMAGE_BUILD_CREATE_BUILDER": "false",
+        "IMAGE_BUILD_LOAD": "true",
+        "IMAGE_BUILD_EXPORT_TAR": "true"
+      }
+    },
+    "example": {
+      "path": "scripts/build-images.env.example",
+      "exists": true,
+      "safe_values": {
+        "IMAGE_BUILD_TAG": "v0.0.1",
+        "IMAGE_BUILD_PLATFORM": "linux/amd64",
+        "BACKEND_PYTHON_BASE_IMAGE": "python:3.12-slim",
+        "WEB_NODE_BASE_IMAGE": "node:22-alpine",
+        "WEB_NGINX_BASE_IMAGE": "nginx:1.27-alpine",
+        "IMAGE_BUILD_BACKEND_IMAGE": "moonbox-backend",
+        "IMAGE_BUILD_WEB_IMAGE": "moonbox-web",
+        "IMAGE_BUILD_BUILDER": "moonbox-builder",
+        "IMAGE_BUILD_CREATE_BUILDER": "true",
+        "IMAGE_BUILD_LOAD": "true",
+        "IMAGE_BUILD_EXPORT_TAR": "true"
+      }
+    }
+  },
+  "input_files": [
+    "releases/v0.1.0/announcement.mdx",
+    "src/shared/product-version.ts",
+    "src/backend/Dockerfile",
+    "src/web/Dockerfile",
+    "docker-compose.yml",
+    ".env.example",
+    "scripts/build-images.sh",
+    "scripts/build-images.env.example",
+    "src/backend/app/db/schema.sql",
+    "docs/04-database-design.md",
+    "docs/08-production-image-release.md"
+  ],
+  "input_hashes": {
+    "releases/v0.1.0/announcement.mdx": "181c90b9d0e47a97df0c59553cc47f1e3708e4c12d5b199f91cd4681c55927a2",
+    "src/shared/product-version.ts": "4bd5b4a2199aa2e308332be455aef1bb2c2ab4c6604e2e1d43602d128d7ae7e2",
+    "src/backend/Dockerfile": "6b5e81f1b10db9519292d7437aceb1dc406799a7a4dc96bd6bcf758f5f0566e6",
+    "src/web/Dockerfile": "9a9ff261c0a5f69d926ceec6cd2e74298addc65c405af9d46c1f8701f40e9074",
+    "docker-compose.yml": "b0b2a89f286f39cb74366e34be9240aa6c4f55f79cddbda3c807073bfc913cb9",
+    ".env.example": "085c6ccf6d06ad67f3a0be00939bd2b6b9df9dca68d72001807de2dffd32344b",
+    "scripts/build-images.sh": "4b60e06ca832b98ae98bd66fbe801a6b117aa7195fea03b29f1397b438b1dab6",
+    "scripts/build-images.env.example": "28d5aeeacd91736a9a1c37086b06e90f2b609f5b5743709fefc56255f743988d",
+    "src/backend/app/db/schema.sql": "12200b0959877404bd9f61726352e4cb46928566a9703294cea576f7fc7e6ecd",
+    "docs/04-database-design.md": "c6e78701c5f6526d6053ae2d208189e1246809ec0e4051cf00ffeea11bc0ac4b",
+    "docs/08-production-image-release.md": "5f2aca576f8553a94fd3f40e7ea4451aebf514ed45767902b171eeeb6fcb2146"
+  },
+  "database_impact": {
+    "required": true,
+    "inputs": [
+      "src/backend/app/db/schema.sql",
+      "docs/04-database-design.md"
+    ],
+    "evidence_required": [
+      "MySQL schema drift or target MySQL smoke evidence",
+      "database rollback or backup evidence"
+    ]
+  },
+  "compose_tag_defaults": {
+    "docker-compose.yml": []
+  },
+  "required_commands": [
+    {
+      "name": "prepare",
+      "command": "python scripts/validate-image-build.py prepare --release v0.1.0"
+    },
+    {
+      "name": "build",
+      "command": "./scripts/build-images.sh scripts/build-images.env"
+    },
+    {
+      "name": "manifest",
+      "command": "python scripts/validate-image-build.py build --release v0.1.0"
+    }
+  ],
+  "auto_actions": [],
+  "warnings": [],
+  "blockers": []
+}

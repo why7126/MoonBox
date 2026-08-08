@@ -126,6 +126,25 @@ deployment:
   docker_compose:
     enabled: true
     file: docker-compose.yml
+    supported_modes:
+      - id: self-storage-sqlite
+        object_storage: self-hosted-minio
+        database: sqlite
+      - id: external-storage-sqlite
+        object_storage: external-minio
+        database: sqlite
+      - id: self-storage-self-mysql
+        object_storage: self-hosted-minio
+        database: self-hosted-mysql
+      - id: self-storage-external-mysql
+        object_storage: self-hosted-minio
+        database: external-mysql
+      - id: external-storage-self-mysql
+        object_storage: external-minio
+        database: self-hosted-mysql
+      - id: external-storage-external-mysql
+        object_storage: external-minio
+        database: external-mysql
   kubernetes:
     enabled: false
 
@@ -149,15 +168,27 @@ object_storage:
   enabled: true
   strategy: single_bucket_with_prefix
   default_bucket: moonbox-assets
-  bucket_naming_rule: moonbox-{env}-assets
-  key_pattern: "{prefix}/{resource_type}/{uuid}.{ext}"
+  bucket_naming_rule: one_project_one_bucket
+  key_pattern: "{resource_type}/{subtype}/{uuid}.{ext}"
   public_access_policy: private-by-default
   signed_url_ttl: 900
   cdn_enabled: false
   prefixes:
-    images: images/
-    documents: documents/
-    tmp: tmp/
+    images:
+      original: images/original/
+      thumbnails: images/thumbnails/
+      processed: images/processed/
+    documents:
+      source: documents/source/
+      preview: documents/preview/
+      processed: documents/processed/
+    imports:
+      source: imports/source/
+      processed: imports/processed/
+    exports:
+      result: exports/result/
+    tmp:
+      uploads: tmp/uploads/
 
 ai:
   coding_mode: OpenSpec + AI Agent

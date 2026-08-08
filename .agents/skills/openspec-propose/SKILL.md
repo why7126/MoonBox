@@ -108,3 +108,9 @@ After completing all artifacts, summarize:
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
 - If a change with that name already exists, ask if user wants to continue it or create a new one
 - Verify each artifact file exists after writing before proceeding to next
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+

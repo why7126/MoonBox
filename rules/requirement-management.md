@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-07-11 16:25:13
+updated_at: 2026-08-08 20:38:15
 ---
 
 # 需求管理规范
@@ -49,7 +49,7 @@ REQ-NNNN-slug/
 | `draft` | 仅有 requirement.md |
 | `enriching` | 六件套补齐中 |
 | `pending_review` | 文档齐，待评审 |
-| `approved` | **评审通过**（可 req-opsx、可进 Sprint） |
+| `approved` | **评审通过**（可进 Sprint；不可直接 req-opsx） |
 | `rejected` | 不做 |
 | `deferred` | 延后 |
 | `in_sprint` | 已纳入迭代 |
@@ -81,19 +81,22 @@ REQ-NNNN-slug/
 | `/req-generate` | captured, exploring | requirement.md → draft |
 | `/req-complete` | draft, enriching | 六件套 → pending_review |
 | `/req-review` | pending_review | review.md → approved/rejected/deferred |
-| `/req-opsx` | **approved** | openspec/changes/* |
+| `/sprint-propose --req` | **approved** | 正式纳入 Sprint，status → in_sprint |
+| `/req-opsx` | **in_sprint** | openspec/changes/* |
+
+REQ 命令族输出下一步时 MUST 使用完整 `REQ-NNNN-slug`。`/req-review --approve` 后下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/req-opsx <REQ-full-id>`。当 REQ 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 REQ ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
 
 ## 4. 门禁
 
 ### 4.1 评审门禁（统一，MUST）
 
-以下动作 **MUST** 在 REQ `trace.md`（或 `requirement.md` frontmatter）`status ∈ { approved, in_sprint }` 后方可执行：
+以下动作 **MUST** 在对应状态门禁后方可执行：
 
 | 动作 | 命令 |
 |------|------|
-| 创建 OpenSpec Change | `/req-opsx` |
-| 纳入 Sprint 规划 | `/sprint-propose` |
-| 迭代内开发 | `/sprint-apply` |
+| 纳入 Sprint 规划 | `/sprint-propose`，要求 `status: approved` 或后续状态 |
+| 创建 OpenSpec Change | `/req-opsx`，要求 `status: in_sprint` 或后续交付态 |
+| 迭代内开发 | `/sprint-apply`，要求 `status: in_sprint` 或后续交付态 |
 
 **未评审**（`draft`、`pending_review`、`captured`、`enriching`、`exploring` 等）时：
 
@@ -104,7 +107,7 @@ REQ-NNNN-slug/
 - **仅可**记入 `sprint.md`「延后项（待评审）」并提示 `/req-review REQ-xxxx --approve`
 - 用户显式要求纳入 Sprint 时也 **MUST** 先拒绝写入规划，完成评审后再 `/sprint-propose`
 
-`in_sprint` 表示已评审通过且已纳入迭代；**不得**用 `in_sprint` 绕过 `approved` 评审。
+`approved` 只表示已评审通过，下一步是 `/sprint-propose --req <REQ-full-id>`；不得从 review 直接跳到 `/req-opsx`。`in_sprint` 表示已评审通过且已纳入迭代；**不得**用 `in_sprint` 绕过 `approved` 评审。
 
 `/sprint-propose` 成功写入正式 Sprint 四件套后，Workflow Sync MUST 将纳入的 REQ 从 `approved` 同步为 `in_sprint`，并写入 `iteration: sprint-xxx`。`sprint.yaml` `status: planning` 已满足正式纳入条件，不存在额外“未启动 Sprint”状态门禁。
 
@@ -117,11 +120,11 @@ REQ-NNNN-slug/
 - `/opsx-apply` MUST 先用 `--sprint auto` 或等价检查确认能解析到 Sprint；解析失败时必须停止，提示先执行 `/sprint-propose`。
 - 若解析到的 Sprint 为 `planning`，且上述双向追溯一致，`/opsx-apply` MUST 允许继续。
 
-`approved` 只表示已评审通过，可 `/req-opsx` 与进入 Sprint 规划；不得仅凭 `approved` 直接 `/opsx-apply`。
+`approved` 只表示已评审通过，可进入 Sprint 规划；不得仅凭 `approved` 直接 `/req-opsx` 或 `/opsx-apply`。
 
 ### 4.3 其他门禁
 
-- `/req-opsx`：**仅** `approved` 或已评审后的 `in_sprint`
+- `/req-opsx`：**仅** 已评审并纳入 Sprint 后的 `in_sprint` 或后续交付态；`approved` 必须先 `/sprint-propose --req <REQ-full-id>`
 - 旧命令 `/requirement-to-opsx` 已删除 → `/req-opsx`
 
 ## 5. Readiness（req-opsx / req-complete）

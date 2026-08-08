@@ -22,6 +22,10 @@ from .issue_status_residuals import (
     IssueStatusReconcileResult,
     reconcile_issue_status_residuals,
 )
+from .issue_subdocuments import (
+    SubdocumentSyncResult,
+    sync_issue_subdocuments,
+)
 from .patch import (
     PatchResult,
     patch_acceptance_report,
@@ -30,6 +34,7 @@ from .patch import (
     patch_registry_entry,
     patch_release_note,
     patch_sprint_md,
+    patch_sprint_yaml_scope,
 )
 from .constants import ROOT
 
@@ -45,6 +50,7 @@ class SyncReport:
     skipped: list[PatchResult] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     reconcile_results: list[IssueStatusReconcileResult] = field(default_factory=list)
+    subdocument_results: list[SubdocumentSyncResult] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -71,6 +77,19 @@ class SyncReport:
         lines.append(f"- Updated: {len(self.updated)}")
         lines.append(f"- Skipped (no delta): {len(self.skipped)}")
         lines.append(f"- Errors: {len(self.errors)}")
+        if self.subdocument_results:
+            checked_files = sum(item.checked_files for item in self.subdocument_results)
+            updated_files = sum(item.updated_files for item in self.subdocument_results)
+            warnings = sum(len(item.warnings) for item in self.subdocument_results)
+            blockers = sum(len(item.blockers) for item in self.subdocument_results)
+            acceptance = ", ".join(
+                f"{item.issue_id}:{item.acceptance_status}" for item in self.subdocument_results
+            )
+            lines.append(
+                f"- Subdocuments: checked={checked_files}, updated={updated_files}, "
+                f"warnings={warnings}, blockers={blockers}"
+            )
+            lines.append(f"- Acceptance results: {acceptance or 'n/a'}")
         if self.skipped and not self.errors:
             lines.append("- Detail: use `--output detail` to list no-delta files.")
         if self.errors:
@@ -112,7 +131,30 @@ class SyncReport:
                 lines.append(f"- {err}")
         if self.reconcile_results:
             lines.extend(self._format_reconcile_results(detail=True))
+        if self.subdocument_results:
+            lines.extend(self._format_subdocument_results(detail=True))
         return "\n".join(lines)
+
+    def _format_subdocument_results(self, *, detail: bool) -> list[str]:
+        lines = ["", "**Issue Subdocuments:**"]
+        for result in self.subdocument_results:
+            lines.append(
+                f"- {result.issue_id}: checked_files={result.checked_files}, "
+                f"updated_files={result.updated_files}, updated_fields={result.updated_fields}, "
+                f"acceptance_status={result.acceptance_status}, "
+                f"warnings={len(result.warnings)}, blockers={len(result.blockers)}"
+            )
+            if detail:
+                for finding in result.findings:
+                    try:
+                        path = finding.file.relative_to(ROOT)
+                    except ValueError:
+                        path = finding.file
+                    lines.append(
+                        f"  - {finding.classification}: `{path}` {finding.source} "
+                        f"`{finding.current}` → `{finding.target}`; {finding.reason}"
+                    )
+        return lines
 
     def _format_reconcile_results(self, *, detail: bool) -> list[str]:
         lines = ["", "**Issue Subdocument Status Reconcile:**"]
@@ -159,6 +201,8 @@ class SyncEngine:
         bug_id: str | None = None,
         reconcile_issue_status_residuals_flag: bool = False,
         apply_reconcile: bool = False,
+        scan_issue_subdocuments_flag: bool = False,
+        apply_issue_subdocuments: bool = False,
     ) -> SyncReport:
         report = SyncReport(
             event=event,
@@ -238,8 +282,30 @@ class SyncEngine:
             return report
 
         write = not (self.dry_run or self.check)
+        subdocument_write = write or (apply_issue_subdocuments and not self.dry_run and not self.check)
 
         planned: list[PatchResult] = []
+        if sprint and event in {"req.opsx", "bug.opsx"} and change_id:
+            focus_issue_id = req_id or bug_id
+            planned.append(
+                patch_sprint_yaml_scope(
+                    sprint,
+                    focus_issue_id,
+                    change_id,
+                    write=write,
+                )
+            )
+            if focus_issue_id and change_id:
+                issue = issues.get(focus_issue_id)
+                if issue:
+                    has_change = any(
+                        oc.get("change_id") == change_id for oc in issue.openspec_changes
+                    )
+                    if not has_change:
+                        issue.openspec_changes.append(
+                            {"change_id": change_id, "status": "proposed"}
+                        )
+
         if sprint:
             summary = sprint_summary_note(sprint, derived_changes)
             release_line = release_status_line(sprint, derived_changes)
@@ -273,6 +339,35 @@ class SyncEngine:
                     write=write,
                 )
             )
+            should_sync_subdocuments = False
+            if scan_issue_subdocuments_flag:
+                should_sync_subdocuments = iid in {req_id, bug_id}
+            elif event and event.startswith("req."):
+                should_sync_subdocuments = iid == req_id
+            elif event and event.startswith("bug."):
+                should_sync_subdocuments = iid == bug_id
+            elif event in {"opsx.apply", "opsx.modify", "opsx.archive"}:
+                should_sync_subdocuments = bool(change_id and derived.linked_change == change_id)
+            elif event == "sprint.archive":
+                should_sync_subdocuments = bool(sprint and iid in {*sprint.requirements, *sprint.bugs})
+
+            if should_sync_subdocuments:
+                subdoc_result = sync_issue_subdocuments(
+                    issue,
+                    derived,
+                    event=event,
+                    source_change=change_id,
+                    write=subdocument_write,
+                )
+                report.subdocument_results.append(subdoc_result)
+                if self.check:
+                    for finding in subdoc_result.findings:
+                        if finding.classification == "needs_manual_review":
+                            continue
+                        report.errors.append(
+                            f"Subdocument drift: {issue.issue_id} {finding.file.relative_to(ROOT)} "
+                            f"{finding.source} `{finding.current}` -> `{finding.target}`"
+                        )
             registry = (
                 ROOT / "issues/requirements/_registry.yaml"
                 if issue.kind == "req"
@@ -331,6 +426,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write issue status residual reconcile changes. Without this flag reconcile is dry-run.",
     )
     parser.add_argument(
+        "--scan-issue-subdocuments",
+        action="store_true",
+        help="Scan focused issue subdocuments for status and acceptance drift.",
+    )
+    parser.add_argument(
+        "--apply-issue-subdocuments",
+        action="store_true",
+        help="Apply safe focused issue subdocument status/acceptance updates.",
+    )
+    parser.add_argument(
         "--output",
         choices=["summary", "detail"],
         default="summary",
@@ -351,6 +456,8 @@ def main(argv: list[str] | None = None) -> int:
         bug_id=args.bug_id,
         reconcile_issue_status_residuals_flag=args.reconcile_issue_status_residuals,
         apply_reconcile=args.apply_reconcile,
+        scan_issue_subdocuments_flag=args.scan_issue_subdocuments,
+        apply_issue_subdocuments=args.apply_issue_subdocuments,
     )
     print(report.format_text(args.output))
     return 0 if report.ok else 1

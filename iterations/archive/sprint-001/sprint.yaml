@@ -1,0 +1,141 @@
+sprint_id: sprint-001
+status: completed
+lifecycle_stage: archive
+start_date: 2026-07-30 08:51:51
+end_date: 2026-08-08 23:23:52
+capacity:
+  developers: 1
+  testers: 1
+capacity_person_days: 30
+requirements:
+  - REQ-0001-homepage
+  - REQ-0002-login-page
+  - REQ-0003-database-compatibility
+  - REQ-0004-admin-user-management
+  - REQ-0005-admin-auth-system
+  - REQ-0006-admin-crud-list-template
+  - REQ-0007-admin-user-first-login-activation
+  - REQ-0008-prototype-driven-page-acceptance-gate
+bugs: []
+changes:
+  - add-homepage-brand-visual
+  - add-login-page
+  - add-database-compatibility
+  - apply-projecttilesfst-spec-study
+  - apply-projecttilesfst-governance-refinements
+  - avoid-duplicate-spec-study-reports
+  - redact-spec-study-local-paths
+  - add-admin-user-management
+  - apply-projecttilesfst-command-order
+  - add-admin-auth-system
+  - optimize-next-step-issue-identity
+  - enforce-sprint-before-opsx
+  - add-admin-crud-list-template
+  - add-spec-logs-changelog
+  - add-spec-logs-adoption-prompt-column
+  - enforce-prototype-driven-ui-gate
+  - update-admin-user-first-login-activation
+estimated_story_points: 27
+estimated_person_days: 27
+fix_buffer_person_days: 3
+capacity_usage: 0.9
+knowledge_actions: []
+created_at: 2026-07-30 08:51:51
+updated_at: 2026-08-08 23:23:52
+scope_estimates:
+  - id: apply-projecttilesfst-spec-study
+    change: apply-projecttilesfst-spec-study
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 应用 ProjectTilesFST spec-study A-D 治理学习候选，补齐跨项目学习、Sprint 编号和文档边界
+  - id: apply-projecttilesfst-governance-refinements
+    change: apply-projecttilesfst-governance-refinements
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 应用 ProjectTilesFST A-E 治理候选，完善 spec-logs、Mintlify、usage-docs 与部署规范
+  - id: avoid-duplicate-spec-study-reports
+    change: avoid-duplicate-spec-study-reports
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 应用 ProjectTilesFST spec-study 单报告去重规则，避免同一学习流程重复 study/governance 文档
+  - id: redact-spec-study-local-paths
+    change: redact-spec-study-local-paths
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 修正 spec-study 学习报告和治理追溯中的本机绝对路径隐私边界，并增加校验兜底
+  - id: REQ-0004-admin-user-management
+    requirement: REQ-0004-admin-user-management
+    change: add-admin-user-management
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 管理后台用户管理系统新增主能力，覆盖后台、API、数据库、对象存储、UI 与测试；add-* 主能力估算 L=5 人天
+  - id: apply-projecttilesfst-command-order
+    change: apply-projecttilesfst-command-order
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 应用 ProjectTilesFST 命令执行顺序治理经验，补齐命令链路、下一步参数和串行事实源写入规则
+  - id: REQ-0005-admin-auth-system
+    change: add-admin-auth-system
+    requirement: REQ-0005-admin-auth-system
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 管理后台登录认证系统新增主能力，覆盖后台认证 API、access token、服务端会话记录、超级管理员初始化、路由守卫、后台 API 鉴权替换与安全测试；add-* 主能力估算 L=5 人天
+  - id: optimize-next-step-issue-identity
+    change: optimize-next-step-issue-identity
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 优化下一步可执行命令参数规则，确保 REQ/BUG 链路在 req/bug/opsx 后续命令中持续使用完整 Issue ID
+  - id: enforce-sprint-before-opsx
+    change: enforce-sprint-before-opsx
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 强化评审后命令顺序：REQ/BUG approved 后必须先 sprint-propose 纳入 Sprint，再执行 req-opsx 或 bug-opsx
+  - id: REQ-0006-admin-crud-list-template
+    change: add-admin-crud-list-template
+    requirement: REQ-0006-admin-crud-list-template
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 管理后台 CRUD 列表页模板与组件化主能力，覆盖后台列表模板、通用组件边界、用户管理页适配、弹窗与横切验收；按 M=3 人天估算
+  - id: add-spec-logs-changelog
+    change: add-spec-logs-changelog
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 新增 docs/spec-logs/CHANGELOG.md 目录级变更历史索引，补齐治理日志长期追踪入口
+  - id: add-spec-logs-adoption-prompt-column
+    change: add-spec-logs-adoption-prompt-column
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 为 docs/spec-logs/CHANGELOG.md 新增跨项目落地提示词列，沉淀治理规范迁移 Prompt
+  - id: REQ-0007-admin-user-first-login-activation
+    change: update-admin-user-first-login-activation
+    requirement: REQ-0007-admin-user-first-login-activation
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 后台用户首次登录激活与冻结前状态恢复，涉及后台认证、用户状态治理、数据库冻结前状态记录、用户管理前端文案和回归测试；在既有 REQ-0004/REQ-0005 能力上补强，按 M=3 人天估算
+  - id: enforce-prototype-driven-ui-gate
+    change: enforce-prototype-driven-ui-gate
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 原型驱动 UI 开发门禁治理优化，补齐 prototype 页面原型拆解、UI Skeleton、1440px 视觉验收和 REQ 最终一致性回填机制
+  - id: REQ-0008-prototype-driven-page-acceptance-gate
+    change: enforce-prototype-driven-ui-gate
+    requirement: REQ-0008-prototype-driven-page-acceptance-gate
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 原型驱动页面开发验收门禁治理需求，覆盖 Web 前台和管理后台页面的原型拆解、UI Skeleton、1440px 截图验收与 DOM/CSS 尺寸检查流程；按 S=1 人天估算
+fix_buffer_ratio: 0.1

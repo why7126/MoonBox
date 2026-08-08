@@ -9,13 +9,19 @@ Use this skill when the user asks to run `/sprint-propose` or create/update a Sp
 
 ## Context Budget Guardrails（MUST）
 
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
 - Sprint 范围分析先读取候选 `trace.md` 与摘要，不得全量展开上一 Sprint 四件套、复盘库或所有 active changes。
-- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则用摘要承接，不重复全量读取。
+- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
 - 不要 `ls -R` 或全量 `cat iterations/** docs/knowledge-base/**`；先列清单，再分段读取。
 - 复盘默认只读最近 1 份；只有 open 行动项跨 Sprint 复发或用户要求时读第 2 份。
 - `best-practices/` 只读取候选 REQ/BUG/Change 标签命中的文件。
 - 已存在 Sprint 时先读 `sprint.yaml` 和 `sprint.md` 的目标/Scope/知识库承接片段。
-- 搜索候选项默认排除 `openspec/changes/archive/**`；编号冲突只看目录名。
+- 搜索候选项默认排除 `openspec/archive/**`；编号冲突只看目录名。
 - 命令输出优先 `max_output_tokens <= 8000`。
 
 ## Input
@@ -23,6 +29,21 @@ Use this skill when the user asks to run `/sprint-propose` or create/update a Sp
 - `sprint-xxx`：指定 Sprint ID。
 - 自然语言目标：由 Agent 推导候选范围和编号。
 - Flags：`--req`、`--bug`、`--change`、`--duration 2w`、`--dry-run`。
+
+## Command Order（MUST）
+
+- `/sprint-propose` 位于 `/req-review --approve` 或 `/bug-review --approve` 之后，位于 `/req-opsx`、`/bug-opsx`、`/opsx-apply` 之前。
+- 正式纳入 Sprint 后 MUST 通过 Workflow Sync 将 REQ/BUG trace 更新为 `in_sprint`，并让后续 `/opsx-apply --sprint auto` 可解析到同一 Sprint。
+- 对已存在 active Change 的治理项，MUST 将 Change 写入 `sprint.yaml changes[]` 和估算字段后再继续 apply。
+- 写入 Sprint 四件套、Issue trace、Change trace 和 Workflow Sync 的步骤 MUST 严格串行执行，不得并行改同一事实源。
+
+## Sprint ID Rules（MUST）
+
+- Sprint ID MUST 使用 `sprint-xxx` 三位数字递增格式，例如 `sprint-002`。
+- 当用户未指定 Sprint ID 且当前没有 `iterations/change/sprint-xxx/` 进行中迭代时，MAY 自动创建下一个 Sprint。
+- 自动编号 MUST 同时扫描 `iterations/archive/` 与 `iterations/change/` 下符合 `sprint-[0-9]{3}` 的目录和 `sprint.yaml:sprint_id`，取最大编号加一；例如最新归档为 `sprint-001` 且无进行中迭代时，自动创建 `sprint-002`。
+- 如果已存在 `iterations/change/sprint-xxx/` 进行中迭代，MUST 优先复用或要求用户明确选择，不得默认另建并行 Sprint。
+- 不得使用日期、主题词或混合命名创建 Sprint，例如 `sprint-2026-08-07-spec-study`。
 
 ## Must Read
 
@@ -137,9 +158,21 @@ openspec/changes/<change>/trace.md（若存在）
 
 `sprint.yaml` `status: planning` 已表示正式规划完成、尚未开始批量执行；它不是“未启动 Sprint”。`/sprint-propose` 成功后 MUST 通过 Workflow Sync 将纳入项置为 `in_sprint`，使后续 `/opsx-apply --sprint auto` 可直接解析该 planning Sprint。
 
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+
 ## Output
 
 报告 Sprint ID、状态、纳入 REQ/BUG/Change 数量、估算、知识库承接、容量门禁、四件套路径、下一步。
+
+下一步参数规则：
+
+- 若本次纳入 REQ，下一步 MUST 输出 `/req-opsx <REQ-full-id>`。
+- 若本次纳入 BUG，下一步 MUST 输出 `/bug-opsx <BUG-full-id>`。
+- 若本次仅纳入无 REQ/BUG 来源的纯治理 Change，下一步 MAY 输出 `/opsx-apply <change-id>`。
 
 ## Final Step — Workflow Sync（MUST）
 

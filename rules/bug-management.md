@@ -2,7 +2,7 @@
 purpose: 缺陷（BUG）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-07-11 16:25:13
+updated_at: 2026-08-08 20:38:15
 ---
 
 # 缺陷管理规范
@@ -50,7 +50,7 @@ BUG-NNNN-slug/
 | `draft` | 仅有 bug.md |
 | `enriching` | 缺陷包补齐中 |
 | `pending_review` | 待评审 |
-| `approved` | **确认修复**（可 bug-opsx、可进 Sprint） |
+| `approved` | **确认修复**（可进 Sprint；不可直接 bug-opsx） |
 | `rejected` | 非缺陷/误报 |
 | `wont_fix` | 不修 |
 | `deferred` | 延后 |
@@ -80,17 +80,20 @@ BUG-NNNN-slug/
 | `/bug-generate` | bug.md |
 | `/bug-complete` | root-cause、workaround、acceptance、trace |
 | `/bug-review` | review.md、status |
+| `/sprint-propose --bug` | 正式纳入 Sprint，status → in_sprint |
 | `/bug-opsx` | openspec/changes/fix-* |
+
+BUG 命令族输出下一步时 MUST 使用完整 `BUG-NNNN-slug`。`/bug-review --approve` 后下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`；`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/bug-opsx <BUG-full-id>`。当 BUG 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 BUG ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
 
 ## 4. 门禁
 
 ### 4.1 评审门禁（统一，MUST）
 
-与 `rules/requirement-management.md` §4.1 一致。BUG `trace.md` `status ∈ { approved, in_sprint }` 后方可：
+与 `rules/requirement-management.md` §4.1 一致。BUG 对应状态门禁如下：
 
-- `/bug-opsx`
-- 纳入 Sprint 规划（`/sprint-propose`）
-- `/sprint-apply`
+- `/sprint-propose` 要求 `status: approved` 或后续状态。
+- `/bug-opsx` 要求 `status: in_sprint` 或后续交付态；`approved` 必须先 `/sprint-propose --bug <BUG-full-id>`。
+- `/sprint-apply` 要求 `status: in_sprint` 或后续交付态。
 
 未评审 BUG **不得**写入 Sprint 四件套正式范围；仅可记入 `sprint.md`「延后项（待评审）」并提示 `/bug-review BUG-xxxx --approve`。
 
@@ -105,11 +108,11 @@ BUG-NNNN-slug/
 - `/opsx-apply` MUST 先用 `--sprint auto` 或等价检查确认能解析到 Sprint；解析失败时必须停止，提示先执行 `/sprint-propose`。
 - 若解析到的 Sprint 为 `planning`，且上述双向追溯一致，`/opsx-apply` MUST 允许继续。
 
-`approved` 只表示已评审通过，可 `/bug-opsx` 与进入 Sprint 规划；不得仅凭 `approved` 直接 `/opsx-apply`。
+`approved` 只表示已评审通过，可进入 Sprint 规划；不得仅凭 `approved` 直接 `/bug-opsx` 或 `/opsx-apply`。
 
 ### 4.3 其他门禁
 
-- `/bug-opsx`：**仅** `approved` 或已评审后的 `in_sprint`
+- `/bug-opsx`：**仅** 已评审并纳入 Sprint 后的 `in_sprint` 或后续交付态；`approved` 必须先 `/sprint-propose --bug <BUG-full-id>`
 - Sprint：**P0 BUG** 优先于功能 REQ
 - 旧命令 `/bug-to-change` 已删除 → `/bug-opsx`
 

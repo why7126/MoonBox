@@ -3,7 +3,7 @@ purpose: 文件上传治理
 content: 文件上传入口、认证授权、格式大小限制、安全校验、对象存储、元数据、响应结构、错误码、测试与维护规则
 update_method: 上传类型、上传方式、对象存储、元数据、错误码、安全限制或前端上传流程变化时同步更新
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-06-27 08:44:18
+updated_at: 2026-08-07 22:52:00
 owner: MoonBox
 note: 适用于 MoonBox 项目；无文件上传能力时可保留为未来启用规范并标记不适用
 ---
@@ -29,7 +29,7 @@ note: 适用于 MoonBox 项目；无文件上传能力时可保留为未来启�
 | `MoonBox` | 鉴权策略 | Token / Session / API Key / none |
 | `true` | 是否启用对象存储 | true / false |
 | `MinIO 兼容对象存储，面向文档与图片资产` | 对象存储或文件存储方案 | S3 compatible / OSS / COS / OBS / local filesystem / none |
-| `MoonBox` | 桶/容器策略 | 单桶 + 前缀 / 多桶 / 按租户隔离 |
+| `一个项目一个 Bucket，桶内二级前缀` | 桶/容器策略 | 固定策略 |
 | `MoonBox` | 对象 Key 规则 | 见 docs/pending-decisions.md |
 | `MoonBox` | 文件类型白名单 | 见 docs/pending-decisions.md |
 | `MoonBox` | 大小限制 | 见 docs/pending-decisions.md |
@@ -195,35 +195,52 @@ MoonBox
 
 ```text
 MinIO 兼容对象存储，面向文档与图片资产
-MoonBox
+一个项目一个 Bucket：moonbox
 ```
 
 对象 Key 规则：
 
 ```text
-MoonBox
+{resource_type}/{subtype}/{uuid}.{ext}
 ```
 
 推荐结构：
 
 ```text
-{prefix}/default/{resource_type}/{uuid}.{ext}
-images/default/user/avatars/{uuid}.{ext}
-images/default/brands/logos/{uuid}.{ext}
-files/default/imports/source/{uuid}.{ext}
-files/default/exports/result/{uuid}.{ext}
-tmp/{upload_id}/{part_id}
+images/original/{uuid}.{ext}
+images/thumbnails/{uuid}.webp
+images/processed/{uuid}.{ext}
+documents/source/{uuid}.{ext}
+documents/preview/{uuid}.{ext}
+documents/processed/{uuid}.{ext}
+imports/source/{uuid}.{ext}
+imports/processed/{uuid}.{ext}
+exports/result/{uuid}.{ext}
+tmp/uploads/{uuid}.part
 ```
+
+### 管理后台头像上传
+
+| 项 | 规则 |
+|---|---|
+| 接口 | `POST /api/v1/admin/users/avatar` |
+| 读取 | `GET /api/v1/admin/users/avatar/{filename}` |
+| 类型 | JPG、PNG、WebP |
+| 大小 | 2MB |
+| Key | 服务端 UUID 对象 Key：`images/avatars/{uuid}.{ext}` |
+| 状态机 | `idle -> uploading -> done/failed` |
+| 回显 | 上传成功后通过授权后台读取接口从 MinIO 拉取并在同一会话立即回显 |
 
 规则：
 
-- 正式业务对象 Key MUST 使用 `{prefix}/default/{resource_type}/{uuid}.{ext}`。
-- `prefix` MUST 是资源大类，例如 `images`、`videos`、`files`、`audios`；不得使用 `original`、`processed`、`thumbnails` 作为顶层前缀。
-- `default` MUST 保留为默认租户/命名空间占位。
-- `resource_type` MUST 是业务资源路径，例如 `user/avatars`、`brands/logos`、`imports/source`。
+- 项目 MUST 使用一个 Bucket，默认 `moonbox`。
+- 正式业务对象 Key MUST 使用 `{resource_type}/{subtype}/{uuid}.{ext}`。
+- `resource_type` MUST 是资源大类，例如 `images`、`documents`、`imports`、`exports`、`tmp`。
+- `subtype` MUST 是资源状态或用途，例如 `original`、`thumbnails`、`source`、`preview`、`processed`、`result`、`uploads`。
+- 租户、用户、业务归属和权限不得通过新增 Bucket 表达，必须写入数据库元数据。
 - 对象 Key 必须由服务端生成。
 - 扩展名必须来自服务端校验结果。
-- 多租户项目必须明确租户隔离策略。
+- 多租户项目必须在数据库元数据和权限策略中明确租户隔离策略。
 - 临时文件、导入文件、导出文件、处理产物必须有生命周期或清理策略。
 - 对象存储策略必须与 `rules/object-storage.md` 和 `docs/07-object-storage-strategy.md` 一致。
 

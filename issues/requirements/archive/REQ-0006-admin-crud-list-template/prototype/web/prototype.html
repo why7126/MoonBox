@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>管理后台 CRUD 列表页模板原型</title>
+    <style>
+      :root {
+        --bg: #0a0c1b;
+        --panel: #12142b;
+        --line: rgba(234, 242, 255, 0.1);
+        --text: #e7e8f3;
+        --muted: #7c81a6;
+        --gold: #cba35c;
+        --danger: #d96c5f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Noto Sans SC", system-ui, sans-serif;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 232px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .nav {
+        border-right: 1px solid var(--line);
+        padding: 24px 18px;
+      }
+
+      .brand {
+        font-family: "Noto Serif SC", serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 28px;
+      }
+
+      .nav a {
+        display: block;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 10px 8px;
+        border-bottom: 1px solid rgba(234, 242, 255, 0.06);
+      }
+
+      .nav a.active {
+        color: var(--gold);
+      }
+
+      main {
+        padding: 28px;
+      }
+
+      .page-head,
+      .filters,
+      .table-wrap,
+      .pager {
+        border: 1px solid var(--line);
+        background: rgba(18, 20, 43, 0.72);
+      }
+
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-family: "Noto Serif SC", serif;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      button,
+      select,
+      input {
+        border-radius: 2px;
+        font: inherit;
+      }
+
+      button {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        padding: 9px 13px;
+      }
+
+      button.primary {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #111421;
+      }
+
+      button.danger {
+        color: var(--danger);
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) 160px 160px auto auto;
+        gap: 10px;
+        margin-top: 16px;
+        padding: 14px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #0f1226;
+        color: var(--text);
+        padding: 9px 10px;
+      }
+
+      .table-wrap {
+        margin-top: 16px;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 820px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 13px 14px;
+        border-bottom: 1px solid rgba(234, 242, 255, 0.08);
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      .status {
+        color: var(--gold);
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .pager {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 14px;
+        border-top: 0;
+      }
+
+      .pager-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        border: 1px solid var(--line);
+        background: #12142b;
+        padding: 12px 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(3, 5, 14, 0.68);
+        padding: 24px;
+      }
+
+      .admin-form-modal {
+        width: min(880px, 100%);
+        max-height: min(720px, calc(100vh - 48px));
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .modal-head,
+      .modal-foot {
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .modal-foot {
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .modal-body {
+        overflow: auto;
+        padding: 16px;
+      }
+
+      @media (max-width: 760px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        main {
+          padding: 16px;
+        }
+
+        .page-head,
+        .pager {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .filters {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="nav">
+        <div class="brand">MoonBox Admin</div>
+        <a class="active" href="#">用户管理</a>
+        <a href="#">品牌管理</a>
+        <a href="#">项目配置</a>
+      </aside>
+      <main>
+        <section class="page-head">
+          <div>
+            <h1>后台列表页模板</h1>
+            <p>统一筛选、表格、分页、弹窗和操作反馈。</p>
+          </div>
+          <button class="primary">新增条目</button>
+        </section>
+
+        <section class="filters" aria-label="筛选区">
+          <input placeholder="搜索名称 / ID" />
+          <select>
+            <option>全部状态</option>
+            <option>启用</option>
+            <option>禁用</option>
+          </select>
+          <select>
+            <option>最近更新</option>
+            <option>创建时间</option>
+          </select>
+          <button>查询</button>
+          <button>重置</button>
+        </section>
+
+        <section class="table-wrap" aria-label="数据表格">
+          <table>
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>状态</th>
+                <th>负责人</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>示例条目 A</td>
+                <td><span class="status">启用</span></td>
+                <td>product</td>
+                <td>2026-08-08 20:23:51</td>
+                <td class="actions">
+                  <button>编辑</button>
+                  <button class="danger">禁用</button>
+                </td>
+              </tr>
+              <tr>
+                <td>示例条目 B</td>
+                <td>禁用</td>
+                <td>admin</td>
+                <td>2026-08-08 20:23:51</td>
+                <td class="actions">
+                  <button>编辑</button>
+                  <button class="danger">删除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="pager" aria-label="分页">
+          <span>共 42 条</span>
+          <div class="pager-controls">
+            <button>上一页</button>
+            <span>1 / 5</span>
+            <button>下一页</button>
+            <select>
+              <option>每页显示 10 条</option>
+              <option>每页显示 20 条</option>
+            </select>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast">保存成功，列表已刷新。</div>
+
+    <div class="modal" aria-label="表单弹窗">
+      <section class="admin-form-modal">
+        <div class="modal-head">新增条目</div>
+        <div class="modal-body">
+          <p>弹窗 body 在低视口下可滚动，最终宽度需通过 computed style 验收。</p>
+        </div>
+        <div class="modal-foot">
+          <button>取消</button>
+          <button class="primary">保存</button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

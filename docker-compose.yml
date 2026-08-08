@@ -4,8 +4,10 @@
 # owner: MoonBox
 # note: 适用于 MoonBox 项目；生产部署前必须由人工确认安全、凭据、网络和持久化策略
 
-name: ${COMPOSE_PROJECT_NAME:-MoonBox}
+# Compose 项目名：影响容器、网络和卷的默认命名前缀。
+name: ${COMPOSE_PROJECT_NAME:-moonbox}
 
+# Harness 元数据：用于说明该编排文件的来源和维护边界，不参与服务运行。
 x-harness-metadata:
   document_type: docker-compose
   product_name: "MoonBox"
@@ -13,160 +15,165 @@ x-harness-metadata:
   deployment_stack: "docker-compose"
   generation_note: "初始化时必须按项目能力替换占位符，并删除未启用 profile 的服务。"
 
+# 公共环境变量：所有服务共享的应用名、环境、日志级别和时区。
 x-common-env: &common-env
   APP_NAME: ${APP_NAME:-MoonBox}
   APP_ENV: ${APP_ENV:-local}
   LOG_LEVEL: ${LOG_LEVEL:-info}
   TZ: ${TZ:-Asia/Shanghai}
 
+# 公共服务配置：默认自动重启、可选读取 .env，并接入同一个应用网络。
 x-common-service: &common-service
   restart: unless-stopped
   env_file:
-    - .env
+    # .env 仅用于本地覆盖默认值；不存在时仍允许 docker compose config 通过。
+    - path: .env
+      required: false
   networks:
     - app-network
 
 services:
+  # 后端 API 服务：FastAPI REST API，提供 /health 健康检查。
   backend:
     <<: *common-service
     build:
+      # 构建上下文默认指向后端源码目录。
       context: ${BACKEND_BUILD_CONTEXT:-./src/backend}
       dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
-    image: ${BACKEND_IMAGE:-MoonBox-backend:local}
-    container_name: ${BACKEND_CONTAINER_NAME:-MoonBox-backend}
+    image: ${BACKEND_IMAGE:-moonbox-backend:local}
+    container_name: ${BACKEND_CONTAINER_NAME:-moonbox-backend}
     environment:
       <<: *common-env
       SERVICE_NAME: backend
-      DATABASE_URL: ${DATABASE_URL:-MoonBox}
-      OBJECT_STORAGE_ENDPOINT: ${OBJECT_STORAGE_ENDPOINT:-MoonBox}
+      # 开发环境默认 SQLite；生产环境必须显式设置 DATABASE_TYPE=mysql 与 MySQL 连接串。
+      DATABASE_TYPE: ${DATABASE_TYPE:-sqlite}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/sqlite/moonbox.db}
+      SQLITE_DATABASE_URL: ${SQLITE_DATABASE_URL:-sqlite:////app/data/sqlite/moonbox.db}
+      MYSQL_DATABASE_URL: ${MYSQL_DATABASE_URL:-mysql+pymysql://moonbox:change-me@mysql:3306/moonbox}
+      MYSQL_CHARSET: ${MYSQL_CHARSET:-utf8mb4}
+      MYSQL_COLLATION: ${MYSQL_COLLATION:-utf8mb4_0900_ai_ci}
+      DATABASE_TIMEZONE: ${DATABASE_TIMEZONE:-+08:00}
+      # 数据库部署模式仅作运行说明和配置校验输入：sqlite / self-hosted-mysql / external-mysql。
+      DATABASE_DEPLOYMENT_MODE: ${DATABASE_DEPLOYMENT_MODE:-sqlite}
+      # 对象存储部署模式：self-hosted-minio / external-minio。
+      OBJECT_STORAGE_DEPLOYMENT_MODE: ${OBJECT_STORAGE_DEPLOYMENT_MODE:-self-hosted-minio}
+      # 后端访问对象存储的容器内地址。
+      OBJECT_STORAGE_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-change-me}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-change-me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-moonbox}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
+      # 对象 Key 规则：一个项目一个 Bucket，桶内使用二级目录/前缀。
+      OBJECT_STORAGE_KEY_PATTERN: ${OBJECT_STORAGE_KEY_PATTERN:-{resource_type}/{subtype}/{uuid}.{ext}}
+      OBJECT_STORAGE_PREFIX_IMAGES_ORIGINAL: ${OBJECT_STORAGE_PREFIX_IMAGES_ORIGINAL:-images/original/}
+      OBJECT_STORAGE_PREFIX_IMAGES_AVATARS: ${OBJECT_STORAGE_PREFIX_IMAGES_AVATARS:-images/avatars/}
+      OBJECT_STORAGE_PREFIX_IMAGES_THUMBNAILS: ${OBJECT_STORAGE_PREFIX_IMAGES_THUMBNAILS:-images/thumbnails/}
+      OBJECT_STORAGE_PREFIX_IMAGES_PROCESSED: ${OBJECT_STORAGE_PREFIX_IMAGES_PROCESSED:-images/processed/}
+      OBJECT_STORAGE_PREFIX_DOCUMENTS_SOURCE: ${OBJECT_STORAGE_PREFIX_DOCUMENTS_SOURCE:-documents/source/}
+      OBJECT_STORAGE_PREFIX_DOCUMENTS_PREVIEW: ${OBJECT_STORAGE_PREFIX_DOCUMENTS_PREVIEW:-documents/preview/}
+      OBJECT_STORAGE_PREFIX_DOCUMENTS_PROCESSED: ${OBJECT_STORAGE_PREFIX_DOCUMENTS_PROCESSED:-documents/processed/}
+      OBJECT_STORAGE_PREFIX_IMPORTS_SOURCE: ${OBJECT_STORAGE_PREFIX_IMPORTS_SOURCE:-imports/source/}
+      OBJECT_STORAGE_PREFIX_IMPORTS_PROCESSED: ${OBJECT_STORAGE_PREFIX_IMPORTS_PROCESSED:-imports/processed/}
+      OBJECT_STORAGE_PREFIX_EXPORTS_RESULT: ${OBJECT_STORAGE_PREFIX_EXPORTS_RESULT:-exports/result/}
+      OBJECT_STORAGE_PREFIX_TMP_UPLOADS: ${OBJECT_STORAGE_PREFIX_TMP_UPLOADS:-tmp/uploads/}
     ports:
-      - "${HOST_PORT_BACKEND:-MoonBox}:${BACKEND_CONTAINER_PORT:-MoonBox}"
+      # 左侧为宿主机端口，可通过 HOST_PORT_BACKEND 调整；右侧容器端口固定为 8000。
+      - "${HOST_PORT_BACKEND:-18101}:8000"
     volumes:
+      # 后端运行时数据，包含 SQLite、上传文件等本地开发数据。
       - ./data/runtime/backend:/app/data
+      # 后端临时文件目录。
       - ./data/tmp:/app/tmp
     healthcheck:
-      test: ["CMD-SHELL", "${BACKEND_HEALTHCHECK_CMD:-curl -fsS http://localhost:${BACKEND_CONTAINER_PORT:-8000}/health || exit 1}"]
+      test: ["CMD-SHELL", "${BACKEND_HEALTHCHECK_CMD:-python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)'}"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
 
+  # Web 前端服务：Nginx 托管 Vite 构建后的静态资源。
   web:
     <<: *common-service
-    profiles:
-      - web
     build:
+      # 构建上下文默认指向仓库根目录，供 src/web/Dockerfile 复制 Web 源码与锁文件。
       context: ${WEB_BUILD_CONTEXT:-.}
-      dockerfile: ${WEB_DOCKERFILE:-MoonBox}
-    image: ${WEB_IMAGE:-MoonBox-web:local}
-    container_name: ${WEB_CONTAINER_NAME:-MoonBox-web}
+      dockerfile: ${WEB_DOCKERFILE:-src/web/Dockerfile}
+    image: ${WEB_IMAGE:-moonbox-web:local}
+    container_name: ${WEB_CONTAINER_NAME:-moonbox-web}
     environment:
       <<: *common-env
       SERVICE_NAME: web
-      API_BASE_URL: ${API_BASE_URL:-MoonBox}
+      # 浏览器侧访问后端的地址，通常使用宿主机端口。
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:18101}
     ports:
-      - "${HOST_PORT_WEB:-MoonBox}:${WEB_CONTAINER_PORT:-MoonBox}"
+      # 左侧为宿主机端口，可通过 HOST_PORT_WEB 调整；右侧容器端口固定为 80。
+      - "${HOST_PORT_WEB:-18102}:80"
     depends_on:
+      # Web 启动前等待后端容器启动；健康状态由前端调用时自行处理。
       backend:
         condition: service_started
 
-  database:
+  # MinIO 对象存储：本地开发用于图片、文档等媒体资产。
+  minio:
     <<: *common-service
-    profiles:
-      - database
-    image: ${DATABASE_IMAGE:-MoonBox}
-    container_name: ${DATABASE_CONTAINER_NAME:-MoonBox-database}
+    image: ${MINIO_IMAGE:-minio/minio:latest}
+    container_name: ${MINIO_CONTAINER_NAME:-moonbox-minio}
+    # 9000 为 API 端口，9001 为 Console 管理端口。
+    command: server /data --console-address ":9001"
     environment:
       <<: *common-env
-      POSTGRES_DB: ${POSTGRES_DB:-MoonBox}
-      POSTGRES_USER: ${POSTGRES_USER:-MoonBox}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-MoonBox}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-MoonBox}
-      MYSQL_USER: ${MYSQL_USER:-MoonBox}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-MoonBox}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-MoonBox}
+      # 示例账号密码仅用于本地开发，生产环境必须替换。
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-change-me}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-change-me}
     ports:
-      - "${HOST_PORT_DATABASE:-MoonBox}:${DATABASE_CONTAINER_PORT:-MoonBox}"
+      # MinIO API 端口映射。
+      - "${HOST_PORT_MINIO_API:-18103}:9000"
+      # MinIO Console 端口映射。
+      - "${HOST_PORT_MINIO_CONSOLE:-18104}:9001"
     volumes:
-      - database-data:/var/lib/database
+      # MinIO 对象数据目录；默认落在项目根目录 data/s3，不得提交真实对象数据。
+      - ./data/s3:/data
     healthcheck:
-      test: ["CMD-SHELL", "${DATABASE_HEALTHCHECK_CMD:-echo database healthcheck pending}"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 20s
 
-  object-storage:
+  # MySQL 兼容验证服务：默认不启动；需要验证生产数据库路径时使用 --profile mysql。
+  mysql:
     <<: *common-service
     profiles:
-      - object-storage
-    image: ${OBJECT_STORAGE_IMAGE:-MoonBox}
-    container_name: ${OBJECT_STORAGE_CONTAINER_NAME:-MoonBox-object-storage}
-    command: ${OBJECT_STORAGE_COMMAND:-MoonBox}
+      - mysql
+    image: ${MYSQL_IMAGE:-mysql:8.4}
+    container_name: ${MYSQL_CONTAINER_NAME:-moonbox-mysql}
     environment:
       <<: *common-env
-      OBJECT_STORAGE_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY:-MoonBox}
-      OBJECT_STORAGE_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY:-MoonBox}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-moonbox}
+      MYSQL_USER: ${MYSQL_USER:-moonbox}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change-me}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-me-root}
+      MYSQL_CHARSET: ${MYSQL_CHARSET:-utf8mb4}
+      MYSQL_COLLATION: ${MYSQL_COLLATION:-utf8mb4_0900_ai_ci}
+      TZ: ${TZ:-Asia/Shanghai}
     ports:
-      - "${HOST_PORT_OBJECT_STORAGE_API:-MoonBox}:${OBJECT_STORAGE_API_PORT:-MoonBox}"
-      - "${HOST_PORT_OBJECT_STORAGE_CONSOLE:-MoonBox}:${OBJECT_STORAGE_CONSOLE_PORT:-MoonBox}"
+      - "${HOST_PORT_MYSQL:-18106}:3306"
     volumes:
-      - object-storage-data:/data
-
-  object-storage-init:
-    <<: *common-service
-    profiles:
-      - object-storage
-    image: ${OBJECT_STORAGE_INIT_IMAGE:-MoonBox}
-    container_name: ${OBJECT_STORAGE_INIT_CONTAINER_NAME:-MoonBox-object-storage-init}
-    depends_on:
-      object-storage:
-        condition: service_started
-    entrypoint: ${OBJECT_STORAGE_INIT_COMMAND:-MoonBox}
-
-  worker:
-    <<: *common-service
-    profiles:
-      - worker
-    build:
-      context: ${WORKER_BUILD_CONTEXT:-MoonBox}
-      dockerfile: ${WORKER_DOCKERFILE:-MoonBox}
-    image: ${WORKER_IMAGE:-MoonBox-worker:local}
-    container_name: ${WORKER_CONTAINER_NAME:-MoonBox-worker}
-    command: ${WORKER_COMMAND:-MoonBox}
-    environment:
-      <<: *common-env
-      SERVICE_NAME: worker
-    depends_on:
-      backend:
-        condition: service_started
-
-  algorithm:
-    <<: *common-service
-    profiles:
-      - algorithm
-    build:
-      context: ${ALGORITHM_BUILD_CONTEXT:-./src/algorithm}
-      dockerfile: ${ALGORITHM_DOCKERFILE:-Dockerfile}
-    image: ${ALGORITHM_IMAGE:-MoonBox-algorithm:local}
-    container_name: ${ALGORITHM_CONTAINER_NAME:-MoonBox-algorithm}
-    environment:
-      <<: *common-env
-      SERVICE_NAME: algorithm
-      MODEL_DIR: ${MODEL_DIR:-/app/models}
-    ports:
-      - "${HOST_PORT_ALGORITHM:-MoonBox}:${ALGORITHM_CONTAINER_PORT:-MoonBox}"
-    volumes:
-      - ./models:/app/models:ro
-      - ./data/runtime/algorithm:/app/data
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 networks:
+  # 应用内部网络：backend、web、minio 通过服务名互访。
   app-network:
-    name: ${COMPOSE_NETWORK_NAME:-MoonBox-network}
+    name: ${COMPOSE_NETWORK_NAME:-moonbox-network}
     driver: bridge
 
 volumes:
-  database-data:
-    name: ${DATABASE_VOLUME_NAME:-MoonBox-database-data}
-  object-storage-data:
-    name: ${OBJECT_STORAGE_VOLUME_NAME:-MoonBox-object-storage-data}
+  # MySQL 兼容验证数据卷；仅用于本地/CI 验证，不提交真实生产数据。
+  mysql-data:
+    name: ${MYSQL_VOLUME_NAME:-moonbox-mysql-data}

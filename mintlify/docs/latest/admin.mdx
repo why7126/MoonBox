@@ -1,0 +1,28 @@
+---
+title: "管理后台使用说明"
+created_at: 2026-08-04 00:00:00
+updated_at: 2026-08-04 00:00:00
+---
+
+# 管理后台使用说明
+
+MoonBox 管理后台面向产品、研发、测试和运维协作角色，核心目标是把需求、规格、实现、验证和发布信息连接成可追溯的研发工作流。
+
+## 常用工作流
+
+| 工作流 | 入口 | 产物 |
+|---|---|---|
+| 需求记录 | `/capture` 或 `/req-capture` | `issues/requirements/**` |
+| 缺陷记录 | `/capture` 或 `/bug-capture` | `issues/bugs/**` |
+| 规格变更 | `/req-opsx`、`/bug-opsx`、`/opsx-propose` | `openspec/changes/**` |
+| 开发实现 | `/opsx-apply` 或 `/sprint-apply` | `src/`、`tests/`、`docs/` 同步更新 |
+| 验收返修 | `/opsx-modify` | 实现调整、文档调整、AI Usage 统计 |
+| 发布治理 | `/release-propose`、`/release-prepare`、`/release-publish` | `releases/vX.Y.Z/**` |
+
+## 操作注意事项
+
+- 正式功能和行为性 BUG 不得绕过 OpenSpec Change 直接开发。
+- Docker、环境变量、对象存储、数据库、发布和安全边界变化必须同步长期文档。
+- 归档后的 OpenSpec Change 进入 `openspec/archive/`，不得放入 `openspec/changes/archive/`。
+- OpenSpec 文档以中文为主，关键字、API 路径和技术名词可保留英文。
+

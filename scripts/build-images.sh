@@ -28,14 +28,14 @@ IMAGE_BUILD_PLATFORM="${IMAGE_BUILD_PLATFORM:-linux/amd64}"
 BACKEND_PYTHON_BASE_IMAGE="${BACKEND_PYTHON_BASE_IMAGE:-python:3.12-slim}"
 WEB_NODE_BASE_IMAGE="${WEB_NODE_BASE_IMAGE:-node:22-alpine}"
 WEB_NGINX_BASE_IMAGE="${WEB_NGINX_BASE_IMAGE:-nginx:1.27-alpine}"
-IMAGE_BUILD_BACKEND_IMAGE="${IMAGE_BUILD_BACKEND_IMAGE:-pm-harness-backend}"
-IMAGE_BUILD_WEB_IMAGE="${IMAGE_BUILD_WEB_IMAGE:-pm-harness-web}"
-IMAGE_BUILD_BUILDER="${IMAGE_BUILD_BUILDER:-pm-harness-builder}"
+IMAGE_BUILD_BACKEND_IMAGE="${IMAGE_BUILD_BACKEND_IMAGE:-moonbox-backend}"
+IMAGE_BUILD_WEB_IMAGE="${IMAGE_BUILD_WEB_IMAGE:-moonbox-web}"
+IMAGE_BUILD_BUILDER="${IMAGE_BUILD_BUILDER:-moonbox-builder}"
 IMAGE_BUILD_CREATE_BUILDER="${IMAGE_BUILD_CREATE_BUILDER:-true}"
 IMAGE_BUILD_LOAD="${IMAGE_BUILD_LOAD:-true}"
 IMAGE_BUILD_EXPORT_TAR="${IMAGE_BUILD_EXPORT_TAR:-true}"
-IMAGE_BUILD_RELEASE_DIR="${IMAGE_BUILD_RELEASE_DIR:-${PROJECT_ROOT}/releases/${IMAGE_BUILD_TAG}}"
-IMAGE_BUILD_TAR_NAME="${IMAGE_BUILD_TAR_NAME:-pm-harness-${IMAGE_BUILD_TAG}-${IMAGE_BUILD_PLATFORM//\//-}.tar.gz}"
+IMAGE_BUILD_RELEASE_DIR="${IMAGE_BUILD_RELEASE_DIR:-${PROJECT_ROOT}/../releases/${IMAGE_BUILD_TAG}}"
+IMAGE_BUILD_TAR_NAME="${IMAGE_BUILD_TAR_NAME:-moonbox-${IMAGE_BUILD_TAG}-${IMAGE_BUILD_PLATFORM//\//-}.tar.gz}"
 
 BACKEND_REF="${IMAGE_BUILD_BACKEND_IMAGE}:${IMAGE_BUILD_TAG}"
 WEB_REF="${IMAGE_BUILD_WEB_IMAGE}:${IMAGE_BUILD_TAG}"
@@ -153,7 +153,7 @@ assert_platform "${WEB_REF}"
 
 echo "验证后端依赖"
 docker run --rm --platform "${IMAGE_BUILD_PLATFORM}" "${BACKEND_REF}" \
-  uv run --no-sync python -c "import fastapi, sqlalchemy, pymysql, minio; print('backend deps ok')"
+  python -c "import fastapi, sqlalchemy, pymysql, minio; print('backend deps ok')"
 
 echo "验证 Web Nginx 配置"
 docker run --rm --platform "${IMAGE_BUILD_PLATFORM}" --add-host backend:127.0.0.1 "${WEB_REF}" nginx -t

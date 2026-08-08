@@ -6,6 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
+updated_at: 2026-08-08 23:35:30
 ---
 
 # Knowledge Base Usage
@@ -17,6 +18,7 @@ status: active
 | 路径 | 职责 | 使用时机 |
 |---|---|---|
 | `sprints/` | Sprint 复盘、行动项、容量与流程经验 | `/sprint-propose` 必读上一 Sprint 和未关闭行动项 |
+| `retrospectives/` | 迁移命令生成的 Sprint 复盘与行动项沉淀 | `/sprint-propose`、`/sprint-exps` 读取最近复盘和 open 行动项 |
 | `incidents/` | 故障、事故、线上问题复盘 | `/bug-opsx`、`/opsx-apply`、`/sprint-apply` 处理相关能力时必读 |
 | `best-practices/` | 可复用设计、组件、测试、验收模式 | `/req-complete`、`/opsx-apply`、`/sprint-apply` 按主题匹配读取 |
 
@@ -38,7 +40,10 @@ status: active
 |---|---|---|
 | `/sprint-propose` | 最近一次 Sprint 复盘、所有 `open`/`in_sprint` 行动项、相关 best-practices | 在 `sprint.md` 写「知识库承接项」，在 `sprint.yaml` 记录承接的 action id |
 | `/req-complete` | 与需求领域、UI 模式、数据流、上传、权限、测试相关的 best-practices | 在 `acceptance.md` 增加知识库 checklist，无法适用时写明原因 |
-| `/opsx-apply` | 当前 Change 关联领域的 best-practices 与 incidents | 实现前输出 Knowledge Gate，不能只在修 Bug 后引用 |
+| `/req-opsx` | 带 prototype 的 UI REQ 必读 `best-practices/prototype-driven-ui-gate.md` | 在 Change `design.md` 写 UI Skeleton，在 `tasks.md` 写 1440px 视觉验收任务 |
+| `/opsx-apply` | 当前 Change 关联领域的 best-practices 与 incidents；带 prototype UI 必读原型驱动 gate | 实现前输出 Knowledge Gate；带 prototype 页面先完成 UI Skeleton 和 1440px 视觉验收 |
+| `/opsx-modify` | 验收反馈涉及 UI/visual/prototype 时读取原型驱动 gate | 返修后重新跑 1440px 视觉验收并回填 Change/REQ 文档 |
+| `/opsx-archive` | 带 prototype UI 的 Change 读取原型驱动 gate 与最终验收证据 | 归档前确认 REQ 最终一致性，不一致则阻断 |
 | `/sprint-apply` | Sprint 承接项、相关 best-practices、相关 incidents | Queue Report 中列出 Knowledge Gate 状态 |
 
 ## 禁止事项
@@ -46,3 +51,9 @@ status: active
 - 禁止只在 `/sprint-exps` 写入知识库，而在下一 Sprint 规划中不读取。
 - 禁止将 `open` 行动项长期保留而不标记 `in_sprint`、`done`、`deferred` 或 `rejected`。
 - 禁止 add-* Change 忽略已存在的同类 best-practice，等 Bug 出现后才引用。
+
+## Sprint 复盘索引
+
+| Sprint | 复盘 | 状态 | Open 行动项 |
+|---|---|---|---:|
+| sprint-001 | [Sprint-001 经验复盘](retrospectives/sprint-001-retrospective.md) | active | 4 |

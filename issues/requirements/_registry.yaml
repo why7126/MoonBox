@@ -1,7 +1,106 @@
 # REQ 序号注册表（/capture 与 /req-capture 维护）
 # entries 仅作为索引，不替代各 REQ 目录内的 capture.md、requirement.md、acceptance.md、trace.md。
-next_id: 1
-entries: []
+next_id: 9
+entries:
+  - id: REQ-0001-homepage
+    title: 首页功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0001-homepage/
+    created: "2026-07-30 08:04:01"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes:
+      - add-homepage-brand-visual
+  - id: REQ-0002-login-page
+    title: 登录页功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0002-login-page/
+    created: "2026-07-30 08:04:01"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes:
+      - add-login-page
+  - id: REQ-0003-database-compatibility
+    title: 数据库双环境兼容
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0003-database-compatibility/
+    created: "2026-07-30 08:58:57"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes:
+      - add-database-compatibility
+  - id: REQ-0004-admin-user-management
+    title: 管理后台用户管理系统
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: plan
+    path: issues/requirements/plan/REQ-0004-admin-user-management/
+    created: "2026-08-07 22:06:39"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes: []
+  - id: REQ-0005-admin-auth-system
+    title: 管理后台登录认证系统
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0005-admin-auth-system/
+    created: "2026-08-07 23:23:55"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes: []
+  - id: REQ-0006-admin-crud-list-template
+    title: 管理后台页面组件化与 CRUD 列表页模板体系
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0006-admin-crud-list-template/
+    created: "2026-08-08 20:14:46"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes: []
+  - id: REQ-0007-admin-user-first-login-activation
+    title: 后台用户首次登录激活与冻结前状态恢复
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0007-admin-user-first-login-activation/
+    created: "2026-08-08 20:38:28"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes: []
+  - id: REQ-0008-prototype-driven-page-acceptance-gate
+    title: 原型驱动页面开发验收门禁
+    status: done
+    type: governance
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0008-prototype-driven-page-acceptance-gate/
+    created: "2026-08-08 20:49:11"
+    requester: product
+    owner: product
+    target_iteration: sprint-001
+    related_changes: []
 
 # entry 推荐字段：
 # - id: REQ-0001-example

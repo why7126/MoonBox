@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-07-11 16:25:13
+updated_at: 2026-08-07 23:20:00
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -18,7 +18,7 @@ note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通
 
 ## 2. docs 目录
 
-`docs/` 只沉淀长期产品、架构、部署、接口、数据库、兼容性和治理信息；需求、BUG、迭代不得放入 `docs/`。
+`docs/` 只沉淀长期产品、架构、部署、接口、数据库、兼容性和治理信息；需求、BUG、迭代不得放入 `docs/`。`docs/spec-logs/` 中的学习报告和治理日志不得写入本机绝对路径、系统用户名、用户主目录、真实客户数据、密钥或未脱敏日志。
 
 ```text
 docs/
@@ -73,6 +73,16 @@ issues/bugs/{plan,review,archive}/BUG-xxxx-slug/
 
 Issue 状态在 capture、review、opsx、sprint-propose、apply、archive/promote 时通过 workflow sync 或对应命令同步；同步 MUST 覆盖 trace Frontmatter 与 fenced `yaml` 中的 `status`、`iteration`、`openspec_changes[].status`，并在 `## 变更记录` 追加幂等 workflow event 行。
 
+Issue 子文档同步（MUST）：
+
+- `trace.md` 继续作为机器状态事实源。
+- `requirement.md` / `bug.md` 是人类入口主文档；若存在 `status`，Workflow Sync MUST 将其同步为当前 Issue 主状态。
+- `acceptance.md` 的验收语义 SHOULD 使用 `acceptance_status` 与 `## 验收结果回填`，不得让旧 `status: pending_review` 等字段被误读为当前主状态。
+- `review.md`、`root-cause.md`、`workaround.md` 等文档若保留 `status`，必须明确其字段语义；无法安全判断时 Workflow Sync MUST 报告 warning 或 blocker，不得静默覆盖。
+- `opsx.apply` 后验收入口 SHOULD 标记 `acceptance_status: pending` 并记录 source Change/Sprint；`opsx.archive` / `sprint.archive` 后 SHOULD 回填闭环验收结论、证据入口、失败项或豁免说明。
+
+当已纳入 Sprint 的 REQ/BUG 执行 `/req-opsx` 或 `/bug-opsx` 创建 Change 时，Workflow Sync MUST 同步更新对应 `iterations/change|archive/<sprint>/sprint.yaml`：补入 `changes[]`、填充匹配 `scope_estimates[].change`，并移除该 Issue 的 open-change 延后项，确保后续 `/opsx-apply` 门禁可从 Sprint scope 解析到同一个 Change。
+
 `trace.md` 的 `## 变更记录` MUST 使用标准 Markdown 表格，且表头必须紧跟章节标题之后：
 
 ```markdown
@@ -120,6 +130,7 @@ estimated_person_days: <number>
 - `openspec/specs/`：已生效能力；开发中不得直接修改。
 - `openspec/changes/`：开发中的需求、BUG 修复、技术改造。
 - `openspec/archive/`：已完成变更。
+- `openspec/changes/archive/`：禁止真实存在；仅允许作为历史兼容字符串出现在残留扫描、迁移工具或测试 fixture 中。
 
 以下变化必须创建 Change：新功能、行为性 BUG 修复、API/数据库/权限/Docker/环境变量/UI/上传存储/测试验收发布治理变化。
 
@@ -144,7 +155,38 @@ specs/
 implementation/
 ```
 
-归档时合并 delta spec 到 `openspec/specs/`，更新 Issue/Sprint 状态，并移动 Change；不得删除归档内容。正式 spec 正文使用中文，OpenSpec 关键字可保留英文；归档后清理脚手架占位文案。
+归档前 MUST 先完成文档同步复核：根据 `tasks.md`、`trace.md`、delta spec 与实现影响范围，更新受影响的长期文档、README、`.env.example`、API / DB / 部署 / 发布 / 兼容性文档或明确记录“不适用”原因。API 变更必须同步 `docs/03-api-index.md`、API 治理说明与 Orval 相关说明；DB 变更必须同步 `docs/04-database-design.md`；Docker、环境变量、发布镜像变更必须同步部署、发布与示例环境文档。不得在 docs 同步缺失或未说明豁免原因时执行归档。真实 `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` 允许存在于本地工作区，但不得被提交、stage、复制进归档、产品手册、release 产物或输出其真实内容；若它们被 Git ignore 覆盖，存在本身不得阻断归档。
+
+归档时合并 delta spec 到 `openspec/specs/`，更新 Issue/Sprint 状态，并移动 Change 到 `openspec/archive/YYYY-MM-DD-<change-id>/`；不得删除归档内容。OpenSpec 文档以中文为主，正式 spec、proposal、design、tasks、trace、acceptance 和 test-plan 的标题、说明、任务、验收和场景叙述 MUST 使用中文；`Requirement:`、`Scenario:`、`GIVEN`、`WHEN`、`THEN`、`SHALL` 等 OpenSpec 关键字、代码标识、API 路径和专有技术名词 MAY 保留英文。归档后清理脚手架占位文案。
+
+归档动作完成后 MUST 运行 `python scripts/validate-directory-structure.py` 或等价 CI 门禁。若发现 `openspec/changes/archive/` 真实目录存在，必须先迁移到 `openspec/archive/` 并删除空 legacy 目录，再继续 Workflow Sync、Issue promote 或 Sprint 收尾。
+
+环境变量或 ignore 策略变更后 MUST 运行：
+
+```bash
+python scripts/validate-env-ignore-policy.py
+```
+
+OpenSpec 文档变更后 SHOULD 运行：
+
+```bash
+python scripts/validate-openspec-language.py
+```
+
+归档批量复核可加 `--include-archive`。
+
+## 6.1 产品手册与 Mintlify 治理
+
+`mintlify/` 是公开产品手册源目录和站点投影目录，不是 release 事实源。`mintlify/docs/latest/`、`mintlify/docs/vX.Y.Z/` 与 `mintlify/releases/vX.Y.Z/` MUST 能追溯到 `docs/` 长期文档、`releases/vX.Y.Z/release.json` 或 `releases/vX.Y.Z/announcement.mdx`。
+
+MoonBox 当前使用轻量产品手册生成流程：
+
+```bash
+python scripts/generate-mintlify-docs.py --version latest
+python scripts/validate-mintlify-docs.py
+```
+
+产品手册页面必须公开安全，不得包含真实密钥、真实 `.env`、数据库连接串、Authorization header、Cookie、对象存储凭据、生产私有地址或真实客户数据。发布公告事实源仍保存在 `releases/vX.Y.Z/announcement.mdx`；Mintlify 中的发布公告只是投影。
 
 ## 7. Workflow Sync（MUST）
 
@@ -156,9 +198,15 @@ python scripts/sync-workflow-status.py --event <event> [--sprint auto] [--change
 
 - Skill：对应 Agent 工具入口中的 `workflow-sync` 说明（如项目提供）
 - 本地校验：`python scripts/sync-workflow-status.py --sprint auto --check`
+- 命令顺序遵守 `docs/08-command-execution-order.md`。REQ/BUG 推荐顺序为 review approved → sprint-propose → req-opsx/bug-opsx → opsx-apply → opsx-modify（可选）→ opsx-archive；release、image、usage-docs 位于 OpenSpec/Sprint 关键门禁之后。
+- 会写同一事实源的步骤 MUST 严格串行执行，包括 `scripts/add-sprint-scope-item.py` 写 `sprint.yaml`、Workflow Sync、Issue promote 和 AI Usage snapshot。
 - 禁止手工编辑 `sprint.md` 的 `<!-- workflow-sync:* -->` 标记块与派生 Scope 表。
+- `sprint.md` 的 `## 2. Scope` 主表与 `<!-- workflow-sync:scope-* -->` 派生表均属于 Workflow Sync 管辖范围；REQ/BUG/Change 状态、关联 Change、归档说明和估算必须从 `sprint.yaml`、Issue trace 与 OpenSpec Change 状态派生刷新。
+- `sprint.md` 的 `## 2. Scope` 主表 SHOULD 使用六列规范表头：`类型 | 编号 | 标题 | 状态 | 估算 | 说明`。不得使用 `范围项` 合并 REQ/BUG 与 Change ID。
 - Scope 表、里程碑、archived 时间戳 MUST 使用 `YYYY-MM-DD HH:mm:ss` 且时分秒为实际值；不得使用 `00:00:00` 占位。
 - `sprint.yaml` 中正式纳入的 REQ/BUG MUST 同步出现在 `sprint.md` 的 Sprint 目标列表和对应要点小节；未评审项只能列「延后项（待评审）」。
+- `/sprint-propose` 或任何改变 Sprint 范围的同步动作完成后，MUST 运行 `python scripts/validate-sprint-scope.py <sprint-id> [--item <REQ|BUG|change-id>]`；该校验必须确认 `sprint.yaml` 中的正式范围同时出现在 `sprint.md` `## 2. Scope` 主表与 workflow-sync 派生表。
+- Issue 主文档与验收文档状态漂移 SHOULD 通过 `python scripts/sync-workflow-status.py --event <event> --req|--bug <id> --scan-issue-subdocuments` 先扫描，再按报告使用 `--apply-issue-subdocuments` 或 `--apply-reconcile` 安全回写；不得为了归档批量手工替换所有 `status` 字段。
 
 常用事件：`req.capture`…`req.opsx`、`bug.capture`…`bug.opsx`、`opsx.propose|apply|archive`、`sprint.propose|apply|archive`。
 

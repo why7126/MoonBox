@@ -65,7 +65,7 @@ Implement tasks from an OpenSpec change.
    - Confirm the resolved `iterations/change|archive/<sprint>/sprint.yaml` contains the change in `changes[]` and the linked issue in `requirements[]` or `bugs[]`.
    - Confirm linked issue `trace.md` has `iteration: <sprint-id>` and status `in_sprint` or a later delivery state.
 
-   If this gate fails, stop before code changes and ask the user to run `/sprint-propose` first. Only non-REQ/BUG pure technical governance changes may bypass this gate, and the reason must be stated.
+   If this gate fails, stop before code changes and ask the user to run `/sprint-propose` first. A Change with no linked issue may continue only when the governance reason is stated explicitly.
 
 6. **Show current progress**
 
@@ -165,3 +165,9 @@ This skill supports the "actions on a change" model:
 
 - **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
 - **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+

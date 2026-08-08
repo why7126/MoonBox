@@ -3,7 +3,7 @@ purpose: 认证与授权规范
 content: 认证方式、登录登出、Token/Session、权限模型、受保护接口、前端登录态、错误码、安全测试与维护规则
 update_method: 认证方案、权限模型、会话策略、前端登录态、公开端点或安全边界变化时同步更新
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-06-27 08:44:18
+updated_at: 2026-08-08 22:18:00
 owner: MoonBox
 note: 适用于 MoonBox 项目；无登录态项目可保留为未来启用规范并标记不适用
 ---
@@ -62,7 +62,7 @@ note: 适用于 MoonBox 项目；无登录态项目可保留为未来启用规�
 当前认证策略：
 
 ```text
-MoonBox
+管理后台启用账号密码登录。正常后台管理员登录成功后签发 access token，并在服务端保存可撤销会话记录；待激活后台管理员可使用有效临时密码首次登录，登录成功后自动激活为正常再创建会话。
 ```
 
 认证提供方：
@@ -83,7 +83,7 @@ MoonBox
 推荐传递方式：
 
 ```text
-MoonBox
+Authorization: Bearer <access_token>
 ```
 
 通用要求：
@@ -122,6 +122,7 @@ Content-Type: application/json
 - 登出必须清理服务端会话、刷新凭证或客户端凭证状态；不能只清理前端变量。
 - 刷新凭证应比访问凭证权限更窄，并具备过期、轮换和撤销策略。
 - 禁用用户、修改密码、权限变更、组织移除、密钥轮换后，应明确旧凭证是否立即失效。
+- 已冻结、已删除和无后台管理员角色的用户不得登录管理后台；前台用户不得通过待激活首次登录流程转为后台可用状态。
 - 登录失败、验证码失败、多因素认证失败和锁定策略必须返回受控错误码。
 
 
@@ -129,11 +130,12 @@ Content-Type: application/json
 
 | 项 | 规则 |
 |---|---|
-| Token 类型 | `MoonBox` |
-| 过期策略 | `MoonBox` |
-| 刷新策略 | `MoonBox` |
-| 存储策略 | `MoonBox` |
-| 撤销策略 | `MoonBox` |
+| Token 类型 | 管理后台 access token |
+| 过期策略 | 默认 `JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120` |
+| 刷新策略 | MVP 不启用 refresh token |
+| 存储策略 | 前端受控存储，不得写入 URL、日志、错误上报、埋点或截图 |
+| 撤销策略 | 服务端 `admin_sessions` 记录撤销；退出、冻结、删除、重置密码或权限变化后旧会话失效 |
+| 待激活策略 | 后台管理员可用临时密码首次登录激活；前台用户、已冻结和已删除用户不得通过该路径创建后台会话 |
 
 生命周期要求：
 
@@ -149,7 +151,7 @@ Content-Type: application/json
 密码策略：
 
 ```text
-MoonBox
+PBKDF2-SHA256 + 随机盐；生产环境禁止空密码、示例密码或弱密码初始化超级管理员。
 ```
 
 要求：
@@ -174,7 +176,7 @@ MoonBox
 公开端点事实源：
 
 ```text
-MoonBox
+健康检查、POST /api/v1/admin/auth/login
 ```
 
 要求：
@@ -197,6 +199,9 @@ MoonBox
 | 角色/主体 | 适用端 | 允许能力 | 禁止能力 | 数据范围 | 备注 |
 |---|---|---|---|---|---|
 | `MoonBox` | `MoonBox` | `MoonBox` | `MoonBox` | `MoonBox` | `MoonBox` |
+| 后台管理员 | 管理后台 | 用户列表、创建、编辑、冻结、解冻、逻辑删除、重置密码、头像上传；待激活时可首次登录激活 | 操作系统内置唯一超级管理员 | 平台账号元数据 | 通过 `Authorization: Bearer <access_token>` 和服务端会话记录认证 |
+| 前台用户 | Web 前台 | 当前无管理后台能力 | 访问管理后台用户管理接口 | 自身业务范围 | 仅作为用户管理角色值 |
+| 系统内置超级管理员 | 管理后台 | 平台恢复与最高权限身份展示 | 在用户管理中被编辑、重置密码、冻结、解冻或删除 | 平台级 | 由部署初始化创建 |
 
 授权要求：
 
@@ -211,11 +216,11 @@ MoonBox
 
 | 项 | 规则 |
 |---|---|
-| 登录态存储 | `MoonBox` |
-| 登录页路径 | `MoonBox` |
-| 登录后跳转 | `MoonBox` |
-| 退出登录处理 | `MoonBox` |
-| 路由守卫策略 | `MoonBox` |
+| 登录态存储 | 管理后台会话存储在前端受控存储 `moonbox.admin.session`，不得进入 URL、日志或埋点 |
+| 登录页路径 | 管理后台 `/admin` 未登录时展示登录页，旧 `#admin-users` 暂时兼容 |
+| 登录后跳转 | 登录成功后进入管理后台用户管理页 |
+| 退出登录处理 | 调用 `/api/v1/admin/auth/logout` 撤销服务端会话并清理前端登录态 |
+| 路由守卫策略 | `/admin` 需要本地登录态；后端所有 `/api/v1/admin/**` 受保护接口仍以 Bearer token 和服务端会话为准 |
 
 要求：
 
@@ -266,7 +271,8 @@ MoonBox
 认证测试命令：
 
 ```bash
-MoonBox
+uv run pytest tests/integration/api/test_admin_users.py
+pnpm --dir src/web test
 ```
 
 测试要求：

@@ -1,21 +1,81 @@
 {
-  "version": "v0.1.0",
-  "release_time": "2026-07-23 00:00:00",
-  "owner": "release-owner",
-  "announcement": "announcement.mdx",
+  "version": "v0.0.1",
+  "release_time": "2026-07-31 00:00:00",
+  "owner": "MoonBox 产品团队",
+  "summary": "MoonBox 产品版本发布摘要",
   "formal_scope_only": true,
+  "version_change_rationale": "",
   "image_required": false,
-  "image_required_rationale": "No runtime image delivery is required for this release template.",
+  "image_required_rationale": "模板文件，正式发布时按 backend / Web build / Dockerfile / Compose / 构建脚本 / env / DB / Orval / 离线镜像交付影响判断",
+  "image_tag": "v0.0.1",
+  "image_plan": "image-build-plan.json",
+  "image_manifest": "image-manifest.json",
+  "external_image_build_evidence": {
+    "status": "na",
+    "rationale": "模板文件；仅 Docker 或外部构建系统场景使用，必须记录来源、校验方式、sha256、负责人确认和风险说明"
+  },
   "sprints": [],
   "requirements": [],
   "bugs": [],
   "changes": [],
+  "gates": {
+    "openspec_archive": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时必须填入 archive 校验证据"
+    },
+    "tests": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时必须填入测试结果"
+    },
+    "orval": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时按 API 影响判断"
+    },
+    "docker_compose": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时按部署影响判断"
+    },
+    "database_migration": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时按数据库影响判断；若 impact_scope.database 非 none/na，必须记录 schema.mysql.sql、MySQL schema drift 或目标 MySQL smoke、回滚/备份证据"
+    },
+    "env_example": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时按环境变量影响判断"
+    },
+    "product_version": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时必须校验 PRODUCT_VERSION"
+    },
+    "mintlify_preview": {
+      "status": "na",
+      "rationale": "模板文件，正式发布时必须填入 Mintlify build 或 preview 结果"
+    },
+    "image_prepare": {
+      "status": "na",
+      "rationale": "模板文件，image_required=true 时必须引用 releases/<version>/image-build-plan.json 校验证据"
+    },
+    "image_build": {
+      "status": "na",
+      "rationale": "模板文件，image_required=true 或离线镜像交付时必须引用 releases/<version>/image-manifest.json 或受控外部构建证据"
+    }
+  },
   "known_issues": [],
-  "upgrade_steps": [],
+  "upgrade_steps": [
+    "按发布说明执行升级前备份",
+    "执行部署或配置变更",
+    "完成 smoke 与回归验证"
+  ],
   "rollback": {
-    "strategy": "restore previous image or package",
-    "data_backup_required": false,
-    "notes": ""
+    "conditions": [
+      "核心路径 smoke 失败",
+      "发现阻断性数据或权限问题"
+    ],
+    "steps": [
+      "回退到上一 Git tag 或上一部署包",
+      "恢复上一版本环境变量和配置",
+      "按数据库回滚说明处理数据变更"
+    ]
   },
   "impact_scope": {
     "web_admin": "none",
@@ -26,46 +86,5 @@
     "object_storage": "none",
     "docker": "none"
   },
-  "gates": {
-    "openspec_archive": {
-      "status": "na",
-      "rationale": "No versioned release scope yet."
-    },
-    "tests": {
-      "status": "na",
-      "rationale": "No versioned release scope yet."
-    },
-    "client_generation": {
-      "status": "na",
-      "rationale": "No API client change."
-    },
-    "docker_compose": {
-      "status": "na",
-      "rationale": "No deployment change."
-    },
-    "database_migration": {
-      "status": "na",
-      "rationale": "No database change."
-    },
-    "env_example": {
-      "status": "na",
-      "rationale": "No environment variable change."
-    },
-    "product_version": {
-      "status": "na",
-      "rationale": "No user-visible version file configured."
-    },
-    "announcement_preview": {
-      "status": "na",
-      "rationale": "No announcement preview required yet."
-    },
-    "image_prepare": {
-      "status": "na",
-      "rationale": "image_required is false."
-    },
-    "image_build": {
-      "status": "na",
-      "rationale": "image_required is false."
-    }
-  }
+  "announcement": "announcement.mdx"
 }

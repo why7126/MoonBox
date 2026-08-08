@@ -5,24 +5,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import collect
-from .timefmt import now_shanghai, touch_frontmatter
-
-CLOSED_STATUSES = frozenset({"done", "archived", "resolved", "closed", "completed"})
-BLOCKING_STATUSES = frozenset(
-    {
-        "captured",
-        "exploring",
-        "draft",
-        "enriching",
-        "pending_review",
-        "approved",
-        "in_sprint",
-        "applied",
-        "proposed",
-        "todo",
-        "open",
-    }
+from .issue_subdocuments import (
+    BLOCKING_STATUSES,
+    CLOSED_STATUSES,
+    is_closed_status as _is_closed_status,
+    replace_frontmatter_key,
+    replace_mapping_value as replace_mapping_value,
 )
+from .timefmt import now_shanghai, touch_frontmatter
 
 
 @dataclass(frozen=True)
@@ -74,22 +64,11 @@ def _is_closed_status(status: str | None) -> bool:
 
 
 def _replace_mapping_value(text: str, key: str, value: str) -> tuple[str, bool]:
-    pattern = re.compile(rf"^(\s*{re.escape(key)}\s*:\s*).*$", re.MULTILINE)
-    new_text, count = pattern.subn(rf"\g<1>{value}", text, count=1)
-    return new_text, bool(count)
+    return replace_mapping_value(text, key, value)
 
 
 def _replace_frontmatter_status(text: str, target_status: str) -> tuple[str, bool]:
-    if not text.startswith("---"):
-        return text, False
-    match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
-    if not match:
-        return text, False
-    fm_text = match.group(1)
-    new_fm, changed = _replace_mapping_value(fm_text, "status", target_status)
-    if not changed:
-        return text, False
-    return f"---\n{new_fm}\n---{text[match.end():]}", True
+    return replace_frontmatter_key(text, "status", target_status)
 
 
 def _replace_yaml_block_status(text: str, target_status: str) -> tuple[str, bool]:
@@ -179,13 +158,6 @@ def issue_reconcile_blockers(issue: collect.IssueRecord) -> list[str]:
     if pending_changes:
         blockers.append(f"linked change(s) not archived: {', '.join(pending_changes)}")
 
-    incomplete_sprints = [
-        sprint_id
-        for sprint_id in collect.find_sprints_for_issue(issue.issue_id)
-        if (sprint := collect.load_sprint(sprint_id)) and sprint.status != "completed"
-    ]
-    if incomplete_sprints:
-        blockers.append(f"linked sprint(s) not completed: {', '.join(incomplete_sprints)}")
     return blockers
 
 

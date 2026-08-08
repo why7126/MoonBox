@@ -35,7 +35,7 @@ updated_at: 2026-06-27 08:44:18
 
 ```text
 data/sqlite
-data/minio
+data/s3
 data/uploads
 data/processed
 data/tmp

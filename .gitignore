@@ -1,5 +1,9 @@
 .env
 .env.local
+.env.*
+!.env.example
+deploy/**/*.env
+scripts/build-images.env
 .venv/
 node_modules/
 dist/
@@ -21,6 +25,10 @@ data/uploads/**
 data/processed/**
 data/tmp/**
 data/minio/**
+data/mysql/**
+mintlify/.mintlify/**
+mintlify/dist/**
+mintlify/build/**
 
 # Keep template placeholders and docs
 !**/.gitkeep

@@ -1,0 +1,267 @@
+{
+  "version": "v0.1.0",
+  "release_time": "2026-08-08 23:44:51",
+  "owner": "MoonBox 产品团队",
+  "summary": "MoonBox v0.1.0 汇总 sprint-001 已归档交付，覆盖官网首页品牌视觉、Web 登录页、数据库双环境兼容、管理后台用户管理、后台认证、后台 CRUD 列表页模板、首次登录激活状态治理，以及研发治理流程优化。",
+  "formal_scope_only": true,
+  "version_change_rationale": "release-prepare 已按用户确认将 src/shared/product-version.ts 的 PRODUCT_VERSION 更新为 v0.1.0。",
+  "image_required": true,
+  "image_required_rationale": "发布范围包含 Web、后端、数据库、Docker Compose、Dockerfile 和部署文档影响；后续必须执行 /image-prepare v0.1.0 与 /image-build v0.1.0 生成镜像计划和 manifest。",
+  "image_tag": "v0.1.0",
+  "image_plan": "image-build-plan.json",
+  "image_manifest": "image-manifest.json",
+  "external_image_build_evidence": {
+    "status": "na",
+    "rationale": "暂未使用外部构建证据；若后续采用外部构建，必须记录来源、版本、image tag、平台、digest 或 sha256、校验方式、负责人确认和风险说明。"
+  },
+  "sprints": [
+    {
+      "id": "sprint-001",
+      "status": "completed",
+      "lifecycle_stage": "archive",
+      "source": "iterations/archive/sprint-001/sprint.yaml",
+      "release_note": "iterations/archive/sprint-001/release-note.md",
+      "acceptance_report": "iterations/archive/sprint-001/acceptance-report.md",
+      "note": "sprint.yaml 记录 8 个 REQ、0 个 BUG、17 个 Change；release-note 正式范围列出 REQ-0001 至 REQ-0007，REQ-0008 作为治理门禁需求仍按 sprint.yaml 纳入可追溯范围。"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-0001-homepage",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-homepage-brand-visual",
+      "source": "issues/requirements/archive/REQ-0001-homepage/trace.md"
+    },
+    {
+      "id": "REQ-0002-login-page",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-login-page",
+      "source": "issues/requirements/archive/REQ-0002-login-page/trace.md"
+    },
+    {
+      "id": "REQ-0003-database-compatibility",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-database-compatibility",
+      "source": "issues/requirements/archive/REQ-0003-database-compatibility/trace.md"
+    },
+    {
+      "id": "REQ-0004-admin-user-management",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-admin-user-management",
+      "source": "issues/requirements/archive/REQ-0004-admin-user-management/trace.md"
+    },
+    {
+      "id": "REQ-0005-admin-auth-system",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-admin-auth-system",
+      "source": "issues/requirements/archive/REQ-0005-admin-auth-system/trace.md"
+    },
+    {
+      "id": "REQ-0006-admin-crud-list-template",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "add-admin-crud-list-template",
+      "source": "issues/requirements/archive/REQ-0006-admin-crud-list-template/trace.md"
+    },
+    {
+      "id": "REQ-0007-admin-user-first-login-activation",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "update-admin-user-first-login-activation",
+      "source": "issues/requirements/archive/REQ-0007-admin-user-first-login-activation/trace.md"
+    },
+    {
+      "id": "REQ-0008-prototype-driven-page-acceptance-gate",
+      "status": "done",
+      "iteration": "sprint-001",
+      "change": "enforce-prototype-driven-ui-gate",
+      "source": "issues/requirements/archive/REQ-0008-prototype-driven-page-acceptance-gate/trace.md"
+    }
+  ],
+  "bugs": [],
+  "changes": [
+    {
+      "id": "add-homepage-brand-visual",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-add-homepage-brand-visual/trace.md"
+    },
+    {
+      "id": "add-login-page",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-add-login-page/trace.md"
+    },
+    {
+      "id": "add-database-compatibility",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-add-database-compatibility/trace.md"
+    },
+    {
+      "id": "apply-projecttilesfst-spec-study",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-apply-projecttilesfst-spec-study/trace.md"
+    },
+    {
+      "id": "apply-projecttilesfst-governance-refinements",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-apply-projecttilesfst-governance-refinements/trace.md"
+    },
+    {
+      "id": "avoid-duplicate-spec-study-reports",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-avoid-duplicate-spec-study-reports/trace.md"
+    },
+    {
+      "id": "redact-spec-study-local-paths",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-07-redact-spec-study-local-paths/trace.md"
+    },
+    {
+      "id": "add-admin-user-management",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-add-admin-user-management/trace.md"
+    },
+    {
+      "id": "apply-projecttilesfst-command-order",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-apply-projecttilesfst-command-order/trace.md"
+    },
+    {
+      "id": "add-admin-auth-system",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-add-admin-auth-system/trace.md"
+    },
+    {
+      "id": "optimize-next-step-issue-identity",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-optimize-next-step-issue-identity/trace.md"
+    },
+    {
+      "id": "enforce-sprint-before-opsx",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-enforce-sprint-before-opsx/trace.md"
+    },
+    {
+      "id": "add-admin-crud-list-template",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-add-admin-crud-list-template/trace.md"
+    },
+    {
+      "id": "add-spec-logs-changelog",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-add-spec-logs-changelog/trace.md"
+    },
+    {
+      "id": "add-spec-logs-adoption-prompt-column",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-add-spec-logs-adoption-prompt-column/trace.md"
+    },
+    {
+      "id": "enforce-prototype-driven-ui-gate",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-enforce-prototype-driven-ui-gate/trace.md"
+    },
+    {
+      "id": "update-admin-user-first-login-activation",
+      "status": "archived",
+      "source": "openspec/archive/2026-08-08-update-admin-user-first-login-activation/trace.md"
+    }
+  ],
+  "gates": {
+    "openspec_archive": {
+      "status": "pass",
+      "evidence": "iterations/archive/sprint-001/acceptance-report.md 记录 17/17 Change 已 archive；所有 release scope Change 均位于 openspec/archive/。"
+    },
+    "tests": {
+      "status": "pass",
+      "evidence": "2026-08-08 release-prepare 运行 pnpm --dir src/web test -- --run 通过，4 个测试文件、26 个测试通过；pnpm --dir src/web build 通过；uv run pytest 通过，26 passed、1 skipped。Sprint 验收记录另包含 OpenSpec validate 和 1440x900 Playwright 视觉验收。"
+    },
+    "orval": {
+      "status": "na",
+      "rationale": "2026-08-08 release-prepare 运行 python scripts/validate-api-standard.py 失败：管理后台认证与用户管理路由缺少 tags/summary，头像读取路由缺少 response_model；需先修复 API 标准门禁，再确认 OpenAPI/Orval 是否需要生成。"
+    },
+    "docker_compose": {
+      "status": "pass",
+      "evidence": "2026-08-08 release-prepare 运行 docker compose config --quiet 通过；发布范围包含 Docker Compose 与部署文档同步。"
+    },
+    "database_migration": {
+      "status": "pass",
+      "evidence": "iterations/archive/sprint-001/acceptance-report.md 记录 MySQL 关键路径验证通过，CI 配置 MySQL 8.4 service 并设置 RUN_MYSQL_TESTS=1；回滚步骤要求升级前备份并按数据库回滚说明恢复。2026-08-08 release-prepare 本地运行 python scripts/check-mysql-schema-drift.py 失败，原因是 src/backend/app/db/schema.mysql.sql 缺失，需在 publish 前补齐目标 MySQL smoke 或 schema drift 证据。"
+    },
+    "env_example": {
+      "status": "pass",
+      "evidence": "2026-08-08 release-prepare 运行 python scripts/validate-env-ignore-policy.py 通过；sprint-001 范围包含部署文档、环境变量与示例配置同步。"
+    },
+    "product_version": {
+      "status": "pass",
+      "evidence": "2026-08-08 release-prepare 校验 src/shared/product-version.ts 中 PRODUCT_VERSION=v0.1.0，与 releases/v0.1.0/release.json version 一致。"
+    },
+    "mintlify_preview": {
+      "status": "pass",
+      "evidence": "2026-08-08 release-prepare 运行 python scripts/generate-mintlify-docs.py --version latest 通过；python scripts/validate-mintlify-docs.py 通过。"
+    },
+    "image_prepare": {
+      "status": "pass",
+      "evidence": "2026-08-08 image-prepare 运行 python scripts/validate-image-build.py prepare --release v0.1.0 通过，生成 releases/v0.1.0/image-build-plan.json；随后运行 python scripts/validate-image-build.py validate-plan --release v0.1.0 通过。image_required=true，auto_action_count=1，warning_count=0，blocker_count=0。"
+    },
+    "image_build": {
+      "status": "pass",
+      "evidence": "2026-08-09 修复 Compose Web build context 与 Web Dockerfile 后运行 docker compose build web 通过；随后运行 python scripts/validate-image-build.py prepare --release v0.1.0、python scripts/validate-image-build.py build --release v0.1.0、python scripts/validate-image-build.py validate-manifest --release v0.1.0 均通过。生成 releases/v0.1.0/image-manifest.json；backend=moonbox-backend:v0.1.0，web=moonbox-web:v0.1.0，platform=linux/amd64，离线包 ../releases/v0.1.0/images/moonbox-v0.1.0-linux-amd64.tar.gz，sha256=60ddd117dc290b05bed4c9474b658247df4f4554e24591104c394bd2328ca15e。"
+    }
+  },
+  "known_issues": [
+    {
+      "id": "REL-v0.1.0-API-STANDARD",
+      "type": "gate_gap",
+      "severity": "blocking_before_publish",
+      "summary": "python scripts/validate-api-standard.py 失败：管理后台认证与用户管理路由缺少 tags/summary，头像读取路由缺少 response_model。失败分类：product_regression。"
+    },
+    {
+      "id": "REL-v0.1.0-MYSQL-DRIFT",
+      "type": "gate_gap",
+      "severity": "blocking_before_publish",
+      "summary": "python scripts/check-mysql-schema-drift.py 失败：预期 schema 文件 src/backend/app/db/schema.mysql.sql 缺失，需补齐目标 MySQL smoke 或 schema drift 证据。失败分类：environment_blocker。"
+    }
+  ],
+  "upgrade_steps": [
+    "升级前备份数据库和对象存储中与管理后台用户、头像上传和会话相关的数据。",
+    "部署 v0.1.0 对应的后端、Web、Docker Compose 与环境变量配置。",
+    "执行数据库迁移或 schema drift 校验，并完成 MySQL smoke。",
+    "完成后台登录、用户管理、头像上传、冻结/解冻、首次登录激活和首页/登录页 smoke。"
+  ],
+  "rollback": {
+    "conditions": [
+      "管理后台登录、用户管理或鉴权核心路径 smoke 失败。",
+      "数据库迁移、MySQL smoke 或对象存储访问出现阻断性问题。",
+      "发布镜像或 Compose 启动验证失败。"
+    ],
+    "steps": [
+      "回退到上一 Git tag 或上一部署包。",
+      "恢复上一版本环境变量、Compose 配置和镜像 tag。",
+      "按数据库回滚说明恢复备份或回退迁移。",
+      "复核后台 token/session、用户状态和头像对象访问。"
+    ]
+  },
+  "impact_scope": {
+    "web_admin": "管理后台登录、用户管理、CRUD 列表页模板和首次登录激活状态治理。",
+    "web_public": "官网首页品牌视觉与登录页入口体验。",
+    "miniapp": "none",
+    "backend": "后台认证 API、管理后台用户 API、会话记录、上传读取与权限边界。",
+    "database": "SQLite/MySQL 兼容路径、管理后台用户、会话和冻结前状态相关 schema。",
+    "object_storage": "管理后台头像上传与对象访问链路。",
+    "docker": "本地/生产 Compose、后端/Web Dockerfile、部署矩阵与镜像发布链路。"
+  },
+  "announcement": "announcement.mdx",
+  "publish_confirmation": {
+    "status": "published",
+    "checked_at": "2026-08-09 00:28:35",
+    "published_at": "2026-08-09 00:28:35",
+    "announcement_url": "releases/v0.1.0/announcement.mdx",
+    "confirmed_by": "Codex release-publish",
+    "notes": "发布确认通过：python scripts/validate-release.py --release-dir releases/v0.1.0 --stage publish 通过；python scripts/validate-image-build.py validate-manifest --release v0.1.0 通过。公告源文件为 releases/v0.1.0/announcement.mdx。"
+  }
+}

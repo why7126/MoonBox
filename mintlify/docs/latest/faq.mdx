@@ -1,0 +1,24 @@
+---
+title: "常见问题"
+created_at: 2026-08-04 00:00:00
+updated_at: 2026-08-04 00:00:00
+---
+
+# 常见问题
+
+## MoonBox 本地必须安装 MySQL 吗？
+
+不必须。默认 `self-storage-sqlite` 模式使用 SQLite 和自建 MinIO。需要验证生产数据库路径时，再选择 `self-storage-self-mysql` 或外部 MySQL 模式。
+
+## 一个项目为什么只使用一个 Bucket？
+
+MoonBox 采用一个项目一个 Bucket 的对象存储策略，桶内通过 `images/original/`、`documents/source/`、`exports/result/` 等二级目录/前缀区分资源类型，便于权限、生命周期和审计统一治理。
+
+## 生产环境可以使用 SQLite 吗？
+
+不可以。生产必须使用 MySQL，并通过环境变量或密钥系统注入连接串。
+
+## 产品手册可以写内部运维地址吗？
+
+不可以。`mintlify/` 是公开产品手册源目录，不得写入真实密钥、数据库连接串、Authorization header、Cookie、对象存储凭据、生产私有运维地址或真实客户数据。
+

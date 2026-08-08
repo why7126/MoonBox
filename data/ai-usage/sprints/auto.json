@@ -1,0 +1,504 @@
+{
+  "sprint_id": "auto",
+  "source": "data/ai-usage command-runs",
+  "source_data_files": [
+    "~/.codex/sessions/2026/08/07/rollout-2026-08-07T23-21-28-019fdcd0-a1aa-7df2-a230-f7c4915a6f14.jsonl"
+  ],
+  "generated_at": "2026-08-07T15:43:54.384336Z",
+  "estimated": false,
+  "coverage": {
+    "requirements": [
+      "REQ-0005-admin-auth-system"
+    ],
+    "bugs": [],
+    "changes": []
+  },
+  "models": [
+    {
+      "model_name": "gpt-5.5",
+      "model_provider": "openai",
+      "reasoning_effort": "low",
+      "reasoning_summary": "auto",
+      "model_speed_tier": "frontier",
+      "model_rate_limit_name": "GPT-5.3-Codex-Spark",
+      "model_context_window": 258400
+    }
+  ],
+  "totals": {
+    "input_tokens": 1993900,
+    "cached_input_tokens": 1871872,
+    "output_tokens": 13908,
+    "reasoning_output_tokens": 418,
+    "total_tokens": 2007808,
+    "command_run_count": 4,
+    "model_call_count": 24,
+    "tool_call_count": 45,
+    "tool_output_chars": 0,
+    "retry_count": 0
+  },
+  "by_workflow_event": {
+    "req.capture": {
+      "command_run_count": 1,
+      "model_call_count": 6,
+      "tool_call_count": 14,
+      "retry_count": 0,
+      "input_tokens": 204855,
+      "cached_input_tokens": 158976,
+      "output_tokens": 2067,
+      "reasoning_output_tokens": 74,
+      "total_tokens": 206922
+    },
+    "req.complete": {
+      "command_run_count": 1,
+      "model_call_count": 9,
+      "tool_call_count": 16,
+      "retry_count": 0,
+      "input_tokens": 901125,
+      "cached_input_tokens": 866688,
+      "output_tokens": 6867,
+      "reasoning_output_tokens": 251,
+      "total_tokens": 907992
+    },
+    "req.generate": {
+      "command_run_count": 1,
+      "model_call_count": 4,
+      "tool_call_count": 7,
+      "retry_count": 0,
+      "input_tokens": 316356,
+      "cached_input_tokens": 306688,
+      "output_tokens": 3260,
+      "reasoning_output_tokens": 57,
+      "total_tokens": 319616
+    },
+    "req.review": {
+      "command_run_count": 1,
+      "model_call_count": 5,
+      "tool_call_count": 8,
+      "retry_count": 0,
+      "input_tokens": 571564,
+      "cached_input_tokens": 539520,
+      "output_tokens": 1714,
+      "reasoning_output_tokens": 36,
+      "total_tokens": 573278
+    }
+  },
+  "by_model": {
+    "gpt-5.5|low|frontier": {
+      "command_run_count": 4,
+      "model_call_count": 24,
+      "input_tokens": 1993900,
+      "cached_input_tokens": 1871872,
+      "output_tokens": 13908,
+      "reasoning_output_tokens": 418,
+      "total_tokens": 2007808
+    }
+  },
+  "usage_matrices": {
+    "source": "data/ai-usage command-runs",
+    "metrics": [
+      "total_tokens",
+      "input_tokens",
+      "output_tokens",
+      "model_call_count"
+    ],
+    "columns": [
+      {
+        "workflow_event": "capture",
+        "label": "Capture"
+      },
+      {
+        "workflow_event": "bug.capture",
+        "label": "BUG-Capture"
+      },
+      {
+        "workflow_event": "req.capture",
+        "label": "REQ-Capture"
+      },
+      {
+        "workflow_event": "bug.explore",
+        "label": "BUG-Explore"
+      },
+      {
+        "workflow_event": "req.explore",
+        "label": "REQ-Explore"
+      },
+      {
+        "workflow_event": "req.generate",
+        "label": "REQ-Generate"
+      },
+      {
+        "workflow_event": "bug.generate",
+        "label": "BUG-Generate"
+      },
+      {
+        "workflow_event": "req.complete",
+        "label": "REQ-Complete"
+      },
+      {
+        "workflow_event": "bug.complete",
+        "label": "BUG-Complete"
+      },
+      {
+        "workflow_event": "req.review",
+        "label": "REQ-Review"
+      },
+      {
+        "workflow_event": "bug.review",
+        "label": "BUG-Review"
+      },
+      {
+        "workflow_event": "req.opsx",
+        "label": "REQ-Opsx"
+      },
+      {
+        "workflow_event": "bug.opsx",
+        "label": "BUG-Opsx"
+      },
+      {
+        "workflow_event": "opsx.explore",
+        "label": "Opsx-Explore"
+      },
+      {
+        "workflow_event": "opsx.propose",
+        "label": "Opsx-Propose"
+      },
+      {
+        "workflow_event": "opsx.apply",
+        "label": "Opsx-Apply"
+      },
+      {
+        "workflow_event": "opsx.modify",
+        "label": "Opsx-Modify"
+      },
+      {
+        "workflow_event": "opsx.archive",
+        "label": "Opsx-Archive"
+      },
+      {
+        "workflow_event": "sprint.propose",
+        "label": "Sprint-Propose"
+      },
+      {
+        "workflow_event": "sprint.explore",
+        "label": "Sprint-Explore"
+      },
+      {
+        "workflow_event": "sprint.apply",
+        "label": "Sprint-Apply"
+      },
+      {
+        "workflow_event": "sprint.archive",
+        "label": "Sprint-Archive"
+      }
+    ],
+    "rows": [
+      {
+        "object_type": "total",
+        "object_id": "Total",
+        "metrics": {
+          "total_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 206922,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 319616,
+            "BUG-Generate": 0,
+            "REQ-Complete": 907992,
+            "BUG-Complete": 0,
+            "REQ-Review": 573278,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "input_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 204855,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 316356,
+            "BUG-Generate": 0,
+            "REQ-Complete": 901125,
+            "BUG-Complete": 0,
+            "REQ-Review": 571564,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "output_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 2067,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 3260,
+            "BUG-Generate": 0,
+            "REQ-Complete": 6867,
+            "BUG-Complete": 0,
+            "REQ-Review": 1714,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "model_call_count": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 6,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 4,
+            "BUG-Generate": 0,
+            "REQ-Complete": 9,
+            "BUG-Complete": 0,
+            "REQ-Review": 5,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          }
+        }
+      },
+      {
+        "object_type": "sprint",
+        "object_id": "auto",
+        "metrics": {
+          "total_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 206922,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 319616,
+            "BUG-Generate": 0,
+            "REQ-Complete": 907992,
+            "BUG-Complete": 0,
+            "REQ-Review": 573278,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "input_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 204855,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 316356,
+            "BUG-Generate": 0,
+            "REQ-Complete": 901125,
+            "BUG-Complete": 0,
+            "REQ-Review": 571564,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "output_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 2067,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 3260,
+            "BUG-Generate": 0,
+            "REQ-Complete": 6867,
+            "BUG-Complete": 0,
+            "REQ-Review": 1714,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "model_call_count": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 6,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 4,
+            "BUG-Generate": 0,
+            "REQ-Complete": 9,
+            "BUG-Complete": 0,
+            "REQ-Review": 5,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          }
+        }
+      },
+      {
+        "object_type": "requirement",
+        "object_id": "REQ-0005-admin-auth-system",
+        "metrics": {
+          "total_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 206922,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 319616,
+            "BUG-Generate": 0,
+            "REQ-Complete": 907992,
+            "BUG-Complete": 0,
+            "REQ-Review": 573278,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "input_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 204855,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 316356,
+            "BUG-Generate": 0,
+            "REQ-Complete": 901125,
+            "BUG-Complete": 0,
+            "REQ-Review": 571564,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "output_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 2067,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 3260,
+            "BUG-Generate": 0,
+            "REQ-Complete": 6867,
+            "BUG-Complete": 0,
+            "REQ-Review": 1714,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "model_call_count": {
+            "Capture": 0,
+            "BUG-Capture": 0,
+            "REQ-Capture": 6,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 4,
+            "BUG-Generate": 0,
+            "REQ-Complete": 9,
+            "BUG-Complete": 0,
+            "REQ-Review": 5,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          }
+        }
+      }
+    ],
+    "note": "Total and sprint rows aggregate unique command runs. Requirement and bug rows are attribution views; a multi-issue command run may be counted in multiple object rows."
+  }
+}

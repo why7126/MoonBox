@@ -1,0 +1,44 @@
+{
+  "version": "v0.1.0",
+  "image_tag": "v0.1.0",
+  "built_at": "2026-08-09 00:35:48",
+  "platform": "linux/amd64",
+  "backend_image": {
+    "name": "moonbox-backend",
+    "tag": "v0.1.0",
+    "ref": "moonbox-backend:v0.1.0"
+  },
+  "web_image": {
+    "name": "moonbox-web",
+    "tag": "v0.1.0",
+    "ref": "moonbox-web:v0.1.0"
+  },
+  "tarball": {
+    "path": "../releases/v0.1.0/images/moonbox-v0.1.0-linux-amd64.tar.gz",
+    "sha256": "60ddd117dc290b05bed4c9474b658247df4f4554e24591104c394bd2328ca15e",
+    "exists": true
+  },
+  "input_hashes": {
+    "releases/v0.1.0/announcement.mdx": "181c90b9d0e47a97df0c59553cc47f1e3708e4c12d5b199f91cd4681c55927a2",
+    "src/shared/product-version.ts": "4bd5b4a2199aa2e308332be455aef1bb2c2ab4c6604e2e1d43602d128d7ae7e2",
+    "src/backend/Dockerfile": "6b5e81f1b10db9519292d7437aceb1dc406799a7a4dc96bd6bcf758f5f0566e6",
+    "src/web/Dockerfile": "9a9ff261c0a5f69d926ceec6cd2e74298addc65c405af9d46c1f8701f40e9074",
+    "docker-compose.yml": "b0b2a89f286f39cb74366e34be9240aa6c4f55f79cddbda3c807073bfc913cb9",
+    ".env.example": "085c6ccf6d06ad67f3a0be00939bd2b6b9df9dca68d72001807de2dffd32344b",
+    "scripts/build-images.sh": "4b60e06ca832b98ae98bd66fbe801a6b117aa7195fea03b29f1397b438b1dab6",
+    "scripts/build-images.env.example": "28d5aeeacd91736a9a1c37086b06e90f2b609f5b5743709fefc56255f743988d",
+    "src/backend/app/db/schema.sql": "12200b0959877404bd9f61726352e4cb46928566a9703294cea576f7fc7e6ecd",
+    "docs/04-database-design.md": "c6e78701c5f6526d6053ae2d208189e1246809ec0e4051cf00ffeea11bc0ac4b",
+    "docs/08-production-image-release.md": "5f2aca576f8553a94fd3f40e7ea4451aebf514ed45767902b171eeeb6fcb2146"
+  },
+  "validation": {
+    "platform": "pass",
+    "backend_dependencies": "pass",
+    "web_nginx": "pass",
+    "tar_export": "pass"
+  },
+  "source_plan": {
+    "path": "releases/v0.1.0/image-build-plan.json",
+    "sha256": "1bf63c4dbad09404e5d9761aedee38db29e7a26b6013c3786265548f92942d22"
+  }
+}

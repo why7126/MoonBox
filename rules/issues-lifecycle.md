@@ -4,7 +4,7 @@ content: plan / review / archive 三阶段目录职责、准入条件、迁移�
 source: 项目团队确认
 update_method: 需求/BUG 流程或目录边界变化时同步更新
 created_at: 2026-06-27 22:24:39
-updated_at: 2026-06-27 23:45:00
+updated_at: 2026-08-04 00:00:00
 note: REQ 与 BUG 共用；registry 与 _registry.yaml 仍位于 issues/* 根下
 ---
 
@@ -71,7 +71,15 @@ AI 在执行下列命令并成功后 **MUST** 移动目录（`git mv` 或等价�
 1. 先 `sync-workflow-status.py`（`opsx.archive` / `sprint.archive`）→ 更新 `trace.md` `status: done`
 2. 再 `python scripts/promote-issues-for-archive.py --change <id>` 或 `--sprint <id>` → 物理迁入 `archive/`
 
-promote 门禁：issue 全部关联 Change 已 archive，且 `status ∈ { done, … }`。多 Change REQ 须**全部** Change archive 后才 promote。
+以上两个命令 **MUST 严格顺序执行**，不得并行运行；`promote-issues-for-archive.py` 依赖前一步写入的 `trace.md`、registry、Sprint 同步结果和子文档状态。若 promote 报告 `Issue Subdocument Status Gate`，MUST 先按报告运行 `sync-workflow-status.py --reconcile-issue-status-residuals --dry-run`，确认后再 `--apply-reconcile`，然后重试 promote。
+
+promote 门禁：issue 全部关联 Change 已 archive，且 `status ∈ { done, … }`，并且子文档不得残留 `draft`、`pending_review`、`in_sprint`、`applied`、`todo`、`open` 等非闭环状态。多 Change REQ 须**全部** Change archive 后才 promote。单个 REQ/BUG 的 `/opsx-archive` 闭环与物理归档不要求所属 Sprint 已 completed；Sprint 是否 completed 只作为 `/sprint-archive` 整体归档门禁。
+
+子文档 drift 治理（MUST）：
+
+- 日常状态传播由 Workflow Sync 自动处理，不得等到 promote 阶段才手工补救。
+- 历史 archive 漂移修复必须先 dry-run，再人工确认 apply。
+- 扫描报告必须区分可安全同步、需人工判断、缺验收结果、缺 trace/交付证据和不建议自动修复项。
 
 **不迁移**：
 
@@ -105,10 +113,12 @@ lifecycle_stage: plan | review | archive
 | `issues/*/archive` | 已交付条目（文档保留） |
 | `openspec/changes/` | Change 工件（与 review 阶段并行） |
 | `openspec/archive/` | 已归档 Change |
+| `openspec/changes/archive/` | 禁止真实存在；仅 legacy 引用扫描或迁移测试可出现该字符串 |
 | `iterations/change/sprint-xxx/` | 迭代四件套（进行中） |
 | `iterations/archive/sprint-xxx/` | 迭代四件套（已归档） |
 
 阶段目录 **不替代** OpenSpec archive；二者 MUST 在 `/opsx-archive` 时同步闭环（条目 → `issues/*/archive/`，Change → `openspec/archive/`）。
+若真实目录 `openspec/changes/archive/` 存在，MUST 先迁移并删除该 legacy 目录，`promote-issues-for-archive.py` 不得把它视为合法归档目标。
 
 ## 8. AI 检查清单
 

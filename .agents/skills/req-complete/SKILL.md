@@ -9,7 +9,13 @@ Use this skill when the user asks to run the migrated source command `req-comple
 
 ## Context Budget Guardrails（MUST）
 
-- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则用摘要承接，不重复全量读取。
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
+- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
 - 检索先定位再分段读取；大范围 `rg/find` 默认排除 Harness、模板 assets、历史 agent 目录、archive、generated、node_modules、dist、coverage。
 - 命令输出优先 `max_output_tokens <= 8000`；大 diff、OpenAPI/Orval 生成物、测试日志、Workflow Sync 输出先给摘要或命中数。
 
@@ -18,7 +24,7 @@ Use this skill when the user asks to run the migrated source command `req-comple
 
 替代原 `/requirement-to-change` 的**文档部分**。不创建 `openspec/changes/`。
 
-**Input**：`REQ-xxxx`（须存在 `requirement.md`）
+**Input**：完整 `REQ-xxxx-slug`（须存在 `requirement.md`）
 
 **Output**：user-stories、business-flow、acceptance、trace（扩写）、prototype（UI 类）；Readiness Report + Knowledge-base Cross-cutting Report
 
@@ -70,8 +76,8 @@ issues/requirements/<REQ-ID>/capture.md
 | `user-stories.md` | US-xxx、验收要点 |
 | `business-flow.md` | 流程 ASCII、与父 REQ 差异 |
 | `acceptance.md` | AC-xxx 可勾选清单 + **§横切 AC（knowledge-base）**（见 Step 1.1） |
-| `trace.md` | 扩写 yaml、关联、变更记录；**MUST** 含 `knowledge_base_refs:` 列表 |
-| `prototype/web/*` | UI 类：html、context.md；PNG 可标待导出 |
+| `trace.md` | 扩写 yaml、关联、变更记录；**MUST** 含 `knowledge_base_refs:` 列表；带 prototype 时 MUST 含 `prototype_refs:` 与 `prototype_gate:` |
+| `prototype/web/*` | UI 类：html、context.md；PNG 可标待导出；带 prototype 页面 MUST 完成原型拆解 |
 
 `status` → `enriching`（补齐中）→ 文档齐后 `pending_review`
 
@@ -100,6 +106,28 @@ issues/requirements/<REQ-ID>/capture.md
 - 若 best-practices 某 gate 与本 REQ 无关（如无上传），**MUST** 在 AC 行注释 `N/A — <理由>`，不得删除整节。
 - `design.md` 尚未创建时：在 `trace.md` `knowledge_base_refs` 列出文档路径，供后续 `/req-opsx` 写入 change design。
 
+### Step 1.2 — Prototype-driven UI Gate（MUST — 存在 prototype 时）
+
+当 REQ 存在 `prototype/web/`、`prototype/admin/` 或等价页面原型目录时，`/req-complete` MUST 先完成原型拆解，再输出 Ready：
+
+1. 读取 `prototype/**/context.md`、`prototype/**/prototype.html` 和已有 PNG/截图清单；不得只凭文件存在判断完成。
+2. 在 `prototype/**/context.md` 或 `acceptance.md` 补齐：页面清单、关键区域、组件层级、状态矩阵、交互触发、数据依赖、响应式断点和 1440px 验收焦点。
+3. 在 `acceptance.md` 增加 `## 原型驱动 UI AC`，至少包含原型拆解、UI Skeleton、1440px 视觉验收、REQ 最终一致性检查四项 `AC-PROTOTYPE-*`。
+4. 在 `trace.md` 增加：
+
+```yaml
+prototype_refs:
+  - path: issues/requirements/<stage>/<REQ-full-id>/prototype/web/prototype.html
+    role: html-structure
+prototype_gate:
+  decomposition: required|done
+  ui_skeleton: pending
+  visual_acceptance_1440: pending
+  req_final_consistency: pending
+```
+
+缺少拆解或 AC-PROTOTYPE 时，Readiness MUST 为 `Not Ready`；只有 PNG 缺失但 `context.md` 明确 PNG 暂不要求时 MAY 为 `Partially Ready`。
+
 ### trace.md 扩展字段示例
 
 ```yaml
@@ -117,8 +145,8 @@ cross_cutting_tags:
 | readiness | 条件 |
 |-------------|------|
 | Ready | 五件套齐（+ UI 有 prototype 策略）+ **有 UI 标签时 §横切 AC 已写入** |
-| Partially Ready | 缺 PNG 等非阻塞；或横切 AC 已写但 best-practices 为 draft |
-| Not Ready | 缺 acceptance 等；或有 UI 标签但缺 §横切 AC |
+| Partially Ready | 缺 PNG 等非阻塞；或横切 AC 已写但 best-practices 为 draft；prototype 已拆解但视觉截图待实现阶段产出 |
+| Not Ready | 缺 acceptance 等；或有 UI 标签但缺 §横切 AC；或存在 prototype 但缺原型拆解 / AC-PROTOTYPE / prototype_gate |
 
 | knowledge-base gate | 条件 |
 |---------------------|------|
@@ -133,17 +161,20 @@ cross_cutting_tags:
 ```text
 ## Req Complete
 
-**REQ:** REQ-xxxx
+**REQ:** <REQ-full-id>
 **Readiness:** Ready | Partially Ready | Not Ready
 **Knowledge-base gate:** Pass | N/A | Fail
 **Cross-cutting tags:** admin-list, admin-modal, …
 **Refs:** docs/knowledge-base/best-practices/…
+**Prototype Gate:** Pass | Partially Ready | Fail
 
 **Added AC-XCUT:** N 条（见 acceptance.md §横切 AC）
 
 **Next:**
-1. /req-review REQ-xxxx --approve
-2. 通过后 /req-opsx REQ-xxxx（design.md MUST 引用 knowledge_base_refs）
+1. `/req-review <REQ-full-id> --approve`
+2. 通过后 `/req-opsx <REQ-full-id>`（design.md MUST 引用 knowledge_base_refs）
+
+`<REQ-full-id>` MUST 使用完整 `REQ-xxxx-slug`。
 3. 纳入 Sprint 前确认 sprint.md §横切预防清单 已覆盖本 REQ
 ```
 
@@ -155,6 +186,12 @@ cross_cutting_tags:
 - 横切 AC **MUST NOT** 复制整份 best-practices 正文，只写可勾选、可测试条目 + 来源链接
 
 ---
+
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
 
 ## Final Step — Workflow Sync (MUST)
 

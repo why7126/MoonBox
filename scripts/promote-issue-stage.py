@@ -52,7 +52,7 @@ class Report:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--to", choices=["archive"], default="archive")
+    parser.add_argument("--to", choices=["review", "archive"], default="archive")
     parser.add_argument("--req", action="append", default=[])
     parser.add_argument("--bug", action="append", default=[])
     parser.add_argument("--change", action="append", default=[])
@@ -221,15 +221,19 @@ def collect_candidates(root: Path, args: argparse.Namespace) -> list[IssueCandid
 
 
 def find_archived_change(root: Path, change_id: str) -> Path | None:
-    archive_root = root / "openspec" / "changes" / "archive"
-    if not archive_root.exists():
-        return None
-    for path in archive_root.rglob("*"):
-        if not path.is_dir():
+    archive_roots = (
+        root / "openspec" / "archive",
+        root / "openspec" / "changes" / "archive",
+    )
+    for archive_root in archive_roots:
+        if not archive_root.exists():
             continue
-        if path.name == change_id or path.name.endswith(f"-{change_id}"):
-            if (path / "tasks.md").exists() or (path / "proposal.md").exists() or (path / "trace.md").exists():
-                return path
+        for path in archive_root.rglob("*"):
+            if not path.is_dir():
+                continue
+            if path.name == change_id or path.name.endswith(f"-{change_id}"):
+                if (path / "tasks.md").exists() or (path / "proposal.md").exists() or (path / "trace.md").exists():
+                    return path
     return None
 
 
@@ -262,12 +266,36 @@ def rewrite_trace_for_archive(text: str, reason: str) -> str:
     return after
 
 
+def rewrite_trace_for_review(text: str, reason: str) -> str:
+    after = replace_yaml_scalar(text, "lifecycle_stage", "review")
+    note = f"\n- 阶段迁移：plan → review（{reason}）\n"
+    if after != text and "## 变更记录" in after and note.strip() not in after:
+        after = after.rstrip() + note
+    return after
+
+
 def build_promotions(root: Path, candidates: list[IssueCandidate], args: argparse.Namespace, report: Report) -> list[Promotion]:
     promotions: list[Promotion] = []
     for issue in candidates:
         rel = issue.path.relative_to(root).as_posix()
         base = root / ISSUE_TYPES[issue.kind][0]
         current_stage = issue.path.parent.name if issue.path.parent.name in STAGES else "legacy"
+        if args.to == "review":
+            if issue.path.parent.name == "review":
+                report.skipped.append(f"{rel} (already in review)")
+                continue
+            if current_stage not in {"plan", "legacy"} or issue.path.parent not in {base, base / "plan"}:
+                report.blocked.append(f"{rel} (stage is {current_stage}, expected plan)")
+                continue
+            target = root / ISSUE_TYPES[issue.kind][0] / "review" / issue.path.name
+            if target.exists():
+                report.blocked.append(f"{rel} (target exists: {target.relative_to(root).as_posix()})")
+                continue
+            before = read_text(issue.trace_path)
+            after = rewrite_trace_for_review(before, args.reason)
+            promotions.append(Promotion(issue, target, before, after, args.reason))
+            continue
+
         if issue.path.parent.name == "archive":
             report.skipped.append(f"{rel} (already in archive)")
             continue

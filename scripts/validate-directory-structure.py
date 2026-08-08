@@ -30,6 +30,7 @@ REQUIRED_PATHS = [
     "docs/04-database-design.md",
     "docs/05-compatibility-matrix.md",
     "docs/knowledge-base/README.md",
+    "docs/spec-logs/README.md",
     "openspec/project.md",
     "openspec/config.yaml",
     "openspec/testing-mapping.md",
@@ -37,10 +38,42 @@ REQUIRED_PATHS = [
     "releases/mint.json",
     "releases/templates/release.json",
     "releases/templates/announcement.mdx",
+    "mintlify/README.md",
+    "mintlify/mint.json",
+    "mintlify/site-manifest.json",
+    "deploy/README.md",
+    "deploy/local/README.md",
+    "deploy/local/compose.yml",
+    "deploy/prod/README.md",
+    "deploy/prod/compose.s3-mysql.yml",
+    "deploy/scripts/up.sh",
+    "deploy/scripts/down.sh",
+    "deploy/scripts/validate-env.py",
+    "deploy/scripts/docs-site-static-server.mjs",
     "docker-compose.yml",
     "scripts/promote-issue-stage.py",
+    "scripts/promote-issues-for-archive.py",
+    "scripts/add-sprint-scope-item.py",
+    "scripts/archive_evidence.py",
+    "scripts/archived_path_residuals.py",
+    "scripts/check-sprint-close-stale-scan.py",
+    "scripts/check-archived-path-residuals.py",
+    "scripts/generate-sprint-fact-sheet.py",
+    "scripts/sprint_change_batches.py",
+    "scripts/sprint_close_stale_scan.py",
+    "scripts/validate-archive-evidence.py",
     "scripts/validate-directory-structure.py",
+    "scripts/validate-env-ignore-policy.py",
+    "scripts/validate-sprint-archive-readiness.py",
+    "scripts/validate-sprint-scope.py",
     "scripts/validate-release.py",
+    "scripts/generate-mintlify-docs.py",
+    "scripts/validate-mintlify-docs.py",
+    "scripts/validate-openspec-language.py",
+    "scripts/validate-image-build.py",
+    "scripts/build-images.sh",
+    "scripts/build-images.env.example",
+    "src/shared/product-version.ts",
 ]
 
 REQUIRED_DIRS = [
@@ -52,6 +85,7 @@ REQUIRED_DIRS = [
     "docs/knowledge-base/best-practices",
     "docs/knowledge-base/incidents",
     "docs/knowledge-base/sprints",
+    "docs/spec-logs",
     "compatibility",
     "compatibility/database",
     "compatibility/devices",
@@ -74,6 +108,12 @@ REQUIRED_DIRS = [
     "iterations/archive",
     "releases",
     "releases/templates",
+    "mintlify",
+    "mintlify/docs",
+    "mintlify/docs/latest",
+    "mintlify/releases",
+    "mintlify/assets",
+    "mintlify/assets/screenshots",
     "scripts",
     "src",
     "src/backend",
@@ -90,6 +130,9 @@ REQUIRED_DIRS = [
     "data",
     "models",
     "deploy",
+    "deploy/local",
+    "deploy/prod",
+    "deploy/scripts",
 ]
 
 ALLOWED_ROOT_FILES = {
@@ -98,6 +141,7 @@ ALLOWED_ROOT_FILES = {
     ".gitignore",
     ".dockerignore",
     ".env.example",
+    ".coveragerc",
     "docker-compose.yml",
     "project.yaml",
     "DOCUMENT_METADATA_INDEX.md",
@@ -119,9 +163,29 @@ ALLOWED_ROOT_DIRS = {
     "data",
     "models",
     "deploy",
+    "mintlify",
 }
 
 errors = []
+
+FORBIDDEN_PATHS = [
+    "openspec/changes/archive",
+]
+
+IGNORED_ROOT_NAMES = {
+    ".DS_Store",
+    ".env",
+    ".env.local",
+    ".env.mysql",
+    ".pytest_cache",
+    ".venv",
+}
+
+
+def is_ignored_local_env_file(path: Path) -> bool:
+    """Allow gitignored local env overlays to exist without changing governance roots."""
+    return path.is_file() and path.name.startswith(".env.") and path.name != ".env.example"
+
 
 for item in REQUIRED_PATHS:
     if not (ROOT / item).exists():
@@ -131,7 +195,15 @@ for item in REQUIRED_DIRS:
     if not (ROOT / item).is_dir():
         errors.append(f"缺少必需目录: {item}")
 
+for item in FORBIDDEN_PATHS:
+    if (ROOT / item).exists():
+        errors.append(f"禁止使用旧 OpenSpec 归档路径: {item}，请改用 openspec/archive")
+
 for child in ROOT.iterdir():
+    if child.name in IGNORED_ROOT_NAMES:
+        continue
+    if is_ignored_local_env_file(child):
+        continue
     if child.name.startswith(".git"):
         continue
     if child.is_file() and child.name not in ALLOWED_ROOT_FILES:

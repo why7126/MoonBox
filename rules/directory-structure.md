@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-07-14 00:00:00
+updated_at: 2026-08-07 00:00:00
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -25,6 +25,7 @@ note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把
 | `issues/` | 原始需求和 BUG 池 | 否 |
 | `iterations/` | Sprint / 迭代管理 | 否 |
 | `releases/` | 产品版本发布对象、公开公告源文件、发布校验材料和公告站点配置 | 否 |
+| `mintlify/` | 公开产品手册站点源目录、版本化手册投影、截图资产和 Mintlify 配置 | 否 |
 | `compatibility/` | 兼容性矩阵与适配说明 | 否 |
 | `.agents/` | Agent 技能与命令唯一入口 | 否 |
 | `src/` | 源码 | 否 |
@@ -98,7 +99,37 @@ design-schemes/
 - `design-schemes/` MUST NOT 存放具体业务页面需求、运行时截图缓存、构建产物、真实客户数据、账号、密钥或接口凭据。
 - 从来源项目抽取但尚未核对的资产 MUST 标记 `inferred: true`；基于源码、设计稿或截图核实后才可标记为 `inferred: false`。
 
-## 5. 源码归属规则
+## 5. `mintlify/` 产品手册目录
+
+`mintlify/` 用于承载可公开部署的产品手册源文件、版本化手册投影、公开发布公告投影和截图资产。
+
+推荐结构：
+
+```text
+mintlify/
+├── README.md
+├── mint.json
+├── site-manifest.json
+├── docs/
+│   └── latest/
+│       ├── overview.mdx
+│       ├── admin.mdx
+│       ├── deployment.mdx
+│       └── faq.mdx
+├── releases/
+└── assets/
+    └── screenshots/
+```
+
+边界：
+
+- `mintlify/` MUST 只存放公开产品手册源文件、Mintlify 配置、可公开截图资产和发布公告投影。
+- `mintlify/` MUST NOT 替代 `docs/` 长期技术文档、`releases/` 发布事实源、`iterations/`、`issues/` 或 `openspec/`。
+- `mintlify/` MUST NOT 存放构建产物、真实客户数据、密钥、数据库连接串、真实 `.env`、Authorization header、Cookie、运行时数据库或不可公开运维信息。
+- 产品手册生成后 MUST 运行 `python scripts/validate-mintlify-docs.py`。
+- 本地和生产 Docker Compose 可通过 `docs-site` profile 挂载 `mintlify/` 作为产品手册预览或承载源。
+
+## 6. 源码归属规则
 
 后端代码推荐放在：
 
@@ -142,28 +173,33 @@ src/infrastructure/
 
 禁止把后端、前端或业务代码放到 `scripts/`、`docs/`、`tests/` 或项目根目录。共享类型、常量、错误码、SDK 应放在 `src/shared/` 或 `src/sdk/`，不得复制到多个端。
 
-## 6. 文档归属规则
+## 7. 文档归属规则
 
 - 主文档与总索引放入 `docs/`。
 - 可复用设计资产说明放入 `design-schemes/README.md` 和各方案目录 README；单个需求页面原型仍放入 `issues/requirements/{plan|review|archive}/REQ-*/prototype/`。
 - API、测试等治理细则放入 `docs/standards/`。
+- 规范工程日志统一放入 `docs/spec-logs/`：`/spec-study` 学习报告使用 `YYYYMMDDhhmmss-study-xxx.md`，`/spec-opt` 本项目规范、技能、脚本、目录边界或校验规则迭代日志使用 `YYYYMMDDhhmmss-governance-xxx.md`；该目录不替代 `docs/standards/`、`docs/knowledge-base/`、`openspec/changes/`、`iterations/`、`releases/` 或 `deploy/`，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、学习对象源码、截图中的个人信息、本机绝对路径、系统用户名或用户主目录。
 - 产品需求放入 `issues/requirements/{plan|review|archive}/REQ-*`；禁止 `docs/prd/`。
 - BUG 分析放入 `issues/bugs/{plan|review|archive}/BUG-*`；禁止 `docs/bugs/`。
 - 故障、复盘、最佳实践放入 `docs/knowledge-base/`。
 - 迭代文档放入 `iterations/{change|archive}/sprint-xxx/`。
 - 产品版本发布对象、公告源文件和发布校验记录放入 `releases/`。
+- 公开产品手册源文件、版本化手册投影和站点配置放入 `mintlify/`。
 - 正式系统能力放入 `openspec/specs/`。
 - 开发中的变更放入 `openspec/changes/`；已完成变更放入 `openspec/archive/`。
+- 禁止新增 `openspec/changes/archive/`。该路径是旧技能模板残留，目录结构校验会阻断。
 
-## 7. Docker 与部署文件
+## 8. Docker 与部署文件
 
 - 根目录只保留项目级编排文件，例如 `docker-compose.yml` 与按需启用的 `docker-compose.prod*.yml`。
 - 后端镜像构建文件放入 `src/backend/Dockerfile`。
 - Web 镜像构建文件放入 `src/web/Dockerfile`。
 - Web Nginx 配置放入 `src/web/nginx.conf`。
 - 部署脚本放入 `scripts/` 或 `deploy/`，并在 README / 部署文档中说明。
+- `deploy/local/` 维护本地六模式矩阵；`deploy/prod/` 维护生产 Compose 入口；`deploy/scripts/` 维护环境校验、启动/停止和产品手册静态预览脚本。
+- Sprint / OpenSpec 归档证据、readiness、stale scan、Fact Sheet 等治理脚本放入 `scripts/`，并由 `.agents/skills/opsx-archive`、`.agents/skills/sprint-archive`、`.agents/skills/sprint-exps` 引用。
 
-## 8. AI 新增文件前检查清单
+## 9. AI 新增文件前检查清单
 
 ```text
 □ 是否已有 OpenSpec Change？
@@ -175,7 +211,7 @@ src/infrastructure/
 □ 是否需要同步客户端生成代码？
 ```
 
-## 9. 禁止事项
+## 10. 禁止事项
 
 - 禁止在根目录新增业务代码文件。
 - 禁止将测试代码放入源码目录外的临时目录。

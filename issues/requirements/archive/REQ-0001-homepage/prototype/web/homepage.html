@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoonBox Homepage Prototype</title>
+  <style>
+    :root {
+      --bg: #0A0C1B;
+      --text: #E7E8F3;
+      --muted: #7C81A6;
+      --gold: #CBA35C;
+      --gold-strong: #D7B569;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans SC", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .page {
+      width: min(1328px, calc(100vw - 48px));
+      margin: 0 auto;
+      padding: 26px 0 64px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      width: 158px;
+      height: 46px;
+    }
+
+    .brand img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      color: var(--gold-strong);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      border-color: transparent;
+      color: #080A16;
+      background: var(--gold-strong);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(540px, 1fr);
+      gap: clamp(36px, 6vw, 84px);
+      align-items: center;
+      padding-top: 66px;
+    }
+
+    .eyebrow {
+      margin: 0 0 34px;
+      color: var(--gold);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    h1 {
+      max-width: 560px;
+      margin: 0;
+      color: #EEF0FB;
+      font-size: clamp(44px, 5.2vw, 58px);
+      line-height: 1.08;
+      font-weight: 800;
+    }
+
+    .lede {
+      max-width: 520px;
+      margin: 26px 0 34px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    .stage img {
+      display: block;
+      width: 100%;
+      max-width: 764px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 3px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(32px, 8vw, 120px);
+      margin-top: 190px;
+      padding: 0 98px;
+    }
+
+    .feature-number {
+      color: var(--gold);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .feature-title {
+      margin: 0 0 16px;
+      color: #E9EAF5;
+      font-size: 19px;
+      line-height: 1.3;
+      font-weight: 800;
+    }
+
+    .feature-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 920px) {
+      .page {
+        width: min(100% - 32px, 720px);
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 52px;
+      }
+
+      .stage {
+        order: -1;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+        margin-top: 72px;
+        padding: 0;
+        gap: 32px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .nav {
+        gap: 16px;
+      }
+
+      .brand {
+        width: 142px;
+      }
+
+      .button {
+        min-height: 42px;
+        padding: 0 14px;
+        font-size: 12px;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="nav" aria-label="Homepage">
+      <a class="brand" href="#" aria-label="MoonBox home">
+        <img src="assets/Logo1-20260728001940.png" alt="MoonBox PM Harness">
+      </a>
+      <a class="button" href="#login">Open first project</a>
+    </nav>
+
+    <section class="hero" aria-labelledby="homepage-title">
+      <div>
+        <p class="eyebrow">AI Native Software Factory</p>
+        <h1 id="homepage-title">Open the box, own a software company</h1>
+        <p class="lede">MoonBox puts Harness, Agent Workflow and product knowledge into one AI-native software factory.</p>
+        <a class="button primary" href="#login">Open MoonBox</a>
+      </div>
+      <div class="stage" aria-label="MoonBox product visual">
+        <img src="assets/image.png" alt="MoonBox product visual">
+      </div>
+    </section>
+
+    <section class="features" aria-label="MoonBox capabilities">
+      <article>
+        <div class="feature-number">01</div>
+        <h2 class="feature-title">Agent Workflow</h2>
+        <p class="feature-copy">Enterprise-ready MoonBox capability</p>
+      </article>
+      <article>
+        <div class="feature-number">02</div>
+        <h2 class="feature-title">Product Knowledge</h2>
+        <p class="feature-copy">Enterprise-ready MoonBox capability</p>
+      </article>
+      <article>
+        <div class="feature-number">03</div>
+        <h2 class="feature-title">Delivery Harness</h2>
+        <p class="feature-copy">Enterprise-ready MoonBox capability</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

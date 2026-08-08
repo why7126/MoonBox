@@ -1,0 +1,125 @@
+{
+  "release_version": "v0.1.0",
+  "workflow_event": "release.propose",
+  "source": "data/ai-usage release command-runs",
+  "source_data_files": [
+    "~/.codex/sessions/2026/08/08/rollout-2026-08-08T23-41-50-019fe209-a3a2-76a0-b925-72f9fa6e1413.jsonl"
+  ],
+  "generated_at": "2026-08-08T15:46:50.060731Z",
+  "estimated": false,
+  "coverage": {
+    "requirements": [
+      "REQ-0001-homepage",
+      "REQ-0002-login-page",
+      "REQ-0003-database-compatibility",
+      "REQ-0004-admin-user-management",
+      "REQ-0005-admin-auth-system",
+      "REQ-0006-admin-crud-list-template",
+      "REQ-0007-admin-user-first-login-activation",
+      "REQ-0008-prototype-driven-page-acceptance-gate"
+    ],
+    "bugs": [],
+    "changes": [
+      "add-admin-auth-system",
+      "add-admin-crud-list-template",
+      "add-admin-user-management",
+      "add-database-compatibility",
+      "add-homepage-brand-visual",
+      "add-login-page",
+      "add-spec-logs-adoption-prompt-column",
+      "add-spec-logs-changelog",
+      "apply-projecttilesfst-command-order",
+      "apply-projecttilesfst-governance-refinements",
+      "apply-projecttilesfst-spec-study",
+      "avoid-duplicate-spec-study-reports",
+      "enforce-prototype-driven-ui-gate",
+      "enforce-sprint-before-opsx",
+      "optimize-next-step-issue-identity",
+      "redact-spec-study-local-paths",
+      "update-admin-user-first-login-activation"
+    ],
+    "sprints": [
+      "sprint-001"
+    ]
+  },
+  "totals": {
+    "input_tokens": 430700,
+    "cached_input_tokens": 355712,
+    "output_tokens": 6991,
+    "reasoning_output_tokens": 342,
+    "total_tokens": 437691,
+    "command_run_count": 1,
+    "model_call_count": 9,
+    "tool_call_count": 26,
+    "tool_output_chars": 0,
+    "retry_count": 0
+  },
+  "command_runs": [
+    {
+      "source_session_hash": "ac409e2a352c29016c68b026e429068ab44270c4f6b52045da6acc68e96f15b0",
+      "source_data_file": "~/.codex/sessions/2026/08/08/rollout-2026-08-08T23-41-50-019fe209-a3a2-76a0-b925-72f9fa6e1413.jsonl",
+      "source_line_start": 8,
+      "source_line_end": 97,
+      "turn_hash": "f03f5a8a9ee99675",
+      "started_at": "2026-08-08T15:42:08.572Z",
+      "ended_at": "2026-08-08T15:46:45.753Z",
+      "command": "release.propose",
+      "workflow_event": "release.propose",
+      "requirements": [
+        "REQ-0001-homepage",
+        "REQ-0002-login-page",
+        "REQ-0003-database-compatibility",
+        "REQ-0004-admin-user-management",
+        "REQ-0005-admin-auth-system",
+        "REQ-0006-admin-crud-list-template",
+        "REQ-0007-admin-user-first-login-activation",
+        "REQ-0008-prototype-driven-page-acceptance-gate"
+      ],
+      "bugs": [],
+      "changes": [
+        "add-admin-auth-system",
+        "add-admin-crud-list-template",
+        "add-admin-user-management",
+        "add-database-compatibility",
+        "add-homepage-brand-visual",
+        "add-login-page",
+        "add-spec-logs-adoption-prompt-column",
+        "add-spec-logs-changelog",
+        "apply-projecttilesfst-command-order",
+        "apply-projecttilesfst-governance-refinements",
+        "apply-projecttilesfst-spec-study",
+        "avoid-duplicate-spec-study-reports",
+        "enforce-prototype-driven-ui-gate",
+        "enforce-sprint-before-opsx",
+        "optimize-next-step-issue-identity",
+        "redact-spec-study-local-paths",
+        "update-admin-user-first-login-activation"
+      ],
+      "sprint_id": "sprint-001",
+      "release_sprints": [
+        "sprint-001"
+      ],
+      "release_version": "v0.1.0",
+      "attribution_confidence": "high",
+      "model_name": "gpt-5.5",
+      "model_provider": "openai",
+      "service_tier": null,
+      "reasoning_effort": "low",
+      "reasoning_summary": "auto",
+      "model_speed_tier": "frontier",
+      "model_rate_limit_name": "GPT-5.3-Codex-Spark",
+      "model_rate_limit_id": "codex_bengalfox",
+      "model_context_window": 258400,
+      "model_call_count": 9,
+      "input_tokens": 430700,
+      "cached_input_tokens": 355712,
+      "output_tokens": 6991,
+      "reasoning_output_tokens": 342,
+      "total_tokens": 437691,
+      "tool_call_count": 26,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

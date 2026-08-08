@@ -1,0 +1,67 @@
+{
+  "release_version": "v0.1.0",
+  "workflow_event": "image.build",
+  "source": "data/ai-usage release command-runs",
+  "source_data_files": [
+    "~/.codex/sessions/2026/08/08/rollout-2026-08-08T23-41-50-019fe209-a3a2-76a0-b925-72f9fa6e1413.jsonl"
+  ],
+  "generated_at": "2026-08-08T16:36:33.716001Z",
+  "estimated": false,
+  "coverage": {
+    "requirements": [],
+    "bugs": [],
+    "changes": [],
+    "sprints": []
+  },
+  "totals": {
+    "input_tokens": 1914564,
+    "cached_input_tokens": 1870592,
+    "output_tokens": 3194,
+    "reasoning_output_tokens": 210,
+    "total_tokens": 1917758,
+    "command_run_count": 1,
+    "model_call_count": 18,
+    "tool_call_count": 23,
+    "tool_output_chars": 0,
+    "retry_count": 0
+  },
+  "command_runs": [
+    {
+      "source_session_hash": "ac409e2a352c29016c68b026e429068ab44270c4f6b52045da6acc68e96f15b0",
+      "source_data_file": "~/.codex/sessions/2026/08/08/rollout-2026-08-08T23-41-50-019fe209-a3a2-76a0-b925-72f9fa6e1413.jsonl",
+      "source_line_start": 313,
+      "source_line_end": 434,
+      "turn_hash": "3f0c4afd0282387c",
+      "started_at": "2026-08-08T15:54:59.992Z",
+      "ended_at": "2026-08-08T16:02:54.766Z",
+      "command": "image.build",
+      "workflow_event": "image.build",
+      "requirements": [],
+      "bugs": [],
+      "changes": [],
+      "sprint_id": null,
+      "release_sprints": [],
+      "release_version": "v0.1.0",
+      "attribution_confidence": "high",
+      "model_name": "gpt-5.5",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "auto",
+      "model_speed_tier": "frontier",
+      "model_rate_limit_name": "GPT-5.3-Codex-Spark",
+      "model_rate_limit_id": "codex_bengalfox",
+      "model_context_window": 258400,
+      "model_call_count": 18,
+      "input_tokens": 1914564,
+      "cached_input_tokens": 1870592,
+      "output_tokens": 3194,
+      "reasoning_output_tokens": 210,
+      "total_tokens": 1917758,
+      "tool_call_count": 23,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

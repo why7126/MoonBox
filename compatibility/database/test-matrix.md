@@ -60,15 +60,15 @@ note: 适用于 MoonBox 项目
 当前数据库兼容测试范围：
 
 ```text
-MoonBox
+SQLite 用于开发和快速测试；MySQL 用于生产和发布前兼容验证。
 ```
 
 推荐范围：
 
 | 数据库 | 版本 | 驱动/ORM | 使用场景 | 是否必测 | 说明 |
 |---|---|---|---|---|---|
-| `MoonBox` | `MoonBox` | `MoonBox` | 主数据库 | 是 | 主路径必须覆盖 |
-| SQLite | `MoonBox` | `MoonBox` | local/test/desktop | 条件启用 | 使用 SQLite 时启用 |
+| SQLite | 系统 sqlite3 | SQLAlchemy | local/test | 是 | 本地快速路径必须覆盖 |
+| MySQL | 8.x（生产前确认） | PyMySQL + SQLAlchemy | production/compatibility | 是 | 发布前或 CI 关键路径必须覆盖 |
 | PostgreSQL | `MoonBox` | `MoonBox` | 生产/兼容 | 条件启用 | 声明支持时启用 |
 | MySQL | `MoonBox` | `MoonBox` | 生产/兼容 | 条件启用 | 声明支持时启用 |
 | 达梦 | `MoonBox` | `MoonBox` | 信创 | 条件启用 | 声明支持时启用 |
@@ -201,10 +201,10 @@ MoonBox
 
 | 命令 | 用途 | 是否 CI 必跑 |
 |---|---|---|
-| `MoonBox` | 数据库集成测试 | 是 |
-| `MoonBox` | migration 测试 | 是 |
-| `MoonBox` | 数据库兼容性测试 | 条件启用 |
-| `MoonBox` | 项目总测试命令 | 是 |
+| `PYTHONPATH=src/backend pytest tests/compatibility/database` | SQLite 数据库兼容测试 | 是 |
+| `docker compose --profile mysql up -d mysql` | 启动 MySQL 兼容验证服务 | 条件启用 |
+| `DATABASE_TYPE=mysql DATABASE_URL=mysql+pymysql://moonbox:change-me@localhost:3306/moonbox PYTHONPATH=src/backend pytest tests/compatibility/database` | MySQL 关键路径验证 | 发布前必跑 |
+| `PYTHONPATH=src/backend pytest` | 项目总测试命令 | 是 |
 
 质量门禁：
 

@@ -4,13 +4,13 @@ content: 发布对象、公开公告源文件、模板和发布校验边界
 source: PM Harness 通用发布治理模块
 update_method: 发布流程、公告格式或发布门禁变化时更新
 created_at: 2026-07-23 00:00:00
-updated_at: 2026-07-23 00:00:00
+updated_at: 2026-08-04 00:00:00
 note: releases/ 不替代 iterations、issues 或 openspec；仅记录对外产品版本发布事实
 ---
 
 # 产品版本发布目录
 
-`releases/` 用于承载对外产品版本发布对象、公开公告源文件、发布校验材料和静态文档配置。
+`releases/` 用于承载对外产品版本发布对象、公开公告源文件、发布校验材料和静态公告配置。公开产品手册源目录位于 `mintlify/`，发布公告可由 `scripts/generate-mintlify-docs.py` 投影到 `mintlify/releases/`。
 
 ## 目录结构
 
@@ -23,7 +23,9 @@ releases/
 │   └── announcement.mdx
 └── v0.1.0/
     ├── release.json
-    └── announcement.mdx
+    ├── announcement.mdx
+    ├── image-build-plan.json
+    └── image-manifest.json
 ```
 
 ## 文件职责
@@ -32,15 +34,18 @@ releases/
 |---|---|
 | `vX.Y.Z/release.json` | 机器可读发布事实源，关联 Sprint、REQ、BUG、OpenSpec Change、影响范围和门禁证据 |
 | `vX.Y.Z/announcement.mdx` | 面向公开页面或客户交付的发布公告源文件 |
+| `vX.Y.Z/image-build-plan.json` | 镜像构建计划与输入 hash；仅在 `image_required=true` 时必须存在 |
+| `vX.Y.Z/image-manifest.json` | 镜像构建成功后的 manifest；仅在需要镜像交付或 publish 阶段必须存在 |
 | `templates/release.json` | 发布对象模板 |
 | `templates/announcement.mdx` | 公告模板 |
-| `mint.json` | Mintlify 或等价静态文档预览配置；未使用 Mintlify 时保留为公告站点配置示例 |
+| `mint.json` | 发布公告站点配置兼容入口；完整产品手册配置以 `mintlify/mint.json` 为准 |
 
 ## 边界
 
 - MUST 只存放产品版本发布对象、公开公告源文件、发布校验记录和静态公告站点配置。
 - MUST NOT 替代 `iterations/` 四件套、`issues/` 需求/BUG 文档、`openspec/changes/` 变更事实源或 `docs/` 长期技术文档。
 - MUST NOT 存放构建产物、真实客户数据、密钥、数据库连接串、对象存储凭据或不可公开运维信息。
+- 镜像 tar 包与 `.sha256` 默认输出到仓库外 `../releases/<version>/images/`，不得提交到仓库内 `releases/`。
 - 版本目录 SHOULD 使用 SemVer 风格，例如 `v0.1.0/`。
 - 公告发布时间字段 MUST 使用 `YYYY-MM-DD HH:mm:ss`。
 
@@ -49,7 +54,10 @@ releases/
 发布前运行：
 
 ```bash
-python scripts/validate-release.py --release-dir releases/v0.1.0
+python scripts/validate-release.py --release-dir releases/v0.1.0 --stage prepare
+python scripts/validate-release.py --release-dir releases/v0.1.0 --stage publish
+python scripts/generate-mintlify-docs.py --version latest
+python scripts/validate-mintlify-docs.py
 ```
 
 没有任何版本目录时，校验脚本只确认模板目录存在并返回通过。

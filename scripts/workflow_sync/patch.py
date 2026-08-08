@@ -28,6 +28,145 @@ def persist_markdown(path: Path, text: str, original: str, write: bool) -> bool:
     return changed
 
 
+def _top_level_section_bounds(lines: list[str], key: str) -> tuple[int, int] | None:
+    start: int | None = None
+    for index, line in enumerate(lines):
+        if line == f"{key}:":
+            start = index
+            break
+    if start is None:
+        return None
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        line = lines[index]
+        if line and not line.startswith(" ") and re.match(r"^[A-Za-z0-9_]+:", line):
+            end = index
+            break
+    return start, end
+
+
+def _ensure_top_level_list_item(text: str, key: str, value: str) -> tuple[str, bool]:
+    lines = text.splitlines()
+    bounds = _top_level_section_bounds(lines, key)
+    if bounds is None:
+        suffix = "" if text.endswith("\n") else "\n"
+        return f"{text}{suffix}\n{key}:\n  - {value}\n", True
+
+    start, end = bounds
+    item_line = f"  - {value}"
+    if item_line in lines[start + 1 : end]:
+        return text, False
+
+    insert_at = end
+    while insert_at > start + 1 and lines[insert_at - 1] == "":
+        insert_at -= 1
+    lines.insert(insert_at, item_line)
+    return "\n".join(lines) + ("\n" if text.endswith("\n") else ""), True
+
+
+def _sync_scope_estimate_change(lines: list[str], issue_id: str, change_id: str) -> bool:
+    bounds = _top_level_section_bounds(lines, "scope_estimates")
+    if bounds is None:
+        return False
+    start, end = bounds
+    changed = False
+    index = start + 1
+    while index < end:
+        line = lines[index]
+        if not line.startswith("  - id: "):
+            index += 1
+            continue
+        item_start = index
+        item_end = end
+        for next_index in range(index + 1, end):
+            if lines[next_index].startswith("  - id: "):
+                item_end = next_index
+                break
+        if lines[item_start].strip() == f"- id: {issue_id}":
+            for item_index in range(item_start + 1, item_end):
+                if re.match(r"^\s+change:\s*", lines[item_index]):
+                    if lines[item_index].strip() != f"change: {change_id}":
+                        indent = lines[item_index][: len(lines[item_index]) - len(lines[item_index].lstrip(" "))]
+                        lines[item_index] = f"{indent}change: {change_id}"
+                        changed = True
+                    return changed
+            lines.insert(item_start + 1, f"    change: {change_id}")
+            return True
+        index = item_end
+    return changed
+
+
+def _remove_deferred_open_change_item(lines: list[str], issue_id: str) -> bool:
+    bounds = _top_level_section_bounds(lines, "deferred_items")
+    if bounds is None:
+        return False
+    start, end = bounds
+    changed = False
+    index = start + 1
+    while index < end:
+        line = lines[index]
+        if not line.startswith("  - "):
+            index += 1
+            continue
+        item_start = index
+        item_end = end
+        for next_index in range(index + 1, end):
+            if lines[next_index].startswith("  - "):
+                item_end = next_index
+                break
+        item = "\n".join(lines[item_start:item_end])
+        if re.search(rf"^\s+source:\s*{re.escape(issue_id)}\s*$", item, re.MULTILINE):
+            del lines[item_start:item_end]
+            changed = True
+            end -= item_end - item_start
+            continue
+        index = item_end
+    if changed:
+        next_bounds = _top_level_section_bounds(lines, "deferred_items")
+        if next_bounds:
+            section_start, section_end = next_bounds
+            if not any(line.startswith("  - ") for line in lines[section_start + 1 : section_end]):
+                del lines[section_start:section_end]
+    return changed
+
+
+def patch_sprint_yaml_scope(
+    sprint: SprintRecord,
+    issue_id: str | None,
+    change_id: str | None,
+    write: bool = True,
+) -> PatchResult:
+    path = sprint.path / "sprint.yaml"
+    if not issue_id or not change_id:
+        return PatchResult(str(path.relative_to(ROOT)), False, "missing issue/change focus")
+    if not path.exists():
+        return PatchResult(str(path.relative_to(ROOT)), False, "missing sprint.yaml")
+
+    text = read_text(path)
+    original = text
+    text, changed = _ensure_top_level_list_item(text, "changes", change_id)
+    lines = text.splitlines()
+    scope_changed = _sync_scope_estimate_change(lines, issue_id, change_id)
+    deferred_changed = _remove_deferred_open_change_item(lines, issue_id)
+    if scope_changed or deferred_changed:
+        text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+        changed = True
+
+    if changed and write:
+        path.write_text(text, encoding="utf-8")
+        if change_id not in sprint.changes:
+            sprint.changes.append(change_id)
+    elif changed and not write and change_id not in sprint.changes:
+        sprint.changes.append(change_id)
+
+    details = ["changes[]"]
+    if scope_changed:
+        details.append("scope_estimates[].change")
+    if deferred_changed:
+        details.append("deferred open-change item")
+    return PatchResult(str(path.relative_to(ROOT)), changed, " + ".join(details))
+
+
 def replace_marker_block(text: str, marker: str, new_body: str) -> tuple[str, bool]:
     start = f"<!-- {marker}:start -->"
     end = f"<!-- {marker}:end -->"
@@ -185,16 +324,204 @@ def render_changes_table(
         if not change:
             lines.append(f"| `{change_id}` | — | missing | — |")
             continue
-        link = change.linked_req or change.linked_bug or "—"
-        if change.linked_req:
-            link = short_issue_label(change.linked_req)
-        elif change.linked_bug:
+        link = change.linked_bug or change.linked_req or "—"
+        if change.linked_bug:
             link = short_issue_label(change.linked_bug)
+        elif change.linked_req:
+            link = short_issue_label(change.linked_req)
         goal = change.note
         lines.append(
             f"| `{change.change_id}` | {link} | {change.display_status} | {goal} |"
         )
     return "\n".join(lines)
+
+
+def _scope_estimate_days(sprint: SprintRecord) -> dict[str, str]:
+    path = sprint.path / "sprint.yaml"
+    if not path.exists():
+        return {}
+    lines = read_text(path).splitlines()
+    bounds = _top_level_section_bounds(lines, "scope_estimates")
+    if bounds is None:
+        return {}
+    start, end = bounds
+    estimates: dict[str, str] = {}
+    index = start + 1
+    while index < end:
+        line = lines[index]
+        if not line.startswith("  - id: "):
+            index += 1
+            continue
+        issue_id = line.split(":", 1)[1].strip()
+        item_end = end
+        for next_index in range(index + 1, end):
+            if lines[next_index].startswith("  - id: "):
+                item_end = next_index
+                break
+        item = "\n".join(lines[index:item_end])
+        match = re.search(r"^\s+estimated_person_days:\s*(.+?)\s*$", item, re.MULTILINE)
+        if match:
+            estimates[issue_id] = f"{match.group(1).strip()} 人天"
+        index = item_end
+    return estimates
+
+
+def scope_note_for_issue(
+    derived: DerivedIssue | None,
+    change: DerivedChange | None,
+    fallback_status: str,
+) -> str:
+    if change:
+        return change.note
+    status = derived.display_status if derived else fallback_status
+    if status == "in_sprint":
+        return "已纳入 Sprint；待创建 OpenSpec Change"
+    if status == "done":
+        return "已完成并归档"
+    return f"status `{status}`"
+
+
+def render_main_scope_table(
+    sprint: SprintRecord,
+    issues: dict[str, IssueRecord],
+    derived_issues: dict[str, DerivedIssue],
+    changes: dict[str, DerivedChange],
+) -> str:
+    estimates = _scope_estimate_days(sprint)
+    rows = [
+        "| 类型 | 编号 | 标题 | 状态 | 估算 | 说明 |",
+        "|---|---|---|---|---:|---|",
+    ]
+    for kind, issue_ids in (("REQ", sprint.requirements), ("BUG", sprint.bugs)):
+        for issue_id in issue_ids:
+            issue = issues.get(issue_id)
+            derived = derived_issues.get(issue_id)
+            linked_change = derived.linked_change if derived else None
+            if not linked_change and issue and issue.kind == "bug":
+                linked_change = issue.related_change
+            change = changes.get(linked_change) if linked_change else None
+            title = issue_display_name(issue) if issue else issue_id
+            status = derived.display_status if derived else (issue.trace_status if issue else "unknown")
+            note = scope_note_for_issue(derived, change, status)
+            rows.append(
+                f"| {kind} | {issue_id} | {title} | {status} | {estimates.get(issue_id, '—')} | {note} |"
+            )
+    linked_change_ids = {
+        derived.linked_change
+        for issue_id in [*sprint.requirements, *sprint.bugs]
+        if (derived := derived_issues.get(issue_id)) and derived.linked_change
+    }
+    linked_change_ids.update(
+        issue.related_change
+        for issue_id in sprint.bugs
+        if (issue := issues.get(issue_id)) and issue.related_change
+    )
+    for change_id in sprint.changes:
+        if change_id in linked_change_ids:
+            continue
+        change = changes.get(change_id)
+        status = change.display_status if change else "missing"
+        note = change.note if change else "change directory missing"
+        title = change_id.replace("-", " ") if change else change_id
+        rows.append(
+            f"| Change | {change_id} | {title} | {status} | {estimates.get(change_id, '—')} | {note} |"
+        )
+    return "\n".join(rows)
+
+
+def render_scope_summary_paragraphs(
+    sprint: SprintRecord,
+    derived_issues: dict[str, DerivedIssue],
+    changes: dict[str, DerivedChange],
+) -> str:
+    req_codes = "、".join(f"`{short_issue_code(req_id)}`" for req_id in sprint.requirements) or "无"
+    bug_codes = "、".join(f"`{short_issue_code(bug_id)}`" for bug_id in sprint.bugs) or "无"
+    linked_changes = [
+        derived.linked_change
+        for issue_id in [*sprint.requirements, *sprint.bugs]
+        if (derived := derived_issues.get(issue_id)) and derived.linked_change
+    ]
+    issue_linked_change_ids = set(linked_changes)
+    pure_changes = [change_id for change_id in sprint.changes if change_id not in issue_linked_change_ids]
+    pending_issue_ids = [
+        issue_id
+        for issue_id in [*sprint.requirements, *sprint.bugs]
+        if not ((derived := derived_issues.get(issue_id)) and derived.linked_change)
+    ]
+    archived = sum(1 for change_id in sprint.changes if changes.get(change_id) and changes[change_id].state == "archived")
+    applied = sum(1 for change_id in sprint.changes if changes.get(change_id) and changes[change_id].state == "applied")
+    in_progress = sum(1 for change_id in sprint.changes if changes.get(change_id) and changes[change_id].state == "in_progress")
+    proposed = sum(1 for change_id in sprint.changes if changes.get(change_id) and changes[change_id].state == "proposed")
+    change_summary = (
+        f"Change：已回填 {len(linked_changes)} 个范围项关联 Change，另有 {len(pure_changes)} 个纯 Change；"
+        f"{archived} archived，{applied} applied，{in_progress} in_progress，{proposed} proposed。"
+    )
+    if pending_issue_ids:
+        pending = "、".join(f"`{short_issue_code(issue_id)}`" for issue_id in pending_issue_ids)
+        change_summary += (
+            f"仍待创建或回填 Change：{pending}；这些范围项已在 Sprint 中，"
+            "执行开发前必须运行对应 `/req-opsx` 或 `/bug-opsx` 创建并回填 Change。"
+        )
+    else:
+        change_summary += "所有已纳入范围项均已关联 Change；执行开发与归档时以 Scope 表逐项状态为准。"
+    return (
+        f"REQ：{req_codes} 已纳入正式范围；BUG：{bug_codes} 已纳入正式范围，优先级高于新增体验能力；"
+        "当前完成度与验收风险以 Scope 表状态、关联 Change 和 acceptance-report 为准。\n\n"
+        f"{change_summary}"
+    )
+
+
+def _markdown_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def _find_scope_main_table(section: str) -> tuple[int, int] | None:
+    lines = section.splitlines(keepends=True)
+    offset = 0
+    for index, line in enumerate(lines[:-1]):
+        cells = _markdown_cells(line)
+        next_line = lines[index + 1]
+        if not cells or "类型" not in cells:
+            offset += len(line)
+            continue
+        if not any(cell in {"编号", "ID", "范围项"} for cell in cells):
+            offset += len(line)
+            continue
+        if "状态" not in cells:
+            offset += len(line)
+            continue
+        if not re.match(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$", next_line):
+            offset += len(line)
+            continue
+
+        end_index = index + 2
+        while end_index < len(lines) and lines[end_index].lstrip().startswith("|"):
+            end_index += 1
+        return offset, sum(len(item) for item in lines[:end_index])
+    return None
+
+
+def patch_main_scope_section(text: str, table: str, summary: str) -> tuple[str, bool]:
+    section_match = re.search(r"(^## 2\. Scope\s*\n)(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    if not section_match:
+        return text, False
+    section = section_match.group(2)
+    original_section = section
+    table_bounds = _find_scope_main_table(section)
+    if not table_bounds:
+        return text, False
+    table_start, table_end = table_bounds
+    section = section[:table_start] + table.rstrip() + "\n" + section[table_end:]
+    summary_pattern = re.compile(r"^BUG：.*?\n\n^Change：.*?(?=\n\n|$)", re.MULTILINE | re.DOTALL)
+    if summary_pattern.search(section):
+        section = summary_pattern.sub(summary, section, count=1)
+    elif "BUG：" not in section and "Change：" not in section:
+        section = section.rstrip() + "\n\n" + summary + "\n"
+    if not section.endswith("\n\n"):
+        section = section.rstrip() + "\n\n"
+    updated_section = section
+    updated = text[: section_match.start(2)] + updated_section + text[section_match.end(2) :]
+    return updated, updated_section != original_section
 
 
 def patch_sprint_md(
@@ -212,6 +539,10 @@ def patch_sprint_md(
     req_table = render_requirements_table(sprint, issues, derived_issues, changes)
     bug_table = render_bugs_table(sprint, issues, derived_issues, changes)
     change_table = render_changes_table(sprint, changes)
+    main_scope_table = render_main_scope_table(sprint, issues, derived_issues, changes)
+    scope_summary = render_scope_summary_paragraphs(sprint, derived_issues, changes)
+
+    text, main_scope_changed = patch_main_scope_section(text, main_scope_table, scope_summary)
 
     text, _ = ensure_marker_block(
         text,
@@ -247,6 +578,8 @@ def patch_sprint_md(
 
     changed = persist_markdown(path, text, original, write)
     detail = "Scope tables + note"
+    if main_scope_changed:
+        detail += " + main scope table"
     if milestone_changed:
         detail += " + milestone dates"
     return PatchResult(str(path.relative_to(ROOT)), changed, detail)
@@ -458,9 +791,16 @@ def append_workflow_event_record(
     if derived.linked_change != change_id:
         return text
     change_status = change_status_map.get(change_id)
-    if event == "opsx.apply" and change_status == "applied":
+    if event == "opsx.apply" and change_status in {"applied", "in_progress"}:
         command = "/opsx-apply"
-        description = f"Change `{change_id}` apply 完成，待 archive。"
+        description = (
+            f"Change `{change_id}` apply 完成，待 archive。"
+            if change_status == "applied"
+            else f"Change `{change_id}` apply 进行中，待补齐剩余验收。"
+        )
+    elif event == "opsx.modify" and change_status in {"applied", "in_progress"}:
+        command = "/opsx-modify"
+        description = f"Change `{change_id}` 验收返修已同步，待复验或 archive。"
     elif event == "opsx.archive" and change_status == "archived":
         command = "/opsx-archive"
         description = f"Change `{change_id}` 已归档，状态同步完成。"

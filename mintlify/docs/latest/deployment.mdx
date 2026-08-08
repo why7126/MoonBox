@@ -1,0 +1,42 @@
+---
+title: "部署与产品手册站点"
+created_at: 2026-08-04 00:00:00
+updated_at: 2026-08-04 00:00:00
+---
+
+# 部署与产品手册站点
+
+MoonBox 默认使用 Docker Compose 部署。本地支持六种对象存储和数据库组合，生产默认使用外部对象存储与外部 MySQL。
+
+## 本地部署
+
+```bash
+bash deploy/scripts/up.sh local self-storage-sqlite
+bash deploy/scripts/up.sh local external-storage-sqlite
+bash deploy/scripts/up.sh local self-storage-self-mysql
+bash deploy/scripts/up.sh local self-storage-external-mysql
+bash deploy/scripts/up.sh local external-storage-self-mysql
+bash deploy/scripts/up.sh local external-storage-external-mysql
+```
+
+## 生产部署
+
+```bash
+cp deploy/prod/external-storage-external-mysql.env.example deploy/prod/external-storage-external-mysql.env
+bash deploy/scripts/up.sh prod external-storage-external-mysql
+```
+
+生产环境必须使用 `APP_ENV=production`、`APP_DEBUG=false`、`DATABASE_TYPE=mysql` 和外部对象存储；不得依赖 SQLite、本地 MinIO 或示例密钥。
+
+## 产品手册站点
+
+`docs-site` 服务随 `deploy/scripts/up.sh` 默认启用，挂载 `mintlify/` 源目录并提供静态预览：
+
+```bash
+python scripts/generate-mintlify-docs.py --version latest
+python scripts/validate-mintlify-docs.py
+bash deploy/scripts/up.sh local self-storage-sqlite
+```
+
+默认访问地址为 `http://localhost:3001`，可通过 `HOST_PORT_MINTLIFY_DOCS` 覆盖。
+

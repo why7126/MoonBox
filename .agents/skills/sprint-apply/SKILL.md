@@ -9,8 +9,14 @@ Use this skill when the user asks to run `/sprint-apply <sprint-id>`.
 
 ## Context Budget Guardrails（MUST）
 
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
 - Sprint apply 必须逐 Change 聚焦读取，不得把整个 Sprint 历史、全部 issue 包或全部 active changes 同时装入上下文。
-- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则用摘要承接，不重复全量读取。
+- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
 - 先读 `sprint.yaml` 与必要 trace/status 片段，不全量读取 Sprint 四件套。
 - 每个 Change 只读 `proposal.md`、`tasks.md`、依赖字段和必要 design/spec 片段。
 - UI gate 只读取命中标签的 best-practices。
@@ -96,6 +102,12 @@ For each eligible Change:
 5. Continue until queue exhausted, blocked, or user interrupts.
 
 Do not archive automatically unless user explicitly asks for sprint/archive flow.
+
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
 
 ## Output
 

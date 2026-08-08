@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>管理后台登录认证系统原型</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c1b;
+        --panel: #12142b;
+        --line: rgba(234, 242, 255, 0.12);
+        --text: #e7e8f3;
+        --muted: #7c81a6;
+        --gold: #cba35c;
+        --danger: #d46a6a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Noto Sans SC", system-ui, sans-serif;
+      }
+
+      main {
+        width: min(420px, calc(100vw - 32px));
+        border: 1px solid var(--line);
+        background: var(--panel);
+        padding: 32px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-family: "Noto Serif SC", serif;
+        font-size: 28px;
+      }
+
+      p {
+        margin: 0 0 28px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        padding: 12px;
+        font: inherit;
+      }
+
+      button {
+        width: 100%;
+        border: 0;
+        border-radius: 2px;
+        background: var(--gold);
+        color: #15110a;
+        padding: 13px 16px;
+        font: inherit;
+        font-weight: 700;
+      }
+
+      .error {
+        min-height: 24px;
+        margin: 12px 0 0;
+        color: var(--danger);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main aria-labelledby="admin-login-title">
+      <h1 id="admin-login-title">管理后台登录</h1>
+      <p>使用系统内置超级管理员账号进入 MoonBox 管理后台。</p>
+      <form>
+        <label>
+          用户名
+          <input name="username" autocomplete="username" />
+        </label>
+        <label>
+          密码
+          <input name="password" type="password" autocomplete="current-password" />
+        </label>
+        <button type="submit">登录管理后台</button>
+        <div class="error" aria-live="polite">错误反馈区域</div>
+      </form>
+    </main>
+  </body>
+</html>

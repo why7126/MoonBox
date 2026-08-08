@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REQ-0007 后台用户首次登录激活与冻结前状态恢复</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0c1b;
+      --panel: #12142b;
+      --line: rgba(234, 242, 255, .12);
+      --text: #e7e8f3;
+      --muted: #7c81a6;
+      --gold: #cba35c;
+      --danger: #c96b6b;
+      --ok: #7bbf9a;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Noto Serif SC", serif;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 160px 160px;
+      gap: 12px;
+      margin: 24px 0 16px;
+    }
+
+    input,
+    select,
+    button {
+      border-radius: 2px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .03);
+      color: var(--text);
+      min-height: 36px;
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    button.primary {
+      background: var(--gold);
+      color: #17130a;
+      border-color: var(--gold);
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .normal::before { background: var(--ok); }
+    .frozen::before { background: var(--danger); }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .actions button {
+      min-height: 30px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    .pager {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .52);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .confirm-modal {
+      width: min(560px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .38);
+    }
+
+    .confirm-modal header {
+      display: block;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .confirm-modal h2 {
+      margin: 0;
+      font-size: 18px;
+      font-family: "Noto Serif SC", serif;
+      letter-spacing: 0;
+    }
+
+    .modal-body {
+      max-height: 52vh;
+      overflow: auto;
+      padding: 18px 20px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .restore-target {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-left: 2px solid var(--gold);
+      background: rgba(203, 163, 92, .08);
+      color: var(--text);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      border: 1px solid var(--line);
+      background: #171a33;
+      padding: 12px 14px;
+      border-radius: 2px;
+      color: var(--text);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>后台用户状态治理</h1>
+        <div class="hint">待激活由用户首次登录完成；冻结和解冻只做临时管控，不绕过激活流程。</div>
+      </div>
+      <button class="primary">新增用户</button>
+    </header>
+
+    <section class="toolbar" aria-label="用户筛选">
+      <input value="" placeholder="用户名或昵称" aria-label="搜索用户" />
+      <select aria-label="角色筛选">
+        <option>全部角色</option>
+        <option>后台管理员</option>
+        <option>前台用户</option>
+      </select>
+      <select aria-label="状态筛选">
+        <option>全部状态</option>
+        <option>待激活</option>
+        <option>正常</option>
+        <option>已冻结</option>
+      </select>
+    </section>
+
+    <table>
+      <thead>
+        <tr>
+          <th>用户</th>
+          <th>角色</th>
+          <th>状态</th>
+          <th>冻结前状态</th>
+          <th>最近登录时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>newadmin</td>
+          <td>后台管理员</td>
+          <td><span class="status">待激活</span></td>
+          <td>-</td>
+          <td>-</td>
+          <td class="actions"><button>编辑</button><button>重置密码</button><button>冻结</button></td>
+        </tr>
+        <tr>
+          <td>pendingops</td>
+          <td>后台管理员</td>
+          <td><span class="status frozen">已冻结</span></td>
+          <td>待激活</td>
+          <td>-</td>
+          <td class="actions"><button>编辑</button><button>重置密码</button><button class="primary">解冻</button></td>
+        </tr>
+        <tr>
+          <td>activeops</td>
+          <td>后台管理员</td>
+          <td><span class="status normal">正常</span></td>
+          <td>-</td>
+          <td>2026-08-08 20:12:06</td>
+          <td class="actions"><button>编辑</button><button>重置密码</button><button>冻结</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pager">
+      <span>共 3 位用户</span>
+      <span>上一页  1  下一页  每页显示 10</span>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" role="presentation">
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header>
+        <h2 id="modal-title">确认解冻 pendingops</h2>
+      </header>
+      <div class="modal-body">
+        <p>该账号被冻结前处于“待激活”状态。解冻不会替用户完成首次登录激活。</p>
+        <div class="restore-target">解冻后恢复为：待激活</div>
+        <label>
+          操作原因
+          <input value="恢复首次登录激活资格" style="display:block;width:100%;box-sizing:border-box;margin-top:8px;" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button>取消</button>
+        <button class="primary">确认解冻</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" role="status">解冻成功，账号已恢复为待激活。</div>
+</body>
+</html>

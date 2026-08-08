@@ -9,7 +9,13 @@ Use when the user asks `/sprint-archive <sprint-id>` or wants to close a Sprint.
 
 ## Context Budget Guardrails（MUST）
 
-- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则用摘要承接，不重复全量读取。
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
+- MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
 - Start from `sprint.yaml`; do not full-read Sprint four-piece unless closing fields are needed.
 - For each Change, read only `tasks.md`, trace/status, and delta headings.
 - Reuse `.agents/skills/opsx-archive/SKILL.md`; do not duplicate full archive reasoning.
@@ -19,6 +25,13 @@ Use when the user asks `/sprint-archive <sprint-id>` or wants to close a Sprint.
 
 - `<sprint-id>` preferred; if omitted, infer only when one active Sprint exists.
 - Flags: `--dry-run`、`--change <change-id>`、`--force`、`--skip-sync`（不推荐）、`--no-sprint-close`。
+
+## Command Order（MUST）
+
+- `/sprint-archive` 位于 Sprint 内所有 `/opsx-archive` 完成之后；仍有 active Change、未关闭 Issue 或 archive evidence 缺失时不得关闭 Sprint。
+- Sprint close 前 MUST 先完成 AI Usage Snapshot Gate，再执行目录/env/陈旧扫描、Sprint 四件套关闭、Workflow Sync。
+- 归档单个 Change、关闭 Sprint、Issue promote、Workflow Sync 和 AI Usage 相关快照 MUST 严格串行执行。
+- Sprint 完成后才进入发布链路：`/release-propose` → `/release-prepare` → `/usage-docs-*` → `/image-prepare` → `/image-build` → `/release-publish`。
 
 ## Must Read / Run
 
@@ -36,7 +49,7 @@ iterations/change/<sprint-id>/sprint.md（依赖/Scope 片段）
 ```bash
 openspec list --json
 python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
-python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
+python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --summary
 ```
 
 For single change mode:
@@ -56,6 +69,8 @@ python scripts/promote-issues-for-archive.py --sprint <sprint-id>
 If scoped REQ/BUG child Markdown files still contain non-closed frontmatter or fenced YAML `status` values such as `draft`、`pending_review`、`in_sprint`、`applied`、`todo`、`open`, keep the Sprint close blocked until those documents are reconciled.
 
 If readiness returns non-zero or `Verdict: BLOCKED`, stop unless user explicitly passed `--force` and confirms each blocker.
+
+Local real env files (`.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env`) may exist for deployment acceptance. They MUST NOT block Sprint archive by existence alone when covered by Git ignore policy; block only if they are tracked/staged, not ignored, copied into governed artifacts, or leaked in output/docs.
 
 ## Queue Rules
 
@@ -101,6 +116,8 @@ Unless `--no-sprint-close`, close only when all Sprint changes are archived and 
 
 ```bash
 python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
+python scripts/validate-env-ignore-policy.py
+python scripts/check-sprint-close-stale-scan.py --sprint <sprint-id>
 ```
 
 Then update the four-piece as needed:
@@ -121,6 +138,12 @@ python scripts/sync-workflow-status.py --event sprint.archive --sprint <sprint-i
 ```
 
 Exit code MUST be `0`; print summary Workflow Sync Report; use `--output detail` only for debugging.
+
+## Output Contract（MUST）
+
+- 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
+- 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
 
 ## Output
 
