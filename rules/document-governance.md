@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-07 23:20:00
+updated_at: 2026-08-10 22:36:56
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -19,6 +19,8 @@ note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通
 ## 2. docs 目录
 
 `docs/` 只沉淀长期产品、架构、部署、接口、数据库、兼容性和治理信息；需求、BUG、迭代不得放入 `docs/`。`docs/spec-logs/` 中的学习报告和治理日志不得写入本机绝对路径、系统用户名、用户主目录、真实客户数据、密钥或未脱敏日志。
+
+触达治理资产的 Change MUST 同步 `docs/spec-logs/`：无论来源是 `/spec-opt`、`/spec-study`、REQ 还是 BUG，只要变更 `.agents/skills/**`、`AGENTS.md`、`rules/**`、`docs/spec-logs/**`、`docs/standards/**`、治理脚本、校验脚本、Workflow Sync、OpenSpec/Sprint/REQ/BUG 流程规则或 `project.yaml` 命令索引，就必须生成或更新 `YYYYMMDDhhmmss-governance-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 追加倒序索引；纯错别字、链接或格式修复可在 Change trace 中记录豁免原因。
 
 ```text
 docs/
@@ -72,6 +74,8 @@ issues/bugs/{plan,review,archive}/BUG-xxxx-slug/
 需求至少包含编号、来源、目标用户、价值、描述、优先级、状态、关联迭代、关联 Change、验收要点。BUG 至少包含编号、来源、严重程度、影响范围、复现步骤、实际/期望结果、日志/截图、状态、关联迭代、关联 Change、回归测试。
 
 Issue 状态在 capture、review、opsx、sprint-propose、apply、archive/promote 时通过 workflow sync 或对应命令同步；同步 MUST 覆盖 trace Frontmatter 与 fenced `yaml` 中的 `status`、`iteration`、`openspec_changes[].status`，并在 `## 变更记录` 追加幂等 workflow event 行。
+
+`issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` 是目录级当前态看板索引，SHOULD 在 REQ/BUG 新建、文档生成/补齐、评审、纳入 Sprint、创建 Change、apply、archive、状态同步或历史漂移修复后更新对应 Issue 当前态行。它们只提供全局定位入口，不替代 `_registry.yaml`、单条 Issue `trace.md`、OpenSpec Change 或 Sprint 四件套事实源。
 
 Issue 子文档同步（MUST）：
 
@@ -179,6 +183,14 @@ python scripts/validate-openspec-language.py
 
 `mintlify/` 是公开产品手册源目录和站点投影目录，不是 release 事实源。`mintlify/docs/latest/`、`mintlify/docs/vX.Y.Z/` 与 `mintlify/releases/vX.Y.Z/` MUST 能追溯到 `docs/` 长期文档、`releases/vX.Y.Z/release.json` 或 `releases/vX.Y.Z/announcement.mdx`。
 
+产品版本发布对象 SHOULD 记录 `usage_docs.status`：
+
+- `generated`：本版本已生成或刷新 Mintlify 投影，并记录生成命令、校验结果、版本或 latest 投影和执行时间。
+- `skipped`：用户或发布负责人明确确认本版本无需刷新产品手册，并记录确认来源、确认时间和跳过原因。
+- `pending_confirmation`：尚未确认是否刷新产品手册；发布准备或发布确认不得视为完成。
+
+MoonBox 当前不强制每个版本创建完整 `releases/vX.Y.Z/usage-docs/` 快照；如后续启用版本化 usage docs 快照，必须先通过 OpenSpec Change 补齐 manifest、继承策略、旧版本维护授权和校验脚本。
+
 MoonBox 当前使用轻量产品手册生成流程：
 
 ```bash
@@ -187,6 +199,8 @@ python scripts/validate-mintlify-docs.py
 ```
 
 产品手册页面必须公开安全，不得包含真实密钥、真实 `.env`、数据库连接串、Authorization header、Cookie、对象存储凭据、生产私有地址或真实客户数据。发布公告事实源仍保存在 `releases/vX.Y.Z/announcement.mdx`；Mintlify 中的发布公告只是投影。
+
+`docs-site` 服务只用于预览或承载 `mintlify/` 公开源目录。Compose 配置 MUST 只读挂载 `mintlify/` 和必要静态预览脚本，不得挂载真实 env、运行时数据库、对象存储数据、后端运行时目录或密钥文件。
 
 ## 7. Workflow Sync（MUST）
 

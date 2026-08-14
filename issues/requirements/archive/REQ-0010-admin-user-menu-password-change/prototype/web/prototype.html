@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REQ-0010 后台修改密码 Modal 原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0A0C1B;
+      --panel: #12142B;
+      --line: rgba(234,242,255,.14);
+      --text: #E7E8F3;
+      --muted: #7C81A6;
+      --gold: #CBA35C;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 280px 1fr; }
+    aside { border-right: 1px solid var(--line); padding: 24px 18px; display: flex; flex-direction: column; justify-content: space-between; }
+    main { padding: 40px; color: var(--muted); }
+    .menu { border: 1px solid var(--line); background: rgba(18,20,43,.96); padding: 8px; margin-bottom: 10px; }
+    .menu button, .trigger, .modal footer button { width: 100%; border: 0; background: transparent; color: var(--text); text-align: left; padding: 10px 12px; border-radius: 2px; }
+    .menu button.active { color: var(--gold); }
+    .trigger { border: 1px solid var(--line); display: flex; gap: 10px; align-items: center; }
+    .avatar { width: 32px; height: 32px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--gold); }
+    .overlay { position: fixed; inset: 0; background: rgba(3,5,14,.64); display: grid; place-items: center; padding: 24px; }
+    .modal { width: min(520px, 100%); max-height: min(680px, calc(100vh - 48px)); background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; }
+    .modal header, .modal footer { padding: 20px 24px; border-bottom: 1px solid var(--line); }
+    .modal footer { border-top: 1px solid var(--line); border-bottom: 0; display: flex; justify-content: flex-end; gap: 10px; }
+    .modal h1 { margin: 0 0 8px; font-family: "Noto Serif SC", serif; font-size: 22px; font-weight: 600; }
+    .modal p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .body { padding: 20px 24px; overflow: auto; display: grid; gap: 16px; }
+    label { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
+    input { height: 40px; border: 1px solid var(--line); background: rgba(10,12,27,.82); color: var(--text); padding: 0 12px; border-radius: 2px; }
+    .error { color: #E6A6A6; font-size: 13px; min-height: 18px; }
+    .secondary { border: 1px solid var(--line) !important; width: auto !important; }
+    .primary { background: var(--gold) !important; color: #10111C !important; width: auto !important; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div>MoonBox Admin</div>
+      <div>
+        <div class="menu" role="menu" aria-label="用户菜单">
+          <button type="button">个人资料</button>
+          <button type="button" class="active">修改密码</button>
+          <button type="button">界面主题</button>
+          <button type="button">退出登录</button>
+        </div>
+        <button class="trigger" type="button" aria-expanded="true"><span class="avatar">吴</span><span>admin<br><small>超级管理员</small></span></button>
+      </div>
+    </aside>
+    <main>
+      <h2>用户管理</h2>
+      <p>背景页面保持可识别，修改密码以 modal 方式覆盖当前上下文。</p>
+    </main>
+  </div>
+  <div class="overlay">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="change-password-title">
+      <header>
+        <h1 id="change-password-title">修改密码</h1>
+        <p>更新后当前账号的旧会话将全部失效，需要重新登录。</p>
+      </header>
+      <div class="body">
+        <label>当前密码<input type="password" autocomplete="current-password"></label>
+        <label>新密码<input type="password" autocomplete="new-password"></label>
+        <label>确认新密码<input type="password" autocomplete="new-password"></label>
+        <div class="error" aria-live="polite">错误反馈区域：当前密码错误或新密码不符合规则。</div>
+      </div>
+      <footer>
+        <button class="secondary" type="button">取消</button>
+        <button class="primary" type="button">更新密码</button>
+      </footer>
+    </section>
+  </div>
+</body>
+</html>

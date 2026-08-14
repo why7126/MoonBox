@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REQ-0015 登录页密码显隐原型</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0A0C1B;
+      color: #E7E8F3;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+    }
+    .login-card {
+      width: min(420px, calc(100vw - 32px));
+      border: 1px solid rgba(234, 242, 255, .12);
+      background: #12142B;
+      padding: 32px;
+      border-radius: 2px;
+    }
+    .login-field {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .password-field {
+      position: relative;
+    }
+    .password-field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 44px 12px 12px;
+      border: 1px solid rgba(234, 242, 255, .16);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, .04);
+      color: #E7E8F3;
+    }
+    .password-field button {
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      width: 32px;
+      height: 28px;
+      transform: translateY(-50%);
+      border: 1px solid transparent;
+      border-radius: 2px;
+      background: transparent;
+      color: #A8ADC8;
+    }
+  </style>
+</head>
+<body>
+  <form class="login-card" aria-label="MoonBox login">
+    <h1>开启你的宝盒</h1>
+    <label class="login-field">
+      <span>用户名</span>
+      <input name="username" autocomplete="username" placeholder="请输入用户名">
+    </label>
+    <label class="login-field">
+      <span>密码</span>
+      <span class="password-field">
+        <input name="password" type="password" autocomplete="current-password" placeholder="请输入密码">
+        <button type="button" aria-label="显示密码" aria-pressed="false">Eye</button>
+      </span>
+    </label>
+  </form>
+</body>
+</html>

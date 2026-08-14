@@ -48,6 +48,7 @@ class Settings:
     object_storage_bucket: str = "moonbox"
     object_storage_secure: bool = False
     object_storage_avatar_prefix: str = "images/avatars/"
+    admin_space_application_demo_seed: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -88,6 +89,10 @@ class Settings:
             object_storage_bucket=_clean(os.getenv("MINIO_BUCKET")) or "moonbox",
             object_storage_secure=(_clean(os.getenv("MINIO_SECURE")) or "false").lower() in {"1", "true", "yes"},
             object_storage_avatar_prefix=_clean(os.getenv("OBJECT_STORAGE_PREFIX_IMAGES_AVATARS")) or "images/avatars/",
+            admin_space_application_demo_seed=(
+                _clean(os.getenv("ADMIN_SPACE_APPLICATION_DEMO_SEED")) or "false"
+            ).lower()
+            in {"1", "true", "yes"},
         )
 
     @property

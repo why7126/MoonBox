@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoonBox 空间管理</title>
+<style>
+:root{--primary:#4f6ef7;--success:#16a66a;--warning:#d88916;--danger:#dc4c64;--text:#202637;--muted:#6f7787;--border:#e4e8f0;--bg:#f5f7fb;--panel:#fff;--sidebar:#171c2a;--side2:#212838}*{box-sizing:border-box}body{margin:0;font:14px/1.5 Inter,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:var(--bg)}button,input,select,textarea{font:inherit}.app{display:flex;min-height:100vh}.sidebar{width:232px;background:var(--sidebar);color:#b8c0d2;padding:18px 12px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:750;font-size:17px;padding:4px 10px 22px}.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7d8cff,#4f6ef7);display:grid;place-items:center}.version{font-size:10px;border:1px solid #4b556d;padding:1px 5px;border-radius:5px;margin-left:auto}.group{font-size:10px;letter-spacing:1.2px;color:#6f7991;margin:16px 10px 7px}.nav{display:flex;align-items:center;gap:10px;padding:10px;border-radius:7px;color:#aeb7cb;cursor:pointer;margin:2px 0}.nav:hover,.nav.active{background:var(--side2);color:#fff}.nav.active{box-shadow:inset 3px 0 var(--primary)}.user{margin-top:auto;border-top:1px solid #30384a;padding:14px 8px 2px;display:flex;align-items:center;gap:9px}.avatar{width:32px;height:32px;border-radius:50%;background:#526683;color:#fff;display:grid;place-items:center;font-weight:700}.main{margin-left:232px;min-width:0;flex:1}.top{height:64px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;justify-content:flex-end;position:sticky;top:0;z-index:5}.theme{border:1px solid var(--border);background:var(--panel);border-radius:7px;padding:7px 10px;cursor:pointer;color:var(--text)}.content{padding:26px 28px;max-width:1600px;margin:auto}.head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}.head h1{font-size:24px;margin:0 0 5px}.sub{color:var(--muted)}.btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:7px;padding:8px 13px;cursor:pointer}.btn:hover{border-color:#aeb9d4}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}.btn.link{border:0;background:transparent;color:var(--primary);padding:4px 6px}.btn.warnlink{border:0;background:transparent;color:var(--danger);padding:4px 6px}.tabs{display:flex;border-bottom:1px solid var(--border);gap:22px;margin-bottom:18px}.tab{padding:10px 2px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}.tab.active{color:var(--primary);border-color:var(--primary);font-weight:650}.badge{background:var(--danger);color:#fff;font-size:10px;border-radius:10px;padding:1px 6px;margin-left:5px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:25px;font-weight:750;margin-top:5px}.filters{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:10px;margin-bottom:14px}.input,.select,.textarea{border:1px solid var(--border);border-radius:7px;background:var(--panel);color:var(--text);padding:8px 10px;outline:none}.input{min-width:260px}.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px #4f6ef71a}.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}table{border-collapse:collapse;width:100%}th{background:#f8f9fc;color:#596174;font-size:12px;text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);white-space:nowrap}td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:middle}tr:last-child td{border-bottom:0}.space-name{font-weight:650;color:var(--text);cursor:pointer}.code{color:var(--muted);font-size:11px}.status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-size:12px;background:#eaf7f1;color:var(--success)}.status.frozen{background:#edf0f5;color:#657087}.status.recycle{background:#fff0f2;color:var(--danger)}.dot{width:6px;height:6px;border-radius:50%;background:currentColor}.usage{width:100px;height:6px;background:#edf0f5;border-radius:4px;overflow:hidden;display:inline-block;margin-right:5px}.usage i{display:block;height:100%;background:var(--primary)}.usage.warn i{background:var(--warning)}.usage.bad i{background:var(--danger)}.pages{display:none}.pages.active{display:block}.pagination{padding:12px 14px;display:flex;justify-content:space-between;color:var(--muted);border-top:1px solid var(--border)}.detail-head{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}.crumb{font-size:12px;color:var(--muted);margin-bottom:12px;cursor:pointer}.detail-title{display:flex;justify-content:space-between;align-items:center}.detail-title h2{margin:0 8px 2px 0;display:inline-block}.detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 28px}.kv label{display:block;color:var(--muted);font-size:12px;margin-bottom:3px}.card-title{display:flex;justify-content:space-between;font-weight:700;margin-bottom:16px}.quota-row{margin:16px 0}.quota-meta{display:flex;justify-content:space-between;margin-bottom:6px}.bar{height:8px;border-radius:6px;background:#edf0f5;overflow:hidden}.bar span{display:block;height:100%;background:var(--primary)}.bar.warn span{background:var(--warning)}.notice{border:1px solid #cdd5ef;background:#f0f3ff;color:#3d4d86;padding:10px 12px;border-radius:8px;margin-bottom:14px}.timeline{border-left:2px solid var(--border);padding-left:18px;margin-left:5px}.event{margin-bottom:18px;position:relative}.event:before{content:"";position:absolute;left:-24px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--primary)}.modal-mask{display:none;position:fixed;inset:0;background:#10152399;z-index:20;align-items:center;justify-content:center;padding:30px}.modal-mask.open{display:flex}.modal{background:var(--panel);color:var(--text);border-radius:12px;width:620px;max-height:88vh;overflow:auto;box-shadow:0 24px 70px #0c102455}.modal.small{width:470px}.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);font-size:17px;font-weight:750;display:flex;justify-content:space-between}.modal-body{padding:18px 20px}.modal-foot{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field .input,.field .select,.field .textarea{width:100%;min-width:0}.req{color:var(--danger)}.hint{font-size:12px;color:var(--muted);margin-top:5px}.alert{background:#fff7e8;border:1px solid #f0d59b;color:#865e13;padding:10px;border-radius:7px;margin-bottom:12px}.dangerbox{background:#fff0f2;border:1px solid #f2c3cb;color:#923144;padding:10px;border-radius:7px;margin-bottom:12px}.toast{position:fixed;right:25px;top:78px;background:#172033;color:#fff;padding:11px 15px;border-radius:8px;z-index:50;opacity:0;transform:translateY(-8px);transition:.2s}.toast.show{opacity:1;transform:none}.dark-content{--text:#e8ebf3;--muted:#9ca6ba;--border:#343c4d;--bg:#151a25;--panel:#202735}.dark-content th{background:#252d3c}.dark-content .notice{background:#252f50}.dark-content .status{background:#163d30}.dark-content .status.frozen{background:#303849}.dark-content .usage,.dark-content .bar{background:#3a4355}
+</style>
+<style>
+.filters .input{flex:1;min-width:320px}
+.detail-meta{display:flex;align-items:center;gap:14px;margin-top:5px}
+.detail-owner{display:inline-flex;align-items:center;gap:7px;padding-left:14px;border-left:1px solid var(--border)}
+.detail-owner .avatar{width:26px;height:26px;font-size:11px}
+.detail-owner .btn{height:auto;padding:0 4px}
+.user-wrap{margin-top:auto;position:relative}.user{margin-top:0;cursor:pointer}.user-chevron{margin-left:auto;color:var(--muted);transition:.2s}.user-wrap.open .user-chevron{transform:rotate(180deg)}.user-menu{display:none;position:absolute;left:0;right:0;bottom:68px;background:var(--panel);border:1px solid var(--border);box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:12;padding:6px}.user-wrap.open .user-menu{display:block}.user-menu-item{width:100%;height:38px;border:0;background:transparent;color:var(--text);display:flex;align-items:center;gap:9px;padding:0 10px;cursor:pointer;text-align:left}.user-menu-item:hover{background:var(--side2)}.user-menu-item .menu-value{margin-left:auto;color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">
+<span class="logo">◇</span>MoonBox <span class="version">v1.0.0</span>
+</div>
+<div class="group">OPERATIONS</div>
+<div class="nav">⌂ 首页</div>
+<div class="nav active">▦ 空间管理</div>
+<div class="group">SYSTEM</div>
+<div class="nav">♙ 用户管理</div>
+<div class="nav">⚙ 系统设置</div>
+<div class="nav">≡ 日志审计</div>
+<div class="nav">⌘ 接口文档</div>
+<div class="user-wrap" id="userMenu">
+<div class="user-menu">
+<button class="user-menu-item" id="theme"><span>◐</span><span>主题</span><span class="menu-value" id="themeValue">暗色</span></button>
+</div>
+<div class="user" id="userMenuTrigger">
+<span class="avatar">SA</span>
+<div>
+<b style="color:#fff">Super Admin</b>
+<div style="font-size:11px">超级管理员</div>
+</div>
+<span class="user-chevron">⌃</span>
+</div>
+</div>
+</aside>
+<main class="main">
+<div class="content">
+<section id="list-shell">
+<div class="head">
+<div>
+<h1>空间管理</h1>
+<div class="sub">管理空间全生命周期、产品绑定及资源用量</div>
+</div>
+<button class="btn primary" data-open="create">＋ 创建空间</button>
+</div>
+<div class="tabs">
+<div class="tab active" data-page="spaces">空间列表</div>
+<div class="tab" data-page="approvals">申请审批 <span class="badge">3</span>
+</div>
+<div class="tab" data-page="recycle">回收站</div>
+</div>
+<div id="page-spaces" class="pages active">
+<div class="stats">
+<div class="card">
+<div class="stat-label">空间总数</div>
+<div class="stat-value">28</div>
+</div>
+<div class="card">
+<div class="stat-label">正常运行</div>
+<div class="stat-value">23</div>
+</div>
+<div class="card">
+<div class="stat-label">已冻结</div>
+<div class="stat-value">5</div>
+</div>
+<div class="card">
+<div class="stat-label">资源预警</div>
+<div class="stat-value" style="color:var(--warning)">4</div>
+</div>
+</div>
+<div class="filters">
+<input class="input" placeholder="搜索空间名称 / 唯一标识 / 负责人">
+<select class="select">
+<option>全部状态</option>
+<option>正常</option>
+<option>已冻结</option>
+</select>
+<select class="select">
+<option>全部来源</option>
+<option>后台创建</option>
+<option>申请审批</option>
+</select>
+<select class="select">
+<option>用量状态</option>
+<option>正常</option>
+<option>预警</option>
+<option>超限</option>
+</select>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>空间</th>
+<th>负责人</th>
+<th>成员</th>
+<th>产品</th>
+<th>AI 用量</th>
+<th>有效期</th>
+<th>状态</th>
+<th>创建来源</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<div class="space-name detail-link">MoonBox 核心研发</div>
+<div class="code">moonbox-core</div>
+</td>
+<td>吴宇森</td>
+<td>18 / 30</td>
+<td>1</td>
+<td>
+<span class="usage warn">
+<i style="width:86%">
+</i>
+</span>86%</td>
+<td>2027-07-31</td>
+<td>
+<span class="status">
+<i class="dot">
+</i>正常</span>
+</td>
+<td>后台创建</td>
+<td>
+<button class="btn link detail-link">查看</button>
+<button class="btn link" data-open="edit">编辑</button>
+<button class="btn link" data-open="freeze">冻结</button>
+<button class="btn link">更多</button>
+</td>
+</tr>
+<tr>
+<td>
+<div class="space-name detail-link">核电知识工程</div>
+<div class="code">nuclear-km</div>
+</td>
+<td>陈琳</td>
+<td>42 / 50</td>
+<td>1</td>
+<td>
+<span class="usage bad">
+<i style="width:100%">
+</i>
+</span>100%</td>
+<td>2026-09-30</td>
+<td>
+<span class="status">
+<i class="dot">
+</i>正常</span>
+</td>
+<td>申请审批</td>
+<td>
+<button class="btn link detail-link">查看</button>
+<button class="btn link" data-open="edit">编辑</button>
+<button class="btn link" data-open="freeze">冻结</button>
+<button class="btn link">更多</button>
+</td>
+</tr>
+<tr>
+<td>
+<div class="space-name detail-link">智能会议纪要</div>
+<div class="code">meeting-ai</div>
+</td>
+<td>李哲</td>
+<td>12 / 20</td>
+<td>1</td>
+<td>
+<span class="usage">
+<i style="width:54%">
+</i>
+</span>54%</td>
+<td>2026-08-01</td>
+<td>
+<span class="status frozen">
+<i class="dot">
+</i>已冻结</span>
+</td>
+<td>后台创建</td>
+<td>
+<button class="btn link detail-link">查看</button>
+<button class="btn link" data-open="restore">恢复</button>
+<button class="btn link">更多</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="pagination">
+<span>共 28 个空间</span>
+<span>‹　1　2　3　›　 每页 10 条</span>
+</div>
+</div>
+</div>
+<div id="page-approvals" class="pages">
+<div class="filters">
+<input class="input" placeholder="搜索申请空间 / 申请人">
+<select class="select">
+<option>待审批</option>
+<option>已通过</option>
+<option>已拒绝</option>
+<option>已撤回</option>
+</select>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>申请空间</th>
+<th>申请人</th>
+<th>拟任负责人</th>
+<th>用途</th>
+<th>预计成员</th>
+<th>资源需求</th>
+<th>提交时间</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<b>企业文档智能生成</b>
+<div class="code">doc-gen</div>
+</td>
+<td>赵敏</td>
+<td>赵敏</td>
+<td>建设部门文档生成与审核工作台</td>
+<td>25</td>
+<td>100GB / 500万 Token</td>
+<td>2026-08-11 09:35</td>
+<td>
+<button class="btn primary" data-open="approve">审批</button>
+</td>
+</tr>
+<tr>
+<td>
+<b>招标知识图谱</b>
+<div class="code">bid-graph</div>
+</td>
+<td>周宁</td>
+<td>周宁</td>
+<td>工程设备知识结构化验证</td>
+<td>15</td>
+<td>200GB / 300万 Token</td>
+<td>2026-08-10 17:20</td>
+<td>
+<button class="btn primary" data-open="approve">审批</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="page-recycle" class="pages">
+<div class="notice">空间、同名产品及关联数据将在删除后保留 30 天。到期后系统将永久删除。</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>空间</th>
+<th>原负责人</th>
+<th>删除人</th>
+<th>删除时间</th>
+<th>删除原因</th>
+<th>剩余时间</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<b>旧版测试空间</b>
+<div class="code">legacy-test</div>
+</td>
+<td>王晨</td>
+<td>admin</td>
+<td>2026-08-03 14:21</td>
+<td>项目验证结束</td>
+<td>
+<span class="status recycle">剩余 22 天</span>
+</td>
+<td>
+<button class="btn link" data-open="restore">恢复</button>
+<button class="btn warnlink" data-open="purge">永久删除</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="page-detail" class="pages">
+<div class="crumb" id="back">空间管理 / 空间列表 / MoonBox 核心研发</div>
+<div class="detail-head">
+<div class="detail-title">
+<div>
+<h2>MoonBox 核心研发</h2>
+<span class="status">
+<i class="dot">
+</i>正常</span>
+<div class="detail-meta">
+<span class="code">moonbox-core · 后台创建</span>
+<span class="detail-owner"><span class="avatar">吴</span><span><b>吴宇森</b> · 负责人</span><button class="btn link" data-open="transfer">变更</button></span>
+</div>
+</div>
+<div>
+<button class="btn" data-open="renew">续期</button> <button class="btn" data-open="freeze">冻结</button> <button class="btn danger" data-open="delete">删除</button>
+</div>
+</div>
+</div>
+<div class="tabs">
+<div class="tab detail-tab active" data-section="overview">概览</div>
+<div class="tab detail-tab" data-section="members">成员</div>
+<div class="tab detail-tab" data-section="product">产品</div>
+<div class="tab detail-tab" data-section="quota">配额与用量</div>
+<div class="tab detail-tab" data-section="logs">操作记录</div>
+</div>
+<div id="overview" class="detail-section">
+<div class="notice">空间与产品永久一对一绑定；修改空间名称将同步修改产品名称。</div>
+<div class="detail-grid">
+<div class="card">
+<div class="card-title">基础信息 <button class="btn link" onclick="toast('基础信息编辑弹窗已打开')">编辑</button>
+</div>
+<div class="kv">
+<div>
+<label>空间名称</label>MoonBox 核心研发</div>
+<div>
+<label>唯一标识</label>moonbox-core（不可修改）</div>
+<div>
+<label>绑定产品</label>MoonBox 核心研发</div>
+<div>
+<label>创建时间</label>2026-03-18 10:26:42</div>
+<div>
+<label>有效期</label>2027-07-31</div>
+<div>
+<label>创建来源</label>后台创建</div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">最近操作</div>
+<div class="timeline">
+<div class="event">
+<b>AI 配额调整</b>
+<div class="sub">300万 → 500万 · admin · 2小时前</div>
+</div>
+<div class="event">
+<b>新增空间成员</b>
+<div class="sub">加入 2 名普通成员 · 吴宇森 · 昨天</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">配额与用量 <button class="btn link" data-open="quota">调整</button>
+</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>成员数</span>
+<span>18 / 30</span>
+</div>
+<div class="bar">
+<span style="width:60%">
+</span>
+</div>
+</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>存储量</span>
+<span>78 / 100 GB</span>
+</div>
+<div class="bar">
+<span style="width:78%">
+</span>
+</div>
+</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>AI Token / 本月</span>
+<span style="color:var(--warning)">430 / 500 万</span>
+</div>
+<div class="bar warn">
+<span style="width:86%">
+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="members" class="detail-section" style="display:none">
+<div class="card">
+<div class="card-title">空间成员（同时为产品成员） <button class="btn primary">＋ 添加成员</button>
+</div>
+<table>
+<tr>
+<th>成员</th>
+<th>角色</th>
+<th>加入时间</th>
+<th>状态</th>
+</tr>
+<tr>
+<td>吴宇森</td>
+<td>空间负责人</td>
+<td>2026-03-18</td>
+<td>
+<span class="status">正常</span>
+</td>
+</tr>
+<tr>
+<td>陈琳</td>
+<td>空间管理员</td>
+<td>2026-04-02</td>
+<td>
+<span class="status">正常</span>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="product" class="detail-section" style="display:none">
+<div class="card">
+<div class="card-title">绑定产品</div>
+<div class="notice">绑定关系不可解除或迁移，产品名称始终与空间名称一致。</div>
+<div class="kv">
+<div>
+<label>产品名称</label>MoonBox 核心研发</div>
+<div>
+<label>产品 ID</label>prod_01JMQ7C9</div>
+<div>
+<label>绑定状态</label>永久绑定</div>
+<div>
+<label>研发状态</label>进行中</div>
+</div>
+</div>
+</div>
+<div id="quota" class="detail-section" style="display:none">
+<div class="card">
+<div class="card-title">资源配额详情 <button class="btn primary" data-open="quota">调整配额</button>
+</div>
+<div class="alert">AI Token 用量已达到 86%，已通知空间负责人及平台管理员。</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>成员数</span>
+<span>18 / 30</span>
+</div>
+<div class="bar">
+<span style="width:60%">
+</span>
+</div>
+</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>存储量</span>
+<span>78 / 100 GB</span>
+</div>
+<div class="bar">
+<span style="width:78%">
+</span>
+</div>
+</div>
+<div class="quota-row">
+<div class="quota-meta">
+<span>AI Token</span>
+<span>430 / 500 万</span>
+</div>
+<div class="bar warn">
+<span style="width:86%">
+</span>
+</div>
+</div>
+</div>
+</div>
+<div id="logs" class="detail-section" style="display:none">
+<div class="card">
+<div class="card-title">操作记录</div>
+<div class="timeline">
+<div class="event">
+<b>调整 AI Token 配额</b>
+<div>300万 → 500万；原因：迭代开发调用增长</div>
+<div class="sub">admin · 平台运营后台 · 2026-08-11 08:20 · 成功</div>
+</div>
+<div class="event">
+<b>负责人移交</b>
+<div>李哲 → 吴宇森；原因：项目负责人调整</div>
+<div class="sub">superadmin · 平台运营后台 · 2026-07-20 14:05 · 成功</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<div class="toast" id="toast">
+</div>
+<div class="modal-mask" data-modal="create">
+<div class="modal">
+<div class="modal-head">创建空间 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="grid2">
+<div class="field">
+<label>空间名称 <span class="req">*</span>
+</label>
+<input class="input" value="MoonBox 新产品">
+</div>
+<div class="field">
+<label>唯一标识 <span class="req">*</span>
+</label>
+<input class="input" value="moonbox-new">
+<div class="hint">创建后不可修改</div>
+</div>
+</div>
+<div class="field">
+<label>空间简介</label>
+<textarea class="textarea" rows="2" placeholder="说明空间用途">
+</textarea>
+</div>
+<div class="grid2">
+<div class="field">
+<label>负责人 <span class="req">*</span>
+</label>
+<select class="select">
+<option>请选择负责人</option>
+<option>吴宇森</option>
+</select>
+</div>
+<div class="field">
+<label>有效期 <span class="req">*</span>
+</label>
+<input class="input" type="date" value="2027-08-11">
+</div>
+<div class="field">
+<label>成员配额</label>
+<input class="input" type="number" value="30">
+</div>
+<div class="field">
+<label>存储配额（GB）</label>
+<input class="input" type="number" value="100">
+</div>
+<div class="field">
+<label>AI 月配额（万 Token）</label>
+<input class="input" type="number" value="500">
+</div>
+<div class="field">
+<label>初始成员（可选）</label>
+<input class="input" placeholder="搜索并添加用户">
+</div>
+</div>
+<div class="notice">创建后将同步生成同名产品，空间与产品永久一对一绑定。</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="空间与同名产品已创建">创建空间</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="approve">
+<div class="modal">
+<div class="modal-head">审批空间申请 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="notice">
+<b>企业文档智能生成</b>
+<br>用途：建设部门文档生成与审核工作台</div>
+<div class="grid2">
+<div class="field">
+<label>核定负责人</label>
+<select class="select">
+<option>赵敏</option>
+</select>
+</div>
+<div class="field">
+<label>有效期</label>
+<input class="input" type="date" value="2027-08-11">
+</div>
+<div class="field">
+<label>成员配额</label>
+<input class="input" value="30">
+</div>
+<div class="field">
+<label>存储配额（GB）</label>
+<input class="input" value="100">
+</div>
+<div class="field">
+<label>AI 月配额（万 Token）</label>
+<input class="input" value="500">
+</div>
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-submit="申请已拒绝，请求已通知申请人">拒绝</button>
+<button class="btn primary" data-submit="申请已通过，空间与产品已创建">通过并创建</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="freeze">
+<div class="modal small">
+<div class="modal-head">冻结空间 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="alert">冻结后仅允许查看、检索和导出；成员变更、内容修改、任务、Agent/Skill 与 AI 调用将停用。</div>
+<div class="field">
+<label>冻结原因 <span class="req">*</span>
+</label>
+<textarea class="textarea" rows="3" placeholder="请输入冻结原因">
+</textarea>
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="空间已冻结为只读">确认冻结</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="restore">
+<div class="modal small">
+<div class="modal-head">恢复空间 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="notice">恢复后将按原成员、角色、配额和产品绑定关系整体恢复。</div>
+<div class="field">
+<label>恢复说明</label>
+<textarea class="textarea" rows="2">
+</textarea>
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="空间及关联产品已恢复">确认恢复</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="quota">
+<div class="modal small">
+<div class="modal-head">调整配额 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="grid2">
+<div class="field">
+<label>成员数</label>
+<input class="input" value="30">
+</div>
+<div class="field">
+<label>存储量（GB）</label>
+<input class="input" value="100">
+</div>
+<div class="field">
+<label>AI 月配额（万 Token）</label>
+<input class="input" value="500">
+</div>
+</div>
+<div class="field">
+<label>调整原因 <span class="req">*</span>
+</label>
+<textarea class="textarea" rows="2">
+</textarea>
+</div>
+<div class="hint">低于当前用量不会删除已有数据，但会立即限制新增或消耗。</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="配额已调整并记录审计日志">保存</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="renew">
+<div class="modal small">
+<div class="modal-head">空间续期 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="field">
+<label>当前有效期</label>
+<input class="input" value="2027-07-31" disabled>
+</div>
+<div class="field">
+<label>新有效期 <span class="req">*</span>
+</label>
+<input class="input" type="date" value="2028-07-31">
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="空间已续期并通知负责人">确认续期</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="transfer">
+<div class="modal small">
+<div class="modal-head">移交负责人 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="field">
+<label>新负责人 <span class="req">*</span>
+</label>
+<select class="select">
+<option>陈琳 · 空间管理员</option>
+<option>李哲 · 普通成员</option>
+</select>
+</div>
+<div class="field">
+<label>移交原因 <span class="req">*</span>
+</label>
+<textarea class="textarea" rows="2">
+</textarea>
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn primary" data-submit="负责人已变更并通知相关人员">确认移交</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="delete">
+<div class="modal small">
+<div class="modal-head">删除空间 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="dangerbox">空间、同名产品和关联数据将整体进入 30 天回收期。运行中任务、Agent 或未完成迭代会阻止删除。</div>
+<div class="field">
+<label>删除原因 <span class="req">*</span>
+</label>
+<textarea class="textarea" rows="2">
+</textarea>
+</div>
+<label>
+<input type="checkbox"> 我已确认当前空间无运行中任务和未完成迭代</label>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn danger" data-submit="空间已进入 30 天回收期">删除空间</button>
+</div>
+</div>
+</div>
+<div class="modal-mask" data-modal="edit">
+<div class="modal">
+<div class="modal-head">编辑空间 <span data-close>×</span></div>
+<div class="modal-body">
+<div class="grid2">
+<div class="field"><label>空间名称 <span class="req">*</span></label><input class="input" value="MoonBox 核心研发"><div class="hint">保存后将同步修改绑定产品名称</div></div>
+<div class="field"><label>唯一标识</label><input class="input" value="moonbox-core" disabled><div class="hint">创建后不可修改</div></div>
+</div>
+<div class="field"><label>空间简介</label><textarea class="textarea" rows="3">MoonBox 核心产品研发与协作空间</textarea></div>
+<div class="field"><label>有效期 <span class="req">*</span></label><input class="input" type="date" value="2027-07-31"></div>
+<div class="notice">负责人变更属于独立高风险操作，请使用详情页顶部的“变更”入口。</div>
+</div>
+<div class="modal-foot"><button class="btn" data-close>取消</button><button class="btn primary" data-submit="空间信息已更新并记录审计日志">保存</button></div>
+</div>
+</div>
+<div class="modal-mask" data-modal="purge">
+<div class="modal small">
+<div class="modal-head">永久删除空间 <span data-close>×</span>
+</div>
+<div class="modal-body">
+<div class="dangerbox">
+<b>此操作不可撤销。</b>空间、产品及关联数据将被永久删除。</div>
+<div class="field">
+<label>输入唯一标识 <span class="req">*</span>
+</label>
+<input class="input" placeholder="legacy-test">
+</div>
+<div class="field">
+<label>永久删除原因 <span class="req">*</span>
+</label>
+<textarea class="textarea" rows="2">
+</textarea>
+</div>
+</div>
+<div class="modal-foot">
+<button class="btn" data-close>取消</button>
+<button class="btn danger" data-submit="空间已永久删除">永久删除</button>
+</div>
+</div>
+</div>
+<script>const qs=s=>document.querySelector(s),qsa=s=>document.querySelectorAll(s);qsa('.tab[data-page]').forEach(t=>t.onclick=()=>{qsa('.tab[data-page]').forEach(x=>x.classList.remove('active'));t.classList.add('active');qsa('#list-shell .pages').forEach(p=>p.classList.remove('active'));qs('#page-'+t.dataset.page).classList.add('active')});qsa('.detail-link').forEach(x=>x.onclick=()=>{qs('#list-shell').style.display='none';qs('#page-detail').classList.add('active')});qs('#back').onclick=()=>{qs('#page-detail').classList.remove('active');qs('#list-shell').style.display='block'};qsa('.detail-tab').forEach(t=>t.onclick=()=>{qsa('.detail-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');qsa('.detail-section').forEach(x=>x.style.display='none');qs('#'+t.dataset.section).style.display='block'});qsa('[data-open]').forEach(x=>x.onclick=e=>{e.stopPropagation();qs('[data-modal="'+x.dataset.open+'"]').classList.add('open')});qsa('[data-close]').forEach(x=>x.onclick=()=>x.closest('.modal-mask').classList.remove('open'));qsa('[data-submit]').forEach(x=>x.onclick=()=>{x.closest('.modal-mask').classList.remove('open');toast(x.dataset.submit)});qsa('.modal-mask').forEach(x=>x.onclick=e=>{if(e.target===x)x.classList.remove('open')});function toast(m){let t=qs('#toast');t.textContent='✓ '+m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}</script>
+<style id="moonbox-platform-v105-theme">
+:root{--primary:#CBA35C;--success:#6FBF9A;--warning:#D5A85B;--danger:#D47476;--text:#E7E8F3;--muted:#7C81A6;--border:rgba(234,242,255,.10);--bg:#0A0C1B;--panel:#12142B;--sidebar:#0E1023;--side2:rgba(203,163,92,.08)}body.light{--primary:#B8863E;--text:#232A42;--muted:rgba(35,42,66,.55);--border:rgba(20,33,61,.10);--bg:#F6F7FB;--panel:#FFF;--sidebar:#F0F2F7;--side2:rgba(184,134,62,.08)}body{font-family:"Noto Sans SC",Inter,system-ui,sans-serif;font-size:13px}.sidebar{width:224px;border-right:1px solid var(--border);padding:0 10px}.brand{height:72px;padding:0 12px;border-bottom:1px solid var(--border);font-family:"Noto Serif SC",serif}.logo{width:30px;height:30px;border-radius:0;border:1px solid var(--primary);background:transparent;color:var(--primary)}.version{border-color:color-mix(in srgb,var(--primary) 55%,transparent);border-radius:2px;color:var(--primary)}.group{color:var(--muted);margin-top:18px}.nav{height:40px;border-radius:0;margin:0;padding:0 12px}.nav:hover,.nav.active{background:var(--side2);color:var(--text)}.nav.active{box-shadow:inset 2px 0 var(--primary)}.user{border-color:var(--border);margin-bottom:14px}.main{margin-left:224px}.top{height:72px;background:color-mix(in srgb,var(--bg) 94%,transparent);border-color:var(--border)}.content{padding:26px 30px 48px}.head h1,.detail-title h2,.modal-head,.card-title{font-family:"Noto Serif SC",serif;color:var(--text)}.head h1{font-size:25px}.btn,.theme,.input,.select,.textarea,.card,.filters,.table-wrap,.detail-head,.modal,.notice,.alert,.dangerbox{border-radius:2px}.btn{height:36px;padding:0 15px}.btn.primary{color:#090b16;font-weight:600}.stats{gap:12px}.card{background:var(--panel);border-color:var(--border)}.stat-value{font-family:"EB Garamond",serif;font-size:30px}.filters{background:transparent;padding:0;border:0}.input,.select,.textarea{background:var(--panel);border-color:var(--border)}th{height:44px;background:var(--sidebar);color:var(--muted);font-weight:500;border-color:var(--border)}td{height:54px;border-color:var(--border)}.table-wrap{border-color:var(--border)}.tabs{border-color:var(--border)}.tab.active{color:var(--primary);border-color:var(--primary)}.status{border-radius:0;background:rgba(111,191,154,.10)}.status.frozen{background:rgba(124,129,166,.12)}.status.recycle{background:rgba(212,116,118,.10)}.notice{background:rgba(203,163,92,.07);border-color:rgba(203,163,92,.25);color:var(--text)}.modal-mask{background:rgba(3,4,11,.68)}.modal{border:1px solid var(--border);box-shadow:0 24px 70px rgba(0,0,0,.45)}.modal-head,.modal-foot{border-color:var(--border)}.date-type{display:flex;gap:18px;height:36px;align-items:center;border:1px solid var(--border);background:var(--panel);padding:0 11px}.date-type label{display:inline-flex;align-items:center;gap:6px;margin:0;color:var(--text);cursor:pointer}.date-type input{accent-color:var(--primary)}.long-term-note{color:var(--muted);font-size:11px;margin-top:5px}.expiry-long{color:var(--primary);font-weight:600}
+</style>
+<script>
+document.querySelector('.version').textContent='v1.0.4';const userMenu=document.querySelector('#userMenu'),userMenuTrigger=document.querySelector('#userMenuTrigger'),themeButton=document.querySelector('#theme'),themeValue=document.querySelector('#themeValue');userMenuTrigger.onclick=e=>{e.stopPropagation();userMenu.classList.toggle('open')};document.addEventListener('click',()=>userMenu.classList.remove('open'));themeButton.onclick=e=>{e.stopPropagation();document.body.classList.toggle('light');const isLight=document.body.classList.contains('light');themeValue.textContent=isLight?'亮色':'暗色';userMenu.classList.remove('open');toast(`已切换为${isLight?'亮色':'暗色'}主题`)};
+function installExpiryMode(modalName,dateLabelText){const modal=document.querySelector(`[data-modal="${modalName}"]`);if(!modal)return;const dateInput=[...modal.querySelectorAll('input[type="date"]')].find(i=>!i.disabled);if(!dateInput)return;const field=dateInput.closest('.field');field.querySelector('label').textContent=dateLabelText;const mode=document.createElement('div');mode.className='date-type';mode.innerHTML=`<label>
+<input type="radio" name="expiry-${modalName}" value="fixed" checked> 固定日期</label>
+<label>
+<input type="radio" name="expiry-${modalName}" value="long"> 长期有效</label>`;field.insertBefore(mode,dateInput);dateInput.style.marginTop='8px';const note=document.createElement('div');note.className='long-term-note';note.textContent='选择长期有效后，不设置到期日期，空间不会因有效期结束自动冻结。';field.appendChild(note);note.hidden=true;mode.querySelectorAll('input').forEach(r=>r.onchange=()=>{const fixed=r.value==='fixed';dateInput.hidden=!fixed;dateInput.required=fixed;note.hidden=fixed})}
+installExpiryMode('create','空间有效期 *');installExpiryMode('approve','核定有效期');installExpiryMode('renew','新有效期 *');installExpiryMode('edit','空间有效期 *');const validityCells=[...document.querySelectorAll('th')].filter(th=>th.textContent.trim()==='有效期');if(validityCells[0]){const row=validityCells[0].closest('table').querySelectorAll('tbody tr')[1];if(row)row.cells[5].innerHTML='<span class="expiry-long">长期有效</span>'}const validityValue=[...document.querySelectorAll('.kv label')].find(l=>l.textContent.trim()==='有效期');if(validityValue)validityValue.parentElement.insertAdjacentHTML('afterend','<div><label>有效期类型</label>固定日期</div>');
+</script>
+</body>
+</html>

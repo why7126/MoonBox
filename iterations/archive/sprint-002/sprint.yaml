@@ -1,0 +1,253 @@
+sprint_id: sprint-002
+status: completed
+lifecycle_stage: archive
+start_date: 2026-08-09 07:26:26
+end_date: 2026-08-23 07:26:26
+capacity:
+  developers: 1
+  testers: 1
+capacity_person_days: 30
+requirements:
+  - REQ-0009-git-check-pre-push-security-gate
+  - REQ-0010-admin-user-menu-password-change
+  - REQ-0011-admin-user-menu-profile
+  - REQ-0012-frontend-requirement-center
+  - REQ-0013-requirement-center-real-data-integration
+  - REQ-0014-frontend-user-menu-profile
+  - REQ-0015-login-password-visibility-toggle
+  - REQ-0016-unified-account-auth-api
+  - REQ-0017-admin-space-management
+bugs:
+  - BUG-0001-admin-web-login-api-proxy-and-spa-fallback
+  - BUG-0002-homepage-frontend-login-entry-routes-to-admin
+  - BUG-0003-homepage-start-moonbox-should-open-login-route
+  - BUG-0004-frontend-user-menu-change-password-not-implemented
+  - BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
+  - BUG-0006-frontend-login-needs-real-frontend-auth
+  - BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
+  - BUG-0008-admin-users-self-freeze-delete-not-forbidden
+  - BUG-0009-frontend-admin-sidebar-version-mismatch
+  - BUG-0010-admin-user-actions-validation-no-feedback
+changes:
+  - add-git-check-pre-push-security-gate
+  - standardize-guided-command-feedback
+  - optimize-spec-study-log-first-learning
+  - apply-mintlify-lightweight-governance
+  - fix-admin-web-login-api-proxy-and-spa-fallback
+  - add-issues-changelog-index
+  - add-admin-user-menu-password-change
+  - add-admin-user-menu-profile
+  - add-frontend-requirement-center
+  - strengthen-prototype-ui-acceptance
+  - fix-homepage-frontend-login-entry-routes-to-admin
+  - add-requirement-center-real-data-integration
+  - optimize-issues-changelog-current-state-index
+  - fix-homepage-login-route
+  - fix-frontend-user-menu-change-password
+  - add-frontend-user-menu-profile
+  - fix-frontend-user-menu-session-state
+  - update-login-password-visibility-toggle
+  - fix-unified-frontend-login-auth
+  - update-unified-account-auth-api
+  - fix-docker-media-upload-acceptance-gate
+  - fix-admin-user-self-freeze-delete-protection
+  - fix-frontend-admin-sidebar-version-mismatch
+  - add-admin-space-management
+  - optimize-explore-chain-identity
+  - fix-admin-user-actions-validation-feedback
+estimated_story_points: 36
+estimated_person_days: 36
+fix_buffer_person_days: 0
+capacity_usage: 1.2
+knowledge_actions:
+  - id: S1-A001
+    status: in_sprint
+    rationale: 本 Sprint 规划读取并承接 sprint-001 复盘行动项，记录承接/延期决策。
+  - id: S1-A002
+    status: deferred
+    rationale: 与 REQ-0009 无直接依赖，保留为后续治理 Change。
+  - id: S1-A003
+    status: deferred
+    rationale: 与 REQ-0009 无直接依赖，保留为后续治理 Change。
+  - id: S1-A004
+    status: in_sprint
+    rationale: REQ-0012 命中带 prototype 的前台 UI 工作台能力，承接 UI Gate、1440px 视觉验收与空间设置弹窗横切验收要求。
+created_at: 2026-08-09 07:26:26
+updated_at: 2026-08-14 16:28:17
+scope_estimates:
+  - id: REQ-0009-git-check-pre-push-security-gate
+    requirement: REQ-0009-git-check-pre-push-security-gate
+    change: add-git-check-pre-push-security-gate
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: git-check 推送前安全检测命令为治理工具类能力，涉及 Agent 命令、脚本、规则/文档同步与脚本级测试；按 S=1 人天估算。
+  - id: standardize-guided-command-feedback
+    change: standardize-guided-command-feedback
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 引导式命令用户反馈为纯治理契约优化，涉及规则、Skill、校验脚本和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: optimize-spec-study-log-first-learning
+    change: optimize-spec-study-log-first-learning
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: spec-study 日志优先学习顺序为纯治理契约优化，涉及 Skill、上下文预算规则、spec-logs 和 OpenSpec 文档；不触碰业务 src，按 S=1 人天估算。
+  - id: apply-mintlify-lightweight-governance
+    change: apply-mintlify-lightweight-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 轻量 Mintlify 治理与 docs-site 部署边界为纯治理扩展，涉及规则、Skill、部署文档、校验脚本和 OpenSpec 文档；不触碰业务 src，按 S=1 人天估算。
+  - id: BUG-0001-admin-web-login-api-proxy-and-spa-fallback
+    change: fix-admin-web-login-api-proxy-and-spa-fallback
+    bug: BUG-0001-admin-web-login-api-proxy-and-spa-fallback
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: Docker Web 管理后台登录 API 误路由与 SPA fallback 缺失为 P1/high 修复，涉及 nginx 配置、Docker 启动脚本和部署文档同步；按 S=1 人天估算。
+  - id: add-issues-changelog-index
+    change: add-issues-changelog-index
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: REQ/BUG 全局事件索引为纯治理扩展，涉及 issues 根目录索引、规则、Skill、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: REQ-0010-admin-user-menu-password-change
+    change: add-admin-user-menu-password-change
+    requirement: REQ-0010-admin-user-menu-password-change
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 后台用户菜单密码修改为 P1 web-admin 小型增强，涉及用户菜单 modal、自助改密 API、会话撤销、审计、安全文档和前后端测试；按 S=1 人天估算。
+  - id: REQ-0011-admin-user-menu-profile
+    change: add-admin-user-menu-profile
+    requirement: REQ-0011-admin-user-menu-profile
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 后台管理用户菜单栏个人资料为 P1 web-admin 小型增强，涉及当前用户资料更新接口、头像上传链路复用、个人资料 Modal、当前用户摘要刷新、admin-modal/media-upload 横切验收和前后端测试；按 S=1 人天估算。
+  - id: REQ-0012-frontend-requirement-center
+    change: add-frontend-requirement-center
+    requirement: REQ-0012-frontend-requirement-center
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: MoonBox 前台需求中心为 P1 web-catalog 主能力，涉及 9 阶段 Requirement/Bug 看板、空间切换浮层、空间设置弹窗、主题切换、吸顶列头、prototype-driven UI Gate、admin-modal 横切验收和后续前端实现；按 M=3 人天估算。
+  - id: strengthen-prototype-ui-acceptance
+    change: strengthen-prototype-ui-acceptance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 强化 UI 原型驱动验收规范为纯治理改进，涉及 rules、docs、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: BUG-0002-homepage-frontend-login-entry-routes-to-admin
+    change: fix-homepage-frontend-login-entry-routes-to-admin
+    bug: BUG-0002-homepage-frontend-login-entry-routes-to-admin
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 首页前台登录入口误跳后台登录页为 P1/high 前端路由修复，涉及首页 CTA 路由语义、前台登录入口、后台明确入口边界和 homepage/admin 路由回归测试；按 S=1 人天估算。
+  - id: REQ-0013-requirement-center-real-data-integration
+    change: add-requirement-center-real-data-integration
+    requirement: REQ-0013-requirement-center-real-data-integration
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心真实数据接入为 P1 web-catalog 后续主能力，涉及 BFF 聚合接口、治理文件事实源读取、9 阶段状态映射、权限态、加载/错误/空态、前端 Mock 替换、API 文档和前后端测试；按 M=3 人天估算。
+  - id: optimize-issues-changelog-current-state-index
+    change: optimize-issues-changelog-current-state-index
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: REQ/BUG CHANGELOG 当前态看板优化为纯治理调整，涉及 issues 根目录索引、规则、Skill、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: BUG-0003-homepage-start-moonbox-should-open-login-route
+    change: fix-homepage-login-route
+    bug: BUG-0003-homepage-start-moonbox-should-open-login-route
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 官网开启 MoonBox 应进入 /login 独立登录页为 P2/medium 前台路由语义修复，涉及首页 CTA、/login 独立路由、前台登录视图和 homepage 路由回归测试；按 S=1 人天估算。
+  - id: BUG-0004-frontend-user-menu-change-password-not-implemented
+    change: fix-frontend-user-menu-change-password
+    bug: BUG-0004-frontend-user-menu-change-password-not-implemented
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 前台用户菜单修改密码入口未实现为 P2/medium 前台账号安全入口修复，涉及需求中心用户菜单接线、修改密码弹窗复用、成功后前后台会话清理、/login 跳转和前后台修改密码回归测试；按 S=1 人天估算。
+  - id: REQ-0014-frontend-user-menu-profile
+    change: add-frontend-user-menu-profile
+    requirement: REQ-0014-frontend-user-menu-profile
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 前台用户菜单栏个人资料为 P1 web-catalog 小型增强，复用现有当前用户资料更新与头像上传链路，涉及 rc-* 弹窗、头像上传状态机、当前用户上下文刷新、media-upload 横切验收和 1440px 视觉验收；按 S=1 人天估算。
+  - id: BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
+    change: fix-frontend-user-menu-session-state
+    bug: BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 从后台返回前台时用户菜单显示未登录为 P2/medium 前台登录态一致性修复，涉及需求中心用户菜单本地 session 兜底、上下文鉴权失败清理前后台 session、/login 跳转和前台路由回归测试；按 S=1 人天估算。
+  - id: REQ-0015-login-password-visibility-toggle
+    change: update-login-password-visibility-toggle
+    requirement: REQ-0015-login-password-visibility-toggle
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 登录页密码显示/隐藏切换为 P1 web-catalog 字段级体验增强，涉及 Homepage 登录密码字段、Eye/EyeOff 图标按钮、无障碍语义、前端回归测试和 1440px 视觉验收；按 S=1 人天估算。
+  - id: BUG-0006-frontend-login-needs-real-frontend-auth
+    change: fix-unified-frontend-login-auth
+    bug: BUG-0006-frontend-login-needs-real-frontend-auth
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 统一登录入口错误绑定后台管理员认证为 P1/high 认证权限修复，涉及统一登录、待激活自动激活、前台接口鉴权、后台入口显隐、后台 API 权限边界、OpenAPI/API 文档/认证文档和前后端回归测试；按 M=3 人天估算。
+  - id: REQ-0016-unified-account-auth-api
+    change: update-unified-account-auth-api
+    requirement: REQ-0016-unified-account-auth-api
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 统一账号认证与个人中心 API 为 P1 跨端认证/API/session 治理能力，涉及 /api/v1/auth/* 破坏性迁移、前端单一 session、头像上传统一、API 文档/OpenAPI/Orval 与前后端回归测试；按 M=3 人天估算。
+  - id: BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
+    change: fix-docker-media-upload-acceptance-gate
+    bug: BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: Docker media-upload 验收依赖固定宿主端口和默认管理员密码为 P1/high 治理验收缺陷，涉及对象存储策略、媒体上传最佳实践、Sprint 横切验收口径和脚本化测试身份策略；按 S=1 人天估算。
+  - id: BUG-0008-admin-users-self-freeze-delete-not-forbidden
+    change: fix-admin-user-self-freeze-delete-protection
+    bug: BUG-0008-admin-users-self-freeze-delete-not-forbidden
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 管理后台当前登录用户自冻结/自删除保护为 P1/high 权限安全修复，涉及后端 403 权限边界、前端当前账号危险操作隐藏或禁用、API 与前端回归测试；按 S=1 人天估算。
+  - id: BUG-0009-frontend-admin-sidebar-version-mismatch
+    change: fix-frontend-admin-sidebar-version-mismatch
+    bug: BUG-0009-frontend-admin-sidebar-version-mismatch
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 前台与后台侧边栏版本号不一致为 P2/medium 前端展示一致性修复，涉及后台侧边栏复用共享版本事实源、后台版本展示测试和前台/后台回归测试；按 S=1 人天估算。
+  - id: REQ-0017-admin-space-management
+    requirement: REQ-0017-admin-space-management
+    change: add-admin-space-management
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 后台管理实现空间管理模块为 P1 web-admin 主能力，覆盖空间列表、申请审批、回收站、空间详情、配额与用量、生命周期治理、多类高风险弹窗、通知审计和 prototype-driven UI Gate；命中 admin-list/admin-modal 横切验收，按 M=3 人天估算。
+  - id: optimize-explore-chain-identity
+    change: optimize-explore-chain-identity
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: explore 下一步 opsx 链路身份规范为纯治理契约优化，涉及 explore/opsx-explore Skill、命令顺序文档、校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: BUG-0010-admin-user-actions-validation-no-feedback
+    change: fix-admin-user-actions-validation-feedback
+    bug: BUG-0010-admin-user-actions-validation-no-feedback
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 用户管理编辑保存与确认操作缺少校验反馈为 P1/high 前端交互修复，涉及编辑态用户名校验边界、确认弹窗操作原因空值/短值反馈、admin-modal 表单错误可访问性和前端回归测试；按 S=1 人天估算。
+fix_buffer_ratio: 0

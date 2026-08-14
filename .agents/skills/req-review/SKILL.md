@@ -9,6 +9,18 @@ Use this skill when the user asks to run the migrated source command `req-review
 
 ## Context Budget Guardrails（MUST）
 
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
+
 ### Force-proceed Follow-up Guardrails（MUST）
 
 - `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
@@ -98,6 +110,10 @@ python scripts/promote-issue-stage.py --req <REQ-id> --to review --reason "/req-
 `/sprint-propose --req <REQ-full-id>` → `/req-opsx <REQ-full-id>`，其中 `<REQ-full-id>` MUST 使用完整 `REQ-xxxx-slug`。
 
 ---
+
+## 当前态看板索引（MUST）
+
+成功写入评审结论后，MUST 在 `issues/requirements/CHANGELOG.md` 更新对应 REQ 当前态行。approve 导致目录迁入 `review/` 时，当前态行 SHOULD 同步更新阶段、事实源路径和下一步。
 
 ## Output Contract（MUST）
 

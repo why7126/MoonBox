@@ -52,6 +52,8 @@ bash deploy/scripts/down.sh prod
 
 脚本会优先读取 `deploy/<domain>/<environment>.env`；若真实 env 不存在，会退回同名 `.env.example` 进行 `docker compose config` 或本地演示。真实部署前必须复制示例文件并替换占位值。
 
+`docs-site` profile 只承载 `mintlify/` 公开产品手册源目录和静态预览脚本。该服务不得挂载真实 env、`data/`、数据库卷、对象存储数据、后端运行时目录或密钥文件；生产也可改用外部 Mintlify 托管、静态托管、CDN rewrite 或反向代理，但必须在发布门禁中记录采用方案和校验结果。
+
 ## Compose 入口选择
 
 | 场景 | 推荐入口 |

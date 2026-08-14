@@ -11,9 +11,9 @@ updated_at: 2026-07-30 08:21:16
 
 ## 来源
 
-- 产品原型上下文：`/Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype-context.md`
-- 产品原型 HTML：`/Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype.html`
-- 首页截图：`/var/folders/26/jcqks9nx23185wqvs17rzgkw0000gn/T/codex-clipboard-e5fe34e5-bcdf-45b5-bc9b-3ebd58e8ebe7.png`
+- 产品原型上下文：`<local-downloads>/MoonBox-Landing-v1.0.2/prototype-context.md`
+- 产品原型 HTML：`<local-downloads>/MoonBox-Landing-v1.0.2/prototype.html`
+- 首页截图：`<local-temp>/codex-clipboard-homepage.png`
 
 ## 抽取范围
 

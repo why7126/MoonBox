@@ -164,6 +164,7 @@ Workflow Sync 会在聚焦事件中同步 Issue 主文档和验收文档：
 - `issues/requirements|bugs/*/{requirement.md,bug.md,acceptance.md}` 中可安全同步的主状态与验收回填
 - parent requirement `trace.md` related bug index
 - `issues/requirements/_registry.yaml` / `issues/bugs/_registry.yaml`
+- `issues/requirements/CHANGELOG.md` / `issues/bugs/CHANGELOG.md` 当前态看板行（capture、generate、complete、review、sprint.include、opsx.create、apply.done、archive.done、status.sync、trace.fix 后更新对应 Issue 快照）
 - 写入时自动维护 Frontmatter `created_at` / `updated_at`（`rules/document-governance.md` §2.4）
 ## Output Contract（MUST）
 

@@ -9,6 +9,18 @@ Use this skill when the user asks to run the migrated source command `req-opsx`.
 
 ## Context Budget Guardrails（MUST）
 
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
+
 ### Force-proceed Follow-up Guardrails（MUST）
 
 - `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
@@ -126,13 +138,14 @@ design.md **MUST** 含 Conflict Resolution；delta spec 用 MODIFIED/REMOVED 消
 
 ### Step 3.1 — 原型拆解承接（MUST — 存在 prototype 时）
 
-`prototype/**` 存在时，`/req-opsx` MUST 读取并承接 `/req-complete` 产出的原型拆解、`AC-PROTOTYPE-*` 和 `trace.md prototype_gate`：
+`prototype/**` 存在时，`/req-opsx` MUST 读取并承接 `/req-complete` 产出的原型拆解、`AC-PROTOTYPE-*`、`trace.md prototype_gate` 和 `docs/standards/prototype-ui-acceptance.md`：
 
 - 若缺原型拆解、`prototype_refs`、`prototype_gate` 或 `AC-PROTOTYPE-*`，Requirement Readiness MUST 为 `Not Ready`，停止并输出 `/req-complete <REQ-full-id>`。
+- Change `design.md` MUST 先新增 `UI Contract`，明确事实源优先级、前后台一致性 checklist、关键尺寸/字体/颜色/图标/文案、权限规则、Mock/API 边界和 computed style 验收点。
 - Change `design.md` MUST 新增 `UI Skeleton` 章节，包含页面结构、区域边界、组件层级、状态容器、数据依赖、可测选择器和 1440px 验收焦点。
 - Change `tasks.md` MUST 将 `UI Skeleton` 作为先行任务，并在任何细节实现任务前完成。
-- Change `trace.md` MUST 记录 prototype 来源、Conflict Resolution、Skeleton 状态和 1440px 视觉验收状态。
-- Delta spec MUST 写明 prototype 是设计输入，最终验收以 Change design、acceptance、1440px 视觉证据和 REQ 最终一致性回填共同为准。
+- Change `trace.md` MUST 记录 prototype 来源、Conflict Resolution、UI Contract、Skeleton 状态、1440px/关键交互截图、computed style、Mock/API 边界和最终一致性状态。
+- Delta spec MUST 写明 prototype 是设计输入，最终验收以 Change design、acceptance、1440px/关键交互视觉证据、computed style、Mock/API 边界和 REQ 最终一致性回填共同为准。
 
 ---
 
@@ -205,6 +218,10 @@ openspec_changes:
 - 归档样例：`openspec/archive/`
 
 ---
+
+## 当前态看板索引（MUST）
+
+成功创建或确认 REQ 对应 OpenSpec Change 后，MUST 在 `issues/requirements/CHANGELOG.md` 更新对应 REQ 当前态行，并记录关联 Sprint、Change、下一步和事实源路径。看板索引不替代 REQ `trace.md`、Change trace 或 Sprint scope。
 
 ## Output Contract（MUST）
 

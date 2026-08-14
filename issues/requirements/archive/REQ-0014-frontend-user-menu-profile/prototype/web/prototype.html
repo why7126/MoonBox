@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REQ-0014 前台用户菜单栏个人资料弹窗原型</title>
+  <style>
+    :root {
+      --rc-bg: #0A0C1B;
+      --rc-panel: #12142B;
+      --rc-panel-2: #0E1023;
+      --rc-border: rgba(234,242,255,.12);
+      --rc-heading: #E9EEFB;
+      --rc-text: #E7E8F3;
+      --rc-muted: #7C81A6;
+      --rc-accent: #CBA35C;
+      --rc-danger: #D56A6A;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      background: var(--rc-bg);
+      color: var(--rc-text);
+    }
+    .rc-shell { display: grid; grid-template-columns: 224px 1fr; min-height: 100vh; }
+    .rc-sidebar { border-right: 1px solid var(--rc-border); background: var(--rc-panel-2); padding: 18px 12px; display: flex; flex-direction: column; }
+    .rc-brand { color: var(--rc-heading); font-weight: 600; margin-bottom: 28px; }
+    .rc-nav { display: grid; gap: 8px; color: var(--rc-muted); font-size: 13px; }
+    .rc-nav span { padding: 10px; border-left: 2px solid transparent; }
+    .rc-nav .active { color: var(--rc-heading); border-left-color: var(--rc-accent); background: rgba(203,163,92,.08); }
+    .rc-user-zone { margin-top: auto; position: relative; }
+    .rc-user-trigger { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--rc-border); background: var(--rc-panel); color: var(--rc-text); }
+    .rc-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--rc-accent); background: rgba(203,163,92,.14); overflow: hidden; flex: 0 0 auto; }
+    .rc-user-copy { display: grid; gap: 2px; text-align: left; min-width: 0; }
+    .rc-user-copy strong { font-size: 13px; color: var(--rc-heading); }
+    .rc-user-copy em { font-size: 11px; color: var(--rc-muted); font-style: normal; }
+    .rc-user-menu { position: absolute; left: 0; bottom: 58px; width: 208px; border: 1px solid var(--rc-border); background: var(--rc-panel); padding: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.28); }
+    .rc-user-menu button { width: 100%; min-height: 34px; padding: 0 10px; border: 0; background: transparent; color: var(--rc-text); text-align: left; }
+    .rc-user-menu button:hover { background: rgba(203,163,92,.08); color: var(--rc-accent); }
+    .rc-content { padding: 30px; }
+    .rc-content h1 { margin: 0; color: var(--rc-heading); font-family: "Noto Serif SC", serif; }
+    .rc-profile-mask { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(5,6,14,.58); z-index: 40; }
+    .rc-profile-modal { width: min(520px, 100%); max-height: min(680px, calc(100vh - 48px)); overflow: auto; border: 1px solid var(--rc-border); background: var(--rc-panel); box-shadow: 0 24px 70px rgba(0,0,0,.36); }
+    .rc-profile-head, .rc-profile-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--rc-border); }
+    .rc-profile-actions { border-top: 1px solid var(--rc-border); border-bottom: 0; justify-content: flex-end; }
+    .rc-profile-head h2 { margin: 0; font-size: 18px; color: var(--rc-heading); font-family: "Noto Serif SC", serif; }
+    .rc-profile-body { padding: 20px; display: grid; gap: 18px; }
+    .rc-profile-summary { margin: 0; color: var(--rc-muted); font-size: 12px; }
+    .rc-profile-avatar-picker { display: flex; gap: 14px; align-items: center; padding: 14px; border: 1px solid var(--rc-border); background: var(--rc-panel-2); }
+    .rc-profile-avatar-picker .rc-avatar { width: 64px; height: 64px; font-size: 22px; }
+    .rc-profile-avatar-copy { display: grid; gap: 8px; color: var(--rc-muted); font-size: 12px; }
+    .rc-profile-field { display: grid; gap: 8px; }
+    .rc-profile-field label { font-size: 13px; color: var(--rc-heading); }
+    .rc-profile-field input { height: 38px; border: 1px solid var(--rc-border); background: var(--rc-panel-2); color: var(--rc-text); padding: 0 10px; }
+    .rc-error { color: var(--rc-danger); font-size: 12px; }
+    button { border-radius: 2px; cursor: pointer; }
+    .rc-secondary, .rc-primary, .rc-close { height: 34px; border: 1px solid var(--rc-border); padding: 0 14px; background: transparent; color: var(--rc-text); }
+    .rc-primary { border-color: var(--rc-accent); background: var(--rc-accent); color: #11131F; font-weight: 600; }
+    .rc-close { width: 30px; padding: 0; }
+  </style>
+</head>
+<body>
+  <main class="rc-shell">
+    <aside class="rc-sidebar">
+      <div class="rc-brand">MoonBox <small>v1.3.0</small></div>
+      <nav class="rc-nav" aria-label="前台导航">
+        <span class="active">需求中心</span>
+        <span>知识图谱</span>
+        <span>Agent 组织</span>
+      </nav>
+      <div class="rc-user-zone">
+        <button class="rc-user-trigger" type="button">
+          <span class="rc-avatar">许</span>
+          <span class="rc-user-copy"><strong>许愿</strong><em>MoonBox Lab</em></span>
+        </button>
+        <div class="rc-user-menu" role="menu" aria-label="用户菜单">
+          <button role="menuitem" type="button">个人资料</button>
+          <button role="menuitem" type="button">修改密码</button>
+          <button role="menuitem" type="button">切换空间 &gt;</button>
+          <button role="menuitem" type="button">界面主题</button>
+          <button role="menuitem" type="button">退出登录</button>
+        </div>
+      </div>
+    </aside>
+    <section class="rc-content">
+      <h1>需求中心</h1>
+    </section>
+  </main>
+  <section class="rc-profile-mask" aria-label="个人资料弹窗">
+    <form class="rc-profile-modal" aria-label="个人资料">
+      <header class="rc-profile-head">
+        <h2>个人资料</h2>
+        <button class="rc-close" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="rc-profile-body">
+        <p class="rc-profile-summary">当前账号：xuyuan</p>
+        <div class="rc-profile-avatar-picker">
+          <span class="rc-avatar">许</span>
+          <span class="rc-profile-avatar-copy">
+            <small>支持 JPG、PNG、WEBP，建议 1:1，最大 2MB</small>
+            <button class="rc-secondary" type="button">更换</button>
+          </span>
+        </div>
+        <div class="rc-profile-field">
+          <label for="nickname">昵称</label>
+          <input id="nickname" value="许愿" maxlength="128">
+        </div>
+        <div class="rc-error">保存失败时在这里显示受控错误。</div>
+      </div>
+      <footer class="rc-profile-actions">
+        <button class="rc-secondary" type="button">取消</button>
+        <button class="rc-primary" type="submit">保存</button>
+      </footer>
+    </form>
+  </section>
+</body>
+</html>

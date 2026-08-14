@@ -42,18 +42,19 @@ def _run_script(tmp_path: Path, env_file_content: str, extra_env: dict[str, str]
     )
 
 
-def test_docker_up_defaults_vite_api_base_url_to_backend_port(tmp_path: Path) -> None:
+def test_docker_up_does_not_require_vite_api_base_url(tmp_path: Path) -> None:
     result = _run_script(tmp_path, "HOST_PORT_BACKEND=18101\n")
 
     assert result.returncode == 0, result.stderr
     capture = (tmp_path / "capture.txt").read_text()
     assert "compose up -d --build backend web minio" in capture
-    assert "VITE_API_BASE_URL=http://localhost:18101" in capture
+    assert "VITE_API_BASE_URL=" in capture
 
 
-def test_docker_up_rejects_mismatched_vite_api_base_url_port(tmp_path: Path) -> None:
+def test_docker_up_ignores_runtime_vite_api_base_url_for_docker_web(tmp_path: Path) -> None:
     result = _run_script(tmp_path, "HOST_PORT_BACKEND=18101\nVITE_API_BASE_URL=http://localhost:8000\n")
 
-    assert result.returncode == 2
-    assert "VITE_API_BASE_URL 端口与 HOST_PORT_BACKEND 不一致" in result.stderr
-    assert not (tmp_path / "capture.txt").exists()
+    assert result.returncode == 0, result.stderr
+    capture = (tmp_path / "capture.txt").read_text()
+    assert "compose up -d --build backend web minio" in capture
+    assert "VITE_API_BASE_URL=" in capture

@@ -2,7 +2,7 @@
 name: "explore"
 description: "通用探索模式 - 面向问题、需求或话题的只读分析与方案探讨，不改代码、不落盘"
 created_at: 2026-08-06 00:00:00
-updated_at: 2026-08-06 00:00:00
+updated_at: 2026-08-13 08:58:35
 ---
 
 # explore
@@ -16,6 +16,18 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 **默认：不写任何文件、不写代码、不改 `src/`、不改 `issues/`、不改 `openspec/`、不改 `iterations/`。**
 
 ## Context Budget Guardrails（MUST）
+
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
 
 ### Force-proceed Follow-up Guardrails（MUST）
 
@@ -163,6 +175,27 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 - 确认要进入 OpenSpec：`/opsx-propose`
 - 已有 BUG / REQ / Change / Sprint：切换到对应专用 explore 命令继续深入
 
+### Opsx 链路身份（MUST）
+
+当 `/explore` 输出下一步 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 等 `/opsx-*` 命令时，MUST 先识别目标 Change 是否来源于 REQ/BUG：
+
+- 若上下文已经出现完整 `REQ-xxxx-slug` 或 `BUG-xxxx-slug`，MUST 直接沿用该完整 Issue ID。
+- 若用户只给出 `<change-id>` 或 `openspec/changes/<change-id>`，MUST 读取该 Change 的必要文档片段（优先 `trace.md`，必要时 `proposal.md`、`design.md`、`tasks.md`）和当前 Sprint `sprint.yaml` 的 `scope_estimates`，查找 `requirement` 或 `bug` 来源。
+- 可识别为 REQ 来源 Change 时，下一步 `/opsx-*` MUST 使用完整 `REQ-xxxx-slug`，不得降级为 `<change-id>`。
+- 可识别为 BUG 来源 Change 时，下一步 `/opsx-*` MUST 使用完整 `BUG-xxxx-slug`，不得降级为 `<change-id>`。
+- 只有确认无 REQ/BUG 来源的纯治理 Change，下一步 `/opsx-*` 才 MAY 使用 `<change-id>`，且仍 MUST 遵守 Sprint Inclusion Gate。
+- 如果无法识别来源，不得臆造 Issue ID；MUST 在「待用户决策/处理」中说明需要补充来源或确认是否纯治理 Change。
+
+示例：
+
+```text
+下一步：/opsx-apply REQ-0012-frontend-requirement-center
+下一步：/opsx-modify BUG-0009-frontend-admin-sidebar-version-mismatch
+下一步：/opsx-apply optimize-explore-chain-identity
+```
+
+第三个示例仅适用于无 REQ/BUG 来源的纯治理 Change。
+
 ## Final Step — AI Usage Post-command Hook（SHOULD）
 
 通用探索默认不改变 Workflow 状态；如脚本支持通用事件，结束前优先以 dry-run 模式运行 AI Usage Hook：
@@ -185,7 +218,7 @@ python scripts/extract-ai-usage.py --post-command-hook --workflow-event explore 
 - <需要用户选择、确认、补充或处理的事项；若没有则写“无”>
 ```
 
-- 如果存在明确可推进的下一步，MUST 给出可复制执行的命令，例如 `/bug-review BUG-0122 --approve`。
+- 如果存在明确可推进的下一步，MUST 给出可复制执行的命令，例如 `/bug-review BUG-0122 --approve`；输出 `/opsx-*` 下一步时，REQ 来源链路 MUST 使用完整 `REQ-xxxx-slug`，BUG 来源链路 MUST 使用完整 `BUG-xxxx-slug`，只有纯治理 Change 才使用 `<change-id>`。
 - 如果下一步取决于用户选择，MUST 用条件化条目列出选项；已在「下一步」中给出的命令或动作，不得在「待用户决策/处理」中重复。
 - 「待用户决策/处理」只列缺失输入、需用户选择的范围/策略/证据/验收/发布确认、阻塞项或需人工处理事项；没有则写“无”。
 - 不得因为输出了下一步引导而自动执行下一命令；除非用户明确授权。

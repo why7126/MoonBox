@@ -1,7 +1,171 @@
 # BUG 序号注册表（/capture 与 /bug-capture 维护）
 # entries 仅作为索引，不替代各 BUG 目录内的 capture.md、bug.md、root-cause.md、acceptance.md、trace.md。
-next_id: 1
-entries: []
+next_id: 12
+entries:
+  - id: BUG-0011-admin-user-list-enum-time-display-unclear
+    title: 用户管理列表枚举标签与时间字段展示不清晰
+    status: approved
+    severity: medium
+    priority: P2
+    lifecycle_stage: review
+    path: issues/bugs/review/BUG-0011-admin-user-list-enum-time-display-unclear/
+    created: "2026-08-13 09:22:20"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-admin-user-actions-validation-feedback
+    iteration: null
+
+  - id: BUG-0010-admin-user-actions-validation-no-feedback
+    title: 用户管理编辑保存与确认操作缺少校验反馈
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0010-admin-user-actions-validation-no-feedback/
+    created: "2026-08-13 09:22:20"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-admin-user-actions-validation-feedback
+    iteration: sprint-002
+
+  - id: BUG-0009-frontend-admin-sidebar-version-mismatch
+    title: 前台与后台侧边栏版本号不一致
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0009-frontend-admin-sidebar-version-mismatch/
+    created: "2026-08-12 14:12:57"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-frontend-admin-sidebar-version-mismatch
+    iteration: sprint-002
+
+  - id: BUG-0008-admin-users-self-freeze-delete-not-forbidden
+    title: 管理后台登录用户不能冻结和删除自己
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: review
+    path: issues/bugs/review/BUG-0008-admin-users-self-freeze-delete-not-forbidden/
+    created: "2026-08-12 13:39:06"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-admin-user-self-freeze-delete-protection
+    iteration: null
+
+  - id: BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
+    title: Docker 媒体上传横切验收依赖固定端口和默认管理员密码
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port/
+    created: "2026-08-12 12:08:14"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-docker-media-upload-acceptance-gate
+    iteration: sprint-002
+
+  - id: BUG-0006-frontend-login-needs-real-frontend-auth
+    title: 前台登录入口缺少真正前台用户认证能力
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0006-frontend-login-needs-real-frontend-auth/
+    created: "2026-08-11 22:58:07"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-unified-frontend-login-auth
+    iteration: sprint-002
+
+  - id: BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
+    title: 从后台返回前台时用户菜单显示未登录
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin/
+    created: "2026-08-11 18:16:00"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-frontend-user-menu-session-state
+    iteration: sprint-002
+
+  - id: BUG-0004-frontend-user-menu-change-password-not-implemented
+    title: 前台用户菜单栏修改密码入口未实现
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0004-frontend-user-menu-change-password-not-implemented/
+    created: "2026-08-11 16:07:33"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-frontend-user-menu-change-password
+    iteration: sprint-002
+
+  - id: BUG-0003-homepage-start-moonbox-should-open-login-route
+    title: 官网开启 MoonBox 应进入 /login 独立登录页
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0003-homepage-start-moonbox-should-open-login-route/
+    created: "2026-08-11 08:19:05"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-homepage-login-route
+    iteration: sprint-002
+
+  - id: BUG-0002-homepage-frontend-login-entry-routes-to-admin
+    title: 首页前台登录入口误跳后台登录页
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0002-homepage-frontend-login-entry-routes-to-admin/
+    created: "2026-08-10 20:07:31"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-homepage-frontend-login-entry-routes-to-admin
+    iteration: sprint-002
+
+  - id: BUG-0001-admin-web-login-api-proxy-and-spa-fallback
+    title: Docker Web 管理后台登录 API 误路由且缺少 SPA fallback
+    status: done
+    severity: high
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0001-admin-web-login-api-proxy-and-spa-fallback/
+    created: "2026-08-09 23:04:45"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: null
+    iteration: sprint-002
 
 # entry 推荐字段：
 # - id: BUG-0001-example

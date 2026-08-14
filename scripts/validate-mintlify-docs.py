@@ -23,8 +23,10 @@ SENSITIVE_PATTERNS = (
     re.compile(r"\bCookie\s*:", re.I),
 )
 
-FORBIDDEN_NAMES = {".env", ".env.local", ".DS_Store"}
+FORBIDDEN_NAMES = {".env", ".env.local", ".env.production", ".DS_Store"}
 FORBIDDEN_DIRS = {"node_modules", "dist", "build", ".mintlify"}
+FORBIDDEN_SUFFIXES = {".db", ".sqlite", ".sqlite3", ".log"}
+MAX_PUBLIC_FILE_SIZE = 5 * 1024 * 1024
 MARKDOWN_IMAGE_PATTERN = re.compile(r"!\[[^\]]*\]\(([^)]+)\)")
 MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
@@ -169,10 +171,14 @@ def validate() -> list[str]:
             errors.append(f"Mintlify 导航引用不存在页面: {page}")
 
     for path in MINTLIFY_DIR.rglob("*"):
-        if path.name in FORBIDDEN_NAMES:
+        if path.name in FORBIDDEN_NAMES or path.name.endswith(".env"):
             errors.append(f"Mintlify 目录禁止提交文件: {path}")
         if path.is_dir() and path.name in FORBIDDEN_DIRS:
             errors.append(f"Mintlify 目录禁止提交构建产物目录: {path}")
+        if path.is_file() and path.suffix.lower() in FORBIDDEN_SUFFIXES:
+            errors.append(f"Mintlify 目录禁止提交运行时或日志文件: {path}")
+        if path.is_file() and path.stat().st_size > MAX_PUBLIC_FILE_SIZE:
+            errors.append(f"Mintlify 公开文件超过 5MB，请改用共享截图去重或外部公开资产: {path}")
         if path.is_file() and path.suffix in {".md", ".mdx", ".json"}:
             text = path.read_text(encoding="utf-8", errors="ignore")
             for pattern in SENSITIVE_PATTERNS:

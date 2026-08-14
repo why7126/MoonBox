@@ -20,3 +20,19 @@ class AdminLoginResult(BaseModel):
 
 class AdminSessionUser(BaseModel):
     user: AdminUserRead
+
+
+class AdminProfileUpdateRequest(BaseModel):
+    nickname: str | None = Field(default=None, max_length=128)
+    avatar_url: str | None = Field(default=None, max_length=512)
+
+
+class AdminPasswordChangeRequest(BaseModel):
+    current_password: str = Field(min_length=1, max_length=256)
+    new_password: str = Field(min_length=8, max_length=256)
+    confirm_password: str = Field(min_length=8, max_length=256)
+
+
+class AdminPasswordChangeResult(BaseModel):
+    status: str = "done"
+    message: str

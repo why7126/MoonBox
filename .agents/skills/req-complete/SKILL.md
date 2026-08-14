@@ -9,6 +9,18 @@ Use this skill when the user asks to run the migrated source command `req-comple
 
 ## Context Budget Guardrails（MUST）
 
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
+
 ### Force-proceed Follow-up Guardrails（MUST）
 
 - `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
@@ -101,7 +113,7 @@ issues/requirements/<REQ-ID>/capture.md
 | `admin-list-page-consistency.md` | 分页 DOM 对齐用户管理基准；fixed toast 无 layout shift；状态变更 DS confirm；无 `window.confirm` |
 | `admin-form-page-consistency.md` | 全页单保存 CTA（footer）；无页头重复保存；恢复默认/dirty 切换 DS modal；成功反馈 fixed toast |
 | `admin-modal-width-css-cascade.md` | TSX 禁止 `modal-card` 与专属类并存；Computed width 验收；矮视口 body scroll |
-| `admin-media-upload-chain.md` | 上传状态机 idle→uploading→done/failed；同会话即时回显；Docker `:3000` 边界文件验收 |
+| `admin-media-upload-chain.md` | 上传状态机 idle→uploading→done/failed；同会话即时回显；Docker 实际 Web 端口上传读取回显；脚本准备测试身份且不依赖默认管理员密码 |
 
 - 若 best-practices 某 gate 与本 REQ 无关（如无上传），**MUST** 在 AC 行注释 `N/A — <理由>`，不得删除整节。
 - `design.md` 尚未创建时：在 `trace.md` `knowledge_base_refs` 列出文档路径，供后续 `/req-opsx` 写入 change design。
@@ -186,6 +198,10 @@ cross_cutting_tags:
 - 横切 AC **MUST NOT** 复制整份 best-practices 正文，只写可勾选、可测试条目 + 来源链接
 
 ---
+
+## 当前态看板索引（MUST）
+
+成功补齐需求六件套或关键验收资料后，MUST 在 `issues/requirements/CHANGELOG.md` 更新对应 REQ 当前态行。该索引只做目录级当前快照，不替代单条 REQ `trace.md`。
 
 ## Output Contract（MUST）
 

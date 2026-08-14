@@ -40,47 +40,6 @@ config_value() {
   env_file_value "$key" || printf '%s\n' "$default_value"
 }
 
-url_port() {
-  local url="$1"
-  python - "$url" <<'PY'
-from urllib.parse import urlparse
-import sys
-
-parsed = urlparse(sys.argv[1])
-if parsed.hostname not in {"localhost", "127.0.0.1"}:
-    print("")
-elif parsed.port is not None:
-    print(parsed.port)
-elif parsed.scheme == "https":
-    print(443)
-else:
-    print(80)
-PY
-}
-
-ensure_browser_api_port() {
-  local backend_port api_base api_port
-  backend_port="$(config_value HOST_PORT_BACKEND 18101)"
-  api_base="${VITE_API_BASE_URL-}"
-  if [[ -z "$api_base" ]]; then
-    api_base="$(env_file_value VITE_API_BASE_URL || true)"
-  fi
-
-  if [[ -z "$api_base" ]]; then
-    export VITE_API_BASE_URL="http://localhost:${backend_port}"
-    return 0
-  fi
-
-  api_port="$(url_port "$api_base")"
-  if [[ -n "$api_port" && "$api_port" != "$backend_port" ]]; then
-    echo "VITE_API_BASE_URL 端口与 HOST_PORT_BACKEND 不一致。" >&2
-    echo "当前 HOST_PORT_BACKEND=${backend_port}，VITE_API_BASE_URL=${api_base}。" >&2
-    echo "请设置 VITE_API_BASE_URL=http://localhost:${backend_port} 后重试。" >&2
-    exit 2
-  fi
-}
-
-ensure_browser_api_port
 RESOLVED_HOST_PORT_WEB="$(config_value HOST_PORT_WEB 18102)"
 RESOLVED_HOST_PORT_BACKEND="$(config_value HOST_PORT_BACKEND 18101)"
 RESOLVED_HOST_PORT_MINIO_CONSOLE="$(config_value HOST_PORT_MINIO_CONSOLE 18104)"

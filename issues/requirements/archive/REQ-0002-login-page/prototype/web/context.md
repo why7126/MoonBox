@@ -3,9 +3,9 @@ requirement_id: REQ-0002-login-page
 title: Web 登录页原型上下文
 status: in_sprint
 source:
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype-context.md
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype.html
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype-login.png
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype-context.md
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype.html
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype-login.png
 ---
 
 # Web 登录页原型上下文

@@ -2,7 +2,7 @@
 purpose: 缺陷（BUG）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-08-08 20:38:15
+updated_at: 2026-08-10 22:36:56
 ---
 
 # 缺陷管理规范
@@ -12,6 +12,7 @@ updated_at: 2026-08-08 20:38:15
 ```text
 issues/bugs/
 ├── _registry.yaml
+├── CHANGELOG.md
 ├── README.md
 ├── plan/                      # 规划中并完成评审
 │   └── BUG-NNNN-slug/
@@ -56,6 +57,14 @@ BUG-NNNN-slug/
 | `deferred` | 延后 |
 | `in_sprint` | 已纳入迭代 |
 | `done` | 已修复验收 |
+
+## 2.1 当前态看板索引
+
+`issues/bugs/CHANGELOG.md` 是缺陷目录级当前态看板索引，用于每个 BUG 一行展示严重等级、当前状态、阶段、关联 Sprint、关联 Change、最近更新时间、下一步和事实源路径。完整事实源仍以各 BUG 目录内 `trace.md`、`issues/bugs/_registry.yaml`、OpenSpec Change、Sprint 四件套和正式规格为准；`CHANGELOG.md` 不得替代状态机、registry 或单条 BUG 文档包。
+
+SHOULD 在以下事件后更新对应 BUG 当前态行：`capture`、`generate`、`complete`、`review.approve`、`review.reject`、`review.defer`、`sprint.include`、`opsx.create`、`apply.done`、`archive.done`、`status.sync`、`trace.fix`。`wont_fix` 可作为评审或状态同步结果更新。
+
+普通文案润色、格式调整、错别字修复、非状态性验收措辞调整 MAY 不更新。当前态行 MUST 使用 `YYYY-MM-DD HH:mm:ss` 记录最近更新时间，并避免写入用户隐私、真实客户数据、密钥、未脱敏日志、复现日志原文、本机绝对路径、系统用户名或用户主目录。
 
 ## 3. 命令与阶段
 

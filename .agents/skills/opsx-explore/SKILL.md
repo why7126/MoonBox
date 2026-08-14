@@ -1,6 +1,7 @@
 ---
 name: "opsx-explore"
 description: "Enter explore mode - think through ideas, investigate problems, clarify requirements"
+updated_at: 2026-08-13 08:58:35
 ---
 
 # opsx-explore
@@ -8,6 +9,18 @@ description: "Enter explore mode - think through ideas, investigate problems, cl
 Use this skill when the user asks to run the migrated source command `opsx-explore`.
 
 ## Context Budget Guardrails（MUST）
+
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
 
 ### Force-proceed Follow-up Guardrails（MUST）
 
@@ -113,6 +126,27 @@ This tells you:
 
 If the user mentioned a specific change name, read its artifacts for context.
 
+### Preserve REQ/BUG chain identity for next opsx commands
+
+When outputting the next executable `/opsx-*` command, MUST resolve whether the Change comes from a REQ or BUG before choosing the user-facing command argument:
+
+- If the conversation already includes a full `REQ-xxxx-slug` or `BUG-xxxx-slug`, reuse that full Issue ID.
+- If the user only provides `<change-id>` or `openspec/changes/<change-id>`, read necessary Change fragments, preferring `trace.md`, then `proposal.md`, `design.md`, and `tasks.md`; if needed, inspect the current Sprint `sprint.yaml` `scope_estimates` entry for the same `change`.
+- If the Change is REQ-sourced, `/opsx-apply`, `/opsx-modify`, and `/opsx-archive` next-step commands MUST use the full `REQ-xxxx-slug`; MUST NOT downgrade to `<change-id>`.
+- If the Change is BUG-sourced, `/opsx-apply`, `/opsx-modify`, and `/opsx-archive` next-step commands MUST use the full `BUG-xxxx-slug`; MUST NOT downgrade to `<change-id>`.
+- Only pure governance Changes with no REQ/BUG source MAY use `<change-id>` for `/opsx-*`, and they still MUST pass Sprint Inclusion Gate.
+- If the source cannot be identified, do not invent an Issue ID; list the missing source confirmation under 「待用户决策/处理」.
+
+Examples:
+
+```text
+下一步：/opsx-apply REQ-0012-frontend-requirement-center
+下一步：/opsx-modify BUG-0009-frontend-admin-sidebar-version-mismatch
+下一步：/opsx-apply optimize-explore-chain-identity
+```
+
+The `<change-id>` example applies only to a pure governance Change with no REQ/BUG source.
+
 ### When no change exists
 
 Think freely. When insights crystallize, you might offer:
@@ -192,5 +226,5 @@ When things crystallize, you might offer a summary - but it's optional. Sometime
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
+- 输出 `/opsx-*` 下一步时，REQ 来源链路 MUST 使用完整 `REQ-xxxx-slug`，BUG 来源链路 MUST 使用完整 `BUG-xxxx-slug`，只有纯治理 Change 才使用 `<change-id>`。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
-

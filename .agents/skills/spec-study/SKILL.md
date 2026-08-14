@@ -2,7 +2,7 @@
 name: "spec-study"
 description: "跨项目 Harness 学习应用 - 学习其他项目治理工程，并经用户确认后应用到本项目治理资产"
 created_at: 2026-08-07 09:06:21
-updated_at: 2026-08-07 11:55:25
+updated_at: 2026-08-09 08:27:52
 ---
 
 # spec-study
@@ -78,9 +78,14 @@ Use this skill when the user asks to run `/spec-study ...`, or asks to learn ano
 2. 本地路径必须先确认存在并只读扫描；GitHub URL 必须先说明需要远端只读快照，如需网络或 clone，按当前权限策略请求批准。
    - 学习对象 MUST 被视为外部只读输入，禁止在该路径内写入文件、安装依赖、运行格式化、执行迁移、修复测试、修改 Git 状态或清理目录。
    - 如需临时克隆 GitHub 项目，只能克隆到受控临时目录并作为只读快照读取；不得 push、commit、checkout 覆盖、reset、clean 或修改远端仓库。
-3. 用 `find -maxdepth`、`rg --files` 或等价方式列出候选治理文件，默认排除依赖、构建产物、运行时数据和历史归档。
-4. 按 Learning Matrix 读取必要片段，并记录来源路径、主题、可迁移价值、适配成本和风险。
-5. 输出候选学习内容，必须包含学习对象与模式、已学习模块摘要、建议应用项、不建议应用项和等待用户确认的选项。
+3. 若学习对象存在 `docs/spec-logs/CHANGELOG.md`，MUST 采用日志优先学习顺序：
+   - 先读取 `docs/spec-logs/CHANGELOG.md`，把它作为治理能力演进的入口地图，用于判断哪些规范、脚本、命令、目录边界和校验规则曾经变化，以及相关验证和跨项目落地提示词。
+   - 再按主题读取相关 `YYYYMMDDhhmmss-study-xxx.md` 或 `YYYYMMDDhhmmss-governance-xxx.md`，理解变更目标、影响范围、采纳/未采纳原因、验证结果和后续建议。
+   - 再回到 `AGENTS.md`、`rules/`、`docs/`、Agent 目录、`scripts/`、部署与环境示例等真实治理资产，按 Learning Matrix 横向校验日志描述是否仍然成立。
+   - 最后仅在证据不足或需要确认实际执行语义时，读取必要代码、脚本或配置片段补证。
+4. 若学习对象不存在 `docs/spec-logs/CHANGELOG.md`，用 `find -maxdepth`、`rg --files` 或等价方式列出候选治理文件，默认排除依赖、构建产物、运行时数据和历史归档。
+5. 按 Learning Matrix 读取必要片段，并记录来源路径、主题、可迁移价值、适配成本和风险；若日志与真实资产存在漂移，MUST 标注漂移风险，并以当前真实资产和正式规格作为最终事实依据。
+6. 输出候选学习内容，必须包含学习对象与模式、已学习模块摘要、建议应用项、不建议应用项和等待用户确认的选项。
 
 Phase 1 默认 MUST NOT 修改本项目文件；除非用户在同一命令中明确授权“学习并应用全部建议”。
 

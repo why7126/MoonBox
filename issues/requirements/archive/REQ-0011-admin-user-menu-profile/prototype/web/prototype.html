@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REQ-0011 个人资料 Modal 原型</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c1b;
+        --panel: #12142b;
+        --line: rgba(234, 242, 255, 0.12);
+        --text: #e7e8f3;
+        --muted: #7c81a6;
+        --gold: #cba35c;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Noto Sans SC", system-ui, sans-serif;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        border-right: 1px solid var(--line);
+        padding: 24px;
+        position: relative;
+      }
+      .workspace {
+        padding: 32px;
+      }
+      .user-block {
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        bottom: 24px;
+      }
+      .menu {
+        border: 1px solid var(--line);
+        background: #171a33;
+        margin-bottom: 10px;
+        padding: 8px;
+      }
+      .menu button,
+      .trigger,
+      .actions button,
+      .avatar-copy button {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        min-height: 36px;
+        padding: 0 12px;
+      }
+      .menu button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        margin: 2px 0;
+      }
+      .trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .avatar {
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        display: inline-grid;
+        place-items: center;
+        color: var(--gold);
+      }
+      .avatar.large {
+        width: 72px;
+        height: 72px;
+        font-size: 22px;
+      }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(3, 4, 12, 0.62);
+      }
+      .modal {
+        width: min(560px, calc(100vw - 48px));
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .modal header,
+      .section,
+      .actions {
+        padding: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .modal h1 {
+        margin: 0;
+        font-family: "Noto Serif SC", serif;
+        font-size: 22px;
+      }
+      .summary {
+        display: grid;
+        gap: 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .avatar-picker {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .avatar-copy {
+        display: grid;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      label {
+        display: grid;
+        gap: 8px;
+        color: var(--muted);
+      }
+      input {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        background: #0d1024;
+        color: var(--text);
+        padding: 0 12px;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        border-bottom: 0;
+      }
+      .primary {
+        background: var(--gold) !important;
+        color: #111 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar">
+        <strong>MoonBox</strong>
+        <div class="user-block">
+          <div class="menu" aria-label="用户菜单">
+            <button>个人资料</button>
+            <button>密码修改</button>
+            <button>界面主题</button>
+            <button>退出登录</button>
+          </div>
+          <button class="trigger">
+            <span class="avatar">吴</span>
+            <span>管理员</span>
+          </button>
+        </div>
+      </aside>
+      <section class="workspace">
+        <h2>用户管理</h2>
+      </section>
+    </main>
+    <div class="backdrop">
+      <article class="modal" aria-label="个人资料">
+        <header>
+          <h1>个人资料</h1>
+          <p class="summary">admin · 超级管理员</p>
+        </header>
+        <section class="section">
+          <label>头像</label>
+          <div class="avatar-picker">
+            <span class="avatar large">吴</span>
+            <span class="avatar-copy">
+              <small>支持 JPG、PNG、WEBP，建议 1:1，最大 2MB</small>
+              <button type="button">更换</button>
+            </span>
+          </div>
+        </section>
+        <section class="section">
+          <label>
+            昵称
+            <input value="管理员" maxlength="128" />
+          </label>
+        </section>
+        <footer class="actions">
+          <button>取消</button>
+          <button class="primary">保存</button>
+        </footer>
+      </article>
+    </div>
+  </body>
+</html>

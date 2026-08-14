@@ -1,6 +1,6 @@
 # REQ 序号注册表（/capture 与 /req-capture 维护）
 # entries 仅作为索引，不替代各 REQ 目录内的 capture.md、requirement.md、acceptance.md、trace.md。
-next_id: 9
+next_id: 18
 entries:
   - id: REQ-0001-homepage
     title: 首页功能
@@ -46,13 +46,14 @@ entries:
     status: done
     type: feature
     priority: P1
-    lifecycle_stage: plan
+    lifecycle_stage: review
     path: issues/requirements/plan/REQ-0004-admin-user-management/
     created: "2026-08-07 22:06:39"
     requester: product
     owner: product
     target_iteration: sprint-001
-    related_changes: []
+    related_changes:
+      - add-admin-space-management
   - id: REQ-0005-admin-auth-system
     title: 管理后台登录认证系统
     status: done
@@ -64,7 +65,8 @@ entries:
     requester: product
     owner: product
     target_iteration: sprint-001
-    related_changes: []
+    related_changes:
+      - add-frontend-user-menu-profile
   - id: REQ-0006-admin-crud-list-template
     title: 管理后台页面组件化与 CRUD 列表页模板体系
     status: done
@@ -100,6 +102,121 @@ entries:
     requester: product
     owner: product
     target_iteration: sprint-001
+    related_changes: []
+  - id: REQ-0009-git-check-pre-push-security-gate
+    title: git-check 推送前安全检测命令
+    status: done
+    type: governance
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0009-git-check-pre-push-security-gate/
+    created: "2026-08-09 07:12:28"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - add-git-check-pre-push-security-gate
+  - id: REQ-0010-admin-user-menu-password-change
+    title: 后台管理用户菜单栏密码修改功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0010-admin-user-menu-password-change/
+    created: "2026-08-10 08:47:44"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - add-admin-user-menu-password-change
+  - id: REQ-0011-admin-user-menu-profile
+    title: 后台管理用户菜单栏个人资料功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0011-admin-user-menu-profile/
+    created: "2026-08-10 08:48:39"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - add-admin-user-menu-profile
+  - id: REQ-0012-frontend-requirement-center
+    title: MoonBox 前台需求中心
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0012-frontend-requirement-center/
+    created: "2026-08-10 12:47:39"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - add-frontend-requirement-center
+  - id: REQ-0013-requirement-center-real-data-integration
+    title: 需求中心真实数据接入
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0013-requirement-center-real-data-integration/
+    created: "2026-08-10 20:04:27"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes: []
+  - id: REQ-0014-frontend-user-menu-profile
+    title: 前台用户菜单栏个人资料功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0014-frontend-user-menu-profile/
+    created: "2026-08-11 16:04:37"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - add-frontend-user-menu-profile
+  - id: REQ-0015-login-password-visibility-toggle
+    title: 登录页密码显示/隐藏切换功能
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0015-login-password-visibility-toggle/
+    created: "2026-08-11 21:54:28"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - update-login-password-visibility-toggle
+  - id: REQ-0016-unified-account-auth-api
+    title: 统一账号认证与个人中心 API
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0016-unified-account-auth-api/
+    created: "2026-08-12 00:11:02"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
+    related_changes:
+      - update-unified-account-auth-api
+  - id: REQ-0017-admin-space-management
+    title: 后台管理实现空间管理模块
+    status: done
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0017-admin-space-management/
+    created: "2026-08-12 10:01:05"
+    requester: product
+    owner: product
+    target_iteration: sprint-002
     related_changes: []
 
 # entry 推荐字段：

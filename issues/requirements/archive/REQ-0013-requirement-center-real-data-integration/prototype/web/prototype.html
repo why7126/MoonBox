@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>需求中心真实数据接入状态原型</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c1b;
+        --panel: #12142b;
+        --panel-2: #0e1023;
+        --line: rgba(234, 242, 255, 0.12);
+        --gold: #cba35c;
+        --text: #e7e8f3;
+        --muted: #7c81a6;
+        --danger: #d96c75;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Noto Sans SC", system-ui, sans-serif;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 224px 1fr;
+        min-height: 100vh;
+      }
+      aside {
+        border-right: 1px solid var(--line);
+        padding: 20px 14px;
+      }
+      main {
+        padding: 24px;
+        overflow: hidden;
+      }
+      h1, h2, h3 { margin: 0; font-family: "Noto Serif SC", serif; }
+      .brand { display: flex; gap: 10px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+      .mark { width: 32px; height: 32px; border: 1px solid var(--gold); display: grid; place-items: center; color: var(--gold); }
+      nav { display: grid; gap: 8px; margin-top: 22px; }
+      nav button { text-align: left; color: var(--muted); background: transparent; border: 0; padding: 10px; }
+      nav button.active { color: var(--text); border-left: 2px solid var(--gold); background: rgba(203, 163, 92, 0.08); }
+      .header { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 18px; }
+      .header p { margin: 0 0 6px; color: var(--gold); font-style: italic; }
+      .toolbar, .stats { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
+      .stat, .filter, .state, .column, .card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .stat { padding: 14px; }
+      .stat span { display: block; color: var(--muted); font-size: 12px; }
+      .stat strong { font-size: 26px; color: var(--gold); }
+      .filter { height: 40px; padding: 10px 12px; color: var(--muted); }
+      .board { display: grid; grid-template-columns: repeat(9, 260px); gap: 12px; overflow-x: auto; padding-bottom: 10px; }
+      .column { min-height: 420px; background: var(--panel-2); }
+      .column header { padding: 12px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+      .column header p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+      .count { color: var(--gold); font-variant-numeric: tabular-nums; }
+      .body { padding: 10px; display: grid; gap: 10px; }
+      .card { padding: 12px; border-left: 2px solid #6f9cff; }
+      .card.bug { border-left-color: var(--danger); }
+      .card p { color: var(--muted); margin: 8px 0 0; font-size: 12px; line-height: 1.7; }
+      .state {
+        padding: 14px;
+        margin-bottom: 14px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+      .state strong { color: var(--gold); }
+      .state p { margin: 4px 0 0; color: var(--muted); }
+      .state button { border: 1px solid var(--gold); background: transparent; color: var(--gold); padding: 8px 12px; border-radius: 2px; }
+      .skeleton { height: 12px; background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.16), rgba(255,255,255,.08)); margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand"><span class="mark">M</span><strong>MoonBox</strong></div>
+        <nav>
+          <button>研发总览</button>
+          <button>Chat 工作台</button>
+          <button class="active">需求中心</button>
+          <button>Spec</button>
+          <button>任务中心</button>
+        </nav>
+      </aside>
+      <main>
+        <section class="header">
+          <div>
+            <p>Requirement Operations</p>
+            <h1>需求研发流转看板</h1>
+          </div>
+        </section>
+        <section class="state" aria-label="状态容器">
+          <div>
+            <strong>真实数据加载失败</strong>
+            <p>无法读取需求中心上下文。错误详情已脱敏，可重试或切换空间。</p>
+          </div>
+          <button>重试</button>
+        </section>
+        <section class="stats" aria-label="统计 skeleton">
+          <div class="stat"><span>全部对象</span><div class="skeleton"></div></div>
+          <div class="stat"><span>需求</span><div class="skeleton"></div></div>
+          <div class="stat"><span>Bug</span><div class="skeleton"></div></div>
+          <div class="stat"><span>当前阻塞</span><div class="skeleton"></div></div>
+        </section>
+        <section class="toolbar">
+          <div class="filter">搜索 ID、标题、文档或负责人</div>
+          <div class="filter">全部 / 需求 / Bug</div>
+          <div class="filter">负责人</div>
+          <div class="filter">Sprint</div>
+        </section>
+        <section class="board" aria-label="9 阶段看板">
+          <article class="column"><header><div><h3>采集池</h3><p>Capture</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>规划中</h3><p>Generate</p></div><span class="count">01</span></header><div class="body"><div class="card"><strong>REQ-0013</strong><p>需求中心真实数据接入</p><p>draft · pending_review</p></div></div></article>
+          <article class="column"><header><div><h3>待评审</h3><p>Complete</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>已通过</h3><p>Review</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>迭代规划</h3><p>Sprint</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>待开发</h3><p>Opsx</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>研发中</h3><p>Apply</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>验收中</h3><p>Acceptance</p></div><span class="count">00</span></header><div class="body"></div></article>
+          <article class="column"><header><div><h3>已完成</h3><p>Archive</p></div><span class="count">00</span></header><div class="body"></div></article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

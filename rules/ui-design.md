@@ -2,7 +2,7 @@
 purpose: MoonBox UI 设计规则
 content: MoonBox 深浅主题、字体、布局、组件和视觉验收规则
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-08 21:08:00
+updated_at: 2026-08-10 20:14:00
 owner: MoonBox 产品团队
 ---
 
@@ -54,12 +54,17 @@ UI 变更必须检查深浅主题对比、中文衬线标题使用、英文斜�
 
 ## Prototype-driven UI Gate
 
-带 `prototype/` 的页面、弹窗或主要 UI 流程 MUST 先完成原型驱动门禁，再进入实现完成态：
+带 `prototype/` 的页面、弹窗或主要 UI 流程 MUST 先完成原型驱动门禁，再进入实现完成态。详细模板见 `docs/standards/prototype-ui-acceptance.md`。
 
 1. 原型拆解：`/req-complete` MUST 将 prototype 拆成页面清单、关键区域、组件层级、状态矩阵、交互触发、数据依赖、响应式断点和视觉验收焦点。
-2. UI Skeleton：`/req-opsx` MUST 在 Change `design.md` 写入 UI Skeleton，并在 `tasks.md` 设置先行任务；Skeleton 至少包含路由/页面壳、布局区域、组件插槽、状态容器、可测选择器和占位数据边界。
-3. 1440px 视觉验收：`/opsx-apply` 和 `/opsx-modify` MUST 在 1440px 桌面视口验证首屏结构、间距、对齐、主题、字号、弹窗、toast、滚动和文本溢出，并记录截图或等价证据入口。
-4. 文档实时回填：实现或返修改变 prototype 意图、UI 行为、验收标准或非目标时，MUST 同步更新 active Change 文档和 linked REQ `requirement.md` / `acceptance.md` / `trace.md`。
-5. 最终一致性：`/opsx-archive` MUST 在归档前确认 linked REQ 与最终 Change 设计、实现证据、1440px 验收结果一致；不一致时阻断归档。
+2. UI Contract：`/req-opsx` MUST 在 Change `design.md` 写入 UI Contract，明确事实源优先级、页面/路由、布局结构、关键尺寸、字体层级、颜色、图标、文案、交互状态、Mock/API 边界、权限显示规则和前后台一致性参照；缺 Contract 时不得进入最终实现验收。
+3. UI Skeleton：`/req-opsx` MUST 在 Change `design.md` 写入 UI Skeleton，并在 `tasks.md` 设置先行任务；Skeleton 至少包含路由/页面壳、布局区域、组件插槽、状态容器、可测选择器和占位数据边界。Skeleton 首轮必须先做 1440px 截图或等价视觉证据确认，再继续细节实现。
+4. 前后台一致性：若原型或验收要求参照管理后台、前台或既有页面，MUST 建立 checklist，对齐品牌区、菜单分组、导航密度、active 态、折叠按钮、用户菜单、浮层层级、字体 token、图标尺寸、hover/click outside 和危险色。
+5. 视觉与交互截图门禁：`/opsx-apply` 和 `/opsx-modify` MUST 在 1440px 桌面视口验证首屏结构、间距、对齐、主题、字号、弹窗、toast、滚动和文本溢出；同时覆盖关键交互截图，例如侧边栏展开/收起、用户菜单、二级浮层、筛选、弹窗、空态、错误态和权限差异。UI 返修后旧截图立即视为 stale，必须重新取证。
+6. Computed style 验收：对原型敏感或曾返修的视觉点，MUST 记录浏览器 computed style 或等价检查，包括 `font-size`、`font-family`、`line-height`、`width`、`height`、`gap`、`padding`、`border`、`background`、`color`、`z-index`、`overflow` 和 `position` 等关键属性。
+7. Mock/API 边界声明：若 UI 使用 Mock 数据，MUST 在 Change `design.md`、`trace.md` 或验收证据中明确声明哪些区域为 Mock、哪些调用真实 API、Mock 进入生产的风险和后续真实数据 Change；不得用 Mock 数据默认冒充已接入 API。
+8. 图标与文案一致性：相同功能在前后台或同一产品域内 MUST 使用相同图标和一致文案；不同功能 SHOULD 使用不同图标。用户可见文案必须产品化，避免暴露内部命令名、阶段脚本名或实现术语，除非原型明确要求。
+9. 文档实时回填：实现或返修改变 prototype 意图、UI 行为、验收标准、非目标、Mock/API 边界或权限规则时，MUST 同步更新 active Change 文档和 linked REQ `requirement.md` / `acceptance.md` / `trace.md`。
+10. 最终一致性：`/opsx-archive` MUST 在归档前确认 linked REQ 与最终 Change 设计、实现证据、1440px /关键交互截图、computed style 结果和 Mock/API 边界一致；不一致时阻断归档。
 
 推荐知识库入口：`docs/knowledge-base/best-practices/prototype-driven-ui-gate.md`。

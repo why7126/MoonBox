@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Homepage } from "./pages/home/Homepage";
 
@@ -15,6 +15,7 @@ afterEach(() => {
   cleanup();
   resetLocation();
   vi.restoreAllMocks();
+  window.localStorage.clear();
 });
 
 describe("Homepage", () => {
@@ -32,23 +33,28 @@ describe("Homepage", () => {
     expect(screen.getByText("交付 Harness")).toBeTruthy();
   });
 
-  it("opens the admin entry from both homepage CTAs", () => {
+  it("opens the frontend login from both homepage CTAs", () => {
     render(<Homepage />);
 
     fireEvent.click(screen.getByRole("button", { name: "开启 MoonBox" }));
 
-    expect(window.location.pathname).toBe("/admin");
+    expect(window.location.pathname).toBe("/login");
+    expect(window.location.hash).toBe("");
+    expect(screen.getByRole("form", { name: "MoonBox login" })).toBeTruthy();
 
     resetLocation();
     cleanup();
     render(<Homepage />);
     fireEvent.click(screen.getByRole("button", { name: "打开第一个项目" }));
 
-    expect(window.location.pathname).toBe("/admin");
+    expect(window.location.pathname).toBe("/login");
+    expect(window.location.hash).toBe("");
+    expect(screen.getByRole("form", { name: "MoonBox login" })).toBeTruthy();
+    expect(screen.queryByRole("form", { name: "管理后台登录" })).toBeNull();
   });
 
-  it("supports direct #login entry and returning home", () => {
-    window.history.replaceState(null, "", "/#login");
+  it("supports direct /login entry and returning home", () => {
+    window.history.replaceState(null, "", "/login");
 
     render(<Homepage />);
 
@@ -59,13 +65,69 @@ describe("Homepage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /返回首页/ }));
 
+    expect(window.location.pathname).toBe("/");
     expect(window.location.hash).toBe("");
     expect(screen.getByText("AI 原生软件工厂")).toBeTruthy();
   });
 
-  it("keeps login submit as a frontend-only prototype action", () => {
-    const fetchSpy = vi.spyOn(window, "fetch");
-    window.history.replaceState(null, "", "/#login");
+  it("toggles login password visibility without submitting or losing the value", () => {
+    const requestAnimationFrameSpy = vi
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback: FrameRequestCallback) => {
+        callback(0);
+        return 0;
+      });
+    window.history.replaceState(null, "", "/login");
+
+    render(<Homepage />);
+
+    const password = screen.getByLabelText("密码") as HTMLInputElement;
+    const form = screen.getByRole("form", { name: "MoonBox login" });
+    const submitSpy = vi.fn((event: Event) => event.preventDefault());
+    form.addEventListener("submit", submitSpy);
+
+    fireEvent.change(password, { target: { value: "ExamplePass123!" } });
+
+    const showButton = screen.getByRole("button", { name: "显示密码" });
+    expect(showButton.getAttribute("type")).toBe("button");
+    expect(showButton.getAttribute("aria-pressed")).toBe("false");
+    expect(password.type).toBe("password");
+
+    fireEvent.click(showButton);
+
+    expect(submitSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "隐藏密码" }).getAttribute("aria-pressed")).toBe("true");
+    expect(password.type).toBe("text");
+    expect(password.value).toBe("ExamplePass123!");
+    expect(document.activeElement).toBe(password);
+
+    fireEvent.click(screen.getByRole("button", { name: "隐藏密码" }));
+
+    expect(submitSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "显示密码" }).getAttribute("aria-pressed")).toBe("false");
+    expect(password.type).toBe("password");
+    expect(password.value).toBe("ExamplePass123!");
+    expect(requestAnimationFrameSpy).toHaveBeenCalled();
+  });
+
+  it("opens the frontend requirement center after unified login submit", async () => {
+    const fetchSpy = vi.spyOn(window, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          access_token: "test-token",
+          expires_at: "2026-08-11 00:00:00",
+          user: {
+            id: "user_superadmin",
+            username: "founder",
+            role: "后台管理员",
+            status: "正常",
+            is_system_superadmin: true,
+          },
+        },
+      }),
+    } as Response);
+    window.history.replaceState(null, "", "/login");
 
     render(<Homepage />);
 
@@ -81,9 +143,12 @@ describe("Homepage", () => {
     fireEvent.change(password, { target: { value: "MoonBox123!" } });
     fireEvent.submit(form);
 
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(window.location.hash).toBe("#login");
-    expect(screen.queryByText("忘记密码")).toBeNull();
-    expect(screen.queryByText("申请体验")).toBeNull();
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining("/api/v1/auth/login"), expect.objectContaining({ method: "POST" }));
+      expect(window.location.pathname).toBe("/requirements");
+      expect(window.location.hash).toBe("");
+      expect(window.localStorage.getItem("moonbox.session")).toContain("founder");
+      expect(window.localStorage.getItem("moonbox.session")).toContain("test-token");
+    });
   });
 });

@@ -76,6 +76,7 @@ services:
       OBJECT_STORAGE_PREFIX_IMPORTS_PROCESSED: ${OBJECT_STORAGE_PREFIX_IMPORTS_PROCESSED:-imports/processed/}
       OBJECT_STORAGE_PREFIX_EXPORTS_RESULT: ${OBJECT_STORAGE_PREFIX_EXPORTS_RESULT:-exports/result/}
       OBJECT_STORAGE_PREFIX_TMP_UPLOADS: ${OBJECT_STORAGE_PREFIX_TMP_UPLOADS:-tmp/uploads/}
+      MOONBOX_GOVERNANCE_ROOT: ${MOONBOX_GOVERNANCE_ROOT:-/app/governance}
     ports:
       # 左侧为宿主机端口，可通过 HOST_PORT_BACKEND 调整；右侧容器端口固定为 8000。
       - "${HOST_PORT_BACKEND:-18101}:8000"
@@ -84,6 +85,12 @@ services:
       - ./data/runtime/backend:/app/data
       # 后端临时文件目录。
       - ./data/tmp:/app/tmp
+      # 需求中心 BFF 只读读取治理事实源。
+      - ./issues:/app/governance/issues:ro
+      - ./iterations:/app/governance/iterations:ro
+      - ./openspec:/app/governance/openspec:ro
+      - ./docs:/app/governance/docs:ro
+      - ./rules:/app/governance/rules:ro
     healthcheck:
       test: ["CMD-SHELL", "${BACKEND_HEALTHCHECK_CMD:-python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)'}"]
       interval: 30s
@@ -103,8 +110,7 @@ services:
     environment:
       <<: *common-env
       SERVICE_NAME: web
-      # 浏览器侧访问后端的地址，通常使用宿主机端口。
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:18101}
+      # Docker Web 默认通过 nginx 同源 /api 反向代理访问后端；VITE_API_BASE_URL 仅用于构建期分域部署。
     ports:
       # 左侧为宿主机端口，可通过 HOST_PORT_WEB 调整；右侧容器端口固定为 80。
       - "${HOST_PORT_WEB:-18102}:80"

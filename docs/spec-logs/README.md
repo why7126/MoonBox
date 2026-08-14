@@ -2,7 +2,7 @@
 purpose: 规范工程日志目录
 content: spec-study 学习报告与 spec-opt 治理迭代日志的存放规则、命名约束和公开安全边界
 created_at: 2026-08-07 00:00:00
-updated_at: 2026-08-08 20:53:52
+updated_at: 2026-08-09 08:27:52
 owner: MoonBox 产品团队
 ---
 
@@ -11,6 +11,8 @@ owner: MoonBox 产品团队
 `docs/spec-logs/` 用于存放规范工程日志，包括 `/spec-study` 跨项目 Harness 学习报告，以及 `/spec-opt` 对本项目规范、技能、脚本、目录边界和校验规则的治理迭代日志。
 
 `CHANGELOG.md` 是本目录的变更历史入口，用于按时间倒序汇总每一次规范、脚本、命令、目录边界和校验规则更新；单次变更的完整事实源仍以对应 `study` / `governance` 日志、OpenSpec Change、Sprint 四件套和正式规格为准。
+
+跨项目 `/spec-study` 学习其他治理工程时，若学习对象存在 `docs/spec-logs/CHANGELOG.md`，SHOULD 优先从该日志索引入手，再读取相关单次 `study` / `governance` 日志，随后横向校验真实治理资产。`CHANGELOG.md` 只提供入口地图和摘要，不替代当前资产事实。
 
 ## 命名规则
 
@@ -23,7 +25,7 @@ YYYYMMDDhhmmss-governance-xxx.md
 
 - `YYYYMMDDhhmmss`：报告生成时刻的 `Asia/Shanghai` 日期时间，精确到秒。
 - `study`：`/spec-study` 跨项目学习报告。
-- `governance`：`/spec-opt` 本项目规范、技能、脚本、目录边界或校验规则迭代日志。
+- `governance`：本项目规范、技能、脚本、目录边界或校验规则迭代日志；包括 `/spec-opt`，以及 REQ/BUG 驱动但触达治理资产的 Change。
 - `xxx`：小写 kebab-case 主题，例如 `projecttilesfst`、`deployment-governance`、`usage-docs`、`spec-logs`。
 
 历史日期级文件名（如 `YYYYMMDD-xxx.md`）也 SHOULD 迁移为时间戳级命名；新报告 MUST 使用时间戳级命名，避免同一天多次学习或治理迭代互相覆盖。
@@ -33,7 +35,7 @@ YYYYMMDDhhmmss-governance-xxx.md
 ## 变更历史
 
 - `CHANGELOG.md`：目录级变更历史索引，记录每次规范、脚本、命令、目录边界和校验规则更新摘要。
-- `YYYYMMDDhhmmss-governance-xxx.md`：单次 `/spec-opt` 治理迭代日志。
+- `YYYYMMDDhhmmss-governance-xxx.md`：单次治理迭代日志。
 - `YYYYMMDDhhmmss-study-xxx.md`：单次 `/spec-study` 学习报告。
 
 ## 去重规则
@@ -43,6 +45,7 @@ YYYYMMDDhhmmss-governance-xxx.md
 - `/spec-study` 触发的治理资产应用结果必须汇总到同一份 `study` 报告，不得再额外生成内容重复的 `governance` 日志。
 - 若同一学习对象、学习主题和用户确认批次已存在本流程报告，后续应用结果、验证结果或修正 MUST 更新同一文件。
 - `/spec-opt` 每次独立治理变更 MAY 生成一份 `governance` 日志；同一治理变更的补充修正 SHOULD 更新同一日志。
+- REQ/BUG 驱动的 Change 如果触达 `.agents/skills/**`、`AGENTS.md`、`rules/**`、`docs/spec-logs/**`、`docs/standards/**`、治理脚本、校验脚本、Workflow Sync、OpenSpec/Sprint/REQ/BUG 流程规则或 `project.yaml` 命令索引，MUST 生成或更新 `governance` 日志，并同步 `CHANGELOG.md`。
 
 ## 边界
 

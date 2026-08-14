@@ -10,7 +10,7 @@ ADMIN_PASSWORD = "example-test-password"
 
 def _admin_headers(api_client: TestClient) -> dict[str, str]:
     response = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "superadmin", "password": ADMIN_PASSWORD, "remember_me": False},
     )
     assert response.status_code == 200, response.text
@@ -51,6 +51,41 @@ def test_admin_user_list_includes_protected_superadmin(api_client: TestClient) -
     assert superadmin["username"] == "superadmin"
     assert superadmin["role"] == "后台管理员"
     assert superadmin["is_system_superadmin"] is True
+
+
+def test_legacy_admin_avatar_urls_are_normalized_to_unified_auth_path(api_client: TestClient) -> None:
+    from app.db.session import get_session_factory
+
+    with get_session_factory()() as db:
+        db.execute(
+            text(
+                """
+                UPDATE admin_users
+                SET avatar_url = '/api/v1/admin/users/avatar/legacy-avatar.webp'
+                WHERE username = 'superadmin'
+                """
+            )
+        )
+        db.commit()
+
+    login = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": "superadmin", "password": ADMIN_PASSWORD, "remember_me": False},
+    )
+    assert login.status_code == 200, login.text
+    token = login.json()["data"]["access_token"]
+    headers = {"authorization": f"Bearer {token}"}
+    expected = "/api/v1/auth/avatar/legacy-avatar.webp"
+
+    assert login.json()["data"]["user"]["avatar_url"] == expected
+
+    me = api_client.get("/api/v1/auth/me", headers=headers)
+    assert me.status_code == 200, me.text
+    assert me.json()["data"]["user"]["avatar_url"] == expected
+
+    users = api_client.get("/api/v1/admin/users", headers=headers)
+    assert users.status_code == 200, users.text
+    assert users.json()["data"]["items"][0]["avatar_url"] == expected
 
 
 def test_admin_user_create_filter_and_update(api_client: TestClient) -> None:
@@ -106,7 +141,7 @@ def test_admin_user_create_returns_temporary_password_that_can_login(api_client:
     created, temporary_password = _create_admin_user_with_password(api_client, "newadmin")
     assert created["status"] == "待激活"
     login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "newadmin", "password": temporary_password, "remember_me": False},
     )
 
@@ -157,7 +192,7 @@ def test_admin_user_status_reset_and_superadmin_protection(api_client: TestClien
     new_password = reset.json()["data"]["temporary_password"]
     assert new_password.startswith("Mb-")
     old_login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "linyu", "password": initial_password, "remember_me": False},
     )
     assert old_login.status_code == 401
@@ -171,7 +206,7 @@ def test_admin_user_status_reset_and_superadmin_protection(api_client: TestClien
     assert unfreeze.json()["data"]["status"] == "待激活"
     assert unfreeze.json()["data"]["status_before_freeze"] is None
     new_login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "linyu", "password": new_password, "remember_me": False},
     )
     assert new_login.status_code == 200, new_login.text
@@ -188,7 +223,7 @@ def test_admin_user_status_reset_and_superadmin_protection(api_client: TestClien
 def test_admin_user_unfreeze_restores_previous_active_status(api_client: TestClient) -> None:
     created, temporary_password = _create_admin_user_with_password(api_client, "activeadmin")
     login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "activeadmin", "password": temporary_password, "remember_me": False},
     )
     assert login.status_code == 200, login.text
@@ -220,7 +255,43 @@ def test_admin_user_unfreeze_restores_previous_active_status(api_client: TestCli
     assert unfreeze.json()["data"]["status_before_freeze"] is None
 
 
-def test_frontend_user_cannot_activate_into_admin(api_client: TestClient) -> None:
+def test_admin_user_cannot_freeze_or_delete_self(api_client: TestClient) -> None:
+    created, temporary_password = _create_admin_user_with_password(api_client, "selfguard")
+    login = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": "selfguard", "password": temporary_password, "remember_me": False},
+    )
+    assert login.status_code == 200, login.text
+    token = login.json()["data"]["access_token"]
+    headers = {"authorization": f"Bearer {token}"}
+
+    freeze = api_client.post(
+        f"/api/v1/admin/users/{created['id']}/freeze",
+        headers=headers,
+        json={"reason": "误操作验证"},
+    )
+    assert freeze.status_code == 403
+
+    after_freeze_me = api_client.get("/api/v1/auth/me", headers=headers)
+    assert after_freeze_me.status_code == 200, after_freeze_me.text
+    assert after_freeze_me.json()["data"]["user"]["status"] == "正常"
+
+    delete = api_client.request(
+        "DELETE",
+        f"/api/v1/admin/users/{created['id']}",
+        headers=headers,
+        json={"reason": "误操作验证"},
+    )
+    assert delete.status_code == 403
+
+    after_delete_me = api_client.get("/api/v1/auth/me", headers=headers)
+    assert after_delete_me.status_code == 200, after_delete_me.text
+    user = after_delete_me.json()["data"]["user"]
+    assert user["status"] == "正常"
+    assert user["deleted_at"] is None
+
+
+def test_frontend_user_can_login_and_remains_blocked_from_admin_apis(api_client: TestClient) -> None:
     response = api_client.post(
         "/api/v1/admin/users",
         headers=_admin_headers(api_client),
@@ -230,10 +301,58 @@ def test_frontend_user_cannot_activate_into_admin(api_client: TestClient) -> Non
     data = response.json()["data"]
 
     login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "frontuser", "password": data["temporary_password"], "remember_me": False},
     )
-    assert login.status_code == 401
+    assert login.status_code == 200, login.text
+    token = login.json()["data"]["access_token"]
+    assert login.json()["data"]["user"]["role"] == "前台用户"
+    assert login.json()["data"]["user"]["status"] == "正常"
+
+    context = api_client.get("/api/v1/requirement-center/context", headers={"authorization": f"Bearer {token}"})
+    assert context.status_code == 200, context.text
+    assert context.json()["data"]["current_user"]["can_access_admin"] is False
+
+    me = api_client.get("/api/v1/auth/me", headers={"authorization": f"Bearer {token}"})
+    assert me.status_code == 200, me.text
+    assert me.json()["data"]["user"]["username"] == "frontuser"
+
+    profile = api_client.patch(
+        "/api/v1/auth/me",
+        headers={"authorization": f"Bearer {token}"},
+        json={"nickname": "  前台昵称  ", "avatar_url": "/api/v1/auth/avatar/front.png"},
+    )
+    assert profile.status_code == 200, profile.text
+    assert profile.json()["data"]["user"]["nickname"] == "前台昵称"
+    assert profile.json()["data"]["user"]["avatar_url"] == "/api/v1/auth/avatar/front.png"
+
+    forbidden = api_client.get("/api/v1/admin/users", headers={"authorization": f"Bearer {token}"})
+    assert forbidden.status_code == 403
+
+    changed = api_client.post(
+        "/api/v1/auth/change-password",
+        headers={"authorization": f"Bearer {token}"},
+        json={
+            "current_password": data["temporary_password"],
+            "new_password": "Mb-FrontSecure2026!",
+            "confirm_password": "Mb-FrontSecure2026!",
+        },
+    )
+    assert changed.status_code == 200, changed.text
+    assert changed.json()["data"] == {"status": "done", "message": "密码已更新，请重新登录。"}
+
+    reused_frontend_session = api_client.get("/api/v1/requirement-center/context", headers={"authorization": f"Bearer {token}"})
+    assert reused_frontend_session.status_code == 401
+
+    new_login = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": "frontuser", "password": "Mb-FrontSecure2026!", "remember_me": False},
+    )
+    assert new_login.status_code == 200, new_login.text
+    new_token = new_login.json()["data"]["access_token"]
+
+    still_forbidden = api_client.get("/api/v1/admin/users", headers={"authorization": f"Bearer {new_token}"})
+    assert still_forbidden.status_code == 403
 
 
 def test_admin_avatar_upload_and_read(api_client: TestClient) -> None:
@@ -256,7 +375,7 @@ def test_admin_avatar_upload_and_read(api_client: TestClient) -> None:
     headers = _admin_headers(api_client)
     try:
         upload = api_client.post(
-            "/api/v1/admin/users/avatar",
+            "/api/v1/auth/avatar",
             headers=headers,
             files={"file": ("avatar.png", b"avatar-bytes", "image/png")},
         )
@@ -276,9 +395,31 @@ def test_admin_avatar_upload_and_read(api_client: TestClient) -> None:
         app.dependency_overrides.pop(get_object_storage, None)
 
 
+def test_old_admin_auth_and_avatar_paths_are_not_registered(api_client: TestClient) -> None:
+    headers = _admin_headers(api_client)
+    old_auth_prefix = "/api/v1/admin" + "/auth"
+    old_avatar_prefix = "/api/v1/admin/users" + "/avatar"
+
+    assert api_client.post(f"{old_auth_prefix}/login", json={"username": "superadmin", "password": ADMIN_PASSWORD}).status_code == 404
+    assert api_client.post(f"{old_auth_prefix}/logout", headers=headers).status_code == 404
+    assert api_client.get(f"{old_auth_prefix}/me", headers=headers).status_code == 404
+    assert api_client.patch(f"{old_auth_prefix}/me", headers=headers, json={"nickname": "旧路径"}).status_code == 404
+    assert api_client.post(
+        f"{old_auth_prefix}/change-password",
+        headers=headers,
+        json={"current_password": ADMIN_PASSWORD, "new_password": "Mb-NewSecure2026!", "confirm_password": "Mb-NewSecure2026!"},
+    ).status_code == 404
+    assert api_client.post(
+        old_avatar_prefix,
+        headers=headers,
+        files={"file": ("avatar.png", b"avatar-bytes", "image/png")},
+    ).status_code in {404, 405}
+    assert api_client.get(f"{old_avatar_prefix}/avatar.png", headers=headers).status_code in {404, 405}
+
+
 def test_admin_auth_rejects_login_failure_expired_token_and_non_admin_session(api_client: TestClient) -> None:
     failed_login = api_client.post(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         json={"username": "superadmin", "password": "wrong-password", "remember_me": False},
     )
     assert failed_login.status_code == 401
@@ -314,16 +455,141 @@ def test_admin_auth_logout_and_header_placeholder_rejected(api_client: TestClien
     placeholder = api_client.get("/api/v1/admin/users", headers={"x-admin-role": "admin"})
     assert placeholder.status_code == 401
 
-    logout = api_client.post("/api/v1/admin/auth/logout", headers=headers)
+    logout = api_client.post("/api/v1/auth/logout", headers=headers)
     assert logout.status_code == 200
 
     reused = api_client.get("/api/v1/admin/users", headers=headers)
     assert reused.status_code == 401
 
 
+def test_admin_auth_change_own_password_revokes_existing_sessions(api_client: TestClient) -> None:
+    headers = _admin_headers(api_client)
+    second_headers = _admin_headers(api_client)
+
+    weak = api_client.post(
+        "/api/v1/auth/change-password",
+        headers=headers,
+        json={
+            "current_password": ADMIN_PASSWORD,
+            "new_password": "password",
+            "confirm_password": "password",
+        },
+    )
+    assert weak.status_code == 400
+
+    same = api_client.post(
+        "/api/v1/auth/change-password",
+        headers=headers,
+        json={
+            "current_password": ADMIN_PASSWORD,
+            "new_password": ADMIN_PASSWORD,
+            "confirm_password": ADMIN_PASSWORD,
+        },
+    )
+    assert same.status_code == 400
+
+    wrong_current = api_client.post(
+        "/api/v1/auth/change-password",
+        headers=headers,
+        json={
+            "current_password": "wrong-current-password",
+            "new_password": "Mb-NewSecure2026!",
+            "confirm_password": "Mb-NewSecure2026!",
+        },
+    )
+    assert wrong_current.status_code == 401
+
+    mismatch = api_client.post(
+        "/api/v1/auth/change-password",
+        headers=headers,
+        json={
+            "current_password": ADMIN_PASSWORD,
+            "new_password": "Mb-NewSecure2026!",
+            "confirm_password": "Mb-OtherSecure2026!",
+        },
+    )
+    assert mismatch.status_code == 400
+
+    changed = api_client.post(
+        "/api/v1/auth/change-password",
+        headers=headers,
+        json={
+            "current_password": ADMIN_PASSWORD,
+            "new_password": "Mb-NewSecure2026!",
+            "confirm_password": "Mb-NewSecure2026!",
+        },
+    )
+    assert changed.status_code == 200, changed.text
+    assert changed.json()["data"] == {"status": "done", "message": "密码已更新，请重新登录。"}
+
+    reused_current = api_client.get("/api/v1/admin/users", headers=headers)
+    assert reused_current.status_code == 401
+    reused_second = api_client.get("/api/v1/admin/users", headers=second_headers)
+    assert reused_second.status_code == 401
+
+    old_login = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": "superadmin", "password": ADMIN_PASSWORD, "remember_me": False},
+    )
+    assert old_login.status_code == 401
+    new_login = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": "superadmin", "password": "Mb-NewSecure2026!", "remember_me": False},
+    )
+    assert new_login.status_code == 200, new_login.text
+
+
+def test_admin_auth_update_own_profile(api_client: TestClient) -> None:
+    headers = _admin_headers(api_client)
+
+    updated = api_client.patch(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={"nickname": "  月盒管理员  ", "avatar_url": "/api/v1/auth/avatar/avatar.png"},
+    )
+    assert updated.status_code == 200, updated.text
+    user = updated.json()["data"]["user"]
+    assert user["username"] == "superadmin"
+    assert user["nickname"] == "月盒管理员"
+    assert user["avatar_url"] == "/api/v1/auth/avatar/avatar.png"
+
+    me = api_client.get("/api/v1/auth/me", headers=headers)
+    assert me.status_code == 200
+    assert me.json()["data"]["user"]["nickname"] == "月盒管理员"
+
+    cleared = api_client.patch("/api/v1/auth/me", headers=headers, json={"nickname": "", "avatar_url": None})
+    assert cleared.status_code == 200
+    assert cleared.json()["data"]["user"]["nickname"] is None
+    assert cleared.json()["data"]["user"]["avatar_url"] is None
+
+
+def test_admin_auth_update_own_profile_rejects_invalid_payloads(api_client: TestClient) -> None:
+    headers = _admin_headers(api_client)
+
+    anonymous = api_client.patch("/api/v1/auth/me", json={"nickname": "访客"})
+    assert anonymous.status_code == 401
+
+    blob_avatar = api_client.patch("/api/v1/auth/me", headers=headers, json={"avatar_url": "blob:avatar-preview"})
+    assert blob_avatar.status_code == 400
+
+    too_long = api_client.patch("/api/v1/auth/me", headers=headers, json={"nickname": "名" * 129})
+    assert too_long.status_code == 422
+
+    extra_fields = api_client.patch(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={"nickname": "只改昵称", "role": "前台用户", "status": "已冻结", "username": "changed"},
+    )
+    assert extra_fields.status_code == 200
+    assert extra_fields.json()["data"]["user"]["nickname"] == "只改昵称"
+    assert extra_fields.json()["data"]["user"]["role"] == "后台管理员"
+    assert extra_fields.json()["data"]["user"]["status"] == "正常"
+    assert extra_fields.json()["data"]["user"]["username"] == "superadmin"
+
+
 def test_admin_auth_cors_preflight_allows_web_origin(api_client: TestClient) -> None:
     response = api_client.options(
-        "/api/v1/admin/auth/login",
+        "/api/v1/auth/login",
         headers={
             "origin": "http://localhost:18102",
             "access-control-request-method": "POST",

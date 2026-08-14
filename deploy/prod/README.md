@@ -34,6 +34,7 @@ bash deploy/scripts/up.sh prod external-storage-external-mysql
 - `MINIO_SECURE=true`，生产对象存储默认使用 HTTPS。
 - 生产 Bucket 必须提前创建；应用不得依赖本地初始化脚本创建生产 Bucket。
 - 产品手册站点只挂载 `mintlify/` 公开源目录，不挂载生产 env、密钥或运行时数据。
+- 生产承载可使用 Compose 内 `docs-site`、外部 Mintlify 托管、静态托管、CDN rewrite 或反向代理；采用方案必须在发布门禁中记录。若方案未确认，`/release-prepare <version>` 必须记录 blocker 或待确认项。
 
 ## 校验
 
@@ -41,7 +42,7 @@ bash deploy/scripts/up.sh prod external-storage-external-mysql
 
 ```bash
 python deploy/scripts/validate-env.py --domain prod --environment external-storage-external-mysql --env-file deploy/prod/external-storage-external-mysql.env
-MOONBOX_DEPLOY_ENV_FILE=deploy/prod/external-storage-external-mysql.env docker compose --project-name moonbox --env-file deploy/prod/external-storage-external-mysql.env --profile docs-site -f deploy/prod/compose.s3-mysql.yml config --quiet
+MOONBOX_DEPLOY_ENV_FILE=external-storage-external-mysql.env docker compose --project-name moonbox --env-file deploy/prod/external-storage-external-mysql.env --profile docs-site -f deploy/prod/compose.s3-mysql.yml config --quiet
 ```
 
 `deploy/prod/external-storage-external-mysql.env.example` 保留 `replace-with-*` 占位值，只用于说明变量结构，不应作为生产通过校验的 env。

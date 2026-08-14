@@ -11,14 +11,26 @@ from sqlalchemy.orm import Session
 
 from app.schemas.admin_users import AdminUserCreate, AdminUserListParams, AdminUserUpdate
 
+LEGACY_ADMIN_AVATAR_PREFIX = "/api/v1/admin/users/avatar/"
+UNIFIED_AUTH_AVATAR_PREFIX = "/api/v1/auth/avatar/"
+
 
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def normalize_avatar_url(avatar_url: str | None) -> str | None:
+    if not avatar_url:
+        return avatar_url
+    if avatar_url.startswith(LEGACY_ADMIN_AVATAR_PREFIX):
+        return f"{UNIFIED_AUTH_AVATAR_PREFIX}{avatar_url.removeprefix(LEGACY_ADMIN_AVATAR_PREFIX)}"
+    return avatar_url
+
+
 def row_to_dict(row) -> dict:  # type: ignore[no-untyped-def]
     data = dict(row._mapping)
     data["is_system_superadmin"] = bool(data.get("is_system_superadmin"))
+    data["avatar_url"] = normalize_avatar_url(data.get("avatar_url"))
     return data
 
 

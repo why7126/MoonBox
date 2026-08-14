@@ -65,4 +65,5 @@ tmp/uploads/{uuid}.part
 - 对象 Key 由服务端生成，格式为 `images/avatars/{uuid}.{ext}`，不使用用户原始文件名。
 - 读取必须通过后台授权接口代理，前端不得直连 MinIO 私有对象。
 - 上传成功后同一会话立即回显。
-- Docker 本地 `:3000` 边界必须可上传、读取和回显。
+- Docker 本地验收必须解析实际 `HOST_PORT_WEB`，默认使用 `18102` Web 同源入口完成上传、读取和回显；不得硬编码 `:3000`。
+- Docker 本地验收必须由脚本准备一次性测试用户、测试会话或可回收 fixture，不得依赖 `data/runtime/backend` 持久库中的管理员密码等于 `ADMIN_INITIAL_PASSWORD`。

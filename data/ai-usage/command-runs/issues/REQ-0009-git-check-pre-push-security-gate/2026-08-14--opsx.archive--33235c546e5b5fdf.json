@@ -1,0 +1,45 @@
+{
+  "command_runs": [
+    {
+      "source_session_hash": "33235c546e5b5fdfec350ca46f240bec6f62a2ec5052a438ead702b98be6af54",
+      "source_data_file": "~/.codex/sessions/2026/08/14/rollout-2026-08-14T08-49-33-019ffdbe-e1c0-7660-b6aa-510e5c72cc91.jsonl",
+      "source_line_start": 8,
+      "source_line_end": 129,
+      "turn_hash": "e291f49665d47e88",
+      "started_at": "2026-08-14T00:49:57.815Z",
+      "ended_at": "2026-08-14T00:53:25.583Z",
+      "command": "opsx.archive",
+      "workflow_event": "opsx.archive",
+      "requirements": [
+        "REQ-0009-git-check-pre-push-security-gate"
+      ],
+      "bugs": [],
+      "changes": [
+        "add-git-check-pre-push-security-gate"
+      ],
+      "sprint_id": "sprint-002",
+      "release_sprints": [],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "gpt-5.5",
+      "model_provider": "openai",
+      "service_tier": null,
+      "reasoning_effort": "low",
+      "reasoning_summary": "auto",
+      "model_speed_tier": "frontier",
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 16,
+      "input_tokens": 981250,
+      "cached_input_tokens": 907264,
+      "output_tokens": 4099,
+      "reasoning_output_tokens": 288,
+      "total_tokens": 985349,
+      "tool_call_count": 35,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

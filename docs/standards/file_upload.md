@@ -223,8 +223,8 @@ tmp/uploads/{uuid}.part
 
 | 项 | 规则 |
 |---|---|
-| 接口 | `POST /api/v1/admin/users/avatar` |
-| 读取 | `GET /api/v1/admin/users/avatar/{filename}` |
+| 接口 | `POST /api/v1/auth/avatar` |
+| 读取 | `GET /api/v1/auth/avatar/{filename}` |
 | 类型 | JPG、PNG、WebP |
 | 大小 | 2MB |
 | Key | 服务端 UUID 对象 Key：`images/avatars/{uuid}.{ext}` |
@@ -234,6 +234,8 @@ tmp/uploads/{uuid}.part
 规则：
 
 - 项目 MUST 使用一个 Bucket，默认 `moonbox`。
+- 统一头像 API 迁移后，存量用户记录中的 `/api/v1/admin/users/avatar/{filename}` MUST 在服务端读模型中规范化为 `/api/v1/auth/avatar/{filename}`；不得通过恢复旧读取接口来兼容。
+- 前端个人资料弹窗和用户菜单 MUST 优先使用统一当前用户上下文中的规范化头像 URL；旧 session 快照中的 `/api/v1/admin/users/avatar/{filename}` 不得覆盖已恢复头像。
 - 正式业务对象 Key MUST 使用 `{resource_type}/{subtype}/{uuid}.{ext}`。
 - `resource_type` MUST 是资源大类，例如 `images`、`documents`、`imports`、`exports`、`tmp`。
 - `subtype` MUST 是资源状态或用途，例如 `original`、`thumbnails`、`source`、`preview`、`processed`、`result`、`uploads`。

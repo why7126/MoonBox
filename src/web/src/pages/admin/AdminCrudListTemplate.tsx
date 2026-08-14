@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { AdminSelect } from "./AdminSelect";
 
 type FilterControl = {
   id: string;
@@ -16,6 +17,8 @@ type AdminCrudListTemplateProps = {
   title: string;
   description: string;
   primaryAction?: ReactNode;
+  headerAddon?: ReactNode;
+  bodyAddon?: ReactNode;
   filters: FilterControl[];
   columns: Column[];
   tableClassName?: string;
@@ -45,6 +48,8 @@ export function AdminCrudListTemplate({
   title,
   description,
   primaryAction,
+  headerAddon,
+  bodyAddon,
   filters,
   columns,
   tableClassName,
@@ -70,6 +75,8 @@ export function AdminCrudListTemplate({
           </div>
           {primaryAction && <div className="admin-head-actions">{primaryAction}</div>}
         </header>
+        {headerAddon}
+        {bodyAddon}
 
         <div className="admin-toolbar">
           {filters.map((filter) => (
@@ -128,13 +135,13 @@ export function AdminCrudListTemplate({
               ›
             </button>
             <span className="admin-page-size-label">每页显示</span>
-            <select className="admin-page-size" aria-label="每页显示条数" value={pagination.pageSize} onChange={(event) => pagination.onPageSizeChange(Number(event.target.value))}>
-              {pagination.pageSizeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option} 条
-                </option>
-              ))}
-            </select>
+            <AdminSelect
+              ariaLabel="每页显示条数"
+              className="admin-page-size"
+              value={pagination.pageSize}
+              options={pagination.pageSizeOptions.map((option) => ({ value: option, label: `${option} 条` }))}
+              onChange={pagination.onPageSizeChange}
+            />
           </div>
         </footer>
       </section>

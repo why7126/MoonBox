@@ -2,7 +2,7 @@
 purpose: Mintlify 公开产品文档站源目录说明
 content: MoonBox 产品手册源文件、版本快照、公告投影、截图资产和部署边界
 created_at: 2026-08-04 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-08-09 08:54:59
 owner: MoonBox 产品团队
 ---
 
@@ -25,6 +25,7 @@ owner: MoonBox 产品团队
 - `mintlify/docs/vX.Y.Z/` 是固定版本快照，生成后默认冻结；旧版本内容修正必须在 `site-manifest.json manual_overrides` 或对应 release manifest 中记录原因、确认人、时间、影响文件和摘要。
 - `mintlify/assets/screenshots/` 只放可公开真实系统截图，文件名 SHOULD 使用 `sha256-<digest-prefix>-<semantic-name>.<ext>`；页面引用 SHOULD 使用 `/assets/screenshots/<file>`。
 - 更新 `latest`、导航、截图或人工修正记录后，必须运行 `python scripts/validate-mintlify-docs.py`。
+- 发布对象可通过 `usage_docs.status` 记录产品手册生成决策：`generated` 表示已刷新并校验，`skipped` 表示明确不需要刷新，`pending_confirmation` 表示发布确认前仍需决策。
 
 ## 生成与校验
 
@@ -49,4 +50,6 @@ bash deploy/scripts/up.sh local self-storage-sqlite
 bash deploy/scripts/up.sh prod external-storage-external-mysql
 ```
 
-Compose 中的 `docs-site` 服务只挂载 `mintlify/` 源目录和静态预览脚本，默认端口由 `HOST_PORT_MINTLIFY_DOCS` 控制。
+Compose 中的 `docs-site` 服务只读挂载 `mintlify/` 源目录和静态预览脚本，默认端口由 `HOST_PORT_MINTLIFY_DOCS` 控制。该服务不得挂载真实 env、`deploy/**/*.env`、`data/`、数据库卷、对象存储数据、后端运行时目录或密钥文件。
+
+生产承载可使用 Compose 内 `docs-site`、外部 Mintlify 托管、静态托管、CDN rewrite 或反向代理。发布范围涉及 `docs-site`、`HOST_PORT_MINTLIFY_DOCS`、Mintlify Compose 或静态预览脚本时，必须运行对应 Compose config 校验并记录结果；生产承载方式未确认时，发布准备必须记录 blocker 或待确认项。

@@ -41,6 +41,8 @@ The validator checks:
 - `site-manifest.json` 中的 `latest_version`、`versions`、`projections`、共享截图资产和 manual overrides 格式一致。
 - 页面内相对链接、站内 `.mdx` 链接和 `/assets/screenshots/` 图片引用有效。
 - 共享截图资产存在且可公开；如记录 `sha256` 或 `content_hash`，校验实际文件 hash。
+- `mintlify/` 不包含 `.mintlify/`、`dist/`、`build/`、运行时数据库、真实 env 或大体积构建产物。
+- 如验证发布或部署准备，docs-site Compose config 必须证明服务只读挂载 `mintlify/` 和静态预览脚本，不挂载真实 env、`data/`、数据库卷、对象存储数据或密钥文件。
 
 ## Output Contract（MUST）
 

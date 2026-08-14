@@ -1,0 +1,253 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoonBox · 需求研发流转看板</title><style>
+:root{
+  --bg:#F6F7FB;--surface:#FFFFFF;--surface2:#F8F9FC;--navy:#14213D;--text:#232A42;
+  --muted:rgba(35,42,66,.58);--line:rgba(20,33,61,.11);--gold:#B8863E;--gold2:#8C6528;
+  --success:#2F7D5B;--warning:#B97716;--danger:#B94A4A;--info:#3F659A;--sidebar:248px;
+  --serif:"Noto Serif SC","Songti SC",serif;--sans:"Noto Sans SC","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px}
+button,input,select,textarea{font:inherit}.app{min-height:100vh}.sidebar{
+position:fixed;inset:0 auto 0 0;width:var(--sidebar);background:var(--surface);border-right:1px solid var(--line);
+display:flex;flex-direction:column;z-index:20;transition:.2s;width:248px}
+.sidebar.collapsed{width:76px}.sidebar.collapsed .nav-label,.sidebar.collapsed .brand-copy,.sidebar.collapsed .bottom-copy,
+.sidebar.collapsed .version{display:none}.sidebar.collapsed + .main{margin-left:76px}
+.brand{height:76px;padding:0 20px;display:flex;align-items:center;border-bottom:1px solid var(--line);position:relative}
+.logo{width:32px;height:32px;border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-family:serif;font-size:18px}
+.brand-copy{margin-left:11px}.brand-name{font-family:var(--serif);font-weight:700;font-size:18px;color:var(--navy)}
+.version{position:absolute;right:16px;top:18px;font:italic 11px "EB Garamond",serif;color:var(--gold2)}
+.collapse{position:absolute;right:-13px;bottom:10px;width:26px;height:26px;border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer}
+.nav{padding:18px 12px;display:flex;flex-direction:column;gap:4px}.nav-item{
+height:40px;display:flex;align-items:center;gap:12px;padding:0 12px;color:var(--muted);border-left:2px solid transparent}
+.nav-item.active{color:var(--navy);background:rgba(184,134,62,.08);border-left-color:var(--gold)}
+.nav-icon{width:20px;text-align:center;font-size:15px}.sidebar-bottom{margin-top:auto;padding:16px 14px;border-top:1px solid var(--line)}
+.theme-row,.user-row{display:flex;align-items:center;gap:10px;padding:9px 8px}.theme-dots{display:flex;gap:5px;margin-left:auto}
+.dot{width:14px;height:14px;border:1px solid var(--line)}.dot.light{background:#fff}.dot.dark{background:#14213D}
+.avatar{width:30px;height:30px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:11px}
+.user-row{position:relative;cursor:pointer}
+.user-row:hover{background:rgba(184,134,62,.06)}
+.user-caret{margin-left:auto;color:var(--muted);font-size:10px}
+.user-menu{
+ position:absolute;left:10px;bottom:70px;width:218px;background:#fff;border:1px solid var(--line);
+ box-shadow:0 12px 30px rgba(20,33,61,.08);display:none;z-index:50;padding:7px 0
+}
+.user-menu.open{display:block}
+.user-menu-section{padding:7px 12px 5px;color:var(--muted);font-size:9px;letter-spacing:.04em}
+.user-menu-item{height:34px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;color:var(--text)}
+.user-menu-item:hover{background:rgba(184,134,62,.07);color:var(--navy)}
+.user-menu-divider{height:1px;background:var(--line);margin:6px 0}
+.workspace-current{color:var(--gold2);font-size:9px}
+
+.main{margin-left:248px;min-width:1100px;transition:.2s}.page-head{
+height:76px;border-bottom:1px solid var(--line);padding:0 30px;display:flex;align-items:center;justify-content:space-between;background:rgba(246,247,251,.96);
+position:sticky;top:0;z-index:10}.title-group h1{font-family:var(--serif);font-size:22px;margin:0;color:var(--navy)}
+.eyebrow{font:italic 12px "EB Garamond",serif;color:var(--gold2);margin-bottom:3px}.actions{display:flex;gap:8px}
+.btn{height:36px;padding:0 15px;border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;border-radius:2px}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.content{padding:24px 30px 38px}.toolbar{display:flex;align-items:center;gap:9px;margin-bottom:18px}
+.search{height:36px;width:280px;border:1px solid var(--line);background:#fff;padding:0 12px}
+.segment{display:flex;border:1px solid var(--line);background:#fff}.segment span{padding:9px 13px;border-right:1px solid var(--line)}
+.segment span:last-child{border-right:0}.segment .on{color:var(--gold2);background:rgba(184,134,62,.07)}
+.muted{color:var(--muted)}.board-wrap{overflow-x:auto;padding-bottom:12px;--kanban-sticky-offset:0px}.board{display:flex;gap:12px;min-width:2600px}
+.column{width:272px;background:rgba(255,255,255,.45);border-top:2px solid var(--line)}
+.column-head{padding:13px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:8;background:var(--bg);transform:translateY(var(--kanban-sticky-offset));will-change:transform}
+.column-title{font-family:var(--serif);font-weight:600;color:var(--navy)}.column-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+.count{font:italic 15px "EB Garamond",serif;color:var(--gold2)}.cards{padding:10px;display:flex;flex-direction:column;gap:10px;min-height:620px}
+.card{background:#fff;border:1px solid var(--line);padding:13px;position:relative}.card:hover{border-color:rgba(184,134,62,.45)}
+.card-top{display:flex;justify-content:space-between;gap:8px}.id{font:italic 11px "EB Garamond",serif;color:var(--muted)}
+.type{font-size:10px;padding:2px 6px;border:1px solid var(--line)}.type.req{color:var(--info)}.type.bug{color:var(--danger)}
+.card h3{font-size:13px;margin:9px 0 8px;line-height:1.55;color:var(--navy)}.meta{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.pill{font-size:10px;padding:3px 6px;background:var(--surface2);color:var(--muted)}.sprint-tag{font-size:9px;padding:3px 6px;border:1px solid rgba(184,134,62,.34);background:rgba(184,134,62,.07);color:var(--gold2);white-space:nowrap}.docs{font-size:10px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:8px}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px}.card-updated{font-size:9px;line-height:1.2;color:var(--muted)}.mini-btn{border:0;background:none;color:var(--gold2);padding:0;cursor:pointer;font-size:11px}
+.progress{height:4px;background:#E8EAF0;margin:8px 0}.progress i{display:block;height:100%;background:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:#fff;margin-bottom:18px}
+.stat{padding:16px 18px;border-right:1px solid var(--line)}.stat:last-child{border-right:0}.stat b{font:italic 27px "EB Garamond",serif;color:var(--navy)}
+.stat small{display:block;color:var(--muted);margin-top:4px}
+.panel{background:#fff;border:1px solid var(--line);padding:20px}.panel-title{font-family:var(--serif);font-size:16px;color:var(--navy);margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1.4fr .8fr;gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.field{margin-bottom:16px}.field label{display:block;color:var(--navy);font-weight:500;margin-bottom:7px}.field input,.field textarea,.field select{
+width:100%;border:1px solid var(--line);background:#fff;padding:10px 11px}.field textarea{min-height:92px;resize:vertical}
+.note{border-left:2px solid var(--gold);background:rgba(184,134,62,.06);padding:12px 14px;color:var(--muted);line-height:1.7}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:18px}.tab{padding:11px 16px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold)}.doc-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.doc{padding:11px;border:1px solid var(--line);display:flex;justify-content:space-between}.timeline{border-left:1px solid var(--line);margin-left:7px}
+.timeline-item{position:relative;padding:0 0 18px 20px}.timeline-item:before{content:"";position:absolute;left:-4px;top:3px;width:7px;height:7px;background:var(--gold)}
+.agent-card{padding:14px;border-top:1px solid var(--line)}.agent-card:first-child{border-top:0}.score{font:italic 22px "EB Garamond",serif;color:var(--gold2)}
+.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}.table th{color:var(--muted);font-weight:400}
+.chart{height:210px;position:relative;border-left:1px solid var(--line);border-bottom:1px solid var(--line);margin:20px 10px 8px}
+.chart svg{width:100%;height:100%}.decision{display:flex;gap:10px}.decision .btn{min-width:90px}
+
+.card.req-card{border-left:3px solid #3F659A}
+.card.bug-card{border-left:3px solid #B94A4A}
+
+/* v4.0.2 — align the complete board with MoonBox Platform Operations v1.0.5 */
+:root{--bg:#0A0C1B;--surface:#12142B;--surface2:#0E1023;--navy:#E9EEFB;--text:#E7E8F3;--muted:#7C81A6;--line:rgba(234,242,255,.10);--gold:#CBA35C;--gold2:#CBA35C;--success:#6FBF9A;--warning:#D5A85B;--danger:#D47476;--info:#7DA0D2;--sidebar:224px;--serif:"Noto Serif SC","Songti SC",serif;--sans:"Noto Sans SC",Inter,system-ui,sans-serif}
+body.light{--bg:#F6F7FB;--surface:#FFF;--surface2:#F0F2F7;--navy:#14213D;--text:#232A42;--muted:rgba(35,42,66,.55);--line:rgba(20,33,61,.10);--gold:#B8863E;--gold2:#8C6528;--success:#2F7D5B;--warning:#B97716;--danger:#B94A4A;--info:#3F659A}
+.sidebar{width:224px;background:var(--surface2)}.sidebar.collapsed{width:72px}.sidebar.collapsed + .main{margin-left:72px}
+.brand{height:72px;padding:0 22px}.logo{width:30px;height:30px}.brand-name{font-family:"EB Garamond",var(--serif);font-size:18px;color:var(--navy);letter-spacing:.5px}.version{top:17px;right:15px;line-height:18px;padding:0 5px;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);border-radius:2px;color:var(--gold)}
+.collapse{right:-13px;bottom:9px;background:var(--surface);color:var(--navy)}.nav{padding:18px 10px;gap:0}.nav-item{height:40px;padding:0 12px;border-left:0;position:relative}.nav-item:hover{color:var(--text);background:rgba(203,163,92,.05)}.nav-item.active{color:var(--navy);background:rgba(203,163,92,.08);border-left:0}.nav-item.active:before{content:"";position:absolute;left:0;width:2px;height:18px;background:var(--gold)}.nav-icon{color:var(--gold)}
+.sidebar-bottom{padding:14px 16px 16px}.theme-row,.user-row{padding:9px 0}.avatar{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:rgba(203,163,92,.16);color:var(--gold);border:1px solid rgba(203,163,92,.28);font-weight:700}.user-menu{left:16px;bottom:72px;width:192px;background:var(--surface);box-shadow:0 12px 30px rgba(3,4,11,.32)}.user-menu-item:hover{background:rgba(203,163,92,.07);color:var(--navy)}
+.main{margin-left:224px}.page-head{height:72px;padding:0 28px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(12px)}.title-group h1{font-size:25px;color:var(--navy)}.eyebrow{font-size:14px;color:var(--gold)}
+.btn,.search{height:36px;border-radius:2px;border-color:var(--line);background:var(--surface);color:var(--text)}.btn:hover{border-color:color-mix(in srgb,var(--gold) 55%,transparent);color:var(--gold)}.btn.primary,.btn.gold{background:var(--gold);border-color:var(--gold);color:#090B16;font-weight:600}.content{padding:26px 30px 48px}
+.stats{background:var(--surface);border-color:var(--line);margin-bottom:12px}.stat{padding:18px 19px}.stat b{font-family:"EB Garamond",var(--serif);font-size:30px;color:var(--navy)}.toolbar{margin-bottom:12px}.segment{background:var(--surface)}.segment .on{color:var(--gold);background:rgba(203,163,92,.08)}
+.board{gap:12px}.column{background:color-mix(in srgb,var(--surface) 55%,transparent);border:1px solid var(--line);border-top:2px solid color-mix(in srgb,var(--gold) 45%,var(--line))}.column-head{background:var(--surface2);border-color:var(--line)}.column-title{color:var(--navy)}.count{color:var(--gold)}.cards{padding:10px}
+.card{background:var(--surface);border-color:var(--line);border-radius:2px}.card:hover{border-color:color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--surface) 97%,var(--gold))}.card h3{color:var(--navy)}.pill{background:var(--surface2)}.sprint-tag{border-color:color-mix(in srgb,var(--gold) 42%,transparent);background:rgba(203,163,92,.08);color:var(--gold)}.mini-btn{color:var(--gold)}.progress{background:var(--surface2)}
+.card.req-card{border-left:3px solid var(--info)}.card.bug-card{border-left:3px solid var(--danger)}
+.theme-dots{display:none}.theme-switch{margin-left:auto;width:34px;height:18px;border:0;background:var(--muted);position:relative;cursor:pointer}.theme-switch:after{content:"";position:absolute;width:12px;height:12px;left:3px;top:3px;background:var(--surface2);transition:left .2s ease}.theme-switch.on{background:var(--gold)}.theme-switch.on:after{left:19px}.logout{color:var(--danger)}
+.theme-menu-item{gap:12px}.theme-menu-item .theme-switch{flex:0 0 34px}.user-menu-item.action{cursor:pointer}.org-summary{display:flex;flex-direction:column;gap:2px}.org-summary small{font-size:9px;color:var(--muted)}
+.space-popover{position:fixed;left:208px;bottom:72px;width:330px;max-height:560px;overflow:auto;display:none;z-index:75;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px rgba(3,4,11,.3)}.space-popover.open{display:block}.account-line{display:flex;align-items:center;gap:10px;padding:10px 8px 13px;border-bottom:1px solid var(--line);font-size:11px}.org-group{padding:10px 0 4px}.org-name{padding:5px 8px;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.06em}.space-search{width:calc(100% - 16px);height:34px;margin:3px 8px 7px;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--text);padding:0 10px}.space-item{width:100%;min-height:46px;border:0;border-radius:8px;background:transparent;color:var(--text);padding:7px 8px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer}.space-item:hover{background:var(--surface2)}.space-item.selected{background:rgba(203,163,92,.08)}.space-avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(203,163,92,.16);color:var(--gold);font-size:9px}.space-copy{flex:1}.space-copy b{display:block;color:var(--navy);font-size:11px}.space-copy small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.space-check{width:18px;color:var(--gold);font-size:15px}.space-create{border-top:1px solid var(--line);margin-top:6px;padding-top:7px}.modal-mask{position:fixed;inset:0;background:rgba(2,3,10,.58);display:none;place-items:center;z-index:80}.modal-mask.open{display:grid}.space-settings{width:min(1040px,calc(100vw - 80px));height:min(720px,calc(100vh - 64px));background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 70px rgba(3,4,11,.42);display:grid;grid-template-columns:230px 1fr;overflow:hidden}.settings-nav{padding:20px 14px;border-right:1px solid var(--line);background:var(--surface2)}.settings-head{display:flex;align-items:center;justify-content:space-between;padding:0 8px 18px}.settings-head h2{font:20px var(--serif);color:var(--navy);margin:0}.settings-close{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}.settings-tab{width:100%;height:38px;border:0;border-radius:8px;background:transparent;color:var(--text);display:flex;align-items:center;gap:9px;padding:0 11px;cursor:pointer}.settings-tab.active,.settings-tab:hover{background:var(--surface);color:var(--gold)}.settings-panel{padding:30px 34px;overflow:auto}.settings-panel h3{font:23px var(--serif);color:var(--navy);margin:0 0 6px}.settings-panel>p{color:var(--muted);font-size:11px;margin:0 0 26px}.setting-section{display:none}.setting-section.active{display:block}.form-row{padding:16px 0;border-top:1px solid var(--line)}.form-row label{display:block;color:var(--navy);font-size:11px;margin-bottom:7px}.form-row input,.form-row textarea,.form-row select{width:100%;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--text);padding:10px 11px;font:11px var(--sans)}.form-row textarea{height:82px;resize:none}.form-hint{margin-top:6px;color:var(--muted);font-size:9px}.settings-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:20px}.toast{position:fixed;right:24px;bottom:24px;padding:11px 14px;background:var(--surface);border:1px solid var(--line);color:var(--text);box-shadow:0 10px 28px rgba(3,4,11,.28);display:none;z-index:90}.toast.show{display:block}
+.space-hover-bridge{position:absolute;left:-12px;top:0;width:12px;height:100%}
+</style></head><body><div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="logo">月</div>
+    <div class="brand-copy"><div class="brand-name">MoonBox</div><div class="muted" style="font-size:10px">AI Native Software Factory</div></div>
+    <div class="version">v4.0.5</div>
+    <button class="collapse" onclick="toggleSidebar()">‹</button>
+  </div>
+  <nav class="nav">
+    <div class="nav-item"><span class="nav-icon">⌂</span><span class="nav-label">研发总览</span></div>
+    <div class="nav-item"><span class="nav-icon">◌</span><span class="nav-label">Chat 工作台</span></div>
+    <div class="nav-item active"><span class="nav-icon">◇</span><span class="nav-label">需求中心</span></div>
+    <div class="nav-item"><span class="nav-icon">▱</span><span class="nav-label">Spec</span></div>
+    <div class="nav-item"><span class="nav-icon">⌘</span><span class="nav-label">任务中心</span></div>
+    <div class="nav-item"><span class="nav-icon">△</span><span class="nav-label">Skill Center</span></div>
+    <div class="nav-item"><span class="nav-icon">◎</span><span class="nav-label">Agent Center</span></div>
+    <div class="nav-item"><span class="nav-icon">⌕</span><span class="nav-label">知识中心</span></div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-row" id="userMenuTrigger" onclick="toggleUserMenu(event)">
+      <div class="avatar">YS</div>
+      <div class="bottom-copy"><div>吴月升</div><div class="muted" style="font-size:10px">MoonBox Core</div></div>
+      <span class="user-caret bottom-copy">⌃</span>
+    </div>
+    <div class="user-menu" id="userMenu" onclick="event.stopPropagation()">
+      <div class="user-menu-item"><span>个人资料</span><span>›</span></div>
+      <div class="user-menu-item"><span>密码修改</span><span>›</span></div>
+      <div class="user-menu-divider"></div>
+      <div class="user-menu-item action" id="spaceMenuItem" onmouseenter="openSpacePopover()" onmouseleave="scheduleSpacePopoverClose()"><span class="org-summary"><span>切换空间</span><small id="currentSpaceLabel">MoonBox Core · 产品研发</small></span><span>›</span></div>
+      <div class="user-menu-item action" onclick="openSpaceSettings(event)"><span>空间设置</span><span>›</span></div>
+      <div class="user-menu-divider"></div>
+      <div class="user-menu-item theme-menu-item"><span>主题</span><button class="theme-switch" id="themeSwitch" role="switch" aria-label="切换明暗主题" aria-checked="false"></button></div>
+      <div class="user-menu-divider"></div>
+      <div class="user-menu-item logout"><span>退出登录</span><span>↗</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main"><header class="page-head"><div class="title-group"><div class="eyebrow">Requirement & Bug Lifecycle</div><h1>需求研发流转看板</h1></div><div class="actions"><button class="btn">列表视图</button><button class="btn">流程规则</button><button class="btn gold">+ 捕获需求 / Bug</button></div></header>
+<section class="content">
+<div class="stats"><div class="stat"><b>128</b><small>全部对象</small></div><div class="stat"><b>92</b><small>需求</small></div><div class="stat"><b>36</b><small>Bug</small></div><div class="stat"><b>7</b><small>当前阻塞</small></div></div>
+<div class="toolbar"><input class="search" placeholder="搜索 ID、标题、文档或负责人"><div class="segment"><span class="on">全部</span><span>需求</span><span>Bug</span></div>
+<button class="btn">负责人 ▾</button><button class="btn">优先级 ▾</button><button class="btn">Sprint ▾</button><span class="muted" style="margin-left:auto">按住 Shift 横向滚动 · 共 9 个阶段</span></div>
+<div class="board-wrap" id="kanbanBoard"><div class="board"><section class="column"><div class="column-head"><div><div class="column-title">采集池</div><div class="column-sub">Capture / req-capture / bug-capture</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1082</span></div>
+<h3>支持 Agent 会议模式</h3><div class="meta"><span class="pill">P1 · 产品能力</span></div><div class="docs">capture.md · trace.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">生成需求 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0421</span></div>
+<h3>任务流转后状态未实时刷新</h3><div class="meta"><span class="pill">P0 · 阻断</span></div><div class="docs">capture.md · trace.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">生成 Bug →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">规划中</div><div class="column-sub">req-generate / bug-generate</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1076</span></div>
+<h3>Skill 组合编排与绑定规则</h3><div class="meta"><span class="pill">P1 · 平台能力</span></div><div class="docs">requirement.md · trace.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">完善需求 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0418</span></div>
+<h3>深色主题表格对比度不足</h3><div class="meta"><span class="pill">P2 · 体验问题</span></div><div class="docs">requirement.md · trace.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">完善 Bug →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">待评审</div><div class="column-sub">req-review / bug-review</div></div><div class="count">01</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1068</span></div>
+<h3>Chat 引用 Requirement / Spec</h3><div class="meta"><span class="pill">P1 · 协作能力</span></div><div class="docs">user-stories.md · business-flow.md · acceptance.md · prototype</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">发起评审 →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">已通过</div><div class="column-sub">review.md 已生成</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1059</span></div>
+<h3>需求对象版本与变更审计</h3><div class="meta"><span class="pill">P1 · 企业能力</span></div><div class="docs">review.md · acceptance.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">加入迭代 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0409</span></div>
+<h3>Agent 重试导致重复写入</h3><div class="meta"><span class="pill">P0 · 稳定性</span></div><div class="docs">review.md · root-cause.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">加入迭代 →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">迭代规划</div><div class="column-sub">sprint-propose</div></div><div class="count">01</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1048</span><span class="sprint-tag">sprint-025</span></div>
+<h3>Sprint 与需求批量规划</h3><div class="meta"><span class="pill">P1 · 研发流程</span></div><div class="docs">sprint-proposal.md</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">生成 Opsx →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">待开发</div><div class="column-sub">req-opsx / bug-opsx</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1037</span><span class="sprint-tag">sprint-025</span></div>
+<h3>结构化 Requirement Schema</h3><div class="meta"><span class="pill">P1 · 基础设施</span></div><div class="docs">proposal.md · design.md · tasks.md · specs/</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">开始开发 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0397</span><span class="sprint-tag">sprint-025</span></div>
+<h3>并发任务锁释放异常</h3><div class="meta"><span class="pill">P0 · 稳定性</span></div><div class="docs">proposal.md · design.md · tasks.md · specs/</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">开始开发 →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">研发中</div><div class="column-sub">opsx-apply / sprint-apply</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1024</span><span class="sprint-tag">sprint-024</span></div>
+<h3>AI 会议纪要模板增强</h3><div class="meta"><span class="pill">P1 · 产品能力</span></div><div class="progress"><i style="width:67%"></i></div><div class="docs">任务 8 / 12</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">查看进度 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0382</span><span class="sprint-tag">sprint-024</span></div>
+<h3>知识索引增量更新遗漏</h3><div class="meta"><span class="pill">P1 · 数据一致性</span></div><div class="progress"><i style="width:83%"></i></div><div class="docs">任务 5 / 6</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">查看进度 →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">验收中</div><div class="column-sub">测试与人工验收</div></div><div class="count">02</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-1018</span><span class="sprint-tag">sprint-024</span></div>
+<h3>Requirement Review 多角色评审</h3><div class="meta"><span class="pill">P1 · Agent 协作</span></div><div class="progress"><i style="width:75%"></i></div><div class="docs">测试 18 / 24 · 人工验收 2 项</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">继续验收 →</button></div></article><article class="card bug-card"><div class="card-top"><span class="id">BUG-0366</span><span class="sprint-tag">sprint-023</span></div>
+<h3>导出文件缺失关联 Trace</h3><div class="meta"><span class="pill">P1 · 可追溯性</span></div><div class="progress"><i style="width:100%"></i></div><div class="docs">测试 12 / 12 · 人工验收 0 项</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">完成 / 归档 →</button></div></article></div></section><section class="column"><div class="column-head"><div><div class="column-title">已完成</div><div class="column-sub">全链路留痕</div></div><div class="count">01</div></div><div class="cards"><article class="card req-card"><div class="card-top"><span class="id">REQ-0998</span><span class="sprint-tag">sprint-024</span></div>
+<h3>项目级 Agent 默认配置</h3><div class="meta"><span class="pill">P2 · 配置能力</span></div><div class="docs">已完成 · 归档于 Sprint 24</div>
+<div class="card-foot"><span class="card-updated">更新于 2 小时前</span><button class="mini-btn">查看归档 →</button></div></article></div></section></div></div>
+</section></main></div>
+<div class="space-popover" id="spacePopover" role="dialog" aria-label="切换组织和空间" onclick="event.stopPropagation()"><div class="account-line"><span class="avatar">YS</span><span>吴月升 · why7126</span></div><input class="space-search" id="spaceSearch" placeholder="搜索空间" oninput="filterSpaces()"><div class="org-group"><div class="org-name">MoonBox Core</div><button class="space-item selected" data-org="MoonBox Core" data-name="产品研发" onclick="selectSpace(this)"><span class="space-avatar">产</span><span class="space-copy"><b>产品研发</b><small>12 位成员 · 管理员</small></span><span class="space-check">✓</span></button><button class="space-item" data-org="MoonBox Core" data-name="平台运营" onclick="selectSpace(this)"><span class="space-avatar">运</span><span class="space-copy"><b>平台运营</b><small>6 位成员 · 成员</small></span><span class="space-check"></span></button></div><div class="org-group"><div class="org-name">璟序智能</div><button class="space-item" data-org="璟序智能" data-name="璟审产品组" onclick="selectSpace(this)"><span class="space-avatar">审</span><span class="space-copy"><b>璟审产品组</b><small>8 位成员 · 管理员</small></span><span class="space-check"></span></button></div><div class="space-create"><button class="space-item" onclick="showToast('创建或加入空间')"><span class="space-avatar">＋</span><span class="space-copy"><b>创建或加入空间</b></span></button></div></div>
+<div class="modal-mask" id="spaceSettingsMask" onclick="closeSpaceSettings()"><section class="space-settings" role="dialog" aria-modal="true" aria-labelledby="spaceSettingsTitle" onclick="event.stopPropagation()"><aside class="settings-nav"><div class="settings-head"><h2 id="spaceSettingsTitle">空间设置</h2><button class="settings-close" onclick="closeSpaceSettings()" aria-label="关闭">×</button></div><button class="settings-tab active" data-panel="general" onclick="switchSettings(this)">⚙ 常规</button><button class="settings-tab" data-panel="members" onclick="switchSettings(this)">◎ 成员与权限</button><button class="settings-tab" data-panel="agents" onclick="switchSettings(this)">◇ Agent 配置</button><button class="settings-tab" data-panel="skills" onclick="switchSettings(this)">⌘ Skill 配置</button><button class="settings-tab" data-panel="integrations" onclick="switchSettings(this)">↗ 集成</button><button class="settings-tab" data-panel="danger" onclick="switchSettings(this)">! 高级设置</button></aside><main class="settings-panel"><div class="setting-section active" id="panel-general"><h3>常规</h3><p>配置当前空间“产品研发”的基本信息。</p><div class="form-row"><label>空间名称</label><input value="产品研发" maxlength="40"><div class="form-hint">用于侧边栏、通知和空间切换列表。</div></div><div class="form-row"><label>空间标识</label><input value="moonbox-product"><div class="form-hint">创建后可修改，修改可能影响外部集成。</div></div><div class="form-row"><label>空间描述</label><textarea>MoonBox 产品需求、研发任务与 Agent 协作空间。</textarea></div><div class="form-row"><label>默认时区</label><select><option>Asia/Shanghai (UTC+08:00)</option><option>America/Los_Angeles (UTC-08:00)</option></select></div><div class="settings-actions"><button class="btn" onclick="closeSpaceSettings()">取消</button><button class="btn gold" onclick="saveSpaceSettings()">保存更改</button></div></div><div class="setting-section" id="panel-members"><h3>成员与权限</h3><p>管理当前空间成员、角色和访问范围。</p><div class="form-row"><label>默认成员角色</label><select><option>成员</option><option>访客</option></select></div></div><div class="setting-section" id="panel-agents"><h3>Agent 配置</h3><p>设置当前空间的默认 Agent 与执行策略。</p></div><div class="setting-section" id="panel-skills"><h3>Skill 配置</h3><p>管理当前空间可用的业务 Skill 与默认组合。</p></div><div class="setting-section" id="panel-integrations"><h3>集成</h3><p>管理代码仓库、通知渠道与外部服务连接。</p></div><div class="setting-section" id="panel-danger"><h3>高级设置</h3><p>管理空间归档、转移和其他高风险操作。</p></div></main></section></div><div class="toast" id="toast"></div>
+<script>
+function toggleSidebar(){
+ const s=document.getElementById('sidebar');s.classList.toggle('collapsed');
+ const b=s.querySelector('.collapse');b.textContent=s.classList.contains('collapsed')?'›':'‹';
+ const menu=document.getElementById('userMenu'); if(menu) menu.classList.remove('open');
+}
+function toggleUserMenu(event){
+ event.stopPropagation();
+ const menu=document.getElementById('userMenu');
+ if(menu) menu.classList.toggle('open');
+}
+let spacePopoverCloseTimer;
+function openSpacePopover(){
+ cancelSpacePopoverClose();
+ document.getElementById('userMenu').classList.add('open');
+ document.getElementById('spacePopover').classList.add('open');
+}
+function scheduleSpacePopoverClose(){
+ cancelSpacePopoverClose();
+ spacePopoverCloseTimer=setTimeout(function(){document.getElementById('spacePopover').classList.remove('open')},180);
+}
+function cancelSpacePopoverClose(){
+ if(spacePopoverCloseTimer){clearTimeout(spacePopoverCloseTimer);spacePopoverCloseTimer=undefined}
+}
+function filterSpaces(){
+ const query=document.getElementById('spaceSearch').value.trim().toLowerCase();
+ document.querySelectorAll('#spacePopover .space-item[data-name]').forEach(function(item){item.style.display=item.dataset.name.toLowerCase().includes(query)?'flex':'none'});
+}
+function selectSpace(item){
+ document.querySelectorAll('#spacePopover .space-item[data-name]').forEach(function(node){node.classList.remove('selected');node.querySelector('.space-check').textContent=''});
+ item.classList.add('selected');
+ item.querySelector('.space-check').textContent='✓';
+ const org=item.dataset.org;
+ document.getElementById('currentSpaceLabel').textContent=org+' · '+item.dataset.name;
+ document.querySelector('.user-row .bottom-copy .muted').textContent=item.dataset.name;
+ localStorage.setItem('moonbox.workspace',org+'|'+item.dataset.name);
+ showToast('已切换到「'+item.dataset.name+'」空间');
+ document.getElementById('spacePopover').classList.remove('open');
+}
+function openSpaceSettings(event){event.stopPropagation();document.getElementById('userMenu').classList.remove('open');document.getElementById('spaceSettingsMask').classList.add('open')}
+function closeSpaceSettings(){document.getElementById('spaceSettingsMask').classList.remove('open')}
+function switchSettings(tab){document.querySelectorAll('.settings-tab').forEach(function(x){x.classList.remove('active')});document.querySelectorAll('.setting-section').forEach(function(x){x.classList.remove('active')});tab.classList.add('active');document.getElementById('panel-'+tab.dataset.panel).classList.add('active')}
+function saveSpaceSettings(){showToast('空间设置已保存');closeSpaceSettings()}
+function showToast(message){const toast=document.getElementById('toast');toast.textContent=message;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1800)}
+document.addEventListener('click',function(){
+ const menu=document.getElementById('userMenu'); if(menu) menu.classList.remove('open');
+ document.getElementById('spacePopover').classList.remove('open');
+});
+const spacePopover=document.getElementById('spacePopover');
+spacePopover.setAttribute('aria-label','空间列表');
+spacePopover.insertAdjacentHTML('afterbegin','<span class="space-hover-bridge" aria-hidden="true"></span>');
+spacePopover.addEventListener('mouseenter',cancelSpacePopoverClose);
+spacePopover.addEventListener('mouseleave',scheduleSpacePopoverClose);
+const kanbanBoard=document.getElementById('kanbanBoard');
+function syncKanbanStickyHeader(){
+ if(!kanbanBoard) return;
+ const stickyTop=72;
+ const boardRect=kanbanBoard.getBoundingClientRect();
+ const header=kanbanBoard.querySelector('.column-head');
+ const headerHeight=header?header.offsetHeight:0;
+ const maxOffset=Math.max(0,kanbanBoard.offsetHeight-headerHeight);
+ const offset=Math.max(0,Math.min(stickyTop-boardRect.top,maxOffset));
+ kanbanBoard.style.setProperty('--kanban-sticky-offset',offset+'px');
+}
+window.addEventListener('scroll',syncKanbanStickyHeader,{passive:true});
+window.addEventListener('resize',syncKanbanStickyHeader);
+syncKanbanStickyHeader();
+const themeSwitch=document.getElementById('themeSwitch');
+themeSwitch.addEventListener('click',function(event){
+ event.stopPropagation();
+ const light=document.body.classList.toggle('light');
+ themeSwitch.classList.toggle('on',light);
+ themeSwitch.setAttribute('aria-checked',String(light));
+});
+document.addEventListener('keydown',function(event){if(event.key==='Escape'){document.getElementById('spacePopover').classList.remove('open');closeSpaceSettings();document.getElementById('userMenu').classList.remove('open')}});
+</script>
+</body></html>

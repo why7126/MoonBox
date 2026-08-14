@@ -68,6 +68,8 @@ releases/vX.Y.Z/announcement.mdx
 | 环境变量 | 涉及环境变量时，`.env.example` 与相邻注释已同步 |
 | 产品版本 | `src/shared/product-version.ts` 的 `PRODUCT_VERSION` 与发布对象版本一致；如不更新，必须记录原因 |
 | Mintlify | `scripts/generate-mintlify-docs.py` 与 `scripts/validate-mintlify-docs.py` 或等价 build / preview 校验通过 |
+| 产品手册决策 | `usage_docs.status` 已记录为 `generated` / `skipped` / `pending_confirmation`；`generated` 必须有生成与校验证据，`skipped` 必须有确认来源、时间和原因，`pending_confirmation` 阻断发布确认 |
+| Mintlify 服务部署 | 发布范围涉及 `docs-site`、`HOST_PORT_MINTLIFY_DOCS`、Mintlify Compose、静态预览脚本或生产文档站承载方式时，docs-site Compose config 校验通过；生产承载方式未确认时记录 blocker 或待确认项 |
 | 镜像准备 | 当 `image_required=true` 时，`releases/<version>/image-build-plan.json` 已生成、校验通过并被 `release.json` 引用 |
 | 镜像构建 | 当 `image_required=true` 或包含离线镜像交付时，`releases/<version>/image-manifest.json` 已生成、未过期并被 `release.json` 引用；外部构建证据必须受控 |
 
@@ -107,6 +109,9 @@ releases/vX.Y.Z/announcement.mdx
 |---|---|
 | `/release-propose <version>` | 创建或更新产品版本发布计划，选择关联 Sprint / REQ / BUG / Change |
 | `/release-prepare <version>` | 执行发布前校验，生成或更新 Mintlify 公告源文件 |
+| `/usage-docs-generate <version>` | 生成或刷新 MoonBox Mintlify 产品手册元数据与公开站点投影 |
+| `/usage-docs-update <version>` | 更新 MoonBox Mintlify 产品手册页面并保持公开安全校验 |
+| `/usage-docs-validate <version>` | 校验 MoonBox Mintlify 产品手册、导航、manifest 和公开安全 |
 | `/image-prepare <version>` | 生成镜像构建计划并校验 release、tag、Compose、Dockerfile、schema/migration 等输入 |
 | `/image-build <version>` | 基于有效构建计划执行真实镜像构建、验证、离线包导出并生成 manifest |
 | `/release-publish <version>` | 记录发布确认结果和最终公告位置 |

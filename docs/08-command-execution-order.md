@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序和串行门禁
 created_at: 2026-08-07 23:20:00
-updated_at: 2026-08-08 20:38:15
+updated_at: 2026-08-13 08:58:35
 owner: MoonBox 产品团队
 ---
 
@@ -68,7 +68,25 @@ owner: MoonBox 产品团队
 - REQ 来源链路的所有 `/req-*` 和后续 `/opsx-*` 下一步命令 MUST 使用同一个完整 `REQ-xxxx-slug`，不得在 `/opsx-apply`、`/opsx-modify` 或 `/opsx-archive` 中改用 `<change-id>`。
 - BUG 来源链路的所有 `/bug-*` 和后续 `/opsx-*` 下一步命令 MUST 使用同一个完整 `BUG-xxxx-slug`，不得在 `/opsx-apply`、`/opsx-modify` 或 `/opsx-archive` 中改用 `<change-id>`。
 - 无 REQ/BUG 来源的纯治理 Change 才使用 `<change-id>` 作为 `/opsx-*` 参数。
+- `/explore` 与 `/opsx-explore` 输出下一步 `/opsx-*` 命令时同样适用上述规则；若用户只提供 `<change-id>`，必须先从 Change 文档和 Sprint `scope_estimates` 识别是否存在 `requirement` 或 `bug` 来源。
 - 「下一步」只放可直接执行的命令；「待用户决策/处理」只放缺失输入、范围选择、证据补充、验收或发布确认、阻塞项。
+
+### 示例
+
+```text
+正确：下一步：/opsx-apply REQ-0012-frontend-requirement-center
+错误：下一步：/opsx-apply add-frontend-requirement-center
+```
+
+```text
+正确：下一步：/opsx-modify BUG-0009-frontend-admin-sidebar-version-mismatch
+错误：下一步：/opsx-modify fix-frontend-admin-sidebar-version-mismatch
+```
+
+```text
+正确：下一步：/opsx-apply optimize-explore-chain-identity
+前提：该 Change 为无 REQ/BUG 来源的纯治理 Change，且已纳入 Sprint。
+```
 
 ## 串行写入边界
 

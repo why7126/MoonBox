@@ -46,7 +46,7 @@ SENSITIVE_PATTERNS = (
     re.compile(r"\bBearer\s+[A-Za-z0-9._-]+", re.I),
     re.compile(r"\bCookie\s*:", re.I),
     re.compile(r"\bpassword\s*=", re.I),
-    re.compile(r"/Users/[^\\s\"']+", re.I),
+    re.compile(r"/(?:Users|home)/[^\\s\"']+", re.I),
 )
 
 INPUT_FILE_CANDIDATES = (
@@ -166,7 +166,7 @@ def safe_env_summary(path: Path) -> dict[str, Any]:
     for key, value in values.items():
         if key not in SAFE_ENV_KEYS:
             continue
-        if re.search(r"/Users/|://.*@", value):
+        if re.search(r"/(?:Users|home)/|://.*@", value):
             sanitized[key] = "<redacted>"
         else:
             sanitized[key] = value

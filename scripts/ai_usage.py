@@ -85,7 +85,7 @@ SECRET_RE = re.compile(
     r"|\b[A-Z0-9_]*(?:SECRET|PASSWORD|TOKEN|API_KEY|ACCESS_KEY)[A-Z0-9_]*\s*[:=])",
     re.IGNORECASE,
 )
-ABS_PATH_RE = re.compile(r"(/Users/|/home/|/private/|[A-Za-z]:\\)")
+ABS_PATH_RE = re.compile(r"(/(?:Users|home|private)/|[A-Za-z]:\\)")
 CHANGE_RE = re.compile(r"\b(?:add|update|fix|build|archive|refine|implement|create)-[a-z0-9][a-z0-9-]{2,}\b")
 UNSAFE_PERSISTED_KEYS = {
     "prompt",

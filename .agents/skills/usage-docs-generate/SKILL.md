@@ -16,6 +16,7 @@ Use this skill when the user asks `/usage-docs-generate <version>` or wants to g
 ## Input
 
 - `<version>`：可选，默认 `latest`。当前 MoonBox 轻量站点以 `latest` 为默认公开入口；若已建立 `mintlify/docs/vX.Y.Z/`，可传入具体版本。
+- 发布上下文中若存在 `releases/<version>/release.json`，必须确认或更新 `usage_docs.status`：`generated` 表示已刷新并校验，`skipped` 表示明确不需要刷新，`pending_confirmation` 表示阻断发布确认。
 
 ## Command Order（MUST）
 
@@ -51,7 +52,14 @@ python scripts/validate-mintlify-docs.py
 3. 若存在 `releases/vX.Y.Z/announcement.mdx`，生成脚本会投影到 `mintlify/releases/vX.Y.Z/announcement.mdx` 并刷新导航。
 4. 产品手册页面 SHOULD 引用 `mintlify/assets/screenshots/` 下的真实系统截图；如页面需要截图但当前没有真实系统截图，MUST 记录 blocker，不得使用原型图、设计稿或未脱敏截图替代。
 5. 生成或刷新站点投影时，MUST 更新 `mintlify/site-manifest.json` 的 `latest_version`、`versions`、`assets`、`projections` 或 `manual_overrides` 中的相关事实；不得只改 MDX 页面。
-6. 如涉及发布准备，继续运行对应 release 门禁：
+6. 如涉及发布准备，确保 `release.json usage_docs.status=generated` 并记录生成命令、校验命令、版本或 latest 投影和执行时间；如用户确认本版本不刷新产品手册，改用 `skipped` 决策，不得创建空目录。
+7. 如涉及 docs-site 部署、`HOST_PORT_MINTLIFY_DOCS`、Compose 或生产文档站承载，运行对应 Compose config 校验并记录摘要：
+
+```bash
+MOONBOX_DEPLOY_ENV_FILE=self-storage-sqlite.env.example docker compose --env-file deploy/local/self-storage-sqlite.env.example --profile self-hosted-storage --profile docs-site -f deploy/local/compose.yml config --quiet
+```
+
+8. 如涉及发布准备，继续运行对应 release 门禁：
 
 ```bash
 python scripts/validate-release.py --release-dir releases/<version> --stage prepare

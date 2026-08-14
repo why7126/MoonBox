@@ -1,7 +1,10 @@
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { BookOpen, Check, Copy, KeyRound, LayoutDashboard, ListTree, LogOut, Network, Settings, SunMoon, UserRound, Users } from "lucide-react";
+import { Check, Copy, Eye, EyeOff, X } from "lucide-react";
 import { AdminCrudListTemplate, AdminModalBackdrop } from "./AdminCrudListTemplate";
-import { AdminSession, logoutAdmin, readAdminSession } from "./adminAuth";
+import { AdminSelect } from "./AdminSelect";
+import { AdminSession, changeAdminPassword, logoutAdmin, readAdminSession, saveAdminSession, updateAdminProfile } from "./adminAuth";
+import { AdminSidebar, AuthenticatedAvatar, avatarImageSrc, initials } from "./AdminSidebar";
+import { readUiPreferences, UI_PREFERENCES_EVENT } from "../home/uiPreferences";
 
 type Role = "后台管理员" | "前台用户";
 type UserStatus = "待激活" | "正常" | "已冻结" | "已删除";
@@ -83,9 +86,11 @@ async function requestAdminApi<T>(path: string, init: RequestInit = {}, fallback
   return payload.data as T;
 }
 
-const initials = (user: Pick<AdminUser, "username" | "nickname">) => {
-  const name = user.nickname || user.username;
-  return name.slice(0, 2).toUpperCase();
+const hasLegacyAvatarUrl = (avatarUrl: string | null | undefined) =>
+  Boolean(avatarUrl?.startsWith("/api/v1/admin/users/avatar/"));
+
+type CurrentUserResponse = {
+  user: AdminSession["user"];
 };
 
 export function AdminUserManagementPage({ session, onLogout }: { session?: AdminSession | null; onLogout?: () => void }) {
@@ -99,11 +104,14 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
   const [pageSize, setPageSize] = useState(10);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isLightTheme, setIsLightTheme] = useState(false);
+  const [isLightTheme, setIsLightTheme] = useState(() => readUiPreferences().theme === "light");
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ user: AdminUser; action: "freeze" | "unfreeze" | "delete" | "reset" } | null>(null);
   const [temporaryPassword, setTemporaryPassword] = useState<TemporaryPasswordResult | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [currentSessionUser, setCurrentSessionUser] = useState<AdminSession["user"] | null>(session?.user ?? readAdminSession()?.user ?? null);
   const [toast, setToast] = useState("");
 
   const pageCount = Math.max(1, Math.ceil(totalUsers / pageSize));
@@ -113,6 +121,23 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
     setToast(message);
     window.setTimeout(() => setToast(""), 2400);
   };
+
+  const refreshCurrentUser = useCallback(async () => {
+    const storedSession = readAdminSession();
+    if (!storedSession?.access_token) return;
+    if (!hasLegacyAvatarUrl(storedSession.user?.avatar_url)) {
+      setCurrentSessionUser(storedSession.user);
+      return;
+    }
+    try {
+      const data = await requestAdminApi<CurrentUserResponse>("/api/v1/auth/me", { method: "GET" }, "当前用户刷新失败，请重试");
+      const nextSession = { ...storedSession, user: data.user };
+      saveAdminSession(nextSession);
+      setCurrentSessionUser(data.user);
+    } catch {
+      setCurrentSessionUser(storedSession.user);
+    }
+  }, []);
 
   const loadUsers = useCallback(async () => {
     setIsLoadingUsers(true);
@@ -139,10 +164,38 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
     void loadUsers();
   }, [loadUsers]);
 
+  useEffect(() => {
+    setCurrentSessionUser(session?.user ?? readAdminSession()?.user ?? null);
+  }, [session]);
+
+  useEffect(() => {
+    void refreshCurrentUser();
+  }, [refreshCurrentUser]);
+
+  useEffect(() => {
+    const syncTheme = () => setIsLightTheme(readUiPreferences().theme === "light");
+    window.addEventListener(UI_PREFERENCES_EVENT, syncTheme);
+    window.addEventListener("storage", syncTheme);
+    return () => {
+      window.removeEventListener(UI_PREFERENCES_EVENT, syncTheme);
+      window.removeEventListener("storage", syncTheme);
+    };
+  }, []);
+
   const exitAdmin = async () => {
     await logoutAdmin();
     showToast("已退出登录");
     onLogout?.();
+  };
+
+  const returnFrontend = () => {
+    setIsUserMenuOpen(false);
+    navigateTo("/requirements");
+  };
+
+  const navigateTo = (path: string) => {
+    window.history.pushState(null, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
   const saveUser = async (user: AdminUser) => {
@@ -158,7 +211,7 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
         );
         setTemporaryPassword({ username: result.user.username, password: result.temporary_password, source: "create" });
       } else {
-        await requestAdminApi<AdminUser>(
+        const updatedUser = await requestAdminApi<AdminUser>(
           `/api/v1/admin/users/${user.id}`,
           {
             method: "PUT",
@@ -166,6 +219,22 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
           },
           "用户信息更新失败，请重试",
         );
+        if (currentSessionUser?.id === updatedUser.id) {
+          const nextSessionUser = {
+            ...currentSessionUser,
+            username: updatedUser.username,
+            nickname: updatedUser.nickname,
+            avatar_url: updatedUser.avatar_url,
+            role: updatedUser.role,
+            status: updatedUser.status,
+            is_system_superadmin: updatedUser.is_system_superadmin,
+          };
+          setCurrentSessionUser(nextSessionUser);
+          const currentSession = readAdminSession();
+          if (currentSession?.access_token) {
+            saveAdminSession({ ...currentSession, user: nextSessionUser });
+          }
+        }
         showToast("用户信息已更新");
       }
       setIsCreating(false);
@@ -210,7 +279,9 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
     }
   };
 
-  const currentUsername = session?.user.username || "admin";
+  const currentUsername = currentSessionUser?.username || "admin";
+  const currentDisplayName = currentSessionUser?.nickname || currentUsername;
+  const currentUserRole = currentSessionUser?.is_system_superadmin ? "超级管理员" : "后台管理员";
   const userColumns = [
     { key: "user", label: "用户" },
     { key: "workspace", label: "空间数" },
@@ -224,69 +295,22 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
 
   return (
     <main className={`admin-shell ${isCollapsed ? "collapsed" : ""} ${isLightTheme ? "light" : ""}`} data-theme={isLightTheme ? "light" : "dark"}>
-      <aside className="admin-sidebar">
-        <div className="admin-brand">
-          <span className="admin-mark">
-            <img src="/brand/moonbox/moonbox-app-icon-256.png" alt="MoonBox 产品图标" />
-          </span>
-          <div className="admin-brand-name">
-            <strong>MoonBox</strong>
-            <small>PLATFORM OPS</small>
-          </div>
-          <em>v1.0.5</em>
-          <button
-            className="admin-collapse"
-            aria-label={isCollapsed ? "展开侧边栏" : "收起侧边栏"}
-            title={isCollapsed ? "展开侧边栏" : "收起侧边栏"}
-            onClick={() => setIsCollapsed((value) => !value)}
-          >
-            {isCollapsed ? "›" : "‹"}
-          </button>
-        </div>
-        <nav aria-label="管理后台导航">
-          <span className="admin-nav-group">OPERATIONS</span>
-          <button title="首页"><LayoutDashboard className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">首页</span></button>
-          <button title="空间管理"><Network className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">空间管理</span></button>
-          <span className="admin-nav-group">SYSTEM</span>
-          <button className="active" title="用户管理"><Users className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">用户管理</span></button>
-          <button title="系统设置"><Settings className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">系统设置</span></button>
-          <button title="日志审计"><ListTree className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">日志审计</span></button>
-          <button title="接口文档"><BookOpen className="admin-ico" size={16} strokeWidth={1.5} aria-hidden="true" /><span className="admin-nav-label">接口文档</span></button>
-        </nav>
-        <div className="admin-sidebar-user">
-          {isUserMenuOpen && (
-            <div className="admin-user-menu" role="menu">
-              <button role="menuitem" onClick={() => showToast("个人资料页面已打开")}><UserRound className="admin-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /><span>个人资料</span></button>
-              <button role="menuitem" onClick={() => showToast("密码修改页面已打开")}><KeyRound className="admin-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /><span>密码修改</span></button>
-              <button
-                type="button"
-                className="admin-theme-row"
-                role="switch"
-                aria-label="切换明暗主题"
-                aria-checked={isLightTheme}
-                onClick={() => {
-                  const nextTheme = !isLightTheme;
-                  setIsLightTheme(nextTheme);
-                  showToast(`已切换为${nextTheme ? "亮色" : "暗色"}主题`);
-                }}
-              >
-                <SunMoon className="admin-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" />
-                <span>界面主题</span>
-                <span className={`admin-theme-switch ${isLightTheme ? "on" : ""}`} aria-hidden="true" />
-              </button>
-              <button role="menuitem" className="logout" onClick={exitAdmin}><LogOut className="admin-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /><span>退出登录</span></button>
-            </div>
-          )}
-          <button className="admin-user-trigger" onClick={() => setIsUserMenuOpen((value) => !value)} aria-expanded={isUserMenuOpen}>
-            <span className="admin-avatar">吴</span>
-            <span className="admin-user-meta">
-              <strong>{currentUsername}</strong>
-              <small>{session?.user.is_system_superadmin ? "超级管理员" : "后台管理员"}</small>
-            </span>
-            <span className="admin-user-chevron">⌃</span>
-          </button>
-        </div>
-      </aside>
+      <AdminSidebar
+        active="users"
+        currentUser={currentSessionUser}
+        isCollapsed={isCollapsed}
+        isLightTheme={isLightTheme}
+        isUserMenuOpen={isUserMenuOpen}
+        onToggleCollapse={() => setIsCollapsed((value) => !value)}
+        onToggleUserMenu={() => setIsUserMenuOpen((value) => !value)}
+        onCloseUserMenu={() => setIsUserMenuOpen(false)}
+        onNavigate={navigateTo}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenPassword={() => setIsPasswordModalOpen(true)}
+        onThemeChange={setIsLightTheme}
+        onLogout={exitAdmin}
+        onToast={showToast}
+      />
       <AdminCrudListTemplate
         eyebrow="User Management"
         title="用户管理"
@@ -331,22 +355,32 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
           {
             id: "role",
             node: (
-              <select aria-label="角色筛选" value={role} onChange={(event) => setRole(event.target.value as typeof role)}>
-                <option>全部角色</option>
-                <option>后台管理员</option>
-                <option>前台用户</option>
-              </select>
+              <AdminSelect
+                ariaLabel="角色筛选"
+                value={role}
+                options={[
+                  { value: "全部角色", label: "全部角色" },
+                  { value: "后台管理员", label: "后台管理员" },
+                  { value: "前台用户", label: "前台用户" },
+                ]}
+                onChange={(value) => setRole(value as typeof role)}
+              />
             ),
           },
           {
             id: "status",
             node: (
-              <select aria-label="状态筛选" value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
-                <option>全部状态</option>
-                <option>待激活</option>
-                <option>正常</option>
-                <option>已冻结</option>
-              </select>
+              <AdminSelect
+                ariaLabel="状态筛选"
+                value={status}
+                options={[
+                  { value: "全部状态", label: "全部状态" },
+                  { value: "待激活", label: "待激活" },
+                  { value: "正常", label: "正常" },
+                  { value: "已冻结", label: "已冻结" },
+                ]}
+                onChange={(value) => setStatus(value as typeof status)}
+              />
             ),
           },
         ]}
@@ -385,11 +419,14 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
         }}
         toast={toast}
       >
-        {visibleUsers.map((user) => (
+        {visibleUsers.map((user) => {
+          const isCurrentUser = currentSessionUser?.id === user.id;
+          const isProtectedUser = user.is_system_superadmin || user.status === "已删除";
+          return (
                 <tr key={user.id}>
                   <td>
                     <div className="admin-user-cell">
-                      <span className="admin-avatar">{user.avatar_url ? <img src={user.avatar_url} alt={`${user.username} 头像`} /> : initials(user)}</span>
+                      <AuthenticatedAvatar avatarUrl={user.avatar_url} alt={`${user.username} 头像`} fallback={initials(user)} />
                       <span>
                         <span className="admin-user-name-line">
                           <strong>{user.username}</strong>
@@ -406,24 +443,64 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
                   <td className="admin-date-cell">{user.last_login_at || "—"}</td>
                   <td className="admin-date-cell">{user.created_at}</td>
                   <td>
-                    {user.is_system_superadmin || user.status === "已删除" ? (
-                      <span className="admin-protected">不可操作</span>
-                    ) : (
-                      <div className="admin-operation-set">
-                        <button onClick={() => { setIsCreating(false); setEditing(user); }}>编辑</button>
-                        <button onClick={() => setPendingAction({ user, action: "reset" })}>重置密码</button>
-                        <button data-testid={user.status === "已冻结" ? "admin-user-unfreeze-action" : "admin-user-freeze-action"} onClick={() => setPendingAction({ user, action: user.status === "已冻结" ? "unfreeze" : "freeze" })}>
+	                    {isProtectedUser ? (
+	                      <span className="admin-protected">不可操作</span>
+	                    ) : (
+	                      <div className="admin-operation-set">
+	                        <button onClick={() => { setIsCreating(false); setEditing(user); }}>编辑</button>
+	                        <button onClick={() => setPendingAction({ user, action: "reset" })}>重置密码</button>
+                        <button
+                          data-testid={user.status === "已冻结" ? "admin-user-unfreeze-action" : "admin-user-freeze-action"}
+                          disabled={isCurrentUser}
+                          title={isCurrentUser ? "不能冻结当前登录账号" : undefined}
+                          onClick={() => setPendingAction({ user, action: user.status === "已冻结" ? "unfreeze" : "freeze" })}
+                        >
                           {user.status === "已冻结" ? "解冻" : "冻结"}
                         </button>
-                        <button className="danger-text" onClick={() => setPendingAction({ user, action: "delete" })}>删除</button>
+                        <button
+                          className="danger-text"
+                          disabled={isCurrentUser}
+                          title={isCurrentUser ? "不能删除当前登录账号" : undefined}
+                          onClick={() => setPendingAction({ user, action: "delete" })}
+                        >
+                          删除
+                        </button>
                       </div>
                     )}
-                  </td>
-                </tr>
-        ))}
+	                  </td>
+	                </tr>
+          );
+        })}
       </AdminCrudListTemplate>
       {editing && <UserFormModal user={editing} isCreating={isCreating} onSave={saveUser} onClose={() => setEditing(null)} />}
       {pendingAction && <ConfirmModal action={pendingAction.action} user={pendingAction.user} onCancel={() => setPendingAction(null)} onConfirm={applyAction} />}
+      {isProfileModalOpen && currentSessionUser && (
+        <ProfileModal
+          user={currentSessionUser}
+          roleLabel={currentUserRole}
+          onClose={() => setIsProfileModalOpen(false)}
+          onSaved={(nextUser) => {
+            setCurrentSessionUser(nextUser);
+            setUsers((currentUsers) => currentUsers.map((item) => (
+              item.id === nextUser.id
+                ? { ...item, nickname: nextUser.nickname ?? null, avatar_url: nextUser.avatar_url ?? null, updated_at: nowText() }
+                : item
+            )));
+            setIsProfileModalOpen(false);
+            showToast("个人资料已更新");
+          }}
+        />
+      )}
+      {isPasswordModalOpen && (
+        <ChangePasswordModal
+          onClose={() => setIsPasswordModalOpen(false)}
+          onChanged={() => {
+            setIsPasswordModalOpen(false);
+            showToast("密码已更新，请重新登录");
+            onLogout?.();
+          }}
+        />
+      )}
       {temporaryPassword && (
         <TemporaryPasswordModal
           result={temporaryPassword}
@@ -432,6 +509,248 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
         />
       )}
     </main>
+  );
+}
+
+export function ProfileModal({ user, roleLabel, onClose, onSaved }: {
+  user: AdminSession["user"];
+  roleLabel: string;
+  onClose: () => void;
+  onSaved: (user: AdminSession["user"]) => void;
+}) {
+  const [nickname, setNickname] = useState(user.nickname || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatar_url || null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(avatarImageSrc(user.avatar_url));
+  const [uploadState, setUploadState] = useState<UploadState>("idle");
+  const [uploadError, setUploadError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const avatarButtonText = uploadState === "uploading" ? "上传中" : avatarUrl ? "更换" : "上传";
+
+  const uploadAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadState("uploading");
+    setUploadError("");
+    const session = readAdminSession();
+    try {
+      if (!session?.access_token) throw new Error("登录已失效，请重新登录");
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(apiUrl("/api/v1/auth/avatar"), {
+        method: "POST",
+        headers: { authorization: `Bearer ${session.access_token}` },
+        body: formData,
+      });
+      if (!response.ok) throw new Error(await readUploadError(response));
+      const payload = await response.json();
+      const persistentUrl = payload.data.url as string;
+      const mediaResponse = await fetch(apiUrl(persistentUrl), {
+        headers: { authorization: `Bearer ${session.access_token}` },
+      });
+      if (!mediaResponse.ok) throw new Error(await readUploadError(mediaResponse));
+      const objectUrl = URL.createObjectURL(await mediaResponse.blob());
+      setAvatarUrl(persistentUrl);
+      setAvatarPreviewUrl(objectUrl);
+      setUploadState("done");
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "头像上传失败，请重试");
+      setUploadState("failed");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (isSaving || uploadState === "uploading") return;
+    setIsSaving(true);
+    setSaveError("");
+    try {
+      const nextUser = await updateAdminProfile(nickname.trim() || null, avatarUrl);
+      onSaved(nextUser);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "个人资料保存失败，请重试。");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <AdminModalBackdrop>
+      <form className="admin-profile-modal" aria-label="个人资料" onSubmit={submit}>
+        <header className="admin-profile-head">
+          <h2>个人资料</h2>
+          <button aria-label="关闭个人资料" type="button" onClick={onClose}>
+            <X size={17} />
+          </button>
+        </header>
+        <p className="admin-profile-summary">{user.username}</p>
+        <div className="admin-form-row">
+          <label><span>头像</span></label>
+          <div className="admin-avatar-picker">
+            <AuthenticatedAvatar avatarUrl={avatarPreviewUrl} alt="头像预览" fallback={initials({ username: user.username, nickname })} className="admin-avatar large" />
+            <span className="admin-avatar-copy">
+              <small>支持 JPG、PNG、WEBP，建议 1:1，最大 2MB</small>
+              <button type="button" aria-label="上传或更换头像" disabled={uploadState === "uploading" || isSaving} onClick={() => fileInputRef.current?.click()}>
+                {avatarButtonText}
+              </button>
+            </span>
+            <input ref={fileInputRef} className="admin-avatar-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择头像文件" onChange={uploadAvatar} />
+          </div>
+          {uploadState === "failed" && <div className="admin-form-error" aria-live="polite">{uploadError}</div>}
+        </div>
+        <div className="admin-form-row">
+          <label htmlFor="admin-profile-nickname"><span>昵称</span></label>
+          <input id="admin-profile-nickname" maxLength={128} value={nickname} onChange={(event) => setNickname(event.target.value)} />
+        </div>
+        {saveError && <div className="admin-form-error" aria-live="polite">{saveError}</div>}
+        <footer>
+          <button type="button" onClick={onClose}>取消</button>
+          <button className="admin-primary" type="submit" disabled={uploadState === "uploading" || isSaving}>
+            {isSaving ? "保存中" : "保存"}
+          </button>
+        </footer>
+      </form>
+    </AdminModalBackdrop>
+  );
+}
+
+export function ChangePasswordModal({ onClose, onChanged }: { onClose: () => void; onChanged: () => void }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [visibleFields, setVisibleFields] = useState({ current: false, next: false, confirm: false });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const passwordsMismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
+  const canSubmit = currentPassword.length > 0 && newPassword.length > 0 && confirmPassword.length > 0 && !passwordsMismatch && !isSubmitting;
+
+  const toggleVisibility = (field: keyof typeof visibleFields) => {
+    setVisibleFields((current) => ({ ...current, [field]: !current[field] }));
+  };
+
+  const updatePasswordField = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    if (error) setError("");
+  };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError("请完整填写当前密码、新密码和确认新密码。");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("两次输入的新密码不一致。");
+      return;
+    }
+    setIsSubmitting(true);
+    setError("");
+    try {
+      await changeAdminPassword(currentPassword, newPassword, confirmPassword);
+      onChanged();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "密码修改失败，请重试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AdminModalBackdrop>
+      <form className="admin-change-password-modal" aria-label="修改密码" onSubmit={submit}>
+        <h2>修改密码</h2>
+        <p>更新成功后，当前账号的旧会话将全部失效，需要重新登录。</p>
+        <div className="admin-form-row">
+          <label className="required" htmlFor="admin-current-password"><span>当前密码</span></label>
+          <PasswordInputWithToggle
+            id="admin-current-password"
+            label="当前密码"
+            autoComplete="current-password"
+            value={currentPassword}
+            isVisible={visibleFields.current}
+            onChange={updatePasswordField(setCurrentPassword)}
+            onToggle={() => toggleVisibility("current")}
+          />
+        </div>
+        <div className="admin-form-row">
+          <label className="required" htmlFor="admin-new-password"><span>新密码</span></label>
+          <PasswordInputWithToggle
+            id="admin-new-password"
+            label="新密码"
+            autoComplete="new-password"
+            value={newPassword}
+            isVisible={visibleFields.next}
+            onChange={updatePasswordField(setNewPassword)}
+            onToggle={() => toggleVisibility("next")}
+          />
+          <div className="admin-form-hint">至少 12 位，并包含字母、数字和符号；不能使用示例密码或当前密码。</div>
+        </div>
+        <div className="admin-form-row">
+          <label className="required" htmlFor="admin-confirm-password"><span>确认新密码</span></label>
+          <PasswordInputWithToggle
+            id="admin-confirm-password"
+            label="确认新密码"
+            autoComplete="new-password"
+            value={confirmPassword}
+            isVisible={visibleFields.confirm}
+            ariaInvalid={passwordsMismatch}
+            onChange={updatePasswordField(setConfirmPassword)}
+            onToggle={() => toggleVisibility("confirm")}
+          />
+          {passwordsMismatch && <div className="admin-form-error">两次输入的新密码不一致。</div>}
+        </div>
+        <div className="admin-form-error" aria-live="polite">{error}</div>
+        <footer>
+          <button type="button" onClick={onClose}>取消</button>
+          <button className="admin-primary" type="submit" disabled={!canSubmit}>{isSubmitting ? "更新中" : "更新密码"}</button>
+        </footer>
+      </form>
+    </AdminModalBackdrop>
+  );
+}
+
+function PasswordInputWithToggle({
+  id,
+  label,
+  autoComplete,
+  value,
+  isVisible,
+  ariaInvalid,
+  onChange,
+  onToggle,
+}: {
+  id: string;
+  label: string;
+  autoComplete: string;
+  value: string;
+  isVisible: boolean;
+  ariaInvalid?: boolean;
+  onChange: (value: string) => void;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="admin-password-field">
+      <input
+        id={id}
+        type={isVisible ? "text" : "password"}
+        autoComplete={autoComplete}
+        aria-invalid={ariaInvalid}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <button
+        type="button"
+        aria-label={isVisible ? `隐藏${label}` : `显示${label}`}
+        title={isVisible ? `隐藏${label}` : `显示${label}`}
+        aria-pressed={isVisible}
+        onClick={onToggle}
+      >
+        {isVisible ? <EyeOff size={15} strokeWidth={1.6} aria-hidden="true" /> : <Eye size={15} strokeWidth={1.6} aria-hidden="true" />}
+      </button>
+    </div>
   );
 }
 
@@ -448,10 +767,11 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
   const [draft, setDraft] = useState(user);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(user.avatar_url);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(avatarImageSrc(user.avatar_url));
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const validUsername = /^[A-Za-z][A-Za-z0-9]{3,31}$/.test(draft.username);
+  const canSubmitUser = (!isCreating || validUsername) && uploadState !== "uploading" && !isSaving;
   const showUsernameError = isCreating && draft.username.length > 0 && !validUsername;
   const avatarButtonText = uploadState === "uploading" ? "上传中" : draft.avatar_url ? "更换" : "上传";
 
@@ -466,7 +786,7 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
       }
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch(apiUrl("/api/v1/admin/users/avatar"), {
+      const response = await fetch(apiUrl("/api/v1/auth/avatar"), {
         method: "POST",
         headers: { authorization: `Bearer ${session.access_token}` },
         body: formData,
@@ -475,14 +795,15 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
         throw new Error(await readUploadError(response));
       }
       const payload = await response.json();
-      const mediaResponse = await fetch(apiUrl(payload.data.url), {
+      const persistentUrl = payload.data.url as string;
+      const mediaResponse = await fetch(apiUrl(persistentUrl), {
         headers: { authorization: `Bearer ${session.access_token}` },
       });
       if (!mediaResponse.ok) {
         throw new Error(await readUploadError(mediaResponse));
       }
       const objectUrl = URL.createObjectURL(await mediaResponse.blob());
-      setDraft((current) => ({ ...current, avatar_url: objectUrl }));
+      setDraft((current) => ({ ...current, avatar_url: persistentUrl }));
       setAvatarPreviewUrl(objectUrl);
       setUploadError("");
       setUploadState("done");
@@ -496,7 +817,7 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!validUsername || isSaving) return;
+    if (!canSubmitUser) return;
     setIsSaving(true);
     try {
       await onSave({ ...draft, updated_at: nowText() });
@@ -518,7 +839,7 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
         <div className="admin-form-row">
           <label><span>头像</span></label>
           <div className="admin-avatar-picker">
-            <span className="admin-avatar large">{avatarPreviewUrl ? <img src={avatarPreviewUrl} alt="头像预览" /> : initials(draft)}</span>
+            <AuthenticatedAvatar avatarUrl={avatarPreviewUrl} alt="头像预览" fallback={initials(draft)} className="admin-avatar large" />
             <span className="admin-avatar-copy">
               <small>支持 JPG、PNG，建议 1:1</small>
               <button type="button" aria-label="上传或更换头像" disabled={uploadState === "uploading"} onClick={() => fileInputRef.current?.click()}>
@@ -535,14 +856,20 @@ function UserFormModal({ user, isCreating, onSave, onClose }: {
         </div>
         <div className="admin-form-row">
           <label className="required" htmlFor="admin-user-role"><span>角色</span></label>
-          <select id="admin-user-role" value={draft.role} onChange={(event) => setDraft({ ...draft, role: event.target.value as Role })}>
-            <option>前台用户</option>
-            <option>后台管理员</option>
-          </select>
+          <AdminSelect
+            id="admin-user-role"
+            ariaLabel="角色"
+            value={draft.role}
+            options={[
+              { value: "前台用户", label: "前台用户" },
+              { value: "后台管理员", label: "后台管理员" },
+            ]}
+            onChange={(value) => setDraft({ ...draft, role: value as Role })}
+          />
         </div>
         <footer className="admin-drawer-actions">
           <button type="button" onClick={onClose}>取消</button>
-          <button className="admin-primary" type="submit" disabled={!validUsername || uploadState === "uploading" || isSaving}>
+          <button className="admin-primary" type="submit" disabled={!canSubmitUser}>
             {isSaving ? "保存中" : "保存"}
           </button>
         </footer>
@@ -567,7 +894,8 @@ function ConfirmModal({ action, user, onCancel, onConfirm }: {
   onConfirm: (reason: string) => void;
 }) {
   const [reason, setReason] = useState("");
-  const showReasonError = reason.length > 0 && reason.trim().length < 4;
+  const [hasTriedConfirm, setHasTriedConfirm] = useState(false);
+  const showReasonError = (hasTriedConfirm || reason.length > 0) && reason.trim().length < 4;
   const title = action === "freeze" ? "冻结用户" : action === "unfreeze" ? "解冻用户" : action === "delete" ? "删除用户" : "重置密码";
   const actionDescription =
     action === "freeze"
@@ -584,14 +912,33 @@ function ConfirmModal({ action, user, onCancel, onConfirm }: {
           <p className="admin-restore-target" data-testid="admin-user-unfreeze-restore-target">恢复目标状态：{restoreTargetLabel(user)}</p>
         )}
         <div className="admin-form-row">
-          <label htmlFor="admin-action-reason"><span>操作原因</span></label>
-          <textarea id="admin-action-reason" value={reason} onChange={(event) => setReason(event.target.value)} />
+          <label className="required" htmlFor="admin-action-reason"><span>操作原因</span></label>
+          <textarea
+            id="admin-action-reason"
+            value={reason}
+            aria-invalid={showReasonError}
+            onChange={(event) => {
+              setReason(event.target.value);
+              if (hasTriedConfirm) setHasTriedConfirm(false);
+            }}
+          />
           <div className="admin-form-hint">请填写至少 4 个字，便于审计追踪。</div>
-          {showReasonError && <div className="admin-form-error">操作原因至少需要 4 个字。</div>}
+          {showReasonError && <div className="admin-form-error" aria-live="polite">操作原因至少需要 4 个字。</div>}
         </div>
         <footer>
           <button onClick={onCancel}>取消</button>
-          <button className="admin-primary" disabled={reason.trim().length < 4} onClick={() => onConfirm(reason)}>确认</button>
+          <button
+            className="admin-primary"
+            onClick={() => {
+              if (reason.trim().length < 4) {
+                setHasTriedConfirm(true);
+                return;
+              }
+              onConfirm(reason);
+            }}
+          >
+            确认
+          </button>
         </footer>
       </section>
     </AdminModalBackdrop>

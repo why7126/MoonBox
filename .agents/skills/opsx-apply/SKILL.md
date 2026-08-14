@@ -9,6 +9,18 @@ Use this skill when the user asks to run `/opsx-apply <REQ-full-id|BUG-full-id|c
 
 ## Context Budget Guardrails（MUST）
 
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
+
 ### Force-proceed Follow-up Guardrails（MUST）
 
 - `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
@@ -129,12 +141,12 @@ BLOCKED if add-* UI lacks required cross-cutting AC. Do not edit `src/` until re
 
 For any Change with `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton in `design.md`:
 
-1. Before editing UI implementation, read only the focused prototype context/HTML, Change `design.md` UI Skeleton, linked REQ `acceptance.md` AC-PROTOTYPE section, and matched best-practice `prototype-driven-ui-gate.md`.
-2. Confirm `tasks.md` has an explicit UI Skeleton task before detailed UI implementation tasks. If absent, update `tasks.md` first and keep it unchecked until the skeleton exists.
-3. Build the UI Skeleton first: route/page shell, layout regions, component slots, state containers, stable selectors, loading/empty/error/disabled states, and placeholder data boundaries.
-4. Do not mark UI implementation tasks complete until a 1440px desktop viewport visual acceptance has been run with Playwright/browser or an equivalent project-approved visual check.
-5. Record the 1440px evidence in Change `trace.md` or `acceptance.md`: command/tool, viewport, inspected path, screenshot/evidence path when available, pass/fail summary, and known exceptions.
-6. If 1440px acceptance fails, keep the task unchecked and continue through `/opsx-modify` or focused fixes inside the same Change.
+1. Before editing UI implementation, read only the focused prototype context/HTML, Change `design.md` UI Contract + UI Skeleton, linked REQ `acceptance.md` AC-PROTOTYPE section, `docs/standards/prototype-ui-acceptance.md`, and matched best-practice `prototype-driven-ui-gate.md`.
+2. Confirm `tasks.md` has explicit UI Contract, UI Skeleton and visual evidence tasks before detailed UI implementation tasks. If absent, update `tasks.md` first and keep them unchecked until the evidence exists.
+3. Build the UI Skeleton first: route/page shell, layout regions, component slots, state containers, stable selectors, loading/empty/error/disabled states, and placeholder data boundaries; record the first 1440px Skeleton evidence before continuing detailed UI work.
+4. Do not mark UI implementation tasks complete until 1440px desktop and required key interaction visual acceptance have been run with Playwright/browser or an equivalent project-approved visual check.
+5. Record evidence in Change `trace.md` or `acceptance.md`: command/tool, viewport, inspected path, screenshot/evidence path when available, pass/fail summary, computed style checks for risky visual points, Mock/API boundary, and known exceptions.
+6. If visual or computed style acceptance fails, keep the task unchecked and continue through `/opsx-modify` or focused fixes inside the same Change.
 
 Report:
 
@@ -142,10 +154,13 @@ Report:
 Prototype Gate: pass|warn|blocked
 UI Skeleton: done|missing|n/a
 1440px visual acceptance: pass|fail|pending|n/a
+key interaction screenshots: pass|fail|pending|n/a
+computed style acceptance: pass|warn|blocked|n/a
+Mock/API boundary: declared|missing|n/a
 REQ final consistency: pending archive check
 ```
 
-BLOCKED if a prototype-backed UI task is about to be completed without UI Skeleton evidence or 1440px visual acceptance evidence.
+BLOCKED if a prototype-backed UI task is about to be completed without UI Contract, UI Skeleton evidence, 1440px/required key interaction visual evidence, computed style checks for known risk points, or Mock/API boundary declaration.
 
 ## Implementation Loop
 
@@ -180,3 +195,7 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 - Print summary Workflow Sync Report；use `--output detail` only for debugging。
 - Verify linked REQ/BUG trace has `openspec_changes[].status: applied` and `/opsx-apply` in `## 变更记录`; if missing, fix workflow sync and rerun instead of hand-editing marker blocks.
 - Do not hand-edit workflow-sync marker blocks。
+
+## 当前态看板索引（MUST）
+
+若 Change 来源于 REQ 或 BUG，`opsx.apply` Workflow Sync 成功后 MUST 分别在 `issues/requirements/CHANGELOG.md` 或 `issues/bugs/CHANGELOG.md` 更新对应 Issue 当前态行。纯治理 Change 无需维护 Issue 当前态看板，但仍按 `/spec-opt` 或对应命令维护 `docs/spec-logs/CHANGELOG.md`。

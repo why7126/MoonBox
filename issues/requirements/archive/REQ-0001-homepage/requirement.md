@@ -88,8 +88,8 @@ completed_at: 2026-07-30 08:21:16
 reviewed_at: 2026-07-30 08:27:02
 approved_at: 2026-07-30 08:27:02
 source_material:
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/requirement.md
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/patch-request.md
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype-context.md
+  - <local-downloads>/MoonBox-Landing-v1.0.2/requirement.md
+  - <local-downloads>/MoonBox-Landing-v1.0.2/patch-request.md
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype-context.md
 next: /req-opsx REQ-0001-homepage
 ```

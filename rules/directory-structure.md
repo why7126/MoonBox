@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-07 00:00:00
+updated_at: 2026-08-10 22:36:56
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -127,7 +127,7 @@ mintlify/
 - `mintlify/` MUST NOT 替代 `docs/` 长期技术文档、`releases/` 发布事实源、`iterations/`、`issues/` 或 `openspec/`。
 - `mintlify/` MUST NOT 存放构建产物、真实客户数据、密钥、数据库连接串、真实 `.env`、Authorization header、Cookie、运行时数据库或不可公开运维信息。
 - 产品手册生成后 MUST 运行 `python scripts/validate-mintlify-docs.py`。
-- 本地和生产 Docker Compose 可通过 `docs-site` profile 挂载 `mintlify/` 作为产品手册预览或承载源。
+- 本地和生产 Docker Compose 可通过 `docs-site` profile 挂载 `mintlify/` 作为产品手册预览或承载源；该服务必须只读挂载公开源目录和必要静态预览脚本，不得挂载 `.env`、`deploy/**/*.env`、`data/`、数据库卷、对象存储数据或密钥文件。
 
 ## 6. 源码归属规则
 
@@ -181,6 +181,7 @@ src/infrastructure/
 - 规范工程日志统一放入 `docs/spec-logs/`：`/spec-study` 学习报告使用 `YYYYMMDDhhmmss-study-xxx.md`，`/spec-opt` 本项目规范、技能、脚本、目录边界或校验规则迭代日志使用 `YYYYMMDDhhmmss-governance-xxx.md`；该目录不替代 `docs/standards/`、`docs/knowledge-base/`、`openspec/changes/`、`iterations/`、`releases/` 或 `deploy/`，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、学习对象源码、截图中的个人信息、本机绝对路径、系统用户名或用户主目录。
 - 产品需求放入 `issues/requirements/{plan|review|archive}/REQ-*`；禁止 `docs/prd/`。
 - BUG 分析放入 `issues/bugs/{plan|review|archive}/BUG-*`；禁止 `docs/bugs/`。
+- `issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` 放在对应根目录，只作为 REQ/BUG 当前态看板索引；不得放入阶段目录或单条 Issue 目录，也不得替代 `_registry.yaml`、`trace.md`、OpenSpec Change 或 Sprint 四件套。
 - 故障、复盘、最佳实践放入 `docs/knowledge-base/`。
 - 迭代文档放入 `iterations/{change|archive}/sprint-xxx/`。
 - 产品版本发布对象、公告源文件和发布校验记录放入 `releases/`。

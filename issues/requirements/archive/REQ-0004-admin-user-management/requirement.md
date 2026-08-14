@@ -141,10 +141,10 @@ reviewed_at: 2026-08-07 22:21:34
 approved_at: 2026-08-07 22:21:34
 source_material:
   - capture.md
-  - /Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/requirement.md
-  - /Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype-context.md
-  - /Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype.html
-  - /Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype.png
+  - <local-downloads>/MoonBox-Platform-Operations-v1.0.5/requirement.md
+  - <local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype-context.md
+  - <local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype.html
+  - <local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype.png
 next: none
 iteration: sprint-001
 archived_change: openspec/archive/2026-08-08-add-admin-user-management

@@ -20,6 +20,7 @@ COMMAND_SKILL_NAMES = {
 COMMAND_SKILL_PREFIXES = (
     "bug-",
     "build-",
+    "git-",
     "image-",
     "opsx-",
     "release-",
@@ -114,6 +115,30 @@ ISSUE_TARGET_CONTRACTS = {
         "forbidden": (),
     },
 }
+EXPLORE_CHAIN_IDENTITY_CONTRACTS = {
+    "explore": {
+        "required": (
+            "Opsx 链路身份",
+            "完整 `REQ-xxxx-slug`",
+            "完整 `BUG-xxxx-slug`",
+            "纯治理 Change",
+            "不得降级为 `<change-id>`",
+            "/opsx-apply REQ-0012-frontend-requirement-center",
+            "/opsx-modify BUG-0009-frontend-admin-sidebar-version-mismatch",
+        ),
+    },
+    "opsx-explore": {
+        "required": (
+            "Preserve REQ/BUG chain identity",
+            "full `REQ-xxxx-slug`",
+            "full `BUG-xxxx-slug`",
+            "pure governance Change",
+            "MUST NOT downgrade to `<change-id>`",
+            "/opsx-apply REQ-0012-frontend-requirement-center",
+            "/opsx-modify BUG-0009-frontend-admin-sidebar-version-mismatch",
+        ),
+    },
+}
 
 # Patterns that are risky when written as a positive/default instruction.
 BROAD_READ_PATTERNS = [
@@ -179,6 +204,18 @@ FOLLOW_UP_AUTH_SYNC_TERMS = (
     "Workflow Sync",
 )
 
+GUIDED_FEEDBACK_TERMS = (
+    "Guided User Feedback Contract",
+    "原生交互卡片",
+    "声明降级原因",
+    "降级为文本结构化选项",
+    "结构化选项 + 推荐项 + 可补充说明",
+    "1-3 个关键决策",
+    "推荐",
+    "可补充说明",
+    "动态收敛",
+)
+
 
 def is_negated(line: str) -> bool:
     return any(hint in line for hint in NEGATION_HINTS)
@@ -200,6 +237,9 @@ def validate_skill(path: Path) -> list[str]:
 
     if not has_force_proceed_follow_up_guardrail(text):
         errors.append(f"{rel}: 缺少 force-proceed follow-up 不自动落盘门禁")
+
+    if is_guided_feedback_target(path) and not has_guided_feedback_contract(text):
+        errors.append(f"{rel}: 缺少引导式用户反馈契约")
 
     if not has_follow_up_capture_fields(text):
         errors.append(f"{rel}: 缺少标准 follow-up capture 文案字段")
@@ -262,6 +302,20 @@ def validate_issue_target_contract(path: Path) -> list[str]:
     return errors
 
 
+def validate_explore_chain_identity_contract(path: Path) -> list[str]:
+    rel = path.relative_to(ROOT)
+    name = path.parent.name
+    contract = EXPLORE_CHAIN_IDENTITY_CONTRACTS.get(name)
+    if not contract:
+        return []
+    text = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    for term in contract["required"]:
+        if term not in text:
+            errors.append(f"{rel}: 缺少 explore 输出 opsx 下一步链路身份规范 `{term}`")
+    return errors
+
+
 def validate_governance_privacy_boundaries() -> list[str]:
     errors: list[str] = []
     paths: set[Path] = set()
@@ -299,9 +353,20 @@ def has_follow_up_authorized_sync_rule(text: str) -> bool:
     return all(term in text for term in FOLLOW_UP_AUTH_SYNC_TERMS)
 
 
+def has_guided_feedback_contract(text: str) -> bool:
+    return all(term in text for term in GUIDED_FEEDBACK_TERMS)
+
+
 def is_command_skill(path: Path) -> bool:
     name = path.parent.name
     return name in COMMAND_SKILL_NAMES or name.startswith(COMMAND_SKILL_PREFIXES)
+
+
+def is_guided_feedback_target(path: Path) -> bool:
+    name = path.parent.name
+    return name in {"capture", "explore", "git-check"} or name.startswith(
+        ("bug-", "opsx-", "release-", "req-", "sprint-")
+    )
 
 
 def main() -> int:
@@ -318,6 +383,7 @@ def main() -> int:
         errors.extend(validate_final_output_contract(path))
         errors.extend(validate_sprint_gate_no_bypass(path))
         errors.extend(validate_issue_target_contract(path))
+        errors.extend(validate_explore_chain_identity_contract(path))
     errors.extend(validate_governance_privacy_boundaries())
 
     if errors:
@@ -328,10 +394,10 @@ def main() -> int:
 
     print(
         f"Agent 上下文预算校验通过：{len(skill_paths)} 个命令技能均已接入预算规则、"
-        "摘要复用约束与 force-proceed follow-up 门禁；"
+        "摘要复用约束、引导式用户反馈契约与 force-proceed follow-up 门禁；"
         f"{len(all_skill_paths)} 个技能均已接入下一步与待用户决策/处理输出契约及去重约束，"
         "且未发现非 REQ/BUG / 纯治理 Change 跳过 Sprint 门禁表述、"
-        "REQ/BUG 下一步参数回退、不完整 Issue ID 或治理文档本机路径泄露。"
+        "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID 或治理文档本机路径泄露。"
     )
     return 0
 

@@ -27,9 +27,9 @@ prototype:
     png: prototype/web/homepage.png
     png_status: pending_export
 source_material:
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype-context.md
-  - /Users/why7126/Downloads/MoonBox-Landing-v1.0.2/prototype.html
-  - /var/folders/26/jcqks9nx23185wqvs17rzgkw0000gn/T/codex-clipboard-e5fe34e5-bcdf-45b5-bc9b-3ebd58e8ebe7.png
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype-context.md
+  - <local-downloads>/MoonBox-Landing-v1.0.2/prototype.html
+  - <local-temp>/codex-clipboard-homepage.png
 ---
 
 # REQ-0001-homepage Trace

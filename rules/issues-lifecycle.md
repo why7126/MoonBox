@@ -4,7 +4,7 @@ content: plan / review / archive 三阶段目录职责、准入条件、迁移�
 source: 项目团队确认
 update_method: 需求/BUG 流程或目录边界变化时同步更新
 created_at: 2026-06-27 22:24:39
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-08-10 22:36:56
 note: REQ 与 BUG 共用；registry 与 _registry.yaml 仍位于 issues/* 根下
 ---
 
@@ -22,6 +22,7 @@ note: REQ 与 BUG 共用；registry 与 _registry.yaml 仍位于 issues/* 根下
 ```text
 issues/requirements/          issues/bugs/
 ├── _registry.yaml            ├── _registry.yaml
+├── CHANGELOG.md              ├── CHANGELOG.md
 ├── README.md                 ├── README.md
 ├── plan/                     ├── plan/
 │   └── REQ-NNNN-slug/        │   └── BUG-NNNN-slug/
@@ -32,6 +33,7 @@ issues/requirements/          issues/bugs/
 ```
 
 - `_registry.yaml` **MUST** 留在 `issues/requirements/`、`issues/bugs/` **根目录**，不得移入阶段子目录。
+- `CHANGELOG.md` **MUST** 留在 `issues/requirements/`、`issues/bugs/` **根目录**，用于维护目录级当前态看板索引，不得移入阶段子目录或单条 Issue 目录。
 - 每个 `REQ-*` / `BUG-*` 目录 **MUST** 仅存在于三个阶段目录之一（不得多份拷贝）。
 - 阶段子目录内 **禁止** 再嵌套 `plan/review/archive`。
 
@@ -120,6 +122,12 @@ lifecycle_stage: plan | review | archive
 阶段目录 **不替代** OpenSpec archive；二者 MUST 在 `/opsx-archive` 时同步闭环（条目 → `issues/*/archive/`，Change → `openspec/archive/`）。
 若真实目录 `openspec/changes/archive/` 存在，MUST 先迁移并删除该 legacy 目录，`promote-issues-for-archive.py` 不得把它视为合法归档目标。
 
+## 7.1 当前态看板索引边界
+
+`issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` SHOULD 维护每个 Issue 一行的当前态快照，覆盖当前状态、阶段、关联 Sprint、关联 Change、最近更新时间、下一步和事实源路径。capture、文档生成/补齐、评审结果、纳入 Sprint、创建 Change、apply、archive、状态同步和历史漂移修复后，SHOULD 更新对应 Issue 行。
+
+当前态看板索引不参与机器状态判断；脚本、Agent 和人工评审 MUST 继续以 `_registry.yaml`、单条 Issue `trace.md`、Sprint 四件套和 OpenSpec Change 为事实源。新增或更新当前态行时 MUST 使用 `YYYY-MM-DD HH:mm:ss`，并遵守公开安全边界。
+
 ## 8. AI 检查清单
 
 ```text
@@ -128,5 +136,6 @@ lifecycle_stage: plan | review | archive
 □ opsx-archive / sprint-archive 后是否运行 promote-issues-for-archive.py ？
 □ issues 是否已迁入 archive/ 且 lifecycle_stage 一致？
 □ _registry.yaml 是否仍在 issues 根目录？
+□ CHANGELOG.md 是否仍在 issues 根目录，且对应 Issue 当前态行已按需更新？
 □ 是否运行 sync-workflow-status.py？
 ```

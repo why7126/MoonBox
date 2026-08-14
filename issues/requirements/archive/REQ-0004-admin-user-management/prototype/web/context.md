@@ -9,9 +9,9 @@ updated_at: 2026-08-07 22:15:09
 
 ## 来源
 
-- 外部上下文：`/Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype-context.md`
-- 外部 HTML：`/Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype.html`
-- 外部截图：`/Users/why7126/Downloads/MoonBox-Platform-Operations-v1.0.5/prototype.png`
+- 外部上下文：`<local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype-context.md`
+- 外部 HTML：`<local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype.html`
+- 外部截图：`<local-downloads>/MoonBox-Platform-Operations-v1.0.5/prototype.png`
 
 ## 本需求内资产
 
@@ -35,4 +35,3 @@ updated_at: 2026-08-07 22:15:09
 - 原型中的角色范围以本次用户决策为准：仅保留“后台管理员”和“前台用户”。
 - 冻结后会话失效时限以本次用户决策为准：10 秒内。
 - 原型中的 Workspace、授权、用量、安全、审计、平台管理员页面不属于 REQ-0004 交付范围。
-

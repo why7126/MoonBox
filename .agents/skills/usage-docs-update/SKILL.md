@@ -45,6 +45,7 @@ python scripts/validate-mintlify-docs.py
 ```
 
 6. 若改动源自 release 公告，确认 `releases/vX.Y.Z/announcement.mdx` 仍是发布事实源，Mintlify 只是投影。
+7. 若更新影响 docs-site 部署、站点入口或 `HOST_PORT_MINTLIFY_DOCS`，运行对应 Compose config 校验；docs-site 只能只读挂载 `mintlify/` 和静态预览脚本，不得挂载真实 env、`data/`、数据库卷、对象存储数据或密钥文件。
 
 ## Safety
 

@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-08 21:08:00
+updated_at: 2026-08-10 20:14:00
 owner: MoonBox 产品团队
 ---
 
@@ -36,7 +36,7 @@ rules/agent-context-budget.md
 | 代码实现 | `rules/coding.md`、`rules/testing.md`、相关模块 README |
 | API | `rules/api.md`、`docs/03-api-index.md`、OpenAPI 来源 |
 | DB | `rules/database.md`、`docs/04-database-design.md` |
-| UI | `rules/ui-design.md`、前端设计 token 和组件入口 |
+| UI | `rules/ui-design.md`、`docs/standards/prototype-ui-acceptance.md`、前端设计 token 和组件入口 |
 | 部署 | `rules/environment.md`、`rules/port-management.md`、`rules/release.md`、`docs/02-deployment.md` |
 | 产品手册 / Mintlify | `rules/document-governance.md`、`rules/release.md`、`docs/02-deployment.md`、`mintlify/README.md` |
 | 对象存储 | `rules/data-management.md`、`rules/object-storage.md`、`docs/07-object-storage-strategy.md` |
@@ -53,12 +53,14 @@ rules/agent-context-budget.md
 |---|---|
 | 通用探索 | `/explore` |
 | 治理优化 | `/spec-opt`、`/spec-study` |
+| Git 安全 | `/git-check` |
 | 产品手册 | `/usage-docs-generate`、`/usage-docs-update`、`/usage-docs-validate` |
 | 发布镜像 | `/release-propose`、`/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` |
 
 ## 流程红线
 
 - 不允许绕过 OpenSpec Change 直接开发正式功能。
+- 所有命令在需要用户选择、确认、补充信息或处理阻塞时，必须优先采用“原生交互卡片 + 结构化选项 + 推荐项 + 可补充说明”的引导式反馈；当客户端或工具层不支持原生交互卡片时，降级为文本结构化选项；每轮只聚焦 1-3 个关键决策，并根据用户答案动态收敛，不得用大段开放式追问替代。
 - 未评审的 REQ/BUG 不得进入 Sprint 规划，不得转 OpenSpec，不得执行开发。
 - REQ/BUG 评审通过后必须先执行 `/sprint-propose` 纳入 Sprint 并同步为 `in_sprint`，再执行 `/req-opsx` 或 `/bug-opsx`；不得从 review 直接跳到 opsx。
 - `openspec/specs/` 只保存已生效规格，除归档合并动作外不得直接修改。
@@ -69,7 +71,7 @@ rules/agent-context-budget.md
 - Sprint ID 必须使用 `sprint-xxx` 三位数字递增格式；自动创建 Sprint 时扫描 `iterations/change/` 与 `iterations/archive/` 后取最大编号加一。
 - 下一步可执行命令必须保留链路身份：REQ 链路的 `/req-*` 与后续 `/opsx-*` 使用完整 `REQ-xxxx-slug`，BUG 链路的 `/bug-*` 与后续 `/opsx-*` 使用完整 `BUG-xxxx-slug`，非 REQ/BUG Change 才使用 `<change-id>`。
 - API、DB、UI、部署或安全边界变化必须同步文档、规则和测试。
-- 带 `prototype/` 的 UI 页面必须先完成原型拆解、UI Skeleton、1440px 视觉验收和 REQ 文档最终一致性检查；不得缺少视觉证据或文档回填即归档。
+- 带 `prototype/` 的 UI 页面必须先完成原型拆解、UI Contract、UI Skeleton 首轮确认、1440px 与关键交互视觉验收、computed style 证据、Mock/API 边界声明和 REQ 文档最终一致性检查；不得缺少视觉证据、样式证据或文档回填即归档。
 - OpenSpec 文档变更后运行中文优先校验；Mintlify 变更后运行产品手册校验。
 - 完成前运行相关验证；无法运行时在回复中说明原因。
 

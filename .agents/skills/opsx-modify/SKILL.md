@@ -14,6 +14,18 @@ Use this skill when the user asks `/opsx-modify <REQ-full-id|BUG-full-id|change-
 - 大 diff 先用 `git diff --stat` / `git diff --name-only`；只展开手写源码、测试和本次文档片段。
 - 命令输出优先 `max_output_tokens <= 8000`；测试失败只展开失败用例、关键栈和相关片段。
 
+### Guided User Feedback Contract（MUST）
+
+当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 采用引导式反馈：
+
+- 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项。
+- 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
+- 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
+- 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
+- 用户已回答的决策 MUST 在后续输出中被承接并动态收敛，只追问剩余阻塞点或新增风险点，避免重复询问已确认事项。
+- 无需用户反馈的成功路径 SHOULD 保持紧凑，不为了套用格式而追加无意义问卷。
+
 ### Force-proceed Follow-up Guardrails（MUST）
 
 - `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
@@ -142,9 +154,9 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 
    Prototype-driven UI Gate:
 
-   - If the Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton in `design.md`, every UI/visual acceptance feedback MUST be checked against the original prototype decomposition and current UI Skeleton.
-   - If feedback changes layout, component hierarchy, state behavior, visual priority, responsive breakpoint, copy, or interaction implied by prototype, update Change `design.md`, linked REQ `acceptance.md` when criteria changed, and Change `trace.md`.
-   - After any UI 返修, rerun 1440px desktop visual acceptance and record fresh evidence; previous 1440px evidence is invalid once the relevant UI changed.
+   - If the Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, UI Contract, or UI Skeleton in `design.md`, every UI/visual acceptance feedback MUST be checked against the original prototype decomposition, current UI Contract, current UI Skeleton and `docs/standards/prototype-ui-acceptance.md`.
+   - If feedback changes layout, component hierarchy, state behavior, visual priority, responsive breakpoint, copy, icon, permission display, Mock/API boundary, computed style, or interaction implied by prototype, update Change `design.md`, linked REQ `acceptance.md` when criteria changed, and Change `trace.md`.
+   - After any UI 返修, rerun 1440px desktop and affected key interaction visual acceptance; record fresh screenshot/evidence, computed style checks for risky points, and updated Mock/API boundary when impacted. Previous visual evidence is invalid once the relevant UI changed.
    - If feedback reveals the prototype itself is obsolete, record Conflict Resolution in Change `design.md` and update linked REQ docs before validation.
 
 4. **Validate**
