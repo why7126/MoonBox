@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REQ-0018 前台空间切换真实数据原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0c1b;
+      --panel: #12142b;
+      --line: rgba(234, 242, 255, .12);
+      --text: #e7e8f3;
+      --muted: #7c81a6;
+      --gold: #cba35c;
+      --warning: #d8a94d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      display: grid;
+      grid-template-columns: 224px 1fr;
+    }
+    aside {
+      border-right: 1px solid var(--line);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    main { padding: 28px; }
+    .brand {
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+    .nav { display: grid; gap: 8px; }
+    .nav span, .menu button, .space-popover button {
+      border: 1px solid transparent;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      border-radius: 2px;
+    }
+    .nav span { padding: 10px 12px; color: var(--muted); }
+    .nav .active {
+      color: var(--gold);
+      border-color: var(--line);
+      background: rgba(203, 163, 92, .08);
+    }
+    .user-zone {
+      position: relative;
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+    .user-trigger {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 2px;
+      text-align: left;
+    }
+    .user-trigger strong, .space-row strong { display: block; font-size: 13px; }
+    .user-trigger em, .space-row em {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-style: normal;
+      margin-top: 3px;
+    }
+    .menu {
+      position: absolute;
+      left: 0;
+      bottom: 64px;
+      width: 196px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 8px;
+      display: grid;
+      gap: 4px;
+    }
+    .menu button { padding: 9px 10px; font-size: 13px; }
+    .menu button.active { color: var(--gold); background: rgba(203, 163, 92, .08); }
+    .space-popover {
+      position: absolute;
+      left: 204px;
+      bottom: 86px;
+      width: 292px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .26);
+    }
+    .space-row {
+      width: 100%;
+      min-height: 48px;
+      padding: 9px 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+    .space-row.current {
+      border-color: rgba(203, 163, 92, .4);
+      background: rgba(203, 163, 92, .08);
+    }
+    .tag {
+      color: var(--warning);
+      border: 1px solid rgba(216, 169, 77, .35);
+      padding: 2px 5px;
+      font-size: 10px;
+    }
+    .check { color: var(--gold); font-size: 15px; }
+    .space-action {
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+    }
+    .space-action button {
+      width: 100%;
+      padding: 9px 10px;
+      color: var(--gold);
+      border-color: var(--line);
+    }
+    .board {
+      min-height: 420px;
+      border: 1px solid var(--line);
+      background: rgba(18, 20, 43, .55);
+      padding: 18px;
+    }
+    h1 {
+      margin: 0 0 18px;
+      font-family: "Noto Serif SC", serif;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand">MoonBox</div>
+    <nav class="nav" aria-label="前台导航">
+      <span class="active">需求中心</span>
+      <span>知识图谱</span>
+      <span>Agent 组织</span>
+    </nav>
+    <section class="user-zone" aria-label="用户区域">
+      <button class="user-trigger" type="button">
+        <strong>产品负责人</strong>
+        <em>MoonBox 运营空间</em>
+      </button>
+      <div class="menu" role="menu" aria-label="用户菜单">
+        <button type="button">个人资料</button>
+        <button type="button">修改密码</button>
+        <button class="active" type="button">切换空间</button>
+        <button type="button">设置空间</button>
+        <button type="button">界面主题</button>
+        <button type="button">退出登录</button>
+      </div>
+      <section class="space-popover" role="dialog" aria-label="切换空间">
+        <button class="space-row current" type="button">
+          <span>
+            <strong>MoonBox 运营空间</strong>
+            <em>管理员 · 12 人</em>
+          </span>
+          <span class="check" aria-label="当前空间">✓</span>
+        </button>
+        <button class="space-row" type="button">
+          <span>
+            <strong>AI 工厂共创空间</strong>
+            <em>编辑者 · 8 人</em>
+          </span>
+        </button>
+        <button class="space-row" type="button">
+          <span>
+            <strong>历史验证空间</strong>
+            <em>查看者 · 5 人</em>
+          </span>
+          <span class="tag">只读</span>
+        </button>
+        <div class="space-action">
+          <button type="button">创建或加入空间</button>
+        </div>
+      </section>
+    </section>
+  </aside>
+  <main>
+    <h1>需求中心</h1>
+    <section class="board" aria-label="9 阶段看板占位">
+      当前空间：MoonBox 运营空间
+    </section>
+  </main>
+</body>
+</html>
+

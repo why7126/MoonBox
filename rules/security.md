@@ -3,7 +3,7 @@ purpose: 安全开发规范
 content: 认证授权、文件上传、对象存储、输入校验、环境变量和敏感信息保护
 update_method: 新增认证、上传、对象存储、权限、外部访问能力时更新
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-08-14 17:00:00
 note: AI 不得放宽本规范
 ---
 
@@ -38,6 +38,7 @@ note: AI 不得放宽本规范
 - 查询条件必须做长度、类型、枚举和权限校验。
 - SQL 查询必须参数化。
 - 日志、导出、测试数据不得包含真实用户或客户敏感信息。
+- 根因分析、人工补证、测试失败、Network、Console、容器日志和截图证据 MUST 脱敏；不得写入真实密码、Token、Cookie、Authorization header、真实 `.env` 原文、真实客户数据、未脱敏日志、本机绝对路径、系统用户名或用户主目录。证据化根因分析见 `rules/root-cause-evidence.md`。
 
 ## 5. AI 禁止行为
 

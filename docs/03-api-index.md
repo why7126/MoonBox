@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-13 16:18:00
+updated_at: 2026-08-18 13:04:39
 owner: MoonBox 产品团队
 ---
 
@@ -17,6 +17,7 @@ MoonBox API 采用 REST 风格，由 FastAPI 暴露 OpenAPI 契约，前端通�
 | Admin Users | 管理后台用户列表、创建、编辑、冻结/解冻、逻辑删除、重置密码和头像上传 | in_progress |
 | Admin Spaces | 管理后台空间列表、申请审批、生命周期、配额和回收站 | in_progress |
 | Requirement Center | 前台需求中心真实数据聚合、筛选、统计和权限态 | in_progress |
+| Catalog Workspace Creation | 前台创建空间 | in_progress |
 | Workspace | 组织空间和项目空间 | planned |
 | Agent Workflow | 流程节点、状态流转、审批和执行记录 | planned |
 | Knowledge Graph | 需求、设计、代码、测试、决策和经验关联 | planned |
@@ -77,14 +78,25 @@ MoonBox API 采用 REST 风格，由 FastAPI 暴露 OpenAPI 契约，前端通�
 | POST | `/api/v1/admin/space-applications/{application_id}/approve` | 审批通过空间申请，并自动创建申请审批来源的空间 |
 | POST | `/api/v1/admin/space-applications/{application_id}/reject` | 拒绝空间申请；重复审批返回受控错误 |
 
-空间管理接口统一使用 `Authorization: Bearer <access_token>` 叠加后台管理员角色判权。服务端返回 `allowed_actions` 作为前端操作可用性的事实源；受保护空间不得冻结、回收或彻底删除，非系统超级管理员不得彻底删除。删除空间前服务层保留运行中任务阻塞检查入口，当前基线无 Agent 运行表时返回无阻塞。高风险操作必须提交原因，审计日志仅记录业务状态摘要和原因，不记录 token、会话 ID、密码、临时凭证或对象存储签名。成员数量口径为负责人加普通成员；负责人不进入成员列表，负责人变更必须使用负责人移交接口。
+空间管理接口统一使用 `Authorization: Bearer <access_token>` 叠加后台管理员角色判权。服务端返回 `allowed_actions` 作为前端操作可用性的事实源；受保护空间不得冻结、回收或彻底删除，非系统超级管理员不得彻底删除。删除空间前服务层保留运行中任务阻塞检查入口，当前基线无 Agent 运行表时返回无阻塞。高风险操作必须提交原因，审计日志仅记录业务状态摘要和原因，不记录 token、会话 ID、密码、临时凭证或对象存储签名。成员数量口径为负责人加普通成员；负责人不进入成员列表，负责人变更必须使用负责人移交接口。后台空间申请审批能力作为管理后台兼容能力保留，不由前台创建空间入口触发。
+
+## 前台创建空间 API
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/api/v1/catalog/workspace-applications/create` | 当前登录用户提交创建空间申请；服务端以当前用户作为申请人和拟负责人，按后台空间管理一致规则校验名称、标识、成员上限、存储空间、AI Tokens 和到期时间，成功后返回待审批申请 |
+
+前台创建空间 API 使用统一登录态，不要求后台管理员角色。首版不提供加入空间、邀请码、公开目录、推荐空间、精准搜索空间、我的申请、撤回或重新提交能力。成员上限、存储空间、AI Tokens 和到期时间的输入限制与后台空间管理保持一致；存储空间单位为 GB，AI Tokens 输入框不额外展示 `Tokens` 单位；有效期为长期有效时不提交到期时间，固定日期必须晚于当前时间。审批通过前不会创建正式空间或返回进入 URL。
 
 ## 前台需求中心 API
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/v1/requirement-center/context` | 需 `Authorization: Bearer <access_token>`；接受统一登录态，不要求后台管理员角色；聚合 REQ、BUG、Sprint、OpenSpec Change、空间与用户权限，返回需求中心看板卡片、9 阶段映射、统计、漂移提示、空间列表、当前空间和当前用户摘要；`current_user.avatar_url` 返回当前用户头像地址，前端需继续用同一 Bearer token 读取受保护头像资源 |
+| GET | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}` | 需 `Authorization: Bearer <access_token>`；仅允许读取治理对象目录内的 `.md` 文档，返回 `name` 与 `content`，路径越界、缺失、类型不符和权限失败均返回脱敏错误 |
+| PUT | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}` | 需 `Authorization: Bearer <access_token>`；仅允许保存采集池阶段对象的 `capture.md`，请求体为 `{ content }`，内容长度受限；`trace.md`、非采集池阶段 Markdown、路径越界、缺失、类型不符和权限失败均返回脱敏错误且不写入 |
+| GET | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}/preview` | 需 `Authorization: Bearer <access_token>`；仅允许读取治理对象目录内的 `.html` 文档并以 HTML 预览响应返回，路径越界、缺失、类型不符和权限失败均返回脱敏错误 |
 
-需求中心 context 接口是只读 BFF。数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。首版空间上下文由 `project.yaml` 派生当前项目空间，成员数由治理对象负责人和当前登录用户计算，空间角色由当前登录用户角色派生；不得返回硬编码演示空间。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取只读挂载的治理事实源。响应只输出白名单字段，不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
+需求中心 context 接口是读聚合 BFF。治理对象数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown/HTML 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。卡片响应额外返回受控 `document_entries`、`detail_url`、`archive_url`、`action`、`tasks` 与 `sprint_options`，用于前端文档抽屉、新 Tab 预览、阶段动作、只读 tasks 进度和 Sprint 选择；`document_entries[].editable` 仅对采集池 `capture.md` 为 true。空间上下文来自后台空间事实源 `admin_spaces`、`admin_space_members` 与 `admin_space_products`：仅返回当前登录用户作为负责人或成员已加入、且未处于回收状态的空间；冻结空间保留可见并返回 `status=FROZEN` 与 `readonly=true`。空间响应只输出 `workspace_id`、`name`、`slug`、`description`、`member_count`、`role`、`status`、`readonly` 等前台白名单字段，不返回后台配额、审计、删除原因、负责人内部详情或高风险动作。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。响应不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；Markdown/HTML 全文只通过受控文档接口按单文件读取；`capture.md` 保存只通过受控写入接口并限制在采集池阶段；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
 
 API 变更必须同步 OpenAPI、Orval 客户端、测试、`docs/03-api-index.md` 和相关 OpenSpec Change。

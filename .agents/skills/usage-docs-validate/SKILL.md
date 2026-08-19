@@ -12,6 +12,12 @@ Use this skill when the user asks `/usage-docs-validate <version>` or wants to v
 - MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
 - 默认只读取 `mintlify/README.md`、`mintlify/mint.json`、`mintlify/site-manifest.json` 和校验失败文件。
 
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
 ## Input
 
 - `<version>`：可选，默认校验整个 `mintlify/` 站点。
@@ -53,3 +59,6 @@ The validator checks:
 ## Output
 
 Report validation commands, pass/fail summary, failing files, and suggested fix command.
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。

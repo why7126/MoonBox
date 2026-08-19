@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-08-10 22:36:56
+updated_at: 2026-08-16 11:47:41
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -106,18 +106,23 @@ refresh_reason: <本次继续复用或需要补读的原因>
 Agent 命令技能 SHOULD：
 
 - 引用本文件或内置等价上下文预算章节。
-- 包含引导式用户反馈契约：当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项；两种形态都 MUST 包含「结构化选项 + 推荐项 + 可补充说明」；每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项；至少一个选项 MUST 标注「推荐」并说明理由；用户已回答的决策 MUST 被后续输出承接，只追问剩余阻塞点或新增风险点；无需用户反馈的成功路径 SHOULD 保持紧凑。
+- 包含引导式用户反馈契约：当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项；两种形态都 MUST 包含「结构化选项 + 推荐项 + 可补充说明」；交互卡片顶部说明 MUST 只保留一处主说明，避免副标题、hint、description 或说明正文重复承载同一流程信息；每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项；至少一个选项 MUST 标注「推荐」并说明理由；用户已回答的决策 MUST 被后续输出承接，只追问剩余阻塞点或新增风险点；无需用户反馈的成功路径 SHOULD 保持紧凑。
 - 包含 `force-proceed` follow-up 门禁：不得默认自动创建 follow-up REQ/BUG，除非用户明确授权；未授权时只输出可复制的 capture 文案并说明未自动创建 Issue。
 - 明确区分「下一步」与「待用户决策/处理」，同一事项不得重复出现在两处。
+- 包含 Command Execution Review Hook：所有 `/req-*`、`/bug-*`、`/sprint-*`、`/opsx-*`、`/release-*`、`/image-*`、`/usage-docs-*`、`/spec-opt`、`/spec-study`、`/initialize-project` 等 workflow 命令完成后，MUST 输出「执行链路复盘」，并至少包含「链路状态」「问题证据」「规范优化建议」。问题证据可为脚本输出、失败摘要、文件路径、校验报告、日志摘要或用户补充证据；无异常时写「无」。规范优化建议无明确证据支撑时写「无明显优化点」。
+- Command Execution Review Hook MUST 明确 follow-up 边界：发现可优化规范点时只输出建议命令或建议 capture 文案；默认未自动创建 Issue/Change。只有用户明确授权后，才可继续执行 `/req-capture`、`/bug-capture`、`/capture` 或创建新的 OpenSpec Change。
+- 每个命令 Skill MUST 保留 Command Execution Review Hook 短引用，指向 `.agents/skills/workflow-sync/SKILL.md` 中央契约，并显式包含「执行链路复盘」「链路状态」「问题证据」「规范优化建议」和「未自动创建 Issue/Change」。
 - 保留命令特定的 Must Read 与业务门禁，但不得要求默认宽泛读取整目录。
 - 对 apply/archive/sprint 类高消耗命令，明确要求先读取 OpenSpec CLI `contextFiles`、任务文件、trace/status 片段，再按需扩展。
 - 对工作流命令顺序，MUST 遵守 `docs/08-command-execution-order.md`：先评审、再纳入 Sprint、再创建 Change、再 apply/modify/archive，发布、镜像和产品手册位于交付闭环之后；写同一事实源的步骤不得并行。
 - 对 REQ/BUG 当前态看板索引，`issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` SHOULD 作为目录级当前状态入口；需要确认单条状态、验收、Sprint 或 Change 事实时，MUST 继续读取 `_registry.yaml`、目标 Issue `trace.md`、Sprint 四件套或 OpenSpec Change，不得用看板索引替代事实源。
 - 对 REQ/BUG 评审后的下一步，MUST 先输出 `/sprint-propose --req <REQ-full-id>` 或 `/sprint-propose --bug <BUG-full-id>`；只有 Workflow Sync 将 Issue 同步为 `in_sprint` 后，才能输出或执行 `/req-opsx` / `/bug-opsx`。
 - 对下一步可执行命令，MUST 保留完整链路身份：REQ 链路使用完整 `REQ-xxxx-slug`，BUG 链路使用完整 `BUG-xxxx-slug`；即使命令进入 `/opsx-apply`、`/opsx-modify` 或 `/opsx-archive`，也不得把来源于 REQ/BUG 的下一步参数降级为 `<change-id>`。只有非 REQ/BUG 的纯治理 Change 才使用 `<change-id>`。
+- 对问题排查、BUG 完善、验收返修或效果不如预期，MUST 遵守 `rules/root-cause-evidence.md`：证据不足时只读取必要片段并输出人工补证操作步骤；不得为猜测根因宽泛读取整仓、历史归档或生成物；人工补证返回后再按证据链确认根因。
+- 对 REQ 来源 `/opsx-modify`，完成前 MUST 做 REQ 子文档一致性扫尾检查：只定位当前 linked REQ 目录，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 片段判断是否需同步；不得为了扫尾全量读取无关 REQ、历史归档或 generated 文件。
 - 对 `/spec-study` 跨项目 Harness 学习应用命令，MUST 明确先学习并输出候选内容、等待用户确认后再应用；学习对象存在 `docs/spec-logs/CHANGELOG.md` 时，MUST 优先采用“日志索引 -> 单次 study/governance 日志 -> 真实治理资产 -> 必要代码/脚本补证”的学习顺序，先理解治理演进和设计意图，再按 Learning Matrix 横向校验项目入口、`rules/`、`docs/`、Agent 目录、`scripts/`、部署与环境示例；日志只作为入口地图和历史背景，MUST NOT 替代当前资产、OpenSpec Change、Sprint 四件套或正式规格事实源；学习对象 MUST 全程只读且绝不允许被改动；应用阶段 MUST 遵守 active OpenSpec Change 与 Sprint Inclusion Gate，并禁止修改业务 `src/`；同一次学习应用流程只生成一份正式学习报告，学习报告 MUST 统一写入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，并承载本次学习触发的治理资产应用结果；不得额外生成内容重复的 `YYYYMMDDhhmmss-governance-xxx.md`，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息、学习对象源码、本机绝对路径、系统用户名或用户主目录；本地学习对象在持久化文档中 MUST 使用项目名或脱敏占位符描述。
 - 对 `/spec-opt` 规范优化命令，MUST 在完成本项目规范、技能、脚本、目录边界或校验规则迭代后写入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md` 治理迭代日志，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息或学习对象源码。
-- 对带 `prototype/` 的 UI 页面，`/req-complete`、`/req-opsx`、`/opsx-apply`、`/opsx-modify`、`/opsx-archive` 和 Workflow Sync MUST 只读取当前 REQ/Change 的 prototype 片段、UI Skeleton、AC-PROTOTYPE 和相关 best-practice；不得为做 1440px 视觉验收而全量读取无关 UI、历史归档或生成物。
+- 对带 `prototype/` 的 UI 页面，`/req-complete`、`/req-opsx`、`/opsx-apply`、`/opsx-modify`、`/opsx-archive` 和 Workflow Sync MUST 只读取当前 REQ/Change 的 prototype 片段、UI Skeleton、AC-PROTOTYPE 和相关 best-practice；不得为做 1440px 视觉验收而全量读取无关 UI、历史归档或生成物。UI 型 `/opsx-modify` 若验收反馈含附件截图、标注图、原型截图或实际截图，MUST 只围绕当前反馈附件、当前 Change/REQ 视觉证据、UI Skeleton 和“附件截图逐项视觉对照表”补证，禁止为主观视觉判断宽泛读取无关页面或历史截图。
 
 ## 8. 校验
 

@@ -22,10 +22,12 @@ COMMAND_SKILL_PREFIXES = (
     "build-",
     "git-",
     "image-",
+    "openspec-",
     "opsx-",
     "release-",
     "req-",
     "sprint-",
+    "usage-docs-",
 )
 NEXT_GUIDANCE_TERMS = (
     "下一步",
@@ -203,6 +205,24 @@ FOLLOW_UP_AUTH_SYNC_TERMS = (
     "bug.capture",
     "Workflow Sync",
 )
+COMMAND_EXECUTION_REVIEW_TERMS = (
+    "Command Execution Review Hook",
+    "执行链路复盘",
+    "链路状态",
+    "问题证据",
+    "规范优化建议",
+    "无明显优化点",
+    "未自动创建 Issue/Change",
+)
+COMMAND_EXECUTION_REVIEW_SHORT_REFERENCE_TERMS = (
+    "Command Execution Review Hook",
+    ".agents/skills/workflow-sync/SKILL.md",
+    "执行链路复盘",
+    "链路状态",
+    "问题证据",
+    "规范优化建议",
+    "未自动创建 Issue/Change",
+)
 
 GUIDED_FEEDBACK_TERMS = (
     "Guided User Feedback Contract",
@@ -335,6 +355,34 @@ def validate_governance_privacy_boundaries() -> list[str]:
     return errors
 
 
+def validate_command_execution_review_hook() -> list[str]:
+    errors: list[str] = []
+    targets = (
+        ROOT / "rules" / "agent-context-budget.md",
+        SKILLS_DIR / "workflow-sync" / "SKILL.md",
+        ROOT / "docs" / "08-command-execution-order.md",
+    )
+    for path in targets:
+        rel = path.relative_to(ROOT)
+        text = path.read_text(encoding="utf-8")
+        for term in COMMAND_EXECUTION_REVIEW_TERMS:
+            if term not in text:
+                errors.append(f"{rel}: 缺少命令执行复盘 Hook 契约 `{term}`")
+    return errors
+
+
+def validate_command_skill_review_hook_reference(path: Path) -> list[str]:
+    rel = path.relative_to(ROOT)
+    text = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    if path.parent.name == "workflow-sync":
+        return errors
+    for term in COMMAND_EXECUTION_REVIEW_SHORT_REFERENCE_TERMS:
+        if term not in text:
+            errors.append(f"{rel}: 缺少命令执行复盘 Hook 短引用 `{term}`")
+    return errors
+
+
 def has_summary_reuse_constraint(text: str) -> bool:
     has_scope = any(term in text for term in SUMMARY_REUSE_RULE_TERMS)
     has_action = any(term in text for term in SUMMARY_REUSE_ACTION_TERMS)
@@ -379,12 +427,14 @@ def main() -> int:
     errors: list[str] = []
     for path in skill_paths:
         errors.extend(validate_skill(path))
+        errors.extend(validate_command_skill_review_hook_reference(path))
     for path in all_skill_paths:
         errors.extend(validate_final_output_contract(path))
         errors.extend(validate_sprint_gate_no_bypass(path))
         errors.extend(validate_issue_target_contract(path))
         errors.extend(validate_explore_chain_identity_contract(path))
     errors.extend(validate_governance_privacy_boundaries())
+    errors.extend(validate_command_execution_review_hook())
 
     if errors:
         print("Agent 上下文预算校验失败：")
@@ -395,9 +445,11 @@ def main() -> int:
     print(
         f"Agent 上下文预算校验通过：{len(skill_paths)} 个命令技能均已接入预算规则、"
         "摘要复用约束、引导式用户反馈契约与 force-proceed follow-up 门禁；"
+        "且均已接入命令执行复盘 Hook 短引用；"
         f"{len(all_skill_paths)} 个技能均已接入下一步与待用户决策/处理输出契约及去重约束，"
         "且未发现非 REQ/BUG / 纯治理 Change 跳过 Sprint 门禁表述、"
-        "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID 或治理文档本机路径泄露。"
+        "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID、"
+        "命令执行复盘 Hook 中央契约缺失或治理文档本机路径泄露。"
     )
     return 0
 

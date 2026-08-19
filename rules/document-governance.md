@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-10 22:36:56
+updated_at: 2026-08-19 12:10:48
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -20,7 +20,13 @@ note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通
 
 `docs/` 只沉淀长期产品、架构、部署、接口、数据库、兼容性和治理信息；需求、BUG、迭代不得放入 `docs/`。`docs/spec-logs/` 中的学习报告和治理日志不得写入本机绝对路径、系统用户名、用户主目录、真实客户数据、密钥或未脱敏日志。
 
-触达治理资产的 Change MUST 同步 `docs/spec-logs/`：无论来源是 `/spec-opt`、`/spec-study`、REQ 还是 BUG，只要变更 `.agents/skills/**`、`AGENTS.md`、`rules/**`、`docs/spec-logs/**`、`docs/standards/**`、治理脚本、校验脚本、Workflow Sync、OpenSpec/Sprint/REQ/BUG 流程规则或 `project.yaml` 命令索引，就必须生成或更新 `YYYYMMDDhhmmss-governance-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 追加倒序索引；纯错别字、链接或格式修复可在 Change trace 中记录豁免原因。
+长期文档 MUST 遵守事实唯一归属：同一规则、状态语义、验收门禁、脚本行为或目录边界只能在一个长期事实源中完整展开；其他文档 SHOULD 使用摘要和相对链接引用该事实源。更新文档前，AI MUST 先判断事实属于 `rules/`、`docs/standards/`、`issues/**/trace.md`、`iterations/**/sprint.yaml`、`openspec/changes/**`、`openspec/specs/**`、脚本说明还是 Skill，不得把同一规则复制到多个长期文档中各自维护。
+
+当事实确需在入口文档和细则文档同时出现时，入口文档只保留 1-3 行执行约束和链接；细则文档承载完整条件、例外、校验命令和失败处理。若发现多个文档存在同一规则的完整副本，后续治理变更 SHOULD 选择一个事实源保留，其他位置改为引用。
+
+本地视觉验收或调试过程中产生的临时截图、computed style JSON 和中间证据 MAY 写入被 `.gitignore` 覆盖的 `tmp/visual-evidence/`。需要作为 Change、Sprint 或归档验收事实源长期保留的证据 MUST 转存到 `openspec/changes/<change-id>/evidence/`，或写入脱敏后的证据摘要；不得让 `tmp/` 成为归档闭环唯一证据来源。
+
+触达治理资产的 Change MUST 同步 `docs/spec-logs/`：无论来源是 `/spec-opt`、REQ 还是 BUG，只要变更 `.agents/skills/**`、`AGENTS.md`、`rules/**`、`docs/spec-logs/**`、`docs/standards/**`、治理脚本、校验脚本、Workflow Sync、OpenSpec/Sprint/REQ/BUG 流程规则或 `project.yaml` 命令索引，就必须生成或更新 `YYYYMMDDhhmmss-governance-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 追加倒序索引；纯错别字、链接或格式修复可在 Change trace 中记录豁免原因。`/spec-study apply` 触发的治理资产应用结果 MUST 汇总到同一次学习流程的一份 `YYYYMMDDhhmmss-study-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 以 `study` 类型登记，不得再额外生成内容重复的 governance 日志。
 
 ```text
 docs/
@@ -159,7 +165,7 @@ specs/
 implementation/
 ```
 
-归档前 MUST 先完成文档同步复核：根据 `tasks.md`、`trace.md`、delta spec 与实现影响范围，更新受影响的长期文档、README、`.env.example`、API / DB / 部署 / 发布 / 兼容性文档或明确记录“不适用”原因。API 变更必须同步 `docs/03-api-index.md`、API 治理说明与 Orval 相关说明；DB 变更必须同步 `docs/04-database-design.md`；Docker、环境变量、发布镜像变更必须同步部署、发布与示例环境文档。不得在 docs 同步缺失或未说明豁免原因时执行归档。真实 `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` 允许存在于本地工作区，但不得被提交、stage、复制进归档、产品手册、release 产物或输出其真实内容；若它们被 Git ignore 覆盖，存在本身不得阻断归档。
+归档前 MUST 先完成文档同步复核：根据 `tasks.md`、`trace.md`、delta spec 与实现影响范围，更新受影响的长期文档、README、`.env.example`、API / DB / 部署 / 发布 / 兼容性文档或明确记录“不适用”原因。API 变更必须同步 `docs/03-api-index.md`、API 治理说明与 Orval 相关说明；DB 变更必须同步 `docs/04-database-design.md`；Docker、环境变量、发布镜像变更必须同步部署、发布与示例环境文档。不得在 docs 同步缺失或未说明豁免原因时执行归档。真实 `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` 允许存在于本地工作区，但不得被提交、stage、复制进归档、产品手册、release 产物或输出其真实内容；若它们被 Git ignore 覆盖，存在本身不得阻断归档。根目录 `tmp/` 仅允许作为本地临时工作目录存在，且必须被 Git ignore 覆盖；长期验收、归档或发布需要引用的视觉证据必须沉淀到对应 Change 的 `evidence/` 目录或脱敏摘要中。
 
 归档时合并 delta spec 到 `openspec/specs/`，更新 Issue/Sprint 状态，并移动 Change 到 `openspec/archive/YYYY-MM-DD-<change-id>/`；不得删除归档内容。OpenSpec 文档以中文为主，正式 spec、proposal、design、tasks、trace、acceptance 和 test-plan 的标题、说明、任务、验收和场景叙述 MUST 使用中文；`Requirement:`、`Scenario:`、`GIVEN`、`WHEN`、`THEN`、`SHALL` 等 OpenSpec 关键字、代码标识、API 路径和专有技术名词 MAY 保留英文。归档后清理脚手架占位文案。
 

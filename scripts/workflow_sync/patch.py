@@ -28,6 +28,137 @@ def persist_markdown(path: Path, text: str, original: str, write: bool) -> bool:
     return changed
 
 
+def _table_cell(value: str | None) -> str:
+    text = str(value or "无").strip() or "无"
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def _issue_stage(issue: IssueRecord) -> str:
+    parent = issue.path.parent.name
+    if parent in {"plan", "review", "archive"}:
+        return parent
+    return "archive" if issue.path.name.startswith(("REQ-", "BUG-")) and "archive" in str(issue.path) else "plan"
+
+
+def _issue_next_step(issue: IssueRecord, derived: DerivedIssue) -> str:
+    issue_id = issue.issue_id
+    status = derived.display_status
+    linked_change = derived.linked_change
+    if issue.kind == "req":
+        if status in {"captured", "exploring"}:
+            return f"`/req-generate {issue_id}`"
+        if status in {"draft", "enriching"}:
+            return f"`/req-complete {issue_id}`"
+        if status == "pending_review":
+            return f"`/req-review {issue_id}`"
+        if status == "approved":
+            return f"`/sprint-propose --req {issue_id}`"
+        if status == "in_sprint":
+            if linked_change and "待 archive" in derived.note:
+                return f"`/opsx-archive {issue_id}`"
+            return f"`/opsx-apply {issue_id}`" if linked_change else f"`/req-opsx {issue_id}`"
+        return "无"
+    if status in {"captured", "exploring"}:
+        return f"`/bug-generate {issue_id}`"
+    if status in {"draft", "enriching"}:
+        return f"`/bug-complete {issue_id}`"
+    if status == "pending_review":
+        return f"`/bug-review {issue_id}`"
+    if status == "approved":
+        return f"`/sprint-propose --bug {issue_id}`"
+    if status == "in_sprint":
+        if linked_change and "待 archive" in derived.note:
+            return f"`/opsx-archive {issue_id}`"
+        return f"`/opsx-apply {issue_id}`" if linked_change else f"`/bug-opsx {issue_id}`"
+    return "无"
+
+
+def _issue_sprint(issue: IssueRecord, sprint: SprintRecord | None) -> str:
+    if not sprint:
+        return "无"
+    if issue.kind == "req" and issue.issue_id in sprint.requirements:
+        return sprint.sprint_id
+    if issue.kind == "bug" and issue.issue_id in sprint.bugs:
+        return sprint.sprint_id
+    return "无"
+
+
+def _issue_changelog_path(issue: IssueRecord) -> Path:
+    if issue.kind == "req":
+        return ROOT / "issues/requirements/CHANGELOG.md"
+    return ROOT / "issues/bugs/CHANGELOG.md"
+
+
+def _split_markdown_row(row: str) -> list[str]:
+    text = row.strip()
+    if text.startswith("|"):
+        text = text[1:]
+    if text.endswith("|"):
+        text = text[:-1]
+    return [part.strip() for part in text.split("|")]
+
+
+def _issue_changelog_row(
+    issue: IssueRecord,
+    derived: DerivedIssue,
+    sprint: SprintRecord | None,
+    updated_at: str | None = None,
+) -> str:
+    stage = _issue_stage(issue)
+    sprint_id = _issue_sprint(issue, sprint)
+    change_id = derived.linked_change or "无"
+    updated_at = updated_at or now_shanghai()
+    next_step = _issue_next_step(issue, derived)
+    source = str((issue.path / "trace.md").relative_to(ROOT))
+    if issue.kind == "req":
+        return (
+            f"| {_table_cell(issue.issue_id)} | {_table_cell(issue.title)} | {_table_cell(derived.display_status)} | "
+            f"{_table_cell(stage)} | {_table_cell(issue.priority)} | {_table_cell(sprint_id)} | {_table_cell(change_id)} | "
+            f"{updated_at} | {_table_cell(next_step)} | `{source}` |"
+        )
+    return (
+        f"| {_table_cell(issue.issue_id)} | {_table_cell(issue.title)} | {_table_cell(issue.priority)} | "
+        f"{_table_cell(derived.display_status)} | {_table_cell(stage)} | {_table_cell(sprint_id)} | {_table_cell(change_id)} | "
+        f"{updated_at} | {_table_cell(next_step)} | `{source}` |"
+    )
+
+
+def patch_issue_changelog_index(
+    issue: IssueRecord,
+    derived: DerivedIssue,
+    sprint: SprintRecord | None,
+    write: bool = True,
+) -> PatchResult:
+    changelog_path = _issue_changelog_path(issue)
+    if not changelog_path.exists():
+        return PatchResult(str(changelog_path.relative_to(ROOT)), False, "missing changelog")
+
+    text = read_text(changelog_path)
+    original = text
+    row_pattern = re.compile(rf"^\|\s*{re.escape(issue.issue_id)}\s*\|.*$", re.MULTILINE)
+    row_match = row_pattern.search(text)
+    if row_match:
+        current_row = row_match.group(0)
+        current_cells = _split_markdown_row(current_row)
+        current_updated_at = current_cells[7] if len(current_cells) >= 10 else None
+        candidate = _issue_changelog_row(issue, derived, sprint, updated_at=current_updated_at)
+        if _split_markdown_row(candidate) == current_cells:
+            row = candidate
+        else:
+            row = _issue_changelog_row(issue, derived, sprint)
+        text = row_pattern.sub(row, text, count=1)
+    else:
+        row = _issue_changelog_row(issue, derived, sprint)
+        table_header = re.search(r"^\|---\|---.*\|\s*$", text, re.MULTILINE)
+        if not table_header:
+            return PatchResult(str(changelog_path.relative_to(ROOT)), False, "missing changelog table")
+        insert_at = table_header.end()
+        text = text[:insert_at] + "\n" + row + text[insert_at:]
+
+    changed = persist_markdown(changelog_path, text, original, write)
+    return PatchResult(str(changelog_path.relative_to(ROOT)), changed, issue.issue_id)
+
+
 def _top_level_section_bounds(lines: list[str], key: str) -> tuple[int, int] | None:
     start: int | None = None
     for index, line in enumerate(lines):
@@ -758,6 +889,36 @@ def update_yaml_scalar(block: str, key: str, value: str) -> str:
     return block.rstrip() + f"\n{key}: {value}\n"
 
 
+def update_nested_yaml_scalar(block: str, parent: str, key: str, value: str) -> str:
+    lines = block.rstrip("\n").splitlines()
+    parent_index: int | None = None
+    for index, line in enumerate(lines):
+        if re.match(rf"^{re.escape(parent)}:\s*$", line):
+            parent_index = index
+            break
+    if parent_index is None:
+        lines.extend([f"{parent}:", f"  {key}: {value}"])
+        return "\n".join(lines) + "\n"
+
+    insert_at = parent_index + 1
+    child_index: int | None = None
+    while insert_at < len(lines):
+        line = lines[insert_at]
+        if line and not line.startswith(" "):
+            break
+        if re.match(rf"^\s+{re.escape(key)}:\s*", line):
+            child_index = insert_at
+            break
+        insert_at += 1
+
+    if child_index is not None:
+        indent = lines[child_index][: len(lines[child_index]) - len(lines[child_index].lstrip(" "))]
+        lines[child_index] = f"{indent}{key}: {value}"
+    else:
+        lines.insert(insert_at, f"  {key}: {value}")
+    return "\n".join(lines) + "\n"
+
+
 def update_openspec_changes_in_block(block: str, change_id: str, status: str) -> str:
     lines = block.splitlines()
     out: list[str] = []
@@ -878,6 +1039,7 @@ def patch_issue_trace(
     issue: IssueRecord,
     derived: DerivedIssue,
     change_status_map: dict[str, str],
+    sprint: SprintRecord | None = None,
     event: str | None = None,
     focus_change: str | None = None,
     write: bool = True,
@@ -904,6 +1066,13 @@ def patch_issue_trace(
     if frontmatter_match:
         block = frontmatter_match.group(1).rstrip("\n") + "\n"
         current_block = block
+        sprint_id = _issue_sprint(issue, sprint)
+        stage = _issue_stage(issue)
+        if sprint_id != "无":
+            block = update_yaml_scalar(block, "iteration", sprint_id)
+        block = update_yaml_scalar(block, "lifecycle_stage", stage)
+        if derived.linked_change:
+            block = update_yaml_scalar(block, "related_change", derived.linked_change)
         for change_id, status in change_status_map.items():
             block = update_openspec_changes_in_block(block, change_id, status)
         if not block.endswith("\n"):
@@ -916,6 +1085,17 @@ def patch_issue_trace(
         block = yaml_match.group(1).rstrip("\n") + "\n"
         current_block = block
         block = update_yaml_scalar(block, "status", derived.display_status)
+        stage = _issue_stage(issue)
+        frontmatter = parse_frontmatter(text)
+        sprint_id = frontmatter.get("iteration")
+        if sprint and _issue_sprint(issue, sprint) != "无":
+            sprint_id = sprint.sprint_id
+        if derived.display_status == "in_sprint" and sprint_id:
+            block = update_nested_yaml_scalar(block, "lifecycle", "iteration", sprint_id)
+        block = update_nested_yaml_scalar(block, "lifecycle", "status", derived.display_status)
+        block = update_nested_yaml_scalar(block, "lifecycle", "stage", stage)
+        if derived.linked_change:
+            block = update_nested_yaml_scalar(block, "lifecycle", "related_change", derived.linked_change)
         for change_id, status in change_status_map.items():
             block = update_openspec_changes_in_block(block, change_id, status)
         if not block.endswith("\n"):
@@ -957,20 +1137,41 @@ def patch_issue_trace(
 
 def patch_registry_entry(
     registry_path: Path,
-    issue_id: str,
-    display_status: str,
+    issue: IssueRecord,
+    derived: DerivedIssue,
+    sprint: SprintRecord | None,
     write: bool = True,
 ) -> PatchResult:
     if not registry_path.exists():
         return PatchResult(str(registry_path.relative_to(ROOT)), False, "missing registry")
     text = read_text(registry_path)
     original = text
-    pattern = re.compile(
-        rf"(?m)^(\s*- id:\s*{re.escape(issue_id)}\s*\n(?:.*\n)*?\s*status:\s*).+$"
+    issue_id = issue.issue_id
+    entry_pattern = re.compile(
+        rf"(?ms)^(\s*- id:\s*{re.escape(issue_id)}\s*\n.*?)(?=^\s*- id:\s|\Z)"
     )
-    if not pattern.search(text):
+    match = entry_pattern.search(text)
+    if not match:
         return PatchResult(str(registry_path.relative_to(ROOT)), False, "entry not found")
-    text = pattern.sub(rf"\1{display_status}", text, count=1)
+    entry = match.group(1)
+
+    def replace_entry_scalar(entry_text: str, key: str, value: str) -> str:
+        scalar_pattern = re.compile(rf"^(\s+{re.escape(key)}:\s*).*$", re.MULTILINE)
+        if scalar_pattern.search(entry_text):
+            return scalar_pattern.sub(rf"\1{value}", entry_text, count=1)
+        return entry_text.rstrip() + f"\n    {key}: {value}\n"
+
+    stage = _issue_stage(issue)
+    sprint_id = _issue_sprint(issue, sprint)
+    path = str(issue.path.relative_to(ROOT)).rstrip("/") + "/"
+    entry = replace_entry_scalar(entry, "status", derived.display_status)
+    entry = replace_entry_scalar(entry, "lifecycle_stage", stage)
+    entry = replace_entry_scalar(entry, "path", path)
+    entry = replace_entry_scalar(entry, "iteration", "null" if sprint_id == "无" else sprint_id)
+    if derived.linked_change:
+        entry = replace_entry_scalar(entry, "related_change", derived.linked_change)
+
+    text = text[: match.start(1)] + entry + text[match.end(1) :]
     changed = text != original
     if changed and write:
         registry_path.write_text(text, encoding="utf-8")

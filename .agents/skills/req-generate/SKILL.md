@@ -76,11 +76,17 @@ parent_requirement:
 
 成功生成 `requirement.md` 后，MUST 在 `issues/requirements/CHANGELOG.md` 更新对应 REQ 当前态行。普通文案润色、格式调整或错别字修复 MAY 不更新。
 
+`req.generate` 的 CHANGELOG 刷新 MUST 通过 Workflow Sync 派生完成；命令结束前必须确认 `python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --sprint auto` 报告中 `issues/requirements/CHANGELOG.md` 对目标 REQ 为 `Updated` 或明确 `Skipped (no delta)`。不得只手工修改 `requirement.md` / `trace.md` 后跳过当前态看板刷新。
+
 ## Output Contract（MUST）
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
 
 ## Final Step — Workflow Sync (MUST)
 
@@ -91,5 +97,6 @@ python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --spr
 ```
 
 - Exit code **MUST** be `0` before ending this command.
+- 报告中 MUST 覆盖 `issues/requirements/CHANGELOG.md` 对应 REQ 行；若缺失该文件更新或 no-delta 记录，视为派生刷新未覆盖，必须修复 Workflow Sync 后重跑。
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).

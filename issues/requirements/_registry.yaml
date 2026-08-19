@@ -1,7 +1,52 @@
 # REQ 序号注册表（/capture 与 /req-capture 维护）
 # entries 仅作为索引，不替代各 REQ 目录内的 capture.md、requirement.md、acceptance.md、trace.md。
-next_id: 18
+next_id: 23
 entries:
+  - id: REQ-0022-local-project-import-product-iteration
+    title: 本地存量项目导入 MoonBox 并支持产品内迭代闭环
+    status: captured
+    type: feature
+    priority: P1
+    lifecycle_stage: plan
+    path: issues/requirements/plan/REQ-0022-local-project-import-product-iteration/
+    created: "2026-08-19 15:24:24"
+    requester: product
+    owner: product
+    target_iteration: null
+    related_changes: []
+    parent_requirement: null
+    iteration: null
+  - id: REQ-0021-markdown-editor-vditor-enhancement
+    title: Markdown 文档 Vditor 增强编辑器
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0021-markdown-editor-vditor-enhancement/
+    created: "2026-08-19 11:30:07"
+    requester: product
+    owner: product
+    target_iteration: null
+    related_changes:
+      - update-markdown-editor-vditor-enhancement
+    parent_requirement: REQ-0020-requirement-center-card-document-actions-ai-chat
+    iteration: sprint-003
+    related_change: update-markdown-editor-vditor-enhancement
+  - id: REQ-0020-requirement-center-card-document-actions-ai-chat
+    title: 需求中心卡片文档查看、动作流转与 AI 聊天增强
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0020-requirement-center-card-document-actions-ai-chat/
+    created: "2026-08-18 09:34:10"
+    requester: product
+    owner: product
+    target_iteration: null
+    related_changes: []
+    parent_requirement: REQ-0012-frontend-requirement-center
+    iteration: sprint-003
+    related_change: update-requirement-center-card-document-actions-ai-chat
   - id: REQ-0001-homepage
     title: 首页功能
     status: done
@@ -78,7 +123,8 @@ entries:
     requester: product
     owner: product
     target_iteration: sprint-001
-    related_changes: []
+    related_changes:
+      - add-space-creation-join-application-flow
   - id: REQ-0007-admin-user-first-login-activation
     title: 后台用户首次登录激活与冻结前状态恢复
     status: done
@@ -211,13 +257,43 @@ entries:
     status: done
     type: feature
     priority: P1
-    lifecycle_stage: review
-    path: issues/requirements/review/REQ-0017-admin-space-management/
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0017-admin-space-management/
     created: "2026-08-12 10:01:05"
     requester: product
     owner: product
     target_iteration: sprint-002
+    related_changes:
+      - add-admin-space-management
+  - id: REQ-0018-frontend-space-switcher-real-data
+    title: 前台空间切换列表真实数据接入
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0018-frontend-space-switcher-real-data/
+    created: "2026-08-15 10:19:49"
+    requester: product
+    owner: product
+    target_iteration: sprint-003
     related_changes: []
+    iteration: sprint-003
+    related_change: update-frontend-space-switcher-real-data
+  - id: REQ-0019-space-creation-join-application-flow
+    title: 空间创建与加入申请流程
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0019-space-creation-join-application-flow/
+    created: "2026-08-15 10:19:49"
+    requester: product
+    owner: product
+    target_iteration: sprint-003
+    related_changes:
+      - add-space-creation-join-application-flow
+    iteration: sprint-003
+    related_change: add-space-creation-join-application-flow
 
 # entry 推荐字段：
 # - id: REQ-0001-example

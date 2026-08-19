@@ -75,6 +75,10 @@ Use this skill when the user asks to run the migrated source command `capture`.
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Step — Workflow Sync (MUST)
 
 Read `.agents/skills/workflow-sync/SKILL.md`.对每条创建的 REQ / BUG：

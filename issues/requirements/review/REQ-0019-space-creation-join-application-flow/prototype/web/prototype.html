@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoonBox 创建空间原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050814;
+      --panel: #12142b;
+      --panel-2: #171932;
+      --field: #0e1023;
+      --line: #30365d;
+      --text: #f2f4ff;
+      --muted: #a5abc8;
+      --gold: #e8bb44;
+      --green: #5b855e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    #app-shell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    #space-modal {
+      width: min(780px, calc(100vw - 48px));
+      min-height: 720px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.36);
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px 32px 20px;
+      border-bottom: 1px solid #252a4a;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .close {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    main {
+      padding: 24px 32px 28px;
+    }
+
+    .hint {
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      border: 1px solid #2b3468;
+      border-radius: 9px;
+      background: #11142c;
+      color: #c4cae4;
+      font-size: 13px;
+    }
+
+    #create-view {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--field);
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .owner-card {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #262840;
+    }
+
+    .owner-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--green);
+      font-weight: 800;
+    }
+
+    .section-title {
+      grid-column: 1 / -1;
+      padding-top: 2px;
+      border-top: 1px solid #2a2f4f;
+      font-weight: 800;
+    }
+
+    .unit-field {
+      position: relative;
+    }
+
+    .unit-field span {
+      position: absolute;
+      right: 14px;
+      bottom: 11px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .periods {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .period {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 14px;
+      background: var(--field);
+      color: #d9ddf2;
+      font-size: 14px;
+    }
+
+    footer {
+      min-height: 244px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      gap: 12px;
+      padding-top: 24px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 22px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+    }
+
+    .primary {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: #14110a;
+      font-weight: 800;
+    }
+
+    #success-view {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid #375b4a;
+      border-radius: 8px;
+      background: #14251f;
+    }
+
+    @media (max-width: 720px) {
+      #space-modal {
+        min-height: auto;
+      }
+
+      header,
+      main {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      #create-view {
+        grid-template-columns: 1fr;
+      }
+
+      .periods {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app-shell">
+    <section id="space-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header>
+        <div>
+          <h1 id="modal-title">创建空间</h1>
+          <p>每个空间对应一个产品，成员与数据相互隔离；提交后进入平台管理员审批，通过后系统会创建空间并分配你为负责人。</p>
+        </div>
+        <button class="close" type="button" aria-label="关闭">x</button>
+      </header>
+
+      <main>
+        <form id="create-view" aria-label="创建空间">
+          <div class="field">
+            <label for="space-name">空间名称</label>
+            <input id="space-name" placeholder="例如：MoonBox 产品研发">
+          </div>
+
+          <div class="field">
+            <label for="space-code">空间标识</label>
+            <input id="space-code" value="moonbox-product">
+          </div>
+
+          <div class="field full">
+            <label for="space-desc">空间说明</label>
+            <textarea id="space-desc" placeholder="简要说明这个空间对应的产品与协作目标"></textarea>
+          </div>
+
+          <div class="section-title">空间配额</div>
+          <div class="field unit-field">
+            <label for="member-limit">成员上限</label>
+            <input id="member-limit" value="20" inputmode="numeric">
+            <span>人</span>
+          </div>
+
+          <div class="field unit-field">
+            <label for="storage-limit">存储空间上限</label>
+            <input id="storage-limit" value="100" inputmode="numeric">
+            <span>GB</span>
+          </div>
+
+          <div class="field">
+            <label for="ai-limit">AI Tokens</label>
+            <input id="ai-limit" value="1000000" inputmode="numeric">
+          </div>
+
+          <div class="field">
+            <label>有效期</label>
+            <div class="periods">
+              <div class="period"><input type="radio">长期有效</div>
+              <div class="period"><input type="radio" checked>固定日期</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="expiry-time">到期时间</label>
+            <input id="expiry-time" value="2026-09-30 23:59:59">
+          </div>
+        </form>
+
+        <section id="success-view" aria-label="创建成功">
+          <strong>MoonBox 产品研发 申请已提交</strong>
+          <p>空间标识：moonbox-product，待平台管理员审批后才可使用。</p>
+        </section>
+
+        <footer>
+          <button type="button">取消</button>
+          <button class="primary" type="button">创建空间</button>
+        </footer>
+      </main>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { Check, Copy, Eye, EyeOff, X } from "lucide-react";
+import { Check, CheckCircle2, CircleDashed, Copy, Eye, EyeOff, ShieldCheck, Snowflake, Trash2, UserRound, X } from "lucide-react";
 import { AdminCrudListTemplate, AdminModalBackdrop } from "./AdminCrudListTemplate";
 import { AdminSelect } from "./AdminSelect";
 import { AdminSession, changeAdminPassword, logoutAdmin, readAdminSession, saveAdminSession, updateAdminProfile } from "./adminAuth";
@@ -88,6 +88,54 @@ async function requestAdminApi<T>(path: string, init: RequestInit = {}, fallback
 
 const hasLegacyAvatarUrl = (avatarUrl: string | null | undefined) =>
   Boolean(avatarUrl?.startsWith("/api/v1/admin/users/avatar/"));
+
+const padDatePart = (value: number) => String(value).padStart(2, "0");
+
+function formatAdminDateTime(value: string | null | undefined) {
+  if (!value) return "—";
+  const matched = value.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})/);
+  if (matched) return `${matched[1]} ${matched[2]}`;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return [
+    `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`,
+    `${padDatePart(date.getHours())}:${padDatePart(date.getMinutes())}:${padDatePart(date.getSeconds())}`,
+  ].join(" ");
+}
+
+const roleMeta: Record<Role, { className: string; icon: typeof ShieldCheck }> = {
+  后台管理员: { className: "admin-role-admin", icon: ShieldCheck },
+  前台用户: { className: "admin-role-user", icon: UserRound },
+};
+
+function AdminRoleTag({ role }: { role: Role }) {
+  const meta = roleMeta[role];
+  const Icon = meta.icon;
+  return (
+    <span className={`admin-role-tag ${meta.className}`} data-testid="admin-user-role-tag">
+      <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
+      {role}
+    </span>
+  );
+}
+
+const statusMeta: Record<UserStatus, { className: string; icon: typeof CheckCircle2 }> = {
+  待激活: { className: "admin-status-pending", icon: CircleDashed },
+  正常: { className: "admin-status-active", icon: CheckCircle2 },
+  已冻结: { className: "admin-status-frozen", icon: Snowflake },
+  已删除: { className: "admin-status-deleted", icon: Trash2 },
+};
+
+function AdminStatusBadge({ status }: { status: UserStatus }) {
+  const meta = statusMeta[status];
+  const Icon = meta.icon;
+  return (
+    <span className={`admin-status ${meta.className}`} data-testid="admin-user-status-badge">
+      <Icon size={14} strokeWidth={1.8} aria-hidden="true" />
+      {status}
+    </span>
+  );
+}
 
 type CurrentUserResponse = {
   user: AdminSession["user"];
@@ -290,6 +338,7 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
     { key: "status_before_freeze", label: "冻结前状态" },
     { key: "last_login", label: "最近登录时间" },
     { key: "created", label: "创建时间" },
+    { key: "updated", label: "更新时间" },
     { key: "actions", label: "操作" },
   ];
 
@@ -395,6 +444,7 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
             <col className="admin-col-before-freeze" />
             <col className="admin-col-login" />
             <col className="admin-col-created" />
+            <col className="admin-col-updated" />
             <col className="admin-col-actions" />
           </colgroup>
         }
@@ -437,11 +487,12 @@ export function AdminUserManagementPage({ session, onLogout }: { session?: Admin
                     </div>
                   </td>
                   <td>{user.workspace_count}</td>
-                  <td>{user.role}</td>
-                  <td><span className={`admin-status ${user.status}`} data-testid="admin-user-status-badge">{user.status}</span></td>
+                  <td><AdminRoleTag role={user.role} /></td>
+                  <td><AdminStatusBadge status={user.status} /></td>
                   <td data-testid="admin-user-status-before-freeze">{user.status === "已冻结" ? restoreTargetLabel(user) : "—"}</td>
-                  <td className="admin-date-cell">{user.last_login_at || "—"}</td>
-                  <td className="admin-date-cell">{user.created_at}</td>
+                  <td className="admin-date-cell">{formatAdminDateTime(user.last_login_at)}</td>
+                  <td className="admin-date-cell">{formatAdminDateTime(user.created_at)}</td>
+                  <td className="admin-date-cell">{formatAdminDateTime(user.updated_at)}</td>
                   <td>
 	                    {isProtectedUser ? (
 	                      <span className="admin-protected">不可操作</span>

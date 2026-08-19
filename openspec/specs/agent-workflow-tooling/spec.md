@@ -179,6 +179,23 @@ MoonBox SHALL 在 `issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.
 - **AND** 当前态行 SHALL 包含 BUG、标题、严重等级、当前状态、阶段、关联 Sprint、关联 Change、最近更新时间、下一步和事实源
 - **AND** 系统 SHALL NOT 在该索引中复制复现日志原文、截图个人信息、未脱敏日志、真实客户数据、密钥、本机绝对路径、系统用户名或用户主目录
 
+#### Scenario: sprint.propose 刷新 BUG 当前态行
+
+- **GIVEN** BUG 已评审通过并位于 `issues/bugs/review/<BUG-full-id>/`
+- **AND** `/sprint-propose --bug <BUG-full-id>` 已将该 BUG 写入 `iterations/change/<sprint-id>/sprint.yaml`
+- **WHEN** Workflow Sync 执行 `sprint.propose` 且聚焦该 BUG
+- **THEN** Workflow Sync SHALL patch `issues/bugs/CHANGELOG.md` 对应 BUG 行
+- **AND** 报告 SHALL 在 Updated 或 Skipped 列表中包含 `issues/bugs/CHANGELOG.md`
+- **AND** 当前态行 SHALL 显示 `in_sprint`、`review`、`<sprint-id>`、关联 Change 或“无”、下一步 `/bug-opsx <BUG-full-id>` 或后续可执行命令
+
+#### Scenario: sprint.propose 同步 BUG trace 与 registry
+
+- **GIVEN** BUG 已被写入 `iterations/change/<sprint-id>/sprint.yaml`
+- **WHEN** Workflow Sync 执行 `sprint.propose` 且聚焦该 BUG
+- **THEN** BUG `trace.md` frontmatter SHALL 同步 `status: in_sprint` 与 `iteration: <sprint-id>`
+- **AND** BUG `trace.md` fenced yaml SHALL 同步 `status: in_sprint`、`lifecycle.status: in_sprint`、`lifecycle.stage: review` 和 `lifecycle.iteration: <sprint-id>`
+- **AND** `issues/bugs/_registry.yaml` SHALL 同步该 BUG 的 `status`、`iteration`、`lifecycle_stage` 和真实阶段目录 `path`
+
 #### Scenario: 事实判断继续读取权威来源
 
 - **WHEN** Agent、脚本或人工评审需要确认单条 Issue 的真实状态、验收、Sprint、Change 或归档闭环
@@ -234,4 +251,112 @@ Agent 命令在需要用户选择、确认、补充信息或处理阻塞时，MU
 - **THEN** `/spec-study` MUST 在候选学习内容中标注漂移风险
 - **AND** MUST 以当前真实资产和正式规格作为最终事实依据
 - **AND** SHOULD 将日志内容作为历史背景或设计意图参考
+
+### Requirement: 证据化根因分析治理
+MoonBox SHALL 在问题探索、BUG 完善、验收返修和 BUG 来源 OpenSpec 实现前执行证据化根因分析门禁。系统 SHALL 区分 `unknown`、`hypothesis`、`probable` 和 `confirmed` 根因状态；只有存在可复核证据链时，才能将根因标记为 `confirmed`。
+
+#### Scenario: 探索阶段不得猜测定根因
+- **WHEN** `/explore` 或 `/bug-explore` 面对问题、异常、效果不如预期或疑似 BUG
+- **AND** 当前证据不足以支撑根因
+- **THEN** 系统 SHALL 将根因标记为 `unknown`、`hypothesis` 或 `probable`
+- **AND** 系统 SHALL NOT 输出已确认根因
+- **AND** 系统 SHALL 输出人工补证清单、操作步骤、返回字段、脱敏要求和返回格式
+
+#### Scenario: 人工补证后再确认根因
+- **WHEN** 用户按补证步骤返回日志、截图、Network、Console、测试失败、数据库样本、配置差异或其他证据
+- **THEN** 系统 SHALL 先复核证据是否能支撑根因
+- **AND** 证据充分时 SHALL 将根因状态提升为 `confirmed`
+- **AND** 证据仍不足时 SHALL 继续输出剩余证据缺口和下一轮补证步骤
+
+#### Scenario: BUG 完善要求 confirmed evidence
+- **WHEN** `/bug-complete <BUG-full-id>` 生成或更新 `root-cause.md`
+- **THEN** `root-cause.md` SHALL 包含根因状态、现象、证据链、已排除假设、已确认根因、修复方向和验证闭环
+- **AND** 若根因状态不是 `confirmed` 或缺少证据链，系统 SHALL NOT 将 BUG 推进到 `pending_review`
+
+#### Scenario: BUG 来源实现前校验证据链
+- **WHEN** `/opsx-apply <BUG-full-id>` 准备实现 BUG 来源 Change
+- **THEN** 系统 SHALL 运行或等价执行 `scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`
+- **AND** 校验失败时 SHALL 阻断实现并提示先补证或重新执行 `/bug-complete`
+
+#### Scenario: 验收返修先记录偏差证据
+- **WHEN** `/opsx-modify` 处理验收失败、效果不如预期、UI 不一致或运行异常
+- **THEN** 系统 SHALL 先记录偏差证据、期望/实际、影响范围和复现条件
+- **AND** 若证据不足，系统 SHALL 输出人工补证操作步骤
+- **AND** 系统 SHALL NOT 在缺少证据时把修复方向描述为已确认根因
+
+### Requirement: 命令执行复盘 Hook Skill 覆盖
+
+所有 `.agents/skills/` 命令 Skill MUST 保留 Command Execution Review Hook 短引用，指向 `.agents/skills/workflow-sync/SKILL.md` 中央契约，并显式包含「执行链路复盘」「链路状态」「问题证据」「规范优化建议」和「未自动创建 Issue/Change」。
+
+#### Scenario: 命令 Skill 包含短引用
+
+- **GIVEN** 一个 `.agents/skills/<command>/SKILL.md`
+- **WHEN** 该文件描述命令最终输出契约
+- **THEN** 它 MUST 包含 Command Execution Review Hook 短引用
+- **AND** 短引用 MUST 指向 `.agents/skills/workflow-sync/SKILL.md`
+
+#### Scenario: 校验脚本发现漏引用
+
+- **GIVEN** 一个命令 Skill 缺少 Command Execution Review Hook 短引用
+- **WHEN** 运行 `python scripts/validate-agent-context-budget.py`
+- **THEN** 校验 MUST 失败
+- **AND** 输出缺失短引用的文件路径与缺失字段
+
+### Requirement: req.generate 当前态看板派生刷新
+
+Workflow Sync MUST 在 `req.generate --req <REQ-full-id>` 成功同步时刷新 `issues/requirements/CHANGELOG.md` 对应 REQ 当前态行。
+
+#### Scenario: req.generate 刷新需求 CHANGELOG
+
+- **GIVEN** 一个已存在的 REQ 文档包
+- **AND** `requirement.md` 与 `trace.md` 已进入 `draft`
+- **WHEN** 运行 `python scripts/sync-workflow-status.py --event req.generate --req <REQ-full-id> --sprint auto`
+- **THEN** Workflow Sync MUST patch `issues/requirements/CHANGELOG.md` 对应 REQ 行
+- **AND** 当前状态 MUST 来自 Issue trace / derived issue status
+- **AND** 下一步 SHOULD 为 `/req-complete <REQ-full-id>`
+
+#### Scenario: req.generate dry-run 暴露派生覆盖
+
+- **GIVEN** 目标 REQ 当前态看板行需要刷新
+- **WHEN** 运行 `python scripts/sync-workflow-status.py --event req.generate --req <REQ-full-id> --sprint auto --dry-run --output detail`
+- **THEN** 报告 MUST 在 Updated 或 Skipped 列表中包含 `issues/requirements/CHANGELOG.md`
+
+### Requirement: 命令执行复盘 Hook
+MoonBox SHALL 在 workflow 命令完成后输出轻量命令执行复盘，反馈本次链路状态、问题证据和规范优化建议。该 Hook SHALL NOT 自动创建 follow-up REQ、BUG 或 Change，除非用户明确授权。
+
+#### Scenario: 成功命令输出轻量复盘
+- **WHEN** workflow 命令完成且所有关键门禁通过
+- **THEN** 系统 SHALL 输出 `执行链路复盘`
+- **AND** 复盘 SHALL 包含链路状态、问题证据和规范优化建议
+- **AND** 若未发现问题，系统 SHALL 输出“无明显优化点”或等价简短结论
+
+#### Scenario: Warning 或 blocker 必须引用证据
+- **WHEN** 命令执行中出现 warning、blocker、脚本失败、文档漂移、门禁阻断或执行链路不顺
+- **THEN** 系统 SHALL 在复盘中引用脚本输出、文件路径、校验报告、日志摘要或用户提供证据
+- **AND** 系统 SHALL NOT 在没有证据时猜测流程根因
+
+#### Scenario: Follow-up 只输出建议不自动创建
+- **WHEN** 复盘发现可沉淀的规范优化、缺陷或需求线索
+- **THEN** 系统 SHALL 输出建议命令，例如 `/spec-opt`、`/bug-capture`、`/req-capture` 或 `/capture`
+- **AND** 系统 SHALL 明确未自动创建 follow-up Issue 或 Change
+- **AND** 只有用户明确授权时，系统才 MAY 进入对应创建流程
+
+### Requirement: opsx-modify REQ 子文档一致性扫尾检查
+
+MoonBox MUST 在 REQ 来源的 `/opsx-modify` 完成前执行 REQ 子文档一致性扫尾检查，避免只更新 PRD 或单一验收文档而遗漏业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 等事实源。该检查 MUST 按 linked REQ 目录中实际存在的子文档和原型资产逐项判断是否需要同步；无需更新时 MUST 记录理由。
+
+#### Scenario: REQ 来源返修完成前扫尾
+
+- **GIVEN** `/opsx-modify` 目标 Change 来源于完整 `REQ-xxxx-slug`
+- **WHEN** 返修实现、Change 文档和验证证据准备进入最终同步
+- **THEN** 系统 MUST 定位 linked REQ 目录并检查现有 `requirement.md`、业务流程文档、用户故事文档、`acceptance.md`、`trace.md` 和 `prototype/**`
+- **AND** 若返修改变产品行为、UI/交互、验收口径、Mock/API 边界、原型意图或用户故事，系统 MUST 同步更新受影响 REQ 子文档或原型说明
+- **AND** 若某项无需更新，系统 MUST 在 Change `tasks.md` 验收返修记录或 Change `trace.md` 中记录无需更新的项目与原因
+
+#### Scenario: 子文档漂移阻断返修完成
+
+- **GIVEN** REQ 子文档一致性扫尾检查发现业务流程、用户故事或 `prototype/**` 与返修后行为不一致
+- **WHEN** 该差异仍属于当前 Change 边界
+- **THEN** 系统 MUST 先回填对应 REQ 子文档后再完成 `/opsx-modify`
+- **AND** 若差异扩大当前 Change 边界，系统 MUST 阻断 `/opsx-modify` 完成并建议新建 REQ、BUG 或 OpenSpec Change
 

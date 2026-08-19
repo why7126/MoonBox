@@ -76,6 +76,10 @@ python scripts/git-check.py --all
 - 不读取或输出 ignore 且未 staged/tracked 的真实 `.env` 内容。
 - 不新增 `.claude/`、`.codex/`、`.cursor/`、`.kiro/`、`.opencode/`。
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Output Contract（MUST）
 
 命令结束前，最终回复 MUST 明确包含：

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 // @ts-expect-error Vitest runs this assertion in Node, while the web tsconfig intentionally omits Node globals.
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -94,6 +94,8 @@ const contextFixture = {
       timezone: "Asia/Shanghai",
       member_count: 12,
       role: "拥有者",
+      status: "ACTIVE",
+      readonly: false,
     },
     {
       organization_name: "MoonBox Lab",
@@ -104,6 +106,8 @@ const contextFixture = {
       timezone: "Asia/Shanghai",
       member_count: 5,
       role: "编辑者",
+      status: "FROZEN",
+      readonly: true,
     },
   ],
   current_user: {
@@ -207,7 +211,7 @@ describe("RequirementCenterPage", () => {
       expect(screen.getByRole("button", { name: item })).toBeTruthy();
     });
     expect(screen.getByRole("button", { name: "需求中心" }).getAttribute("aria-current")).toBe("page");
-    ["采集池", "规划中", "待评审", "已通过", "迭代规划", "待开发", "研发中", "验收中", "已完成"].forEach((stage) => {
+    ["采集池", "规划中", "待评审", "已评审", "迭代规划", "待开发", "研发中", "验收中", "已完成"].forEach((stage) => {
       expect(screen.getByRole("heading", { name: stage })).toBeTruthy();
     });
     expect(screen.queryByText("按住 Shift 横向滚动 · 共 9 个阶段")).toBeNull();
@@ -281,14 +285,297 @@ describe("RequirementCenterPage", () => {
     expect(screen.getByText("REQ-0006")).toBeTruthy();
   });
 
+  it("hides historical sprint labels and sprint filter options before sprint planning", async () => {
+    const earlySprintContext = {
+      ...contextFixture,
+      issues: [
+        {
+          id: "REQ-0100",
+          type: "requirement",
+          title: "已评审但未入迭代",
+          priority: "P1",
+          owner: "产品团队",
+          source: "review",
+          stage: "approved",
+          documents: ["review.md", "trace.md"],
+          updated_at: "10:30",
+          sprint_id: "sprint-099",
+        },
+        {
+          id: "REQ-0101",
+          type: "requirement",
+          title: "已入迭代",
+          priority: "P1",
+          owner: "产品团队",
+          source: "review",
+          stage: "sprint-planning",
+          documents: ["sprint.md", "trace.md"],
+          updated_at: "10:31",
+          sprint_id: "sprint-003",
+        },
+      ],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: earlySprintContext }),
+        }),
+      ),
+    );
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0100");
+
+    const earlyCard = document.querySelector('[data-issue-id="REQ-0100"]');
+    const sprintCard = document.querySelector('[data-issue-id="REQ-0101"]');
+    expect(earlyCard?.querySelector(".rc-sprint-tag")).toBeNull();
+    expect(sprintCard?.querySelector(".rc-sprint-tag")?.textContent).toBe("sprint-003");
+    expect(screen.queryByRole("option", { name: "sprint-099" })).toBeNull();
+    expect(screen.getByRole("option", { name: "sprint-003" })).toBeTruthy();
+  });
+
+  it("filters card documents by stage and keeps capture exploration actions lightweight", async () => {
+    const fixture = {
+      ...contextFixture,
+      issues: [
+        {
+          id: "REQ-0199",
+          type: "requirement",
+          title: "采集池历史文档过滤",
+          priority: "P1",
+          owner: "产品团队",
+          source: "capture",
+          stage: "capture",
+          documents: ["acceptance.md", "business-flow.md", "capture.md", "requirement.md", "review.md", "trace.md", "user-stories.md"],
+          document_entries: [
+            { name: "acceptance.md", type: "markdown", open_mode: "drawer", label: "acceptance.md" },
+            { name: "business-flow.md", type: "markdown", open_mode: "drawer", label: "business-flow.md" },
+            { name: "capture.md", type: "markdown", open_mode: "drawer", label: "capture.md" },
+            { name: "requirement.md", type: "markdown", open_mode: "drawer", label: "requirement.md" },
+            { name: "review.md", type: "markdown", open_mode: "drawer", label: "review.md" },
+            { name: "trace.md", type: "markdown", open_mode: "drawer", label: "trace.md" },
+            { name: "user-stories.md", type: "markdown", open_mode: "drawer", label: "user-stories.md" },
+          ],
+          task_progress: [18, 18],
+          updated_at: "20:14",
+        },
+        {
+          id: "BUG-0199",
+          type: "bug",
+          title: "采集池 Bug 探索入口",
+          priority: "P1",
+          owner: "平台工程",
+          source: "capture",
+          stage: "capture",
+          documents: ["capture.md", "trace.md"],
+          updated_at: "20:16",
+        },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) }));
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0199");
+
+    const reqCard = document.querySelector('[data-issue-id="REQ-0199"]') as HTMLElement;
+    expect(within(reqCard).getByRole("button", { name: /capture.md/ })).toBeTruthy();
+    expect(within(reqCard).getByRole("button", { name: /trace.md/ })).toBeTruthy();
+    expect(within(reqCard).queryByRole("button", { name: /acceptance.md/ })).toBeNull();
+    expect(within(reqCard).queryByRole("button", { name: /requirement.md/ })).toBeNull();
+    expect(within(reqCard).queryByRole("button", { name: /研发 18\/18/ })).toBeNull();
+    expect(within(reqCard).getByRole("button", { name: "需求分析" }).getAttribute("title")).toBe("/req-explore REQ-0199");
+    expect(reqCard.querySelector(".rc-docs")?.textContent).toBe("capture.md trace.md");
+    expect(reqCard.querySelector(".rc-doc-separator")?.textContent).toBe(" ");
+    expect(reqCard.querySelector("footer .rc-card-actions")?.textContent).toContain("生成需求");
+    expect(reqCard.querySelector("footer .rc-card-actions")?.textContent).toContain("需求分析");
+    expect(reqCard.querySelector("footer .rc-card-actions button.primary")?.textContent).toContain("生成需求");
+    expect(reqCard.querySelector("footer .rc-card-actions button.secondary")?.textContent).toContain("需求分析");
+
+    const bugCard = document.querySelector('[data-issue-id="BUG-0199"]') as HTMLElement;
+    expect(within(bugCard).getByRole("button", { name: "Bug 分析" }).getAttribute("title")).toBe("/bug-explore BUG-0199");
+    fireEvent.click(within(reqCard).getByRole("button", { name: "需求分析" }));
+    expect(await screen.findByTestId("ai-chat-drawer")).toBeTruthy();
+    expect(await screen.findByText(/\/req-explore REQ-0199/)).toBeTruthy();
+  });
+
   it("keeps action gates for missing documents and acceptance archive entry", async () => {
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
 
     expect(screen.getByText(/缺失 acceptance.md/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "完成 / 归档 →" })).toBeNull();
-    expect(screen.getByRole("button", { name: "生成 Opsx →" }).getAttribute("title")).toBe("/req-opsx");
+    expect(screen.getByRole("button", { name: "生成 Opsx →" }).getAttribute("title")).toBe("/req-opsx REQ-0011");
     expect(screen.getAllByRole("button", { name: "开始开发 →" }).length).toBeGreaterThan(0);
+  });
+
+  it("creates a capture card with required title validation", async () => {
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+
+    fireEvent.click(screen.getByRole("button", { name: "新建 Capture" }));
+    const titleInput = screen.getByLabelText("Capture 标题") as HTMLInputElement;
+    await waitFor(() => expect(document.activeElement).toBe(titleInput));
+    expect(screen.queryByLabelText("Capture 类型", { selector: "select" })).toBeNull();
+    expect(within(screen.getByRole("group", { name: "Capture 类型" })).getByRole("button", { name: "Requirement" }).className).toContain("selected");
+    expect(within(screen.getByRole("group", { name: "Capture 优先级" })).getByRole("button", { name: "P2" }).className).toContain("selected");
+    fireEvent.click(screen.getByRole("button", { name: "创建" }));
+    expect(screen.getByRole("alert").textContent).toContain("标题不能为空");
+    expect(titleInput.getAttribute("aria-invalid")).toBe("true");
+    expect(titleInput.className).toContain("invalid");
+
+    fireEvent.change(titleInput, { target: { value: "新的采集需求" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建" }));
+
+    expect(screen.getByText("新的采集需求")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain("Capture 已创建");
+  });
+
+  it("opens markdown in a right drawer, html in a new tab and sends AI chat messages", async () => {
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+    const fixture = {
+      ...contextFixture,
+      issues: [
+        {
+          ...contextFixture.issues[0],
+          documents: ["proposal.md", "prototype.html", "tasks.md"],
+          document_entries: [
+            { name: "proposal.md", type: "markdown", open_mode: "drawer", label: "proposal.md", url: "/api/v1/requirement-center/issues/REQ-0012/documents/proposal.md" },
+            { name: "prototype.html", type: "html", open_mode: "new-tab", label: "prototype.html", url: "/api/v1/requirement-center/issues/REQ-0012/documents/prototype.html/preview" },
+          ],
+        },
+      ],
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# PRD\n正文" } }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByRole("button", { name: /proposal.md/ }));
+    expect(await screen.findByTestId("markdown-drawer")).toBeTruthy();
+    expect(screen.getByText(/# PRD/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+    fireEvent.click(screen.getByRole("button", { name: /prototype.html/ }));
+    expect(openSpy).toHaveBeenCalledWith("/api/v1/requirement-center/issues/REQ-0012/documents/prototype.html/preview", "_blank", "noopener,noreferrer");
+
+    fireEvent.click(screen.getByRole("button", { name: "打开 AI 聊天" }));
+    fireEvent.change(screen.getByLabelText("AI 消息"), { target: { value: "帮我总结下一步" } });
+    fireEvent.keyDown(screen.getByLabelText("AI 消息"), { key: "Enter" });
+    expect(screen.getByText("帮我总结下一步")).toBeTruthy();
+    expect(screen.getByText(/结合当前看板上下文/)).toBeTruthy();
+  });
+
+  it("edits only capture.md in capture stage and guards dirty markdown drawer close", async () => {
+    const fixture = {
+      ...contextFixture,
+      issues: [
+        {
+          id: "REQ-0199",
+          type: "requirement",
+          title: "采集池可编辑 Capture",
+          priority: "P1",
+          owner: "产品团队",
+          source: "capture",
+          stage: "capture",
+          documents: ["capture.md", "trace.md"],
+          document_entries: [
+            { name: "capture.md", type: "markdown", open_mode: "drawer", label: "capture.md", editable: true, url: "/api/v1/requirement-center/issues/REQ-0199-full/documents/capture.md" },
+            { name: "trace.md", type: "markdown", open_mode: "drawer", label: "trace.md", editable: false, url: "/api/v1/requirement-center/issues/REQ-0199-full/documents/trace.md" },
+          ],
+          updated_at: "12:35",
+        },
+      ],
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/context")) {
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
+      }
+      if (init?.method === "PUT") {
+        expect(url).toContain("/capture.md");
+        expect(init.body).toContain("更新后的 capture");
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# 更新后的 capture" } }) });
+      }
+      if (url.includes("trace.md")) {
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# trace read only" } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# old capture" } }) });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0199");
+    fireEvent.click(screen.getByRole("button", { name: /capture.md/ }));
+
+    expect(await screen.findByText("# old capture")).toBeTruthy();
+    expect(screen.getByText("预览 capture.md")).toBeTruthy();
+    expect(screen.queryByLabelText("编辑 capture.md")).toBeNull();
+    expect(screen.getByRole("button", { name: "编辑" })).toBeTruthy();
+    expect(document.querySelector(".rc-drawer-backdrop")).toBeTruthy();
+    expect(document.querySelector(".rc-drawer")?.getAttribute("style")).toContain("width: 520px");
+
+    fireEvent.mouseDown(screen.getByRole("button", { name: "调整右侧抽屉宽度" }), { clientX: 900 });
+    fireEvent.mouseMove(document, { clientX: 700 });
+    await waitFor(() => expect(document.querySelector(".rc-drawer")?.getAttribute("style")).toContain("720px"));
+
+    fireEvent.click(screen.getByRole("button", { name: "编辑" }));
+    const editor = await screen.findByLabelText("编辑 capture.md");
+    expect(screen.getByText("编辑 capture.md")).toBeTruthy();
+    expect(screen.getByTestId("vditor-editor-shell")).toBeTruthy();
+    expect(screen.getByRole("toolbar", { name: "Vditor Markdown 工具栏" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "插入表格" }));
+    expect((editor as HTMLTextAreaElement).value).toContain("| 列 1 | 列 2 |");
+    fireEvent.click(screen.getByRole("button", { name: "插入代码块" }));
+    expect((editor as HTMLTextAreaElement).value).toContain("```ts");
+    fireEvent.click(screen.getByRole("button", { name: "插入数学公式" }));
+    expect((editor as HTMLTextAreaElement).value).toContain("E = mc^2");
+    fireEvent.click(screen.getByRole("button", { name: "插入图片" }));
+    expect(screen.getByTestId("vditor-upload-state").textContent).toContain("暂不可用");
+    expect(screen.getByTestId("vditor-upload-state").textContent).toContain("文档图片上传接口暂未启用");
+    fireEvent.change(editor, { target: { value: "# 未保存 capture" } });
+    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉蒙层" }));
+    expect(confirmSpy).toHaveBeenCalledWith("capture.md 有未保存修改，确认关闭？");
+    expect(screen.getByLabelText("编辑 capture.md")).toBeTruthy();
+
+    fireEvent.change(editor, { target: { value: "# 更新后的 capture" } });
+    fireEvent.click(screen.getByRole("button", { name: /保存/ }));
+    expect(await screen.findByText("capture.md 已保存")).toBeTruthy();
+    expect(await screen.findByText("# 更新后的 capture")).toBeTruthy();
+    expect(screen.getByText("预览 capture.md")).toBeTruthy();
+    expect(screen.queryByLabelText("编辑 capture.md")).toBeNull();
+    expect(screen.getByRole("button", { name: "编辑" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+    fireEvent.click(screen.getByRole("button", { name: /trace.md/ }));
+    expect(await screen.findByText("# trace read only")).toBeTruthy();
+    expect(screen.getByText("只读文档")).toBeTruthy();
+    expect(screen.queryByLabelText("编辑 capture.md")).toBeNull();
+  });
+
+  it("opens tasks progress drawer and validates generation imports", async () => {
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+
+    fireEvent.click(screen.getAllByRole("button", { name: /研发 0\/36/ })[0]);
+    expect(screen.getByTestId("tasks-drawer")).toBeTruthy();
+    expect(screen.getByText("0/36")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+    fireEvent.click(screen.getByRole("button", { name: "新建 Capture" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Capture 类型" })).getByRole("button", { name: "Bug" }));
+    fireEvent.change(screen.getByLabelText("Capture 标题"), { target: { value: "导入校验 Bug" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建" }));
+    fireEvent.click(screen.getByRole("button", { name: "生成 Bug →" }));
+    const input = screen.getByLabelText("导入文件");
+    fireEvent.change(input, { target: { files: [new File(["bad"], "wrong.txt", { type: "text/plain" })] } });
+    expect(screen.getByRole("alert").textContent).toContain("仅允许");
   });
 
   it("supports sidebar collapse and user-menu theme switching without a standalone sidebar theme row", async () => {
@@ -361,10 +648,16 @@ describe("RequirementCenterPage", () => {
     expect(screen.getByText("拥有者 · 12 人")).toBeTruthy();
     expect(document.querySelector(".rc-user-menu")).toBeTruthy();
     expect(document.querySelector(".rc-space-popover")).toBeTruthy();
+    expect(screen.getByTestId("space-switcher-popover")).toBeTruthy();
     expect(document.querySelector(".rc-space-list button")).toBeTruthy();
+    expect(screen.getByTestId("space-option-moonbox-platform").getAttribute("data-current")).toBe("true");
+    expect(screen.getByTestId("space-option-moonbox-growth").getAttribute("data-readonly")).toBe("true");
+    expect(screen.getByTestId("space-frozen-badge").textContent).toBe("只读");
     const source = readFileSync("src/styles/globals.css", "utf8");
     expect(source).toContain(".rc-space-list button:hover");
     expect(source).toContain(".rc-space-list button.selected::before");
+    expect(source).toContain(".rc-space-state.error");
+    expect(source).toContain(".rc-space-status");
     expect(source).toContain("background: transparent;");
     expect(source).toContain("border: 0;");
     expect(source).toContain("background: var(--rc-hover-bg);");
@@ -386,6 +679,122 @@ describe("RequirementCenterPage", () => {
 
     expect(JSON.parse(window.localStorage.getItem("moonbox.workspace") || "{}").workspaceId).toBe("moonbox-growth");
     expect(screen.getByRole("status").textContent).toContain("已切换到 Growth Studio");
+    expect(screen.getByRole("button", { name: /许同学/ }).textContent).toContain("Growth Studio");
+  });
+
+  it("opens the create-space modal and submits a pending workspace application", async () => {
+    seedFrontendTokenSession();
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/api/v1/catalog/workspace-applications/create")) {
+        expect(init?.method).toBe("POST");
+        expect(init?.headers).toMatchObject({ authorization: "Bearer front-token" });
+        expect(init?.body).toContain("\"member_quota\":20");
+        expect(init?.body).toContain("\"storage_quota_gb\":100");
+        expect(init?.body).toContain("\"ai_quota_tokens\":1000000");
+        expect(init?.body).toContain("\"expiry_type\":\"fixed_date\"");
+        expect(init?.body).toContain("\"expires_at\"");
+        return Promise.resolve({
+          ok: true,
+          status: 201,
+          json: () => Promise.resolve({ data: { application: { id: "space_app_1", name: "MoonBox Product", code: "moonbox-product", status: "待审批" } } }),
+        });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: contextFixture }) });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByRole("button", { name: /许同学/ }));
+    fireEvent.mouseEnter(screen.getByRole("menuitem", { name: /切换空间/ }));
+    fireEvent.click(screen.getByTestId("space-create-or-join-entry"));
+
+    expect(screen.getByRole("dialog", { name: "创建空间" })).toBeTruthy();
+    expect(screen.queryByText("加入空间")).toBeNull();
+    expect(screen.getByText("每个空间对应一个产品，成员与数据相互隔离；提交后进入平台管理员审批，通过后系统会创建空间并分配你为负责人。")).toBeTruthy();
+    expect(screen.queryByText("创建空间申请提交后将进入平台管理员审批，审批通过后系统会创建空间并分配你为负责人。")).toBeNull();
+    expect(screen.getByLabelText("成员上限").getAttribute("max")).toBe("100000");
+    expect(screen.getByLabelText("存储空间").getAttribute("min")).toBe("0.01");
+    expect(screen.getByLabelText("AI Tokens").nextElementSibling).toBeNull();
+    expect(screen.getByLabelText("到期时间")).toBeTruthy();
+    expect((screen.getByLabelText("到期时间") as HTMLInputElement).value).toMatch(/\d{4}-\d{2}-\d{2} 23:59:59/);
+    const picker = screen.getByTestId("catalog-datetime-picker");
+    vi.spyOn(picker, "getBoundingClientRect").mockReturnValue({
+      x: 691,
+      y: 720,
+      top: 720,
+      left: 691,
+      right: 1040,
+      bottom: 760,
+      width: 349,
+      height: 40,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 900 });
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1440 });
+    fireEvent.click(screen.getByRole("button", { name: "选择到期时间" }));
+    const dateTimePanel = screen.getByRole("dialog", { name: "到期时间选择器" });
+    expect(dateTimePanel.getAttribute("data-placement")).toBe("top");
+    expect(Number((dateTimePanel as HTMLElement).style.top.replace("px", ""))).toBeLessThan(720);
+    expect(within(dateTimePanel).queryByRole("button", { name: "取消" })).toBeNull();
+    expect(within(dateTimePanel).queryByRole("button", { name: "确定" })).toBeNull();
+    const initialExpiryValue = (screen.getByLabelText("到期时间") as HTMLInputElement).value;
+    fireEvent.mouseDown(screen.getByLabelText("空间说明"));
+    expect(screen.queryByRole("dialog", { name: "到期时间选择器" })).toBeNull();
+    expect((screen.getByLabelText("到期时间") as HTMLInputElement).value).toBe(initialExpiryValue);
+    fireEvent.click(screen.getByRole("button", { name: "选择到期时间" }));
+    expect(screen.getByRole("dialog", { name: "到期时间选择器" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "选择到期时间" }));
+    expect(screen.queryByRole("dialog", { name: "到期时间选择器" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "选择到期时间" }));
+    const reopenedDateTimePanel = screen.getByRole("dialog", { name: "到期时间选择器" });
+    fireEvent.click(within(reopenedDateTimePanel).getByRole("button", { name: "本季度末" }));
+    expect(screen.queryByRole("dialog", { name: "到期时间选择器" })).toBeNull();
+    fireEvent.change(screen.getByLabelText("空间名称"), { target: { value: "MoonBox Product" } });
+    expect(screen.getByLabelText("空间标识").getAttribute("value")).toBe("moonbox-product");
+    fireEvent.change(screen.getByLabelText("空间说明"), { target: { value: "研发协作空间" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建空间" }));
+
+    await screen.findByText("MoonBox Product 申请已提交");
+    expect(screen.getByText(/待平台管理员审批后才可使用/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "知道了" })).toBeTruthy();
+  });
+
+  it("clears a stale recent workspace and falls back to the API selected workspace", async () => {
+    window.localStorage.setItem(
+      "moonbox.workspace",
+      JSON.stringify({ workspaceId: "removed-space", name: "Removed Space" }),
+    );
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+
+    expect(JSON.parse(window.localStorage.getItem("moonbox.workspace") || "{}").workspaceId).toBe("moonbox-platform");
+    expect(screen.getByRole("button", { name: /许同学/ }).textContent).toContain("Platform Operations");
+    expect(screen.queryByText("Removed Space")).toBeNull();
+  });
+
+  it("shows an empty space state without rendering stale mock workspaces", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: { ...contextFixture, workspaces: [], selected_workspace_id: "" } }),
+        }),
+      ),
+    );
+
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByRole("button", { name: /许同学/ }));
+    fireEvent.mouseEnter(screen.getByRole("menuitem", { name: /切换空间/ }));
+
+    expect(screen.getByTestId("space-empty-state").textContent).toBe("暂无空间");
+    expect(screen.queryByText("Platform Operations")).toBeNull();
+    expect(window.localStorage.getItem("moonbox.workspace")).toBeNull();
   });
 
   it("edits space settings, closes by escape and saves with a fixed toast", async () => {

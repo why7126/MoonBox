@@ -46,6 +46,26 @@ Rules:
 6. The hook MUST NOT persist prompt text, system/developer instructions, skill bodies, raw session JSONL, local absolute paths, tool output bodies, secrets, cookies, Authorization headers, or `.env` content.
 7. Exploration commands with no workflow state change MAY run the hook in `--dry-run` mode or output the same recommended action; they MUST NOT modify REQ/BUG/Change/Sprint status just to create usage data.
 
+## Command Execution Review Hook（MUST）
+
+After every workflow command finishes its main work, validation, Workflow Sync, and AI Usage hook when applicable, the final user-facing output MUST include a compact execution review:
+
+```text
+执行链路复盘：
+- 链路状态：正常 / warning / blocked
+- 问题证据：无 / <脚本输出、文件路径、校验报告、日志摘要或用户证据>
+- 规范优化建议：无明显优化点 / <建议命令或建议 capture 文案>
+- follow-up 状态：未自动创建 Issue/Change
+```
+
+Rules:
+
+1. 链路状态 MUST be derived from evidence, not guessing. Use `正常` only when required validations and workflow hooks passed or were explicitly not applicable. Use `warning` when non-blocking gaps, skipped optional hooks, stale evidence, or partial validation remain. Use `blocked` when a required gate fails or missing user evidence prevents root-cause or acceptance confirmation.
+2. 问题证据 MUST cite concrete evidence such as script exit summaries, focused file paths, validation reports, relevant log excerpts, screenshots, UI acceptance evidence, or user-supplied evidence. If no issue is observed, write `无`.
+3. 规范优化建议 MUST be based on the actual execution chain. If no reusable rule, script, template, or skill improvement is supported by evidence, write `无明显优化点`.
+4. The hook MUST NOT automatically create a follow-up REQ/BUG/Change. When a follow-up seems useful, output the suggested command or capture text and state `未自动创建 Issue/Change`. Continue only after explicit user authorization.
+5. Do not print full logs, full hook JSON, raw session input, local absolute paths, secrets, `.env` content, or broad tool output bodies on the success path.
+
 Session input discovery:
 
 - Prefer explicit `--session-jsonl <local-session.jsonl>` when available.

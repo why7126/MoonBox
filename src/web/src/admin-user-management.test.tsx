@@ -15,7 +15,7 @@ const users = [
     status: "正常",
     status_before_freeze: null,
     workspace_count: 0,
-    last_login_at: "2026-08-06 07:30:00",
+    last_login_at: "2026-08-06T07:30:00Z",
     is_system_superadmin: true,
     session_invalidated_at: null,
     created_at: "2026-07-01 00:00:00",
@@ -412,14 +412,19 @@ describe("AdminUserManagementPage", () => {
     await screen.findByText("superadmin");
 
     const headers = Array.from(container.querySelectorAll(".admin-account-table th")).map((item) => item.textContent);
-    expect(headers).toEqual(["用户", "空间数", "角色", "状态", "冻结前状态", "最近登录时间", "创建时间", "操作"]);
+    expect(headers).toEqual(["用户", "空间数", "角色", "状态", "冻结前状态", "最近登录时间", "创建时间", "更新时间", "操作"]);
     const firstRowCells = Array.from(container.querySelectorAll(".admin-account-table tbody tr:first-child td"));
-    expect(firstRowCells.map((item) => item.textContent)).toEqual(["平台superadmin系统内置平台超级管理员", "0", "后台管理员", "正常", "—", "2026-08-06 07:30:00", "2026-07-01 00:00:00", "不可操作"]);
+    expect(firstRowCells.map((item) => item.textContent)).toEqual(["平台superadmin系统内置平台超级管理员", "0", "后台管理员", "正常", "—", "2026-08-06 07:30:00", "2026-07-01 00:00:00", "2026-08-06 07:30:00", "不可操作"]);
     expect(firstRowCells[0]?.querySelector("strong")?.textContent).toBe("superadmin");
     expect(firstRowCells[0]?.querySelector(".admin-user-name-line")?.textContent).toBe("superadmin系统内置");
+    expect(firstRowCells[2]?.querySelector(".admin-role-tag svg")).toBeTruthy();
+    expect(firstRowCells[3]?.querySelector(".admin-status svg")).toBeTruthy();
     expect(container.querySelector(".admin-col-login")).toBeTruthy();
     expect(container.querySelector(".admin-col-created")).toBeTruthy();
+    expect(container.querySelector(".admin-col-updated")).toBeTruthy();
     expect(container.querySelectorAll(".admin-date-cell").length).toBeGreaterThan(0);
+    const pendingRowCells = Array.from((screen.getByText("zhaoqi").closest("tr") as HTMLTableRowElement).querySelectorAll("td"));
+    expect(pendingRowCells.map((item) => item.textContent)).toEqual(["赵琪zhaoqi赵琪", "1", "前台用户", "待激活", "—", "—", "2026-08-05 11:08:22", "2026-08-05 11:08:22", "编辑重置密码冻结删除"]);
     expect(container.querySelector(".admin-operation-set")).toBeTruthy();
     expect(container.querySelector(".admin-pagination-total")?.textContent).toBe("共 4 个用户");
     expect(container.querySelector(".admin-pagination-actions")).toBeTruthy();
@@ -443,12 +448,20 @@ describe("AdminUserManagementPage", () => {
   it("locks prototype table density and readable text rules", () => {
     const css = readFileSync("src/styles/globals.css", "utf8");
 
-    expect(css).toContain("min-width: 1350px");
+    expect(css).toContain("min-width: 1530px");
     expect(css).toContain("table-layout: fixed");
     expect(css).toContain(".admin-col-actions");
     expect(css).toContain(".admin-col-before-freeze");
+    expect(css).toContain(".admin-col-updated");
     expect(css).toContain("width: 220px");
     expect(css).toContain(".admin-date-cell");
+    expect(css).toContain(".admin-role-tag");
+    expect(css).toContain(".admin-status-active");
+    expect(css).toContain("background: transparent");
+    expect(css).toContain(".admin-status-active svg");
+    expect(css.match(/\.admin-role-admin\s*\{[^}]+\}/)?.[0] || "").not.toContain("background");
+    expect(css.match(/\.admin-role-user\s*\{[^}]+\}/)?.[0] || "").not.toContain("background");
+    expect(readFileSync("src/pages/admin/AdminUserManagementPage.tsx", "utf8")).toContain("CheckCircle2");
     expect(css).toContain("white-space: nowrap");
     expect(css).toContain(".admin-user-name-line");
     expect(css).toContain(".admin-user-cell strong");

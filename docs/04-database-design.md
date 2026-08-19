@@ -30,7 +30,7 @@ MoonBox MVP 采用双数据库策略：开发和自动化快速测试使用 SQLi
 | admin_spaces | 管理后台空间主表，记录空间编码、负责人、状态、来源、配额、有效期、回收期和保护标记 |
 | admin_space_products | 空间与产品绑定表，当前约束为一空间一产品绑定 |
 | admin_space_members | 空间成员关系表，保留空间成员角色和去重约束 |
-| admin_space_applications | 空间申请与审批表，记录申请人、拟负责人、资源诉求、决策原因和决策人 |
+| admin_space_applications | 管理后台空间申请与审批兼容表，记录申请人、拟负责人、目标空间、资源诉求、决策原因和决策人 |
 | admin_space_audit_events | 空间管理写操作审计，不记录 token、会话 ID 明文或敏感凭证 |
 | schema_metadata | 初始化 schema 版本追踪 |
 
@@ -78,10 +78,10 @@ MoonBox MVP 采用双数据库策略：开发和自动化快速测试使用 SQLi
 | `admin_spaces` | `code` 全局唯一；`status` 仅允许 `ACTIVE`、`FROZEN`、`RECYCLE`；`source` 仅允许“后台创建”或“申请审批”；`expiry_type` 仅允许 `fixed_date` 或 `long_term`；`protected` 控制冻结、回收和彻底删除限制；`deleted_at`、`deleted_by`、`delete_reason`、`purge_at` 支撑回收站和 30 天保留 |
 | `admin_space_products` | `space_id` 唯一，保证一空间一产品绑定；`immutable_binding` 标记绑定不可随意替换 |
 | `admin_space_members` | `(space_id, user_id)` 唯一，记录空间普通成员与角色；负责人由 `admin_spaces.owner_id` 表达，不在成员列表中重复维护 |
-| `admin_space_applications` | `status` 仅允许“待审批”“已通过”“已拒绝”；保存申请人、拟负责人、产品、用途、资源诉求和审批决策字段 |
+| `admin_space_applications` | 管理后台审批兼容表；`application_type` 仅允许 `create` 或 `join`；`target_space_id` 记录历史加入空间申请的目标空间；`status` 仅允许“待审批”“已通过”“已拒绝”“已撤回”；保存申请人、拟负责人、产品、用途、资源诉求和审批决策字段 |
 | `admin_space_audit_events` | 记录空间 ID、操作者、动作、前后状态摘要、原因、结果、请求 ID 和创建时间；不得写入 token、会话 ID 明文、密码或临时凭证 |
 
-空间删除为软删除：正常空间移入回收站后写入 `deleted_at`、`deleted_by`、`delete_reason` 和 `purge_at`，默认列表不展示回收站数据；恢复会清理删除字段；彻底删除仅允许系统超级管理员对回收站空间执行，并级联清理绑定和成员关系。配额字段当前直接保存在 `admin_spaces`：`member_count/member_quota`、`storage_used_gb/storage_quota_gb`、`ai_used_tokens/ai_quota_tokens`，其中 `member_count` 口径为负责人加普通成员，普通成员关系保存在 `admin_space_members`；后续接入真实用量聚合时必须保持字段含义兼容。
+空间删除为软删除：正常空间移入回收站后写入 `deleted_at`、`deleted_by`、`delete_reason` 和 `purge_at`，默认列表不展示回收站数据；恢复会清理删除字段；彻底删除仅允许系统超级管理员对回收站空间执行，并级联清理绑定和成员关系。配额字段当前直接保存在 `admin_spaces`：`member_count/member_quota`、`storage_used_gb/storage_quota_gb`、`ai_used_tokens/ai_quota_tokens`，其中 `member_count` 口径为负责人加普通成员，普通成员关系保存在 `admin_space_members`；后续接入真实用量聚合时必须保持字段含义兼容。前台创建空间入口写入 `admin_space_applications` 待审批申请；平台管理员审批通过后再写入 `admin_spaces` 与 `admin_space_products`，申请人成为 `owner_id`。
 
 ## 双数据库兼容策略
 

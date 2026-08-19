@@ -13,6 +13,12 @@ Use this skill when the user asks `/usage-docs-update <version>` or wants to edi
 - 只读取本次影响的 `mintlify/docs/<version>/**/*.mdx` 页面、`mintlify/mint.json` 和 `site-manifest.json` 片段。
 - 不默认读取全部 `docs/**`、`releases/**` 或历史版本目录。
 
+### Force-proceed Follow-up Guardrails（MUST）
+
+- `force-proceed` 仅允许继续当前命令的非阻断部分，MUST NOT 默认自动创建 follow-up REQ/BUG；除非用户在当前命令中明确授权自动 capture，否则只输出标准 capture 文案，并明确“未自动创建 Issue”。
+- 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
+- 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
+
 ## Input
 
 - `<version>`：可选，默认 `latest`。
@@ -62,3 +68,6 @@ python scripts/validate-mintlify-docs.py
 ## Output
 
 Report changed pages, validation commands, remaining blockers, and preview command.
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。

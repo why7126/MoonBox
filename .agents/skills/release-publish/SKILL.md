@@ -100,6 +100,10 @@ Publish MUST be blocked unless:
 
 Report version, publish status, announcement file/URL, validation command result, gate summary, updated files, and rollback reminder.
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Step — AI Usage Post-command Hook (MUST)
 
 After publish confirmation is recorded or publish is blocked with a documented reason, run:

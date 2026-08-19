@@ -190,6 +190,10 @@ openspec/changes/<change>/trace.md（若存在）
 - 若本次纳入 BUG，下一步 MUST 输出 `/bug-opsx <BUG-full-id>`。
 - 若本次仅纳入无 REQ/BUG 来源的纯治理 Change，下一步 MAY 输出 `/opsx-apply <change-id>`。
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Step — Workflow Sync（MUST）
 
 Run:

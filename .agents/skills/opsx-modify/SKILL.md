@@ -82,6 +82,7 @@ rules/global.md
 rules/coding.md
 rules/testing.md
 rules/security.md
+rules/root-cause-evidence.md
 rules/document-governance.md
 rules/directory-structure.md
 rules/requirement-management.md
@@ -116,12 +117,37 @@ python scripts/sync-workflow-status.py --event opsx.modify --change <change-id> 
 
 If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sprint trace/scope first.
 
+## Root Cause Evidence Gate（MUST）
+
+- MUST 遵守 `rules/root-cause-evidence.md`。
+- 当验收反馈属于“效果不如预期”、UI 视觉偏差、交互异常、API/数据结果不符、测试失败或疑似 BUG 时，MUST 先记录偏差证据：期望、实际、复现条件、影响范围和证据来源。
+- 证据不足时，MUST 输出人工补证操作步骤，包括证据名称、为什么需要、操作步骤、需要返回字段、脱敏要求和返回格式；不得直接猜测根因或修复方向。
+- BUG 来源 Change 返修前 SHOULD 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；如果返修反馈改变或推翻原根因，MUST 先更新 linked BUG `root-cause.md` 或输出补证阻塞。
+
 ## Workflow
 
 1. **Clarify Feedback**
    - Summarize the acceptance issue in 1-3 bullets.
    - Identify whether it is in-scope for the current Change.
    - Identify affected files and tests.
+   - Identify evidence status: `confirmed`、`probable`、`hypothesis` 或 `unknown`; if not `confirmed`, request human evidence before fixing unless there is an explicit P0 workaround reason.
+   - UI/visual feedback preflight: if the feedback mentions UI、visual、prototype、截图、标注图、附件、页面状态或关键交互状态, MUST first identify all attached/reference screenshots and build an “附件截图逐项视觉对照表” before implementation.
+
+   附件截图逐项视觉对照表 MUST include:
+
+   | 字段 | 内容 |
+   |---|---|
+   | 附件/截图编号 | 用户附件、原型截图、实际截图、标注图或历史视觉证据编号 |
+   | 页面/状态 | 路由、视口、主题、交互状态、弹窗/浮层/空态/错误态 |
+   | 对照对象 | 原型、验收截图、标注区域、当前实现或历史证据 |
+   | 期望表现 | 附件或原型表达的目标视觉/交互结果 |
+   | 实际表现 | 当前实现、复现截图或已有证据中的表现 |
+   | 偏差项 | 间距、字号、颜色、对齐、层级、溢出、文案、图标、状态等 |
+   | 检查方式 | 视觉对照、Playwright 截图、computed style、DOM 选择器或人工补证 |
+   | 处置结论 | 本次修复、无需修改并说明理由、超出范围、证据不足 |
+   | 证据入口 | 截图、trace、style JSON、测试输出或脱敏摘要 |
+
+   If route, viewport, theme, expected screenshot, actual screenshot, key interaction state, selector, or computed style evidence is missing and the deviation cannot be confirmed, BLOCK modification and output focused human evidence steps. Do not mark the root cause as `confirmed` before the table is complete enough to support the conclusion.
 
 2. **Modify Implementation**
    - Make minimal scoped code changes.
@@ -155,9 +181,18 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    Prototype-driven UI Gate:
 
    - If the Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, UI Contract, or UI Skeleton in `design.md`, every UI/visual acceptance feedback MUST be checked against the original prototype decomposition, current UI Contract, current UI Skeleton and `docs/standards/prototype-ui-acceptance.md`.
+   - If UI/visual acceptance feedback includes user attachments, marked screenshots, prototype screenshots, or actual-page screenshots, the “附件截图逐项视觉对照表” is a MUST preflight gate before code changes; incomplete attachment evidence blocks UI返修 until the user supplies focused evidence.
    - If feedback changes layout, component hierarchy, state behavior, visual priority, responsive breakpoint, copy, icon, permission display, Mock/API boundary, computed style, or interaction implied by prototype, update Change `design.md`, linked REQ `acceptance.md` when criteria changed, and Change `trace.md`.
-   - After any UI 返修, rerun 1440px desktop and affected key interaction visual acceptance; record fresh screenshot/evidence, computed style checks for risky points, and updated Mock/API boundary when impacted. Previous visual evidence is invalid once the relevant UI changed.
+   - After any UI 返修, rerun 1440px desktop and affected key interaction visual acceptance; record fresh screenshot/evidence, computed style checks for risky points, updated attachment comparison results, and updated Mock/API boundary when impacted. Previous visual evidence is invalid once the relevant UI changed.
    - If feedback reveals the prototype itself is obsolete, record Conflict Resolution in Change `design.md` and update linked REQ docs before validation.
+
+   REQ Subdocument Consistency Sweep:
+
+   - If the target Change is sourced from a full `REQ-xxxx-slug`, before Validate MUST locate the linked REQ directory and check all existing REQ subdocuments/assets for consistency with the post-modify behavior.
+   - The sweep MUST cover existing `requirement.md`, business process documents, user story documents, `acceptance.md`, `trace.md`, and `prototype/**` including `prototype.html`, `context.md`, screenshots, or equivalent prototype notes.
+   - If the modify changes product behavior, UI/interaction, acceptance wording, Mock/API boundary, prototype intent, business flow, state transition, role/permission path, or user story, update every affected REQ subdocument before completing `/opsx-modify`.
+   - If a checked subdocument does not need updates, record “REQ 子文档一致性扫尾检查：无需更新 <items>，原因：...” in Change `tasks.md` `## 验收返修记录` or Change `trace.md`.
+   - If the sweep finds drift that remains inside the current Change boundary, BLOCK completion until the relevant REQ subdocuments are updated. If the drift expands the boundary, BLOCK and suggest `/req-capture`, `/bug-capture`, or a new OpenSpec Change.
 
 4. **Validate**
    - Run focused tests/checks for touched areas.
@@ -221,3 +256,6 @@ This event means “验收返修已同步”，not first implementation and not 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。

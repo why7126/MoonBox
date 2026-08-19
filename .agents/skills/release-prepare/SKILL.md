@@ -142,6 +142,10 @@ Report version, gate status summary, commands run, updated files, blockers, and 
 /release-publish <version>
 ```
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Step — AI Usage Post-command Hook (MUST)
 
 After release preparation completes or records blockers, run:

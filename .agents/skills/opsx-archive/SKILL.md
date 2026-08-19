@@ -110,6 +110,10 @@ openspec status --change "<change-id>" --json
    - move to `openspec/archive/YYYY-MM-DD-<change-id>/`.
 6. Update related issue/change trace only through workflow sync/promote scripts where possible.
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Steps（MUST）
 
 Run these commands strictly sequentially. Do not use parallel execution or `multi_tool_use.parallel` for directory validation, Workflow Sync and issue promotion: each step depends on the files written by the previous step, and issue promotion depends on the files written by Workflow Sync.

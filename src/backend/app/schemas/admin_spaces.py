@@ -8,7 +8,8 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 SpaceStatus = Literal["ACTIVE", "FROZEN", "RECYCLE"]
 SpaceSource = Literal["后台创建", "申请审批"]
 ExpiryType = Literal["fixed_date", "long_term"]
-ApplicationStatus = Literal["待审批", "已通过", "已拒绝"]
+ApplicationStatus = Literal["待审批", "已通过", "已拒绝", "已撤回"]
+ApplicationType = Literal["create", "join"]
 AllowedAction = Literal["VIEW", "EDIT", "FREEZE", "RESTORE", "DELETE", "PURGE", "QUOTA", "RENEW", "TRANSFER_OWNER"]
 SpaceMemberRole = Literal["管理员", "编辑者", "查看者"]
 
@@ -81,7 +82,7 @@ class AdminSpaceListParams(BaseModel):
 
 class AdminSpaceCreate(BaseModel):
     name: str = Field(min_length=2, max_length=80)
-    code: str = Field(min_length=3, max_length=48, pattern=r"^[a-z][a-z0-9-]{2,47}$")
+    code: str = Field(min_length=2, max_length=32, pattern=r"^[a-z][a-z0-9-]{1,31}$")
     description: str | None = Field(default=None, max_length=512)
     owner_id: str = Field(min_length=1, max_length=64)
     product_id: str = Field(min_length=2, max_length=64)
@@ -165,7 +166,7 @@ class AdminSpaceMemberAction(BaseModel):
 
 class AdminSpaceApplicationCreate(BaseModel):
     name: str = Field(min_length=2, max_length=80)
-    code: str = Field(min_length=3, max_length=48, pattern=r"^[a-z][a-z0-9-]{2,47}$")
+    code: str = Field(min_length=2, max_length=32, pattern=r"^[a-z][a-z0-9-]{1,31}$")
     applicant_id: str = Field(min_length=1, max_length=64)
     proposed_owner_id: str = Field(min_length=1, max_length=64)
     product_id: str = Field(min_length=2, max_length=64)
@@ -179,6 +180,9 @@ class AdminSpaceApplicationCreate(BaseModel):
 
 class AdminSpaceApplicationRead(BaseModel):
     id: str
+    application_type: ApplicationType = "create"
+    target_space_id: str | None = None
+    target_space_name: str | None = None
     name: str
     code: str
     applicant_id: str

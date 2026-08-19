@@ -2,7 +2,7 @@
 name: "spec-study"
 description: "跨项目 Harness 学习应用 - 学习其他项目治理工程，并经用户确认后应用到本项目治理资产"
 created_at: 2026-08-07 09:06:21
-updated_at: 2026-08-09 08:27:52
+updated_at: 2026-08-15 09:50:00
 ---
 
 # spec-study
@@ -149,6 +149,10 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 
 - 对无 REQ/BUG 来源的纯治理 Change，Sprint skipped/unresolved MUST 视为阻塞；必须先通过 `/sprint-propose` 或 `scripts/add-sprint-scope-item.py --change <change-id>` 纳入 Sprint。
 - Workflow Sync 成功后运行 AI Usage Post-command Hook；MUST 使用 Workflow Sync 解析到的 Sprint，不得传入 `auto` 或虚构 Sprint。
+
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
 
 ## Final Output Contract（MUST）
 

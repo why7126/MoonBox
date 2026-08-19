@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-10 20:14:00
+updated_at: 2026-08-15 13:17:18
 owner: MoonBox 产品团队
 ---
 
@@ -41,6 +41,7 @@ rules/agent-context-budget.md
 | 产品手册 / Mintlify | `rules/document-governance.md`、`rules/release.md`、`docs/02-deployment.md`、`mintlify/README.md` |
 | 对象存储 | `rules/data-management.md`、`rules/object-storage.md`、`docs/07-object-storage-strategy.md` |
 | 安全 | `rules/security.md` |
+| 问题排查 / 根因 / 返修 | `rules/root-cause-evidence.md`、相关 `logs/`、截图、测试失败、Change/Issue trace 片段 |
 | 命令顺序 / 工作流编排 | `docs/08-command-execution-order.md`、`.agents/skills/workflow-sync/SKILL.md` |
 
 ## Agent 技能入口
@@ -70,8 +71,12 @@ rules/agent-context-budget.md
 - 规范优化使用 `/spec-opt`；规范、技能、脚本、目录边界或校验规则迭代日志统一放入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md`，不得写入隐私、密钥、未脱敏日志、学习对象源码、本机绝对路径、系统用户名或用户主目录。
 - Sprint ID 必须使用 `sprint-xxx` 三位数字递增格式；自动创建 Sprint 时扫描 `iterations/change/` 与 `iterations/archive/` 后取最大编号加一。
 - 下一步可执行命令必须保留链路身份：REQ 链路的 `/req-*` 与后续 `/opsx-*` 使用完整 `REQ-xxxx-slug`，BUG 链路的 `/bug-*` 与后续 `/opsx-*` 使用完整 `BUG-xxxx-slug`，非 REQ/BUG Change 才使用 `<change-id>`。
+- 所有 workflow 命令完成后必须输出「执行链路复盘」，包含链路状态、问题证据和规范优化建议；发现可优化点时默认只给建议命令或 capture 文案，不自动创建 follow-up Issue/Change，除非用户明确授权。
 - API、DB、UI、部署或安全边界变化必须同步文档、规则和测试。
 - 带 `prototype/` 的 UI 页面必须先完成原型拆解、UI Contract、UI Skeleton 首轮确认、1440px 与关键交互视觉验收、computed style 证据、Mock/API 边界声明和 REQ 文档最终一致性检查；不得缺少视觉证据、样式证据或文档回填即归档。
+- UI 型 `/opsx-modify` 若验收反馈包含附件截图、标注图、原型截图或实际截图，必须先建立“附件截图逐项视觉对照表”，逐项确认期望、实际、偏差、检查方式、处置结论和证据入口；对照表证据不足时先补证，不得直接返修。
+- REQ 来源 `/opsx-modify` 完成前必须执行 REQ 子文档一致性扫尾检查，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 判断是否需同步，避免只更新 PRD 而遗漏子文档。
+- 问题排查、BUG 完善、验收返修或效果不如预期时必须遵守证据化根因分析治理：无证据不得确认根因；证据不足时必须输出人工补证操作步骤，等补证后再定根因。
 - OpenSpec 文档变更后运行中文优先校验；Mintlify 变更后运行产品手册校验。
 - 完成前运行相关验证；无法运行时在回复中说明原因。
 

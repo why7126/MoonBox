@@ -1,0 +1,160 @@
+sprint_id: sprint-003
+status: planning
+lifecycle_stage: change
+start_date: 2026-08-14 17:00:00
+end_date: 2026-08-28 17:00:00
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0018-frontend-space-switcher-real-data
+  - REQ-0019-space-creation-join-application-flow
+  - REQ-0020-requirement-center-card-document-actions-ai-chat
+  - REQ-0021-markdown-editor-vditor-enhancement
+capacity_person_days: 30
+bugs:
+  - BUG-0011-admin-user-list-enum-time-display-unclear
+  - BUG-0012-requirement-registry-changelog-req0017-archive-drift
+  - BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
+changes:
+  - establish-root-cause-evidence-governance
+  - fix-admin-user-list-enum-time-display
+  - establish-command-execution-review-hook
+  - add-command-execution-review-hook-skill-coverage
+  - optimize-req-generate-changelog-sync
+  - update-frontend-space-switcher-real-data
+  - add-space-creation-join-application-flow
+  - fix-requirement-registry-changelog-req0017-archive-drift
+  - fix-workflow-sync-bug-sprint-propose-drift
+  - add-opsx-modify-req-subdoc-sweep
+  - add-opsx-modify-ui-screenshot-comparison-gate
+  - add-overlay-exit-lightweight-selection-rule
+  - add-overlay-click-capture-stop-propagation-rule
+  - add-guided-feedback-dialog-copy-hierarchy
+  - update-requirement-center-card-document-actions-ai-chat
+  - add-visual-evidence-temp-dir-governance
+  - update-markdown-editor-vditor-enhancement
+  - apply-deepseek-harness-governance-learnings
+estimated_story_points: 26
+estimated_person_days: 26
+fix_buffer_person_days: 4
+capacity_usage: 0.8667
+created_at: 2026-08-14 17:00:00
+updated_at: 2026-08-14 17:00:00
+scope_estimates:
+  - id: establish-root-cause-evidence-governance
+    change: establish-root-cause-evidence-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 证据化根因分析治理为纯治理能力，涉及规则、技能、脚本、OpenSpec、测试/UI/日志标准和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: BUG-0011-admin-user-list-enum-time-display-unclear
+    change: fix-admin-user-list-enum-time-display
+    bug: BUG-0011-admin-user-list-enum-time-display-unclear
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 用户管理列表枚举标签、状态语义、时间格式和更新时间列展示不清晰为 P2/medium web-admin UI 展示缺陷；根因证据已 confirmed，后端/API 已具备 updated_at，修复集中在管理后台列表渲染与 admin-list 回归测试，按 S=1 人天估算。
+  - id: establish-command-execution-review-hook
+    change: establish-command-execution-review-hook
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 命令执行复盘 Hook 为纯治理输出契约优化，涉及 Agent 命令输出规则、校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: add-command-execution-review-hook-skill-coverage
+    change: add-command-execution-review-hook-skill-coverage
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 命令执行复盘 Hook 覆盖率治理为纯治理能力，涉及 .agents/skills 命令短引用、上下文预算校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: optimize-req-generate-changelog-sync
+    change: optimize-req-generate-changelog-sync
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: req.generate CHANGELOG 派生刷新覆盖优化为纯治理脚本能力，涉及 Workflow Sync、规则、Skill、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: REQ-0018-frontend-space-switcher-real-data
+    change: update-frontend-space-switcher-real-data
+    requirement: REQ-0018-frontend-space-switcher-real-data
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 前台空间切换真实数据接入涉及需求中心 BFF/前台安全接口、后台空间成员可见性过滤、冻结/回收状态处理、最近选择失效回退和用户菜单二级浮层 UI/测试；不新增创建或加入流程，按 M=3 人天估算。
+  - id: REQ-0019-space-creation-join-application-flow
+    change: add-space-creation-join-application-flow
+    requirement: REQ-0019-space-creation-join-application-flow
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 空间创建与加入申请流程涉及前台申请中心 UI、创建空间申请、精准搜索加入申请、申请状态追踪、撤回/重提、与后台审批及空间切换真实数据联动，并包含 prototype UI Gate；范围为单个前台闭环能力，按 M=3 人天估算。
+  - id: BUG-0012-requirement-registry-changelog-req0017-archive-drift
+    change: fix-requirement-registry-changelog-req0017-archive-drift
+    bug: BUG-0012-requirement-registry-changelog-req0017-archive-drift
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: REQ-0017 归档后 requirements registry/CHANGELOG 仍指向 review 路径属于纯治理索引漂移；修复范围限定 issues/requirements/_registry.yaml 与 issues/requirements/CHANGELOG.md，不触碰 src、openspec、API、DB、UI 或部署，按 S=1 人天估算。
+  - id: BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
+    change: fix-workflow-sync-bug-sprint-propose-drift
+    bug: BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: BUG-0013 为 Workflow Sync 在 BUG sprint.propose 场景下的 CHANGELOG、iteration、registry/path 派生刷新不完整缺陷；根因证据已 confirmed，修复集中在治理脚本与回归校验，不触碰业务 src、API、DB、UI 或部署，按 S=1 人天估算。
+  - id: add-opsx-modify-req-subdoc-sweep
+    change: add-opsx-modify-req-subdoc-sweep
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: opsx-modify REQ 子文档一致性扫尾检查为纯治理命令契约优化，涉及 Skill、入口规则、上下文预算、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: add-opsx-modify-ui-screenshot-comparison-gate
+    change: add-opsx-modify-ui-screenshot-comparison-gate
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: UI 型 opsx-modify 附件截图逐项视觉对照表为纯治理命令契约优化，涉及 Skill、入口规则、UI 验收标准、上下文预算、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: add-overlay-exit-lightweight-selection-rule
+    change: add-overlay-exit-lightweight-selection-rule
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 轻量浮层退出路径与选择确认规则为纯 UI 治理规范优化，涉及 UI 规则、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: add-overlay-click-capture-stop-propagation-rule
+    change: add-overlay-click-capture-stop-propagation-rule
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 浮层外部点击 capture 阶段 stopPropagation 覆盖规则为纯 UI 交互验收治理优化，涉及 UI 规则、原型验收标准、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: add-guided-feedback-dialog-copy-hierarchy
+    change: add-guided-feedback-dialog-copy-hierarchy
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 引导式反馈弹窗顶部说明层级为纯治理契约优化，涉及上下文预算规则、spec-opt Skill、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: REQ-0020-requirement-center-card-document-actions-ai-chat
+    change: update-requirement-center-card-document-actions-ai-chat
+    requirement: REQ-0020-requirement-center-card-document-actions-ai-chat
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心卡片文档查看、动作流转与 AI 聊天增强涉及前台需求中心卡片动作、Markdown/HTML 文档入口、全局 AI 聊天抽屉、导入校验、Sprint 选择、tasks.md 进度抽屉和 Prototype UI Gate；依赖 REQ-0012/REQ-0013 既有骨架与真实数据，范围为单个前台交互闭环，按 M=3 人天估算。
+  - id: add-visual-evidence-temp-dir-governance
+    change: add-visual-evidence-temp-dir-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 视觉证据临时目录归属与 ignore 策略为纯治理目录边界优化，涉及规则、校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: REQ-0021-markdown-editor-vditor-enhancement
+    change: update-markdown-editor-vditor-enhancement
+    requirement: REQ-0021-markdown-editor-vditor-enhancement
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Markdown 文档 Vditor 增强编辑器涉及前台需求中心 Markdown 抽屉、第三方编辑器集成、图片上传链路、表格/代码/公式能力、主题适配、安全降级和 Prototype UI Gate；依赖 REQ-0020 既有抽屉与保存链路，范围为单个前台编辑体验增强，按 M=3 人天估算。
+  - id: apply-deepseek-harness-governance-learnings
+    change: apply-deepseek-harness-governance-learnings
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: deepseek-harness 治理学习应用为纯治理能力，涉及文档层级、事实唯一归属、治理校验矩阵、Issue/Change 文档质量和最小相关验证；不触碰业务 src，按 S=1 人天估算。
+fix_buffer_ratio: 0.1333

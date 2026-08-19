@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-10 22:36:56
+updated_at: 2026-08-18 10:06:40
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -35,6 +35,18 @@ note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把
 | `design-schemes/` | 可复用 UI/UE、导航栏和 HTML Demo 设计资产库 | 否 |
 | `models/` | 模型说明和校验信息；不得提交大模型权重 | 否 |
 | `deploy/` | 部署编排与发布脚本 | 否 |
+
+## 2.1 本地临时取证目录
+
+根目录 `tmp/` MAY 仅作为本地临时工作目录存在，用于 Playwright 截图、computed style JSON、手工视觉对照中间产物或一次性调试输出。
+
+边界：
+
+- `tmp/` MUST 被 `.gitignore` 覆盖，不属于正式项目目录，不得写入 Sprint 四件套、OpenSpec 归档、release、Mintlify 或长期文档。
+- UI 视觉验收中需要长期保留的证据 MUST 转存到对应 `openspec/changes/<change-id>/evidence/`，或在 Change `trace.md` 记录脱敏后的等价证据摘要。
+- `tmp/visual-evidence/` MAY 作为本地临时视觉证据采集目录；引用该目录时必须说明它是临时入口，不得作为归档闭环的唯一事实源。
+- `tmp/` MUST NOT 存放真实客户数据、密钥、访问令牌、Cookie、Authorization header、真实 `.env`、运行时数据库、未脱敏日志或包含个人信息的截图。
+- 目录结构校验 MAY 忽略被 `.gitignore` 覆盖的根目录 `tmp/`，但不得因此放宽新增正式顶层目录的规则。
 
 ## 3. `releases/` 产品发布目录
 

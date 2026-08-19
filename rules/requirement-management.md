@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-08-10 22:36:56
+updated_at: 2026-08-19 12:10:48
 ---
 
 # 需求管理规范
@@ -62,6 +62,8 @@ REQ-NNNN-slug/
 
 `issues/requirements/CHANGELOG.md` 是需求目录级当前态看板索引，用于每个 REQ 一行展示当前状态、阶段、优先级、关联 Sprint、关联 Change、最近更新时间、下一步和事实源路径。完整事实源仍以各 REQ 目录内 `trace.md`、`issues/requirements/_registry.yaml`、OpenSpec Change、Sprint 四件套和正式规格为准；`CHANGELOG.md` 不得替代状态机、registry 或单条 REQ 文档包。
 
+`req.generate` MUST 通过 Workflow Sync 派生刷新 `issues/requirements/CHANGELOG.md` 对应 REQ 当前态行。`python scripts/sync-workflow-status.py --event req.generate --req <REQ-full-id> --sprint auto` 成功时，报告 SHOULD 将 `issues/requirements/CHANGELOG.md` 列为 `Updated` 或 `Skipped (no delta)`；若报告完全缺少该文件，视为派生刷新覆盖不足。
+
 SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`、`complete`、`review.approve`、`review.reject`、`review.defer`、`sprint.include`、`opsx.create`、`apply.done`、`archive.done`、`status.sync`、`trace.fix`。
 
 普通文案润色、格式调整、错别字修复、非状态性验收措辞调整 MAY 不更新。当前态行 MUST 使用 `YYYY-MM-DD HH:mm:ss` 记录最近更新时间，并避免写入用户隐私、真实客户数据、密钥、未脱敏日志、本机绝对路径、系统用户名或用户主目录。
@@ -96,6 +98,18 @@ SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`�
 REQ 命令族输出下一步时 MUST 使用完整 `REQ-NNNN-slug`。`/req-review --approve` 后下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/req-opsx <REQ-full-id>`。当 REQ 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 REQ ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
 
 ## 4. 门禁
+
+### 4.0 文档质量与追溯一致性（MUST）
+
+REQ 文档包 MUST 在进入评审、纳入 Sprint、转 OpenSpec、apply、modify 或 archive 前保持可追溯一致：
+
+- `trace.md` 是机器状态事实源，MUST 包含 `status`、`iteration`、`openspec_changes`、`lifecycle` 和 `## 变更记录`。
+- `requirement.md` 是人类入口主文档，MUST 与 `trace.md` 的当前主状态保持一致；若仅修改说明文案，仍不得覆盖 `created_at`。
+- `acceptance.md` SHOULD 使用 `acceptance_status` 表达验收状态，避免旧 `status` 被误读为主生命周期状态。
+- 已纳入 Sprint 的 REQ MUST 能从 REQ `trace.md`、`issues/requirements/_registry.yaml`、`issues/requirements/CHANGELOG.md`、`iterations/change|archive/<sprint>/sprint.yaml` 和 OpenSpec Change 互相追溯。
+- `## 变更记录` MUST 使用表头紧跟章节标题的标准 Markdown 表格；新增命令记录不得写在表头前。
+
+当发现上述文档质量或追溯漂移时，AI MUST 优先通过 Workflow Sync、状态同步脚本或聚焦修复恢复事实源一致，不得手工编辑 Workflow Sync marker 块或把 CHANGELOG 当成唯一事实源。
 
 ### 4.1 评审门禁（统一，MUST）
 

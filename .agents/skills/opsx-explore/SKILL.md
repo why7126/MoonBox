@@ -1,7 +1,7 @@
 ---
 name: "opsx-explore"
 description: "Enter explore mode - think through ideas, investigate problems, clarify requirements"
-updated_at: 2026-08-13 08:58:35
+updated_at: 2026-08-15 09:50:00
 ---
 
 # opsx-explore
@@ -228,3 +228,6 @@ When things crystallize, you might offer a summary - but it's optional. Sometime
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 输出 `/opsx-*` 下一步时，REQ 来源链路 MUST 使用完整 `REQ-xxxx-slug`，BUG 来源链路 MUST 使用完整 `BUG-xxxx-slug`，只有纯治理 Change 才使用 `<change-id>`。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。

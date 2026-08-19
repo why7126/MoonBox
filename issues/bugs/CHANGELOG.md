@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-08-13 22:51:29
+updated_at: 2026-08-15 12:29:57
 owner: MoonBox 产品团队
 ---
 
@@ -28,7 +28,9 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| BUG-0011-admin-user-list-enum-time-display-unclear | 用户管理列表枚举标签与时间字段展示不清晰 | medium | approved | review | - | - | 2026-08-13 09:36:01 | `/sprint-propose --bug BUG-0011-admin-user-list-enum-time-display-unclear` | `issues/bugs/review/BUG-0011-admin-user-list-enum-time-display-unclear/trace.md` |
+| BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift | Workflow Sync 对 BUG sprint.propose 的 CHANGELOG/iteration 派生刷新不完整 | medium | done | archive | sprint-003 | fix-workflow-sync-bug-sprint-propose-drift | 2026-08-15 12:29:57 | 无 | `issues/bugs/archive/BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift/trace.md` |
+| BUG-0012-requirement-registry-changelog-req0017-archive-drift | REQ-0017 需求索引仍指向 review 路径但真实目录已归档 | medium | done | archive | sprint-003 | fix-requirement-registry-changelog-req0017-archive-drift | 2026-08-15 11:49:47 | 无 | `issues/bugs/archive/BUG-0012-requirement-registry-changelog-req0017-archive-drift/trace.md` |
+| BUG-0011-admin-user-list-enum-time-display-unclear | 用户管理列表枚举标签与时间字段展示不清晰 | medium | done | archive | sprint-003 | fix-admin-user-list-enum-time-display | 2026-08-15 10:13:39 | 无 | `issues/bugs/archive/BUG-0011-admin-user-list-enum-time-display-unclear/trace.md` |
 | BUG-0010-admin-user-actions-validation-no-feedback | 用户管理编辑保存与确认操作缺少校验反馈 | high | done | archive | sprint-002 | fix-admin-user-actions-validation-feedback | 2026-08-13 22:49:07 | 无 | `issues/bugs/archive/BUG-0010-admin-user-actions-validation-no-feedback/trace.md` |
 | BUG-0009-frontend-admin-sidebar-version-mismatch | 前台与后台侧边栏版本号不一致 | medium | done | archive | sprint-002 | fix-frontend-admin-sidebar-version-mismatch | 2026-08-13 22:40:16 | 无 | `issues/bugs/archive/BUG-0009-frontend-admin-sidebar-version-mismatch/trace.md` |
 | BUG-0008-admin-users-self-freeze-delete-not-forbidden | 管理后台登录用户不能冻结和删除自己 | high | done | archive | sprint-002 | fix-admin-user-self-freeze-delete-protection | 2026-08-13 22:41:26 | 无 | `issues/bugs/archive/BUG-0008-admin-users-self-freeze-delete-not-forbidden/trace.md` |

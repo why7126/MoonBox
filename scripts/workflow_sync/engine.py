@@ -29,6 +29,7 @@ from .issue_subdocuments import (
 from .patch import (
     PatchResult,
     patch_acceptance_report,
+    patch_issue_changelog_index,
     patch_issue_trace,
     patch_parent_requirement_bug_index,
     patch_registry_entry,
@@ -334,6 +335,7 @@ class SyncEngine:
                     issue,
                     derived,
                     change_status_map,
+                    sprint=sprint,
                     event=event,
                     focus_change=change_id,
                     write=write,
@@ -375,9 +377,23 @@ class SyncEngine:
             )
             planned.append(
                 patch_registry_entry(
-                    registry, issue.issue_id, derived.display_status, write=write
+                    registry, issue, derived, sprint, write=write
                 )
             )
+            if (
+                (event and event.startswith("req.") and iid == req_id)
+                or (event and event.startswith("bug.") and iid == bug_id)
+                or (event in {"opsx.apply", "opsx.modify", "opsx.archive"} and change_id and derived.linked_change == change_id)
+                or (event == "sprint.propose" and iid in {req_id, bug_id})
+            ):
+                planned.append(
+                    patch_issue_changelog_index(
+                        issue,
+                        derived,
+                        sprint,
+                        write=write,
+                    )
+                )
             if issue.kind == "bug" and issue.related_requirement:
                 parent_requirement_ids.add(issue.related_requirement)
 

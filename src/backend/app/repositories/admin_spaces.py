@@ -556,10 +556,12 @@ def list_applications(db: Session, params: AdminSpaceApplicationListParams) -> t
         text(
             f"""
             SELECT a.*, COALESCE(applicant.nickname, applicant.username) AS applicant_name,
-                   COALESCE(owner.nickname, owner.username) AS proposed_owner_name
+                   COALESCE(owner.nickname, owner.username) AS proposed_owner_name,
+                   target.name AS target_space_name
             FROM admin_space_applications a
             LEFT JOIN admin_users applicant ON applicant.id = a.applicant_id
             LEFT JOIN admin_users owner ON owner.id = a.proposed_owner_id
+            LEFT JOIN admin_spaces target ON target.id = a.target_space_id
             {where}
             ORDER BY a.created_at DESC
             LIMIT :limit OFFSET :offset
@@ -580,11 +582,11 @@ def create_application(db: Session, payload: AdminSpaceApplicationCreate, *, act
         text(
             """
             INSERT INTO admin_space_applications (
-                id, name, code, applicant_id, proposed_owner_id, product_id, product_name,
+                id, application_type, target_space_id, name, code, applicant_id, proposed_owner_id, product_id, product_name,
                 purpose, expected_members, requested_storage_gb, requested_ai_tokens, expires_at,
                 status, decision_reason, decision_by, decision_at, created_at, updated_at
             ) VALUES (
-                :id, :name, :code, :applicant_id, :proposed_owner_id, :product_id, :product_name,
+                :id, 'create', NULL, :name, :code, :applicant_id, :proposed_owner_id, :product_id, :product_name,
                 :purpose, :expected_members, :requested_storage_gb, :requested_ai_tokens, :expires_at,
                 '待审批', NULL, NULL, NULL, :created_at, :updated_at
             )
@@ -607,16 +609,220 @@ def get_application(db: Session, application_id: str) -> dict | None:
         text(
             """
             SELECT a.*, COALESCE(applicant.nickname, applicant.username) AS applicant_name,
-                   COALESCE(owner.nickname, owner.username) AS proposed_owner_name
+                   COALESCE(owner.nickname, owner.username) AS proposed_owner_name,
+                   target.name AS target_space_name
             FROM admin_space_applications a
             LEFT JOIN admin_users applicant ON applicant.id = a.applicant_id
             LEFT JOIN admin_users owner ON owner.id = a.proposed_owner_id
+            LEFT JOIN admin_spaces target ON target.id = a.target_space_id
             WHERE a.id = :id
             """
         ),
         {"id": application_id},
     ).first()
     return _row_to_dict(row) if row else None
+
+
+def exact_search_workspace(db: Session, query: str, *, user_id: str) -> dict | None:
+    value = query.strip()
+    row = db.execute(
+        text(
+            f"""
+            {_space_select()}
+            WHERE s.code = :query OR s.name = :query
+            ORDER BY CASE WHEN s.code = :query THEN 0 ELSE 1 END, s.created_at DESC
+            LIMIT 2
+            """
+        ),
+        {"query": value},
+    ).all()
+    if len(row) != 1:
+        return None
+    workspace = _hydrate_space(_row_to_dict(row[0]))
+    membership = db.execute(
+        text("SELECT id FROM admin_space_members WHERE space_id = :space_id AND user_id = :user_id"),
+        {"space_id": workspace["id"], "user_id": user_id},
+    ).first()
+    is_owner = workspace["owner_id"] == user_id
+    workspace["can_apply"] = workspace["status"] == "ACTIVE" and not membership and not is_owner and workspace["member_count"] < workspace["member_quota"]
+    if workspace["status"] != "ACTIVE":
+        workspace["apply_block_reason"] = "空间当前不可加入。"
+    elif membership or is_owner:
+        workspace["apply_block_reason"] = "你已在该空间中。"
+    elif workspace["member_count"] >= workspace["member_quota"]:
+        workspace["apply_block_reason"] = "空间成员已满。"
+    else:
+        workspace["apply_block_reason"] = None
+    return workspace
+
+
+def create_catalog_application(db: Session, payload, *, actor: dict) -> dict:  # type: ignore[no-untyped-def]
+    admin_payload = AdminSpaceApplicationCreate(
+        name=payload.name,
+        code=payload.code,
+        applicant_id=actor["id"],
+        proposed_owner_id=actor["id"],
+        product_id=payload.code,
+        product_name=payload.name,
+        purpose=payload.purpose,
+        expected_members=payload.expected_members,
+        requested_storage_gb=payload.requested_storage_gb,
+        requested_ai_tokens=payload.requested_ai_tokens,
+        expires_at=None,
+    )
+    return create_application(db, admin_payload, actor=actor["id"])
+
+
+def create_catalog_space(db: Session, payload, *, actor: dict) -> dict:  # type: ignore[no-untyped-def]
+    create_payload = AdminSpaceCreate(
+        name=payload.name,
+        code=payload.code,
+        description=payload.description,
+        owner_id=actor["id"],
+        product_id=payload.code,
+        product_name=payload.name,
+        member_quota=payload.member_quota,
+        storage_quota_gb=payload.storage_quota_gb,
+        ai_quota_tokens=payload.ai_quota_tokens,
+        expiry_type=payload.expiry_type,
+        expires_at=payload.expires_at,
+    )
+    return create_space(db, create_payload, actor=actor["id"], source="后台创建")
+
+
+def create_catalog_space_application(db: Session, payload, *, actor: dict) -> dict:  # type: ignore[no-untyped-def]
+    application_payload = AdminSpaceApplicationCreate(
+        name=payload.name,
+        code=payload.code,
+        applicant_id=actor["id"],
+        proposed_owner_id=actor["id"],
+        product_id=payload.code,
+        product_name=payload.name,
+        purpose=payload.description or f"申请创建空间：{payload.name}",
+        expected_members=payload.member_quota,
+        requested_storage_gb=payload.storage_quota_gb,
+        requested_ai_tokens=payload.ai_quota_tokens,
+        expires_at=payload.expires_at,
+    )
+    return create_application(db, application_payload, actor=actor["id"])
+
+
+def join_catalog_application(db: Session, payload, *, actor: dict) -> dict:  # type: ignore[no-untyped-def]
+    space = get_space(db, payload.workspace_id)
+    if space is None:
+        raise LookupError("空间不存在。")
+    searched = exact_search_workspace(db, space["code"], user_id=actor["id"])
+    if not searched or not searched["can_apply"]:
+        raise PermissionError(searched.get("apply_block_reason") if searched else "空间当前不可加入。")
+    existing = db.execute(
+        text(
+            """
+            SELECT id FROM admin_space_applications
+            WHERE applicant_id = :applicant_id AND target_space_id = :target_space_id AND status = '待审批'
+            """
+        ),
+        {"applicant_id": actor["id"], "target_space_id": payload.workspace_id},
+    ).first()
+    if existing:
+        raise ValueError("你已有待审批的加入申请。")
+    now = utc_now()
+    application_id = f"space_app_{uuid4().hex}"
+    db.execute(
+        text(
+            """
+            INSERT INTO admin_space_applications (
+                id, application_type, target_space_id, name, code, applicant_id, proposed_owner_id,
+                product_id, product_name, purpose, expected_members, requested_storage_gb,
+                requested_ai_tokens, expires_at, status, decision_reason, decision_by, decision_at,
+                created_at, updated_at
+            ) VALUES (
+                :id, 'join', :target_space_id, :name, :code, :applicant_id, :proposed_owner_id,
+                :product_id, :product_name, :purpose, :expected_members, :requested_storage_gb,
+                :requested_ai_tokens, NULL, '待审批', NULL, NULL, NULL, :created_at, :updated_at
+            )
+            """
+        ),
+        {
+            "id": application_id,
+            "target_space_id": payload.workspace_id,
+            "name": space["name"],
+            "code": space["code"],
+            "applicant_id": actor["id"],
+            "proposed_owner_id": space["owner_id"],
+            "product_id": space["product_id"],
+            "product_name": space["product_name"],
+            "purpose": payload.reason,
+            "expected_members": space["member_count"] + 1,
+            "requested_storage_gb": space["storage_quota_gb"],
+            "requested_ai_tokens": space["ai_quota_tokens"],
+            "created_at": now,
+            "updated_at": now,
+        },
+    )
+    _audit(db, actor=actor["id"], space_id=application_id, action="join_application", before=None, after={"target_space_id": payload.workspace_id}, reason=payload.reason)
+    db.commit()
+    return get_application(db, application_id) or {}
+
+
+def list_my_applications(db: Session, *, actor: dict) -> list[dict]:
+    rows = db.execute(
+        text(
+            """
+            SELECT a.*, target.name AS target_space_name
+            FROM admin_space_applications a
+            LEFT JOIN admin_spaces target ON target.id = a.target_space_id
+            WHERE a.applicant_id = :applicant_id
+            ORDER BY a.created_at DESC
+            """
+        ),
+        {"applicant_id": actor["id"]},
+    ).all()
+    return [_row_to_dict(row) for row in rows]
+
+
+def withdraw_my_application(db: Session, application_id: str, *, actor: dict, reason: str | None = None) -> dict:
+    before = get_application(db, application_id)
+    if before is None or before["applicant_id"] != actor["id"]:
+        raise LookupError("空间申请不存在。")
+    if before["status"] != "待审批":
+        raise PermissionError("仅待审批申请可撤回。")
+    now = utc_now()
+    db.execute(
+        text("UPDATE admin_space_applications SET status = '已撤回', decision_reason = :reason, updated_at = :updated_at WHERE id = :id"),
+        {"id": application_id, "reason": reason or "申请人撤回", "updated_at": now},
+    )
+    after = get_application(db, application_id)
+    _audit(db, actor=actor["id"], space_id=application_id, action="withdraw_application", before=before, after=after, reason=reason or "申请人撤回")
+    db.commit()
+    return after or {}
+
+
+def resubmit_my_application(db: Session, application_id: str, *, actor: dict) -> dict:
+    before = get_application(db, application_id)
+    if before is None or before["applicant_id"] != actor["id"]:
+        raise LookupError("空间申请不存在。")
+    if before["status"] not in {"已拒绝", "已撤回"}:
+        raise PermissionError("仅已拒绝或已撤回申请可重新提交。")
+    if before.get("application_type") == "join":
+        class Payload:
+            workspace_id = before["target_space_id"]
+            reason = before["purpose"]
+
+        return join_catalog_application(db, Payload(), actor=actor)
+    payload = AdminSpaceApplicationCreate(
+        name=before["name"],
+        code=before["code"],
+        applicant_id=actor["id"],
+        proposed_owner_id=actor["id"],
+        product_id=before["product_id"],
+        product_name=before["product_name"],
+        purpose=before["purpose"],
+        expected_members=before["expected_members"],
+        requested_storage_gb=before["requested_storage_gb"],
+        requested_ai_tokens=before["requested_ai_tokens"],
+        expires_at=before.get("expires_at"),
+    )
+    return create_application(db, payload, actor=actor["id"])
 
 
 def decide_application(db: Session, application_id: str, payload: AdminSpaceApplicationDecision, *, actor: str, approve: bool) -> dict:
@@ -638,7 +844,24 @@ def decide_application(db: Session, application_id: str, payload: AdminSpaceAppl
         ),
         {"id": application_id, "status": new_status, "reason": payload.reason, "decision_by": actor, "decision_at": now, "updated_at": now},
     )
-    if approve:
+    if approve and before.get("application_type", "create") == "join":
+        add_member(
+            db,
+            before["target_space_id"],
+            AdminSpaceMemberCreate(user_id=before["applicant_id"], role="查看者"),
+            actor=actor,
+        )
+        target = get_space(db, before["target_space_id"])
+        _audit(
+            db,
+            actor=actor,
+            space_id=before["target_space_id"],
+            action="application_approved_join_space",
+            before=before,
+            after=target,
+            reason=payload.reason,
+        )
+    elif approve:
         create_payload = AdminSpaceCreate(
             name=before["name"],
             code=before["code"],

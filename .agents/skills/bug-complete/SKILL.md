@@ -49,14 +49,22 @@ Use this skill when the user asks to run the migrated source command `bug-comple
 
 | 文件 | 内容 |
 |------|------|
-| root-cause.md | 直接原因、根本原因、触发条件、分类（code/design/db/…） |
+| root-cause.md | 根因状态、现象、证据链、已排除假设、已确认根因、修复方向、验证闭环 |
 | workaround.md | 临时规避或无 |
 | acceptance.md | 回归 AC-xxx |
 | trace.md | status → enriching → pending_review |
 
 ## Readiness
 
-Ready：bug + root-cause + acceptance + trace
+Ready：bug + root-cause + acceptance + trace + root-cause evidence gate 通过
+
+## Root Cause Evidence Gate（MUST）
+
+- MUST 读取并遵守 `rules/root-cause-evidence.md`。
+- `root-cause.md` 的根因状态必须是 `unknown`、`hypothesis`、`probable` 或 `confirmed`。
+- 只有 `status: confirmed` 且 `## 证据链` 至少包含一条可复核证据时，才允许将 `trace.md` 推进到 `pending_review` 并输出 `/bug-review <BUG-full-id> --approve`。
+- 证据不足时，MUST 保持 `exploring` 或 `enriching`，输出人工补证清单、操作步骤、返回字段、脱敏要求和返回格式；不得把推测写成已确认根因。
+- 成功补齐后 SHOULD 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；失败时先修正文档或补证，不得进入 review。
 
 ## Next
 
@@ -73,6 +81,10 @@ Ready：bug + root-cause + acceptance + trace
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
 
 ## Final Step — Workflow Sync (MUST)
 

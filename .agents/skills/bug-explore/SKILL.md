@@ -39,6 +39,13 @@ Use this skill when the user asks to run the migrated source command `bug-explor
 
 探讨：能否稳定复现、影响面、是否回归、关联 REQ/Change、hotfix vs 常规 fix。
 
+## Root Cause Evidence Gate（MUST）
+
+- MUST 遵守 `rules/root-cause-evidence.md`。
+- 本命令默认只做复现、影响面和证据缺口探索；证据不足时 MUST 将根因标记为 `unknown`、`hypothesis` 或 `probable`，不得输出已确认根因。
+- 如果需要人工补证，MUST 输出待补证项、为什么需要、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
+- 人工补证返回后，MUST 先复核证据是否足够，再建议进入 `/bug-generate` 或 `/bug-complete`。
+
 **Input**：完整 `BUG-xxxx-slug`
 
 **默认**：不写任何文件、不写代码、不改 `src/`
@@ -58,3 +65,6 @@ Use this skill when the user asks to run the migrated source command `bug-explor
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。

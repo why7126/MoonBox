@@ -30,6 +30,27 @@ def _create_owner(api_client: TestClient, username: str = "spaceowner") -> dict:
     return response.json()["data"]["user"]
 
 
+def _create_frontend_user(api_client: TestClient, username: str) -> tuple[dict, str]:
+    response = api_client.post(
+        "/api/v1/admin/users",
+        headers=_admin_headers(api_client),
+        json={"username": username, "nickname": username, "role": "前台用户"},
+    )
+    assert response.status_code == 201, response.text
+    payload = response.json()["data"]
+    _activate_user(payload["user"]["id"])
+    return payload["user"], payload["temporary_password"]
+
+
+def _user_headers(api_client: TestClient, username: str, password: str) -> dict[str, str]:
+    response = api_client.post(
+        "/api/v1/auth/login",
+        json={"username": username, "password": password, "remember_me": False},
+    )
+    assert response.status_code == 200, response.text
+    return {"authorization": f"Bearer {response.json()['data']['access_token']}"}
+
+
 def _activate_user(user_id: str) -> None:
     db = get_session_factory()()
     try:
@@ -326,6 +347,66 @@ def test_admin_space_application_approval_creates_space(api_client: TestClient) 
     assert approval_event["reason"] == "资料完整准予开通"
     assert approval_event["result"] == "success"
     assert approval_event["actor_display_name"]
+
+
+def test_catalog_create_space_submits_pending_application(api_client: TestClient) -> None:
+    applicant, password = _create_frontend_user(api_client, "createuser")
+    headers = _user_headers(api_client, applicant["username"], password)
+
+    created = api_client.post(
+        "/api/v1/catalog/workspace-applications/create",
+        headers=headers,
+        json={
+            "name": "用户创建空间",
+            "code": "user-space",
+            "description": "前台直接创建空间",
+            "member_quota": 20,
+            "storage_quota_gb": 100,
+            "ai_quota_tokens": 1000000,
+            "expiry_type": "fixed_date",
+            "expires_at": "2027-12-31T23:59:59Z",
+        },
+    )
+    assert created.status_code == 201, created.text
+    payload = created.json()["data"]
+    assert payload["application"]["applicant_id"] == applicant["id"]
+    assert payload["application"]["proposed_owner_id"] == applicant["id"]
+    assert payload["application"]["code"] == "user-space"
+    assert payload["application"]["expected_members"] == 20
+    assert payload["application"]["requested_storage_gb"] == 100
+    assert payload["application"]["requested_ai_tokens"] == 1000000
+    assert payload["application"]["status"] == "待审批"
+
+    listing = api_client.get("/api/v1/admin/spaces", headers=_admin_headers(api_client), params={"q": "user-space"})
+    assert listing.status_code == 200, listing.text
+    assert listing.json()["data"]["total"] == 0
+
+    applications = api_client.get("/api/v1/admin/space-applications", headers=_admin_headers(api_client), params={"q": "user-space"})
+    assert applications.status_code == 200, applications.text
+    assert applications.json()["data"]["total"] == 1
+
+
+def test_catalog_create_space_rejects_join_and_out_of_range_quota(api_client: TestClient) -> None:
+    applicant, password = _create_frontend_user(api_client, "rangeuser")
+    headers = _user_headers(api_client, applicant["username"], password)
+
+    join = api_client.post("/api/v1/catalog/workspace-applications/join", headers=headers, json={"workspace_id": "space_x", "reason": "申请加入"})
+    assert join.status_code == 404
+
+    invalid = api_client.post(
+        "/api/v1/catalog/workspace-applications/create",
+        headers=headers,
+        json={
+            "name": "超额空间",
+            "code": "over-space",
+            "description": "成员超额",
+            "member_quota": 0,
+            "storage_quota_gb": 0,
+            "ai_quota_tokens": -1,
+            "expiry_type": "long_term",
+        },
+    )
+    assert invalid.status_code == 422
 
 
 def test_demo_space_application_seed_uses_real_approval_flow(api_client: TestClient) -> None:

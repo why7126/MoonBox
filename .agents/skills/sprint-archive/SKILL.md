@@ -143,6 +143,10 @@ sprint.md: closure note only outside workflow-sync marker blocks
 
 Move directory with `git mv iterations/change/<sprint-id> iterations/archive/<sprint-id>`.
 
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
 ## Final Step — Workflow Sync（MUST）
 
 ```bash

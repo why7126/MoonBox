@@ -179,6 +179,7 @@ IGNORED_ROOT_NAMES = {
     ".env.mysql",
     ".pytest_cache",
     ".venv",
+    "tmp",
 }
 
 

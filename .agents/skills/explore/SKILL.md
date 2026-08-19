@@ -2,7 +2,7 @@
 name: "explore"
 description: "通用探索模式 - 面向问题、需求或话题的只读分析与方案探讨，不改代码、不落盘"
 created_at: 2026-08-06 00:00:00
-updated_at: 2026-08-13 08:58:35
+updated_at: 2026-08-15 09:50:00
 ---
 
 # explore
@@ -59,6 +59,7 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 
 - **好奇但有判断**：先理解语境，再给清晰结论；不把探索变成机械问卷。
 - **证据优先**：涉及项目事实时，读取现有代码、文档、配置或 OpenSpec 片段作为依据。
+- **无证据不定根因**：涉及问题排查、BUG、异常、效果不如预期或返修时，MUST 遵守 `rules/root-cause-evidence.md`；证据不足时只能输出 `unknown`、`hypothesis` 或 `probable`，并给出人工补证操作步骤，不得把猜测写成已确认根因。
 - **多方案思维**：需求和设计问题优先给多个可行方案，再比较取舍。
 - **明确决策点**：凡需要用户选择范围、优先级、成本、风险或路线时，必须显式列出。
 - **可视化**：适合时使用 ASCII 图、流程图、依赖图、对比表帮助澄清。
@@ -76,9 +77,16 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 - 现象与影响：影响范围、触发条件、严重程度倾向。
 - 根因判断：区分已确认根因、强推测、待验证假设。
 - 证据依据：引用只读调查到的代码、文档、配置、日志或用户描述。
+- 人工补证：如果证据不足，MUST 输出待补证项、为什么需要、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
 - 解决方案：给出至少一个可执行修复路线；复杂问题可拆临时 workaround 与正式 fix。
 - 验证建议：建议如何复现、如何验证修复、是否需要回归测试。
 - 后续流程：若确认是 BUG，建议 `/bug-capture` 或 `/capture`；不得自动创建，除非用户明确授权。
+
+根因输出约束：
+
+- `confirmed`：必须有日志、复现、测试失败、截图、Network、Console、数据库样本、配置差异、代码路径或运行时观测等可复核证据。
+- `probable`：只有间接证据，必须标注仍需补证。
+- `hypothesis` / `unknown`：不得给修复定论；优先输出人工补证步骤，等待用户补证后再继续。
 
 ### 2. 需求 / 产品想法 / 改进建议
 
@@ -207,6 +215,10 @@ python scripts/extract-ai-usage.py --post-command-hook --workflow-event explore 
 - 如果脚本不支持 `explore`，不得为了生成 usage 数据而强行推进状态。
 - 只输出紧凑 Hook 摘要：`status`、`usage_mode`、`command_run_count`、`sprint_snapshot`、`warning_count`、`recommended_action`。
 - 不得为了记录 AI Usage 而更新 REQ/BUG/Change/Sprint 状态。
+
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
 
 ## Final Output Contract（MUST）
 

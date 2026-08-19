@@ -15,6 +15,7 @@ Use this skill when the user asks to run `/spec-opt ...` or requests optimizatio
 
 - 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，降级为文本结构化选项。
 - 两种形态都必须包含「结构化选项 + 推荐项 + 可补充说明」，不用大段开放式追问替代。
+- 交互卡片顶部说明 MUST 只保留一处主说明；副标题、hint、description 或说明正文不得重复承载同一流程信息。
 - 每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项。
 - 至少一个选项 MUST 标注「推荐」，并用一句话说明推荐理由或适用前提。
 - 默认提供「可补充说明」入口，允许用户用自然语言覆盖选项、补充约束或给出例外。
@@ -141,6 +142,10 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 - 若 Change 关联 REQ/BUG，MUST 遵守 `/opsx-apply` 的 Sprint Inclusion Gate。
 
 随后运行 AI Usage Post-command Hook；MUST 使用 Workflow Sync 解析到的 Sprint，不得传入 `auto` 或虚构 Sprint。
+
+## Command Execution Review Hook（MUST）
+
+命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
 
 ## Final Output Contract（MUST）
 

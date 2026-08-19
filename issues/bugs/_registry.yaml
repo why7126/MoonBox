@@ -1,21 +1,51 @@
 # BUG 序号注册表（/capture 与 /bug-capture 维护）
 # entries 仅作为索引，不替代各 BUG 目录内的 capture.md、bug.md、root-cause.md、acceptance.md、trace.md。
-next_id: 12
+next_id: 14
 entries:
-  - id: BUG-0011-admin-user-list-enum-time-display-unclear
-    title: 用户管理列表枚举标签与时间字段展示不清晰
-    status: approved
+  - id: BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
+    title: Workflow Sync 对 BUG sprint.propose 的 CHANGELOG/iteration 派生刷新不完整
+    status: done
     severity: medium
     priority: P2
-    lifecycle_stage: review
-    path: issues/bugs/review/BUG-0011-admin-user-list-enum-time-display-unclear/
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift/
+    created: "2026-08-15 11:11:51"
+    reporter: user
+    owner: null
+    related_requirement: null
+    related_bug: null
+    related_change: fix-workflow-sync-bug-sprint-propose-drift
+    iteration: sprint-003
+
+  - id: BUG-0012-requirement-registry-changelog-req0017-archive-drift
+    title: REQ-0017 需求索引仍指向 review 路径但真实目录已归档
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0012-requirement-registry-changelog-req0017-archive-drift/
+    created: "2026-08-15 10:32:44"
+    reporter: user
+    owner: null
+    related_requirement: REQ-0017-admin-space-management
+    related_bug: null
+    related_change: fix-requirement-registry-changelog-req0017-archive-drift
+    iteration: sprint-003
+
+  - id: BUG-0011-admin-user-list-enum-time-display-unclear
+    title: 用户管理列表枚举标签与时间字段展示不清晰
+    status: done
+    severity: medium
+    priority: P2
+    lifecycle_stage: archive
+    path: issues/bugs/archive/BUG-0011-admin-user-list-enum-time-display-unclear/
     created: "2026-08-13 09:22:20"
     reporter: user
     owner: null
     related_requirement: null
     related_bug: null
-    related_change: fix-admin-user-actions-validation-feedback
-    iteration: null
+    related_change: fix-admin-user-list-enum-time-display
+    iteration: sprint-003
 
   - id: BUG-0010-admin-user-actions-validation-no-feedback
     title: 用户管理编辑保存与确认操作缺少校验反馈

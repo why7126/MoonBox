@@ -217,7 +217,9 @@ def init_database() -> None:
                 requested_storage_gb REAL NOT NULL,
                 requested_ai_tokens INTEGER NOT NULL,
                 expires_at TEXT,
-                status TEXT NOT NULL CHECK (status IN ('待审批', '已通过', '已拒绝')),
+                status TEXT NOT NULL CHECK (status IN ('待审批', '已通过', '已拒绝', '已撤回')),
+                application_type TEXT NOT NULL DEFAULT 'create',
+                target_space_id TEXT,
                 decision_reason TEXT,
                 decision_by TEXT,
                 decision_at TEXT,
@@ -227,6 +229,8 @@ def init_database() -> None:
                 FOREIGN KEY (proposed_owner_id) REFERENCES admin_users(id)
             )
             """,
+            "ALTER TABLE admin_space_applications ADD COLUMN application_type TEXT NOT NULL DEFAULT 'create'",
+            "ALTER TABLE admin_space_applications ADD COLUMN target_space_id TEXT",
             "CREATE INDEX IF NOT EXISTS ix_admin_space_applications_status ON admin_space_applications (status)",
             """
             CREATE TABLE IF NOT EXISTS admin_space_audit_events (
@@ -385,6 +389,8 @@ def init_database() -> None:
                 requested_ai_tokens BIGINT NOT NULL,
                 expires_at DATETIME NULL,
                 status VARCHAR(16) NOT NULL,
+                application_type VARCHAR(16) NOT NULL DEFAULT 'create',
+                target_space_id VARCHAR(64),
                 decision_reason VARCHAR(512),
                 decision_by VARCHAR(64),
                 decision_at DATETIME NULL,
@@ -392,9 +398,12 @@ def init_database() -> None:
                 updated_at DATETIME NOT NULL,
                 CONSTRAINT fk_admin_space_applications_applicant FOREIGN KEY (applicant_id) REFERENCES admin_users(id),
                 CONSTRAINT fk_admin_space_applications_owner FOREIGN KEY (proposed_owner_id) REFERENCES admin_users(id),
-                CONSTRAINT ck_admin_space_applications_status CHECK (status IN ('待审批', '已通过', '已拒绝'))
+                CONSTRAINT ck_admin_space_applications_status CHECK (status IN ('待审批', '已通过', '已拒绝', '已撤回')),
+                CONSTRAINT ck_admin_space_applications_type CHECK (application_type IN ('create', 'join'))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
+            "ALTER TABLE admin_space_applications ADD COLUMN application_type VARCHAR(16) NOT NULL DEFAULT 'create'",
+            "ALTER TABLE admin_space_applications ADD COLUMN target_space_id VARCHAR(64)",
             "CREATE INDEX ix_admin_space_applications_status ON admin_space_applications (status)",
             """
             CREATE TABLE IF NOT EXISTS admin_space_audit_events (
