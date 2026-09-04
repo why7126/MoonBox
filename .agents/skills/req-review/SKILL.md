@@ -36,7 +36,7 @@ Use this skill when the user asks to run the migrated source command `req-review
 
 **Input**：完整 `REQ-xxxx-slug`
 
-Flags：`--approve` | `--reject` | `--defer`（无 flag 时输出评审检查清单并 AskUserQuestion）
+Default：无 flag 时等价于 `approve`。`--approve` 仅作为兼容别名保留；反向结果必须显式使用 `--reject` 或 `--defer`。
 
 **Output**：`review.md`；`trace.md` + `requirement.md` → `status: approved|rejected|deferred`
 
@@ -54,6 +54,7 @@ Flags：`--approve` | `--reject` | `--defer`（无 flag 时输出评审检查清
 - [ ] 优先级与依赖合理
 - [ ] UI 类：原型或实现策略已决
 - [ ] 无与现有 REQ 重复未说明
+- [ ] API / DB / 日志审计 / 行为埋点 / Task Trace / Web/管理端请求封装 / 对象存储 / Agent Workflow 链路观测类需求已引用 `docs/standards/product-data-collection-observability.md`，并声明 `product_data_collection_observability`、`affected_layers`、N/A 原因和 `validation` 摘要
 
 ## Step 3 — 写 review.md
 
@@ -82,19 +83,19 @@ result: approved | rejected | deferred
 
 填写 `lifecycle.reviewed`、`lifecycle.approved`（若 approve）
 
-## Step 5 — 目录迁移（MUST，`--approve` 时）
+## Step 5 — 目录迁移（MUST，默认 approve 或 `--approve` 时）
 
 Read `rules/issues-lifecycle.md`。
 
 | Flag | 迁移 |
 |------|------|
-| `--approve` | `plan/` → `review/` |
+| 无 flag / `--approve` | `plan/` → `review/` |
 | `--reject` / `--defer` | **跳过**（保留 `plan/`） |
 
-`--approve` 时 **MUST** 在 Workflow Sync **之前**运行：
+默认 approve 或显式 `--approve` 时 **MUST** 在 Workflow Sync **之前**运行：
 
 ```bash
-python scripts/promote-issue-stage.py --req <REQ-id> --to review --reason "/req-review --approve"
+python scripts/promote-issue-stage.py --req <REQ-id> --to review --reason "/req-review"
 ```
 
 - Exit code **MUST** be `0`（已在 `review/` 时可 no-op）。
@@ -104,6 +105,8 @@ python scripts/promote-issue-stage.py --req <REQ-id> --to review --reason "/req-
 ## 门禁
 
 **仅 `approved`** 可执行 `/sprint-propose` 纳入 Sprint。`/req-opsx` MUST 位于 `/sprint-propose --req <REQ-full-id>` 成功之后；不得在评审完成后直接推荐或执行 `/req-opsx`。
+
+涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测的 REQ，若缺少 `docs/standards/product-data-collection-observability.md` 引用、`product_data_collection_observability` 声明、验收项或具体 N/A 原因，MUST 在 `review.md` 记录为风险或条件通过项；阻断等级按当前需求风险判断。若评审前置材料、数据采集声明、验收项或风险判断不足以支持通过，必须按引导式反馈契约收敛问题，不得因为无 flag 默认 approve 而静默批准。
 
 ## Next
 
@@ -136,3 +139,14 @@ python scripts/sync-workflow-status.py --event req.review --req <REQ-id> --sprin
 - Exit code **MUST** be `0` before ending this command.
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).
+
+## Final Step — AI Usage Post-command Hook (MUST)
+
+After Workflow Sync exits with code `0`, run:
+
+```bash
+python scripts/extract-ai-usage.py --post-command-hook --workflow-event req.review --req <REQ-id> --json
+```
+
+- Print only the compact hook summary: `status`, `usage_mode`, `command_run_count`, `sprint_snapshot`, `warning_count`, and `recommended_action`.
+- If local session input is unavailable, report `usage_mode: unavailable` and the recommended action; do not treat that as parent command failure.

@@ -2,7 +2,7 @@
 purpose: deepseek-harness 治理学习应用报告
 content: 记录文档层级、事实唯一归属、治理脚本门禁、Issue/Change 文档质量和最小相关验证策略的学习与采纳结果
 created_at: 2026-08-19 12:10:48
-updated_at: 2026-08-19 12:10:48
+updated_at: 2026-08-27 08:34:15
 owner: MoonBox 产品团队
 ---
 
@@ -79,3 +79,11 @@ owner: MoonBox 产品团队
 ## 后续建议
 
 - 可在后续 `/spec-opt` 中评估是否把治理脚本门禁矩阵接入自动校验脚本，减少人工遗漏。
+
+## 归档闭环
+
+- 归档时间：2026-08-27 08:34:15
+- 归档 Change：`openspec/archive/2026-08-27-apply-deepseek-harness-governance-learnings/`
+- 规格同步：`openspec/specs/harness-runtime/spec.md` 合并 `Harness 治理资产学习应用`、`文档事实唯一归属`、`最小相关验证`。
+- 归档验证：目录结构、环境文件 ignore、归档证据、Workflow Sync 和 Issue promote 均通过；该 Change 无关联 REQ/BUG，Issue promote 无可迁移条目。
+- AI Usage：`opsx.archive` hook 已执行，因当前会话无可持久化 `token_count` 事件返回 `usage_mode: unavailable`，不阻断归档。

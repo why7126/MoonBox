@@ -46,7 +46,7 @@ python scripts/sync-workflow-status.py --event sprint.propose --bug <BUG-full-id
 
 BUG 纳入 Sprint 后，Workflow Sync 应完整刷新：
 
-- BUG `trace.md` 的 `status: in_sprint`、`iteration: sprint-xxx`、`lifecycle_stage: review` 或等价状态块。
+- BUG `trace.md` 的迭代范围状态、`iteration: sprint-xxx`、`lifecycle_stage: review` 或等价状态块。
 - `issues/bugs/_registry.yaml` 对应 entry 的 `status`、`iteration`、`lifecycle_stage`、`path`。
 - `issues/bugs/CHANGELOG.md` 对应 BUG 当前态行的状态、阶段、关联 Sprint、最近更新时间、下一步和事实源路径。
 - Sprint 四件套中与该 BUG 相关的 scope、验收和发布摘要派生内容。

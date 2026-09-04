@@ -2,7 +2,7 @@
 purpose: 部署说明
 content: MoonBox 本地 docker-compose 部署、端口和环境变量边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-14 15:42:00
+updated_at: 2026-08-28 09:40:00
 owner: MoonBox 产品团队
 ---
 
@@ -14,7 +14,7 @@ MoonBox 当前启用 docker-compose 部署。根目录 `docker-compose.yml` 保�
 
 Docker Web 默认通过 nginx 同源 `/api` 反向代理访问后端，浏览器侧请求不需要配置运行期 `VITE_API_BASE_URL`。`VITE_API_BASE_URL` 仅作为本地 Vite dev 或前后端分域构建的可选配置；静态 Web 镜像构建完成后，容器运行期环境变量不会改写已构建的前端 bundle。
 
-需求中心 BFF 在 Docker 中通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。Compose 默认将 `issues/`、`iterations/`、`openspec/`、`docs/` 和 `rules/` 以只读方式挂载到该目录；不得挂载 `.env`、运行时数据库、对象存储数据、日志或密钥目录。
+需求中心 BFF 在 Docker 中通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。根目录本地开发 Compose 允许后端对 `issues/` 中采集池 `capture.md` 做受控写入，写入权限仍由后端限制为“仅采集阶段、仅 `capture.md`”；`iterations/`、`openspec/`、`docs/` 和 `rules/` 继续只读挂载。不得挂载 `.env`、运行时数据库、对象存储数据、日志或密钥目录。
 
 `BACKEND_CORS_ORIGINS` 会由后端 FastAPI CORS 中间件读取，必须包含实际访问 Web 管理后台的浏览器 Origin，例如 `http://localhost:18102`；否则后台登录等跨域请求会在浏览器预检阶段失败。
 
@@ -117,7 +117,7 @@ OBJECT_STORAGE_DEPLOYMENT_MODE=external-minio DATABASE_DEPLOYMENT_MODE=external-
 | `VITE_API_BASE_URL` | 可选 | 本地 Vite dev 或前后端分域构建时使用的 API 基础地址；Docker Web 默认通过 nginx 同源 `/api` 反代访问后端，运行期不需要配置 |
 
 空间申请演示数据可通过 `python scripts/seed-admin-space-applications.py` 手动生成。脚本会加载本地 `.env`，并把 Docker 容器内 SQLite 路径 `sqlite:////app/data/sqlite/moonbox.db` 映射到宿主机运行库 `data/runtime/backend/sqlite/moonbox.db`，输出目标数据库路径和播种数量；生产环境拒绝执行演示播种。
-| `MOONBOX_GOVERNANCE_ROOT` | `/app/governance` | 需求中心 BFF 只读治理事实源根目录；Compose 默认挂载 `issues/`、`iterations/`、`openspec/`、`docs/` 和 `rules/` |
+| `MOONBOX_GOVERNANCE_ROOT` | `/app/governance` | 需求中心 BFF 治理事实源根目录；根目录本地开发 Compose 允许对 `issues/` 中采集池 `capture.md` 受控写入，其他治理目录保持只读 |
 | `DATABASE_TYPE` | `sqlite` | 数据库类型；开发默认 `sqlite`，生产必须显式为 `mysql` |
 | `DATABASE_DEPLOYMENT_MODE` | `sqlite` | 数据库部署模式：`sqlite`、`self-hosted-mysql`、`external-mysql` |
 | `DATABASE_URL` | `sqlite:////app/data/sqlite/moonbox.db` | 统一数据库连接串；生产必须改为 MySQL |

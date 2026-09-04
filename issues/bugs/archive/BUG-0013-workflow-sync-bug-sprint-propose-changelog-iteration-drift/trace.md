@@ -40,9 +40,9 @@ status: done
 | 时间 | 事件 | 说明 |
 |---|---|---|
 | 2026-08-15 12:29:48 | /opsx-archive | Change `fix-workflow-sync-bug-sprint-propose-drift` 已归档，状态同步完成。 |
-| 2026-08-15 12:02:26 | /opsx-apply | Change `fix-workflow-sync-bug-sprint-propose-drift` apply 完成，待 archive。 |
+| 2026-08-15 12:02:26 | /opsx-apply | Change `fix-workflow-sync-bug-sprint-propose-drift` apply 完成，随后进入归档闭环。 |
 | 2026-08-15 11:45:27 | bug.opsx | 创建 OpenSpec Change `fix-workflow-sync-bug-sprint-propose-drift`，等待 `/opsx-apply BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift`。 |
-| 2026-08-15 11:39:57 | sprint.propose | 纳入 sprint-003，状态推进为 in_sprint；下一步创建 BUG 来源 OpenSpec Change。 |
+| 2026-08-15 11:39:57 | sprint.propose | 纳入 sprint-003，进入迭代范围；后续创建 BUG 来源 OpenSpec Change。 |
 | 2026-08-15 11:35:44 | bug.review | 用户执行 `/bug-review --approve`，评审通过，准备从 plan 迁入 review。 |
 | 2026-08-15 11:31:53 | bug.complete | 补齐 root-cause.md、workaround.md、acceptance.md；根因状态确认为 confirmed，状态推进为 pending_review。 |
 | 2026-08-15 11:29:52 | bug.generate | 生成 bug.md，状态推进为 draft。 |

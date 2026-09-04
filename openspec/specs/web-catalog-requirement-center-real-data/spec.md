@@ -5,12 +5,16 @@ TBD - created by archiving change add-requirement-center-real-data-integration. 
 ## Requirements
 ### Requirement: 需求中心上下文聚合
 
-系统 SHALL 提供前台需求中心上下文聚合接口，返回当前用户、可访问空间、当前空间、权限态、统计、筛选选项和治理对象列表。
+系统 SHALL 提供前台需求中心上下文聚合接口，返回当前用户、可访问空间、当前空间、权限态、统计、筛选选项、治理对象列表、卡片文档入口、动作映射和进度摘要。
 
 #### Scenario: 首屏获取真实上下文
 
 - **WHEN** 用户进入 `/requirements` 且请求需求中心上下文接口
 - **THEN** 系统返回可驱动页面首屏的用户、空间、权限、统计、筛选和治理对象数据
+- **AND** 每个治理对象必须包含可展示的文档入口摘要
+- **AND** 每个治理对象必须包含当前阶段允许动作及禁用原因
+- **AND** 待开发、研发中、验收中或已完成对象可以包含可展示的任务进度摘要
+- **AND** 采集池、规划中、待评审和已评审对象即使历史字段中存在任务进度，前端也不得展示为研发进度入口
 
 #### Scenario: 未登录访问需求中心
 
@@ -43,7 +47,7 @@ TBD - created by archiving change add-requirement-center-real-data-integration. 
 
 ### Requirement: 9 阶段状态映射
 
-系统 SHALL 将 REQ、BUG、Sprint 和 OpenSpec Change 状态映射到采集池、规划中、待评审、已通过、迭代规划、待开发、研发中、验收中、已完成 9 个阶段。
+系统 SHALL 将 REQ、BUG、Sprint 和 OpenSpec Change 状态映射到采集池、规划中、待评审、已评审、迭代规划、待开发、研发中、验收中、已完成 9 个阶段。
 
 #### Scenario: 已纳入 Sprint 但未创建 Change
 
@@ -60,19 +64,33 @@ TBD - created by archiving change add-requirement-center-real-data-integration. 
 - **WHEN** REQ 或 BUG 状态为 `done` 或关联 Change 已归档
 - **THEN** 系统将该对象映射到“已完成”阶段
 
+#### Scenario: approved 展示为已评审
+
+- **WHEN** REQ 或 BUG 的底层状态为 `approved`
+- **THEN** 前端展示阶段必须为“已评审”
+- **AND** API 可以保留 `approved` 作为机器状态，但必须提供可展示中文阶段或等价映射
+
 ### Requirement: 字段白名单与安全脱敏
 
-系统 SHALL 对治理文件读取结果执行字段白名单映射和错误脱敏，不得向浏览器暴露本机路径、密钥、token、`.env` 内容、原始日志、Markdown 全文或异常堆栈。
+系统 SHALL 对治理文件读取结果执行字段白名单映射和错误脱敏，不得向浏览器暴露本机路径、密钥、token、`.env` 内容、原始日志、Markdown 全文中不应公开的内容或异常堆栈。
 
 #### Scenario: API 响应不包含敏感字段
 
 - **WHEN** 后端从治理文件聚合需求中心数据
 - **THEN** API 响应只包含设计文档声明的白名单字段
+- **AND** 文档入口只包含受控文件名、类型、打开方式、预览 URL 或禁用原因
+- **AND** API 响应不得包含本机绝对路径、内部目录结构、原始异常堆栈、密钥、token 或 `.env` 内容
 
 #### Scenario: 解析失败错误脱敏
 
 - **WHEN** 某个治理文件读取或解析失败
 - **THEN** 系统返回受控错误或对象级阻塞提示，且不包含本机绝对路径、堆栈或原始文件内容
+
+#### Scenario: 文档预览失败脱敏
+
+- **WHEN** Markdown 读取、HTML 预览或 tasks 进度解析失败
+- **THEN** 系统返回可展示的脱敏失败原因
+- **AND** 系统不得把内部文件路径、原始堆栈或未脱敏文件内容返回给浏览器
 
 ### Requirement: 真实统计、筛选和搜索
 
@@ -90,20 +108,42 @@ TBD - created by archiving change add-requirement-center-real-data-integration. 
 
 ### Requirement: 空间上下文与权限态
 
-系统 SHALL 基于真实用户和空间权限控制可访问空间、当前空间和高权限入口展示。
+系统 SHALL 基于后台空间管理事实源和真实用户空间成员关系控制可访问空间、当前空间、空间只读状态和高权限入口展示。
 
-#### Scenario: 首版空间来自项目治理元数据
+#### Scenario: 前台空间列表来自后台空间事实源
 
-- **WHEN** 系统尚未引入 Workspace 数据库事实源
-- **THEN** 需求中心 BFF 从 `MOONBOX_GOVERNANCE_ROOT/project.yaml` 派生当前项目空间
-- **AND** 成员数由治理对象负责人和当前登录用户计算
-- **AND** 空间角色由当前登录用户角色派生
-- **AND** 系统不得返回硬编码演示空间
+- **WHEN** 已登录用户请求 `/api/v1/requirement-center/context`
+- **THEN** 系统必须从后台空间、成员和产品绑定事实源返回当前用户已加入空间
+- **AND** 系统不得以 `project.yaml` 派生空间冒充生产真实空间列表
+- **AND** 响应空间字段必须足够驱动前台空间切换浮层展示空间名称、角色、成员数、状态和当前项
+
+#### Scenario: 仅展示已加入空间
+
+- **WHEN** 后端构建当前用户可访问空间列表
+- **THEN** 系统必须仅包含当前用户作为负责人或成员加入的空间
+- **AND** 未加入空间、无权限空间和回收中空间不得出现在前台空间切换列表中
+
+#### Scenario: 冻结空间可只读切换
+
+- **WHEN** 当前用户已加入某个冻结空间
+- **THEN** 系统必须在可访问空间列表中返回该空间
+- **AND** 响应必须包含冻结或只读语义
+- **AND** 前端必须允许用户切换查看该空间
+- **AND** 前端必须显示“已冻结”或“只读”等可理解标记
 
 #### Scenario: 本地空间不可访问
 
 - **WHEN** 本地保存的 workspaceId 不在用户可访问空间中
-- **THEN** 系统回退到默认可访问空间并更新本地选择
+- **THEN** 系统必须回退到默认可访问空间或首个可访问空间
+- **AND** 前端必须更新或清理本地选择
+- **AND** 前端不得短暂展示不可访问空间名称
+
+#### Scenario: 用户无已加入空间
+
+- **WHEN** 当前用户没有任何已加入空间
+- **THEN** 前端必须展示无已加入空间空态
+- **AND** 前端可以展示“创建或加入空间”入口
+- **AND** 在 REQ-0019 完成前，系统不得伪造可切换空间
 
 #### Scenario: 用户无后台权限
 
@@ -161,4 +201,28 @@ TBD - created by archiving change add-requirement-center-real-data-integration. 
 
 - **WHEN** 真实数据接入实现完成
 - **THEN** 系统记录 1440px 桌面视口验收证据，覆盖真实数据首屏和关键状态
+
+### Requirement: 治理对象列表
+
+系统 SHALL 为需求中心返回能支撑卡片文档查看、动作流转、AI 聊天反馈和任务进度展示的治理对象字段。
+
+#### Scenario: 治理对象包含文档入口
+
+- **WHEN** 后端返回 Requirement 或 Bug 卡片数据
+- **THEN** 每个关联文档必须包含文件名、文档类型、打开方式、可访问 URL 或禁用原因
+- **AND** 前端卡片必须按当前阶段可展示文档白名单渲染这些入口；采集池阶段只展示 `capture.md` 与 `trace.md`
+- **AND** Markdown 文件打开方式必须可映射到右侧抽屉
+- **AND** HTML 文件打开方式必须可映射到新 Tab 预览
+
+#### Scenario: 治理对象包含动作映射
+
+- **WHEN** 后端返回 Requirement 或 Bug 卡片数据
+- **THEN** 每个对象必须包含当前阶段主动作的产品化文案、命令映射、是否需要选择弹窗、禁用状态和禁用原因
+- **AND** 命令映射必须使用完整 REQ 或 BUG ID
+
+#### Scenario: 治理对象包含任务进度
+
+- **WHEN** 对象关联 OpenSpec Change 且存在 `tasks.md`
+- **THEN** 系统必须返回任务总数、已完成数量、是否只读、是否可验收和阻塞提示
+- **AND** `tasks.md` 缺失或解析失败时必须返回脱敏错误摘要，而不是误报完成
 

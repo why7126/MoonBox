@@ -4,7 +4,7 @@ content: change / archive 两阶段目录职责、准入条件、迁移时机与
 source: 项目团队确认
 update_method: Sprint 流程或目录边界变化时同步更新
 created_at: 2026-06-27 23:45:00
-updated_at: 2026-08-07 00:00:00
+updated_at: 2026-08-27 01:20:53
 note: 与 issues plan/review/archive 互补；机器索引仍为 sprint.yaml
 ---
 
@@ -40,10 +40,14 @@ iterations/
 
 ### 2.1 Sprint 自动编号（MUST）
 
+- `/sprint-propose` 在选择或创建 Sprint 前 MUST 运行 `python scripts/validate-sprint-selection.py [--sprint <sprint-id>]`。
 - 当当前没有 `iterations/change/sprint-xxx/` 进行中迭代，且命令需要为 active Change 自动创建 Sprint 时，系统 MAY 自动创建下一个 Sprint。
 - 自动创建时 MUST 扫描 `iterations/archive/` 与 `iterations/change/` 下符合 `sprint-[0-9]{3}` 的目录和 `sprint.yaml:sprint_id`，取最大编号加一；例如最新归档为 `sprint-001` 且无进行中迭代时，新建 Sprint MUST 为 `sprint-002`。
 - 自动创建 Sprint MUST 落在 `iterations/change/sprint-xxx/`，四件套中的 `sprint_id`、标题、路径引用、Workflow Sync、AI Usage 和校验命令 MUST 使用同一个规范编号。
-- 如果已存在 `iterations/change/sprint-xxx/` 进行中迭代，MUST 优先复用或要求用户明确选择；不得默认另建并行 Sprint。
+- 如果已存在一个 `iterations/change/sprint-xxx/` active Sprint，未指定 Sprint 时 MUST 默认复用该 Sprint；不得默认另建并行 Sprint。
+- 如果已存在两个或以上 active Sprint，未指定 Sprint 时 MUST 阻断并要求显式指定 `--sprint <sprint-id>`。
+- 用户显式指定一个尚不存在的 Sprint 时，该 Sprint ID MUST 等于最大规范编号加一；不得跳号创建。
+- 如果已存在两个 active Sprint，MUST 禁止创建第三个 active Sprint。
 - 若发现新建 Sprint 使用了非规范名称，MUST 立即重命名为自动编号结果，并同步所有引用与校验记录。
 
 ### 2.2 遗留扁平路径（兼容）
@@ -81,8 +85,9 @@ capacity_usage = estimated_person_days / capacity_person_days
 - 当 `estimated_person_days <= capacity_person_days` 时，按既有 Review Gate、Readiness Gate 和 Scope 规则继续。
 - 已存在 Sprint 追加或修正正式范围时，MUST 先用 `python scripts/add-sprint-scope-item.py --sprint <sprint-id> [--req <REQ-id>|--bug <BUG-id>] [--change <change-id>] ...` 更新 `sprint.yaml` 机器事实源，再运行 Workflow Sync 派生刷新人读文档；不得只手工编辑 `sprint.md`、Issue trace 或 Change trace。
 - 多个范围项写入同一 `sprint.yaml` 时，MUST 串行执行，禁止并行写入同一个 Sprint scope。
-- `/sprint-propose` 写入或更新范围后，MUST 运行 `python scripts/validate-sprint-scope.py <sprint-id> [--item <REQ|BUG|change-id>]`，确认新增或更新项出现在 `sprint.md` `## 2. Scope` 主表和 workflow-sync 派生表；该校验失败时必须修复后重跑，不得仅以 `sprint.yaml` 或 trace 一致作为完成依据。
-- `sprint.md` `## 2. Scope` 主表 SHOULD 使用六列：`类型 | 编号 | 标题 | 状态 | 估算 | 说明`。派生表可按 requirements / bugs / changes 分组，但主表不得用 `范围项` 窄表替代。
+- `/sprint-propose` 写入或更新范围后，MUST 运行 `python scripts/validate-sprint-scope.py <sprint-id> [--item <REQ|BUG|change-id>]`，确认新增或更新项出现在 `sprint.md` 目标编号列表、要点段落、`## 2. Scope` 主表、workflow-sync 派生表，以及规划派生章节；该校验失败时必须修复后重跑，不得仅以 `sprint.yaml` 或 trace 一致作为完成依据。
+- `sprint.md` MUST 作为产品化规划面板维护：`## 1. Sprint 目标` 包含 `Sprint 目标编号列表` 和每个正式范围项的 `### <id> 要点`；`## 2. Scope` 主表 SHOULD 使用六列：`类型 | 编号 | 标题 | 状态 | 估算 | 说明`；`## 3. 工作量与容量`、`## 4. 里程碑`、`## 5. 风险与缓冲`、`## 6. 知识库承接` MUST 由 Workflow Sync 基于 `sprint.yaml`、Change 状态和 Sprint 计划时间结构化派生。派生表可按 requirements / bugs / changes 分组，但主表不得用 `范围项` 窄表替代。
+- 人工补充说明 SHOULD 放在 Workflow Sync marker 之外；不得手工改写 `workflow-sync:sprint-capacity-section`、`workflow-sync:sprint-milestones-section`、`workflow-sync:sprint-risks-section` 或 `workflow-sync:sprint-knowledge-section` 内部内容。
 
 `/sprint-propose` 一旦通过门禁并生成正式四件套，MUST 立即执行 Workflow Sync，将正式纳入的 REQ/BUG `trace.md` 同步为 `status: in_sprint` 与 `iteration: <sprint-id>`；不得留下 `approved + iteration` 的半纳入状态。
 
@@ -99,6 +104,12 @@ capacity_usage = estimated_person_days / capacity_person_days
 - 若 `/sprint-propose` 声称已纳入 REQ/BUG/Change，但 `/opsx-apply --dry-run` 仍报告无法解析 Sprint scope，根因优先按 `sprint.yaml` 机器事实源缺失处理；不得要求用户重复口头确认同一纳入动作。
 
 未通过时的修复路径：先运行 `/sprint-propose` 将 REQ/BUG/Change 纳入 `iterations/change/<sprint>/`，完成 Workflow Sync 后再重新执行 `/opsx-apply`。
+
+## 3.3 产品数据采集与链路观测门禁
+
+Sprint 纳入、执行或归档涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测的 REQ、BUG 或 Change 时，MUST 读取 `docs/standards/product-data-collection-observability.md` 并摘要报告门禁状态。
+
+Sprint 文档只记录 `product_data_collection_observability` 适用性、`affected_layers` 适用层级、N/A 原因、`validation` 验证摘要或缺失项，不得复制完整规范正文。`/sprint-archive` 前若相关范围缺少声明或验收结果，MUST 返回对应 REQ / Change 修复。
 
 ## 4. 目录迁移时机（MUST）
 

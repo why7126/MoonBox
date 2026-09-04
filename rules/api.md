@@ -63,3 +63,9 @@ AI 新增或修改 API 时必须检查：
 □ 错误码与权限边界是否同步
 □ 单元 / 集成 / 前端调用测试是否同步
 ```
+
+## 6. 产品数据采集与链路观测门禁
+
+API 变更若涉及请求头、请求日志、链路 ID、行为埋点、Task Trace、错误码、响应字段、OpenAPI contract、Orval 生成输入或 Web/管理端请求封装，MUST 读取 `docs/standards/product-data-collection-observability.md`。
+
+触发范围内的 REQ、OpenSpec Change、tasks、acceptance 或 trace MUST 记录 `product_data_collection_observability` 固定声明，至少包含 `status`、`affected_layers`、`reason` 和 `validation`。若不适用，MUST 说明为什么不影响 API、`request_logs`、`usage_events`、Task Trace 或请求封装；不得只写“无”或“不涉及”。

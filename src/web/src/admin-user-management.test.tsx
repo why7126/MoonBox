@@ -477,9 +477,9 @@ describe("AdminUserManagementPage", () => {
     const modalTitleBlock = css.match(/\.admin-user-modal h2,\s*\.admin-profile-modal h2,\s*\.admin-confirm-modal h2,\s*\.admin-password-modal h2,\s*\.admin-change-password-modal h2\s*\{[^}]+\}/)?.[0] || "";
     const toastBlock = css.match(/\.admin-toast\s*\{[^}]+\}/)?.[0] || "";
 
-    expect(adminShellBlock).toContain("--admin-font-body: \"Noto Sans SC\", system-ui, sans-serif");
-    expect(adminShellBlock).toContain("--admin-font-heading: \"Noto Serif SC\", serif");
-    expect(adminShellBlock).toContain("--admin-font-accent: \"EB Garamond\", serif");
+    expect(adminShellBlock).toContain("--admin-font-body: var(--ops-font-body)");
+    expect(adminShellBlock).toContain("--admin-font-heading: var(--ops-font-heading)");
+    expect(adminShellBlock).toContain("--admin-font-accent: var(--ops-font-mono)");
     expect(adminShellBlock).toContain("--admin-text-body: 13px");
     expect(adminShellBlock).toContain("font-family: var(--admin-font-body)");
     expect(tableCellBlock).toContain("font-size: var(--admin-text-body)");
@@ -500,14 +500,14 @@ describe("AdminUserManagementPage", () => {
     const css = readFileSync("src/styles/globals.css", "utf8");
     const primaryBlock = css.match(/\.admin-primary,\s*\.admin-content \.admin-primary,\s*\.admin-user-modal \.admin-primary,\s*\.admin-profile-modal \.admin-primary,\s*\.admin-confirm-modal \.admin-primary,\s*\.admin-password-modal \.admin-primary,\s*\.admin-change-password-modal \.admin-primary\s*\{[^}]+\}/)?.[0] || "";
 
-    expect(css).toContain("--admin-gold: #CBA35C");
-    expect(css).toContain("--admin-gold: #B8863E");
+    expect(css).toContain("--admin-gold: var(--mb-accent)");
+    expect(css).toContain("--admin-gold: var(--mb-accent)");
     expect(primaryBlock).toContain(".admin-content .admin-primary");
     expect(primaryBlock).toContain("border-color: var(--admin-gold)");
     expect(primaryBlock).toContain("background: var(--admin-gold)");
     expect(primaryBlock).toContain("color: var(--admin-primary-text)");
-    expect(primaryBlock).not.toContain("#CBA35C");
-    expect(primaryBlock).not.toContain("#080A16");
+    expect(primaryBlock).not.toContain("--mb-accent:");
+    expect(primaryBlock).not.toContain("--admin-primary-text:");
   });
 
   it("opens profile modal with one avatar picker and refreshes user menu after saving", async () => {

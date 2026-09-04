@@ -15,6 +15,8 @@ note: 适用于 MoonBox 项目；无 API 项目可保留为未来启用规范并
 
 本文档是 `rules/api.md` 的落地细则，应与 `docs/03-api-index.md`、`docs/standards/openapi-rules.md`、`docs/standards/error-codes.md`、`docs/standards/authentication.md`、`docs/standards/file_upload.md` 保持一致。
 
+涉及请求头、请求日志、链路 ID、行为埋点、Task Trace、错误码、响应字段、OpenAPI contract、Orval 生成输入或 Web/管理端请求封装的 API 变更，还必须读取 `docs/standards/product-data-collection-observability.md`，并在 REQ、OpenSpec Change、tasks、acceptance 或 trace 中记录 `product_data_collection_observability` 声明，至少包含 `affected_layers`、`reason` 和 `validation`。若声明不适用，必须说明为什么不影响 API、`request_logs`、`usage_events`、Task Trace 或请求封装；不得只写“无”或“不涉及”。
+
 
 | 参数 | 说明 | 示例 |
 |---|---|---|

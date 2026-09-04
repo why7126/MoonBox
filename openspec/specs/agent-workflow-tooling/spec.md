@@ -7,13 +7,13 @@
 
 MoonBox MUST 提供 `/spec-study` 技能，用于学习其他项目的 Harness 工程，并在用户确认后将可复用治理经验应用到本项目。同一次 `/spec-study` 学习应用流程 MUST 只生成一份正式 `study` 报告，且持久化学习对象时 MUST 使用脱敏项目标识，不得记录本机绝对路径、系统用户名或用户主目录。跨项目学习应用命令执行顺序时，系统 MUST 产出可复用的命令顺序规则，并避免复制学习对象业务专属流程。
 
-#### Scenario: 应用命令执行顺序学习结果
+#### Scenario: 应用治理命令输出契约学习结果
 
-- **WHEN** 用户确认应用跨项目命令执行顺序学习结果
-- **THEN** 系统 MUST 将推荐命令链路写入本项目治理文档或技能
-- **AND** 系统 MUST 区分 REQ、BUG、Sprint、OpenSpec、release、image 和 usage-docs 命令族的先后关系
-- **AND** 系统 MUST 明确会写同一机器事实源的步骤需要串行执行
-- **AND** 系统 MUST NOT 复制学习对象业务专属命令作为 MoonBox 默认流程
+- **WHEN** 用户确认应用外部 Harness 的命令输出契约治理经验
+- **THEN** 系统 MUST 将输出契约改写为 MoonBox 技能、规则和校验脚本中的卫生约束
+- **AND** 系统 MUST 校验命令技能不得保留易被原样输出的尖括号占位模板
+- **AND** 系统 MUST 校验用户可见示例不得泄漏 `MUST`、`SHOULD` 或契约章节名等规范语气
+- **AND** 系统 MUST NOT 复制学习对象业务专属命令或示例数据
 
 ### Requirement: 规范优化命令 spec-opt
 
@@ -360,3 +360,85 @@ MoonBox MUST 在 REQ 来源的 `/opsx-modify` 完成前执行 REQ 子文档一�
 - **THEN** 系统 MUST 先回填对应 REQ 子文档后再完成 `/opsx-modify`
 - **AND** 若差异扩大当前 Change 边界，系统 MUST 阻断 `/opsx-modify` 完成并建议新建 REQ、BUG 或 OpenSpec Change
 
+### Requirement: Sprint AI Usage 矩阵语义
+
+MoonBox MUST 在 Sprint AI Usage 复盘矩阵中区分真实数值 `0` 与未观测 workflow 阶段，避免将采集缺口误读为真实零成本。MoonBox MUST 通过本地 Codex session JSONL 生成脱敏 AI Usage 派生事实，并在普通 workflow hook 中优先尝试本地 session 自动发现。
+
+#### Scenario: 未观测 workflow 阶段显示为短横线
+
+- **WHEN** Sprint AI Usage 矩阵中某个对象和 workflow 阶段没有匹配 command run
+- **THEN** 数据层 MUST 将该单元标记为 `unknown`
+- **AND** Markdown 复盘输出 MUST 将该单元渲染为 `-`
+- **AND** 已观测但 token 或调用次数为零的单元 MUST 保持数字 `0`
+
+#### Scenario: 普通 workflow hook 自动发现本地 session
+
+- **WHEN** workflow 命令完成同步并运行 AI Usage post-command hook
+- **AND** 操作者未显式提供 `--session-jsonl`
+- **THEN** 系统 MUST 依次检查 session 环境变量、`AI_USAGE_SESSIONS_DIR` 和默认本地 Codex sessions 目录 `~/.codex/sessions`
+- **AND** 系统 MUST 使用 workflow event、REQ/BUG、Change、Sprint、release 或 slash-command 词项匹配近期 JSONL
+- **AND** 自动发现失败、候选缺少 `token_count` 或覆盖不足时，系统 MUST 输出 unavailable 或 estimated fallback 与推荐动作
+- **AND** 系统 MUST NOT 持久化 raw session JSONL、prompt、system/developer 指令、工具输出正文、密钥、真实 `.env` 内容或本机绝对路径
+
+#### Scenario: 历史回填使用显式 session 和 manual map
+
+- **WHEN** 操作者需要对历史 workflow 命令做 AI Usage 回填或审计
+- **THEN** 系统 MUST 要求显式 session JSONL 输入
+- **AND** 当历史 turn 无法自动归因到 REQ/BUG、Change、Sprint 或 workflow event 时，系统 SHOULD 支持使用 manual map 按 turn hash 补齐归因
+- **AND** 系统 MUST NOT 将普通自动发现结果作为历史回填的唯一事实源
+
+### Requirement: Workflow Sync Issue 子文档 apply 输出明细
+Workflow Sync 在 `--apply-issue-subdocuments` 或聚焦事件触发 Issue 子文档同步时，SHALL 在 summary 输出中清晰报告本轮子文档 apply 结果。
+
+#### Scenario: 子文档 apply summary 展示安全同步项
+- **WHEN** Workflow Sync 对聚焦 Issue 执行子文档同步
+- **AND** 存在 `safe_sync`、`safe_rename`、`residual_safe_sync` 或验收回填
+- **THEN** summary 输出 MUST 包含聚焦 Issue、`updated_files`、`updated_fields`、`acceptance_status` 和安全同步项的文件、来源、旧值与目标值
+- **AND** summary 输出 MUST 保留 warning/blocker 数量，避免把语义不明字段静默当作成功应用
+
+### Requirement: Workflow Sync 当前态看板 next 使用最新派生态
+Workflow Sync 在 `req.opsx` / `bug.opsx` 回填新 Change 后，SHALL 使用同一轮最新 Issue 派生态刷新当前态看板。
+
+#### Scenario: req.opsx 后 next 进入 opsx-apply
+- **WHEN** Workflow Sync 以 `--event req.opsx --req <REQ-full-id> --change <change-id>` 执行
+- **AND** 目标 REQ 已纳入 Sprint
+- **THEN** `issues/requirements/CHANGELOG.md` 对应行的 `关联 Change` MUST 为 `<change-id>`
+- **AND** `下一步` MUST 为 `/opsx-apply <REQ-full-id>`
+
+#### Scenario: bug.opsx 后 next 进入 opsx-apply
+- **WHEN** Workflow Sync 以 `--event bug.opsx --bug <BUG-full-id> --change <change-id>` 执行
+- **AND** 目标 BUG 已纳入 Sprint
+- **THEN** `issues/bugs/CHANGELOG.md` 对应行的 `关联 Change` MUST 为 `<change-id>`
+- **AND** `下一步` MUST 为 `/opsx-apply <BUG-full-id>`
+
+### Requirement: UI 参考稿复刻治理
+
+MoonBox SHALL 对明确引用附件 HTML、截图、标注图、既有页面或参考稿并要求“一对一复刻”“全面贴近”“保持一致”的 UI Change 建立 UI Reference Replication Contract。该 Contract SHALL 在实现前完成参考稿反向工程、组件级视觉契约、selector 映射、computed style 采样清单、分批实现计划和验收门禁，避免 UI 复刻退化为逐元素问答返修。
+
+#### Scenario: Explore 阶段反向工程参考稿
+
+- **WHEN** 用户在 `/explore` 中要求分析当前实现与附件、HTML、截图或既有页面的一致性
+- **THEN** 系统 SHALL 只读建立参考稿反向工程摘要
+- **AND** 摘要 SHALL 区分一对一复刻、风格迁移或局部一致
+- **AND** 摘要 SHALL 输出组件差异、selector 候选、computed style 采样候选、风险点和后续治理入口
+- **AND** 系统 SHALL NOT 直接修改业务实现
+
+#### Scenario: REQ 与 OpenSpec 承接复刻契约
+
+- **WHEN** 一个 UI REQ 或 Change 明确要求对齐参考稿
+- **THEN** `/req-complete` SHALL 在需求验收资料中记录参考事实源、保真模式、组件清单和关键验收点
+- **AND** `/req-opsx` SHALL 在 Change `design.md` 写入 UI Reference Replication Contract
+- **AND** Change `tasks.md` SHALL 将参考稿反向工程、selector 映射、computed style 采样和分批验收列为可跟踪任务
+
+#### Scenario: Apply 和 Modify 执行分批验收
+
+- **WHEN** `/opsx-apply` 或 `/opsx-modify` 实施参考稿复刻 UI Change
+- **THEN** 系统 SHALL 按组件批次推进，不得仅用整体观感判断完成
+- **AND** 每批 SHALL 记录目标 selector、关键视觉属性、截图或 computed style 证据、差异结论和非目标确认
+- **AND** 若验收反馈暴露 Contract 缺口，系统 SHALL 先补齐 Contract，再继续返修
+
+#### Scenario: Archive 阶段阻断证据缺失
+
+- **WHEN** 参考稿复刻 UI Change 准备归档
+- **THEN** 系统 SHALL 复核 UI Reference Replication Contract、最终截图、computed style 采样、selector 映射、REQ 验收资料和 Change 证据一致
+- **AND** 若缺少关键组件证据、存在 stale 证据或非目标误改未解释，系统 SHALL 阻断归档

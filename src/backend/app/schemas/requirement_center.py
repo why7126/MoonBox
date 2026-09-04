@@ -3,6 +3,14 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+class RequirementCenterDocumentCapability(BaseModel):
+    readable: bool = True
+    human_editable: bool = False
+    ai_mutable: bool = False
+    task_toggle_only: bool = False
+    reason: str = "当前阶段只读"
+
+
 class RequirementCenterIssue(BaseModel):
     id: str
     type: str
@@ -34,6 +42,7 @@ class RequirementCenterDocument(BaseModel):
     label: str
     url: str | None = None
     editable: bool = False
+    capability: RequirementCenterDocumentCapability = Field(default_factory=RequirementCenterDocumentCapability)
 
 
 class RequirementCenterDocumentUpdate(BaseModel):

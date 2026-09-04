@@ -128,6 +128,15 @@ releases/<version>/announcement.mdx
 
 Announcement MUST include version, release time, related Sprint, new features, bug fixes, release notes, known issues, upgrade steps, rollback instructions, and impact scope. It MUST be public-safe.
 
+When the release commits to fresh install, adjacent upgrade or cross-version upgrade support, generate and validate an upgrade plan before publish:
+
+```bash
+python scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
+python scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
+```
+
+Upgrade planning MUST NOT automatically execute production upgrade, modify real env, run DB restore, or write object storage maintenance tasks.
+
 ## Output Contract（MUST）
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。

@@ -8,10 +8,18 @@ source: explore
 priority_hint: P1
 parent_requirement:
 ---
-
 # 一句话
 
 支持将本地存量项目导入 MoonBox，并在产品内完成从需求治理到 Codex 执行、验收和归档的迭代闭环。
+
+```python
+{"a":1,"b":2}
+```
+
+
+| 列 1 | 列 2 |
+| --- | --- |
+| 内容 | 内容 |
 
 # 原始描述
 

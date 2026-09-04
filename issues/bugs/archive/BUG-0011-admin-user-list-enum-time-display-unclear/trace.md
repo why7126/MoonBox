@@ -41,13 +41,13 @@ status: done
 |---|---|---|
 | 2026-08-15 10:13:22 | /opsx-archive | Change `fix-admin-user-list-enum-time-display` 已归档，状态同步完成。 |
 | 2026-08-15 09:57:55 | /opsx-modify | Change `fix-admin-user-list-enum-time-display` 验收返修已同步，待复验或 archive。 |
-| 2026-08-15 09:30:59 | /opsx-apply | Change `fix-admin-user-list-enum-time-display` apply 完成，待 archive。 |
+| 2026-08-15 09:30:59 | /opsx-apply | Change `fix-admin-user-list-enum-time-display` apply 完成，随后进入归档闭环。 |
 | 2026-08-13 09:22:20 | bug.capture | 创建缺陷记录，等待复现与影响分析。 |
 | 2026-08-13 09:30:56 | bug.generate | 生成 bug.md，状态推进为 draft。 |
 | 2026-08-13 09:32:22 | bug.complete | 补齐 root-cause.md、workaround.md、acceptance.md，状态推进为 pending_review。 |
 | 2026-08-13 09:36:01 | bug.review | 评审通过，状态推进为 approved，准备迁入 review 阶段目录。 |
 | 2026-08-15 09:13:31 | bug.complete | 按证据化根因分析治理补齐 root-cause.md 证据链，根因状态确认为 confirmed。 |
-| 2026-08-15 09:17:56 | sprint.propose | 纳入 sprint-003，状态推进为 in_sprint。 |
+| 2026-08-15 09:17:56 | sprint.propose | 纳入 sprint-003，进入迭代范围。 |
 | 2026-08-15 09:25:03 | bug.opsx | 创建 OpenSpec Change `fix-admin-user-list-enum-time-display`。 |
 
 - 2026-08-15 10:13:22 workflow-sync：状态同步为 done（Change archived）

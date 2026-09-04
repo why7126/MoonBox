@@ -2,7 +2,7 @@
 purpose: MoonBox UI 设计规则
 content: MoonBox 深浅主题、字体、布局、组件和视觉验收规则
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-15 16:41:16
+updated_at: 2026-09-03 09:34:14
 owner: MoonBox 产品团队
 ---
 
@@ -12,41 +12,43 @@ MoonBox 的界面语言来自 `ProjectMoonBox/ui-design/ui-design.md`。新页�
 
 ## 设计定位
 
-MoonBox 不是通用 SaaS 蓝白后台，也不是常见暗色科技面板。界面应呈现东方器物质感、克制编辑排版感、金色单一强调色、衬线中文标题和意大利体英文点缀。
+MoonBox 采用“双品牌层级”：对外叙事页面保留东方器物质感、克制编辑排版感和金色强调；产品工作台、管理后台和运营型页面统一采用现代 Ops 视觉系统。Ops 系统强调高信息密度、近直角、细边框、清晰层级、可扫描表格与看板、沉稳深浅主题和 MoonBox 品牌资产，不采用通用 SaaS 蓝白后台、蓝紫科技渐变或装饰化数据大屏。
 
 ## Token
 
 | 用途 | 深色主题 | 浅色主题 |
 |---|---|---|
-| 主背景 | `#0A0C1B` | `#F6F7FB` |
-| 次级面板 | `#12142B` | `#FFFFFF` |
-| 边框 | `rgba(234,242,255,.10)` | `rgba(20,33,61,.10)` |
-| 强调金 | `#CBA35C` | `#B8863E` |
+| 主背景 | `#0A0D14` | `#F4F6FA` |
+| 次级面板 | `#131826` | `#FFFFFF` |
+| 抬升面板 | `#1A1F2C` | `#EEF2F7` |
+| 输入面 | `#0F1320` | `#F8FAFD` |
+| 边框 | `#242A3A` | `#DDE3EE` |
+| 细边框 | `#1B2130` | `#E8EDF5` |
+| 强调金 | `#D8AC55` | `#B9832E` |
 | 辅助金 | `#8B6F3D` | `#8C6528` |
-| 主文字 | `#E7E8F3` | `#232A42` |
-| 标题强调 | `#E9EEFB` | `#14213D` |
-| 次级文字 | `#7C81A6` | `rgba(35,42,66,.55)` |
+| 主文字 | `#ECEAE4` | `#202636` |
+| 标题强调 | `#F6F1E7` | `#101828` |
+| 次级文字 | `#98A0B3` | `#677085` |
 
 ## 字体
 
-- 中文标题使用 `Noto Serif SC`，字重 600 到 700。
-- 英文品牌字和点睛词使用 `EB Garamond` italic，字重 500 到 600。
-- 正文使用 `Noto Sans SC`，字重 300，行高约 1.9。
-- 除主标题和结语引文外，页面字号保持克制，主要用留白、分割线和字重建立层级。
+- 对外叙事页面：中文标题使用 `Noto Serif SC`，英文点睛词可使用 `EB Garamond` italic。
+- Ops 工作台/后台：标题与正文统一使用 `Inter` + `Noto Sans SC`，辅助标识、ID、状态胶囊和小标签使用 `JetBrains Mono` 或系统等宽字体。
+- Ops 页面正文行高约 1.45，避免营销式大字号；通过对齐、细线、密度、色阶和状态徽标建立层级。
 
 ## 布局
 
-- 顶部导航采用 Logo、文本链接和 CTA 的横向结构。
-- Hero 使用左文案右签名插画的双栏结构。
-- 差异化内容用竖向细线分隔，不使用大圆角卡片网格。
-- 后台和工作台页面可以更密集，但仍应使用细线、近直角和克制色彩。
+- 对外叙事页面顶部导航采用 Logo、文本链接和 CTA 的横向结构，Hero 可使用签名插画。
+- Ops 工作台采用侧边栏 + 主工作区 + 工具栏 + 表格/看板/抽屉/弹窗结构；首屏直接呈现可操作内容，不做营销落地页。
+- 工作台与后台需要保持一致的品牌区、导航密度、active 态、折叠按钮、用户菜单、浮层层级、字体 token、图标尺寸和 toast 行为。
 
 ## 组件规则
 
-- 按钮圆角为 `2px`，主按钮使用金底实色，次要动作优先使用文字链接。
+- Ops 按钮、输入、筛选、表格、看板卡片和弹窗默认使用 8px 以内圆角，主按钮使用金底实色，次要动作使用边框或文字按钮。
 - 签名开盒插画每屏最多出现一次，不作为可重复图标。
 - Logo 小尺寸场景使用 Logo 位图资产，不使用签名插画代替。
-- 避免蓝紫科技渐变、明亮发光、大圆角卡片、厚重阴影和数据仪表盘式装饰。
+- Ops 页面避免蓝紫科技渐变、明亮发光、大圆角卡片、厚重阴影、装饰性大屏组件和低信息密度卡片墙。
+- CSS 伪元素或样式规则使用 `content` 生成非 ASCII 符号时，必须使用 CSS escape 写法，例如 `\00B7`、`\2713`，不得直接写入 `·`、`✓`、`→` 等原始符号；ASCII 字符、空字符串、`attr()`、`counter()` 和纯文本占位可保持原写法。实现和返修时必须通过 `scripts/validate-design-system.py` 校验，避免不同截图、字体、压缩或编码链路中出现符号漂移。
 
 ## 浮层交互
 
@@ -75,3 +77,16 @@ UI 变更必须检查深浅主题对比、中文衬线标题使用、英文斜�
 10. 最终一致性：`/opsx-archive` MUST 在归档前确认 linked REQ 与最终 Change 设计、实现证据、1440px /关键交互截图、computed style 结果和 Mock/API 边界一致；不一致时阻断归档。
 
 推荐知识库入口：`docs/knowledge-base/best-practices/prototype-driven-ui-gate.md`。
+
+## UI Reference Replication Gate
+
+当用户明确引用附件 HTML、截图、标注图、既有页面或参考稿，并要求“一对一复刻”“全面贴近”“保持一致”或等价目标时，UI Change MUST 在实现前建立 UI Reference Replication Contract。该契约是 Prototype-driven UI Gate 的增强形态，详细模板见 `docs/standards/prototype-ui-acceptance.md`。
+
+1. 保真模式：先区分一对一复刻、风格迁移或局部一致；若只迁移风格，必须写明不复刻的组件和保留的业务语义。
+2. 参考稿反向工程：在 `/explore` 或 `/req-complete` 阶段拆出组件清单、布局结构、状态矩阵、响应式、滚动/sticky、空态、卡片、按钮、浮层和品牌区等差异点。
+3. Selector 映射：`/req-opsx` MUST 在 Change `design.md` 记录参考稿 selector、目标实现 selector、测试 selector、组件文件和状态类；无法定位 selector 的组件不得进入实现完成态。
+4. 动作按钮矩阵：涉及按钮触发弹窗、抽屉、Popover 或操作面板时，详细事实源见 `docs/standards/prototype-ui-acceptance.md`；实现前 MUST 建立“动作按钮 → modal 类型 → selector → 状态 → 验收证据”矩阵，并按动作族一次性设计、实现和验收组件族，不得继续逐按钮问答返修。
+5. Computed style 采样清单：对关键组件记录字体、字号、行高、宽高、padding、gap、边框、圆角、背景、颜色、position、z-index、overflow 等属性的期望、当前值和容差。
+6. 分批实现与验收：按页面壳、标题/品牌、指标/筛选、看板列、空态、卡片、动作按钮与浮层、响应式和滚动/sticky 等批次推进；每批都需要截图或 computed style 证据。
+7. 返修处理：若 `/opsx-modify` 暴露 Contract 缺口，先补齐契约、动作按钮矩阵和证据，再做局部修改；不得继续只按用户截图逐元素试改。
+8. 归档门禁：`/opsx-archive` 必须确认 UI Reference Replication Contract、最终截图、computed style 采样、selector 映射、动作按钮矩阵、REQ 验收资料和 Change 证据一致。

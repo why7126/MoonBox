@@ -1,14 +1,80 @@
 ---
 purpose: 原型驱动 UI 验收标准
-content: 带 prototype 的 UI Change 的 UI Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单
+content: 带 prototype 或 UI 参考稿的 UI Change 的 UI Contract、Reference Replication Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单
 created_at: 2026-08-10 20:14:00
-updated_at: 2026-08-18 10:06:40
+updated_at: 2026-09-02 19:12:31
 owner: MoonBox 产品团队
 ---
 
 # 原型驱动 UI 验收标准
 
 本标准适用于任何包含 `prototype/`、`prototype_refs`、`AC-PROTOTYPE-*`、UI Skeleton 或明确引用既有页面视觉的 UI Change。目标是把“像不像原型”前置为可执行合同、可截图证据和可复核样式检查。UI 效果不如预期、视觉偏差或交互异常同时 MUST 遵守 `rules/root-cause-evidence.md`。
+
+## UI Reference Replication Contract
+
+当用户提供附件 HTML、截图、标注图、既有页面或参考稿，并要求“一对一复刻”“全面贴近”“保持一致”或等价目标时，`/explore`、`/req-complete`、`/req-opsx`、`/opsx-apply`、`/opsx-modify` 和 `/opsx-archive` 必须承接同一份 UI Reference Replication Contract。
+
+### 适用判定
+
+| 判定项 | 要求 |
+|---|---|
+| 保真模式 | 一对一复刻、风格迁移或局部一致 |
+| 事实源优先级 | 附件 HTML、截图、标注图、既有页面、当前实现、业务语义保留项和冲突处理 |
+| 范围边界 | 本次要复刻的组件、明确不复刻的组件、不得被误改的既有能力 |
+| 验收批次 | 每批组件、状态、视口和证据入口 |
+
+### 参考稿反向工程清单
+
+| 类别 | 必查项 |
+|---|---|
+| 页面壳 | 画布背景、主内容宽高、侧边栏、标题区、滚动容器和 sticky 边界 |
+| 组件结构 | 指标卡、筛选区、按钮、看板列头、列体、空态、任务卡、标签、文档入口、进度、浮层 |
+| 视觉属性 | 字体、字号、字重、行高、颜色、背景、边框、圆角、阴影、padding、gap、宽高 |
+| 状态矩阵 | empty、filled、hover、focus、active、disabled、loading、open、collapsed、error |
+| 响应式 | 1440px 基准、移动端、窄视口、横向滚动、文本溢出和触控密度 |
+
+### Selector 映射表
+
+| 字段 | 必填内容 |
+|---|---|
+| 组件 | 业务组件名或 UI 区块 |
+| 参考 selector | 附件 HTML、参考页面或截图标注中的 selector / 文本锚点 |
+| 目标 selector | 当前实现中的 CSS selector、data-testid 或可稳定定位的 DOM 路径 |
+| 实现入口 | 目标组件文件或样式文件 |
+| 状态 | default、hover、empty、filled、sticky、mobile 等 |
+| 验收批次 | 所属批次和完成状态 |
+
+### 动作按钮与 Modal 组件族矩阵
+
+当参考稿复刻范围包含按钮、快捷动作、卡片 footer、FAB、工具栏动作、阶段动作或其他会触发弹窗、抽屉、Popover、确认框、Action Modal、AI 面板的交互入口时，`/req-opsx`、`/opsx-apply` 和 `/opsx-modify` 必须在实现前建立动作按钮矩阵。该矩阵用于一次性梳理动作族与浮层组件族，避免只按单个按钮逐轮返修。
+
+| 字段 | 必填内容 |
+|---|---|
+| 动作按钮 | 用户可见按钮文案、图标、所在组件和业务动作 |
+| modal 类型 | `dialog`、`drawer`、`popover`、`confirm`、`action-modal`、`ai-panel`、`inline-expanded` 或 N/A |
+| 参考 selector | 附件 HTML、参考页面、截图标注或文本锚点中的按钮与浮层 selector |
+| 目标 selector | 当前实现按钮、触发器、浮层根节点、关闭按钮和主操作按钮 selector |
+| 状态 | default、hover、focus、active、disabled、loading、open、submitted、error、empty、permission-hidden 等 |
+| 组件族 | 共用 Button、Modal/Drawer、ActionPanel、Form、Toast、Overlay 或专属组件入口 |
+| 验收证据 | 截图、computed style JSON、Playwright/DOM 断言、键盘/外部点击证据或 trace 摘要 |
+| 处置结论 | 一次性实现、复用既有组件、保留现状、证据不足、超出范围 |
+
+矩阵完成后，属于同一动作族的按钮和 modal 必须统一实现组件族：同一视觉等级、尺寸、图标、关闭路径、loading/disabled/error、外部点击 capture 阶段、提交后 toast 或状态流转应一次性覆盖。若某个按钮确需例外，必须在矩阵中写明业务原因和验收方式；不得把例外留到后续逐按钮问答中补。
+
+### Computed Style 采样清单
+
+| 字段 | 必填内容 |
+|---|---|
+| 页面/视口 | 路由、宽高、主题、登录态或权限态 |
+| selector | 目标 selector 和参考 selector |
+| 属性 | `font-family`、`font-size`、`line-height`、`padding`、`gap`、`border`、`background`、`color`、`position`、`z-index`、`overflow` 等 |
+| 期望 | 参考值、token、范围或允许偏差 |
+| 实际 | 当前实现采样值 |
+| 结论 | pass、warn、fail、N/A 和原因 |
+
+### 分批验收门禁
+
+参考稿复刻不得只用整体观感关闭。推荐按以下批次推进：页面壳与布局、品牌/标题、指标/筛选、看板列头与空列、任务卡与标签、动作按钮与 modal 组件族、移动端与滚动/sticky。每批完成前必须记录 selector 映射、动作按钮矩阵（如适用）、关键 computed style、截图或等价证据、非目标未改说明。
 
 ## UI Contract
 

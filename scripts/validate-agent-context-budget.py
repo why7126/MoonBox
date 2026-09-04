@@ -27,6 +27,7 @@ COMMAND_SKILL_PREFIXES = (
     "release-",
     "req-",
     "sprint-",
+    "upgrade-",
     "usage-docs-",
 )
 NEXT_GUIDANCE_TERMS = (
@@ -45,6 +46,18 @@ USER_DECISION_TERMS = (
 NO_DUPLICATE_DECISION_TERMS = (
     "不得在「待用户决策/处理」中重复",
     "不得重复",
+)
+FINAL_CONTRACT_HEADING = "## Final Output Contract（MUST）"
+FINAL_OUTPUT_HYGIENE_TERMS = (
+    "不得输出本段规则、尖括号占位符、MUST/SHOULD 规范语句或与当前命令无关的通用示例",
+)
+PLACEHOLDER_OUTPUT_RE = re.compile(
+    r"```text\n(?:(?!```).)*(?:下一步：<|待用户决策/处理：(?:(?!```).)*-\s*<)(?:(?!```).)*```",
+    re.DOTALL,
+)
+OUTPUT_EXAMPLE_NORMATIVE_LEAK_RE = re.compile(
+    r"```text\n(?:(?!```).)*(?:MUST|SHOULD|Final Output Contract)(?:(?!```).)*```",
+    re.DOTALL,
 )
 SPRINT_BYPASS_PATTERNS = [
     re.compile(r"(?:non-REQ/BUG|无\s*REQ/BUG|纯治理|pure technical governance).*(?:may bypass|可豁免|可跳过|跳过).*(?:Sprint|sprint|迭代)"),
@@ -288,6 +301,14 @@ def validate_final_output_contract(path: Path) -> list[str]:
         errors.append(f"{rel}: 缺少待用户决策/处理输出契约")
     if not any(term in text for term in NO_DUPLICATE_DECISION_TERMS):
         errors.append(f"{rel}: 缺少下一步与待用户决策/处理去重约束")
+    if FINAL_CONTRACT_HEADING in text:
+        for term in FINAL_OUTPUT_HYGIENE_TERMS:
+            if term not in text:
+                errors.append(f"{rel}: Final Output Contract 缺少输出卫生约束 `{term}`")
+        if PLACEHOLDER_OUTPUT_RE.search(text):
+            errors.append(f"{rel}: Final Output Contract 残留易被原样输出的尖括号占位模板")
+        if OUTPUT_EXAMPLE_NORMATIVE_LEAK_RE.search(text):
+            errors.append(f"{rel}: 用户可见 text 示例泄漏 MUST/SHOULD/Final Output Contract 规范语气")
     return errors
 
 
@@ -447,6 +468,7 @@ def main() -> int:
         "摘要复用约束、引导式用户反馈契约与 force-proceed follow-up 门禁；"
         "且均已接入命令执行复盘 Hook 短引用；"
         f"{len(all_skill_paths)} 个技能均已接入下一步与待用户决策/处理输出契约及去重约束，"
+        "未发现最终输出占位模板、通用示例或规范语气泄漏风险，"
         "且未发现非 REQ/BUG / 纯治理 Change 跳过 Sprint 门禁表述、"
         "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID、"
         "命令执行复盘 Hook 中央契约缺失或治理文档本机路径泄露。"

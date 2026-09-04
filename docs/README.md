@@ -19,7 +19,10 @@ owner: MoonBox 产品团队
 | `07-object-storage-strategy.md` | 文档与图片资产存储 |
 | `08-command-execution-order.md` | REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令执行顺序、下一步参数规范和执行复盘 Hook |
 | `pending-decisions.md` | 集中未决策事项 |
-| `standards/` | API、认证、测试、上传、安全、原型驱动 UI 验收等专项标准 |
+| `standards/` | API、认证、测试、上传、安全、产品数据采集、链路观测、原型驱动 UI 验收等专项标准 |
+| `standards/product-data-collection-observability.md` | 行为事件、请求日志、Task Trace、流程节点、脱敏、保留周期和治理门禁 |
+| `standards/task-trace-coverage.md` | MoonBox 任务链路候选场景、接入优先级和流程节点策略 |
+| `../data/ai-usage/README.md` | AI Usage 本地 session JSONL 输入、脱敏派生事实、自动发现与历史回填边界 |
 | `standards/prototype-ui-acceptance.md` | 带 prototype 的 UI Change 的 UI Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单 |
 | `../rules/root-cause-evidence.md` | 问题排查、BUG 完善、验收返修和效果不符场景的证据化根因分析规则 |
 | `knowledge-base/` | Sprint 复盘、经验和事故沉淀 |

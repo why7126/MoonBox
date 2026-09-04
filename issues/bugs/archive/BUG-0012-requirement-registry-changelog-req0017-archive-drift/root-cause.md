@@ -16,7 +16,7 @@ status: confirmed
 - `REQ-0017-admin-space-management` 的真实目录已位于 `issues/requirements/archive/REQ-0017-admin-space-management/`。
 - 单条 REQ `trace.md` 已显示 `status: done`、`lifecycle_stage: archive`，关联 Change `add-admin-space-management` 已 `archived`。
 - `issues/requirements/_registry.yaml` 仍把 `REQ-0017-admin-space-management` 记录为 `lifecycle_stage: review`，路径仍指向 `issues/requirements/review/REQ-0017-admin-space-management/`。
-- `issues/requirements/CHANGELOG.md` 仍把 `REQ-0017-admin-space-management` 展示为 `in_sprint` / `review`，下一步仍是 `/opsx-apply REQ-0017-admin-space-management`，事实源仍指向 `review/` 路径。
+- `issues/requirements/CHANGELOG.md` 仍把 `REQ-0017-admin-space-management` 展示为迭代中 / `review`，下一步仍是 `/opsx-apply REQ-0017-admin-space-management`，事实源仍指向 `review/` 路径。
 
 ## 证据链
 
@@ -24,7 +24,7 @@ status: confirmed
 |---|---|---|---|---|
 | E1 | data_sample | `issues/requirements/archive/REQ-0017-admin-space-management/trace.md` | frontmatter 显示 `status: done`、`lifecycle_stage: archive`，`openspec_changes` 中 `add-admin-space-management` 状态为 `archived`。 | 单条 REQ 事实源已进入归档闭环。 |
 | E2 | data_sample | `issues/requirements/_registry.yaml` | `REQ-0017-admin-space-management` 的 `lifecycle_stage` 仍为 `review`，`path` 仍为 `issues/requirements/review/REQ-0017-admin-space-management/`。 | registry 与单条 REQ 事实源、真实目录不一致。 |
-| E3 | data_sample | `issues/requirements/CHANGELOG.md` | `REQ-0017-admin-space-management` 仍展示 `in_sprint` / `review`，下一步为 `/opsx-apply ...`，事实源路径为 `review/.../trace.md`。 | 当前态看板与单条 REQ 事实源、真实目录不一致。 |
+| E3 | data_sample | `issues/requirements/CHANGELOG.md` | `REQ-0017-admin-space-management` 仍展示迭代中 / `review`，下一步为 `/opsx-apply ...`，事实源路径为 `review/.../trace.md`。 | 当前态看板与单条 REQ 事实源、真实目录不一致。 |
 | E4 | data_sample | `openspec/archive/2026-08-14-add-admin-space-management/` | 关联 Change 归档目录存在。 | OpenSpec 归档侧已经闭环，不应继续提示 apply。 |
 | E5 | reproduction | `/bug-explore BUG-0012-requirement-registry-changelog-req0017-archive-drift` | 对比 REQ trace、registry、CHANGELOG 和文件系统路径后，漂移可稳定复现。 | 问题不是单次读取误差，而是治理资产持久化状态不一致。 |
 | E6 | runtime_log | Codex session summary `2026-08-14 16:29 sprint-archive sprint-002` | `/sprint-archive sprint-002` 执行中，`validate-sprint-archive-readiness.py --sprint sprint-002` 显示 `add-admin-space-management` 为 `archived`、`120/120` tasks、PASS；随后 `promote-issues-for-archive.py --sprint sprint-002` 返回 “No issues eligible for review → archive promotion”。 | 归档关闭链路确认 Change 已归档，但 Issue promotion 阶段没有处理任何 review→archive 迁移或对应 Issue 索引刷新。 |
@@ -47,7 +47,7 @@ status: confirmed
 - `check-sprint-close-stale-scan.py --sprint sprint-002` 主要扫描 `iterations/change/sprint-002` 与已知 stale 文案，不检查 `issues/requirements/_registry.yaml` 和 `issues/requirements/CHANGELOG.md` 中每条 REQ 的路径/阶段是否与真实目录一致。
 - 关闭链路中没有针对 `REQ-0017-admin-space-management` 的聚焦 `req.archive` Workflow Sync 输出。
 
-因此，已确认根因是 Sprint 归档关闭链路只验证了 Change/Sprint readiness 和部分历史 stale 文案，没有在 Issue 已归档但目录级索引滞后的场景下强制刷新或校验 `issues/requirements/_registry.yaml` 与 `issues/requirements/CHANGELOG.md`，导致 REQ-0017 的派生索引保留 `review/` 路径和 `in_sprint` 下一步。
+因此，已确认根因是 Sprint 归档关闭链路只验证了 Change/Sprint readiness 和部分历史 stale 文案，没有在 Issue 已归档但目录级索引滞后的场景下强制刷新或校验 `issues/requirements/_registry.yaml` 与 `issues/requirements/CHANGELOG.md`，导致 REQ-0017 的派生索引保留 `review/` 路径和迭代中下一步。
 
 ## 修复方向
 

@@ -40,10 +40,10 @@ status: done
 | 时间 | 事件 | 说明 |
 |---|---|---|
 | 2026-08-15 11:49:22 | /opsx-archive | Change `fix-requirement-registry-changelog-req0017-archive-drift` 已归档，状态同步完成。 |
-| 2026-08-15 11:36:34 | /opsx-apply | Change `fix-requirement-registry-changelog-req0017-archive-drift` apply 完成，待 archive。 |
-| 2026-08-15 11:36:02 | /opsx-apply | Change `fix-requirement-registry-changelog-req0017-archive-drift` apply 进行中，待补齐剩余验收。 |
-| 2026-08-15 11:12:00 | bug.opsx | 创建 OpenSpec Change `fix-requirement-registry-changelog-req0017-archive-drift`，状态 proposed，等待 /opsx-apply。 |
-| 2026-08-15 11:08:25 | sprint.propose | 纳入 sprint-003，状态推进为 in_sprint，待创建 OpenSpec Change。 |
+| 2026-08-15 11:36:34 | /opsx-apply | Change `fix-requirement-registry-changelog-req0017-archive-drift` apply 完成，随后进入归档闭环。 |
+| 2026-08-15 11:36:02 | /opsx-apply | Change `fix-requirement-registry-changelog-req0017-archive-drift` apply 开始，后续补齐剩余验收。 |
+| 2026-08-15 11:12:00 | bug.opsx | 创建 OpenSpec Change `fix-requirement-registry-changelog-req0017-archive-drift`，进入实现准备阶段。 |
+| 2026-08-15 11:08:25 | sprint.propose | 纳入 sprint-003，进入迭代范围，后续创建 OpenSpec Change。 |
 | 2026-08-15 11:03:51 | bug.review | 评审通过，状态推进为 approved，准备迁入 review 阶段目录。 |
 | 2026-08-15 10:56:39 | bug.complete | 补齐 sprint-archive 历史 session 证据，根因状态确认为 confirmed，状态推进为 pending_review。 |
 | 2026-08-15 10:46:46 | bug.complete | 补齐 root-cause.md、workaround.md、acceptance.md；根因状态为 probable，待补证后进入评审。 |

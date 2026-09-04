@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from .collect import (
     load_all_issues,
@@ -81,6 +81,7 @@ class SyncReport:
         if self.subdocument_results:
             checked_files = sum(item.checked_files for item in self.subdocument_results)
             updated_files = sum(item.updated_files for item in self.subdocument_results)
+            updated_fields = sum(item.updated_fields for item in self.subdocument_results)
             warnings = sum(len(item.warnings) for item in self.subdocument_results)
             blockers = sum(len(item.blockers) for item in self.subdocument_results)
             acceptance = ", ".join(
@@ -88,9 +89,29 @@ class SyncReport:
             )
             lines.append(
                 f"- Subdocuments: checked={checked_files}, updated={updated_files}, "
-                f"warnings={warnings}, blockers={blockers}"
+                f"updated_fields={updated_fields}, warnings={warnings}, blockers={blockers}"
             )
             lines.append(f"- Acceptance results: {acceptance or 'n/a'}")
+            lines.append("- Subdocument apply details:")
+            for item in self.subdocument_results:
+                lines.append(
+                    f"  - {item.issue_id}: updated_files={item.updated_files}, "
+                    f"updated_fields={item.updated_fields}, acceptance_status={item.acceptance_status}"
+                )
+                safe_findings = [finding for finding in item.findings if finding.safe_to_sync]
+                for finding in safe_findings:
+                    try:
+                        path = finding.file.relative_to(ROOT)
+                    except ValueError:
+                        path = finding.file
+                    lines.append(
+                        f"    - {finding.classification}: `{path}` {finding.source} "
+                        f"`{finding.current}` -> `{finding.target}`"
+                    )
+                if item.warnings:
+                    lines.append(f"    - warnings require manual review: {len(item.warnings)}")
+                if item.blockers:
+                    lines.append(f"    - blockers: {len(item.blockers)}")
         if self.skipped and not self.errors:
             lines.append("- Detail: use `--output detail` to list no-delta files.")
         if self.errors:
@@ -305,6 +326,14 @@ class SyncEngine:
                     if not has_change:
                         issue.openspec_changes.append(
                             {"change_id": change_id, "status": "proposed"}
+                        )
+                    current = derived_issues.get(focus_issue_id)
+                    derived_change = derived_changes.get(change_id)
+                    if current and current.linked_change != change_id:
+                        derived_issues[focus_issue_id] = replace(
+                            current,
+                            linked_change=change_id,
+                            note=derived_change.note if derived_change else f"proposed `{change_id}`",
                         )
 
         if sprint:

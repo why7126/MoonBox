@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 import os
 from pathlib import Path
+import re
 from typing import Any
 
 from sqlalchemy import text
@@ -13,6 +14,7 @@ from app.schemas.requirement_center import (
     RequirementCenterAction,
     RequirementCenterContext,
     RequirementCenterDocument,
+    RequirementCenterDocumentCapability,
     RequirementCenterIssue,
     RequirementCenterStats,
     RequirementCenterTasks,
@@ -48,6 +50,8 @@ STAGES = {
     "archived": "done",
 }
 SPRINT_VISIBLE_STAGES = {"sprint-planning", "ready-dev", "development", "acceptance", "done"}
+CHANGE_DOCS = ("proposal.md", "spec.md", "design.md", "trace.md", "tasks.md")
+TASK_MARKER_RE = re.compile(r"^(\s*[-*]\s+\[)( |x|X)(\]\s+.*)$")
 
 
 def build_requirement_center_context(
@@ -87,16 +91,16 @@ def _build_issue(issue_type: str, entry: dict[str, Any]) -> RequirementCenterIss
     issue_id = str(entry.get("id", "")).strip()
     issue_dir = _safe_issue_dir(entry.get("path"))
     trace = _frontmatter(issue_dir / "trace.md") if issue_dir else {}
-    documents = _document_names(issue_dir)
     changes = _linked_changes(entry, trace)
     tasks = _change_tasks(changes)
     task_progress = (tasks.done, tasks.total) if tasks and tasks.total else None
     raw_sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
     status = _change_status(changes) or trace.get("status") or entry.get("status") or "captured"
+    documents = _display_document_names(issue_dir, changes, status)
     stage = _map_stage(str(status), documents, changes)
     sprint_id = raw_sprint_id if _should_show_sprint(stage) else None
     warnings = _drift_warnings(entry, trace, issue_dir, raw_sprint_id)
-    blocked = _blocked_reason(stage, issue_type, documents, warnings)
+    blocked = _blocked_reason(stage, issue_type, documents, warnings, issue_dir)
     detail_url = _detail_url(issue_id)
     return RequirementCenterIssue(
         id=_short_id(issue_id),
@@ -107,7 +111,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any]) -> RequirementCenterIss
         source=str(entry.get("lifecycle_stage") or entry.get("status") or "registry"),
         stage=stage,
         documents=documents,
-        document_entries=_document_entries(issue_id, documents, stage),
+        document_entries=_document_entries(issue_id, documents, stage, issue_type, changes),
         detail_url=detail_url,
         archive_url=detail_url if stage == "done" else None,
         action=_stage_action(issue_id, issue_type, stage, blocked),
@@ -133,19 +137,57 @@ def _document_names(issue_dir: Path | None) -> list[str]:
     return sorted(names)
 
 
-def _document_entries(issue_id: str, documents: list[str], stage: str) -> list[RequirementCenterDocument]:
+def _display_document_names(issue_dir: Path | None, changes: list[str], status: Any) -> list[str]:
+    stage = STAGES.get(str(status), "capture")
+    if changes and stage in SPRINT_VISIBLE_STAGES:
+        change_documents = _change_document_names(changes[0])
+        if change_documents:
+            return change_documents
+    return _document_names(issue_dir)
+
+
+def _change_document_names(change_id: str) -> list[str]:
+    try:
+        change_dir = _change_dir(change_id)
+    except PermissionError:
+        return []
+    existing: set[str] = set()
+    for name in ("proposal.md", "design.md", "trace.md", "tasks.md"):
+        if (change_dir / name).exists():
+            existing.add(name)
+    if any((change_dir / "specs").glob("*/spec.md")):
+        existing.add("spec.md")
+    return [name for name in CHANGE_DOCS if name in existing]
+
+
+def _document_entries(issue_id: str, documents: list[str], stage: str, issue_type: str, changes: list[str]) -> list[RequirementCenterDocument]:
     entries: list[RequirementCenterDocument] = []
+    change_id = changes[0] if changes and stage in SPRINT_VISIBLE_STAGES else None
     for name in documents:
         suffix = Path(name).suffix.lower()
         if suffix == ".md":
+            path_category = "change" if change_id and name in CHANGE_DOCS else "issue"
+            capability = compute_document_capability(
+                issue_type=issue_type,
+                stage=stage,
+                document_name=name,
+                path_category=path_category,
+                exists=True,
+            )
+            url = (
+                f"/api/v1/requirement-center/changes/{change_id}/documents/{name}"
+                if path_category == "change"
+                else f"/api/v1/requirement-center/issues/{issue_id}/documents/{name}"
+            )
             entries.append(
                 RequirementCenterDocument(
                     name=name,
                     type="markdown",
                     open_mode="drawer",
                     label=name,
-                    url=f"/api/v1/requirement-center/issues/{issue_id}/documents/{name}",
-                    editable=stage == "capture" and name == "capture.md",
+                    url=url,
+                    editable=capability.human_editable,
+                    capability=capability,
                 )
             )
         elif suffix == ".html":
@@ -159,6 +201,45 @@ def _document_entries(issue_id: str, documents: list[str], stage: str) -> list[R
                 )
             )
     return entries
+
+
+def compute_document_capability(
+    *,
+    issue_type: str,
+    stage: str,
+    document_name: str,
+    path_category: str,
+    exists: bool,
+) -> RequirementCenterDocumentCapability:
+    if not exists:
+        return RequirementCenterDocumentCapability(readable=False, reason="文档不存在或已移动")
+    if document_name == "trace.md":
+        return RequirementCenterDocumentCapability(ai_mutable=True, reason="trace.md 仅允许系统治理链路更新，人工始终只读")
+    if path_category == "effective_spec":
+        return RequirementCenterDocumentCapability(reason="已生效规格只能通过 OpenSpec Change 和 archive 合并流程修改")
+    if path_category == "change":
+        if stage == "ready-dev" and document_name in {"proposal.md", "spec.md", "design.md", "tasks.md"}:
+            return RequirementCenterDocumentCapability(human_editable=True, ai_mutable=True, reason="待开发阶段允许编辑当前 OpenSpec Change 计划类文档")
+        if stage == "acceptance" and document_name == "tasks.md":
+            return RequirementCenterDocumentCapability(ai_mutable=True, task_toggle_only=True, reason="验收中 tasks.md 仅允许勾选或取消勾选任务")
+        return RequirementCenterDocumentCapability(ai_mutable=True, reason="当前 Change 阶段不允许人工全文编辑")
+    if stage == "capture" and document_name == "capture.md":
+        return RequirementCenterDocumentCapability(human_editable=True, ai_mutable=True, reason="采集池阶段允许编辑 capture.md")
+    if stage == "planning":
+        allowed = "requirement.md" if issue_type == "requirement" else "bug.md"
+        if document_name == allowed:
+            return RequirementCenterDocumentCapability(human_editable=True, ai_mutable=True, reason="规划中阶段允许编辑主文档")
+    if stage == "review-ready":
+        allowed_docs = {"acceptance.md"}
+        allowed_docs.update({"requirement.md", "business-flow.md", "user-stories.md"} if issue_type == "requirement" else {"bug.md", "root-cause.md", "workaround.md"})
+        if document_name in allowed_docs:
+            return RequirementCenterDocumentCapability(human_editable=True, ai_mutable=True, reason="待评审阶段允许完善类文档编辑")
+    if stage == "approved":
+        allowed_docs = {"acceptance.md", "review.md"}
+        allowed_docs.update({"requirement.md", "business-flow.md", "user-stories.md"} if issue_type == "requirement" else {"bug.md", "root-cause.md", "workaround.md"})
+        if document_name in allowed_docs:
+            return RequirementCenterDocumentCapability(human_editable=True, ai_mutable=True, reason="已评审阶段允许已评审材料编辑")
+    return RequirementCenterDocumentCapability(ai_mutable=True, reason="当前治理阶段不允许人工编辑")
 
 
 def _detail_url(issue_id: str) -> str:
@@ -456,9 +537,28 @@ def read_requirement_center_document(issue_id: str, document_name: str) -> tuple
     return target.read_text(encoding="utf-8"), suffix
 
 
-def update_requirement_center_capture_document(issue_id: str, document_name: str, content: str) -> str:
-    if document_name != "capture.md":
-        raise PermissionError("only capture.md is editable")
+def read_requirement_center_change_document(change_id: str, document_name: str) -> tuple[str, str]:
+    if Path(document_name).name != document_name:
+        raise PermissionError("invalid document name")
+    if Path(document_name).suffix.lower() != ".md":
+        raise ValueError("unsupported document type")
+    if document_name == "spec.md":
+        spec_paths = _change_spec_paths(change_id)
+        if not spec_paths:
+            raise FileNotFoundError("spec document not found")
+        if len(spec_paths) > 1:
+            sections = [
+                f"<!-- source: {path.parent.name}/spec.md -->\n{path.read_text(encoding='utf-8').strip()}"
+                for path in spec_paths
+            ]
+            return "\n\n---\n\n".join(sections), ".md"
+    target = _change_document_path(change_id, document_name)
+    if not target.exists() or not target.is_file():
+        raise FileNotFoundError("document not found")
+    return target.read_text(encoding="utf-8"), ".md"
+
+
+def update_requirement_center_document(issue_id: str, document_name: str, content: str) -> str:
     if Path(document_name).name != document_name:
         raise PermissionError("invalid document name")
     issue_dir = _find_issue_dir(issue_id)
@@ -468,8 +568,26 @@ def update_requirement_center_capture_document(issue_id: str, document_name: str
     if document_name not in documents:
         raise FileNotFoundError("document not found")
     stage = _issue_stage(issue_id, issue_dir, documents)
+    issue_type = "requirement" if issue_id.startswith("REQ-") else "bug"
+    capability = compute_document_capability(
+        issue_type=issue_type,
+        stage=stage,
+        document_name=document_name,
+        path_category="issue",
+        exists=True,
+    )
+    if not capability.human_editable:
+        raise PermissionError(capability.reason)
     if stage != "capture":
-        raise PermissionError("document is read only outside capture stage")
+        allowed = compute_document_capability(
+            issue_type=issue_type,
+            stage=stage,
+            document_name=document_name,
+            path_category="issue",
+            exists=True,
+        )
+        if not allowed.human_editable:
+            raise PermissionError(allowed.reason)
     target = (issue_dir / document_name).resolve()
     try:
         target.relative_to(issue_dir.resolve())
@@ -479,6 +597,123 @@ def update_requirement_center_capture_document(issue_id: str, document_name: str
         raise FileNotFoundError("document not found")
     target.write_text(content, encoding="utf-8")
     return content
+
+
+def update_requirement_center_change_document(change_id: str, document_name: str, content: str, *, task_toggle: bool = False) -> str:
+    if Path(document_name).name != document_name:
+        raise PermissionError("invalid document name")
+    stage = _change_stage(change_id)
+    capability = compute_document_capability(
+        issue_type=_change_issue_type(change_id),
+        stage=stage,
+        document_name=document_name,
+        path_category="change",
+        exists=True,
+    )
+    if task_toggle:
+        if not capability.task_toggle_only:
+            raise PermissionError(capability.reason)
+        target = _change_document_path(change_id, document_name)
+        if not target.exists() or not target.is_file():
+            raise FileNotFoundError("document not found")
+        current = target.read_text(encoding="utf-8")
+        if not _is_task_toggle_only_change(current, content):
+            raise PermissionError("验收中 tasks.md 仅允许切换任务勾选状态")
+    elif not capability.human_editable:
+        raise PermissionError(capability.reason)
+    if document_name == "spec.md":
+        return _write_change_spec_document(change_id, content)
+    target = _change_document_path(change_id, document_name)
+    if not target.exists() or not target.is_file():
+        raise FileNotFoundError("document not found")
+    target.write_text(content, encoding="utf-8")
+    return content
+
+
+def _change_document_path(change_id: str, document_name: str) -> Path:
+    change_dir = _change_dir(change_id)
+    if document_name == "spec.md":
+        spec_paths = _change_spec_paths(change_id)
+        if len(spec_paths) != 1:
+            if spec_paths:
+                raise PermissionError("多个 delta spec 需通过治理命令或具体文件入口修改")
+            raise FileNotFoundError("spec document not found")
+        return spec_paths[0].resolve()
+    target = (change_dir / document_name).resolve()
+    try:
+        target.relative_to(change_dir)
+    except ValueError as exc:
+        raise PermissionError("invalid document path") from exc
+    return target
+
+
+def _change_spec_paths(change_id: str) -> list[Path]:
+    change_dir = _change_dir(change_id)
+    return sorted((change_dir / "specs").glob("*/spec.md"))
+
+
+def _write_change_spec_document(change_id: str, content: str) -> str:
+    spec_paths = _change_spec_paths(change_id)
+    if not spec_paths:
+        raise FileNotFoundError("spec document not found")
+    if len(spec_paths) == 1:
+        spec_paths[0].write_text(content, encoding="utf-8")
+        return content
+    sections = content.split("\n\n---\n\n")
+    if len(sections) != len(spec_paths):
+        raise PermissionError("多个 delta spec 保存必须保留 source 标记和分隔线")
+    for section, path in zip(sections, spec_paths):
+        marker = f"<!-- source: {path.parent.name}/spec.md -->"
+        lines = section.splitlines()
+        if not lines or lines[0].strip() != marker:
+            raise PermissionError("多个 delta spec 保存必须保留 source 标记")
+        body = "\n".join(lines[1:]).strip()
+        path.write_text(f"{body}\n", encoding="utf-8")
+    return content
+
+
+def _change_stage(change_id: str) -> str:
+    status = _frontmatter(_change_dir(change_id) / "trace.md").get("status") or "proposed"
+    return STAGES.get(str(status), "ready-dev")
+
+
+def _change_issue_type(change_id: str) -> str:
+    trace = _frontmatter(_change_dir(change_id) / "trace.md")
+    source = str(trace.get("requirement") or trace.get("bug") or trace.get("source_requirement") or trace.get("source_bug") or "")
+    return "bug" if source.startswith("BUG-") else "requirement"
+
+
+def _change_dir(change_id: str) -> Path:
+    change_root = (GOVERNANCE_ROOT / "openspec" / "changes").resolve()
+    change_dir = (change_root / change_id).resolve()
+    try:
+        change_dir.relative_to(change_root)
+    except ValueError as exc:
+        raise PermissionError("invalid change path") from exc
+    return change_dir
+
+
+def _is_task_toggle_only_change(original: str, updated: str) -> bool:
+    original_lines = original.splitlines(keepends=True)
+    updated_lines = updated.splitlines(keepends=True)
+    if len(original_lines) != len(updated_lines):
+        return False
+    changed = False
+    for before, after in zip(original_lines, updated_lines):
+        if before == after:
+            continue
+        before_body = before.rstrip("\r\n")
+        after_body = after.rstrip("\r\n")
+        before_match = TASK_MARKER_RE.match(before_body)
+        after_match = TASK_MARKER_RE.match(after_body)
+        if not before_match or not after_match:
+            return False
+        if before_match.group(1) != after_match.group(1) or before_match.group(3) != after_match.group(3):
+            return False
+        if before[len(before_body) :] != after[len(after_body) :]:
+            return False
+        changed = True
+    return changed
 
 
 def _issue_stage(issue_id: str, issue_dir: Path, documents: list[str]) -> str:
@@ -503,17 +738,47 @@ def _find_issue_dir(issue_id: str) -> Path | None:
     return None
 
 
-def _blocked_reason(stage: str, issue_type: str, documents: list[str], warnings: list[str]) -> str | None:
-    required = {
-        "review-ready": ["acceptance.md", "trace.md"],
+def _required_action_documents(stage: str, issue_type: str) -> list[str]:
+    requirement_documents = ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"]
+    bug_documents = ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"]
+    if stage == "capture":
+        return ["trace.md", "capture.md"]
+    if stage == "planning":
+        return ["trace.md", "capture.md", "requirement.md" if issue_type == "requirement" else "bug.md"]
+    return {
+        "review-ready": requirement_documents if issue_type == "requirement" else bug_documents,
+        "approved": [*requirement_documents, "review.md"] if issue_type == "requirement" else [*bug_documents, "review.md"],
         "ready-dev": ["proposal.md", "tasks.md", "trace.md"],
         "acceptance": ["acceptance.md", "trace.md"],
     }.get(stage, [])
-    if stage == "planning":
-        required = ["requirement.md" if issue_type == "requirement" else "bug.md", "trace.md"]
+
+
+def _empty_documents(issue_dir: Path | None, required: list[str]) -> list[str]:
+    if not issue_dir:
+        return required
+    empty: list[str] = []
+    for name in required:
+        target = (issue_dir / name).resolve()
+        try:
+            target.relative_to(issue_dir.resolve())
+        except ValueError:
+            empty.append(name)
+            continue
+        if not target.exists() or not target.is_file():
+            continue
+        if not target.read_text(encoding="utf-8").strip():
+            empty.append(name)
+    return empty
+
+
+def _blocked_reason(stage: str, issue_type: str, documents: list[str], warnings: list[str], issue_dir: Path | None) -> str | None:
+    required = _required_action_documents(stage, issue_type)
     missing = [doc for doc in required if doc not in documents]
     if missing:
         return f"缺少 {', '.join(missing)}"
+    empty = _empty_documents(issue_dir, required)
+    if empty:
+        return f"文档内容为空：{', '.join(empty)}"
     if warnings:
         return "存在数据漂移"
     return None

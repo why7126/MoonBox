@@ -1,0 +1,90 @@
+{
+  "url": "http://127.0.0.1:5177/requirements?mock=workflow",
+  "documents": {
+    "development": [
+      "proposal.md",
+      "spec.md",
+      "design.md",
+      "trace.md",
+      "tasks.md"
+    ],
+    "acceptance": [
+      "proposal.md",
+      "spec.md",
+      "design.md",
+      "trace.md",
+      "tasks.md"
+    ],
+    "done": [
+      "proposal.md",
+      "spec.md",
+      "design.md",
+      "trace.md",
+      "tasks.md",
+      "archive.md"
+    ]
+  },
+  "hiddenDocuments": {
+    "acceptanceHasAcceptanceMd": false,
+    "acceptanceHasTestPlanMd": false
+  },
+  "progressText": "研发7/7测试3/3人工验收1/1",
+  "drawer": {
+    "activeSection": "人工验收进度",
+    "sections": [
+      {
+        "label": "研发任务进度",
+        "text": "研发任务7/7",
+        "active": false
+      },
+      {
+        "label": "自动化测试进度",
+        "text": "自动化测试3/3",
+        "active": false
+      },
+      {
+        "label": "人工验收进度",
+        "text": "人工验收1/1暂无待处理人工验收项",
+        "active": true
+      }
+    ]
+  },
+  "computed": {
+    "progress": {
+      "color": "color(srgb 0.305882 0.330196 0.398431)",
+      "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+      "fontSize": "11px",
+      "fontWeight": "400",
+      "lineHeight": "14.85px",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "color(srgb 0.305882 0.330196 0.398431)"
+    },
+    "progressAction": {
+      "color": "color(srgb 0.305882 0.330196 0.398431)",
+      "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+      "fontSize": "11px",
+      "fontWeight": "400",
+      "lineHeight": "14.85px",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "color(srgb 0.305882 0.330196 0.398431)"
+    },
+    "progressValue": {
+      "color": "color(srgb 0.305882 0.330196 0.398431)",
+      "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+      "fontSize": "11px",
+      "fontWeight": "400",
+      "lineHeight": "14.85px",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "color(srgb 0.305882 0.330196 0.398431)"
+    },
+    "tasksDrawer": {
+      "color": "rgb(236, 234, 228)",
+      "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "lineHeight": "18.85px",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "rgb(236, 234, 228)"
+    }
+  }
+}

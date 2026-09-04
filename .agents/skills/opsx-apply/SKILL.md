@@ -1,6 +1,7 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
+updated_at: 2026-09-02 19:12:31
 ---
 
 # opsx-apply
@@ -173,6 +174,26 @@ REQ final consistency: pending archive check
 ```
 
 BLOCKED if a prototype-backed UI task is about to be completed without UI Contract, UI Skeleton evidence, 1440px/required key interaction visual evidence, computed style checks for known risk points, or Mock/API boundary declaration.
+
+## UI Reference Replication Gate（MUST before completing reference-backed UI tasks）
+
+For any Change that references attachment HTML、截图、标注图、既有页面、UI 参考稿 or contains `UI Reference Replication Contract`:
+
+1. Before editing UI implementation, read the focused reference assets, current UI Contract/UI Skeleton, `docs/standards/prototype-ui-acceptance.md`, and the Contract section only.
+2. Confirm `design.md` contains fidelity mode, reference source priority, component inventory, selector mapping, action button to modal matrix when applicable, computed style sampling list, implementation batches, non-goals and preserved business semantics.
+3. If the Contract is missing or only says “贴近附件”“更现代” without selector/style evidence, update the Change docs first and keep UI implementation tasks unchecked.
+4. If action buttons trigger dialogs, drawers, popovers, confirms, Action Modal or AI panel, complete the matrix “动作按钮 → modal 类型 → selector → 状态 → 验收证据” before editing the UI; then implement the related button/modal component family in one pass, including shared visual level, loading/disabled/error/open/close states and evidence.
+5. Implement by batches such as shell/layout, brand/title, metrics/filter, Kanban header/empty state, cards/tags, action buttons and modal component family, responsive/sticky. Do not close the whole UI task from a single overall screenshot.
+6. For each batch, record screenshot or equivalent evidence plus key computed style values for the mapped selectors.
+7. Confirm non-target areas were not changed, especially existing click behavior, data boundary, accessibility state and responsive behavior.
+
+Report `UI Reference Replication Gate: pass|warn|blocked` with completed batch names and remaining evidence.
+
+## 产品数据采集与链路观测门禁（MUST）
+
+Before implementation, if the Change touches API, DB, audit logs, usage events, Task Trace, Web/admin request wrapper, object storage, or Agent Workflow observability, MUST read `docs/standards/product-data-collection-observability.md` and confirm the Change has `product_data_collection_observability` with `status`, `affected_layers`, `reason`, and `validation`.
+
+If the declaration is missing, update the Change governance docs before marking tasks complete. If the declaration says `not_applicable`, the `reason` MUST explain why API, DB, `request_logs`, `usage_events`, Task Trace, and request wrappers are unaffected; "无"、"不涉及" or bare "N/A" is not enough.
 
 ## Implementation Loop
 

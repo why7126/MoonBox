@@ -275,9 +275,13 @@ def render_usage_matrix_table(usage_matrices: dict[str, Any], metric: str) -> li
     ]
     for row in matrix_rows:
         cells = ((row.get("metrics") or {}).get(metric) or {})
+        cell_status = row.get("cell_status") or {}
+        rendered_cells = []
+        for column in matrix_columns:
+            rendered_cells.append("-" if cell_status.get(column) == "unknown" else str(cells.get(column, 0)))
         lines.append(
             f"| {row.get('object_id')} | "
-            + " | ".join(str(cells.get(column, 0)) for column in matrix_columns)
+            + " | ".join(rendered_cells)
             + " |"
         )
     return lines
@@ -347,7 +351,7 @@ def render_ai_usage_retrospective_section(fact_sheet: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "矩阵口径：`Total` 与 Sprint 行按唯一 command run 汇总；REQ/BUG 行是对象归因视图，同一 command run 关联多个 REQ/BUG 时可在多个对象行出现，因此对象行不应直接相加后与 `Total` 比较。矩阵数据来自 `data/ai-usage/sprints/<sprint-id>.json` 经 Fact Sheet 渲染输出。",
+            "矩阵口径：`Total` 与 Sprint 行按唯一 command run 汇总；REQ/BUG 行是对象归因视图，同一 command run 关联多个 REQ/BUG 时可在多个对象行出现，因此对象行不应直接相加后与 `Total` 比较。`-` 表示该对象在该 workflow 阶段未观测到 command run，不等同于真实 `0`；已观测但数值为零时仍显示 `0`。矩阵数据来自 `data/ai-usage/sprints/<sprint-id>.json` 经 Fact Sheet 渲染输出。",
             "",
         ]
     )

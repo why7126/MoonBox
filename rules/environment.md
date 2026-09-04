@@ -21,6 +21,7 @@ note: .env.example 可提交，.env 禁止提交
 - Docker Compose 默认支持自建对象存储/外部对象存储与 SQLite/自建 MySQL/外部 MySQL 组合模式，模式变量必须在 `.env.example` 和部署文档中同步说明。
 - `deploy/local/*.env.example`、`deploy/prod/*.env.example` 必须与 `deploy/README.md` 的环境矩阵保持一致；真实 `deploy/**/*.env` 禁止提交。
 - 产品手册站点端口使用 `HOST_PORT_MINTLIFY_DOCS`，必须同步 `.env.example`、`docs/02-deployment.md` 和 `deploy/*/*.env.example`。
+- 生成升级计划时只允许读取 `.env.example`、`deploy/**/*.env.example`、`scripts/*.env.example` 等可提交示例文件；不得读取、复制或输出真实 `.env`、生产连接串、密钥或凭据。
 - 不允许在代码、文档示例、测试中写入真实密钥。
 - 生产环境不得静默使用本地/demo 默认配置。
 - 环境文件 ignore 策略变化后 MUST 运行 `python scripts/validate-env-ignore-policy.py`。

@@ -27,6 +27,17 @@ def extract_scope_section(text: str) -> str | None:
     return match.group(1) if match else None
 
 
+def extract_goal_section(text: str) -> str | None:
+    match = re.search(r"^## 1\. Sprint 目标\s*\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    return match.group(1) if match else None
+
+
+def extract_numbered_section(text: str, number: int, title: str) -> str | None:
+    pattern = rf"^## {number}\. {re.escape(title)}\s*\n(.*?)(?=^## |\Z)"
+    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
+    return match.group(1) if match else None
+
+
 def extract_marker_block(text: str, name: str) -> str:
     pattern = re.compile(
         rf"<!-- workflow-sync:{re.escape(name)}:start -->(.*?)"
@@ -78,12 +89,41 @@ def validate_sprint_scope(sprint_id: str, focus: set[str]) -> list[str]:
             f"actual: `{actual}`"
         )
 
+    goal = extract_goal_section(text)
+    if goal is None:
+        failures.append(f"{md_path} missing `## 1. Sprint 目标` section")
+        goal = ""
+    if "### Sprint 目标编号列表" not in goal:
+        failures.append("sprint.md `## 1. Sprint 目标` missing `### Sprint 目标编号列表`")
+
+    required_planning_sections = [
+        (3, "工作量与容量", "sprint-capacity-section"),
+        (4, "里程碑", "sprint-milestones-section"),
+        (5, "风险与缓冲", "sprint-risks-section"),
+        (6, "知识库承接", "sprint-knowledge-section"),
+    ]
+    for number, title, marker in required_planning_sections:
+        section = extract_numbered_section(text, number, title)
+        if section is None:
+            failures.append(f"sprint.md missing `## {number}. {title}` section")
+            continue
+        if not extract_marker_block(section, marker):
+            failures.append(f"sprint.md `## {number}. {title}` missing `workflow-sync:{marker}` marker block")
+
     def in_focus(item_id: str) -> bool:
         return not focus or item_id in focus or short_issue_code(item_id) in focus
+
+    def require_goal_item(item_id: str) -> None:
+        if item_id not in goal:
+            failures.append(f"{item_id} missing from sprint.md Sprint target id list")
+        heading = f"### {item_id} 要点"
+        if heading not in goal:
+            failures.append(f"{item_id} missing sprint.md target detail heading `{heading}`")
 
     for req_id in sprint.requirements:
         if not in_focus(req_id):
             continue
+        require_goal_item(req_id)
         if req_id not in main_scope:
             failures.append(f"{req_id} missing from sprint.md `## 2. Scope` main table")
         if short_issue_code(req_id) not in req_block:
@@ -92,6 +132,7 @@ def validate_sprint_scope(sprint_id: str, focus: set[str]) -> list[str]:
     for bug_id in sprint.bugs:
         if not in_focus(bug_id):
             continue
+        require_goal_item(bug_id)
         if bug_id not in main_scope:
             failures.append(f"{bug_id} missing from sprint.md `## 2. Scope` main table")
         if short_issue_code(bug_id) not in bug_block:
@@ -100,6 +141,8 @@ def validate_sprint_scope(sprint_id: str, focus: set[str]) -> list[str]:
     for change_id in sprint.changes:
         if focus and change_id not in focus:
             continue
+        if f"| Change | {change_id} |" in main_scope:
+            require_goal_item(change_id)
         if change_id not in main_scope:
             failures.append(f"{change_id} missing from sprint.md `## 2. Scope` main table")
         if change_id not in change_block:

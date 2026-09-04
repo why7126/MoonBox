@@ -136,6 +136,12 @@ After completing all artifacts, summarize:
 
 ---
 
+## 产品数据采集与链路观测门禁（MUST）
+
+若 Change 涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测，MUST 读取 `docs/standards/product-data-collection-observability.md`，并在 `proposal.md`、`design.md`、`tasks.md`、`trace.md` 或 `acceptance.md` 中记录 `product_data_collection_observability`、`affected_layers`、`reason` 和 `validation`。
+
+若不适用，MUST 写明为什么不影响 API、DB、请求日志、行为事件、Task Trace 或请求封装；不得只写“无”或“不涉及”。
+
 ## Output Contract（MUST）
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。

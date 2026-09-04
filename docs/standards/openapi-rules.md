@@ -3,7 +3,7 @@ purpose: OpenAPI 契约治理
 content: OpenAPI 契约来源、路由元数据、Schema、响应、错误码、安全声明、Tags、客户端生成、校验与兼容规则
 update_method: API 契约、接口分组、请求响应、错误码、认证、客户端生成或兼容策略变化时同步更新
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-06-27 08:44:18
+updated_at: 2026-08-27 08:12:00
 owner: MoonBox
 note: 适用于 MoonBox 项目；未启用 OpenAPI 时可保留为未来启用规范并标记不适用
 ---
@@ -207,6 +207,7 @@ MoonBox
 - 生成命令必须来自实际脚本或包管理器配置；未知时标记为 `见 docs/pending-decisions.md`。
 - 契约变化后必须重新生成客户端或明确说明无需生成。
 - 生成器、输出目录和请求适配层必须与 `React + TypeScript + TailWind + Shadcn/UI + Axios + Orval + pnpm` 或 SDK 技术栈一致。
+- `scripts/generate-openapi-client.sh` 必须在 pnpm 缺失、pnpm 版本与 `src/web/package.json` `packageManager` 不匹配、Orval 本地二进制缺失、Orval 依赖声明缺失或 `orval.config.ts` 缺失时输出明确修复提示；若 OpenAPI JSON 已导出但客户端未生成，必须说明 fallback 状态和后续命令，不得隐式联网安装 Orval 或改写锁文件。
 
 
 OpenAPI 校验命令：
@@ -223,6 +224,7 @@ MoonBox
 - 对外接口必须声明 summary、description、request、response、错误响应和 security。
 - 契约不得包含来源项目资源、内部调试接口、真实服务地址或密钥。
 - 客户端生成命令必须能基于导出的契约稳定执行。
+- API 标准校验必须覆盖 `generate-openapi-client.sh` 的 pnpm 缺失、pnpm 版本错配、Orval 缺失提示和 OpenAPI 已导出但客户端未生成时的 fallback 文案。
 
 
 非破坏性变更：

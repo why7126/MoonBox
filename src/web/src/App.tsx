@@ -5,6 +5,7 @@ import { AdminSpaceManagementPage } from "./pages/admin/AdminSpaceManagementPage
 import { AdminUserManagementPage } from "./pages/admin/AdminUserManagementPage";
 import { ADMIN_SESSION_EVENT, AdminSession, canAccessAdmin, readAdminSession } from "./pages/admin/adminAuth";
 import { RequirementCenterPage } from "./pages/catalog/RequirementCenterPage";
+import { DesignSystemPage } from "./pages/dev/DesignSystemPage";
 import { readFrontendSession } from "./pages/home/frontendSession";
 import { Homepage } from "./pages/home/Homepage";
 
@@ -31,8 +32,12 @@ export function App() {
   const isAdminRoute = routeKey === "/admin" || routeKey.endsWith("#admin-users");
   const isAdminSpaceRoute = routeKey === "/admin/spaces" || routeKey.endsWith("#admin-spaces");
   const isFrontendLoginRoute = routeKey === "/login" || routeKey.endsWith("#login");
+  const isDesignSystemRoute = routeKey === "/dev/design-system" || routeKey.endsWith("#dev-design-system");
   const isRequirementCenterRoute =
     routeKey === "/requirements" || routeKey === "/requirement-center" || routeKey.endsWith("#requirement-center");
+  if (isDesignSystemRoute) {
+    return <DesignSystemPage />;
+  }
   if (isFrontendLoginRoute) {
     return <Homepage onAdminLogin={setAdminSession} />;
   }

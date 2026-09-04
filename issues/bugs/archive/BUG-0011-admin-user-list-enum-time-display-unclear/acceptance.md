@@ -2,7 +2,7 @@
 bug_id: BUG-0011-admin-user-list-enum-time-display-unclear
 acceptance_status: passed
 created_at: 2026-08-13 09:32:22
-updated_at: 2026-08-15 10:13:22
+updated_at: 2026-09-04 15:49:25
 ---
 
 # 验收标准
@@ -50,13 +50,13 @@ pnpm --dir src/web test src/admin-user-management.test.tsx
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-08-15 10:13:22
+accepted_at: 2026-09-04 15:49:25
 accepted_by: workflow-sync
 source_change: fix-admin-user-list-enum-time-display
 source_sprint: sprint-003
 evidence: []
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

@@ -48,7 +48,7 @@ updated_at: 2026-08-15 12:29:53
 
 ## 待补证
 
-- 选择一个已 approved、尚未 in_sprint 的 BUG 作为样本。
+- 选择一个已评审通过、尚未纳入迭代的 BUG 作为样本。
 - 运行 `python scripts/sync-workflow-status.py --event sprint.propose --bug <BUG-full-id> --sprint <sprint-id> --dry-run --output detail`。
 - 返回报告中 `Updated` / `Skipped` 涉及的 `trace.md`、`_registry.yaml`、`issues/bugs/CHANGELOG.md` 和 Sprint 四件套条目。
 

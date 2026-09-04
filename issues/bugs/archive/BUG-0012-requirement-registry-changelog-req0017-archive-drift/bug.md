@@ -17,7 +17,7 @@ updated_at: 2026-08-15 11:49:22
 `REQ-0017-admin-space-management` 已完成归档闭环，真实目录位于 `issues/requirements/archive/REQ-0017-admin-space-management/`，但需求目录级索引仍保留开发阶段路径和状态：
 
 - `issues/requirements/_registry.yaml` 中该 REQ 的 `lifecycle_stage` 仍为 `review`，`path` 仍指向 `issues/requirements/review/REQ-0017-admin-space-management/`。
-- `issues/requirements/CHANGELOG.md` 中该 REQ 仍显示 `in_sprint` / `review`，下一步仍为 `/opsx-apply REQ-0017-admin-space-management`，事实源仍指向 `issues/requirements/review/REQ-0017-admin-space-management/trace.md`。
+- `issues/requirements/CHANGELOG.md` 中该 REQ 仍显示迭代中 / `review`，下一步仍为 `/opsx-apply REQ-0017-admin-space-management`，事实源仍指向 `issues/requirements/review/REQ-0017-admin-space-management/trace.md`。
 
 # 复现步骤
 

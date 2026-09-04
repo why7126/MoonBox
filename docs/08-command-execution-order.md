@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: 2026-08-19 12:10:48
+updated_at: 2026-09-04 16:17:43
 owner: MoonBox 产品团队
 ---
 
@@ -16,7 +16,7 @@ owner: MoonBox 产品团队
 /req-capture 或 /bug-capture
 → /req-generate 或 /bug-generate
 → /req-complete 或 /bug-complete
-→ /req-review --approve 或 /bug-review --approve
+→ /req-review 或 /bug-review
 → /sprint-propose
 → /req-opsx 或 /bug-opsx
 → /opsx-apply
@@ -36,7 +36,7 @@ owner: MoonBox 产品团队
 
 - 未评审的 REQ/BUG 不得进入 Sprint、不得转 OpenSpec、不得执行开发。
 - 已评审 REQ/BUG MUST 先通过 `/sprint-propose` 纳入 Sprint 正式范围，并由 Workflow Sync 同步为 `in_sprint`，再通过 `/req-opsx` 或 `/bug-opsx` 创建 Change。
-- `/req-review --approve` 的下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/bug-review --approve` 的下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`。
+- `/req-review <REQ-full-id>` 无 flag 时默认评审通过，下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/bug-review <BUG-full-id>` 同理，下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`。`--approve` 仅作为兼容别名，拒绝或延后必须显式使用反向 flag。
 - `/req-opsx` 和 `/bug-opsx` 遇到 `status: approved` 但尚未 `in_sprint` 时 MUST 停止，并提示先运行对应 `/sprint-propose`。
 - `/req-opsx` / `/bug-opsx` 完成后 MUST 运行 Workflow Sync，把新 Change 回填到同一个 Sprint 的 `changes[]` 与 `scope_estimates[].change`。
 - 如果 REQ/BUG 已经纳入 Sprint，但 `/opsx-apply --dry-run` 仍解析不到 Sprint，优先修复 `sprint.yaml` 机器事实源，不要求用户重复口头确认。
@@ -59,6 +59,8 @@ owner: MoonBox 产品团队
 | Workflow Sync 行为 | `python scripts/sync-workflow-status.py --event <event> ... --dry-run`，必要时运行 focused pytest | 先 dry-run 定位派生影响，再执行写入；脚本变更必须跑对应测试或自检。 |
 | REQ/BUG 文档质量 | Workflow Sync 聚焦命令、`--scan-issue-subdocuments` 或对应根因证据校验 | 恢复 trace、registry、CHANGELOG、验收和子文档一致性，不手工编辑派生 marker。 |
 | 产品手册/Mintlify | `python scripts/validate-mintlify-docs.py` | 仅在触达 `mintlify/` 或产品手册投影时必跑。 |
+| 发布产物与构建记录 | `/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` 对应校验，必要时 `python scripts/validate-release.py` 或 `python scripts/validate-release-upgrade.py` | 校验 release input、manifest、input hash、产物摘要、外部证据和发布写入边界。 |
+| 慢测试、覆盖率、浏览器验收或 Docker smoke 调度 | 聚焦测试命令、分区/worker 配置说明、失败分区摘要和必要 CI 补跑命令 | 串行高风险用例先跑；并行池必须可复跑，不得降低断言或隐藏受影响文件。 |
 
 若某项校验因当前变更不触达对应面而不适用，最终回复、trace、学习报告或治理日志 MUST 明确说明“不适用原因”；若校验失败但属于既有工作区漂移，MUST 记录失败摘要和本次未处理范围。
 
@@ -129,5 +131,6 @@ owner: MoonBox 产品团队
 - Workflow Sync 写 Sprint 派生表、Issue trace、registry 或验收回填。
 - `promote-issues-for-archive.py` 迁移 Issue 阶段。
 - AI Usage hook 刷新同一 Sprint 或 release snapshot。
+- AI Usage hook 普通执行先尝试本地 session 自动发现：显式 `--session-jsonl`、session 环境变量、`AI_USAGE_SESSIONS_DIR`、默认本地 Codex sessions 目录 `~/.codex/sessions`；失败后再输出 `usage_mode: unavailable` 或 `estimated_fallback`。历史回填或审计仍需显式 session 和必要的 `--manual-map`。
 
 不得用并行工具同时运行上述写入步骤；每一步必须基于前一步写入后的最新文件状态继续。

@@ -1,0 +1,72 @@
+sprint_id: sprint-004
+status: planning
+lifecycle_stage: change
+start_date: 2026-08-31 08:39:23
+end_date: 2026-09-14 08:39:23
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0023-product-workbench-modern-ops-visual-system
+  - REQ-0024-markdown-editor-human-edit-permission-matrix
+bugs: []
+estimated_story_points: 15
+estimated_person_days: 15
+fix_buffer_person_days: 15
+capacity_usage: 0.5
+created_at: 2026-08-31 08:39:23
+updated_at: 2026-09-01 14:23:52
+capacity_person_days: 30
+fix_buffer_ratio: 0.5
+capacity_gate:
+  status: pass
+  estimated_person_days: 15
+  capacity_person_days: 30
+  capacity_usage: 0.5
+  note: 初始 Sprint 骨架，范围写入后由脚本与 Workflow Sync 派生刷新。
+scope_estimates:
+  - id: REQ-0023-product-workbench-modern-ops-visual-system
+    change: update-product-workbench-modern-ops-visual-system
+    requirement: REQ-0023-product-workbench-modern-ops-visual-system
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 产品工作台现代 Ops 视觉系统升级涉及品牌分层、设计 token、字体体系、核心组件规范、深浅主题、原型驱动 UI Gate、需求中心和管理后台共用 Shell 视觉一致性；跨 UI 设计系统与多个高频工作台区域，按 XL=8 人天估算。
+  - id: add-ui-reference-replication-governance
+    change: add-ui-reference-replication-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：建立 UI 参考稿复刻前置契约与分批验收门禁，降低 REQ-0023 后续同类 UI 返修成本
+  - id: enforce-css-content-ascii-escape
+    change: enforce-css-content-ascii-escape
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：CSS content 非 ASCII 符号统一使用 escape 写法，涉及 UI 规则、设计系统校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: optimize-workflow-sync-observability-status-boundary
+    change: optimize-workflow-sync-observability-status-boundary
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：收紧 Workflow Sync Frontmatter 状态解析边界，避免嵌套 product_data_collection_observability.status 被误识别为主状态；影响脚本和单元测试，不触碰业务 src。
+  - id: REQ-0024-markdown-editor-human-edit-permission-matrix
+    change: update-markdown-editor-human-edit-permission-matrix
+    requirement: REQ-0024-markdown-editor-human-edit-permission-matrix
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Markdown 编辑器人工编辑权限矩阵涉及前台需求中心文档能力对象、后端保存授权校验、验收中 tasks.md checkbox-only、OpenSpec Change 文档边界、前端渲染分支、测试与产品数据采集观测声明；作为 REQ-0021 refinement 的单个权限能力闭环，按 M=3 人天估算。
+  - id: apply-tilesfst-local-session-jsonl-governance
+    change: apply-tilesfst-local-session-jsonl-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：补齐 AI Usage 本地 session JSONL 自动发现、隐私边界、历史回填和测试门禁；不触碰业务 src，按 S=1 人天估算。
+changes:
+  - update-product-workbench-modern-ops-visual-system
+  - add-ui-reference-replication-governance
+  - enforce-css-content-ascii-escape
+  - optimize-workflow-sync-observability-status-boundary
+  - update-markdown-editor-human-edit-permission-matrix
+  - apply-tilesfst-local-session-jsonl-governance

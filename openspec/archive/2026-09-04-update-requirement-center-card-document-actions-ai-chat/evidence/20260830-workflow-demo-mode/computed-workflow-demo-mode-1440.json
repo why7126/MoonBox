@@ -1,0 +1,53 @@
+{
+  "mockMode": {
+    "fetchCalled": false,
+    "stageCounts": {
+      "capture": 2,
+      "planning": 1,
+      "review-ready": 1,
+      "approved": 1,
+      "sprint-planning": 1,
+      "ready-dev": 1,
+      "development": 1,
+      "acceptance": 1,
+      "done": 1
+    },
+    "demoIds": [
+      "DEMO-REQ-001",
+      "DEMO-BUG-000",
+      "DEMO-BUG-001",
+      "DEMO-REQ-002",
+      "DEMO-BUG-002",
+      "DEMO-REQ-003",
+      "DEMO-BUG-003",
+      "DEMO-REQ-004",
+      "DEMO-BUG-004",
+      "DEMO-REQ-005"
+    ],
+    "sprintTags": [
+      "sprint-004",
+      "sprint-004",
+      "sprint-004",
+      "sprint-004",
+      "sprint-004"
+    ],
+    "bugAnalysis": 1
+  },
+  "bugFilter": {
+    "stageColumnCount": 9,
+    "stageCounts": {
+      "capture": 1,
+      "planning": 1,
+      "review-ready": 0,
+      "approved": 1,
+      "sprint-planning": 0,
+      "ready-dev": 1,
+      "development": 0,
+      "acceptance": 1,
+      "done": 0
+    }
+  },
+  "defaultMode": {
+    "fetchCalled": true
+  }
+}

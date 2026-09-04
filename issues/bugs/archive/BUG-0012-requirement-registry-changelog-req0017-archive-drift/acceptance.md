@@ -2,7 +2,7 @@
 bug_id: BUG-0012-requirement-registry-changelog-req0017-archive-drift
 acceptance_status: passed
 created_at: 2026-08-15 10:46:46
-updated_at: 2026-08-15 11:49:47
+updated_at: 2026-09-04 15:49:25
 ---
 
 # 验收标准
@@ -55,13 +55,13 @@ python scripts/validate-root-cause-evidence.py --bug BUG-0012-requirement-regist
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-08-15 11:49:47
+accepted_at: 2026-09-04 15:49:25
 accepted_by: workflow-sync
 source_change: fix-requirement-registry-changelog-req0017-archive-drift
 source_sprint: sprint-003
 evidence: []
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

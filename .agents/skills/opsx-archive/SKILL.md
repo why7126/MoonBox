@@ -1,6 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
+updated_at: 2026-09-02 19:12:31
 ---
 
 # opsx-archive
@@ -81,7 +82,9 @@ openspec status --change "<change-id>" --json
 | Delta spec | if `specs/` exists, assess ADDED/MODIFIED/REMOVED before moving |
 | MODIFIED title | matching `openspec/specs/<capability>/spec.md` requirement title MUST exist |
 | Documentation sync | before archive, affected long-lived docs / README / `.env.example` / API index / DB design / Orval notes / release or deployment docs MUST be checked and updated or explicitly marked not applicable |
+| Product data observability | API / DB / audit log / usage event / Task Trace / Web/admin request wrapper / object storage / Agent Workflow observability changes MUST have `product_data_collection_observability` status, `affected_layers`, N/A reason and validation evidence; read `docs/standards/product-data-collection-observability.md` |
 | Prototype final consistency | if linked REQ or Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton, linked REQ `requirement.md` / `acceptance.md` / `trace.md` MUST match final Change design, implementation evidence and 1440px visual acceptance |
+| UI reference replication consistency | if linked REQ or Change has reference HTML/screenshots/attached mockups or `UI Reference Replication Contract`, final evidence MUST cover selector mapping, action button to modal matrix, computed style sampling, batch screenshots, non-goals and preserved business semantics |
 | Archive target | `openspec/archive/YYYY-MM-DD-<change-id>/` MUST NOT already exist |
 | Legacy archive root | `openspec/changes/archive/` MUST NOT exist before or after archive; if present, stop and migrate its children to `openspec/archive/` first |
 | Archive evidence | if a historical archived Change lacks `trace.md`, it MUST contain a complete `## 归档验证摘要` fallback in proposal/design/tasks before Sprint close readiness can pass |
@@ -105,6 +108,7 @@ openspec status --change "<change-id>" --json
      - compare linked REQ `requirement.md`, `acceptance.md` AC-PROTOTYPE / AC-XCUT, `trace.md prototype_gate`, Change `design.md` UI Skeleton, Change `trace.md` evidence, and final 1440px visual acceptance result;
      - update REQ docs and Change trace when wording, non-goals, UI behavior, visual evidence, or acceptance status drift from implementation;
      - BLOCK archive if 1440px evidence is missing, failed, stale after `/opsx-modify`, or if REQ docs still describe obsolete prototype behavior.
+   - for reference-backed UI replication Changes, compare linked REQ reference facts, Change `UI Reference Replication Contract`, selector mapping, action button to modal matrix, computed style evidence, batch screenshots and final implementation notes; BLOCK archive if a required component family lacks evidence or if element-level返修 changed the contract without updating docs.
 5. If the wrapper fails because OpenSpec CLI is unavailable, manual fallback is allowed only after delta self-check:
    - merge delta into `openspec/specs/` according to OpenSpec semantics;
    - move to `openspec/archive/YYYY-MM-DD-<change-id>/`.

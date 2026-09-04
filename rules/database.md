@@ -30,6 +30,7 @@ note: 数据库变更必须同步 docs/04-database-design.md、迁移和测试
 - 多数据库适配必须把差异写入 `compatibility/database/`。
 - SQLite/MySQL 差异必须覆盖字段类型、默认值、时间、布尔、JSON、索引、唯一约束、外键、事务和排序规则。
 - 生产 MySQL 目标版本、字符集、排序规则和时区策略必须在部署前确认。
+- 版本升级计划若声明数据库影响，MUST 记录 MySQL drift/smoke、备份、回滚或人工复核要求；不得仅凭 SQLite、本地测试或文档说明宣称生产数据库升级已支持。
 
 ## 4. AI 更新清单
 
@@ -44,3 +45,9 @@ AI 修改数据库结构时必须同步：
 □ 回滚说明（高风险变更）
 □ `compatibility/database/` SQLite/MySQL 差异记录
 ```
+
+## 5. 产品数据采集与链路观测门禁
+
+数据库变更若涉及 `usage_events`、`request_logs`、`task_traces`、`task_trace_spans`、索引、迁移、保留周期、脱敏字段或链路查询路径，MUST 读取 `docs/standards/product-data-collection-observability.md`。
+
+触发范围内的 Change MUST 在设计、任务或验收材料中声明 `product_data_collection_observability` 适用层级，并同步 SQLite/MySQL schema、迁移、数据库设计文档和测试；若某项不适用，MUST 记录具体 N/A 原因。

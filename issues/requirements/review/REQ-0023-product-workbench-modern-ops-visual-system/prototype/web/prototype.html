@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoonBox Modern Ops Workbench Prototype</title>
+<style>
+  :root {
+    --bg: #0A0D14;
+    --sidebar: #0C0F17;
+    --panel: #131826;
+    --panel-2: #0F1320;
+    --raised: #1A1F2C;
+    --border: #242A3A;
+    --border-soft: #1B2130;
+    --text: #ECEAE4;
+    --muted: #98A0B3;
+    --quiet: #4E5468;
+    --gold: #D8AC55;
+    --gold-strong: #F0C878;
+    --warning: #E6825A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+  }
+  .shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+  .sidebar {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 20px;
+    padding: 20px 14px;
+    border-right: 1px solid var(--border-soft);
+    background: var(--sidebar);
+  }
+  .brand, .nav-item, .user, .topbar, .toolbar, .card-foot { display: flex; align-items: center; }
+  .brand { gap: 10px; }
+  .mark {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--gold-strong);
+    font-weight: 800;
+  }
+  .brand strong { display: block; font-size: 15px; }
+  .brand small, .user small, .nav-label, .trend, .card-id, .col-sub {
+    color: var(--quiet);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px;
+  }
+  .nav-label { margin: 20px 10px 8px; text-transform: uppercase; letter-spacing: .12em; }
+  .nav-item {
+    gap: 10px;
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .nav-item.active { color: var(--text); background: var(--raised); box-shadow: inset 3px 0 0 var(--gold); }
+  .user { gap: 10px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+  .avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--gold-strong), var(--gold)); }
+  .main { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); min-width: 0; overflow: hidden; }
+  .topbar { justify-content: space-between; padding: 28px 36px 20px; }
+  .eyebrow {
+    margin-bottom: 6px;
+    color: var(--gold);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  h1 { margin: 0; font-size: 26px; line-height: 1.2; }
+  button { border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); color: var(--muted); font: inherit; }
+  .primary {
+    min-height: 40px;
+    padding: 0 18px;
+    border-color: transparent;
+    background: var(--gold-strong);
+    color: #1A1408;
+    font-weight: 700;
+  }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding: 0 36px 20px; }
+  .stat {
+    min-height: 104px;
+    padding: 18px 20px;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+  .stat span { color: var(--muted); font-size: 12px; }
+  .stat strong { display: block; margin-top: 9px; font-size: 30px; }
+  .stat.warn { border-color: rgba(230, 130, 90, .35); background: rgba(230, 130, 90, .12); }
+  .stat.warn strong, .stat.warn span { color: var(--warning); }
+  .toolbar { gap: 10px; padding: 0 36px 20px; }
+  .search {
+    flex: 1;
+    max-width: 360px;
+    min-height: 38px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+    color: var(--quiet);
+  }
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 66px);
+    height: 38px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+  }
+  .segmented b, .segmented span { display: grid; place-items: center; font-size: 12px; }
+  .segmented b { border-radius: 6px; color: #1A1408; background: var(--gold); }
+  .segmented span { color: var(--muted); }
+  .board-wrap { min-height: 0; overflow: auto; padding: 0 36px 28px; }
+  .board { display: flex; gap: 16px; min-width: max-content; }
+  .col { width: 280px; }
+  .col-head { display: flex; justify-content: space-between; padding: 12px 4px; }
+  .col-title { font-size: 14px; font-weight: 800; }
+  .count {
+    display: grid;
+    min-width: 32px;
+    height: 26px;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--gold-strong);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .card, .empty { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+  .card { display: grid; gap: 9px; padding: 15px 16px 13px; border-left: 3px solid var(--gold); }
+  .card-title { font-size: 13px; font-weight: 700; line-height: 1.5; }
+  .tag {
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(216, 172, 85, .12);
+    color: var(--gold-strong);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px;
+  }
+  .links { color: var(--gold-strong); font-size: 11px; }
+  .card-foot { justify-content: space-between; padding-top: 9px; border-top: 1px solid var(--border-soft); }
+  .action { color: var(--gold); font-size: 12px; font-weight: 700; }
+  .empty {
+    display: grid;
+    min-height: 128px;
+    place-items: center;
+    border-style: dashed;
+    color: var(--quiet);
+    text-align: center;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">MB</div>
+        <div><strong>MoonBox</strong><small>Modern Ops</small></div>
+      </div>
+      <nav>
+        <div class="nav-label">Workspace</div>
+        <div class="nav-item">□ 研发总览</div>
+        <div class="nav-item active">▣ 需求中心</div>
+        <div class="nav-item">⌘ Agent Center</div>
+        <div class="nav-item">◇ 知识中心</div>
+      </nav>
+      <div class="user"><div class="avatar"></div><div><strong>产品团队</strong><small>当前空间</small></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">Requirement Operations</div><h1>需求研发流转看板</h1></div>
+        <button class="primary">新建 Capture</button>
+      </header>
+      <section class="stats">
+        <article class="stat"><span>全部对象</span><strong>35</strong><div class="trend">跨 5 个阶段</div></article>
+        <article class="stat"><span>需求</span><strong>22</strong><div class="trend">1 个在采集池</div></article>
+        <article class="stat"><span>Bug</span><strong>13</strong><div class="trend">今日新增 0</div></article>
+        <article class="stat warn"><span>当前阻塞</span><strong>32</strong><div class="trend">建议优先处理</div></article>
+      </section>
+      <section class="toolbar">
+        <div class="search">搜索 ID、标题、文档或负责人</div>
+        <div class="segmented"><b>全部</b><span>需求</span><span>Bug</span></div>
+        <button style="height:38px;padding:0 14px;">筛选 1</button>
+        <button style="width:38px;height:38px;">↻</button>
+      </section>
+      <section class="board-wrap">
+        <div class="board">
+          <section class="col">
+            <div class="col-head"><div><div class="col-title">采集池</div><div class="col-sub">Capture / req-capture</div></div><div class="count">01</div></div>
+            <article class="card">
+              <div class="card-id">REQ-0023</div>
+              <div class="card-title">产品工作台全面升级为现代 Ops 视觉系统</div>
+              <div class="tag">P1 · product</div>
+              <div class="links">capture.md trace.md requirement.md</div>
+              <footer class="card-foot"><span class="trend">更新 23:24</span><span class="action">完善需求 →</span></footer>
+            </article>
+          </section>
+          <section class="col"><div class="col-head"><div><div class="col-title">待评审</div><div class="col-sub">req-review</div></div><div class="count">00</div></div><div class="empty">暂无待评审项<br>文档齐备后流转至此</div></section>
+          <section class="col"><div class="col-head"><div><div class="col-title">迭代规划</div><div class="col-sub">sprint-propose</div></div><div class="count">00</div></div><div class="empty">暂无排期项</div></section>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

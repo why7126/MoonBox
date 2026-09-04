@@ -85,8 +85,8 @@ services:
       - ./data/runtime/backend:/app/data
       # 后端临时文件目录。
       - ./data/tmp:/app/tmp
-      # 需求中心 BFF 只读读取治理事实源。
-      - ./issues:/app/governance/issues:ro
+      # 需求中心 BFF 读取治理事实源；开发环境允许后端对采集池 capture.md 做受控写入。
+      - ./issues:/app/governance/issues
       - ./iterations:/app/governance/iterations:ro
       - ./openspec:/app/governance/openspec:ro
       - ./docs:/app/governance/docs:ro

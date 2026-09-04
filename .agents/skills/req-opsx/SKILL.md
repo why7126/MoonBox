@@ -1,6 +1,7 @@
 ---
 name: "req-opsx"
 description: "已评审需求 → OpenSpec Change（CLI 驱动）；原 /requirement-to-opsx"
+updated_at: 2026-09-02 19:12:31
 ---
 
 # req-opsx
@@ -128,6 +129,12 @@ capabilities: { new: [], modified: [] }
 
 ## Step 3 — 原型与验收冲突（MUST）
 
+### Step 2.5 — 产品数据采集与链路观测门禁（MUST）
+
+若 REQ 或目标 Change 涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测，MUST 读取 `docs/standards/product-data-collection-observability.md`，并在 `design.md`、`trace.md`、`acceptance.md` 或 `tasks.md` 写入 `product_data_collection_observability` 固定声明，至少包含 `status`、`affected_layers`、`reason` 和 `validation`。
+
+若不适用，MUST 记录具体 N/A 原因；不得只写“无”或“不涉及”。涉及 API contract 时还 MUST 声明 OpenAPI / Orval / API 文档 / 测试影响；涉及 DB 结构、索引、迁移或保留周期时还 MUST 声明 SQLite / MySQL schema、数据库文档和测试影响。
+
 `prototype/web/` 存在时输出 Conflict Report；优先级：
 
 ```text
@@ -146,6 +153,19 @@ design.md **MUST** 含 Conflict Resolution；delta spec 用 MODIFIED/REMOVED 消
 - Change `tasks.md` MUST 将 `UI Skeleton` 作为先行任务，并在任何细节实现任务前完成。
 - Change `trace.md` MUST 记录 prototype 来源、Conflict Resolution、UI Contract、Skeleton 状态、1440px/关键交互截图、computed style、Mock/API 边界和最终一致性状态。
 - Delta spec MUST 写明 prototype 是设计输入，最终验收以 Change design、acceptance、1440px/关键交互视觉证据、computed style、Mock/API 边界和 REQ 最终一致性回填共同为准。
+
+### Step 3.2 — UI Reference Replication Contract（MUST — 引用参考稿时）
+
+当 REQ 或用户输入明确引用附件 HTML、截图、标注图、既有页面或参考稿，并要求“一对一复刻”“全面贴近”“保持一致”或等价目标时，`/req-opsx` MUST 在 Change `design.md` 写入 `UI Reference Replication Contract`：
+
+- 保真模式和冲突优先级：一对一复刻、风格迁移或局部一致；明确业务语义保留项。
+- 参考稿反向工程：页面壳、品牌/标题、指标/筛选、看板列头、空列、任务卡、标签、按钮、浮层、响应式、滚动/sticky 的组件清单。
+- Selector 映射：参考稿 selector / 文本锚点、目标实现 selector、测试 selector、组件文件、状态类和验收批次。
+- 动作按钮矩阵：涉及按钮触发弹窗、抽屉、Popover、确认框、Action Modal 或 AI 面板时，写入“动作按钮 → modal 类型 → selector → 状态 → 验收证据”，并标明所属组件族、共用状态和例外原因。
+- Computed style 采样清单：页面、视口、主题、状态、selector、关键属性、期望值、当前值、容差和证据入口。
+- 分批实现计划：每批包含目标组件、验收方式、截图或 computed style 证据、非目标未改说明；动作按钮与 modal 应作为组件族一次性设计和验收，避免逐按钮返修。
+
+Change `tasks.md` MUST 把参考稿反向工程、selector 映射、动作按钮矩阵、computed style 采样和分批验收作为先行任务。缺少该 Contract 时，UI 参考稿复刻类 Change 不得进入最终实现验收。
 
 ---
 

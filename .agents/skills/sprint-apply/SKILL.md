@@ -57,7 +57,7 @@ iterations/change|archive/<sprint>/sprint.yaml
 Focused snippets as needed:
 
 ```text
-iterations/<stage>/<sprint>/sprint.md §目标/Scope/依赖/横切预防清单
+iterations/<stage>/<sprint>/sprint.md §目标编号列表/要点/Scope/工作量与容量/里程碑/风险与缓冲/知识库承接/依赖/横切预防清单
 issues/requirements|bugs/<stage>/<id>/trace.md
 openspec/changes/<change>/proposal.md + tasks.md + trace.md
 ```
@@ -81,14 +81,19 @@ All Sprint REQ/BUG in formal scope MUST be `approved` or `in_sprint`. If not, st
 
 Before editing `src/`, run the same gate as `.agents/skills/opsx-apply/SKILL.md` for each APPLY NEXT change.
 
+### 产品数据采集与链路观测门禁
+
+对队列中涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测的 Change，MUST 确认已读取 `docs/standards/product-data-collection-observability.md`，且存在 `product_data_collection_observability` 适用层级、N/A 原因和验证计划。缺失时先修复 Change 文档，不得直接编辑 `src/` 或标记任务完成。
+
 ## Queue Algorithm
 
 1. Resolve Sprint directory via lifecycle rules.
 2. Load `requirements[]`、`bugs[]`、`changes[]` from `sprint.yaml`.
-3. Map each Change to related REQ/BUG and priority.
-4. Build dependencies from proposal/design/tasks/trace and Sprint dependency section.
-5. Sort: P0 BUG > P0 REQ > P1 > P2; prerequisites before dependents.
-6. Output Sprint Queue Report before changing files.
+3. Use `sprint.md` 目标编号列表、要点段落、Scope 主表、工作量与容量、里程碑、风险与缓冲、知识库承接 as the compact product-facing planning view; if it conflicts with `sprint.yaml`, treat `sprint.yaml` as machine source and rerun Workflow Sync / `validate-sprint-scope.py`.
+4. Map each Change to related REQ/BUG and priority.
+5. Build dependencies from proposal/design/tasks/trace and Sprint dependency section.
+6. Sort: P0 BUG > P0 REQ > P1 > P2; prerequisites before dependents.
+7. Output Sprint Queue Report before changing files.
 
 Queue Report MUST include:
 

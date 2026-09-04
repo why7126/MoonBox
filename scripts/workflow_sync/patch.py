@@ -497,6 +497,152 @@ def _scope_estimate_days(sprint: SprintRecord) -> dict[str, str]:
     return estimates
 
 
+def _sprint_yaml_text(sprint: SprintRecord) -> str:
+    path = sprint.path / "sprint.yaml"
+    if not path.exists():
+        return ""
+    return read_text(path)
+
+
+def _yaml_scalar(text: str, key: str) -> str | None:
+    match = re.search(rf"^{re.escape(key)}:\s*(.+?)\s*$", text, re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+
+def _yaml_number(text: str, key: str) -> float | None:
+    raw = _yaml_scalar(text, key)
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def _format_percent(value: float | None) -> str:
+    if value is None:
+        return "未知"
+    return f"{value * 100:.2f}%"
+
+
+def _format_days(value: float | None) -> str:
+    if value is None:
+        return "未知"
+    if value.is_integer():
+        return f"{int(value)} 人天"
+    return f"{value:.2f}".rstrip("0").rstrip(".") + " 人天"
+
+
+def _change_state_counts(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> dict[str, int]:
+    counts = {"archived": 0, "applied": 0, "in_progress": 0, "proposed": 0, "missing": 0}
+    for change_id in sprint.changes:
+        change = changes.get(change_id)
+        state = change.state if change else "missing"
+        counts[state] = counts.get(state, 0) + 1
+    return counts
+
+
+def _capacity_gate_label(usage: float | None) -> str:
+    if usage is None:
+        return "未知：缺少容量或估算数据"
+    if usage > 1.2:
+        return "hard-block：超过 120%，应拆分或移出范围"
+    if usage > 1:
+        return "soft-pass：超过 100%，但未超过 120%，需记录容量风险"
+    return "pass：未超过容量"
+
+
+def render_capacity_section(sprint: SprintRecord) -> str:
+    yaml_text = _sprint_yaml_text(sprint)
+    capacity = _yaml_number(yaml_text, "capacity_person_days")
+    estimated = _yaml_number(yaml_text, "estimated_person_days")
+    story_points = _yaml_number(yaml_text, "estimated_story_points")
+    fix_buffer = _yaml_number(yaml_text, "fix_buffer_person_days")
+    fix_buffer_ratio = _yaml_number(yaml_text, "fix_buffer_ratio")
+    usage = _yaml_number(yaml_text, "capacity_usage")
+    if usage is None and capacity and estimated is not None and capacity > 0:
+        usage = estimated / capacity
+
+    return "\n".join(
+        [
+            "| 指标 | 数值 | 说明 |",
+            "|---|---:|---|",
+            f"| Sprint 容量 | {_format_days(capacity)} | 来自 `sprint.yaml:capacity_person_days` |",
+            f"| 估算人天 | {_format_days(estimated)} | 汇总 `scope_estimates[].estimated_person_days` |",
+            f"| Story Points | {_format_days(story_points).replace(' 人天', ' SP')} | 汇总 `scope_estimates[].story_points` |",
+            f"| 容量占用率 | {_format_percent(usage)} | `estimated_person_days / capacity_person_days` |",
+            f"| Fix 缓冲 | {_format_days(fix_buffer)} | 剩余可用容量，低于 0 时按 0 展示 |",
+            f"| Fix 缓冲率 | {_format_percent(fix_buffer_ratio)} | `fix_buffer_person_days / capacity_person_days` |",
+            f"| 容量门禁 | {_capacity_gate_label(usage)} | Workflow Sync 派生判断 |",
+        ]
+    )
+
+
+def render_milestone_section(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> str:
+    yaml_text = _sprint_yaml_text(sprint)
+    start = normalize_milestone_datetime(_yaml_scalar(yaml_text, "start_date"))
+    end = normalize_milestone_datetime(_yaml_scalar(yaml_text, "end_date"))
+    counts = _change_state_counts(sprint, changes)
+    total = len(sprint.changes)
+    archived = counts.get("archived", 0)
+    applied = counts.get("applied", 0)
+    unfinished = total - archived
+    return "\n".join(
+        [
+            "| 节点 | 目标日期 | 完成口径 | 当前状态 |",
+            "|---|---|---|---|",
+            f"| Sprint 启动 | {start or '未知'} | 四件套创建并纳入正式范围 | {sprint.status} |",
+            f"| 范围实现完成 | {end or '未知'} | `changes[]` 全部 apply 完成 | {archived + applied}/{total} 已 apply 或 archive |",
+            f"| 归档收口 | {end or '未知'} | `changes[]` 全部 archive，验收报告完成 sign-off | {archived}/{total} 已 archive，{unfinished} 待归档 |",
+        ]
+    )
+
+
+def render_risk_section(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> str:
+    yaml_text = _sprint_yaml_text(sprint)
+    usage = _yaml_number(yaml_text, "capacity_usage")
+    fix_buffer = _yaml_number(yaml_text, "fix_buffer_person_days")
+    counts = _change_state_counts(sprint, changes)
+    total = len(sprint.changes)
+    rows = [
+        "| 风险 | 等级 | 证据 | 处理建议 |",
+        "|---|---|---|---|",
+    ]
+    if usage is None:
+        rows.append("| 容量无法计算 | high | 缺少 `capacity_usage` | 补齐 `sprint.yaml` 容量与估算字段后重跑 Workflow Sync |")
+    elif usage > 1.2:
+        rows.append(f"| 容量超出硬门禁 | high | 容量占用 {_format_percent(usage)} | 拆分 Sprint 或移出低优先级范围 |")
+    elif usage > 1:
+        rows.append(f"| 容量超出计划值 | medium | 容量占用 {_format_percent(usage)} | 后续不宜继续追加范围，除非替换或拆分 |")
+    if fix_buffer is not None and fix_buffer <= 0:
+        rows.append(f"| Fix 缓冲不足 | medium | fix_buffer_person_days={_format_days(fix_buffer)} | 保留返修优先级，避免新增非必要治理范围 |")
+    if counts.get("proposed", 0) or counts.get("in_progress", 0):
+        rows.append(
+            f"| Change 未完成 | medium | proposed {counts.get('proposed', 0)}，in_progress {counts.get('in_progress', 0)} | 先完成 apply，再进入归档收口 |"
+        )
+    if counts.get("applied", 0):
+        rows.append(
+            f"| 待归档积压 | low | applied {counts.get('applied', 0)}/{total} | 完成验收后批量或逐项 `/opsx-archive` |"
+        )
+    if len(rows) == 2:
+        rows.append("| 无明显派生风险 | low | 容量、缓冲和 Change 状态未触发风险阈值 | 按既有计划推进 |")
+    return "\n".join(rows)
+
+
+def render_knowledge_section(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> str:
+    counts = _change_state_counts(sprint, changes)
+    total = len(sprint.changes)
+    return "\n".join(
+        [
+            "| 承接项 | 触发条件 | 建议事实源 | 当前状态 |",
+            "|---|---|---|---|",
+            f"| Sprint 复盘 | Sprint close 或集中归档前 | `docs/knowledge-base/retrospectives/{sprint.sprint_id}-retrospective.md` | {counts.get('archived', 0)}/{total} Change archived |",
+            "| 最佳实践 | 验收中出现可复用规则、脚本或 UI/API/DB 经验 | `docs/knowledge-base/best-practices/` | 由 `/sprint-exps` 基于证据生成或更新 |",
+            "| 事故与缺陷经验 | BUG 根因、返修或发布风险具备复用价值 | `docs/knowledge-base/incidents/` | 由 `/sprint-exps` 或后续治理命令按证据沉淀 |",
+        ]
+    )
+
+
 def scope_note_for_issue(
     derived: DerivedIssue | None,
     change: DerivedChange | None,
@@ -560,6 +706,66 @@ def render_main_scope_table(
     return "\n".join(rows)
 
 
+def _scope_item_summary(
+    kind: str,
+    item_id: str,
+    title: str,
+    status: str,
+    note: str,
+    estimate: str,
+) -> str:
+    estimate_text = "" if estimate == "—" else f"，估算 {estimate}"
+    return f"{kind} `{item_id}`：{title}。当前状态 {status}{estimate_text}；{note}。"
+
+
+def render_sprint_goal_section(
+    sprint: SprintRecord,
+    issues: dict[str, IssueRecord],
+    derived_issues: dict[str, DerivedIssue],
+    changes: dict[str, DerivedChange],
+) -> str:
+    estimates = _scope_estimate_days(sprint)
+    items: list[tuple[str, str, str, str, str, str]] = []
+    linked_change_ids: set[str] = set()
+
+    for kind, issue_ids in (("REQ", sprint.requirements), ("BUG", sprint.bugs)):
+        for issue_id in issue_ids:
+            issue = issues.get(issue_id)
+            derived = derived_issues.get(issue_id)
+            linked_change = derived.linked_change if derived else None
+            if not linked_change and issue and issue.kind == "bug":
+                linked_change = issue.related_change
+            if linked_change:
+                linked_change_ids.add(linked_change)
+            change = changes.get(linked_change) if linked_change else None
+            title = issue_display_name(issue) if issue else issue_id
+            status = derived.display_status if derived else (issue.trace_status if issue else "unknown")
+            note = scope_note_for_issue(derived, change, status)
+            items.append((kind, issue_id, title, status, estimates.get(issue_id, "—"), note))
+
+    for change_id in sprint.changes:
+        if change_id in linked_change_ids:
+            continue
+        change = changes.get(change_id)
+        status = change.display_status if change else "missing"
+        note = change.note if change else "change directory missing"
+        title = change_id.replace("-", " ") if change else change_id
+        items.append(("Change", change_id, title, status, estimates.get(change_id, "—"), note))
+
+    lines = ["### Sprint 目标编号列表", ""]
+    lines.extend(f"- {item_id}" for _, item_id, *_ in items)
+    for kind, item_id, title, status, estimate, note in items:
+        lines.extend(
+            [
+                "",
+                f"### {item_id} 要点",
+                "",
+                _scope_item_summary(kind, item_id, title, status, note, estimate),
+            ]
+        )
+    return "\n".join(lines)
+
+
 def render_scope_summary_paragraphs(
     sprint: SprintRecord,
     derived_issues: dict[str, DerivedIssue],
@@ -600,6 +806,22 @@ def render_scope_summary_paragraphs(
         "当前完成度与验收风险以 Scope 表状态、关联 Change 和 acceptance-report 为准。\n\n"
         f"{change_summary}"
     )
+
+
+def patch_sprint_goal_section(text: str, goal_section: str) -> tuple[str, bool]:
+    section_match = re.search(r"(^## 1\. Sprint 目标\s*\n)(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    if not section_match:
+        return text, False
+    section = section_match.group(2)
+    original_section = section
+    marker = "### Sprint 目标编号列表"
+    if marker in section:
+        before = section.split(marker, 1)[0].rstrip()
+        section = f"{before}\n\n{goal_section.rstrip()}\n\n" if before else f"{goal_section.rstrip()}\n\n"
+    else:
+        section = section.rstrip() + "\n\n" + goal_section.rstrip() + "\n\n"
+    updated = text[: section_match.start(2)] + section + text[section_match.end(2) :]
+    return updated, section != original_section
 
 
 def _markdown_cells(line: str) -> list[str]:
@@ -643,16 +865,89 @@ def patch_main_scope_section(text: str, table: str, summary: str) -> tuple[str, 
         return text, False
     table_start, table_end = table_bounds
     section = section[:table_start] + table.rstrip() + "\n" + section[table_end:]
-    summary_pattern = re.compile(r"^BUG：.*?\n\n^Change：.*?(?=\n\n|$)", re.MULTILINE | re.DOTALL)
+    summary_pattern = re.compile(r"^REQ：.*?\n\n^Change：.*?(?=\n\n|$)", re.MULTILINE | re.DOTALL)
     if summary_pattern.search(section):
         section = summary_pattern.sub(summary, section, count=1)
-    elif "BUG：" not in section and "Change：" not in section:
+    elif "REQ：" not in section and "Change：" not in section:
         section = section.rstrip() + "\n\n" + summary + "\n"
     if not section.endswith("\n\n"):
         section = section.rstrip() + "\n\n"
     updated_section = section
     updated = text[: section_match.start(2)] + updated_section + text[section_match.end(2) :]
     return updated, updated_section != original_section
+
+
+def _remove_top_level_section(text: str, title: str) -> tuple[str, bool]:
+    pattern = re.compile(
+        rf"^##\s+\d+\.\s+{re.escape(title)}\s*\n.*?(?=^##\s+\d+\.|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    updated, count = pattern.subn("", text)
+    if count:
+        updated = re.sub(r"\n{3,}", "\n\n", updated)
+    return updated, bool(count)
+
+
+def _marker_wrapped_section(index: int, title: str, marker: str, body: str) -> str:
+    return "\n".join(
+        [
+            f"## {index}. {title}",
+            "",
+            f"<!-- workflow-sync:{marker}:start -->",
+            body.rstrip(),
+            f"<!-- workflow-sync:{marker}:end -->",
+            "",
+        ]
+    )
+
+
+def render_planning_sections(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> str:
+    sections = [
+        _marker_wrapped_section(
+            3,
+            "工作量与容量",
+            "sprint-capacity-section",
+            render_capacity_section(sprint),
+        ),
+        _marker_wrapped_section(
+            4,
+            "里程碑",
+            "sprint-milestones-section",
+            render_milestone_section(sprint, changes),
+        ),
+        _marker_wrapped_section(
+            5,
+            "风险与缓冲",
+            "sprint-risks-section",
+            render_risk_section(sprint, changes),
+        ),
+        _marker_wrapped_section(
+            6,
+            "知识库承接",
+            "sprint-knowledge-section",
+            render_knowledge_section(sprint, changes),
+        ),
+    ]
+    return "\n".join(section.rstrip() for section in sections).rstrip() + "\n"
+
+
+def patch_planning_sections(text: str, planning_sections: str) -> tuple[str, bool]:
+    original = text
+    for title in ("工作量与容量", "里程碑", "风险与缓冲", "知识库承接"):
+        text, _ = _remove_top_level_section(text, title)
+
+    scope_match = re.search(r"(^## 2\. Scope\s*\n.*?)(?=^##\s+\d+\.|\Z)", text, re.MULTILINE | re.DOTALL)
+    if not scope_match:
+        return original, False
+    insert_at = scope_match.end(1)
+    before = text[:insert_at].rstrip()
+    after = text[insert_at:].lstrip("\n")
+    text = f"{before}\n\n{planning_sections.rstrip()}\n\n{after}"
+    text = re.sub(r"^##\s+\d+\.\s+验收重点", "## 7. 验收重点", text, count=1, flags=re.MULTILINE)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    if original.endswith("\n") and not text.endswith("\n"):
+        text += "\n"
+    return text, text != original
 
 
 def patch_sprint_md(
@@ -671,9 +966,13 @@ def patch_sprint_md(
     bug_table = render_bugs_table(sprint, issues, derived_issues, changes)
     change_table = render_changes_table(sprint, changes)
     main_scope_table = render_main_scope_table(sprint, issues, derived_issues, changes)
+    goal_section = render_sprint_goal_section(sprint, issues, derived_issues, changes)
     scope_summary = render_scope_summary_paragraphs(sprint, derived_issues, changes)
+    planning_sections = render_planning_sections(sprint, changes)
 
+    text, goal_changed = patch_sprint_goal_section(text, goal_section)
     text, main_scope_changed = patch_main_scope_section(text, main_scope_table, scope_summary)
+    text, planning_changed = patch_planning_sections(text, planning_sections)
 
     text, _ = ensure_marker_block(
         text,
@@ -709,8 +1008,12 @@ def patch_sprint_md(
 
     changed = persist_markdown(path, text, original, write)
     detail = "Scope tables + note"
+    if goal_changed:
+        detail += " + sprint goal items"
     if main_scope_changed:
         detail += " + main scope table"
+    if planning_changed:
+        detail += " + planning sections"
     if milestone_changed:
         detail += " + milestone dates"
     return PatchResult(str(path.relative_to(ROOT)), changed, detail)

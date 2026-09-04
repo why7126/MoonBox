@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-08-19 15:25:08
+updated_at: 2026-09-04 15:30:02
 owner: MoonBox 产品团队
 ---
 
@@ -28,11 +28,13 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| REQ-0024-markdown-editor-human-edit-permission-matrix | Markdown 编辑器按治理阶段扩展人工编辑权限矩阵 | in_sprint | review | P1 | sprint-004 | update-markdown-editor-human-edit-permission-matrix | 2026-09-04 08:41:40 | `/opsx-archive REQ-0024-markdown-editor-human-edit-permission-matrix` | `issues/requirements/review/REQ-0024-markdown-editor-human-edit-permission-matrix/trace.md` |
+| REQ-0023-product-workbench-modern-ops-visual-system | MoonBox 产品工作台全面升级为现代 Ops 视觉系统 | in_sprint | review | P1 | sprint-004 | update-product-workbench-modern-ops-visual-system | 2026-08-31 09:18:31 | `/opsx-archive REQ-0023-product-workbench-modern-ops-visual-system` | `issues/requirements/review/REQ-0023-product-workbench-modern-ops-visual-system/trace.md` |
 | REQ-0022-local-project-import-product-iteration | REQ-0022-local-project-import-product-iteration | captured | plan | P1 | 无 | 无 | 2026-08-19 15:25:08 | `/req-generate REQ-0022-local-project-import-product-iteration` | `issues/requirements/plan/REQ-0022-local-project-import-product-iteration/trace.md` |
-| REQ-0021-markdown-editor-vditor-enhancement | Markdown 文档 Vditor 增强编辑器 | in_sprint | review | P1 | sprint-003 | update-markdown-editor-vditor-enhancement | 2026-08-19 12:23:54 | `/opsx-archive REQ-0021-markdown-editor-vditor-enhancement` | `issues/requirements/review/REQ-0021-markdown-editor-vditor-enhancement/trace.md` |
-| REQ-0020-requirement-center-card-document-actions-ai-chat | 需求中心卡片文档查看、动作流转与 AI 聊天增强 | in_sprint | review | P1 | sprint-003 | update-requirement-center-card-document-actions-ai-chat | 2026-08-18 10:56:46 | `/opsx-archive REQ-0020-requirement-center-card-document-actions-ai-chat` | `issues/requirements/review/REQ-0020-requirement-center-card-document-actions-ai-chat/trace.md` |
-| REQ-0019-space-creation-join-application-flow | 前台创建空间流程 | in_sprint | review | P1 | sprint-003 | add-space-creation-join-application-flow | 2026-08-15 12:35:07 | `/opsx-archive REQ-0019-space-creation-join-application-flow` | `issues/requirements/review/REQ-0019-space-creation-join-application-flow/trace.md` |
-| REQ-0018-frontend-space-switcher-real-data | 前台空间切换列表真实数据接入 | in_sprint | review | P1 | sprint-003 | update-frontend-space-switcher-real-data | 2026-08-15 11:42:00 | `/opsx-archive REQ-0018-frontend-space-switcher-real-data` | `issues/requirements/review/REQ-0018-frontend-space-switcher-real-data/trace.md` |
+| REQ-0021-markdown-editor-vditor-enhancement | Markdown 文档 Vditor 增强编辑器 | done | archive | P1 | sprint-003 | update-markdown-editor-vditor-enhancement | 2026-09-04 15:29:23 | 无 | `issues/requirements/archive/REQ-0021-markdown-editor-vditor-enhancement/trace.md` |
+| REQ-0020-requirement-center-card-document-actions-ai-chat | 需求中心卡片文档查看、动作流转与 AI 聊天增强 | done | archive | P1 | sprint-003 | update-requirement-center-card-document-actions-ai-chat | 2026-09-04 15:30:02 | 无 | `issues/requirements/archive/REQ-0020-requirement-center-card-document-actions-ai-chat/trace.md` |
+| REQ-0019-space-creation-join-application-flow | 前台创建空间流程 | done | archive | P1 | sprint-003 | add-space-creation-join-application-flow | 2026-08-27 08:10:14 | 无 | `issues/requirements/archive/REQ-0019-space-creation-join-application-flow/trace.md` |
+| REQ-0018-frontend-space-switcher-real-data | 前台空间切换列表真实数据接入 | done | archive | P1 | sprint-003 | update-frontend-space-switcher-real-data | 2026-08-27 08:07:15 | 无 | `issues/requirements/archive/REQ-0018-frontend-space-switcher-real-data/trace.md` |
 | REQ-0017-admin-space-management | 后台管理实现空间管理模块 | done | archive | P1 | sprint-002 | add-admin-space-management | 2026-08-14 16:20:58 | 无 | `issues/requirements/archive/REQ-0017-admin-space-management/trace.md` |
 | REQ-0016-unified-account-auth-api | 统一账号认证与个人中心 API | done | archive | P1 | sprint-002 | update-unified-account-auth-api | 2026-08-13 22:49:12 | 无 | `issues/requirements/archive/REQ-0016-unified-account-auth-api/trace.md` |
 | REQ-0015-login-password-visibility-toggle | 登录页密码显示/隐藏切换功能 | done | archive | P1 | sprint-002 | update-login-password-visibility-toggle | 2026-08-13 22:46:27 | 无 | `issues/requirements/archive/REQ-0015-login-password-visibility-toggle/trace.md` |

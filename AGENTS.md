@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-15 13:17:18
+updated_at: 2026-09-02 19:12:31
 owner: MoonBox 产品团队
 ---
 
@@ -34,13 +34,14 @@ rules/agent-context-budget.md
 | Sprint | `rules/iterations-lifecycle.md`、相关 `iterations/change|archive/<sprint>/` |
 | OpenSpec | `openspec/changes/<change-id>/`、`rules/document-governance.md` |
 | 代码实现 | `rules/coding.md`、`rules/testing.md`、相关模块 README |
-| API | `rules/api.md`、`docs/03-api-index.md`、OpenAPI 来源 |
-| DB | `rules/database.md`、`docs/04-database-design.md` |
-| UI | `rules/ui-design.md`、`docs/standards/prototype-ui-acceptance.md`、前端设计 token 和组件入口 |
+| API | `rules/api.md`、`docs/03-api-index.md`、OpenAPI 来源；涉及请求日志、链路字段、行为埋点、Task Trace 或请求封装时追加读取 `docs/standards/product-data-collection-observability.md` |
+| DB | `rules/database.md`、`docs/04-database-design.md`；涉及 `usage_events`、`request_logs`、`task_traces`、`task_trace_spans`、索引、迁移或保留周期时追加读取 `docs/standards/product-data-collection-observability.md` |
+| UI | `rules/ui-design.md`、`docs/standards/prototype-ui-acceptance.md`、前端设计 token 和组件入口；涉及附件、HTML、截图、标注图、既有页面或一对一复刻时追加建立 UI Reference Replication Contract |
 | 部署 | `rules/environment.md`、`rules/port-management.md`、`rules/release.md`、`docs/02-deployment.md` |
 | 产品手册 / Mintlify | `rules/document-governance.md`、`rules/release.md`、`docs/02-deployment.md`、`mintlify/README.md` |
 | 对象存储 | `rules/data-management.md`、`rules/object-storage.md`、`docs/07-object-storage-strategy.md` |
 | 安全 | `rules/security.md` |
+| 数据采集 / 链路观测 | `docs/standards/product-data-collection-observability.md`、`docs/standards/task-trace-coverage.md` |
 | 问题排查 / 根因 / 返修 | `rules/root-cause-evidence.md`、相关 `logs/`、截图、测试失败、Change/Issue trace 片段 |
 | 命令顺序 / 工作流编排 | `docs/08-command-execution-order.md`、`.agents/skills/workflow-sync/SKILL.md` |
 
@@ -57,6 +58,7 @@ rules/agent-context-budget.md
 | Git 安全 | `/git-check` |
 | 产品手册 | `/usage-docs-generate`、`/usage-docs-update`、`/usage-docs-validate` |
 | 发布镜像 | `/release-propose`、`/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` |
+| 部署升级 | `/upgrade-plan --from <fresh\|version> --to <version>`、`/upgrade-validate --plan <path>` |
 
 ## 流程红线
 
@@ -70,10 +72,16 @@ rules/agent-context-budget.md
 - 跨项目学习使用 `/spec-study`；学习对象必须全程只读，学习报告统一放入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，本地学习对象持久化时必须脱敏为项目名或占位符。
 - 规范优化使用 `/spec-opt`；规范、技能、脚本、目录边界或校验规则迭代日志统一放入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md`，不得写入隐私、密钥、未脱敏日志、学习对象源码、本机绝对路径、系统用户名或用户主目录。
 - Sprint ID 必须使用 `sprint-xxx` 三位数字递增格式；自动创建 Sprint 时扫描 `iterations/change/` 与 `iterations/archive/` 后取最大编号加一。
+- `/sprint-propose` 选择或创建 Sprint 前必须运行 `python scripts/validate-sprint-selection.py [--sprint <sprint-id>]`；无 active Sprint 默认下一个连续编号，一个 active Sprint 默认当前 Sprint，两个及以上 active Sprint 必须显式指定。
+- 发布升级与回滚计划使用 `/upgrade-plan` 与 `/upgrade-validate`；命令只生成和校验计划，不自动执行生产升级、真实 env 修改、DB restore 或对象存储写入维护。
+- 命令最终输出不得泄漏尖括号占位模板、通用示例或 `MUST/SHOULD` 规范语气；「下一步」与「待用户决策/处理」必须去重。
 - 下一步可执行命令必须保留链路身份：REQ 链路的 `/req-*` 与后续 `/opsx-*` 使用完整 `REQ-xxxx-slug`，BUG 链路的 `/bug-*` 与后续 `/opsx-*` 使用完整 `BUG-xxxx-slug`，非 REQ/BUG Change 才使用 `<change-id>`。
 - 所有 workflow 命令完成后必须输出「执行链路复盘」，包含链路状态、问题证据和规范优化建议；发现可优化点时默认只给建议命令或 capture 文案，不自动创建 follow-up Issue/Change，除非用户明确授权。
 - API、DB、UI、部署或安全边界变化必须同步文档、规则和测试。
+- API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测相关变更必须读取 `docs/standards/product-data-collection-observability.md`，并在 REQ、Change、Sprint 或验收材料中声明 `product_data_collection_observability`、`affected_layers`、具体 N/A 原因和 `validation` 摘要。
 - 带 `prototype/` 的 UI 页面必须先完成原型拆解、UI Contract、UI Skeleton 首轮确认、1440px 与关键交互视觉验收、computed style 证据、Mock/API 边界声明和 REQ 文档最终一致性检查；不得缺少视觉证据、样式证据或文档回填即归档。
+- UI 参考稿复刻必须先完成附件/HTML/截图反向工程、组件级视觉契约、selector 映射、computed style 采样清单和分批验收门禁；不得只用“更现代”“更贴近附件”等主观描述直接进入实现完成态。
+- UI 参考稿复刻若包含动作按钮、FAB、卡片 footer、工具栏动作或阶段动作，必须先建立“动作按钮 → modal 类型 → selector → 状态 → 验收证据”矩阵，并按动作族一次性实现按钮与 modal 组件族；不得继续逐按钮问答返修。
 - UI 型 `/opsx-modify` 若验收反馈包含附件截图、标注图、原型截图或实际截图，必须先建立“附件截图逐项视觉对照表”，逐项确认期望、实际、偏差、检查方式、处置结论和证据入口；对照表证据不足时先补证，不得直接返修。
 - REQ 来源 `/opsx-modify` 完成前必须执行 REQ 子文档一致性扫尾检查，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 判断是否需同步，避免只更新 PRD 而遗漏子文档。
 - 问题排查、BUG 完善、验收返修或效果不如预期时必须遵守证据化根因分析治理：无证据不得确认根因；证据不足时必须输出人工补证操作步骤，等补证后再定根因。

@@ -5,7 +5,7 @@ source: AI自动生成初稿，项目团队确认
 update_method: 发布流程、版本策略或发布命令族变化时更新
 note: 适用于 MoonBox 发布治理
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-08-27 08:06:34
 ---
 
 # 发布规范
@@ -36,6 +36,20 @@ releases/vX.Y.Z/release.json
 - 追踪关联 REQ、BUG 和 OpenSpec Change。
 - 区分 Sprint `release-note.md` 与产品版本公告：Sprint release note 描述迭代交付，产品版本公告描述对外版本。
 - 阻止未评审、未纳入交付或未归档闭环的内容进入正式发布范围。
+
+## 发布产物与构建记录
+
+发布、镜像、产品手册投影或公开站点构建产生的证据 MUST 可复核。发布对象、镜像 manifest、产品手册 manifest、升级计划或等价记录 SHOULD 至少保存：产品版本、来源 Sprint/Change 范围、Git commit 或经批准的外部证据标识、输入摘要或 input hash、产物位置或摘要、生成时间、校验命令、校验结果和发布负责人确认。
+
+发布写入动作 MUST 基于已经验证的产物记录执行。若发布确认时发现 Dockerfile、Compose、构建脚本、schema、migration、OpenAPI、产品手册源、release input 或其他声明输入发生漂移，既有构建记录和 manifest 失效，必须重新执行对应准备/构建/校验命令，或记录经批准的外部构建证据与风险说明。
+
+打包、构建和发布写入 SHOULD 分阶段记录：
+
+- 准备阶段记录输入、计划、自动修正、warning 和 blocker。
+- 构建阶段记录产物、hash、平台、校验结果和 source plan。
+- 发布确认阶段只引用已验证产物或经批准的外部证据，不重新解释未记录的本地状态。
+
+任何发布产物记录都不得写入真实 `.env`、密钥、Cookie、Authorization header、对象存储凭据、数据库连接串、未脱敏日志、私有生产地址或真实客户数据。
 
 ## 公开发布公告
 
@@ -72,6 +86,7 @@ releases/vX.Y.Z/announcement.mdx
 | Mintlify 服务部署 | 发布范围涉及 `docs-site`、`HOST_PORT_MINTLIFY_DOCS`、Mintlify Compose、静态预览脚本或生产文档站承载方式时，docs-site Compose config 校验通过；生产承载方式未确认时记录 blocker 或待确认项 |
 | 镜像准备 | 当 `image_required=true` 时，`releases/<version>/image-build-plan.json` 已生成、校验通过并被 `release.json` 引用 |
 | 镜像构建 | 当 `image_required=true` 或包含离线镜像交付时，`releases/<version>/image-manifest.json` 已生成、未过期并被 `release.json` 引用；外部构建证据必须受控 |
+| 构建记录 | 发布、镜像、产品手册投影或公开站点构建产物具备可复核记录，且输入摘要、产物摘要、校验结果和发布写入边界清楚 |
 
 任一必填门禁失败时，发布流程 MUST 阻断，并输出失败原因与修复建议。
 
@@ -114,6 +129,21 @@ releases/vX.Y.Z/announcement.mdx
 | `/usage-docs-validate <version>` | 校验 MoonBox Mintlify 产品手册、导航、manifest 和公开安全 |
 | `/image-prepare <version>` | 生成镜像构建计划并校验 release、tag、Compose、Dockerfile、schema/migration 等输入 |
 | `/image-build <version>` | 基于有效构建计划执行真实镜像构建、验证、离线包导出并生成 manifest |
+| `/upgrade-plan --from <fresh\|version> --to <version>` | 生成首次部署、相邻升级或跨版本升级与回滚计划 |
+| `/upgrade-validate --plan <path>` | 校验升级计划结构、证据、人工复核要求和公开安全边界 |
 | `/release-publish <version>` | 记录发布确认结果和最终公告位置 |
 
 本项目当前不引入草稿、待发布、已发布、撤回等复杂发布状态机。发布命令只记录计划、校验和确认事实。
+
+## 版本升级与回滚计划
+
+当发布流程需要承诺某个版本支持首次部署、相邻升级或跨版本升级时，MUST 先生成并校验升级计划：
+
+```bash
+python scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
+python scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
+```
+
+升级计划 MUST 记录 from version、to version、support level、source confidence、env review、database review、object storage review、rollback review、blockers 和 warnings。正常发布默认 SHOULD 覆盖 `fresh -> <version>` 与上一正式版本到当前版本；跨版本计划只有用户明确指定旧版本时才生成，并在证据不足时保留人工复核要求。
+
+升级计划命令 MUST NOT 自动执行生产升级、修改真实 env、执行 DB restore、写入型 migration 或对象存储维护任务。真实生产实施仍需人工授权、备份确认、回滚窗口和实施记录。

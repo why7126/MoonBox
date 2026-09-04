@@ -52,9 +52,19 @@ Use this skill when the user asks to run `/sprint-propose` or create/update a Sp
 ## Sprint ID Rules（MUST）
 
 - Sprint ID MUST 使用 `sprint-xxx` 三位数字递增格式，例如 `sprint-002`。
+- 命令在选择或创建 Sprint 前 MUST 运行：
+
+```bash
+python scripts/validate-sprint-selection.py [--sprint <sprint-id>]
+```
+
 - 当用户未指定 Sprint ID 且当前没有 `iterations/change/sprint-xxx/` 进行中迭代时，MAY 自动创建下一个 Sprint。
+- 当用户未指定 Sprint ID 且当前仅有一个 `iterations/change/sprint-xxx/` active Sprint 时，MUST 默认使用该 Sprint 作为当前 Sprint。
+- 当用户未指定 Sprint ID 且当前存在两个或以上 active Sprint 时，MUST 阻断命令，并引导用户使用 `/sprint-propose --sprint <sprint-id>` 指定当前 Sprint。
 - 自动编号 MUST 同时扫描 `iterations/archive/` 与 `iterations/change/` 下符合 `sprint-[0-9]{3}` 的目录和 `sprint.yaml:sprint_id`，取最大编号加一；例如最新归档为 `sprint-001` 且无进行中迭代时，自动创建 `sprint-002`。
-- 如果已存在 `iterations/change/sprint-xxx/` 进行中迭代，MUST 优先复用或要求用户明确选择，不得默认另建并行 Sprint。
+- 用户显式指定一个尚不存在的 Sprint 时，该 Sprint ID MUST 等于最大规范编号加一；不得跳号创建。
+- 如果已存在一个 active Sprint，只有当前 Sprint 容量硬阻断或用户明确拆分范围时，才允许通过 `--sprint <next-sprint>` 创建下一个连续编号 Sprint。
+- 如果已存在两个 active Sprint，MUST 禁止创建第三个 active Sprint；用户只能指定其中一个现有 active Sprint。
 - 不得使用日期、主题词或混合命名创建 Sprint，例如 `sprint-2026-08-07-spec-study`。
 
 ## Must Read
@@ -129,6 +139,12 @@ docs/knowledge-base/best-practices/<matched>.md（按标签）
 
 ## Artifacts（非 `--dry-run` MUST）
 
+### 产品数据采集与链路观测门禁（MUST）
+
+纳入 REQ、BUG 或 Change 时，若范围涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测，MUST 读取 `docs/standards/product-data-collection-observability.md` 或确认相关 REQ/Change 已引用，并在 Sprint 输出摘要中提示 `product_data_collection_observability` 状态、`affected_layers` 适用层级、N/A 原因、`validation` 验证摘要或缺失项。
+
+Sprint 文档只保留门禁摘要，不复制完整规范正文。
+
 目录：`iterations/change/sprint-xxx/`
 
 ```text
@@ -154,7 +170,9 @@ estimated_story_points: <number>
 estimated_person_days: <number>
 ```
 
-`sprint.md` MUST 包含：目标、Scope、工作量、fix 缓冲、里程碑、风险、知识库承接、横切预防清单、依赖 ASCII 树、发布计划、关联文档。
+`sprint.md` MUST 包含：目标、Sprint 目标编号列表、每个正式范围项的 `### <id> 要点`、Scope、工作量与容量、fix 缓冲、里程碑、风险与缓冲、知识库承接、横切预防清单、依赖 ASCII 树、发布计划、关联文档。其中目标编号列表、要点段落、Scope 主表、工作量与容量、里程碑、风险与缓冲、知识库承接 SHOULD 由 Workflow Sync 派生刷新。
+
+已有 Sprint 追加或修正范围时，MUST 先用 `scripts/add-sprint-scope-item.py` 更新 `sprint.yaml`，再运行 Workflow Sync 派生刷新 `sprint.md`、`release-note.md`、`acceptance-report.md`、Issue trace 和 Change trace。不得只手工编辑 `sprint.md`、Workflow Sync marker blocks、Scope 主表、目标编号列表、要点段落、工作量与容量、里程碑、风险与缓冲或知识库承接章节。
 
 Markdown frontmatter MUST 含 `created_at`、`updated_at`；更新只改 `updated_at`。
 
@@ -182,7 +200,7 @@ openspec/changes/<change>/trace.md（若存在）
 
 ## Output
 
-报告 Sprint ID、状态、纳入 REQ/BUG/Change 数量、估算、知识库承接、容量门禁、四件套路径、下一步。
+报告 Sprint ID、状态、纳入 REQ/BUG/Change 数量、估算、知识库承接、容量门禁、目标编号列表/Scope 校验结果、四件套路径、下一步。
 
 下一步参数规则：
 

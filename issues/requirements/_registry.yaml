@@ -1,7 +1,39 @@
 # REQ 序号注册表（/capture 与 /req-capture 维护）
 # entries 仅作为索引，不替代各 REQ 目录内的 capture.md、requirement.md、acceptance.md、trace.md。
-next_id: 23
+next_id: 25
 entries:
+  - id: REQ-0024-markdown-editor-human-edit-permission-matrix
+    title: Markdown 编辑器按治理阶段扩展人工编辑权限矩阵
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0024-markdown-editor-human-edit-permission-matrix/
+    created: "2026-09-03 21:17:11"
+    requester: product
+    owner: product
+    target_iteration: null
+    related_changes:
+      - update-markdown-editor-human-edit-permission-matrix
+    parent_requirement: REQ-0021-markdown-editor-vditor-enhancement
+    iteration: sprint-004
+    related_change: update-markdown-editor-human-edit-permission-matrix
+  - id: REQ-0023-product-workbench-modern-ops-visual-system
+    title: MoonBox 产品工作台全面升级为现代 Ops 视觉系统
+    status: in_sprint
+    type: feature
+    priority: P1
+    lifecycle_stage: review
+    path: issues/requirements/review/REQ-0023-product-workbench-modern-ops-visual-system/
+    created: "2026-08-30 23:00:42"
+    requester: product
+    owner: product
+    target_iteration: null
+    related_changes:
+      - update-product-workbench-modern-ops-visual-system
+    parent_requirement: null
+    iteration: sprint-004
+    related_change: update-product-workbench-modern-ops-visual-system
   - id: REQ-0022-local-project-import-product-iteration
     title: 本地存量项目导入 MoonBox 并支持产品内迭代闭环
     status: captured
@@ -18,11 +50,11 @@ entries:
     iteration: null
   - id: REQ-0021-markdown-editor-vditor-enhancement
     title: Markdown 文档 Vditor 增强编辑器
-    status: in_sprint
+    status: done
     type: feature
     priority: P1
-    lifecycle_stage: review
-    path: issues/requirements/review/REQ-0021-markdown-editor-vditor-enhancement/
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0021-markdown-editor-vditor-enhancement/
     created: "2026-08-19 11:30:07"
     requester: product
     owner: product
@@ -34,11 +66,11 @@ entries:
     related_change: update-markdown-editor-vditor-enhancement
   - id: REQ-0020-requirement-center-card-document-actions-ai-chat
     title: 需求中心卡片文档查看、动作流转与 AI 聊天增强
-    status: in_sprint
+    status: done
     type: feature
     priority: P1
-    lifecycle_stage: review
-    path: issues/requirements/review/REQ-0020-requirement-center-card-document-actions-ai-chat/
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0020-requirement-center-card-document-actions-ai-chat/
     created: "2026-08-18 09:34:10"
     requester: product
     owner: product
@@ -267,11 +299,11 @@ entries:
       - add-admin-space-management
   - id: REQ-0018-frontend-space-switcher-real-data
     title: 前台空间切换列表真实数据接入
-    status: in_sprint
+    status: done
     type: feature
     priority: P1
-    lifecycle_stage: review
-    path: issues/requirements/review/REQ-0018-frontend-space-switcher-real-data/
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0018-frontend-space-switcher-real-data/
     created: "2026-08-15 10:19:49"
     requester: product
     owner: product
@@ -281,11 +313,11 @@ entries:
     related_change: update-frontend-space-switcher-real-data
   - id: REQ-0019-space-creation-join-application-flow
     title: 空间创建与加入申请流程
-    status: in_sprint
+    status: done
     type: feature
     priority: P1
-    lifecycle_stage: review
-    path: issues/requirements/review/REQ-0019-space-creation-join-application-flow/
+    lifecycle_stage: archive
+    path: issues/requirements/archive/REQ-0019-space-creation-join-application-flow/
     created: "2026-08-15 10:19:49"
     requester: product
     owner: product

@@ -53,6 +53,8 @@ Use this skill when the user asks to run the migrated source command `sprint-exp
 2. 优先基于 Fact Sheet 构建 Sprint 概况、Scope、Change tasks、Issue 状态、验收摘要与 evidence hints。
 3. 仅当 Fact Sheet 标记 `warnings`、`needs_detail`、缺失/不一致项，或用户指定 `--focus` 时，按 evidence hints 分段回读对应原文片段。
 4. 构建 Token Usage Fact Sheet：优先使用自动 Fact Sheet 的 `ai_usage_snapshot`；只有当 `snapshot_status: present` 且 `ai_usage_mode: actual` 时，才按真实统计输出。若 snapshot `missing`、`stale`、`failed` 或覆盖不足，MUST 输出 `ai_usage_mode: estimated_fallback`、reason、impact 和 recommended_action，再使用 `token_risks`、四件套行数、Change/tasks 计数、warnings 与 evidence hints 做估算分析。
+   - Sprint AI Usage 矩阵中 `-` 表示该对象在该 workflow 阶段未观测到 command run，不等同于真实 `0`；已观测但数值为零时保留数字 `0`。
+   - 若当前命令具备 workflow event、Sprint 或 Change 上下文，SHOULD 先尝试通过 `scripts/extract-ai-usage.py --post-command-hook ... --dry-run --json` 或等价刷新路径触发本地 session 自动发现；只有自动发现失败、缺少 `token_count` 或覆盖不足时，才降级为 `estimated_fallback`。
 5. 五维分析：流程、需求设计、开发质量、可复用抽象、模型 Token 使用。
 6. 聚类 → 行动项 → 写入 knowledge-base（除非 dry-run）。
 7. 输出 Experience Analysis Report。
@@ -64,6 +66,7 @@ Use this skill when the user asks to run the migrated source command `sprint-exp
 ## Fact Sheet 读取边界（MUST）
 
 - MUST 先运行或读取 `scripts/generate-sprint-fact-sheet.py --sprint <sprint-id>` 的输出，再决定是否读取 Sprint 四件套、Issue trace、OpenSpec Change 或 tasks 原文。
+- Fact Sheet 是 `/sprint-exps` 的 read-first compact source；只有 `warnings`、`needs_detail`、`evidence_hints`、AI Usage fresh gate blocker 或用户 `--focus` 指向具体文件时，才展开原始 `sprint.md`、`acceptance-report.md`、Issue trace 或 Change 文档片段。
 - MUST NOT 默认全文读取 sprint 四件套、全部 REQ/BUG/Change trace、review/root-cause/tasks。
 - MUST NOT 在复盘中复制原始 trace、tasks、acceptance-report、OpenAPI、Orval generated 或测试日志全文；需要证据时只引用路径、聚合计数或短片段。
 - MAY 按 Fact Sheet 的 `warnings` / `needs_detail` / `evidence_hints` 回读对应文件片段，例如缺失 trace、状态残留、tasks 未完成、acceptance 结论不清晰。
@@ -76,6 +79,7 @@ Use this skill when the user asks to run the migrated source command `sprint-exp
   - 优先使用 `data/ai-usage/sprints/<sprint-id>.json` 经 `scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json` 暴露的真实统计：command run 数、模型调用、工具调用、失败重跑、input tokens、cached input tokens、output tokens、reasoning output tokens、total tokens、工具输出字符数。
   - 若 `ai_usage_snapshot.snapshot_status != present` 或 `ai_usage_snapshot.ai_usage_mode != actual`，MUST 明确输出 `ai_usage_mode: estimated_fallback`、reason（如 missing/stale/failed/coverage-missing）、impact、recommended_action；不得编造具体 token 数字，不得静默按真实统计展示。
   - 若 snapshot 过期、覆盖不足或无法判定覆盖范围，MUST 在本章节保留 warning，并提示刷新 snapshot。
+  - 刷新 snapshot 时优先复用 AI Usage hook 的 session 输入发现顺序：显式 `--session-jsonl`、`AI_USAGE_SESSION_JSONL`、`CODEX_SESSION_JSONL`、`AI_USAGE_SESSIONS_DIR`、默认本地 Codex sessions 目录 `~/.codex/sessions`；历史回填或审计仍需显式 session 和必要的 `--manual-map`。
   - MUST 分析高消耗来源：重复读取 `rules/` 与技能文件、宽泛 `rg/find`、全量 Sprint/Issue/Change 读取、`openspec/archive/**`、OpenAPI/Orval 生成物 diff、长测试日志、Workflow Sync 全量输出、Docker/build 大日志、Harness/模板 assets 注入。
   - MUST 优先引用自动 Fact Sheet 的 `token_risks`、Change/tasks 计数、四件套行数、warnings 与 evidence hints，减少人工展开四件套、trace 与 tasks 的 token 消耗。
   - MUST 给出优化方案，至少包含：读取边界、搜索排除、输出截断、diff/stat 优先、失败日志摘要、复用已读规则摘要、按 Change 分段处理、必要时沉淀脚本或校验 gate。

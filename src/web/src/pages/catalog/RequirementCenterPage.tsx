@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Code2,
   Command,
+  Copy,
   FileCheck,
   GitBranch,
   ImageIcon,
@@ -17,7 +18,9 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  Maximize2,
   MessageCircle,
+  Minimize2,
   Plus,
   RefreshCw,
   Search,
@@ -28,9 +31,10 @@ import {
   Table2,
   UserRound,
   Users,
+  Wrench,
   X,
 } from "lucide-react";
-import { ChangeEvent, FormEvent, KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, KeyboardEvent, MouseEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { LucideIcon } from "lucide-react";
 import type { AdminSession } from "../admin/adminAuth";
@@ -45,19 +49,29 @@ type Theme = "dark" | "light";
 type SettingsTab = "general" | "members" | "agents" | "skills" | "integrations" | "danger";
 type ProfileUploadState = "idle" | "uploading" | "done" | "failed";
 type MarkdownUploadState = "idle" | "uploading" | "done" | "failed";
+type MarkdownViewMode = "preview" | "edit" | "split";
+type ProgressFocus = "development" | "test" | "manual";
+type MarkdownParts = { frontmatter: Array<[string, string]>; frontmatterRaw: string; body: string };
 type DrawerState =
   | { type: "none" }
-  | { type: "markdown"; issue: IssueCard; document: IssueDocument; content: string; draft: string; loading: boolean; saving: boolean; error: string; mode: "preview" | "edit"; savedAt?: string }
-  | { type: "tasks"; issue: IssueCard }
+  | { type: "markdown"; issue: IssueCard; document: IssueDocument; content: string; draft: string; loading: boolean; saving: boolean; error: string; mode: MarkdownViewMode; dirty: boolean; savedAt?: string }
+  | { type: "tasks"; issue: IssueCard; focus: ProgressFocus }
   | { type: "ai" };
 type ChoiceDialog =
   | { type: "none" }
-  | { type: "generation" | "completion" | "sprint"; issue: IssueCard; error: string };
+  | { type: "generation" | "completion" | "sprint" | "review"; issue: IssueCard; error: string };
+type ActionDialogKind = "analysis" | "command" | "complete" | "sprint" | "opsx" | "apply" | "progress";
+type ActionDialog =
+  | { type: "none" }
+  | { type: ActionDialogKind; issue: IssueCard; tab: "ai" | "import" | "existing" | "new"; ready: boolean; running: boolean; fileName: string; sprintId: string; newSprintId: string; sprintEstimate: number; error: string; adoptedPointIndexes: number[] };
 
 type Stage = {
   id: string;
   title: string;
   subtitle: string;
+  emptyTitle: string;
+  emptyHint: string;
+  emptyDetail: string;
   requiredDocs: string[];
 };
 
@@ -65,7 +79,7 @@ type IssueCard = {
   id: string;
   type: IssueType;
   title: string;
-  priority: "P0" | "P1" | "P2";
+  priority: "P0" | "P1" | "P2" | "P3";
   owner: string;
   source: string;
   stage: string;
@@ -80,6 +94,7 @@ type IssueCard = {
   sprintId?: string;
   taskProgress?: [number, number];
   testProgress?: [number, number];
+  manualAcceptanceProgress?: [number, number];
   manualAcceptanceCount?: number;
 };
 
@@ -92,6 +107,20 @@ type IssueDocument = {
   label?: string;
   url?: string | null;
   editable?: boolean;
+  capability?: DocumentCapability;
+  content?: string;
+  htmlContent?: string;
+};
+
+type DocumentCapability = {
+  readable?: boolean;
+  human_editable?: boolean;
+  humanEditable?: boolean;
+  ai_mutable?: boolean;
+  aiMutable?: boolean;
+  task_toggle_only?: boolean;
+  taskToggleOnly?: boolean;
+  reason?: string;
 };
 
 type IssueAction = {
@@ -152,60 +181,278 @@ type RequirementCenterContext = {
   sprint_options?: string[];
 };
 
+type SprintOptionModel = {
+  id: string;
+  status: "进行中" | "规划中";
+  used: number;
+  total: number;
+  disabled: boolean;
+};
+
 type ApiEnvelope<T> = {
   data: T;
 };
 
 type VditorEditorShellProps = {
   value: string;
+  sourceContent: string;
+  documentName: string;
+  mode: Exclude<MarkdownViewMode, "preview">;
   uploadState: MarkdownUploadState;
   uploadError: string;
+  metadataOpen: boolean;
+  onToggleMetadata: () => void;
   onChange: (value: string) => void;
-  onImageUploadAttempt: () => void;
+  editorRef: RefObject<HTMLTextAreaElement>;
 };
 
 const markdownToolbarSnippets = {
-  table: "\n| 列 1 | 列 2 |\n| --- | --- |\n| 内容 | 内容 |\n",
-  code: "\n```ts\n// code\n```\n",
-  formula: "\n$$\nE = mc^2\n$$\n",
+  table: {
+    text: "| 列 1 | 列 2 |\n| --- | --- |\n| 内容 | 内容 |\n",
+    selectionStart: 22,
+    selectionEnd: 24,
+  },
+  code: {
+    before: "```ts\n",
+    placeholder: "// code",
+    after: "\n```\n",
+  },
+  formula: {
+    before: "$$\n",
+    placeholder: "E = mc^2",
+    after: "\n$$\n",
+  },
 };
 
-function VditorEditorShell({ value, uploadState, uploadError, onChange, onImageUploadAttempt }: VditorEditorShellProps) {
-  const insertSnippet = (snippet: string) => {
-    const prefix = value && !value.endsWith("\n") ? "\n" : "";
-    onChange(`${value}${prefix}${snippet}`);
-  };
+const parseMarkdownFrontmatter = (content: string): MarkdownParts => {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!match) return { frontmatter: [], frontmatterRaw: "", body: content };
+  const frontmatter = match[1]
+    .split("\n")
+    .map((line) => line.match(/^([^:#][^:]*):\s*(.*)$/))
+    .filter((line): line is RegExpMatchArray => Boolean(line))
+    .slice(0, 6)
+    .map((line) => [line[1].trim(), line[2].trim()] as [string, string]);
+  return { frontmatter, frontmatterRaw: match[0], body: content.slice(match[0].length).trimStart() };
+};
 
+const composeMarkdownContent = (sourceContent: string, body: string) => {
+  const parsed = parseMarkdownFrontmatter(sourceContent);
+  if (!parsed.frontmatterRaw) return body;
+  return `${parsed.frontmatterRaw}${body.trimStart()}`;
+};
+
+const issueSprintEstimate = (issue: IssueCard) => issue.priority === "P0" ? 5 : issue.priority === "P1" ? 3 : 2;
+
+const nextSprintId = (options: string[]) => {
+  const maxNumber = options.reduce((max, option) => {
+    const match = option.match(/^sprint-(\d+)$/);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 4);
+  return `sprint-${String(maxNumber + 1).padStart(3, "0")}`;
+};
+
+const sprintOptionModels = (options: string[], estimate: number): SprintOptionModel[] => {
+  const baseOptions = options.length ? options : ["sprint-004"];
+  const ids = baseOptions.length > 1 ? baseOptions : [...baseOptions, nextSprintId(baseOptions)];
+  return ids.map((id, index) => {
+    const total = 12;
+    const used = index === 0 ? 8 : 11;
+    return {
+      id,
+      status: index === 0 ? "进行中" : "规划中",
+      used,
+      total,
+      disabled: estimate > total - used,
+    };
+  });
+};
+
+const firstSelectableSprintId = (options: SprintOptionModel[]) => options.find((option) => !option.disabled)?.id || "";
+
+const markdownInlineParts = (text: string) => text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).map((part, index) => {
+  if (part.startsWith("`") && part.endsWith("`")) return <code key={index}>{part.slice(1, -1)}</code>;
+  if (part.startsWith("**") && part.endsWith("**")) return <strong key={index}>{part.slice(2, -2)}</strong>;
+  return part;
+});
+
+function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskToggle?: (taskIndex: number, checked: boolean) => void }) {
+  const [copyState, setCopyState] = useState<{ key: number; status: "copied" | "failed" } | null>(null);
+  const blocks: JSX.Element[] = [];
+  const lines = content.trim().split("\n");
+  let index = 0;
+  let taskIndex = 0;
+  const copyCodeBlock = async (code: string, key: number) => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
+      await navigator.clipboard.writeText(code);
+      setCopyState({ key, status: "copied" });
+    } catch {
+      setCopyState({ key, status: "failed" });
+    }
+    window.setTimeout(() => setCopyState((current) => current?.key === key ? null : current), 1600);
+  };
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      const level = heading[1].length;
+      const className = `level-${level}`;
+      blocks.push(<h3 key={index} className={className}>{heading[2]}</h3>);
+      index += 1;
+      continue;
+    }
+    if (/^```/.test(line)) {
+      const codeLines: string[] = [];
+      const blockKey = index;
+      index += 1;
+      while (index < lines.length && !/^```/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      const code = codeLines.join("\n");
+      const currentCopyState = copyState?.key === blockKey ? copyState.status : null;
+      blocks.push(
+        <div key={index} className="code-block">
+          <button type="button" className={`copy-code ${currentCopyState ?? ""}`} aria-label="复制代码块" onClick={() => void copyCodeBlock(code, blockKey)}>
+            {currentCopyState === "copied" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+            <span>{currentCopyState === "copied" ? "已复制" : currentCopyState === "failed" ? "复制失败" : "复制"}</span>
+          </button>
+          <pre className="code"><code>{code}</code></pre>
+        </div>,
+      );
+      index += 1;
+      continue;
+    }
+    if (/^\|.+\|$/.test(line)) {
+      const rows: string[][] = [];
+      while (index < lines.length && /^\|.+\|$/.test(lines[index])) {
+        const cells = lines[index].split("|").slice(1, -1).map((cell) => cell.trim());
+        if (!cells.every((cell) => /^-+$/.test(cell.replace(/\s/g, "")))) rows.push(cells);
+        index += 1;
+      }
+      blocks.push(
+        <div key={index} className="table-scroll">
+          <table>
+            <tbody>
+              {rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{markdownInlineParts(cell)}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </div>,
+      );
+      continue;
+    }
+    if (/^[-*]\s+/.test(line)) {
+      const items: Array<{ content: string; checked?: boolean; taskIndex?: number }> = [];
+      while (index < lines.length && /^[-*]\s+/.test(lines[index])) {
+        const task = lines[index].match(/^[-*]\s+\[( |x|X)\]\s+(.+)$/);
+        if (task) {
+          items.push({ content: task[2], checked: task[1].toLowerCase() === "x", taskIndex });
+          taskIndex += 1;
+        } else {
+          items.push({ content: lines[index].replace(/^[-*]\s+/, "") });
+        }
+        index += 1;
+      }
+      blocks.push(
+        <ul key={index}>
+          {items.map((item, itemIndex) => (
+            <li key={itemIndex} className={item.taskIndex === undefined ? undefined : "task-list-item"}>
+              {item.taskIndex === undefined ? markdownInlineParts(item.content) : (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    disabled={!onTaskToggle}
+                    onChange={(event) => onTaskToggle?.(item.taskIndex as number, event.target.checked)}
+                  />
+                  <span>{markdownInlineParts(item.content)}</span>
+                </label>
+              )}
+            </li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+    const paragraph = [line.trim()];
+    index += 1;
+    while (index < lines.length && lines[index].trim() && !/^(#{1,3})\s+/.test(lines[index]) && !/^[-*]\s+/.test(lines[index]) && !/^```/.test(lines[index]) && !/^\|.+\|$/.test(lines[index])) {
+      paragraph.push(lines[index].trim());
+      index += 1;
+    }
+    blocks.push(<p key={index}>{markdownInlineParts(paragraph.join(" "))}</p>);
+  }
+  return <>{blocks.length ? blocks : <p>暂无内容</p>}</>;
+}
+
+function MarkdownMetadataPanel({ parts, open, onToggle, compact = false }: { parts: MarkdownParts; open: boolean; onToggle: () => void; compact?: boolean }) {
+  if (!parts.frontmatter.length) return null;
   return (
-    <div className="rc-vditor-shell" data-testid="vditor-editor-shell">
-      <div className="rc-vditor-toolbar" role="toolbar" aria-label="Vditor Markdown 工具栏">
-        <button type="button" aria-label="插入图片" onClick={onImageUploadAttempt}>
-          <ImageIcon size={14} aria-hidden="true" />
-        </button>
-        <button type="button" aria-label="插入表格" onClick={() => insertSnippet(markdownToolbarSnippets.table)}>
-          <Table2 size={14} aria-hidden="true" />
-        </button>
-        <button type="button" aria-label="插入代码块" onClick={() => insertSnippet(markdownToolbarSnippets.code)}>
-          <Code2 size={14} aria-hidden="true" />
-        </button>
-        <button type="button" aria-label="插入数学公式" onClick={() => insertSnippet(markdownToolbarSnippets.formula)}>
-          <Sigma size={14} aria-hidden="true" />
-        </button>
-      </div>
-      <div className={`rc-vditor-upload-state ${uploadState}`} data-testid="vditor-upload-state" role={uploadState === "failed" ? "alert" : "status"}>
-        图片上传：{uploadState === "idle" ? "待选择" : uploadState === "uploading" ? "上传中" : uploadState === "done" ? "已插入" : "暂不可用"}
-        {uploadError && <span>{uploadError}</span>}
-      </div>
-      <div className="rc-vditor-workspace">
-        <textarea
-          aria-label="编辑 capture.md"
-          data-testid="markdown-source-fallback"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-        />
-        <div className="rc-vditor-preview" aria-label="Markdown 安全预览">
-          <pre>{value}</pre>
+    <section className={`rc-markdown-frontmatter-panel${compact ? " compact" : ""}`}>
+      <button
+        type="button"
+        className="rc-markdown-frontmatter-toggle"
+        aria-expanded={open}
+        aria-controls="markdown-frontmatter-summary"
+        onClick={onToggle}
+      >
+        <span>文档属性</span>
+        <b>{open ? "收起" : "展开"}</b>
+      </button>
+      {open && (
+        <div id="markdown-frontmatter-summary" className="rc-markdown-frontmatter-summary" aria-label="Frontmatter 摘要">
+          {parts.frontmatter.map(([key, value]) => <span key={key}><b>{key}</b>{value || "—"}</span>)}
         </div>
+      )}
+    </section>
+  );
+}
+
+function MarkdownPreviewPane({ content, compact = false, metadataOpen, onToggleMetadata, showMetadata = true, onTaskToggle }: { content: string; compact?: boolean; metadataOpen: boolean; onToggleMetadata: () => void; showMetadata?: boolean; onTaskToggle?: (taskIndex: number, checked: boolean) => void }) {
+  const parsed = parseMarkdownFrontmatter(content);
+  return (
+    <div className={`rc-markdown-prototype-preview${compact ? " compact" : ""}`} aria-label="Markdown 安全预览">
+      {showMetadata && <MarkdownMetadataPanel parts={parsed} open={metadataOpen} onToggle={onToggleMetadata} compact={compact} />}
+      <div className="rc-markdown-preview-section">
+        <div className="rc-rendered-markdown" data-testid="markdown-rendered-preview">
+          <RenderedMarkdown content={parsed.body} onTaskToggle={onTaskToggle} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VditorEditorShell({ value, sourceContent, documentName, mode, uploadState, uploadError, metadataOpen, onToggleMetadata, onChange, editorRef }: VditorEditorShellProps) {
+  const sourceParts = parseMarkdownFrontmatter(sourceContent);
+  return (
+    <div className={`rc-vditor-shell ${mode}`} data-testid="vditor-editor-shell">
+      <MarkdownMetadataPanel parts={sourceParts} open={metadataOpen} onToggle={onToggleMetadata} />
+      {(uploadState !== "idle" || uploadError) && (
+        <div className={`rc-vditor-upload-state ${uploadState}`} data-testid="vditor-upload-state" role={uploadState === "failed" ? "alert" : "status"}>
+          图片上传：{uploadState === "uploading" ? "上传中" : uploadState === "done" ? "已插入" : "暂不可用"}
+          {uploadError && <span>{uploadError}</span>}
+        </div>
+      )}
+      <div className="rc-vditor-workspace">
+        <div className="rc-vditor-pane editor">
+          <textarea
+            ref={editorRef}
+            aria-label={`编辑 ${documentName}`}
+            data-testid="markdown-source-fallback"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        </div>
+        {mode === "split" && (
+          <div className="rc-vditor-pane preview">
+            <MarkdownPreviewPane content={composeMarkdownContent(sourceContent, value)} compact metadataOpen={metadataOpen} onToggleMetadata={onToggleMetadata} showMetadata={false} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -265,27 +512,29 @@ const frontendNavGroups: Array<{
 ] as const;
 
 const stages: Stage[] = [
-  { id: "capture", title: "采集池", subtitle: "Capture / req-capture / bug-capture", requiredDocs: ["capture.md", "trace.md"] },
-  { id: "planning", title: "规划中", subtitle: "req-generate / bug-generate", requiredDocs: ["requirement.md", "trace.md"] },
-  { id: "review-ready", title: "待评审", subtitle: "req-complete / bug-complete", requiredDocs: ["acceptance.md", "trace.md"] },
-  { id: "approved", title: "已评审", subtitle: "review.md 已生成", requiredDocs: ["review.md", "trace.md"] },
-  { id: "sprint-planning", title: "迭代规划", subtitle: "sprint-propose", requiredDocs: ["sprint.md", "trace.md"] },
-  { id: "ready-dev", title: "待开发", subtitle: "req-opsx / bug-opsx", requiredDocs: ["proposal.md", "tasks.md", "trace.md"] },
-  { id: "development", title: "研发中", subtitle: "opsx-apply / sprint-apply", requiredDocs: ["tasks.md", "trace.md"] },
-  { id: "acceptance", title: "验收中", subtitle: "测试与人工验收", requiredDocs: ["acceptance.md", "test-plan.md", "trace.md"] },
-  { id: "done", title: "已完成", subtitle: "全链路留痕", requiredDocs: ["archive.md", "trace.md"] },
+  { id: "capture", title: "采集池", subtitle: "Capture / req-capture / bug-capture", emptyTitle: "暂无采集", emptyHint: "从新建 Capture 开始", emptyDetail: "需求或缺陷会先进入这里", requiredDocs: ["capture.md", "trace.md"] },
+  { id: "planning", title: "规划中", subtitle: "req-generate / bug-generate", emptyTitle: "暂无需求", emptyHint: "从采集池生成需求", emptyDetail: "后会显示在这里", requiredDocs: ["requirement.md", "trace.md"] },
+  { id: "review-ready", title: "待评审", subtitle: "req-complete / bug-complete", emptyTitle: "暂无待评审项", emptyHint: "规划完成的需求", emptyDetail: "将流转至此", requiredDocs: ["acceptance.md", "trace.md"] },
+  { id: "approved", title: "已评审", subtitle: "review.md 已生成", emptyTitle: "暂无已评审项", emptyHint: "通过评审后", emptyDetail: "自动归档于此", requiredDocs: ["review.md", "trace.md"] },
+  { id: "sprint-planning", title: "迭代规划", subtitle: "sprint-propose", emptyTitle: "暂无迭代项", emptyHint: "评审通过的对象", emptyDetail: "可加入 Sprint", requiredDocs: ["sprint.md", "trace.md"] },
+  { id: "ready-dev", title: "待开发", subtitle: "req-opsx / bug-opsx", emptyTitle: "暂无待开发项", emptyHint: "生成 OpenSpec 后", emptyDetail: "会进入开发队列", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "development", title: "研发中", subtitle: "opsx-apply / sprint-apply", emptyTitle: "暂无研发中任务", emptyHint: "开始 apply 后", emptyDetail: "进度会显示在这里", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "acceptance", title: "验收中", subtitle: "测试与人工验收", emptyTitle: "暂无验收项", emptyHint: "研发完成后", emptyDetail: "等待测试与人工确认", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "done", title: "已完成", subtitle: "全链路留痕", emptyTitle: "暂无完成项", emptyHint: "归档完成后", emptyDetail: "会保留最终证据", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"] },
 ];
+
+const stageTitleById = new Map(stages.map((stage) => [stage.id, stage.title]));
 
 const stageVisibleDocs: Record<string, string[]> = {
   capture: ["capture.md", "trace.md"],
   planning: ["requirement.md", "bug.md", "prototype.html", "trace.md"],
-  "review-ready": ["acceptance.md", "business-flow.md", "user-stories.md", "trace.md"],
-  approved: ["review.md", "trace.md"],
+  "review-ready": ["requirement.md", "bug.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md", "trace.md"],
+  approved: ["requirement.md", "bug.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md", "review.md", "trace.md"],
   "sprint-planning": ["sprint.md", "trace.md"],
-  "ready-dev": ["proposal.md", "design.md", "tasks.md", "prototype.html", "trace.md"],
-  development: ["proposal.md", "tasks.md", "trace.md"],
-  acceptance: ["acceptance.md", "test-plan.md", "trace.md"],
-  done: ["archive.md", "trace.md"],
+  "ready-dev": ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+  development: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+  acceptance: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+  done: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"],
 };
 
 const stageAction: Record<string, Record<IssueType, string>> = {
@@ -331,12 +580,73 @@ const sanitizeFeedback = (value: string) =>
     .replace(/token[^ \n]*/gi, "token=[redacted]")
     .slice(0, 420);
 
+const documentCapability = (document: IssueDocument): Required<Pick<DocumentCapability, "readable" | "human_editable" | "task_toggle_only" | "reason">> => {
+  const capability = document.capability || {};
+  const humanEditable = capability.human_editable ?? capability.humanEditable ?? document.editable ?? false;
+  const taskToggleOnly = capability.task_toggle_only ?? capability.taskToggleOnly ?? false;
+  return {
+    readable: capability.readable ?? true,
+    human_editable: Boolean(humanEditable),
+    task_toggle_only: Boolean(taskToggleOnly),
+    reason: capability.reason || (humanEditable ? "当前阶段可编辑" : taskToggleOnly ? "仅允许勾选任务" : "当前阶段只读"),
+  };
+};
+
+const canEditDocument = (document: IssueDocument) => documentCapability(document).human_editable;
+
+const canToggleTaskDocument = (document: IssueDocument) => documentCapability(document).task_toggle_only;
+
+const canMutateMarkdownDocument = (document: IssueDocument) => canEditDocument(document) || canToggleTaskDocument(document);
+
+const capabilityForStage = (issueType: IssueType, stage: string, name: string): DocumentCapability => {
+  if (name === "trace.md") {
+    return { readable: true, human_editable: false, ai_mutable: true, task_toggle_only: false, reason: "trace.md 仅允许系统治理链路更新，人工始终只读" };
+  }
+  if (stage === "capture" && name === "capture.md") {
+    return { readable: true, human_editable: true, ai_mutable: true, task_toggle_only: false, reason: "采集池阶段允许编辑 capture.md" };
+  }
+  if (stage === "planning") {
+    const allowed = issueType === "requirement" ? "requirement.md" : "bug.md";
+    if (name === allowed) {
+      return { readable: true, human_editable: true, ai_mutable: true, task_toggle_only: false, reason: "规划中阶段允许编辑主文档" };
+    }
+  }
+  if (stage === "review-ready") {
+    const allowed = new Set(issueType === "requirement" ? ["requirement.md", "business-flow.md", "user-stories.md", "acceptance.md"] : ["bug.md", "root-cause.md", "workaround.md", "acceptance.md"]);
+    if (allowed.has(name)) {
+      return { readable: true, human_editable: true, ai_mutable: true, task_toggle_only: false, reason: "待评审阶段允许完善类文档编辑" };
+    }
+  }
+  if (stage === "approved") {
+    const allowed = new Set(issueType === "requirement" ? ["requirement.md", "business-flow.md", "user-stories.md", "acceptance.md", "review.md"] : ["bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"]);
+    if (allowed.has(name)) {
+      return { readable: true, human_editable: true, ai_mutable: true, task_toggle_only: false, reason: "已评审阶段允许已评审材料编辑" };
+    }
+  }
+  if (stage === "ready-dev" && ["proposal.md", "spec.md", "design.md", "tasks.md"].includes(name)) {
+    return { readable: true, human_editable: true, ai_mutable: true, task_toggle_only: false, reason: "待开发阶段允许编辑当前 OpenSpec Change 计划类文档" };
+  }
+  if (stage === "acceptance" && name === "tasks.md") {
+    return { readable: true, human_editable: false, ai_mutable: true, task_toggle_only: true, reason: "验收中 tasks.md 仅允许勾选或取消勾选任务" };
+  }
+  return { readable: true, human_editable: false, ai_mutable: true, task_toggle_only: false, reason: "当前治理阶段不允许人工编辑" };
+};
+
 const issueDocumentEntries = (issue: IssueCard): IssueDocument[] =>
   issue.documentEntries?.length
     ? issue.documentEntries
     : issue.documents.map((name) => {
         const suffix = name.toLowerCase().endsWith(".html") ? "html" : "markdown";
-        return { name, label: name, type: suffix, openMode: suffix === "html" ? "new-tab" : "drawer" };
+        const capability = capabilityForStage(issue.type, issue.stage, name);
+        const editable = Boolean(capability.human_editable);
+        return {
+          name,
+          label: name,
+          type: suffix,
+          openMode: suffix === "html" ? "new-tab" : "drawer",
+          editable,
+          capability,
+        };
       });
 
 const visibleIssueDocuments = (stage: Stage, issue: IssueCard) => {
@@ -346,15 +656,194 @@ const visibleIssueDocuments = (stage: Stage, issue: IssueCard) => {
 
 const issueDetailUrl = (issue: IssueCard) => issue.detailUrl || `/requirements/${issue.id}`;
 
-const actionChoice = (action: IssueAction | undefined) => action?.requiresChoice || action?.requires_choice || null;
+const issueCommandTarget = (issue: IssueCard) => (issue.type === "requirement" ? "--req" : "--bug");
+
+const choiceForStage = (stageId: string): IssueAction["requiresChoice"] | "review" | undefined => {
+  if (stageId === "capture") return "generation";
+  if (stageId === "planning") return "completion";
+  if (stageId === "review-ready") return "review";
+  if (stageId === "approved") return "sprint";
+  return undefined;
+};
+
+const actionCommandForStage = (issue: IssueCard, stageId: string) => {
+  if (stageId === "approved") return `/sprint-propose ${issueCommandTarget(issue)} ${issue.id}`;
+  return `${stageAction[stageId]?.[issue.type] || "只读"} ${issue.id}`.trim();
+};
+
+const actionForStage = (issue: IssueCard, stageId: string): IssueAction | undefined => {
+  const label = stageActionLabel[stageId]?.[issue.type]?.replace(" →", "") || "只读";
+  if (label === "只读") return undefined;
+  return {
+    command: actionCommandForStage(issue, stageId),
+    label,
+    requiresChoice: choiceForStage(stageId),
+  };
+};
+
+const actionChoice = (action: IssueAction | undefined, issue?: IssueCard) => action?.requiresChoice || action?.requires_choice || (issue ? choiceForStage(issue.stage) : null) || null;
 
 const actionDisabledReason = (action: IssueAction | undefined) => action?.disabledReason || action?.disabled_reason || "";
 
 const issueAction = (issue: IssueCard) =>
-  issue.action || {
-    command: `${stageAction[issue.stage]?.[issue.type] || "只读"} ${issue.id}`.trim(),
-    label: stageActionLabel[issue.stage]?.[issue.type]?.replace(" →", "") || "只读",
+  issue.action || actionForStage(issue, issue.stage) || {
+    command: "只读",
+    label: "只读",
   };
+
+const actionDialogType = (issue: IssueCard, action?: AuxiliaryAction | IssueAction): ActionDialogKind => {
+  if (action?.label.includes("分析")) return "analysis";
+  if (issue.stage === "planning") return "complete";
+  if (issue.stage === "approved") return "sprint";
+  if (issue.stage === "sprint-planning") return "opsx";
+  if (issue.stage === "ready-dev") return "apply";
+  if (issue.stage === "development") return "progress";
+  return "command";
+};
+
+const commandDocsForAction = (issue: IssueCard, type: ActionDialogKind) => {
+  if (type === "command" && issue.stage === "capture") return [issue.type === "requirement" ? "requirement.md" : "bug.md"];
+  if (type === "command" && issue.stage === "review-ready") return ["review.md"];
+  if (type === "command" && issue.stage === "acceptance") return ["archive.md"];
+  if (type === "complete") {
+    return issue.type === "requirement"
+      ? ["acceptance.md", "business-flow.md", "user-stories.md", "prototype.html", "prototype-context.md"]
+      : ["root-cause.md", "workaround.md", "acceptance.md", "prototype.html", "prototype-context.md"];
+  }
+  if (type === "opsx") return ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"];
+  if (type === "apply") return ["同步 Change 分支到工作区", `初始化任务列表 · 共 ${issue.taskProgress?.[1] || 8} 项`, "执行环境依赖检查"];
+  return [];
+};
+
+const actionModalCopy = (issue: IssueCard, type: ActionDialogKind) => {
+  const action = issueAction(issue);
+  const isReq = issue.type === "requirement";
+  if (type === "analysis") {
+    return {
+      eyebrow: isReq ? "req-explore" : "bug-explore",
+      title: isReq ? "需求分析" : "Bug 分析",
+      sub: `AI 分析 ${issue.id} 的上下文并给出建议方案`,
+      command: `${isReq ? "/req-explore" : "/bug-explore"} ${issue.id}`,
+      confirm: "采纳 3/3 项并保留分析 →",
+      running: "保存中…",
+    };
+  }
+  if (type === "complete") {
+    return {
+      eyebrow: isReq ? "req-complete" : "bug-complete",
+      title: isReq ? "完善需求" : "完善 Bug",
+      sub: `为 ${issue.id} 补齐必需文档`,
+      command: `${isReq ? "/req-complete" : "/bug-complete"} ${issue.id}`,
+      confirm: "生成完善文档 →",
+      running: "处理中…",
+    };
+  }
+  if (type === "sprint") {
+    return {
+      eyebrow: "sprint-propose · 加入迭代",
+      title: "加入迭代",
+      sub: `将 ${issue.id} 纳入即将开始的迭代排期`,
+      command: action.command,
+      confirm: "加入迭代",
+      running: "加入中…",
+    };
+  }
+  if (type === "opsx") {
+    return {
+      eyebrow: isReq ? "req-opsx" : "bug-opsx",
+      title: "生成 Opsx",
+      sub: `为 ${issue.id} 生成 OpenSpec Change 与配套文档`,
+      command: `${isReq ? "/req-opsx" : "/bug-opsx"} ${issue.id}`,
+      confirm: "完成生成，进入待开发 →",
+      running: "处理中…",
+    };
+  }
+  if (type === "apply") {
+    return {
+      eyebrow: "opsx-apply",
+      title: isReq ? "开始开发" : "开始修复",
+      sub: `将 ${issue.id} 的 Change 应用到工作区并启动研发`,
+      command: `/opsx-apply ${issue.id}`,
+      confirm: "应用变更，进入研发中 →",
+      running: "应用中…",
+    };
+  }
+  if (type === "progress") {
+    return {
+      eyebrow: "opsx-apply · 研发进度",
+      title: "查看进度",
+      sub: `${issue.id} 正在由 Codex 自动执行任务`,
+      command: `/opsx-apply ${issue.id}`,
+      confirm: "关闭",
+      running: "关闭",
+    };
+  }
+  if (issue.stage === "review-ready") {
+    return {
+      eyebrow: isReq ? "req-review" : "bug-review",
+      title: isReq ? "发起评审" : "确认修复",
+      sub: `AI 将为 ${issue.id} 生成评审文档`,
+      command: action.command,
+      confirm: isReq ? "发起评审，进入已评审 →" : "确认修复，进入已评审 →",
+      running: "AI 生成评审中…",
+    };
+  }
+  if (issue.stage === "acceptance") {
+    return {
+      eyebrow: "opsx-archive",
+      title: "完成 / 归档",
+      sub: `归档 ${issue.id} 并沉淀全链路记录`,
+      command: action.command,
+      confirm: "确认归档 →",
+      running: "归档中…",
+    };
+  }
+  return {
+    eyebrow: isReq ? "req-generate" : "bug-generate",
+    title: isReq ? "生成需求" : "生成 Bug",
+    sub: `AI 将基于采集内容为 ${issue.id} 生成正式文档`,
+    command: action.command,
+    confirm: isReq ? "生成需求，进入规划中 →" : "生成 Bug，进入规划中 →",
+    running: "AI 生成中…",
+  };
+};
+
+const transitionDocumentsForStage = (issue: IssueCard, stageId: string) => {
+  if (stageId === "planning") return [issue.type === "requirement" ? "requirement.md" : "bug.md"];
+  if (stageId === "review-ready") {
+    return issue.type === "requirement"
+      ? ["acceptance.md", "business-flow.md", "user-stories.md"]
+      : ["root-cause.md", "workaround.md", "acceptance.md"];
+  }
+  if (stageId === "approved") return ["review.md"];
+  if (stageId === "sprint-planning") return ["sprint.md"];
+  return [];
+};
+
+const transitionDocumentEntry = (issue: IssueCard, name: string): IssueDocument => {
+  const suffix = name.toLowerCase().endsWith(".html") ? "html" : "markdown";
+  const targetStage = nextStage[issue.stage] || issue.stage;
+  const capability = capabilityForStage(issue.type, targetStage, name);
+  const editable = Boolean(capability.human_editable);
+  return {
+    name,
+    label: name,
+    type: suffix,
+    openMode: suffix === "html" ? "new-tab" : "drawer",
+    editable,
+    capability,
+  };
+};
+
+const appendTransitionDocuments = (issue: IssueCard, stageId: string) => {
+  const extraDocs = transitionDocumentsForStage(issue, stageId).filter((name) => !issue.documents.includes(name));
+  if (!extraDocs.length) return { documents: issue.documents, documentEntries: issue.documentEntries };
+  const existingEntries = issueDocumentEntries(issue);
+  return {
+    documents: [...issue.documents, ...extraDocs],
+    documentEntries: [...existingEntries, ...extraDocs.map((name) => transitionDocumentEntry(issue, name))],
+  };
+};
 
 const drawerTitle = (drawer: DrawerState) => {
   if (drawer.type === "markdown") return `${drawer.issue.id} · ${drawer.document.name}`;
@@ -363,15 +852,648 @@ const drawerTitle = (drawer: DrawerState) => {
   return "";
 };
 
+const drawerIssueSubtitle = (drawer: Extract<DrawerState, { type: "markdown" }>) => (
+  `${drawer.issue.priority} · ${drawer.issue.owner}负责 · ${stageTitleById.get(drawer.issue.stage) || drawer.issue.stage}`
+);
+
 const visibleSprintId = (issue: IssueCard) => (sprintVisibleStages.has(issue.stage) ? issue.sprintId : undefined);
 
-const visibleTaskProgress = (issue: IssueCard) => (["ready-dev", "development", "acceptance", "done"].includes(issue.stage) ? issue.taskProgress : undefined);
+const visibleTaskProgress = (issue: IssueCard) => (["ready-dev", "development", "acceptance"].includes(issue.stage) ? issue.taskProgress : undefined);
+
+const visibleManualAcceptanceProgress = (issue: IssueCard): [number, number] | undefined => {
+  if (issue.stage !== "acceptance" || !issue.testProgress) return undefined;
+  if (issue.manualAcceptanceProgress) return issue.manualAcceptanceProgress;
+  const pendingCount = issue.manualAcceptanceCount ?? 0;
+  if (pendingCount <= 0) return [1, 1];
+  return [0, pendingCount];
+};
+
+const progressFocusLabel: Record<ProgressFocus, string> = {
+  development: "研发任务",
+  test: "自动化测试",
+  manual: "人工验收",
+};
+
+const progressPercent = (done = 0, total = 0) => (total ? Math.round((done / total) * 100) : 0);
 
 const auxiliaryActions = (issue: IssueCard): AuxiliaryAction[] => {
   if (issue.stage !== "capture") return [];
   if (issue.type === "bug") return [{ command: `/bug-explore ${issue.id}`, label: "Bug 分析" }];
   return [{ command: `/req-explore ${issue.id}`, label: "需求分析" }];
 };
+
+const workflowDemoIssue = (issue: IssueCard): IssueCard => issue;
+
+const workflowDemoDocumentContent = (issueId: string, name: string) => {
+  const title = issueId.replace("DEMO-", "Demo ");
+  const templates: Record<string, string> = {
+    "capture.md": `---
+source: workflow-demo
+issue: ${issueId}
+---
+
+# ${title} Capture
+
+## 背景
+- 这是一份用于需求中心受控 demo 模式的采集记录。
+- 用来验证 Markdown 抽屉、预览态、编辑入口和阶段卡片文档入口。
+
+## 待澄清
+- 目标用户、影响范围和下一步命令由卡片阶段动作承接。
+`,
+    "trace.md": `---
+source: workflow-demo
+issue: ${issueId}
+status: demo
+---
+
+# ${title} Trace
+
+| 时间 | 事件 | 说明 |
+|---|---|---|
+| 2026-08-30 22:50:41 | demo | 受控 demo 文档内容已加载。 |
+`,
+    "bug.md": `# ${title} Bug
+
+## 现象
+- 生成文档后 trace 时间未刷新。
+
+## 影响
+- 影响用户判断卡片是否完成阶段流转。
+
+## 期望
+- 完善后自动补齐验收、复现和 trace 证据。
+`,
+    "requirement.md": `# ${title} Requirement
+
+## 目标
+- 让需求中心在 demo 模式下呈现完整阶段文档。
+
+## 范围
+- 展示文档正文、阶段动作和只读/可编辑边界。
+`,
+    "acceptance.md": `# ${title} Acceptance
+
+- [ ] 阶段动作映射正确。
+- [ ] 文档入口可打开并展示正文。
+- [ ] 异常分支不触发阶段流转。
+`,
+    "business-flow.md": `# ${title} Business Flow
+
+采集 -> 生成 -> 完善 -> 评审 -> 纳入迭代 -> 开发 -> 验收 -> 归档。
+`,
+    "user-stories.md": `# ${title} User Stories
+
+- 作为产品团队，我希望看到阶段文档内容，便于判断下一步动作。
+- 作为测试团队，我希望 demo 数据覆盖每个阶段，便于做视觉验收。
+`,
+    "review.md": `# ${title} Review
+
+评审结论：已评审，等待纳入迭代。
+`,
+    "sprint.md": `# ${title} Sprint
+
+目标迭代：sprint-004
+
+## 范围
+- 承接已评审对象。
+- 准备生成对应 OpenSpec Change。
+`,
+    "proposal.md": `# ${title} Proposal
+
+## Why
+- 当前阶段已经进入 OpenSpec 开发链路，需要展示提案摘要。
+
+## What
+- 补齐卡片动作、文档入口和验收证据。
+`,
+    "design.md": `# ${title} Design
+
+## 决策
+- 默认真实数据不变。
+- demo 模式只使用前端内置脱敏样例。
+`,
+    "tasks.md": `# ${title} Tasks
+
+- [x] 建立卡片壳。
+- [x] 补充文档入口。
+- [ ] 完成视觉验收。
+`,
+    "test-plan.md": `# ${title} Test Plan
+
+## 自动化
+- 前端聚焦测试。
+- 1440px 视觉证据。
+
+## 人工验收
+- 检查卡片文案、间距和抽屉内容。
+`,
+    "archive.md": `# ${title} Archive
+
+## 结果
+- 已完成并保留全链路留痕。
+
+## 证据
+- demo 归档卡片用于验证已完成阶段展示。
+`,
+  };
+  return templates[name] || `# ${title} ${name}\n\n这是 ${issueId} 的受控 demo 文档内容。`;
+};
+
+const workflowDemoHtmlContent = (issueId: string, name: string) => `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>${issueId} ${name}</title>
+  <style>
+    body { margin: 0; padding: 32px; background: var(--preview-bg, #0A0D14); color: var(--preview-text, #ECEAE4); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    h1 { color: var(--preview-accent, #D8AC55); }
+    section { max-width: 760px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>${issueId} Demo HTML Preview</h1>
+    <p>${name} 来自受控 workflow demo 模式，用于验证 HTML 文档新 Tab 打开体验。</p>
+  </section>
+</body>
+</html>`;
+
+const workflowDemoStage = (issueId: string): string => {
+  if (issueId.includes("-CAPTURE-")) return "capture";
+  if (issueId.includes("-PLANNING-")) return "planning";
+  if (issueId.includes("-REVIEW-")) return "review-ready";
+  if (issueId.includes("-APPROVED-")) return "approved";
+  if (issueId.includes("-SPRINT-")) return "sprint-planning";
+  if (issueId.includes("-READY-DEV")) return "ready-dev";
+  if (issueId.includes("-DEVELOPMENT")) return "development";
+  if (issueId.includes("-ACCEPTANCE-")) return "acceptance";
+  if (issueId.includes("-DONE")) return "done";
+  return "capture";
+};
+
+const workflowDemoDocuments = (issueId: string, names: string[], editableCapture = false): IssueDocument[] => {
+  const issueType: IssueType = issueId.includes("-BUG-") ? "bug" : "requirement";
+  const stage = workflowDemoStage(issueId);
+  return (
+  names.map((name) => {
+    const capability = editableCapture && name === "capture.md" ? capabilityForStage(issueType, "capture", name) : capabilityForStage(issueType, stage, name);
+    const isHtml = name.endsWith(".html");
+    return {
+      name,
+      label: name,
+      type: isHtml ? "html" : "markdown",
+      openMode: isHtml ? "new-tab" : "drawer",
+      url: isHtml
+        ? `/api/v1/requirement-center/issues/${issueId}/documents/${name}/preview`
+        : `/api/v1/requirement-center/issues/${issueId}/documents/${name}`,
+      editable: Boolean(capability.human_editable),
+      capability,
+      content: isHtml ? undefined : workflowDemoDocumentContent(issueId, name),
+      htmlContent: isHtml ? workflowDemoHtmlContent(issueId, name) : undefined,
+    };
+  })
+  );
+};
+
+function isWorkflowDemoMode() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("mock") === "workflow" || params.get("demo") === "workflow";
+}
+
+function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterContext {
+  const issues = [
+    workflowDemoIssue({
+      id: "DEMO-REQ-CAPTURE-READY",
+      type: "requirement",
+      title: "采集客户访谈中的空间权限诉求",
+      priority: "P1",
+      owner: "产品团队",
+      source: "demo",
+      stage: "capture",
+      documents: ["capture.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-CAPTURE-READY", ["capture.md", "trace.md"], true),
+      detailUrl: "/requirements/DEMO-REQ-CAPTURE-READY",
+      action: { command: "/req-generate DEMO-REQ-CAPTURE-READY", label: "生成需求", requiresChoice: "generation" },
+      updatedAt: "09:12",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-CAPTURE-MISSING-TRACE",
+      type: "requirement",
+      title: "采集语音纪要缺少追踪记录",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "capture",
+      documents: ["capture.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-CAPTURE-MISSING-TRACE", ["capture.md"], true),
+      detailUrl: "/requirements/DEMO-REQ-CAPTURE-MISSING-TRACE",
+      action: { command: "/req-generate DEMO-REQ-CAPTURE-MISSING-TRACE", label: "生成需求", requiresChoice: "generation", disabledReason: "缺少 trace.md" },
+      updatedAt: "09:18",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-CAPTURE-READY",
+      type: "bug",
+      title: "采集用户反馈中的按钮状态异常",
+      priority: "P2",
+      owner: "前端体验",
+      source: "demo",
+      stage: "capture",
+      documents: ["capture.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-CAPTURE-READY", ["capture.md", "trace.md"], true),
+      detailUrl: "/requirements/DEMO-BUG-CAPTURE-READY",
+      action: { command: "/bug-generate DEMO-BUG-CAPTURE-READY", label: "生成 Bug", requiresChoice: "generation" },
+      updatedAt: "09:36",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-CAPTURE-EMPTY-CAPTURE",
+      type: "bug",
+      title: "采集缺陷描述为空待补充",
+      priority: "P1",
+      owner: "测试团队",
+      source: "demo",
+      stage: "capture",
+      documents: ["capture.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-CAPTURE-EMPTY-CAPTURE", ["capture.md", "trace.md"], true),
+      detailUrl: "/requirements/DEMO-BUG-CAPTURE-EMPTY-CAPTURE",
+      action: { command: "/bug-generate DEMO-BUG-CAPTURE-EMPTY-CAPTURE", label: "生成 Bug", requiresChoice: "generation", disabledReason: "文档内容为空：capture.md" },
+      updatedAt: "09:44",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-PLANNING-READY",
+      type: "requirement",
+      title: "空间成员权限矩阵完善中",
+      priority: "P1",
+      owner: "产品团队",
+      source: "demo",
+      stage: "planning",
+      documents: ["capture.md", "trace.md", "requirement.md", "prototype.html"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-PLANNING-READY", ["capture.md", "trace.md", "requirement.md", "prototype.html"]),
+      detailUrl: "/requirements/DEMO-REQ-PLANNING-READY",
+      action: { command: "/req-complete DEMO-REQ-PLANNING-READY", label: "完善需求", requiresChoice: "completion" },
+      updatedAt: "10:00",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-PLANNING-MISSING-REQ",
+      type: "requirement",
+      title: "规划中需求缺少 PRD",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "planning",
+      documents: ["capture.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-PLANNING-MISSING-REQ", ["capture.md", "trace.md"]),
+      detailUrl: "/requirements/DEMO-REQ-PLANNING-MISSING-REQ",
+      action: { command: "/req-complete DEMO-REQ-PLANNING-MISSING-REQ", label: "完善需求", requiresChoice: "completion", disabledReason: "缺少 requirement.md" },
+      updatedAt: "10:03",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-PLANNING-READY",
+      type: "bug",
+      title: "生成文档后 trace 时间未刷新",
+      priority: "P0",
+      owner: "平台工程",
+      source: "demo",
+      stage: "planning",
+      documents: ["capture.md", "trace.md", "bug.md", "prototype.html"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-PLANNING-READY", ["capture.md", "trace.md", "bug.md", "prototype.html"]),
+      detailUrl: "/requirements/DEMO-BUG-PLANNING-READY",
+      action: { command: "/bug-complete DEMO-BUG-PLANNING-READY", label: "完善 Bug", requiresChoice: "completion" },
+      updatedAt: "10:06",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-PLANNING-EMPTY-BUG",
+      type: "bug",
+      title: "规划中 Bug 正文为空",
+      priority: "P1",
+      owner: "平台工程",
+      source: "demo",
+      stage: "planning",
+      documents: ["capture.md", "trace.md", "bug.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-PLANNING-EMPTY-BUG", ["capture.md", "trace.md", "bug.md"]),
+      detailUrl: "/requirements/DEMO-BUG-PLANNING-EMPTY-BUG",
+      action: { command: "/bug-complete DEMO-BUG-PLANNING-EMPTY-BUG", label: "完善 Bug", requiresChoice: "completion", disabledReason: "文档内容为空：bug.md" },
+      updatedAt: "10:10",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-REVIEW-READY",
+      type: "requirement",
+      title: "补齐需求验收标准与用户故事",
+      priority: "P1",
+      owner: "产品团队",
+      source: "demo",
+      stage: "review-ready",
+      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-REVIEW-READY", ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"]),
+      detailUrl: "/requirements/DEMO-REQ-REVIEW-READY",
+      action: { command: "/req-review DEMO-REQ-REVIEW-READY", label: "发起评审" },
+      updatedAt: "10:24",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-REVIEW-MISSING-STORIES",
+      type: "requirement",
+      title: "待评审需求缺少用户故事",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "review-ready",
+      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-REVIEW-MISSING-STORIES", ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md"]),
+      detailUrl: "/requirements/DEMO-REQ-REVIEW-MISSING-STORIES",
+      action: { command: "/req-review DEMO-REQ-REVIEW-MISSING-STORIES", label: "发起评审", disabledReason: "缺少 user-stories.md" },
+      updatedAt: "10:28",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-REVIEW-READY",
+      type: "bug",
+      title: "禁用态二次点击保护待确认",
+      priority: "P1",
+      owner: "前端体验",
+      source: "demo",
+      stage: "review-ready",
+      documents: ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-REVIEW-READY", ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"]),
+      detailUrl: "/requirements/DEMO-BUG-REVIEW-READY",
+      action: { command: "/bug-review DEMO-BUG-REVIEW-READY", label: "确认修复" },
+      updatedAt: "10:36",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE",
+      type: "bug",
+      title: "待评审 Bug 根因文档为空",
+      priority: "P0",
+      owner: "平台工程",
+      source: "demo",
+      stage: "review-ready",
+      documents: ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE", ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"]),
+      detailUrl: "/requirements/DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE",
+      action: { command: "/bug-review DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE", label: "确认修复", disabledReason: "文档内容为空：root-cause.md" },
+      updatedAt: "10:40",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-APPROVED-READY",
+      type: "requirement",
+      title: "已评审需求等待纳入迭代",
+      priority: "P1",
+      owner: "产品团队",
+      source: "demo",
+      stage: "approved",
+      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md", "review.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-APPROVED-READY", ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md", "review.md"]),
+      detailUrl: "/requirements/DEMO-REQ-APPROVED-READY",
+      action: { command: "/sprint-propose --req DEMO-REQ-APPROVED-READY", label: "加入迭代", requiresChoice: "sprint" },
+      updatedAt: "10:48",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-APPROVED-MISSING-REVIEW",
+      type: "requirement",
+      title: "已评审需求缺少评审记录",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "approved",
+      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-APPROVED-MISSING-REVIEW", ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"]),
+      detailUrl: "/requirements/DEMO-REQ-APPROVED-MISSING-REVIEW",
+      action: { command: "/sprint-propose --req DEMO-REQ-APPROVED-MISSING-REVIEW", label: "加入迭代", requiresChoice: "sprint", disabledReason: "缺少 review.md" },
+      updatedAt: "10:52",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-APPROVED-READY",
+      type: "bug",
+      title: "按钮禁用态缺少二次点击保护",
+      priority: "P2",
+      owner: "前端体验",
+      source: "demo",
+      stage: "approved",
+      documents: ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-APPROVED-READY", ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"]),
+      detailUrl: "/requirements/DEMO-BUG-APPROVED-READY",
+      action: { command: "/sprint-propose --bug DEMO-BUG-APPROVED-READY", label: "加入迭代", requiresChoice: "sprint" },
+      updatedAt: "10:56",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-APPROVED-DRIFT",
+      type: "bug",
+      title: "已评审 Bug 存在数据漂移",
+      priority: "P1",
+      owner: "平台工程",
+      source: "demo",
+      stage: "approved",
+      documents: ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-APPROVED-DRIFT", ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"]),
+      detailUrl: "/requirements/DEMO-BUG-APPROVED-DRIFT",
+      action: { command: "/sprint-propose --bug DEMO-BUG-APPROVED-DRIFT", label: "加入迭代", requiresChoice: "sprint", disabledReason: "存在数据漂移" },
+      updatedAt: "11:00",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-SPRINT-READY",
+      type: "requirement",
+      title: "选择 sprint-004 承接 AI 聊天反馈",
+      priority: "P1",
+      owner: "产品团队",
+      source: "demo",
+      stage: "sprint-planning",
+      documents: ["sprint.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-SPRINT-READY", ["sprint.md", "trace.md"]),
+      detailUrl: "/requirements/DEMO-REQ-SPRINT-READY",
+      action: { command: "/req-opsx DEMO-REQ-SPRINT-READY", label: "生成 Opsx" },
+      sprintId: "sprint-004",
+      updatedAt: "11:08",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-SPRINT-READY",
+      type: "bug",
+      title: "迭代规划中的 Bug 待生成 Opsx",
+      priority: "P1",
+      owner: "平台工程",
+      source: "demo",
+      stage: "sprint-planning",
+      documents: ["sprint.md", "trace.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-SPRINT-READY", ["sprint.md", "trace.md"]),
+      detailUrl: "/requirements/DEMO-BUG-SPRINT-READY",
+      action: { command: "/bug-opsx DEMO-BUG-SPRINT-READY", label: "生成 Opsx" },
+      sprintId: "sprint-004",
+      updatedAt: "11:14",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-READY-DEV",
+      type: "requirement",
+      title: "待开发需求已生成 OpenSpec",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "ready-dev",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-READY-DEV", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-REQ-READY-DEV",
+      action: { command: "/opsx-apply DEMO-REQ-READY-DEV", label: "开始开发" },
+      sprintId: "sprint-004",
+      taskProgress: [0, 10],
+      tasks: { done: 0, total: 10, blocked: [], source: "tasks.md" },
+      updatedAt: "11:22",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-READY-DEV",
+      type: "bug",
+      title: "归档详情页新 Tab 打开状态异常",
+      priority: "P1",
+      owner: "平台工程",
+      source: "demo",
+      stage: "ready-dev",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-READY-DEV", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-BUG-READY-DEV",
+      action: { command: "/opsx-apply DEMO-BUG-READY-DEV", label: "开始修复" },
+      sprintId: "sprint-004",
+      taskProgress: [0, 8],
+      tasks: { done: 0, total: 8, blocked: ["等待复现截图"], source: "tasks.md" },
+      updatedAt: "11:30",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-DEVELOPMENT",
+      type: "requirement",
+      title: "实现 Markdown 抽屉编辑与保存回显",
+      priority: "P0",
+      owner: "前端体验",
+      source: "demo",
+      stage: "development",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-DEVELOPMENT", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-REQ-DEVELOPMENT",
+      action: { command: "/opsx-apply DEMO-REQ-DEVELOPMENT", label: "查看进度" },
+      sprintId: "sprint-004",
+      taskProgress: [5, 8],
+      tasks: { done: 5, total: 8, blocked: ["视觉证据待补"], source: "tasks.md" },
+      updatedAt: "12:10",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-DEVELOPMENT",
+      type: "bug",
+      title: "修复任务流转后状态未刷新",
+      priority: "P1",
+      owner: "平台工程",
+      source: "demo",
+      stage: "development",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-DEVELOPMENT", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-BUG-DEVELOPMENT",
+      action: { command: "/opsx-apply DEMO-BUG-DEVELOPMENT", label: "查看进度" },
+      sprintId: "sprint-004",
+      taskProgress: [3, 6],
+      tasks: { done: 3, total: 6, blocked: [], source: "tasks.md" },
+      updatedAt: "12:18",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-ACCEPTANCE-READY",
+      type: "requirement",
+      title: "验收完成的需求等待归档",
+      priority: "P1",
+      owner: "测试团队",
+      source: "demo",
+      stage: "acceptance",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-ACCEPTANCE-READY", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-REQ-ACCEPTANCE-READY",
+      action: { command: "/opsx-archive DEMO-REQ-ACCEPTANCE-READY", label: "完成 / 归档" },
+      sprintId: "sprint-004",
+      taskProgress: [7, 7],
+      testProgress: [3, 3],
+      manualAcceptanceProgress: [1, 1],
+      manualAcceptanceCount: 0,
+      tasks: { done: 7, total: 7, blocked: [], source: "tasks.md" },
+      updatedAt: "12:34",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-ACCEPTANCE-BLOCKED",
+      type: "bug",
+      title: "验收报告缺少 computed style 证据",
+      priority: "P1",
+      owner: "测试团队",
+      source: "demo",
+      stage: "acceptance",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-ACCEPTANCE-BLOCKED", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      detailUrl: "/requirements/DEMO-BUG-ACCEPTANCE-BLOCKED",
+      action: { command: "/opsx-archive DEMO-BUG-ACCEPTANCE-BLOCKED", label: "完成 / 归档" },
+      sprintId: "sprint-004",
+      taskProgress: [8, 8],
+      testProgress: [2, 3],
+      manualAcceptanceProgress: [0, 1],
+      manualAcceptanceCount: 1,
+      tasks: { done: 8, total: 8, blocked: ["等待人工验收"], source: "tasks.md" },
+      updatedAt: "12:42",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-REQ-DONE",
+      type: "requirement",
+      title: "沉淀需求中心卡片工作流经验",
+      priority: "P2",
+      owner: "产品团队",
+      source: "demo",
+      stage: "done",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-DONE", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"]),
+      detailUrl: "/requirements/DEMO-REQ-DONE",
+      archiveUrl: "/requirements/DEMO-REQ-DONE",
+      action: { command: "只读 DEMO-REQ-DONE", label: "查看归档" },
+      sprintId: "sprint-004",
+      taskProgress: [6, 6],
+      tasks: { done: 6, total: 6, blocked: [], source: "tasks.md" },
+      updatedAt: "13:05",
+    }),
+    workflowDemoIssue({
+      id: "DEMO-BUG-DONE",
+      type: "bug",
+      title: "归档缺陷保留最终追踪证据",
+      priority: "P3",
+      owner: "平台工程",
+      source: "demo",
+      stage: "done",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-DONE", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"]),
+      detailUrl: "/requirements/DEMO-BUG-DONE",
+      archiveUrl: "/requirements/DEMO-BUG-DONE",
+      action: { command: "只读 DEMO-BUG-DONE", label: "查看归档" },
+      sprintId: "sprint-004",
+      taskProgress: [4, 4],
+      tasks: { done: 4, total: 4, blocked: [], source: "tasks.md" },
+      updatedAt: "13:12",
+    }),
+  ];
+  return {
+    issues,
+    workspaces: [{
+      organizationName: "MoonBox",
+      workspaceId: "workflow-demo",
+      name: "需求中心演示空间",
+      slug: "workflow-demo",
+      description: "用于需求研发流转看板 9 阶段视觉验收的受控 demo 数据。",
+      timezone: "Asia/Shanghai",
+      memberCount: 9,
+      role: "拥有者",
+      status: "ACTIVE",
+      readonly: true,
+    }],
+    currentUser: {
+      name: frontendUsername?.trim() || "Demo 用户",
+      avatarInitial: avatarInitial(frontendUsername || "Demo 用户"),
+      avatarUrl: null,
+      canAccessAdmin: false,
+      permissions: ["requirement:read", "bug:read", "sprint:read", "openspec:read"],
+    },
+    selectedWorkspaceId: "workflow-demo",
+    stats: {
+      total: issues.length,
+      requirements: issues.filter((issue) => issue.type === "requirement").length,
+      bugs: issues.filter((issue) => issue.type === "bug").length,
+      blocked: issues.filter((issue) => issue.blocked).length,
+      drift: 0,
+    },
+    sprintOptions: ["sprint-004"],
+  };
+}
 
 const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
   { id: "general", label: "常规" },
@@ -679,6 +1801,9 @@ function normalizeContext(payload: RequirementCenterContext, frontendUsername?: 
       sprintId: (issue as IssueCard & { sprint_id?: string }).sprint_id || issue.sprintId,
       taskProgress: (issue as IssueCard & { task_progress?: [number, number] }).task_progress || issue.taskProgress,
       testProgress: (issue as IssueCard & { test_progress?: [number, number] }).test_progress || issue.testProgress,
+      manualAcceptanceProgress:
+        (issue as IssueCard & { manual_acceptance_progress?: [number, number] }).manual_acceptance_progress ??
+        issue.manualAcceptanceProgress,
       manualAcceptanceCount:
         (issue as IssueCard & { manual_acceptance_count?: number }).manual_acceptance_count ?? issue.manualAcceptanceCount,
     })),
@@ -704,8 +1829,25 @@ function isReadonlyWorkspace(item: Workspace) {
   return Boolean(item.readonly || item.status === "FROZEN");
 }
 
-function missingDocs(stage: Stage, issue: IssueCard) {
-  return stage.requiredDocs.filter((doc) => !issue.documents.includes(doc));
+function requiredDocsForIssue(stageId: string, issueType: IssueType) {
+  const requirementReviewDocs = ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"];
+  const bugReviewDocs = ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"];
+  if (stageId === "capture") return ["capture.md", "trace.md"];
+  if (stageId === "planning") return issueType === "requirement" ? ["capture.md", "trace.md", "requirement.md"] : ["capture.md", "trace.md", "bug.md"];
+  if (stageId === "review-ready") return issueType === "requirement" ? requirementReviewDocs : bugReviewDocs;
+  if (stageId === "approved") return issueType === "requirement" ? [...requirementReviewDocs, "review.md"] : [...bugReviewDocs, "review.md"];
+  return stages.find((stage) => stage.id === stageId)?.requiredDocs || [];
+}
+
+function missingDocs(stageId: string, issue: IssueCard) {
+  return requiredDocsForIssue(stageId, issue.type).filter((doc) => !issue.documents.includes(doc));
+}
+
+function blockedTip(stageId: string, issue: IssueCard, action: IssueAction | undefined) {
+  const reason = actionDisabledReason(action) || issue.blocked || "";
+  if (reason) return reason;
+  const missing = missingDocs(stageId, issue);
+  return missing.length ? `缺少 ${missing.join("、")}` : "";
 }
 
 function canArchive(issue: IssueCard) {
@@ -983,13 +2125,24 @@ export function RequirementCenterPage() {
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("general");
   const [toast, setToast] = useState("");
   const [captureOpen, setCaptureOpen] = useState(false);
-  const [captureForm, setCaptureForm] = useState({ type: "requirement" as IssueType, title: "", priority: "P2" as IssueCard["priority"], description: "" });
+  const [agentOpen, setAgentOpen] = useState(false);
+  const [captureForm, setCaptureForm] = useState({
+    type: "requirement" as IssueType,
+    title: "",
+    priority: "P1" as IssueCard["priority"],
+    description: "",
+    owner: "产品团队",
+    source: "explore",
+  });
   const [captureError, setCaptureError] = useState("");
   const [drawer, setDrawer] = useState<DrawerState>({ type: "none" });
-  const [drawerWidth, setDrawerWidth] = useState(520);
+  const [drawerWidth, setDrawerWidth] = useState(760);
+  const [isDrawerFullscreen, setIsDrawerFullscreen] = useState(false);
   const [markdownUploadState, setMarkdownUploadState] = useState<MarkdownUploadState>("idle");
   const [markdownUploadError, setMarkdownUploadError] = useState("");
+  const [markdownMetadataOpen, setMarkdownMetadataOpen] = useState(false);
   const [choiceDialog, setChoiceDialog] = useState<ChoiceDialog>({ type: "none" });
+  const [actionDialog, setActionDialog] = useState<ActionDialog>({ type: "none" });
   const [lockedActionId, setLockedActionId] = useState("");
   const [aiMessages, setAiMessages] = useState<Array<{ role: "ai" | "user"; content: string }>>([
     { role: "ai", content: "我会在这里汇总卡片动作、命令上下文和失败原因。" },
@@ -1000,34 +2153,54 @@ export function RequirementCenterPage() {
   const userZoneRef = useRef<HTMLDivElement>(null);
   const spacePopoverRef = useRef<HTMLElement>(null);
   const captureTitleRef = useRef<HTMLInputElement | null>(null);
-  const drawerResizeRef = useRef({ active: false, startX: 0, startWidth: 520 });
+  const drawerResizeRef = useRef({ active: false, startX: 0, startWidth: 760 });
+  const markdownEditorRef = useRef<HTMLTextAreaElement | null>(null);
+  const pendingMarkdownSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const issues = context?.issues ?? [];
   const availableWorkspaces = context?.workspaces ?? [];
   const [sessionFallbackUser, setSessionFallbackUser] = useState<FrontendUser>(() => fallbackUserFromSession());
   const activeUser = context?.currentUser ?? sessionFallbackUser;
   const sprintOptions = context?.sprintOptions || context?.sprint_options || [];
 
-  const isDirtyMarkdownDrawer = useCallback((state: DrawerState = drawer) => (
-    state.type === "markdown" && state.mode === "edit" && state.draft !== state.content
-  ), [drawer]);
-
-  const closeDrawer = useCallback(() => {
-    if (isDirtyMarkdownDrawer() && !window.confirm("capture.md 有未保存修改，确认关闭？")) return;
-    setDrawer({ type: "none" });
-  }, [isDirtyMarkdownDrawer]);
-
-  const isEditableDocument = (state: DrawerState) => (
-    state.type === "markdown" && state.issue.stage === "capture" && state.document.name === "capture.md" && state.document.editable !== false
+  const isEditableDocument = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
+    state.type === "markdown" && canEditDocument(state.document)
   );
 
-  const markdownDrawerModeLabel = (state: DrawerState) => {
-    if (state.type !== "markdown") return "";
-    if (!isEditableDocument(state)) return "只读文档";
-    return state.mode === "edit" ? "编辑 capture.md" : "预览 capture.md";
-  };
+  const isTaskToggleDocument = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
+    state.type === "markdown" && canToggleTaskDocument(state.document)
+  );
+
+  const isMutableMarkdownDrawer = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
+    state.type === "markdown" && canMutateMarkdownDocument(state.document)
+  );
+
+  const isDirtyMarkdownDrawer = useCallback((state: DrawerState = drawer) => (
+    isMutableMarkdownDrawer(state) && state.dirty && composeMarkdownContent(state.content, state.draft) !== state.content
+  ), [drawer]);
+  const isCurrentMarkdownDirty = isDirtyMarkdownDrawer(drawer);
+
+  useEffect(() => {
+    const pendingSelection = pendingMarkdownSelectionRef.current;
+    if (!pendingSelection || drawer.type !== "markdown" || drawer.mode === "preview") return;
+    pendingMarkdownSelectionRef.current = null;
+    requestAnimationFrame(() => {
+      const editor = markdownEditorRef.current;
+      if (!editor) return;
+      editor.focus();
+      editor.setSelectionRange(pendingSelection.start, pendingSelection.end);
+    });
+  }, [drawer]);
+
+  const closeDrawer = useCallback(() => {
+    const dirtyName = drawer.type === "markdown" ? drawer.document.name : "文档";
+    if (isDirtyMarkdownDrawer() && !window.confirm(`${dirtyName} 有未保存修改，确认关闭？`)) return;
+    setIsDrawerFullscreen(false);
+    setDrawer({ type: "none" });
+  }, [drawer, isDirtyMarkdownDrawer]);
 
   const beginDrawerResize = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (isDrawerFullscreen) return;
     drawerResizeRef.current = { active: true, startX: event.clientX, startWidth: drawerWidth };
     document.body.classList.add("rc-resizing-drawer");
   };
@@ -1042,6 +2215,15 @@ export function RequirementCenterPage() {
     setContextError("");
     try {
       const frontendSession = readFrontendSession();
+      if (isWorkflowDemoMode()) {
+        const nextContext = buildWorkflowDemoContext(frontendSession?.username);
+        const nextWorkspace = getStoredWorkspace(nextContext.workspaces, nextContext.selectedWorkspaceId);
+        setContext(nextContext);
+        setSessionFallbackUser(nextContext.currentUser);
+        setWorkspace(nextWorkspace);
+        setDraftWorkspace(nextWorkspace);
+        return;
+      }
       const token = readAccessToken();
       const response = await fetch("/api/v1/requirement-center/context", {
         headers: {
@@ -1110,12 +2292,26 @@ export function RequirementCenterPage() {
       setIsProfileModalOpen(false);
       setIsPasswordModalOpen(false);
       setCaptureOpen(false);
+      setAgentOpen(false);
       setChoiceDialog({ type: "none" });
+      setActionDialog({ type: "none" });
       closeDrawer();
     };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [closeDrawer]);
+
+  useEffect(() => {
+    if (actionDialog.type === "none" || actionDialog.ready) return;
+    if (!["analysis", "sprint", "opsx"].includes(actionDialog.type)) {
+      setActionDialog((current) => current.type === actionDialog.type ? { ...current, ready: true } : current);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setActionDialog((current) => current.type === actionDialog.type ? { ...current, ready: true } : current);
+    }, actionDialog.type === "sprint" ? 650 : 900);
+    return () => window.clearTimeout(timer);
+  }, [actionDialog]);
 
   useEffect(() => {
     const handleResizeMove = (event: globalThis.MouseEvent) => {
@@ -1160,6 +2356,13 @@ export function RequirementCenterPage() {
 
   const owners = useMemo(() => ["全部负责人", ...Array.from(new Set(issues.map((issue) => issue.owner)))], [issues]);
   const priorities = ["全部优先级", "P0", "P1", "P2"];
+  const captureOwners = ["产品团队", "研发团队", "设计团队", "未分配"];
+  const captureSources = [
+    { value: "explore", label: "explore · 前置探索" },
+    { value: "user-feedback", label: "user-feedback · 用户反馈" },
+    { value: "internal", label: "internal · 内部提出" },
+    { value: "incident", label: "incident · 故障复盘" },
+  ];
   const sprints = useMemo(
     () => ["全部 Sprint", ...Array.from(new Set(issues.map((issue) => visibleSprintId(issue)).filter(Boolean)))],
     [issues],
@@ -1190,6 +2393,11 @@ export function RequirementCenterPage() {
     { label: "Bug", value: filteredIssues.filter((issue) => issue.type === "bug").length },
     { label: "当前阻塞", value: filteredIssues.filter((issue) => issue.blocked).length },
   ];
+  const activeFilterCount = [
+    ownerFilter !== "全部负责人",
+    priorityFilter !== "全部优先级",
+    sprintFilter !== "全部 Sprint",
+  ].filter(Boolean).length;
 
   const cancelSpacePopoverClose = () => {
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
@@ -1312,12 +2520,35 @@ export function RequirementCenterPage() {
       return;
     }
     if (document.type === "html" || mode === "new-tab") {
+      if (document.htmlContent) {
+        const demoUrl = URL.createObjectURL(new Blob([document.htmlContent], { type: "text/html" }));
+        window.open(demoUrl, "_blank", "noopener,noreferrer");
+        window.setTimeout(() => URL.revokeObjectURL(demoUrl), 30_000);
+        return;
+      }
       window.open(document.url || `${issueDetailUrl(issue)}?document=${encodeURIComponent(document.name)}`, "_blank", "noopener,noreferrer");
       return;
     }
     setMarkdownUploadState("idle");
     setMarkdownUploadError("");
-    setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: true, saving: false, error: "", mode: "preview" });
+    setMarkdownMetadataOpen(false);
+    setIsDrawerFullscreen(false);
+    setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: true, saving: false, error: "", mode: "preview", dirty: false });
+    if (document.content) {
+      setDrawer({
+        type: "markdown",
+        issue,
+        document,
+        content: document.content,
+        draft: parseMarkdownFrontmatter(document.content).body,
+        loading: false,
+        saving: false,
+        error: "",
+        mode: "preview",
+        dirty: false,
+      });
+      return;
+    }
     try {
       const token = readAccessToken();
       const response = await fetch(document.url || `/api/v1/requirement-center/issues/${issue.id}/documents/${document.name}`, {
@@ -1325,53 +2556,150 @@ export function RequirementCenterPage() {
       });
       if (!response.ok) throw new Error(response.status === 403 ? "无权读取该文档" : "文档读取失败");
       const envelope = (await response.json()) as ApiEnvelope<{ content: string }>;
-      setDrawer({ type: "markdown", issue, document, content: envelope.data.content, draft: envelope.data.content, loading: false, saving: false, error: "", mode: "preview" });
+      setDrawer({ type: "markdown", issue, document, content: envelope.data.content, draft: parseMarkdownFrontmatter(envelope.data.content).body, loading: false, saving: false, error: "", mode: "preview", dirty: false });
     } catch (error) {
-      setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: false, saving: false, error: sanitizeFeedback(error instanceof Error ? error.message : "文档读取失败"), mode: "preview" });
+      setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: false, saving: false, error: sanitizeFeedback(error instanceof Error ? error.message : "文档读取失败"), mode: "preview", dirty: false });
     }
   };
 
   const saveMarkdownDocument = async () => {
-    if (drawer.type !== "markdown" || !isEditableDocument(drawer) || drawer.saving) return;
-    setDrawer({ ...drawer, saving: true, error: "" });
+    if (drawer.type !== "markdown" || !isMutableMarkdownDrawer(drawer) || drawer.saving) return;
+    const currentDrawer = drawer;
+    setDrawer({ ...currentDrawer, saving: true, error: "" });
     try {
+      const contentToSave = composeMarkdownContent(currentDrawer.content, currentDrawer.draft);
+      if (currentDrawer.issue.id.startsWith("DEMO-") && typeof currentDrawer.document.content === "string") {
+        setDrawer({
+          ...currentDrawer,
+          content: contentToSave,
+          draft: parseMarkdownFrontmatter(contentToSave).body,
+          saving: false,
+          error: "",
+          mode: "preview",
+          dirty: false,
+          savedAt: "刚刚保存",
+        });
+        setToast(`${currentDrawer.document.name} 已保存`);
+        return;
+      }
       const token = readAccessToken();
-      const response = await fetch(drawer.document.url || `/api/v1/requirement-center/issues/${drawer.issue.id}/documents/${drawer.document.name}`, {
+      const baseUrl = currentDrawer.document.url || `/api/v1/requirement-center/issues/${currentDrawer.issue.id}/documents/${currentDrawer.document.name}`;
+      const response = await fetch(isTaskToggleDocument(currentDrawer) ? `${baseUrl}/tasks` : baseUrl, {
         method: "PUT",
         headers: {
           accept: "application/json",
           "content-type": "application/json",
           ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ content: drawer.draft }),
+        body: JSON.stringify({ content: contentToSave }),
       });
       if (!response.ok) {
-        if (response.status === 403) throw new Error("仅采集池 capture.md 支持编辑");
+        if (response.status === 403) {
+          let detail = "";
+          try {
+            const errorEnvelope = (await response.json()) as { detail?: unknown };
+            detail = typeof errorEnvelope.detail === "string" ? errorEnvelope.detail : "";
+          } catch {
+            detail = "";
+          }
+          throw new Error(detail || documentCapability(currentDrawer.document).reason);
+        }
         if (response.status === 404) throw new Error("文档不存在或已移动");
-        throw new Error("文档保存失败");
+        if (response.status === 422) throw new Error("文档内容为空或超过长度限制，内容已保留");
+        let detail = "";
+        try {
+          const errorEnvelope = (await response.json()) as { detail?: unknown };
+          detail = typeof errorEnvelope.detail === "string" ? errorEnvelope.detail : "";
+        } catch {
+          detail = "";
+        }
+        throw new Error(detail || "文档保存失败，内容已保留");
       }
       const envelope = (await response.json()) as ApiEnvelope<{ content: string }>;
-      setDrawer({ ...drawer, content: envelope.data.content, draft: envelope.data.content, saving: false, error: "", mode: "preview", savedAt: "刚刚保存" });
-      setToast("capture.md 已保存");
+      if (typeof envelope.data?.content !== "string") {
+        throw new Error("文档保存响应异常，内容已保留");
+      }
+      setDrawer({ ...currentDrawer, content: envelope.data.content, draft: parseMarkdownFrontmatter(envelope.data.content).body, saving: false, error: "", mode: "preview", dirty: false, savedAt: "刚刚保存" });
+      setToast(`${currentDrawer.document.name} 已保存`);
     } catch (error) {
-      setDrawer({ ...drawer, saving: false, error: sanitizeFeedback(error instanceof Error ? error.message : "文档保存失败") });
+      const message = sanitizeFeedback(error instanceof Error ? error.message : "文档保存失败，内容已保留");
+      setDrawer((latest) => (latest.type === "markdown" ? { ...latest, saving: false, error: message } : latest));
+      setToast(message);
     }
   };
 
   const updateMarkdownDraft = (value: string) => {
-    setDrawer((current) => current.type === "markdown" ? { ...current, draft: value, savedAt: undefined } : current);
+    setDrawer((current) => isEditableDocument(current) ? { ...current, draft: value, dirty: true, savedAt: undefined } : current);
   };
 
-  const enterMarkdownEditMode = () => {
+  const toggleMarkdownTask = (taskToToggle: number, checked: boolean) => {
+    setDrawer((current) => {
+      if (!isMutableMarkdownDrawer(current)) return current;
+      const lines = current.draft.split("\n");
+      let taskIndex = 0;
+      const draft = lines.map((line) => {
+        if (!/^[-*]\s+\[( |x|X)\]\s+/.test(line)) return line;
+        if (taskIndex !== taskToToggle) {
+          taskIndex += 1;
+          return line;
+        }
+        taskIndex += 1;
+        return line.replace(/^([-*]\s+\[)( |x|X)(\]\s+.*)$/, `$1${checked ? "x" : " "}$3`);
+      }).join("\n");
+      return { ...current, draft, dirty: true, savedAt: undefined };
+    });
+  };
+
+  const setMarkdownMode = (mode: MarkdownViewMode) => {
     if (drawer.type !== "markdown") return;
+    if (mode !== "preview" && !isEditableDocument(drawer)) return;
     setMarkdownUploadState("idle");
     setMarkdownUploadError("");
-    setDrawer({ ...drawer, draft: drawer.content, mode: "edit", savedAt: undefined });
+    setDrawer({ ...drawer, draft: mode === "preview" ? drawer.draft : drawer.draft || parseMarkdownFrontmatter(drawer.content).body, mode, savedAt: mode === "preview" ? drawer.savedAt : undefined });
   };
 
   const attemptMarkdownImageUpload = () => {
     setMarkdownUploadState("failed");
     setMarkdownUploadError("文档图片上传接口暂未启用；本次不会写入本机路径或私有对象地址。");
+  };
+
+  const insertMarkdownSnippet = (kind: keyof typeof markdownToolbarSnippets) => {
+    if (drawer.type !== "markdown" || !isEditableDocument(drawer)) return;
+    const currentDraft = drawer.mode === "preview" ? parseMarkdownFrontmatter(drawer.content).body : drawer.draft;
+    const editor = markdownEditorRef.current;
+    const start = editor ? editor.selectionStart : currentDraft.length;
+    const end = editor ? editor.selectionEnd : currentDraft.length;
+    const boundedStart = Math.max(0, Math.min(start, currentDraft.length));
+    const boundedEnd = Math.max(boundedStart, Math.min(end, currentDraft.length));
+    const beforeSelection = currentDraft.slice(0, boundedStart);
+    const selection = currentDraft.slice(boundedStart, boundedEnd);
+    const afterSelection = currentDraft.slice(boundedEnd);
+    const prefix = beforeSelection && !beforeSelection.endsWith("\n") ? "\n" : "";
+    const suffix = afterSelection && !afterSelection.startsWith("\n") ? "\n" : "";
+    let inserted = "";
+    let nextSelectionStart = 0;
+    let nextSelectionEnd = 0;
+    if (kind === "table") {
+      inserted = `${prefix}${markdownToolbarSnippets.table.text}${suffix}`;
+      nextSelectionStart = boundedStart + prefix.length + markdownToolbarSnippets.table.selectionStart;
+      nextSelectionEnd = boundedStart + prefix.length + markdownToolbarSnippets.table.selectionEnd;
+    } else {
+      const snippet = markdownToolbarSnippets[kind];
+      const body = selection || snippet.placeholder;
+      inserted = `${prefix}${snippet.before}${body}${snippet.after}${suffix}`;
+      nextSelectionStart = boundedStart + prefix.length + snippet.before.length;
+      nextSelectionEnd = nextSelectionStart + body.length;
+    }
+    setMarkdownUploadError("");
+    pendingMarkdownSelectionRef.current = { start: nextSelectionStart, end: nextSelectionEnd };
+    setDrawer({ ...drawer, draft: `${beforeSelection}${inserted}${afterSelection}`, mode: drawer.mode === "preview" ? "split" : drawer.mode, dirty: true, savedAt: undefined });
+  };
+
+  const cancelMarkdownDraft = () => {
+    if (drawer.type !== "markdown") return;
+    setMarkdownUploadState("idle");
+    setMarkdownUploadError("");
+    setDrawer({ ...drawer, draft: parseMarkdownFrontmatter(drawer.content).body, mode: "preview", dirty: false, savedAt: undefined });
   };
 
   const submitCapture = (event: FormEvent<HTMLFormElement>) => {
@@ -1394,8 +2722,8 @@ export function RequirementCenterPage() {
       type: captureForm.type,
       title,
       priority: captureForm.priority,
-      owner: activeUser.name,
-      source: "capture",
+      owner: captureForm.owner,
+      source: captureForm.source,
       stage: "capture",
       documents: ["capture.md", "trace.md"],
       documentEntries: [
@@ -1411,10 +2739,18 @@ export function RequirementCenterPage() {
       },
     };
     setContext((current) => current ? { ...current, issues: [newIssue, ...current.issues] } : current);
-    setCaptureForm({ type: "requirement", title: "", priority: "P2", description: "" });
+    setCaptureForm({ type: "requirement", title: "", priority: "P1", description: "", owner: "产品团队", source: "explore" });
     setCaptureError("");
     setCaptureOpen(false);
     setToast("Capture 已创建并插入采集池");
+  };
+
+  const handleCaptureKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (!(event.metaKey || event.ctrlKey) || event.key !== "Enter") return;
+    event.preventDefault();
+    if (typeof event.currentTarget.requestSubmit === "function") {
+      event.currentTarget.requestSubmit();
+    }
   };
 
   const appendAiMessage = (content: string, role: "ai" | "user" = "ai") => {
@@ -1448,7 +2784,39 @@ export function RequirementCenterPage() {
     return "";
   };
 
-  const runIssueAction = async (issue: IssueCard, options?: { sprintId?: string; importedFile?: File }) => {
+  const openIssueActionDialog = (issue: IssueCard, auxAction?: AuxiliaryAction) => {
+    const action = auxAction || issueAction(issue);
+    if (actionDisabledReason(action as IssueAction)) {
+      appendAiMessage(`${issue.id} 前置条件不满足：${actionDisabledReason(action as IssueAction)}`);
+      setDrawer({ type: "ai" });
+      return;
+    }
+    const type = actionDialogType(issue, action);
+    const sprintEstimate = issueSprintEstimate(issue);
+    const sprintModels = sprintOptionModels(sprintOptions, sprintEstimate);
+    const defaultSprintId = firstSelectableSprintId(sprintModels) || sprintModels[0]?.id || "sprint-auto";
+    setAgentOpen(false);
+    setChoiceDialog({ type: "none" });
+    setActionDialog({
+      type,
+      issue,
+      tab: type === "sprint" ? "existing" : "ai",
+      ready: !["analysis", "sprint", "opsx"].includes(type),
+      running: false,
+      fileName: "",
+      sprintId: type === "sprint" ? defaultSprintId : sprintOptions[0] || "sprint-auto",
+      newSprintId: type === "sprint" ? nextSprintId(sprintOptions) : "",
+      sprintEstimate,
+      error: "",
+      adoptedPointIndexes: type === "analysis" ? [0, 1, 2] : [],
+    });
+  };
+
+  const closeActionDialog = () => {
+    setActionDialog({ type: "none" });
+  };
+
+  const runIssueAction = async (issue: IssueCard, options?: { sprintId?: string; importedFile?: File; confirmed?: boolean }) => {
     const action = issueAction(issue);
     if (lockedActionId) return;
     if (actionDisabledReason(action)) {
@@ -1456,13 +2824,13 @@ export function RequirementCenterPage() {
       setDrawer({ type: "ai" });
       return;
     }
-    const choice = actionChoice(action);
+    const choice = actionChoice(action, issue);
     if (choice && !options) {
       setChoiceDialog({ type: choice as ChoiceDialog["type"], issue, error: "" });
       return;
     }
     if (issue.stage === "development") {
-      setDrawer({ type: "tasks", issue });
+      setDrawer({ type: "tasks", issue, focus: "development" });
       return;
     }
     setLockedActionId(issue.id);
@@ -1471,17 +2839,71 @@ export function RequirementCenterPage() {
     const targetStage = nextStage[issue.stage] || issue.stage;
     setContext((current) => current ? {
       ...current,
-      issues: current.issues.map((item) => item.id === issue.id ? {
-        ...item,
-        stage: targetStage,
-        sprintId: options?.sprintId || item.sprintId,
-        updatedAt: "刚刚",
-      } : item),
+      issues: current.issues.map((item) => {
+        if (item.id !== issue.id) return item;
+        const documentPatch = appendTransitionDocuments(item, targetStage);
+        const nextIssue = {
+          ...item,
+          ...documentPatch,
+          stage: targetStage,
+          sprintId: options?.sprintId || item.sprintId,
+          updatedAt: "刚刚",
+          blocked: undefined,
+        };
+        return {
+          ...nextIssue,
+          action: actionForStage(nextIssue, targetStage),
+        };
+      }),
     } : current);
     setLockedActionId("");
     setChoiceDialog({ type: "none" });
     setToast(`${issue.id} 已流转到 ${stages.find((stage) => stage.id === targetStage)?.title || targetStage}`);
     appendAiMessage(`执行成功：${action.command}，卡片已流转。`);
+  };
+
+  const saveAnalysisResult = (issue: IssueCard, adoptedCount: number) => {
+    setContext((current) => current ? {
+      ...current,
+      issues: current.issues.map((item) => item.id === issue.id ? {
+        ...item,
+        documents: item.documents.includes("explore.md") ? item.documents : [...item.documents, "explore.md"],
+        documentEntries: [
+          ...issueDocumentEntries(item),
+          ...(item.documents.includes("explore.md") ? [] : [transitionDocumentEntry(item, "explore.md")]),
+        ],
+        updatedAt: "刚刚",
+      } : item),
+    } : current);
+    appendAiMessage(`${issue.id} 已保存分析结论，采纳 ${adoptedCount}/3 项建议。`);
+    setToast(`${issue.id} 已保存分析结论，采纳 ${adoptedCount}/3 项建议`);
+  };
+
+  const confirmActionDialog = async () => {
+    if (actionDialog.type === "none" || actionDialog.running) return;
+    const { issue, type } = actionDialog;
+    if (type === "progress") {
+      appendAiMessage(`${issue.id} 当前研发进度：${issue.taskProgress?.[0] || 0}/${issue.taskProgress?.[1] || 0}`);
+      closeActionDialog();
+      return;
+    }
+    if (type === "complete" && actionDialog.tab === "import" && !actionDialog.fileName) {
+      setActionDialog({ ...actionDialog, error: "请先导入文件" });
+      return;
+    }
+    if (type === "analysis" && actionDialog.adoptedPointIndexes.length === 0) return;
+    setActionDialog({ ...actionDialog, running: true, error: "" });
+    await new Promise((resolve) => window.setTimeout(resolve, 520));
+    closeActionDialog();
+    if (type === "analysis") {
+      saveAnalysisResult(issue, actionDialog.adoptedPointIndexes.length);
+      return;
+    }
+    if (type === "sprint") {
+      await runIssueAction(issue, { sprintId: actionDialog.tab === "new" ? actionDialog.newSprintId.trim() || "sprint-auto" : actionDialog.sprintId || sprintOptions[0] || "sprint-auto" });
+      return;
+    }
+    await runIssueAction(issue, { confirmed: true });
   };
 
   const logoutFrontend = async () => {
@@ -1545,6 +2967,389 @@ export function RequirementCenterPage() {
     }
   };
 
+  const stageColumns = stages.map((stage) => ({
+    stage,
+    items: filteredIssues.filter((issue) => issue.stage === stage.id),
+  }));
+
+  const runAgentStageAction = (stage: Stage, issue: IssueCard) => {
+    setAgentOpen(false);
+    if (stage.id === "done") {
+      window.open(issue.archiveUrl || issueDetailUrl(issue), "_blank", "noopener,noreferrer");
+      return;
+    }
+    openIssueActionDialog(issue);
+  };
+
+  const renderIssueCard = (stage: Stage, issue: IssueCard) => {
+    const action = issueAction(issue);
+    const tip = blockedTip(stage.id, issue, action);
+    const actionLabel = action.label || stageActionLabel[stage.id][issue.type];
+    const isDoneStage = stage.id === "done";
+    const showArchive = !isDoneStage && (stage.id !== "acceptance" || canArchive(issue));
+    const isLocked = lockedActionId === issue.id;
+    const documents = visibleIssueDocuments(stage, issue);
+    const taskProgress = visibleTaskProgress(issue);
+    const manualProgress = visibleManualAcceptanceProgress(issue);
+    const auxActions = auxiliaryActions(issue);
+
+    return (
+      <article className={`rc-card ${issue.type}`} data-issue-id={issue.id} key={issue.id}>
+        <div className="rc-card-top">
+          <strong>{issue.id}</strong>
+          {visibleSprintId(issue) && <span className="rc-sprint-tag">{visibleSprintId(issue)}</span>}
+        </div>
+        <button className="rc-card-title" type="button" onClick={() => openIssueDetail(issue)}>{issue.title}</button>
+        <div className="rc-card-meta rc-card-tags">
+          <span className={`rc-priority-tag rc-tag ${issue.priority.toLowerCase()}`}>{issue.priority}</span>
+          <span className="rc-owner-tag rc-tag">{issue.owner}</span>
+        </div>
+        <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
+          {documents.map((document, index) => (
+            <span className="rc-doc-item" key={document.name}>
+              {index > 0 && <span className="rc-doc-separator" aria-hidden="true"> </span>}
+              <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
+                {document.label || document.name}
+              </button>
+            </span>
+          ))}
+        </div>
+        {tip ? (
+          <p className="rc-blocked"><CircleDot size={12} /> {tip}</p>
+        ) : null}
+        {!isDoneStage && (taskProgress || issue.testProgress) && (
+          <div className="rc-progress" aria-label={`${issue.id} 进度`}>
+            {taskProgress && (
+              <button
+                aria-label={`研发 ${taskProgress[0]}/${taskProgress[1]}`}
+                className="rc-progress-action"
+                type="button"
+                onClick={() => setDrawer({ type: "tasks", issue, focus: "development" })}
+              >
+                <span className="rc-progress-label">研发</span>
+                <b className="rc-progress-value">{taskProgress[0]}/{taskProgress[1]}</b>
+              </button>
+            )}
+            {issue.testProgress && (
+              <button
+                aria-label={`测试 ${issue.testProgress[0]}/${issue.testProgress[1]}`}
+                className="rc-progress-action"
+                type="button"
+                onClick={() => setDrawer({ type: "tasks", issue, focus: "test" })}
+              >
+                <span className="rc-progress-label">测试</span>
+                <b className="rc-progress-value">{issue.testProgress[0]}/{issue.testProgress[1]}</b>
+              </button>
+            )}
+            {manualProgress && (
+              <button
+                aria-label={`人工验收 ${manualProgress[0]}/${manualProgress[1]}`}
+                className="rc-progress-action"
+                type="button"
+                onClick={() => setDrawer({ type: "tasks", issue, focus: "manual" })}
+              >
+                <span className="rc-progress-label">人工验收</span>
+                <b className="rc-progress-value">{manualProgress[0]}/{manualProgress[1]}</b>
+              </button>
+            )}
+          </div>
+        )}
+        <footer>
+          <span className="rc-updated">更新 {issue.updatedAt}</span>
+          <span className="rc-card-actions" aria-label={`${issue.id} 卡片动作`}>
+            {auxActions.map((auxAction) => (
+              <button
+                className="secondary"
+                key={auxAction.command}
+                type="button"
+                title={auxAction.command}
+                onClick={() => {
+                  openIssueActionDialog(issue, auxAction);
+                }}
+              >
+                {auxAction.label}
+              </button>
+            ))}
+            {showArchive && (
+              <button className="primary" type="button" title={action.command} disabled={isLocked || Boolean(actionDisabledReason(action))} onClick={() => openIssueActionDialog(issue)}>
+                {isLocked && <Loader2 size={13} aria-hidden="true" />} {actionLabel} →
+              </button>
+            )}
+          </span>
+        </footer>
+      </article>
+    );
+  };
+
+  const renderDocChecklist = (items: string[], done = false) => (
+    <div className="rc-action-doc-list">
+      {items.map((item) => (
+        <div className={`rc-action-doc ${done ? "done" : ""}`} key={item}>
+          <span />
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderActionDialogBody = (dialog: Exclude<ActionDialog, { type: "none" }>) => {
+    const copy = actionModalCopy(dialog.issue, dialog.type);
+    const docs = commandDocsForAction(dialog.issue, dialog.type);
+    const taskProgress = dialog.issue.taskProgress || [0, 0];
+    const testProgress = dialog.issue.testProgress;
+    const estimate = dialog.issue.priority === "P0" ? 5 : dialog.issue.priority === "P1" ? 3 : 2;
+    const changeCount = dialog.issue.type === "requirement" && ["P0", "P1"].includes(dialog.issue.priority) ? 2 : 1;
+
+    if (dialog.type === "analysis") {
+      const points = [
+        `补充「${dialog.issue.title}」涉及的关键角色与使用场景`,
+        "明确验收标准边界，避免评审阶段返工",
+        "识别与现有 Space / OpenSpec 治理链路的依赖关系",
+      ];
+      return (
+        <>
+          <div className="rc-action-command"><span>$</span>{copy.command}</div>
+          <div className="rc-action-analysis">
+            {!dialog.ready ? <><span className="rc-action-spinner" />AI 正在分析上下文...</> : `已扫描关联事实源，围绕「${dialog.issue.title}」输出以下分析结论与建议方案：`}
+          </div>
+          {dialog.ready && (
+            <div className="rc-action-field">
+              <label>解决方案要点（可选择采纳）</label>
+              <div className="rc-action-adopt-list">
+                {points.map((point, index) => {
+                  const checked = dialog.adoptedPointIndexes.includes(index);
+                  return (
+                    <button
+                      aria-pressed={checked}
+                      className={checked ? "checked" : ""}
+                      type="button"
+                      key={point}
+                      onClick={() => setActionDialog((current) => {
+                        if (current.type !== "analysis" || current.issue.id !== dialog.issue.id) return current;
+                        const nextIndexes = checked
+                          ? current.adoptedPointIndexes.filter((item) => item !== index)
+                          : [...current.adoptedPointIndexes, index].sort();
+                        return { ...current, adoptedPointIndexes: nextIndexes };
+                      })}
+                    >
+                      <span />
+                      {point}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    if (dialog.type === "complete") {
+      return (
+        <>
+          <div className="rc-action-tabs" role="tablist" aria-label="完善方式">
+            <button className={dialog.tab === "ai" ? "active" : ""} type="button" role="tab" aria-selected={dialog.tab === "ai"} onClick={() => setActionDialog({ ...dialog, tab: "ai", error: "" })}>AI 生成</button>
+            <button className={dialog.tab === "import" ? "active" : ""} type="button" role="tab" aria-selected={dialog.tab === "import"} onClick={() => setActionDialog({ ...dialog, tab: "import", error: "" })}>导入文档</button>
+          </div>
+          {dialog.tab === "ai" ? (
+            <div className="rc-action-panel active">
+              <div className="rc-action-command"><span>$</span>{copy.command}</div>
+              <p>AI 将基于当前上下文直接生成完善所需的文档。</p>
+            </div>
+          ) : (
+            <div className="rc-action-panel active">
+              <label className="rc-action-dropzone">
+                <input
+                  type="file"
+                  aria-label="导入完善文档"
+                  accept=".zip,.docx,.pdf,.md"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    setActionDialog({ ...dialog, fileName: file?.name || "", error: "" });
+                  }}
+                />
+                <span>📎</span>
+                <strong>点击上传已设计的文档</strong>
+                <small>支持 .zip / .docx / .pdf / .md，AI 将解析并补全缺失部分</small>
+              </label>
+              {dialog.fileName && <div className="rc-action-file-chip">📄 {dialog.fileName}<button type="button" aria-label="移除导入文件" onClick={() => setActionDialog({ ...dialog, fileName: "", error: "" })}>×</button></div>}
+            </div>
+          )}
+          <div className="rc-action-field">
+            <label>本次将生成 / 更新</label>
+            {renderDocChecklist(docs, dialog.running)}
+          </div>
+        </>
+      );
+    }
+
+    if (dialog.type === "sprint") {
+      const options = sprintOptionModels(sprintOptions, dialog.sprintEstimate || estimate);
+      const selectedOption = options.find((option) => option.id === dialog.sprintId && !option.disabled) || options.find((option) => !option.disabled);
+      return (
+        <>
+          <div className="rc-action-field rc-sprint-context-field">
+            <label>对象</label>
+            <div className="rc-action-context rc-sprint-context-strip">
+              <strong>{dialog.issue.id}</strong>
+              <span>{dialog.issue.title}</span>
+            </div>
+          </div>
+          <div className="rc-action-field">
+            <label>AI 工作量评估</label>
+            <div className="rc-action-estimate">
+              {!dialog.ready ? <><span className="rc-action-spinner" />正在评估工作量...</> : <>预估工作量：<b>{estimate} 项容量点</b>（依据优先级 {dialog.issue.priority}）</>}
+            </div>
+          </div>
+          {dialog.ready && (
+            <>
+              <div className="rc-action-tabs rc-sprint-mode-toggle" role="tablist" aria-label="迭代模式">
+                <button className={dialog.tab === "existing" ? "active" : ""} type="button" role="tab" aria-selected={dialog.tab === "existing"} onClick={() => setActionDialog({ ...dialog, tab: "existing", sprintId: selectedOption?.id || dialog.sprintId })}>加入现有迭代</button>
+                <button className={dialog.tab === "new" ? "active" : ""} type="button" role="tab" aria-selected={dialog.tab === "new"} onClick={() => setActionDialog({ ...dialog, tab: "new" })}>新建迭代</button>
+              </div>
+              {dialog.tab === "existing" ? (
+                <div className="rc-sprint-options" role="radiogroup" aria-label="现有迭代">
+                  {options.map((option) => {
+                    const selected = selectedOption?.id === option.id;
+                    const capacityPercent = Math.min(100, Math.round((option.used / option.total) * 100));
+                    return (
+                      <button
+                        aria-checked={selected}
+                        className={`${selected ? "selected" : ""} ${option.disabled ? "disabled" : ""}`}
+                        disabled={option.disabled}
+                        role="radio"
+                        type="button"
+                        key={option.id}
+                        onClick={() => setActionDialog({ ...dialog, sprintId: option.id })}
+                      >
+                        <span className="rc-sprint-option-top">
+                          <span className="rc-sprint-option-name">{option.id}<em className={`rc-sprint-status-pill ${option.status === "进行中" ? "active" : "planned"}`}>{option.status}</em>{option.disabled && <em className="rc-sprint-capacity-badge">容量不足</em>}</span>
+                          <span className="rc-sprint-radio" />
+                        </span>
+                        <span className="rc-sprint-meta-row"><span>容量</span><span>{option.used}/{option.total} 项</span></span>
+                        <span className="rc-sprint-capacity-bar"><span style={{ width: `${capacityPercent}%` }} /></span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rc-action-grid rc-new-sprint-panel">
+                  <label>迭代编号<input value={dialog.newSprintId} onChange={(event) => setActionDialog({ ...dialog, newSprintId: event.target.value })} /></label>
+                </div>
+              )}
+              <div className="rc-action-field">
+                <label>本次将生成 / 更新</label>
+                {renderDocChecklist(["sprint.md", "sprint.yaml", "release-note.md", "acceptance-report.md"], true)}
+              </div>
+            </>
+          )}
+        </>
+      );
+    }
+
+    if (dialog.type === "opsx") {
+      const titles = Array.from({ length: changeCount }, (_, index) => `${dialog.issue.title}${changeCount > 1 ? (index === 0 ? " · 前端实现" : " · 后端与数据实现") : ""}`);
+      return (
+        <>
+          <div className="rc-action-command"><span>$</span>{copy.command}</div>
+          <div className="rc-action-analysis">{!dialog.ready ? <><span className="rc-action-spinner" />AI 正在拆解 Change 并生成配套文档...</> : `已完成拆解，共识别到 ${changeCount} 个 Change：`}</div>
+          {dialog.ready && (
+            <div className="rc-action-change-list">
+              {titles.map((title, index) => (
+                <div className="rc-action-change" key={title}>
+                  <strong>CHG-{index + 1} · {title}</strong>
+                  {renderDocChecklist(docs, dialog.running)}
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    if (dialog.type === "apply") {
+      return (
+        <>
+          <div className="rc-action-command"><span>$</span>{copy.command}</div>
+          <div className="rc-action-field">
+            <label>执行步骤</label>
+            {renderDocChecklist(docs, dialog.running)}
+          </div>
+        </>
+      );
+    }
+
+    if (dialog.type === "progress") {
+      return (
+        <div className="rc-action-field">
+          <label>Change 研发进度</label>
+          <div className="rc-action-change">
+            <div className="rc-action-change-head"><strong>{dialog.issue.id}</strong><span>{taskProgress[0]}/{taskProgress[1]}</span></div>
+            <small>{dialog.issue.title}</small>
+            <div className="rc-mini-bar"><span style={{ width: `${taskProgress[1] ? Math.round((taskProgress[0] / taskProgress[1]) * 100) : 0}%` }} /></div>
+          </div>
+          {testProgress && (
+            <div className="rc-action-change">
+              <div className="rc-action-change-head"><strong>自动化测试</strong><span>{testProgress[0]}/{testProgress[1]}</span></div>
+              <div className="rc-mini-bar"><span style={{ width: `${testProgress[1] ? Math.round((testProgress[0] / testProgress[1]) * 100) : 0}%` }} /></div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="rc-action-command"><span>$</span>{copy.command}</div>
+        <div className="rc-action-field">
+          <label>本次将生成 / 更新</label>
+          {renderDocChecklist(docs, dialog.running)}
+        </div>
+      </>
+    );
+  };
+
+  const renderActionDialog = () => {
+    if (actionDialog.type === "none") return null;
+    const copy = actionModalCopy(actionDialog.issue, actionDialog.type);
+    const adoptedCount = actionDialog.type === "analysis" ? actionDialog.adoptedPointIndexes.length : 0;
+    const sprintConfirmLabel = actionDialog.type === "sprint"
+      ? actionDialog.tab === "new"
+        ? `创建 ${actionDialog.newSprintId.trim() || "新迭代"} 并加入`
+        : `加入 ${actionDialog.sprintId || "现有迭代"}`
+      : "";
+    const confirmLabel = actionDialog.type === "analysis" ? `采纳 ${adoptedCount}/3 项并保留分析 →` : actionDialog.type === "sprint" ? sprintConfirmLabel : copy.confirm;
+    const sprintConfirmDisabled = actionDialog.type === "sprint" && (actionDialog.tab === "new" ? !actionDialog.newSprintId.trim() : !actionDialog.sprintId);
+    const confirmDisabled = actionDialog.running || !actionDialog.ready || (actionDialog.type === "complete" && actionDialog.tab === "import" && !actionDialog.fileName) || (actionDialog.type === "analysis" && adoptedCount === 0) || sprintConfirmDisabled;
+    return (
+      <div className="rc-settings-mask rc-action-mask" role="presentation" onMouseDown={closeActionDialog}>
+        <section className={`rc-flow-dialog rc-action-dialog ${actionDialog.type === "sprint" ? "sprint" : ""}`} role="dialog" aria-modal="true" aria-label={copy.title} onMouseDown={(event) => event.stopPropagation()}>
+          <header className="rc-dialog-head">
+            <div>
+              <p>{copy.eyebrow}</p>
+              <h2>{copy.title}</h2>
+              <span>{copy.sub}</span>
+            </div>
+            <button aria-label={`关闭${copy.title}`} type="button" onClick={closeActionDialog}><X size={17} /></button>
+          </header>
+          <div className="rc-action-body">
+            {renderActionDialogBody(actionDialog)}
+            {actionDialog.error && <p className="rc-application-alert" role="alert">{actionDialog.error}</p>}
+          </div>
+          <footer className="rc-dialog-actions">
+            <p><kbd>Esc</kbd> 关闭</p>
+            <div>
+              <button className="rc-secondary-action" type="button" onClick={closeActionDialog}>取消</button>
+              <button className="rc-primary-action" type="button" disabled={confirmDisabled} onClick={() => void confirmActionDialog()}>
+                {actionDialog.running && <span className="rc-action-spinner" />} {actionDialog.running ? copy.running : confirmLabel}
+              </button>
+            </div>
+          </footer>
+        </section>
+      </div>
+    );
+  };
+
   return (
     <main className={`requirement-center theme-${theme}`} data-theme={theme}>
       <aside className={`rc-sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
@@ -1553,10 +3358,10 @@ export function RequirementCenterPage() {
             <img src="/brand/moonbox/moonbox-app-icon-256.png" alt="MoonBox 产品图标" />
           </span>
           {!isSidebarCollapsed && (
-            <span className="rc-brand-copy">
+            <div className="rc-brand-copy">
               <strong>MoonBox</strong>
-              <em>AI原生软件工厂</em>
-            </span>
+              <small>OPS WORKBENCH</small>
+            </div>
           )}
           {!isSidebarCollapsed && <span className="rc-version-badge">{PRODUCT_VERSION}</span>}
           <button
@@ -1731,7 +3536,7 @@ export function RequirementCenterPage() {
         </header>
 
         <section className="rc-stats" aria-label="需求中心统计" data-state={isLoadingContext ? "loading" : contextError ? "error" : "ready"}>
-          {stats.map((item) => (
+          {stats.map((item, index) => (
             <article className="rc-stat" key={item.label}>
               <span>{item.label}</span>
               <strong>{item.value}</strong>
@@ -1767,15 +3572,32 @@ export function RequirementCenterPage() {
               </button>
             ))}
           </div>
-          <select aria-label="负责人筛选" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-            {owners.map((owner) => <option key={owner}>{owner}</option>)}
-          </select>
-          <select aria-label="优先级筛选" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-            {priorities.map((priority) => <option key={priority}>{priority}</option>)}
-          </select>
-          <select aria-label="Sprint 筛选" value={sprintFilter} onChange={(event) => setSprintFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-            {sprints.map((sprint) => <option key={sprint}>{sprint}</option>)}
-          </select>
+          <details className="rc-filter-popover">
+            <summary aria-label="打开筛选条件">
+              筛选
+              <span className="rc-filter-badge" aria-label={`已启用 ${activeFilterCount} 个筛选`}>{activeFilterCount}</span>
+            </summary>
+            <div className="rc-filter-menu" role="group" aria-label="筛选条件">
+              <label className="rc-filter-field">
+                <span>负责人</span>
+                <select aria-label="负责人筛选" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
+                  {owners.map((owner) => <option key={owner}>{owner}</option>)}
+                </select>
+              </label>
+              <label className="rc-filter-field">
+                <span>优先级</span>
+                <select aria-label="优先级筛选" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
+                  {priorities.map((priority) => <option key={priority}>{priority}</option>)}
+                </select>
+              </label>
+              <label className="rc-filter-field">
+                <span>Sprint</span>
+                <select aria-label="Sprint 筛选" value={sprintFilter} onChange={(event) => setSprintFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
+                  {sprints.map((sprint) => <option key={sprint}>{sprint}</option>)}
+                </select>
+              </label>
+            </div>
+          </details>
           <button
             className={`rc-refresh-button ${isRefreshingContext ? "refreshing" : ""}`}
             type="button"
@@ -1811,86 +3633,29 @@ export function RequirementCenterPage() {
             </div>
           )}
           <div className="rc-board">
-            {stages.map((stage) => {
-              const items = filteredIssues.filter((issue) => issue.stage === stage.id);
-              return (
-                <section className="rc-column" data-stage={stage.id} aria-labelledby={`stage-${stage.id}`} key={stage.id}>
-                  <header className="rc-column-head">
-                    <div>
-                      <h2 id={`stage-${stage.id}`}>{stage.title}</h2>
-                      <p>{stage.subtitle}</p>
+            {stageColumns.map(({ stage, items }) => (
+              <header className={`rc-column-head ${items.length > 0 ? "filled" : "empty"}`} data-stage-head={stage.id} key={`${stage.id}-head`}>
+                <div>
+                  <h2 id={`stage-${stage.id}`}>{stage.title}</h2>
+                  <p>{stage.subtitle}</p>
+                </div>
+                <span aria-label={`${stage.title} ${items.length} 个对象`}>{String(items.length).padStart(2, "0")}</span>
+              </header>
+            ))}
+            {stageColumns.map(({ stage, items }) => (
+              <section className="rc-column" data-stage={stage.id} aria-labelledby={`stage-${stage.id}`} key={stage.id}>
+                <div className={`rc-column-body ${items.length === 0 ? "empty" : ""}`}>
+                  {items.length === 0 && (
+                    <div className="rc-empty-stage" aria-label={`${stage.title}暂无对象`}>
+                      <span className="rc-empty-stage-icon" aria-hidden="true">◌</span>
+                      <strong>{stage.emptyTitle}</strong>
+                      <p>{stage.emptyHint}<br />{stage.emptyDetail}</p>
                     </div>
-                    <span aria-label={`${stage.title} ${items.length} 个对象`}>{String(items.length).padStart(2, "0")}</span>
-                  </header>
-                  <div className="rc-column-body">
-                    {items.map((issue) => {
-                      const missing = missingDocs(stage, issue);
-                      const action = issueAction(issue);
-                      const actionLabel = action.label || stageActionLabel[stage.id][issue.type];
-                      const showArchive = stage.id !== "acceptance" || canArchive(issue);
-                      const isLocked = lockedActionId === issue.id;
-                      const documents = visibleIssueDocuments(stage, issue);
-                      const taskProgress = visibleTaskProgress(issue);
-                      const auxActions = auxiliaryActions(issue);
-                      return (
-                        <article className={`rc-card ${issue.type}`} data-issue-id={issue.id} key={issue.id}>
-                          <div className="rc-card-top">
-                            <strong>{issue.id}</strong>
-                            {visibleSprintId(issue) && <span className="rc-sprint-tag">{visibleSprintId(issue)}</span>}
-                          </div>
-                          <button className="rc-card-title" type="button" onClick={() => openIssueDetail(issue)}>{issue.title}</button>
-                          <div className="rc-card-meta">
-                            <span className={`rc-priority ${issue.priority.toLowerCase()}`}>{issue.priority} · {issue.owner}</span>
-                          </div>
-                          <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
-                            {documents.map((document, index) => (
-                              <span className="rc-doc-item" key={document.name}>
-                                {index > 0 && <span className="rc-doc-separator" aria-hidden="true"> </span>}
-                                <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
-                                  {document.label || document.name}
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          {taskProgress && <button className="rc-progress" type="button" onClick={() => setDrawer({ type: "tasks", issue })}>研发 {taskProgress[0]}/{taskProgress[1]}</button>}
-                          {issue.testProgress && <p className="rc-progress">测试 {issue.testProgress[0]}/{issue.testProgress[1]} · 人工验收 {issue.manualAcceptanceCount}</p>}
-                          {issue.blocked || missing.length ? (
-                            <p className="rc-blocked"><CircleDot size={12} /> 缺失 {missing.join("、") || issue.blocked}</p>
-                          ) : null}
-                          <footer>
-                            <span className="rc-updated">更新 {issue.updatedAt}</span>
-                            <span className="rc-card-actions" aria-label={`${issue.id} 卡片动作`}>
-                              {showArchive && (
-                                <button className="primary" type="button" title={action.command} disabled={isLocked || Boolean(actionDisabledReason(action))} onClick={() => void runIssueAction(issue)}>
-                                  {isLocked && <Loader2 size={13} aria-hidden="true" />} {actionLabel} →
-                                </button>
-                              )}
-                              {auxActions.map((auxAction) => (
-                                  <button
-                                    className="secondary"
-                                    key={auxAction.command}
-                                    type="button"
-                                    title={auxAction.command}
-                                    onClick={() => {
-                                      setDrawer({ type: "ai" });
-                                      setAiMessages((messages) => [...messages, { role: "ai", content: `${auxAction.command}\n已准备探索上下文，确认后可在命令入口继续执行。` }]);
-                                    }}
-                                  >
-                                    {auxAction.label}
-                                  </button>
-                                ))}
-                              {stage.id === "done" && (
-                                <button type="button" title="查看归档" onClick={() => window.open(issue.archiveUrl || issueDetailUrl(issue), "_blank", "noopener,noreferrer")}>查看归档</button>
-                              )}
-                            </span>
-                          </footer>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              );
-            })}
+                  )}
+                  {items.map((issue) => renderIssueCard(stage, issue))}
+                </div>
+              </section>
+            ))}
           </div>
         </section>
       </section>
@@ -1911,22 +3676,26 @@ export function RequirementCenterPage() {
       )}
 
       {captureOpen && (
-        <div className="rc-settings-mask" role="presentation" onMouseDown={() => setCaptureOpen(false)}>
-          <form className="rc-flow-dialog rc-capture-dialog" role="dialog" aria-modal="true" aria-label="新建 Capture" onSubmit={submitCapture} onMouseDown={(event) => event.stopPropagation()}>
+        <div className="rc-settings-mask rc-capture-mask" role="presentation" onMouseDown={() => setCaptureOpen(false)}>
+          <form className="rc-flow-dialog rc-capture-dialog" role="dialog" aria-modal="true" aria-label="新建 Capture" onSubmit={submitCapture} onKeyDown={handleCaptureKeyDown} onMouseDown={(event) => event.stopPropagation()}>
             <header className="rc-dialog-head">
-              <h2>新建 Capture</h2>
+              <div>
+                <h2>新建 Capture</h2>
+                <span>快速记录一条需求或缺陷，稍后可在采集池中生成正式需求</span>
+              </div>
               <button aria-label="关闭 Capture 表单" type="button" onClick={() => setCaptureOpen(false)}><X size={17} /></button>
             </header>
-            <div className="rc-capture-grid">
+            <section className="rc-capture-body">
               <fieldset className="rc-capture-fieldset">
-                <legend>类型</legend>
-                <div className="rc-capture-segmented" role="group" aria-label="Capture 类型">
+                <legend>类型 <b aria-hidden="true">*</b></legend>
+                <div className="rc-capture-segmented" role="group" aria-label="Capture 类型" aria-required="true">
                   {[
-                    ["requirement", "Requirement"],
-                    ["bug", "Bug"],
+                    ["requirement", "◆ 需求"],
+                    ["bug", "◈ Bug"],
                   ].map(([value, label]) => (
                     <button
                       className={captureForm.type === value ? "selected" : ""}
+                      data-type={value}
                       key={value}
                       type="button"
                       onClick={() => setCaptureForm({ ...captureForm, type: value as IssueType })}
@@ -1936,12 +3705,49 @@ export function RequirementCenterPage() {
                   ))}
                 </div>
               </fieldset>
+              <label className="rc-form-row">
+                <span className="rc-field-label">标题 <b aria-hidden="true">*</b></span>
+              <input
+                ref={captureTitleRef}
+                aria-label="Capture 标题"
+                aria-invalid={captureError ? "true" : undefined}
+                className={captureError ? "invalid" : ""}
+                maxLength={60}
+                placeholder="例如：本地存量项目导入 MoonBox 并支持产品内迭代闭环"
+                required
+                value={captureForm.title}
+                onChange={(event) => {
+                  setCaptureForm({ ...captureForm, title: event.target.value });
+                  if (captureError) setCaptureError("");
+                }}
+              />
+              </label>
+              <label className="rc-form-row">
+                <span className="rc-field-label">一句话描述</span>
+                <textarea aria-label="一句话描述" maxLength={200} placeholder="用一两句话说清楚背景和诉求，方便后续生成需求时理解上下文..." value={captureForm.description} onChange={(event) => setCaptureForm({ ...captureForm, description: event.target.value })} />
+                <small className="rc-capture-count">{captureForm.description.length}/200</small>
+              </label>
+              <div className="rc-capture-grid">
+                <label className="rc-form-row">
+                  <span className="rc-field-label">负责人</span>
+                  <select aria-label="负责人" value={captureForm.owner} onChange={(event) => setCaptureForm({ ...captureForm, owner: event.target.value })}>
+                    {captureOwners.map((owner) => <option key={owner}>{owner}</option>)}
+                  </select>
+                </label>
+                <label className="rc-form-row">
+                  <span className="rc-field-label">来源 <b aria-hidden="true">*</b></span>
+                  <select aria-label="来源" required value={captureForm.source} onChange={(event) => setCaptureForm({ ...captureForm, source: event.target.value })}>
+                    {captureSources.map((source) => <option key={source.value} value={source.value}>{source.label}</option>)}
+                  </select>
+                </label>
+              </div>
               <fieldset className="rc-capture-fieldset">
-                <legend>优先级</legend>
-                <div className="rc-capture-segmented priority" role="group" aria-label="Capture 优先级">
-                  {(["P0", "P1", "P2"] as const).map((priority) => (
+                <legend>优先级 <b aria-hidden="true">*</b></legend>
+                <div className="rc-capture-segmented priority" role="group" aria-label="Capture 优先级" aria-required="true">
+                  {(["P0", "P1", "P2", "P3"] as const).map((priority) => (
                     <button
                       className={captureForm.priority === priority ? "selected" : ""}
+                      data-priority={priority}
                       key={priority}
                       type="button"
                       onClick={() => setCaptureForm({ ...captureForm, priority })}
@@ -1951,47 +3757,39 @@ export function RequirementCenterPage() {
                   ))}
                 </div>
               </fieldset>
-            </div>
-            <label className="rc-form-row">
-              <span className="rc-field-label">标题 <b aria-hidden="true">*</b></span>
-              <input
-                ref={captureTitleRef}
-                aria-label="Capture 标题"
-                aria-invalid={captureError ? "true" : undefined}
-                className={captureError ? "invalid" : ""}
-                placeholder="一句话说明要采集的需求或缺陷"
-                value={captureForm.title}
-                onChange={(event) => {
-                  setCaptureForm({ ...captureForm, title: event.target.value });
-                  if (captureError) setCaptureError("");
-                }}
-              />
-            </label>
-            <label className="rc-form-row">
-              <span className="rc-field-label">补充说明</span>
-              <textarea aria-label="Capture 补充说明" placeholder="背景、目标、验收想法或相关链接" value={captureForm.description} onChange={(event) => setCaptureForm({ ...captureForm, description: event.target.value })} />
-            </label>
+            </section>
             {captureError && <p className="rc-application-alert" role="alert">{captureError}</p>}
-            <footer className="rc-dialog-actions">
-              <button className="rc-secondary-action" type="button" onClick={() => setCaptureOpen(false)}>取消</button>
-              <button className="rc-primary-action" type="submit">创建</button>
+            <footer className="rc-dialog-actions rc-capture-actions-only">
+              <div>
+                <button className="rc-secondary-action" type="button" onClick={() => setCaptureOpen(false)}>取消</button>
+                <button className="rc-primary-action" type="submit" disabled={!captureForm.title.trim()}>＋ 创建 Capture</button>
+              </div>
             </footer>
           </form>
         </div>
       )}
 
+      {renderActionDialog()}
+
       {choiceDialog.type !== "none" && (
         <div className="rc-settings-mask" role="presentation" onMouseDown={() => setChoiceDialog({ type: "none" })}>
-          <section className="rc-flow-dialog" role="dialog" aria-modal="true" aria-label="选择执行方式" onMouseDown={(event) => event.stopPropagation()}>
+          <section className="rc-flow-dialog" role="dialog" aria-modal="true" aria-label={choiceDialog.type === "review" ? "确认评审结果" : "选择执行方式"} onMouseDown={(event) => event.stopPropagation()}>
             <header className="rc-dialog-head">
-              <h2>选择执行方式</h2>
-              <button aria-label="关闭选择执行方式" type="button" onClick={() => setChoiceDialog({ type: "none" })}><X size={17} /></button>
+              <h2>{choiceDialog.type === "review" ? "确认评审结果" : "选择执行方式"}</h2>
+              <button aria-label={choiceDialog.type === "review" ? "关闭确认评审结果" : "关闭选择执行方式"} type="button" onClick={() => setChoiceDialog({ type: "none" })}><X size={17} /></button>
             </header>
             {choiceDialog.type === "sprint" ? (
               <div className="rc-choice-list">
                 {[...sprintOptions, "新建下一迭代"].map((sprint) => (
                   <button key={sprint} type="button" onClick={() => void runIssueAction(choiceDialog.issue, { sprintId: sprint === "新建下一迭代" ? "sprint-auto" : sprint })}>{sprint}</button>
                 ))}
+              </div>
+            ) : choiceDialog.type === "review" ? (
+              <div className="rc-choice-list">
+                <button type="button" onClick={() => void runIssueAction(choiceDialog.issue, { confirmed: true })}>
+                  {choiceDialog.issue.type === "requirement" ? "确认评审通过" : "确认修复通过"}
+                </button>
+                <button type="button" onClick={() => setChoiceDialog({ type: "none" })}>暂不流转</button>
               </div>
             ) : (
               <div className="rc-choice-list">
@@ -2021,58 +3819,211 @@ export function RequirementCenterPage() {
         </div>
       )}
 
+      {agentOpen && (
+        <div className="rc-settings-mask rc-agent-mask" role="presentation" onMouseDown={() => setAgentOpen(false)}>
+          <section className="rc-flow-dialog rc-agent-dialog" role="dialog" aria-modal="true" aria-label="Agent 助手" onMouseDown={(event) => event.stopPropagation()}>
+            <header className="rc-dialog-head">
+              <div>
+                <p>Requirement Operations</p>
+                <h2>Agent 助手</h2>
+                <span>选择一个阶段动作，沿用当前看板上下文继续流转。</span>
+              </div>
+              <button aria-label="关闭 Agent 助手" type="button" onClick={() => setAgentOpen(false)}><X size={17} /></button>
+            </header>
+            <div className="rc-agent-body">
+              {stageColumns.map(({ stage, items }) => {
+                const availableIssue = items.find((item) => stage.id === "done" || !actionDisabledReason(issueAction(item)));
+                const fallbackIssue = items[0];
+                const selectedIssue = availableIssue || fallbackIssue;
+                const action = selectedIssue ? issueAction(selectedIssue) : null;
+                const isDone = stage.id === "done";
+                const disabledReason = selectedIssue && !isDone ? actionDisabledReason(action || undefined) : "";
+                const buttonLabel = selectedIssue
+                  ? (isDone ? "查看归档" : (action?.label || stageActionLabel[stage.id][selectedIssue.type]).replace(" →", ""))
+                  : "暂无对象";
+                return (
+                  <article className="rc-agent-stage" data-stage={stage.id} key={stage.id}>
+                    <div>
+                      <strong>{stage.title}</strong>
+                      <p>{stage.subtitle}</p>
+                    </div>
+                    <span className="rc-agent-count">{String(items.length).padStart(2, "0")}</span>
+                    <small>{selectedIssue ? `${selectedIssue.id} · ${selectedIssue.title}` : stage.emptyHint}</small>
+                    <button
+                      type="button"
+                      disabled={!selectedIssue || Boolean(disabledReason)}
+                      title={selectedIssue ? (disabledReason || action?.command || "查看归档") : stage.emptyDetail}
+                      onClick={() => selectedIssue && runAgentStageAction(stage, selectedIssue)}
+                    >
+                      {buttonLabel} →
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+            <footer className="rc-dialog-actions">
+              <p><kbd>Esc</kbd> 关闭</p>
+              <div>
+                <button className="rc-secondary-action" type="button" onClick={() => setAgentOpen(false)}>取消</button>
+              </div>
+            </footer>
+          </section>
+        </div>
+      )}
+
       {drawer.type !== "none" && (
         <div className="rc-drawer-layer" role="presentation">
           <button className="rc-drawer-backdrop" type="button" aria-label="关闭右侧抽屉蒙层" onClick={closeDrawer} />
-          <aside className="rc-drawer" style={{ width: drawerWidth }} role="dialog" aria-modal="true" aria-label={drawerTitle(drawer)} onMouseDown={(event) => event.stopPropagation()}>
-            <button className="rc-drawer-resizer" type="button" aria-label="调整右侧抽屉宽度" onMouseDown={beginDrawerResize} />
+          <aside className={`rc-drawer${isDrawerFullscreen ? " fullscreen" : ""}`} style={isDrawerFullscreen ? undefined : { width: drawerWidth }} role="dialog" aria-modal="true" aria-label={drawerTitle(drawer)} onMouseDown={(event) => event.stopPropagation()}>
+            {!isDrawerFullscreen && <button className="rc-drawer-resizer" type="button" aria-label="调整右侧抽屉宽度" onMouseDown={beginDrawerResize} />}
             <header className="rc-drawer-head">
-              <div>
-                <h2>{drawerTitle(drawer)}</h2>
-                {drawer.type === "markdown" && <span>{markdownDrawerModeLabel(drawer)}</span>}
+              {drawer.type === "markdown" ? (
+                <div className="rc-drawer-title-block">
+                  <div className="rc-drawer-crumb">{drawer.issue.id}<span>·</span>{drawer.document.name}</div>
+                  <h2>{drawer.issue.title}</h2>
+                  <span>{drawerIssueSubtitle(drawer)}</span>
+                </div>
+              ) : (
+                <div>
+                  <h2>{drawerTitle(drawer)}</h2>
+                </div>
+              )}
+              <div className="rc-drawer-head-actions">
+                <button
+                  aria-label={isDrawerFullscreen ? "恢复右侧抽屉" : "放大右侧抽屉"}
+                  type="button"
+                  onClick={() => setIsDrawerFullscreen((fullscreen) => !fullscreen)}
+                >
+                  {isDrawerFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                </button>
+                <button aria-label="关闭右侧抽屉" type="button" onClick={closeDrawer}><X size={17} /></button>
               </div>
-              <button aria-label="关闭右侧抽屉" type="button" onClick={closeDrawer}><X size={17} /></button>
             </header>
             {drawer.type === "markdown" && (
-              <section className="rc-markdown-view" data-testid="markdown-drawer">
-                {drawer.loading && <p role="status"><Loader2 size={14} /> Markdown 加载中</p>}
-                {drawer.error && <p role="alert">{drawer.error}</p>}
-                {!drawer.loading && !drawer.error && (
-                  isEditableDocument(drawer) && drawer.mode === "edit" ? (
-                    <>
+              <>
+                {isEditableDocument(drawer) && !drawer.loading && (
+                  <div className="rc-markdown-mode-bar">
+                    <div className="rc-markdown-segmented" role="group" aria-label="Markdown 查看模式">
+                      {(["preview", "edit", "split"] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          className={drawer.mode === mode ? "active" : ""}
+                          onClick={() => setMarkdownMode(mode)}
+                        >
+                          {mode === "preview" ? "预览" : mode === "edit" ? "编辑" : "分栏"}
+                        </button>
+                      ))}
+                    </div>
+                    {drawer.mode !== "preview" && (
+                      <div className="rc-vditor-toolbar" role="toolbar" aria-label="Vditor Markdown 工具栏">
+                        <button type="button" aria-label="插入图片" onClick={attemptMarkdownImageUpload}>
+                          <ImageIcon size={14} aria-hidden="true" />
+                        </button>
+                        <button type="button" aria-label="插入表格" onClick={() => insertMarkdownSnippet("table")}>
+                          <Table2 size={14} aria-hidden="true" />
+                        </button>
+                        <button type="button" aria-label="插入代码块" onClick={() => insertMarkdownSnippet("code")}>
+                          <Code2 size={14} aria-hidden="true" />
+                        </button>
+                        <button type="button" aria-label="插入数学公式" onClick={() => insertMarkdownSnippet("formula")}>
+                          <Sigma size={14} aria-hidden="true" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <section className="rc-markdown-view" data-testid="markdown-drawer">
+                  {drawer.loading && <p role="status"><Loader2 size={14} /> Markdown 加载中</p>}
+                  {drawer.error && <p role="alert">{drawer.error}</p>}
+                  {!drawer.loading && (
+                    isEditableDocument(drawer) && drawer.mode !== "preview" ? (
                       <VditorEditorShell
                         value={drawer.draft}
+                        sourceContent={drawer.content}
+                        documentName={drawer.document.name}
+                        mode={drawer.mode}
                         uploadState={markdownUploadState}
                         uploadError={markdownUploadError}
+                        metadataOpen={markdownMetadataOpen}
+                        onToggleMetadata={() => setMarkdownMetadataOpen((open) => !open)}
                         onChange={updateMarkdownDraft}
-                        onImageUploadAttempt={attemptMarkdownImageUpload}
+                        editorRef={markdownEditorRef}
                       />
-                      <div className="rc-markdown-actions">
-                        <span>{drawer.savedAt || (drawer.draft !== drawer.content ? "有未保存修改" : "已同步")}</span>
-                        <button type="button" disabled={drawer.saving || drawer.draft === drawer.content} onClick={() => void saveMarkdownDocument()}>
+                    ) : (
+                      <MarkdownPreviewPane
+                        content={composeMarkdownContent(drawer.content, drawer.draft)}
+                        metadataOpen={markdownMetadataOpen}
+                        onToggleMetadata={() => setMarkdownMetadataOpen((open) => !open)}
+                        onTaskToggle={isMutableMarkdownDrawer(drawer) ? toggleMarkdownTask : undefined}
+                      />
+                    )
+                  )}
+                </section>
+                {!drawer.loading && (
+                  <footer className="rc-markdown-footer">
+                    <div className="rc-markdown-footer-status">
+                      <span className={isCurrentMarkdownDirty ? "dirty" : ""} />
+                      {drawer.savedAt || (isCurrentMarkdownDirty ? "有未保存修改" : "已同步")}
+                      {!canEditDocument(drawer.document) && !canToggleTaskDocument(drawer.document) && ` · ${documentCapability(drawer.document).reason}`}
+                      {canToggleTaskDocument(drawer.document) && !isCurrentMarkdownDirty && " · 仅允许勾选任务"}
+                    </div>
+                    {isMutableMarkdownDrawer(drawer) && (
+                      <div className="rc-markdown-footer-actions">
+                        <button type="button" className="flow" disabled>{issueAction(drawer.issue).label}</button>
+                        <button type="button" onClick={cancelMarkdownDraft}>取消</button>
+                        <button type="button" className="primary" disabled={drawer.saving || !isCurrentMarkdownDirty} onClick={() => void saveMarkdownDocument()}>
                           {drawer.saving && <Loader2 size={13} aria-hidden="true" />} 保存
                         </button>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      {isEditableDocument(drawer) && (
-                        <div className="rc-markdown-actions preview">
-                          <span>{drawer.savedAt || "预览模式"}</span>
-                          <button type="button" onClick={enterMarkdownEditMode}>编辑</button>
-                        </div>
-                      )}
-                      <pre>{drawer.content}</pre>
-                    </>
-                  )
+                    )}
+                  </footer>
                 )}
-              </section>
+              </>
             )}
             {drawer.type === "tasks" && (
               <section className="rc-tasks-view" data-testid="tasks-drawer">
-                <strong>{drawer.issue.tasks?.done ?? drawer.issue.taskProgress?.[0] ?? 0}/{drawer.issue.tasks?.total ?? drawer.issue.taskProgress?.[1] ?? 0}</strong>
-                <p>{drawer.issue.tasks?.source || "tasks.md"} · 只读进度</p>
+                {(() => {
+                  const taskDone = drawer.issue.tasks?.done ?? drawer.issue.taskProgress?.[0] ?? 0;
+                  const taskTotal = drawer.issue.tasks?.total ?? drawer.issue.taskProgress?.[1] ?? 0;
+                  const testDone = drawer.issue.testProgress?.[0] ?? 0;
+                  const testTotal = drawer.issue.testProgress?.[1] ?? 0;
+                  const manualProgress = visibleManualAcceptanceProgress(drawer.issue) || [0, 0];
+                  const manualCount = drawer.issue.manualAcceptanceCount ?? 0;
+                  return (
+                    <>
+                <div className="rc-progress-drawer-summary">
+                  <strong>{progressFocusLabel[drawer.focus]}</strong>
+                  <p>{drawer.issue.id} · {drawer.issue.tasks?.source || "tasks.md"} · 只读进度</p>
+                </div>
+                <div className="rc-progress-drawer-grid">
+                  <section className={`rc-progress-drawer-section ${drawer.focus === "development" ? "active" : ""}`} aria-label="研发任务进度">
+                    <div className="rc-progress-drawer-section-head">
+                      <span>研发任务</span>
+                      <b>{taskDone}/{taskTotal}</b>
+                    </div>
+                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(taskDone, taskTotal)}%` }} /></div>
+                  </section>
+                  <section className={`rc-progress-drawer-section ${drawer.focus === "test" ? "active" : ""}`} aria-label="自动化测试进度">
+                    <div className="rc-progress-drawer-section-head">
+                      <span>自动化测试</span>
+                      <b>{testDone}/{testTotal}</b>
+                    </div>
+                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(testDone, testTotal)}%` }} /></div>
+                  </section>
+                  <section className={`rc-progress-drawer-section ${drawer.focus === "manual" ? "active" : ""}`} aria-label="人工验收进度">
+                    <div className="rc-progress-drawer-section-head">
+                      <span>人工验收</span>
+                      <b>{manualProgress[0]}/{manualProgress[1]}</b>
+                    </div>
+                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(manualProgress[0], manualProgress[1])}%` }} /></div>
+                    <p>{manualCount > 0 ? `仍有 ${manualCount} 项需要人工处理` : "暂无待处理人工验收项"}</p>
+                  </section>
+                </div>
                 {(drawer.issue.tasks?.blocked || []).length ? drawer.issue.tasks?.blocked?.map((item) => <span key={item}>{item}</span>) : <span>暂无阻塞</span>}
+                    </>
+                  );
+                })()}
               </section>
             )}
             {drawer.type === "ai" && (
@@ -2090,8 +4041,9 @@ export function RequirementCenterPage() {
         </div>
       )}
 
-      <button className="rc-ai-fab" type="button" aria-label="打开 AI 聊天" onClick={() => setDrawer({ type: "ai" })}>
-        <Bot size={20} aria-hidden="true" />
+      <button className="rc-ai-fab rc-agent-fab" type="button" aria-label="打开 Agent 助手" onClick={() => setAgentOpen(true)}>
+        <Wrench size={17} aria-hidden="true" />
+        <span>Agent 助手</span>
       </button>
 
       {isApplicationOpen && (

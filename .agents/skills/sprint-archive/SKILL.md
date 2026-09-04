@@ -64,6 +64,8 @@ python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
 python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --summary
 ```
 
+Before reading raw Sprint/Issue/Change documents in detail, use the Sprint Fact Sheet as the compact read-first source. Only expand `sprint.md`、`acceptance-report.md`、Issue trace、Change `tasks.md` or `trace.md` when readiness blockers, stale scan warnings, missing evidence, or user focus requires it.
+
 For single change mode:
 
 ```bash
@@ -105,13 +107,15 @@ python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
 Inspect `ai_usage_snapshot.snapshot_status`、`ai_usage_snapshot.ai_usage_mode`、`generated_at`、`coverage`、`warnings` and `recommended_action`.
 
 - If `snapshot_status: present` and `ai_usage_mode: actual`, output only a compact summary: status, mode, path, generated_at, coverage status and warning_count.
-- If snapshot is `missing`、`stale` or `failed`, try to generate/refresh it only when the operator provides a local session input, using:
+- If snapshot is `missing`、`stale` or `failed`, first try the post-command hook or snapshot refresh path with local automatic session discovery. The hook checks explicit `--session-jsonl`, session environment variables, `AI_USAGE_SESSIONS_DIR`, and the default local Codex sessions directory `~/.codex/sessions` before falling back to unavailable.
+
+When the operator provides a known session file, use:
 
 ```bash
 python scripts/extract-ai-usage.py --session-jsonl <local-session.jsonl> --sprint <sprint-id> --json
 ```
 
-- If local session input is unavailable or generation fails, continue only with an explicit warning in the close report: `ai_usage_mode: estimated_fallback`, reason, impact, and recommended_action. Do not state that real token usage was used.
+- If local session input is unavailable after automatic discovery, or generation fails, continue only with an explicit warning in the close report: `ai_usage_mode: estimated_fallback`, reason, impact, and recommended_action. Do not state that real token usage was used.
 - Do not print raw session JSONL, prompts, system/developer instructions, local absolute paths, tool output bodies, or full snapshot contents.
 
 ## Archive Loop
@@ -146,6 +150,10 @@ Move directory with `git mv iterations/change/<sprint-id> iterations/archive/<sp
 ## Command Execution Review Hook（MUST）
 
 命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
+## 产品数据采集与链路观测归档门禁（MUST）
+
+关闭 Sprint 前，若 Sprint 范围内存在 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测相关 REQ、BUG 或 Change，MUST 读取 `docs/standards/product-data-collection-observability.md`，并复核 `product_data_collection_observability` 适用性、`affected_layers` 适用层级、N/A 原因、`validation` 验证摘要和验收结果。缺失时返回对应 REQ / Change 修复，不得归档。
 
 ## Final Step — Workflow Sync（MUST）
 

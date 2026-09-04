@@ -1,0 +1,102 @@
+{
+  "stages": [
+    {
+      "stage": "capture",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-CAPTURE-READY",
+        "DEMO-REQ-CAPTURE-MISSING-TRACE",
+        "DEMO-BUG-CAPTURE-READY",
+        "DEMO-BUG-CAPTURE-EMPTY-CAPTURE"
+      ]
+    },
+    {
+      "stage": "planning",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-PLANNING-READY",
+        "DEMO-REQ-PLANNING-MISSING-REQ",
+        "DEMO-BUG-PLANNING-READY",
+        "DEMO-BUG-PLANNING-EMPTY-BUG"
+      ]
+    },
+    {
+      "stage": "review-ready",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-REVIEW-READY",
+        "DEMO-REQ-REVIEW-MISSING-STORIES",
+        "DEMO-BUG-REVIEW-READY",
+        "DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE"
+      ]
+    },
+    {
+      "stage": "approved",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-APPROVED-READY",
+        "DEMO-REQ-APPROVED-MISSING-REVIEW",
+        "DEMO-BUG-APPROVED-READY",
+        "DEMO-BUG-APPROVED-DRIFT"
+      ]
+    },
+    {
+      "stage": "sprint-planning",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-SPRINT-READY",
+        "DEMO-BUG-SPRINT-READY"
+      ]
+    },
+    {
+      "stage": "ready-dev",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-READY-DEV",
+        "DEMO-BUG-READY-DEV"
+      ]
+    },
+    {
+      "stage": "development",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-DEVELOPMENT",
+        "DEMO-BUG-DEVELOPMENT"
+      ]
+    },
+    {
+      "stage": "acceptance",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-ACCEPTANCE-READY",
+        "DEMO-BUG-ACCEPTANCE-BLOCKED"
+      ]
+    },
+    {
+      "stage": "done",
+      "label": null,
+      "ids": [
+        "DEMO-REQ-DONE",
+        "DEMO-BUG-DONE"
+      ]
+    }
+  ],
+  "tips": {
+    "missingTrace": "缺少 trace.md",
+    "emptyCapture": "文档内容为空：capture.md",
+    "missingStories": "缺少 user-stories.md",
+    "emptyRootCause": "文档内容为空：root-cause.md",
+    "drift": "存在数据漂移"
+  },
+  "sprintVisibility": {
+    "capture": "",
+    "approved": "",
+    "sprintPlanning": "sprint-004"
+  },
+  "progress": {
+    "readyDev": "研发 0/10",
+    "development": "研发 5/8",
+    "acceptance": "研发 8/8测试 2/3人工验收 1",
+    "done": "研发 4/4"
+  }
+}

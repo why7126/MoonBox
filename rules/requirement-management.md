@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-08-19 12:10:48
+updated_at: 2026-08-31 08:36:34
 ---
 
 # 需求管理规范
@@ -91,11 +91,11 @@ SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`�
 | `/req-explore` | captured, exploring | 默认无文件 |
 | `/req-generate` | captured, exploring | requirement.md → draft |
 | `/req-complete` | draft, enriching | 六件套 → pending_review |
-| `/req-review` | pending_review | review.md → approved/rejected/deferred |
+| `/req-review` | pending_review | review.md → approved/rejected/deferred；无 flag 默认 approved |
 | `/sprint-propose --req` | **approved** | 正式纳入 Sprint，status → in_sprint |
 | `/req-opsx` | **in_sprint** | openspec/changes/* |
 
-REQ 命令族输出下一步时 MUST 使用完整 `REQ-NNNN-slug`。`/req-review --approve` 后下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/req-opsx <REQ-full-id>`。当 REQ 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 REQ ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
+REQ 命令族输出下一步时 MUST 使用完整 `REQ-NNNN-slug`。`/req-review <REQ-full-id>` 无 flag 时默认评审通过，`--approve` 仅作为兼容别名；下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`。`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/req-opsx <REQ-full-id>`。当 REQ 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 REQ ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
 
 ## 4. 门禁
 
@@ -127,7 +127,7 @@ REQ 文档包 MUST 在进入评审、纳入 Sprint、转 OpenSpec、apply、modi
 - **不得**写入 `sprint.md` 的 Sprint 目标编号列表、§Scope 表、里程碑、工作量合计
 - **不得**写入 `release-note.md` / `acceptance-report.md` 的「关联需求/BUG」正式范围
 - **不得**将 REQ `trace.md` 的 `iteration` 设为 sprint-xxx
-- **仅可**记入 `sprint.md`「延后项（待评审）」并提示 `/req-review REQ-xxxx --approve`
+- **仅可**记入 `sprint.md`「延后项（待评审）」并提示 `/req-review REQ-xxxx`
 - 用户显式要求纳入 Sprint 时也 **MUST** 先拒绝写入规划，完成评审后再 `/sprint-propose`
 
 `approved` 只表示已评审通过，下一步是 `/sprint-propose --req <REQ-full-id>`；不得从 review 直接跳到 `/req-opsx`。`in_sprint` 表示已评审通过且已纳入迭代；**不得**用 `in_sprint` 绕过 `approved` 评审。
@@ -149,6 +149,12 @@ REQ 文档包 MUST 在进入评审、纳入 Sprint、转 OpenSpec、apply、modi
 
 - `/req-opsx`：**仅** 已评审并纳入 Sprint 后的 `in_sprint` 或后续交付态；`approved` 必须先 `/sprint-propose --req <REQ-full-id>`
 - 旧命令 `/requirement-to-opsx` 已删除 → `/req-opsx`
+
+### 4.4 产品数据采集与链路观测门禁
+
+需求涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测时，REQ 文档 MUST 读取并引用 `docs/standards/product-data-collection-observability.md`，并记录 `product_data_collection_observability` 适用状态、`affected_layers`、`reason` 和 `validation`。
+
+若声明不适用，MUST 说明为什么不影响 API、DB、请求日志、行为事件、Task Trace 或请求封装；不得只写“无”或“不涉及”。`/req-review` SHOULD 将缺少声明、验收项或 N/A 原因视为评审风险；`/req-opsx` MUST 将该声明带入 Change。
 
 ## 5. Readiness（req-opsx / req-complete）
 

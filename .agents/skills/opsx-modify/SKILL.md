@@ -1,6 +1,7 @@
 ---
 name: "opsx-modify"
 description: "验收返修：在 OpenSpec Change 已 opsx-apply、未 archive 前，根据验收反馈调整实现并同步文档、验证和 AI Usage"
+updated_at: 2026-09-02 19:12:31
 ---
 
 # opsx-modify
@@ -132,6 +133,8 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    - Identify affected files and tests.
    - Identify evidence status: `confirmed`、`probable`、`hypothesis` 或 `unknown`; if not `confirmed`, request human evidence before fixing unless there is an explicit P0 workaround reason.
    - UI/visual feedback preflight: if the feedback mentions UI、visual、prototype、截图、标注图、附件、页面状态或关键交互状态, MUST first identify all attached/reference screenshots and build an “附件截图逐项视觉对照表” before implementation.
+   - If the target Change is reference-backed UI replication and `design.md` lacks `UI Reference Replication Contract`, selector mapping, action button to modal matrix, computed style sampling list, or batch gates for the feedback area, first patch the Change contract and evidence plan before modifying implementation. Do not continue element-by-element trial fixes without a contract.
+   - If feedback points to one button or modal inside a larger action family, expand the preflight to the whole action button matrix for that family, then modify the shared component family once; do not answer each button as a separate isolated返修 unless the matrix marks it as an explicit exception.
 
    附件截图逐项视觉对照表 MUST include:
 
@@ -185,6 +188,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    - If feedback changes layout, component hierarchy, state behavior, visual priority, responsive breakpoint, copy, icon, permission display, Mock/API boundary, computed style, or interaction implied by prototype, update Change `design.md`, linked REQ `acceptance.md` when criteria changed, and Change `trace.md`.
    - After any UI 返修, rerun 1440px desktop and affected key interaction visual acceptance; record fresh screenshot/evidence, computed style checks for risky points, updated attachment comparison results, and updated Mock/API boundary when impacted. Previous visual evidence is invalid once the relevant UI changed.
    - If feedback reveals the prototype itself is obsolete, record Conflict Resolution in Change `design.md` and update linked REQ docs before validation.
+   - If feedback reveals that reference replication was under-specified, update `UI Reference Replication Contract` with the missing component, selector, action button matrix row, expected style, current deviation, evidence source and batch status before marking the返修 complete.
 
    REQ Subdocument Consistency Sweep:
 

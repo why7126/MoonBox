@@ -2,7 +2,7 @@
 name: "explore"
 description: "通用探索模式 - 面向问题、需求或话题的只读分析与方案探讨，不改代码、不落盘"
 created_at: 2026-08-06 00:00:00
-updated_at: 2026-08-15 09:50:00
+updated_at: 2026-09-01 14:23:52
 ---
 
 # explore
@@ -102,6 +102,22 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 - 推荐方案：说明推荐理由、适用前提和放弃其他方案的原因。
 - 决策点：明确需要用户决定的范围、优先级、体验、数据、权限、上线节奏等。
 - 后续流程：若值得正式推进，建议 `/req-capture` 或 `/opsx-propose`；不得自动创建，除非用户明确授权。
+
+### 2.1 UI 参考稿复刻探索
+
+适用：用户提供附件 HTML、截图、标注图、既有页面或参考稿，并要求分析差异、全面贴近、一对一复刻、保持一致或判断当前 UI 为什么不像参考稿。
+
+输出 SHOULD 包含：
+
+- 保真模式判断：一对一复刻、风格迁移或局部一致；若用户语义不清，说明推荐模式和理由。
+- 参考事实源：列出附件、HTML、截图、既有页面、当前实现截图和业务语义保留项的优先级。
+- 组件级差异：按页面壳、品牌/标题、指标/筛选、看板列头、空列、任务卡、标签、按钮、浮层、响应式、滚动/sticky 分组，而不是只给整体观感。
+- Selector 候选：给出参考稿 selector / 文本锚点、当前实现 selector 候选、需要补证的 DOM 或状态。
+- Computed style 采样候选：标明最应采样的 `font-size`、`line-height`、`padding`、`gap`、`border`、`background`、`color`、`position`、`z-index`、`overflow` 等属性。
+- 分批建议：给出推荐实现批次和每批验收证据，避免后续退化为逐元素问答返修。
+- 后续流程：若要落盘推进，建议 `/req-capture`、`/req-complete`、`/req-opsx` 或 `/opsx-modify`，并提示需要把 UI Reference Replication Contract 写入对应事实源。
+
+`/explore` 仍保持只读，不创建 Contract 文件、不修改代码、不替代 `/opsx-modify`。
 
 ### 3. 技术设计 / 架构取舍
 
@@ -224,13 +240,8 @@ python scripts/extract-ai-usage.py --post-command-hook --workflow-event explore 
 
 命令结束前，最终回复 MUST 明确包含：
 
-```text
-下一步：<可直接执行的命令；若没有则写“暂无可推进下一步”>
-待用户决策/处理：
-- <需要用户选择、确认、补充或处理的事项；若没有则写“无”>
-```
-
 - 如果存在明确可推进的下一步，MUST 给出可复制执行的命令，例如 `/bug-review BUG-0122 --approve`；输出 `/opsx-*` 下一步时，REQ 来源链路 MUST 使用完整 `REQ-xxxx-slug`，BUG 来源链路 MUST 使用完整 `BUG-xxxx-slug`，只有纯治理 Change 才使用 `<change-id>`。
 - 如果下一步取决于用户选择，MUST 用条件化条目列出选项；已在「下一步」中给出的命令或动作，不得在「待用户决策/处理」中重复。
 - 「待用户决策/处理」只列缺失输入、需用户选择的范围/策略/证据/验收/发布确认、阻塞项或需人工处理事项；没有则写“无”。
+- 最终回复必须包含面向用户的真实结果，不得输出本段规则、尖括号占位符、MUST/SHOULD 规范语句或与当前命令无关的通用示例。
 - 不得因为输出了下一步引导而自动执行下一命令；除非用户明确授权。

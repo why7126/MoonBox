@@ -70,6 +70,8 @@ Session input discovery:
 
 - Prefer explicit `--session-jsonl <local-session.jsonl>` when available.
 - Otherwise the hook checks `AI_USAGE_SESSION_JSONL`, then `CODEX_SESSION_JSONL`.
+- If neither explicit nor environment session input is available, the hook scans `AI_USAGE_SESSIONS_DIR` when set, otherwise the default local Codex sessions directory `~/.codex/sessions`, and matches recent JSONL files by workflow event, REQ/BUG, Change, Sprint, release, or slash-command terms.
+- Normal workflow commands MUST try local automatic discovery before stating `usage_mode: unavailable`; missing session input is a warning path, not the first assumption.
 - Raw session files remain local-only and MUST NOT be copied into the repository.
 - Do not pass a known-missing `--session-jsonl` merely to produce a non-failing hook summary; `session-jsonl-not-found` is diagnostic fallback, not evidence that usage data was generated.
 - For historical backfill or audit, do not rely on automatic session discovery. Use explicit `--session-jsonl` and, when the historical turn text cannot be classified into canonical REQ/BUG, Change, Sprint, or workflow event, provide a `--manual-map` keyed by `turn_hash`.
@@ -168,16 +170,16 @@ Workflow Sync 会在聚焦事件中同步 Issue 主文档和验收文档：
 
 1. Print only the summary **Workflow Sync Report** from script stdout on the success path. Successful commands SHOULD use the default summary output; rerun with `--output detail` only when diagnosing drift, skipped files, or failures.
 2. If exit code != 0, fix drift and re-run before ending the parent command.
-3. Do **not** hand-edit `sprint.md` Scope marker blocks; use the script.
-4. Marker blocks: `<!-- workflow-sync:scope-*:start/end -->`.
+3. Do **not** hand-edit `sprint.md` workflow-sync marker blocks; use the script.
+4. Marker blocks include `<!-- workflow-sync:scope-*:start/end -->` and `<!-- workflow-sync:sprint-*-section:start/end -->`.
 5. Scope 表 archived 时间与 §里程碑「目标日期」MUST 为 `YYYY-MM-DD HH:mm:ss` 且时分秒 MUST 非 `00:00:00`（见 `rules/document-governance.md` §6.1）。
-6. §Sprint 目标 不在 sync 范围；纳入 REQ/BUG 时 MUST 同步更新 **编号列表** 与 **`### xxx 要点`** 两处。
+6. §Sprint 目标、§工作量与容量、§里程碑、§风险与缓冲、§知识库承接均在 Sprint sync 范围；纳入 REQ/BUG/Change 或 Change 状态变化时 MUST 通过 Workflow Sync 更新目标编号列表、`### xxx 要点`、Scope 主表和规划派生章节。
 7. Issue `trace.md` 的 `## 变更记录` MUST 保持表头紧跟章节标题；若历史记录行出现在表头前，脚本 SHOULD 自动归一化并在报告中体现 delta。
 8. `/opsx-apply` 前 MUST confirm linked REQ/BUG is in a `sprint-xxx`; `--sprint auto` unresolved means do not run apply.
 
 ## Refreshed artifacts
 
-- `iterations/<sprint>/sprint.md` Scope tables + note；§里程碑「目标日期」列 legacy 仅日期 → `YYYY-MM-DD HH:mm:ss`
+- `iterations/<sprint>/sprint.md` Sprint 目标、Scope tables、工作量与容量、里程碑、风险与缓冲、知识库承接 + note；§里程碑「目标日期」列 legacy 仅日期 → `YYYY-MM-DD HH:mm:ss`
 - `iterations/<sprint>/acceptance-report.md` issue status lines + note
 - `iterations/<sprint>/release-note.md` publish status
 - `issues/requirements|bugs/*/trace.md` status + iteration + `openspec_changes[].status`（Frontmatter 与 fenced `yaml` 块均需同步）+ `## 变更记录` workflow event 行 / 表格格式归一化

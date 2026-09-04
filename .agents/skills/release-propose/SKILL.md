@@ -40,7 +40,7 @@ Use this skill when the user asks `/release-propose <version>` or wants to creat
 ## Command Order（MUST）
 
 - `/release-propose` 位于交付闭环之后，优先基于已归档 Change 和已完成 Sprint；若仍有未归档或未关闭项，只能作为 gate gap 进入发布计划。
-- 推荐发布链路为 `/release-propose <version>` → `/release-prepare <version>` → `/usage-docs-generate|update|validate <version>` → `/image-prepare <version>` → `/image-build <version>` → `/release-publish <version>`。
+- 推荐发布链路为 `/release-propose <version>` → `/release-prepare <version>` → `/usage-docs-generate|update|validate <version>` → `/upgrade-plan --from <fresh|version> --to <version>` → `/upgrade-validate --plan <path>` → `/image-prepare <version>` → `/image-build <version>` → `/release-publish <version>`。
 - 发布范围必须来自 Sprint、REQ、BUG 或 Change 的可追溯事实源；不得把未评审、未纳入 Sprint 或未交付事项写入正式发布范围。
 - Release artifact、AI Usage hook 和后续产品手册/镜像计划写入 MUST 严格串行执行。
 

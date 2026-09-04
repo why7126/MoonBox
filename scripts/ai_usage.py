@@ -902,12 +902,22 @@ def empty_sprint_usage_matrix_cells() -> dict[str, dict[str, int]]:
     }
 
 
-def add_sprint_usage_matrix_values(cells: dict[str, dict[str, int]], record: dict[str, Any]) -> None:
+def empty_sprint_usage_matrix_status() -> dict[str, str]:
+    return {label: "unknown" for _, label in SPRINT_MATRIX_COMMAND_COLUMNS}
+
+
+def add_sprint_usage_matrix_values(
+    cells: dict[str, dict[str, int]],
+    record: dict[str, Any],
+    status: dict[str, str] | None = None,
+) -> None:
     event = record.get("workflow_event") or record.get("command") or "unknown"
     label_by_event = dict(SPRINT_MATRIX_COMMAND_COLUMNS)
     label = label_by_event.get(str(event))
     if label is None:
         return
+    if status is not None:
+        status[label] = "observed"
     for metric in SPRINT_MATRIX_METRICS:
         cells[metric][label] += int(record.get(metric) or 0)
 
@@ -940,18 +950,19 @@ def build_sprint_usage_matrices(
             "object_type": object_type,
             "object_id": row_id,
             "metrics": empty_sprint_usage_matrix_cells(),
+            "cell_status": empty_sprint_usage_matrix_status(),
         }
         for object_type, row_id in ordered_row_keys
     }
     for record in rows:
-        add_sprint_usage_matrix_values(row_cells["Total"]["metrics"], record)
-        add_sprint_usage_matrix_values(row_cells[sprint_id]["metrics"], record)
+        add_sprint_usage_matrix_values(row_cells["Total"]["metrics"], record, row_cells["Total"]["cell_status"])
+        add_sprint_usage_matrix_values(row_cells[sprint_id]["metrics"], record, row_cells[sprint_id]["cell_status"])
         for issue_id in record.get("requirements", []):
             if issue_id in row_cells:
-                add_sprint_usage_matrix_values(row_cells[issue_id]["metrics"], record)
+                add_sprint_usage_matrix_values(row_cells[issue_id]["metrics"], record, row_cells[issue_id]["cell_status"])
         for issue_id in record.get("bugs", []):
             if issue_id in row_cells:
-                add_sprint_usage_matrix_values(row_cells[issue_id]["metrics"], record)
+                add_sprint_usage_matrix_values(row_cells[issue_id]["metrics"], record, row_cells[issue_id]["cell_status"])
 
     return {
         "source": "data/ai-usage command-runs",
@@ -963,7 +974,8 @@ def build_sprint_usage_matrices(
         "rows": [row_cells[row_id] for _, row_id in ordered_row_keys],
         "note": (
             "Total and sprint rows aggregate unique command runs. Requirement and bug rows "
-            "are attribution views; a multi-issue command run may be counted in multiple object rows."
+            "are attribution views; a multi-issue command run may be counted in multiple object rows. "
+            "cell_status=unknown means the workflow column was not observed for that object; observed zero remains numeric 0."
         ),
     }
 
@@ -1528,7 +1540,10 @@ def post_command_hook(
             },
             "warnings": [warning],
             "warning_count": 1,
-            "recommended_action": "Provide --session-jsonl or set AI_USAGE_SESSION_JSONL to build a redacted usage fact source.",
+            "recommended_action": (
+                "Ensure local Codex sessions exist under `AI_USAGE_SESSIONS_DIR` or `~/.codex/sessions`, "
+                "or provide `--session-jsonl` / `AI_USAGE_SESSION_JSONL` to build a redacted usage fact source."
+            ),
         }
     if not resolved_session.exists():
         return {
@@ -1544,7 +1559,10 @@ def post_command_hook(
             },
             "warnings": ["session-jsonl-not-found"],
             "warning_count": 1,
-            "recommended_action": "Check the local Codex session path and rerun the hook with --session-jsonl.",
+            "recommended_action": (
+                "Check `AI_USAGE_SESSION_JSONL`, `CODEX_SESSION_JSONL`, `AI_USAGE_SESSIONS_DIR`, "
+                "or the default `~/.codex/sessions` directory, then rerun the hook or pass explicit `--session-jsonl`."
+            ),
         }
 
     records, parse_warnings = parse_session_jsonl(resolved_session, manual_map)
@@ -1607,7 +1625,11 @@ def post_command_hook(
     status = "ok" if usage_mode == USAGE_MODE_ACTUAL else "warning"
     recommended_action = None
     if usage_mode != USAGE_MODE_ACTUAL:
-        recommended_action = "Inspect warnings and rerun with a session containing token_count events if actual usage is required."
+        recommended_action = (
+            "Inspect warnings, confirm auto-discovered sessions under `AI_USAGE_SESSIONS_DIR` or "
+            "`~/.codex/sessions` contain attributable token_count events, and rerun with explicit "
+            "`--session-jsonl` if actual usage is required."
+        )
     return {
         "status": status,
         "usage_mode": usage_mode,

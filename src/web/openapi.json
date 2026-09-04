@@ -2497,7 +2497,7 @@
           "requirement-center",
           "Requirement Center"
         ],
-        "summary": "保存采集池 capture.md 文档",
+        "summary": "保存需求中心 Markdown 文档",
         "operationId": "update_requirement_center_document_api_v1_requirement_center_issues__issue_id__documents__document_name__put",
         "parameters": [
           {
@@ -2507,6 +2507,228 @@
             "schema": {
               "type": "string",
               "title": "Issue Id"
+            }
+          },
+          {
+            "name": "document_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Name"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequirementCenterDocumentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_str__str__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requirement-center/changes/{change_id}/documents/{document_name}": {
+      "get": {
+        "tags": [
+          "requirement-center",
+          "Requirement Center"
+        ],
+        "summary": "读取需求中心 OpenSpec Change Markdown 文档",
+        "operationId": "get_requirement_center_change_document_api_v1_requirement_center_changes__change_id__documents__document_name__get",
+        "parameters": [
+          {
+            "name": "change_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
+            }
+          },
+          {
+            "name": "document_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Name"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_str__str__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "requirement-center",
+          "Requirement Center"
+        ],
+        "summary": "保存需求中心 OpenSpec Change Markdown 文档",
+        "operationId": "put_requirement_center_change_document_api_v1_requirement_center_changes__change_id__documents__document_name__put",
+        "parameters": [
+          {
+            "name": "change_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
+            }
+          },
+          {
+            "name": "document_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Name"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequirementCenterDocumentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_str__str__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requirement-center/changes/{change_id}/documents/{document_name}/tasks": {
+      "put": {
+        "tags": [
+          "requirement-center",
+          "Requirement Center"
+        ],
+        "summary": "保存验收中 tasks.md 勾选状态",
+        "operationId": "toggle_requirement_center_change_tasks_api_v1_requirement_center_changes__change_id__documents__document_name__tasks_put",
+        "parameters": [
+          {
+            "name": "change_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
             }
           },
           {
@@ -2939,20 +3161,20 @@
           },
           "expected_members": {
             "type": "integer",
-            "maximum": 100000,
-            "minimum": 1,
+            "maximum": 100000.0,
+            "minimum": 1.0,
             "title": "Expected Members",
             "default": 10
           },
           "requested_storage_gb": {
             "type": "number",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Requested Storage Gb",
-            "default": 100
+            "default": 100.0
           },
           "requested_ai_tokens": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Requested Ai Tokens",
             "default": 1000000
           },
@@ -3305,20 +3527,20 @@
           },
           "member_quota": {
             "type": "integer",
-            "maximum": 100000,
-            "minimum": 1,
+            "maximum": 100000.0,
+            "minimum": 1.0,
             "title": "Member Quota",
             "default": 20
           },
           "storage_quota_gb": {
             "type": "number",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Storage Quota Gb",
-            "default": 100
+            "default": 100.0
           },
           "ai_quota_tokens": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Ai Quota Tokens",
             "default": 1000000
           },
@@ -3491,18 +3713,18 @@
         "properties": {
           "member_quota": {
             "type": "integer",
-            "maximum": 100000,
-            "minimum": 1,
+            "maximum": 100000.0,
+            "minimum": 1.0,
             "title": "Member Quota"
           },
           "storage_quota_gb": {
             "type": "number",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Storage Quota Gb"
           },
           "ai_quota_tokens": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Ai Quota Tokens"
           },
           "reason": {
@@ -4571,20 +4793,20 @@
           },
           "member_quota": {
             "type": "integer",
-            "maximum": 100000,
-            "minimum": 1,
+            "maximum": 100000.0,
+            "minimum": 1.0,
             "title": "Member Quota",
             "default": 20
           },
           "storage_quota_gb": {
             "type": "number",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Storage Quota Gb",
-            "default": 100
+            "default": 100.0
           },
           "ai_quota_tokens": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Ai Quota Tokens",
             "default": 1000000
           },
@@ -4888,6 +5110,9 @@
             "type": "boolean",
             "title": "Editable",
             "default": false
+          },
+          "capability": {
+            "$ref": "#/components/schemas/RequirementCenterDocumentCapability"
           }
         },
         "type": "object",
@@ -4898,6 +5123,37 @@
           "label"
         ],
         "title": "RequirementCenterDocument"
+      },
+      "RequirementCenterDocumentCapability": {
+        "properties": {
+          "readable": {
+            "type": "boolean",
+            "title": "Readable",
+            "default": true
+          },
+          "human_editable": {
+            "type": "boolean",
+            "title": "Human Editable",
+            "default": false
+          },
+          "ai_mutable": {
+            "type": "boolean",
+            "title": "Ai Mutable",
+            "default": false
+          },
+          "task_toggle_only": {
+            "type": "boolean",
+            "title": "Task Toggle Only",
+            "default": false
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": "当前阶段只读"
+          }
+        },
+        "type": "object",
+        "title": "RequirementCenterDocumentCapability"
       },
       "RequirementCenterDocumentUpdate": {
         "properties": {

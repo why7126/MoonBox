@@ -112,6 +112,8 @@ def parse_frontmatter(text: str) -> dict[str, str]:
         return {}
     result: dict[str, str] = {}
     for line in match.group(1).splitlines():
+        if line.startswith((" ", "\t")):
+            continue
         if ":" not in line:
             continue
         key, value = line.split(":", 1)

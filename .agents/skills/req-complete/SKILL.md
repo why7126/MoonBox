@@ -1,6 +1,7 @@
 ---
 name: "req-complete"
 description: "需求完善 - 基于 requirement.md 补齐六件套（不含 OpenSpec）"
+updated_at: 2026-09-02 19:12:31
 ---
 
 # req-complete
@@ -140,6 +141,33 @@ prototype_gate:
 
 缺少拆解或 AC-PROTOTYPE 时，Readiness MUST 为 `Not Ready`；只有 PNG 缺失但 `context.md` 明确 PNG 暂不要求时 MAY 为 `Partially Ready`。
 
+### Step 1.2.1 — UI 参考稿复刻契约种子（MUST — 引用附件/截图/既有页面时）
+
+当 REQ 明确引用附件 HTML、截图、标注图、既有页面或参考稿，并要求“一对一复刻”“全面贴近”“保持一致”或等价目标时，`/req-complete` MUST 在 `acceptance.md` 或 `trace.md` 记录 UI Reference Replication Contract 的种子信息：
+
+1. 保真模式：一对一复刻、风格迁移或局部一致。
+2. 参考事实源：附件/HTML/截图/既有页面/当前实现/业务语义保留项的优先级。
+3. 组件清单：页面壳、品牌/标题、指标/筛选、看板列头、空列、任务卡、标签、按钮、浮层、响应式、滚动/sticky 等。
+4. 动作按钮矩阵种子：当按钮会触发弹窗、抽屉、Popover、确认框、Action Modal 或 AI 面板时，记录“动作按钮 → modal 类型 → selector → 状态 → 验收证据”的候选范围。
+5. 验收项：selector 映射、动作按钮矩阵、computed style 采样、分批截图或等价证据。
+6. 非目标：明确不复刻或不能牺牲的业务能力、数据边界和交互能力。
+
+缺少该种子信息时，UI 参考稿复刻类 REQ 的 Readiness MUST 为 `Not Ready`。
+
+### Step 1.3 — 产品数据采集与链路观测门禁（MUST）
+
+若 REQ 涉及 API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测，MUST 读取 `docs/standards/product-data-collection-observability.md`，并在 `trace.md` 写入：
+
+```yaml
+product_data_collection_observability:
+  status: applicable | not_applicable
+  affected_layers: []
+  reason: ""
+  validation: ""
+```
+
+若不适用，`reason` MUST 具体说明为什么不影响 API、DB、请求日志、行为事件、Task Trace 或请求封装；不得只写“无”或“不涉及”。
+
 ### trace.md 扩展字段示例
 
 ```yaml
@@ -156,9 +184,9 @@ cross_cutting_tags:
 
 | readiness | 条件 |
 |-------------|------|
-| Ready | 五件套齐（+ UI 有 prototype 策略）+ **有 UI 标签时 §横切 AC 已写入** |
+| Ready | 五件套齐（+ UI 有 prototype 策略；参考稿复刻类已有 Contract 种子）+ **有 UI 标签时 §横切 AC 已写入** |
 | Partially Ready | 缺 PNG 等非阻塞；或横切 AC 已写但 best-practices 为 draft；prototype 已拆解但视觉截图待实现阶段产出 |
-| Not Ready | 缺 acceptance 等；或有 UI 标签但缺 §横切 AC；或存在 prototype 但缺原型拆解 / AC-PROTOTYPE / prototype_gate |
+| Not Ready | 缺 acceptance 等；或有 UI 标签但缺 §横切 AC；或存在 prototype 但缺原型拆解 / AC-PROTOTYPE / prototype_gate；或参考稿复刻类缺 Contract 种子 |
 
 | knowledge-base gate | 条件 |
 |---------------------|------|
