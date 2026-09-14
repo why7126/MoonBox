@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .execution import atomic_write
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -311,7 +313,7 @@ def sync_issue_subdocuments(
             changed_files.add(path)
             if write:
                 text, _ = touch_frontmatter(text, bump_updated=True)
-                path.write_text(text, encoding="utf-8")
+                atomic_write(path, text, original)
 
     result.updated_files = len(changed_files)
     if result.acceptance_status == "n/a" and not (issue.path / ACCEPTANCE_DOC).exists():

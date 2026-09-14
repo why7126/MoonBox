@@ -1,0 +1,180 @@
+{
+  "source": "observed",
+  "viewport_checks": [
+    {
+      "width": 1440,
+      "dialogWidth": 560,
+      "maxHeight": "880px",
+      "overflowY": "auto",
+      "buttonBottom": 852.90625,
+      "viewportHeight": 1000
+    },
+    {
+      "width": 390,
+      "dialogWidth": 342,
+      "maxHeight": "742.72px",
+      "overflowY": "auto",
+      "buttonBottom": 764.15625,
+      "viewportHeight": 844
+    }
+  ],
+  "objects": [
+    {
+      "id": "REQ-0002-req",
+      "files": [
+        "issues/requirements/plan/REQ-0002-req/capture.md",
+        "issues/requirements/plan/REQ-0002-req/trace.md",
+        "issues/requirements/_registry.yaml",
+        "issues/requirements/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    },
+    {
+      "id": "BUG-0002-bug",
+      "files": [
+        "issues/bugs/plan/BUG-0002-bug/capture.md",
+        "issues/bugs/plan/BUG-0002-bug/trace.md",
+        "issues/bugs/_registry.yaml",
+        "issues/bugs/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    }
+  ],
+  "requests": [
+    {
+      "status": 202,
+      "operation_id": "bcdf0907-3ec4-40d2-a16e-a4d37b6957d8",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "2c8386e5-a190-4492-a38e-b1f7c983f6b9"
+    },
+    {
+      "status": 200,
+      "operation_id": "bcdf0907-3ec4-40d2-a16e-a4d37b6957d8",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "c93585c6-7c65-4e97-9cd2-8da15dc5e859"
+    },
+    {
+      "status": 200,
+      "operation_id": "bcdf0907-3ec4-40d2-a16e-a4d37b6957d8",
+      "state": "applied",
+      "object_id": "REQ-0002-req",
+      "request_id": "bb7f68b7-9b97-46d7-898d-fc40617b5ad8"
+    },
+    {
+      "status": 503,
+      "operation_id": null,
+      "state": null,
+      "object_id": null,
+      "request_id": "14a72f7f-27d2-4f9a-a2e0-e85148b7db6c"
+    },
+    {
+      "status": 202,
+      "operation_id": "f7606100-4766-40a3-a651-b6940270e604",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "236177ce-03e5-4ead-bcda-c5ccfb419f2c"
+    },
+    {
+      "status": 200,
+      "operation_id": "f7606100-4766-40a3-a651-b6940270e604",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "c51a283a-1054-49a4-a351-c502b274b1cb"
+    },
+    {
+      "status": 200,
+      "operation_id": "f7606100-4766-40a3-a651-b6940270e604",
+      "state": "applied",
+      "object_id": "BUG-0002-bug",
+      "request_id": "8c02d0ed-1e15-417c-a9f7-ee92a173bb82"
+    }
+  ],
+  "grading": [
+    {
+      "label": "Capture 优先级",
+      "width": 510,
+      "buttons": [
+        {
+          "text": "P0",
+          "selected": "false",
+          "width": 164.65625,
+          "scrollWidth": 163,
+          "clientWidth": 163,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "P1",
+          "selected": "true",
+          "width": 164.671875,
+          "scrollWidth": 163,
+          "clientWidth": 163,
+          "color": "rgb(255, 154, 114)",
+          "background": "rgba(255, 150, 110, 0.12)"
+        },
+        {
+          "text": "P2",
+          "selected": "false",
+          "width": 164.671875,
+          "scrollWidth": 163,
+          "clientWidth": 163,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        }
+      ]
+    },
+    {
+      "label": "Capture 严重度",
+      "width": 292,
+      "buttons": [
+        {
+          "text": "blocker",
+          "selected": "false",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "critical",
+          "selected": "true",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(216, 172, 85)",
+          "background": "color(srgb 0.847059 0.67451 0.333333 / 0.16)"
+        },
+        {
+          "text": "high",
+          "selected": "false",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "medium",
+          "selected": "false",
+          "width": 142,
+          "scrollWidth": 140,
+          "clientWidth": 140,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "low",
+          "selected": "false",
+          "width": 142,
+          "scrollWidth": 140,
+          "clientWidth": 140,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 purpose: UI 参考稿复刻治理流程
 content: 建立附件反向工程、组件级视觉契约、selector 映射、computed style 采样、分批实现与验收门禁
 created_at: 2026-09-01 14:23:52
-updated_at: 2026-09-01 14:23:52
+updated_at: 2026-09-13 16:07:10
 owner: MoonBox 产品团队
 ---
 
@@ -41,7 +41,7 @@ owner: MoonBox 产品团队
 - `.agents/skills/opsx-apply/SKILL.md`
 - `.agents/skills/opsx-modify/SKILL.md`
 - `.agents/skills/opsx-archive/SKILL.md`
-- `openspec/changes/add-ui-reference-replication-governance/`
+- `openspec/archive/2026-09-01-add-ui-reference-replication-governance/`
 - `iterations/change/sprint-004/sprint.yaml`
 
 ## 验证结果
@@ -67,3 +67,7 @@ owner: MoonBox 产品团队
 ## 后续建议
 
 后续可将 UI Reference Replication Contract 的字段完整性接入脚本校验，例如检查 Change `design.md` 是否包含 selector 映射、computed style 采样清单和分批验收记录；另需按项目策略处理既有未登记根目录 `.vite`。
+
+## 历史定位纠正
+
+2026-09-13 16:07:10：初建 ID 保持不变，当前入口指向 2026-09-01 归档；2026-09-02 动作矩阵强化独立为 enhance-ui-reference-replication-action-matrix。历史验证结论保持原样。

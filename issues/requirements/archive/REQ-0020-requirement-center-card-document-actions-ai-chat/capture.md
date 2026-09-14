@@ -2,11 +2,11 @@
 req_id: REQ-0020-requirement-center-card-document-actions-ai-chat
 status: done
 created_at: 2026-08-18 09:34:10
-updated_at: 2026-09-04 15:29:44
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement: REQ-0012-frontend-requirement-center
+priority: P1
 ---
 
 # 一句话

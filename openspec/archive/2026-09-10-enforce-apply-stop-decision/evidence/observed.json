@@ -1,0 +1,32 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "acceptance.md#本次真实自修观察"
+      ],
+      "tasks": [
+        {
+          "id": "repair-fixture",
+          "state": "pending"
+        },
+        {
+          "id": "validate",
+          "state": "pending",
+          "deps": [
+            "repair-fixture"
+          ]
+        },
+        {
+          "id": "sync",
+          "state": "pending",
+          "deps": [
+            "validate"
+          ]
+        }
+      ],
+      "action": "continue"
+    }
+  ]
+}

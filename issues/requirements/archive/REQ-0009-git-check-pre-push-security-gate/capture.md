@@ -2,11 +2,11 @@
 req_id: REQ-0009-git-check-pre-push-security-gate
 status: archived
 created_at: 2026-08-09 07:12:28
-updated_at: 2026-08-14 08:52:18
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

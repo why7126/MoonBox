@@ -2,11 +2,11 @@
 bug_id: BUG-0004-frontend-user-menu-change-password-not-implemented
 status: done
 created_at: 2026-08-11 16:07:33
-updated_at: 2026-08-13 22:48:16
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: medium
 ---
 
 # 现象

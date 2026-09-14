@@ -22,16 +22,21 @@ from workflow_sync.collect import (  # noqa: E402
     IssueRecord,
     find_archived_change_dir,
     load_all_issues,
+    load_change_record,
     load_sprint,
+    run_openspec_list,
+    resolve_sprint_id,
     resolve_issue_dir,
     resolve_sprint_dir,
 )
+from workflow_sync.derive import derive_change_state, derive_issue  # noqa: E402
 from workflow_sync.issue_status_residuals import (  # noqa: E402
     IssueStatusResidual,
     IssueStatusReconcileResult,
     reconcile_issue_status_residuals,
     scan_issue_status_residuals,
 )
+from workflow_sync.patch import patch_issue_changelog_index, patch_registry_entry  # noqa: E402
 
 ROOT = SCRIPTS_DIR.parent
 PROMOTE_SCRIPT = SCRIPTS_DIR / "promote-issue-stage.py"
@@ -292,6 +297,81 @@ def run_promotions(candidates: list[PromotionCandidate], *, dry_run: bool, reaso
     return exit_code
 
 
+def refresh_promoted_indexes(
+    candidates: list[PromotionCandidate],
+    *,
+    sprint_id: str | None,
+    change_id: str | None,
+    dry_run: bool,
+) -> int:
+    """Refresh registry and changelog after directories move to archive/."""
+    if not candidates:
+        return 0
+
+    resolved_sprint_id = sprint_id
+    if resolved_sprint_id is None and change_id:
+        resolved_sprint_id, _ = resolve_sprint_id(
+            "auto",
+            event="opsx.archive",
+            change_id=change_id,
+        )
+    sprint = load_sprint(resolved_sprint_id) if resolved_sprint_id else None
+
+    issues = load_all_issues()
+    openspec_data = run_openspec_list()
+    all_change_ids = sorted({cid for item in candidates for cid in item.change_ids})
+    changes = {
+        cid: derive_change_state(load_change_record(cid, issues, openspec_data))
+        for cid in all_change_ids
+    }
+
+    rows: list[tuple[str, str, bool, bool]] = []
+    exit_code = 0
+    for item in candidates:
+        issue = issues.get(item.issue_id)
+        if issue is None:
+            rows.append((item.issue_id, "missing", False, False))
+            exit_code = 1
+            continue
+        derived = derive_issue(issue, changes, sprint)
+        registry_path = (
+            ROOT / "issues/requirements/_registry.yaml"
+            if issue.kind == "req"
+            else ROOT / "issues/bugs/_registry.yaml"
+        )
+        registry_result = patch_registry_entry(
+            registry_path,
+            issue,
+            derived,
+            sprint,
+            write=not dry_run,
+        )
+        changelog_result = patch_issue_changelog_index(
+            issue,
+            derived,
+            sprint,
+            write=not dry_run,
+        )
+        rows.append(
+            (
+                item.issue_id,
+                str(issue.path.relative_to(ROOT)),
+                registry_result.changed,
+                changelog_result.changed,
+            )
+        )
+
+    print("## Issue Archive Index Refresh\n")
+    print("| Issue | Fact Path | Registry | Changelog |")
+    print("|-------|-----------|----------|-----------|")
+    for issue_id, fact_path, registry_changed, changelog_changed in rows:
+        registry_cell = "updated" if registry_changed else "no-delta"
+        changelog_cell = "updated" if changelog_changed else "no-delta"
+        print(f"| {issue_id} | `{fact_path}` | {registry_cell} | {changelog_cell} |")
+    print()
+    return exit_code
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Promote REQ/BUG issue directories to archive/ when linked changes are archived.",
@@ -328,7 +408,15 @@ def main() -> int:
         print_residual_blockers(blockers)
         return 1
     sys.stdout.flush()
-    return run_promotions(candidates, dry_run=args.dry_run, reason=reason)
+    exit_code = run_promotions(candidates, dry_run=args.dry_run, reason=reason)
+    if exit_code != 0:
+        return exit_code
+    return refresh_promoted_indexes(
+        candidates,
+        sprint_id=args.sprint,
+        change_id=args.change,
+        dry_run=args.dry_run,
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,47 @@
+{
+  "sqlite_backend": {
+    "passed": 41,
+    "skipped": 2,
+    "reason": "real Codex and Docker probes run explicitly"
+  },
+  "mysql_8_2": {
+    "passed": 28,
+    "skipped": 1,
+    "disposable_container_removed": true
+  },
+  "web": {
+    "passed": 79,
+    "note": "78 suite plus new stop-retarget race test"
+  },
+  "real_codex": {
+    "passed": 1,
+    "scope": "synthetic governance and repository, personal local login only"
+  },
+  "container_isolation": {
+    "passed": 1,
+    "sandboxes": 2,
+    "scope": "synthetic mounts; not platform credential execution"
+  },
+  "production_limits": "not configured by user decision",
+  "platform_execution": "gated",
+  "deployment": {
+    "managed_tables": 16,
+    "health": 200,
+    "backend_image": "sha256:52ccb991e158f6ed75452b62e167becf3744cfb0d87586a2429328f24dcf7c24",
+    "web_image": "sha256:9800cf614dcf0053231b1858dc94dd2ce89069309221cbd61bb962979f26d26b",
+    "recovery_network": "none",
+    "recovery_read_only": true,
+    "execution_limits_configured": false,
+    "retention_configured": false
+  },
+  "visual": {
+    "screenshots": 23,
+    "viewports": [
+      "1440x900",
+      "1024x600",
+      "390x844"
+    ],
+    "boundary": "synthetic browser API responses",
+    "computed_style": "passed; Diff selector matches shared turn selector"
+  }
+}

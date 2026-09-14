@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-09-02 19:12:31
+updated_at: 2026-09-13 16:02:48
 ---
 
 # opsx-archive
@@ -165,3 +165,7 @@ python scripts/extract-ai-usage.py --post-command-hook --workflow-event opsx.arc
 ## Output
 
 Report change id, archive path, documentation sync status, spec sync status, warnings/confirmations, scripts run, promoted issues, and next step.
+
+## Change 身份门禁
+
+遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。

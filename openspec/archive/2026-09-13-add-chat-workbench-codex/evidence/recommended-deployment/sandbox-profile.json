@@ -1,0 +1,19 @@
+{
+  "source": "https://github.com/moby/profiles/blob/main/seccomp/default.json",
+  "source_snapshot_sha256": "3e5f2753cdd7d1c57124e0ef524c211fe2428d8c657285bc49450454ca26b2fa",
+  "profile_sha256": "d6be9d770db79a0004eecfca8f662a8145726cc726de4ca1c0e8b112e58a02d8",
+  "additional_syscalls": [
+    "clone",
+    "unshare",
+    "setns",
+    "mount",
+    "umount",
+    "umount2",
+    "pivot_root",
+    "chroot"
+  ],
+  "privileged": false,
+  "capabilities": "ALL dropped",
+  "no_new_privileges": true,
+  "synthetic_write_and_readonly_preflight_passed": true
+}

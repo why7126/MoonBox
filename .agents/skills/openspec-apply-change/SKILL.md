@@ -7,6 +7,7 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.3.1"
+updated_at: 2026-09-12 21:30:04
 ---
 
 
@@ -27,6 +28,12 @@ metadata:
 Implement tasks from an OpenSpec change.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+
+## Apply 连续执行契约（MUST）
+
+MUST 读取并遵守 [Apply 连续执行契约](../../../docs/08-command-execution-order.md#apply-连续执行契约)，共用「连续推进」「硬阻塞与停止」「完成门禁」「中断续接」四项规则。每次final前执行中央「停止前决策」，CLI暂停提示不构成独立停止依据；按「行为验收」区分合成与真实证据。阶段进度不结束任务；自检修复留在当前 apply，完成判定和恢复入口均以该事实源为准。
+
+MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、BUG 根因、Sprint、横切、原型/参考稿、观测与收尾门禁；本入口不构成项目门禁的替代路径。
 
 **Steps**
 
@@ -60,8 +67,8 @@ Implement tasks from an OpenSpec change.
    - Dynamic instruction based on current state
 
    **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest using openspec-continue-change
-   - If `state: "all_done"`: congratulate, suggest archive
+   - If `state: "blocked"` (missing artifacts): inspect the missing artifacts, fill authorized factual gaps and recheck; missing scope or key decisions follow the shared hard-blocker contract.
+   - If `state: "all_done"`: verify the shared 完成门禁, repair missing validation/documentation/sync work, then report the actual outcome.
    - Otherwise: proceed to implementation
 
 4. **Read context files**
@@ -73,14 +80,14 @@ Implement tasks from an OpenSpec change.
 
 5. **Check Sprint inclusion before implementation**
 
-   If the change is linked to any `REQ-*` or `BUG-*`, `/opsx-apply` is allowed only after the REQ/BUG and Change are formally included in a `sprint-xxx`.
+   Every Change, including pure governance, must be formally included in a `sprint-xxx`; linked REQ/BUG also requires Issue trace consistency.
 
    - Run `python scripts/sync-workflow-status.py --event opsx.apply --change "<name>" --sprint auto --dry-run`.
    - Confirm sprint resolution succeeds; skipped/unresolved sprint is blocking.
    - Confirm the resolved `iterations/change|archive/<sprint>/sprint.yaml` contains the change in `changes[]` and the linked issue in `requirements[]` or `bugs[]`.
    - Confirm linked issue `trace.md` has `iteration: <sprint-id>` and status `in_sprint` or a later delivery state.
 
-   If this gate fails, stop before code changes and ask the user to run `/sprint-propose` first. A Change with no linked issue may continue only when the governance reason is stated explicitly.
+   If this gate fails, do not implement past the gate. Repair already-authorized synchronization gaps and recheck; otherwise follow the shared hard-blocker contract and Sprint inclusion workflow.
 
 6. **Show current progress**
 
@@ -90,96 +97,14 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-7. **Implement tasks (loop until done or blocked)**
+7. **连续实现与自检**
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
-   - Continue to next task
+   按依赖实现任务，补齐证据并运行相关检查；失败在当前 apply 内修复。验证通过后再勾选，立即推进下一个可执行任务。阶段汇报使用 commentary，不以批次完成结束回复。
 
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design issue → suggest updating artifacts
-   - Error or blocker encountered → report and wait for guidance
-   - User interrupts
+8. **完成或必要暂停**
 
-8. **On completion or pause, show status**
+   按共享完成门禁串行完成文档/任务回填、Workflow Sync 和 AI Usage Hook，再报告真实交付结果。只有共享硬阻塞、用户明确停止或环境强制中断时才暂停；遵守中断续接规则，不把剩余任务转成必须另发的继续命令。
 
-   Display:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archive
-   - If paused: explain why and wait for guidance
-
-**Output During Implementation**
-
-```
-## Implementing: <change-name> (schema: <schema-name>)
-
-Working on task 3/7: <task description>
-[...implementation happening...]
-✓ Task complete
-
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
-```
-
-**Output On Completion**
-
-```
-## Implementation Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 7/7 tasks complete ✓
-
-### Completed This Session
-- [x] Task 1
-- [x] Task 2
-...
-
-All tasks complete! Ready to archive this change.
-```
-
-**Output On Pause (Issue Encountered)**
-
-```
-## Implementation Paused
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 4/7 tasks complete
-
-### Issue Encountered
-<description of the issue>
-
-**Options:**
-1. <option 1>
-2. <option 2>
-3. Other approach
-
-What would you like to do?
-```
-
-**Guardrails**
-- Keep going through tasks until done or blocked
-- Always read context files before starting (from the apply instructions output)
-- If task is ambiguous, pause and ask before implementing
-- If implementation reveals issues, pause and suggest artifact updates
-- Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
-- Pause on errors, blockers, or unclear requirements - don't guess
-- Use contextFiles from CLI output, don't assume specific file names
-
-**Fluid Workflow Integration**
-
-This skill supports the "actions on a change" model:
-
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly
 ## Output Contract（MUST）
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
@@ -188,3 +113,9 @@ This skill supports the "actions on a change" model:
 ## Command Execution Review Hook（MUST）
 
 命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
+## 研发启动与进度同步
+
+实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `python scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
+
+完成门禁通过后才执行opsx.apply；全勾选不替代完成门禁。重复启动不重置时间，中断保留启动事实，不宣称Agent进程在线。CLI和后端共用执行事实判定，所有写入串行，冲突或中断后重跑修复投影；closed/archived Issue不重开。用户命令保留完整REQ/BUG身份。

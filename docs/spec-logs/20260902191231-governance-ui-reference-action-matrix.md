@@ -2,7 +2,7 @@
 purpose: UI 参考稿复刻动作按钮矩阵治理日志
 content: 记录 UI 参考稿复刻中动作按钮、modal 类型、selector、状态和验收证据矩阵的治理优化
 created_at: 2026-09-02 19:12:31
-updated_at: 2026-09-02 19:12:31
+updated_at: 2026-09-13 16:00:41
 owner: MoonBox 产品团队
 ---
 
@@ -25,7 +25,7 @@ owner: MoonBox 产品团队
 - 规则：UI 设计规则、Agent 上下文预算规则。
 - 标准：原型驱动 UI 验收标准。
 - 技能：REQ 完善、REQ 转 OpenSpec、OpenSpec apply/modify/archive。
-- OpenSpec：`add-ui-reference-replication-governance`。
+- OpenSpec：`enhance-ui-reference-replication-action-matrix`。
 
 ## 更新文件
 
@@ -38,7 +38,7 @@ owner: MoonBox 产品团队
 - `.agents/skills/opsx-apply/SKILL.md`
 - `.agents/skills/opsx-modify/SKILL.md`
 - `.agents/skills/opsx-archive/SKILL.md`
-- `openspec/changes/add-ui-reference-replication-governance/`
+- `openspec/archive/2026-09-02-enhance-ui-reference-replication-action-matrix/`
 - `docs/spec-logs/CHANGELOG.md`
 
 ## 验证结果
@@ -57,3 +57,7 @@ owner: MoonBox 产品团队
 ## 后续建议
 
 后续可将动作按钮矩阵字段完整性接入 UI Contract 或 OpenSpec 文档校验脚本。
+
+## 历史身份纠正
+
+2026-09-13 16:00:41：原 ID `add-ui-reference-replication-governance` 与初建冲突，本记录对应强化版本 `enhance-ui-reference-replication-action-matrix`；原验证记录是当时结果，不代表此次重跑。

@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-11",
+  "mode": "actual React components with synthetic API; no real model run",
+  "tests": {
+    "passed": 21,
+    "typescript": "passed",
+    "build": "passed"
+  },
+  "visual": {
+    "screenshots": "observed in browser tool output",
+    "viewports": [
+      [
+        1440,
+        900
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "dialog_width_desktop": 680,
+    "dialog_width_mobile": 366,
+    "title_font_size": "13px",
+    "horizontal_overflow": false,
+    "interactions": [
+      "title opens rename",
+      "saved title reflected in history",
+      "history selection",
+      "cancel keeps title",
+      "privacy explanation in history only"
+    ]
+  },
+  "api_db_permissions": "unchanged",
+  "deployment": {
+    "web": "running; HTTP smoke passed",
+    "image": "109f00eced200d3765930012d476f5391f329f4a6175d5b3c66ce5d8657e28e2",
+    "js": "index-D6kOvMyW.js",
+    "backend_worker": "not restarted"
+  }
+}

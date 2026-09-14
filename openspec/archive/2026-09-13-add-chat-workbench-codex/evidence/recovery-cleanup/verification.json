@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-09",
+  "backend": {
+    "passed": 46,
+    "skipped": 1
+  },
+  "process_guard_and_adapter": {
+    "passed": 10
+  },
+  "cleanup_acl": {
+    "passed": 2
+  },
+  "mysql_8_2": {
+    "passed": 32,
+    "skipped": 1
+  },
+  "container_boundary": {
+    "passed": 1
+  },
+  "limitations": [
+    "No real model runtime inside Docker",
+    "Backup provider and restore deletion replay not connected",
+    "Missing authoritative usage remains reserved",
+    "Host crash credential residue cleanup not verified"
+  ]
+}

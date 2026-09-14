@@ -2,11 +2,11 @@
 bug_id: BUG-0010-admin-user-actions-validation-no-feedback
 status: done
 created_at: 2026-08-13 09:22:20
-updated_at: 2026-08-13 22:48:12
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

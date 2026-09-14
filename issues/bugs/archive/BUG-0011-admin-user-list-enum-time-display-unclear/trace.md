@@ -1,19 +1,18 @@
 ---
 bug_id: BUG-0011-admin-user-list-enum-time-display-unclear
 status: done
-severity: medium
-priority: P2
 lifecycle_stage: archive
 iteration: sprint-003
 related_requirement:
 related_bug:
 related_change: fix-admin-user-list-enum-time-display
 created_at: 2026-08-13 09:22:20
-updated_at: 2026-08-15 10:13:22
+updated_at: 2026-09-12 22:27:53
 openspec_changes:
   - change_id: fix-admin-user-list-enum-time-display
     type: fix
     status: archived
+severity: medium
 ---
 
 # 追溯

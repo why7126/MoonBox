@@ -2,11 +2,11 @@
 req_id: REQ-0008-prototype-driven-page-acceptance-gate
 status: archived
 created_at: 2026-08-08 20:49:11
-updated_at: 2026-08-08 22:50:16
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户反馈
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

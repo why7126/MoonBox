@@ -2,11 +2,11 @@
 bug_id: BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
 status: done
 created_at: 2026-08-12 12:08:14
-updated_at: 2026-08-13 22:50:42
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: docker
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

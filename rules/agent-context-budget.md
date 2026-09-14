@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-09-04 16:17:43
+updated_at: 2026-09-13 16:02:21
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -126,6 +126,10 @@ Agent 命令技能 SHOULD：
 - 对 `/spec-opt` 规范优化命令，MUST 在完成本项目规范、技能、脚本、目录边界或校验规则迭代后写入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md` 治理迭代日志，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息或学习对象源码。
 - 对带 `prototype/` 或 UI 参考稿复刻的页面，`/explore`、`/req-complete`、`/req-opsx`、`/opsx-apply`、`/opsx-modify`、`/opsx-archive` 和 Workflow Sync MUST 只读取当前 REQ/Change 的 prototype 片段、附件 HTML/截图、UI Skeleton、UI Reference Replication Contract、selector 映射、动作按钮与 modal 组件族矩阵、AC-PROTOTYPE 和相关 best-practice；不得为做 1440px 视觉验收或参考稿复刻而全量读取无关 UI、历史归档或生成物。UI 型 `/opsx-modify` 若验收反馈含附件截图、标注图、原型截图或实际截图，MUST 只围绕当前反馈附件、当前 Change/REQ 视觉证据、UI Skeleton、UI Reference Replication Contract、动作按钮矩阵和“附件截图逐项视觉对照表”补证，禁止为主观视觉判断宽泛读取无关页面或历史截图。
 
+- `opsx-apply` 与 `openspec-apply-change` MUST 共用 [Apply 连续执行契约](../docs/08-command-execution-order.md#apply-连续执行契约)；批次与上下文压缩不构成主动结束条件，暂停、完成和续接遵循该唯一事实源，由上下文预算脚本检查引用与已知旧文案回退。
+
+Apply结束前复用任务依赖与授权摘要执行停止前决策，不因压缩重新请求授权。行为验收遵守 `docs/standards/apply-behavior-acceptance.md`，只使用最小脱敏事件与证据引用，不采集原始会话。
+
 ## 8. 校验
 
 如项目提供上下文预算校验脚本，推荐命名为：
@@ -135,3 +139,9 @@ python scripts/validate-agent-context-budget.py
 ```
 
 该脚本用于检查 Agent 技能是否引用本规则，并阻止常见宽泛读取模式回退。
+
+Issue 分级任务只读取聚焦 Issue 的 trace、主文档和 capture；字段契约引用 `rules/document-governance.md`，不为等级同步全量扫描历史正文。
+
+Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有效显式值保留，覆盖需明确请求；容量工具为 `scripts/add-sprint-scope-item.py --capacity-person-days`，修改后重算门禁与派生文档。
+
+Change 身份排查使用 `scripts/validate-change-identity.py` 的冲突路径摘要，仅对命中目录读取 trace，不为唯一性检查展开归档正文。

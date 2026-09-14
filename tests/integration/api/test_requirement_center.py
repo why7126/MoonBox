@@ -1,3 +1,6 @@
+import json
+import time
+from uuid import uuid4
 from fastapi.testclient import TestClient
 import pytest
 from sqlalchemy import text
@@ -110,6 +113,51 @@ def _seed_space_facts(owner_id: str, member_id: str, outsider_id: str) -> None:
         db.close()
 
 
+@pytest.fixture()
+def api_client(api_client, monkeypatch, tmp_path):
+    """Existing capability regressions now use an explicitly bound authorized project."""
+    from app.services import requirement_center
+    from app.governance import scope
+    headers = _auth_headers(api_client)
+    with get_session_factory()() as db:
+        actor = db.execute(text("SELECT id FROM admin_users WHERE username='superadmin'")).scalar_one()
+    response = api_client.post('/api/v1/admin/spaces', headers=headers, json={
+        'name':'治理测试空间','code':'governance-test','owner_id':actor,
+        'product_id':'governance-test','product_name':'治理测试项目','expiry_type':'long_term'})
+    assert response.status_code == 201, response.text
+    space_id = response.json()['data']['id']
+    api_client.params = {'space_id':space_id,'repository_id':'governance-test'}
+    monkeypatch.setenv('MOONBOX_CHAT_REPOSITORIES', json.dumps([{'id':'governance-test','space_id':space_id}]))
+    monkeypatch.setattr(scope, 'repository_binding', lambda repository, space: {
+        'id':repository,'space_id':space,'governance_root':str(requirement_center.GOVERNANCE_ROOT)
+    } if repository == 'governance-test' and space == space_id else None)
+    private = tmp_path / 'private-governance'; private.mkdir(mode=0o700)
+    monkeypatch.setenv('MOONBOX_GOVERNANCE_STATE_ROOT', str(private))
+    yield api_client
+
+
+def _save_and_read(api_client, url, *, headers, json):
+    """Assert the new asynchronous save contract, run the isolated test writer, then read."""
+    import json as json_module
+    from app.governance import scope, store
+    from app.governance.writer import process
+    previous = api_client.get(url.removesuffix('/tasks'), headers=headers)
+    with get_session_factory()() as db:
+        actor=db.execute(text("SELECT id FROM admin_users WHERE username='superadmin'")).scalar_one()
+        project=scope.authorize(db,actor,api_client.params['space_id'],api_client.params['repository_id'],write=True)
+    permit=store.root()/'maintenance.json'
+    permit.write_text(json_module.dumps({'scope_key':project.key,'binding_revision':project.binding_revision,
+        'registered_writers':['governance-controller'],'external_writers_paused':True,'expires_at':time.time()+600}))
+    permit.chmod(0o600)
+    response=api_client.put(url,headers=headers,json={**json,
+        'expected_version':previous.json().get('data',{}).get('version','0'*64),'idempotency_key':str(uuid4())})
+    if response.status_code != 202: return response
+    with get_session_factory()() as db:
+        result=process(db,response.json()['data']['id'])
+    assert result['state']=='applied',result
+    return api_client.get(url.removesuffix('/tasks'),headers=headers)
+
+
 def test_requirement_center_context_returns_real_governance_data(api_client: TestClient) -> None:
     response = api_client.get("/api/v1/requirement-center/context", headers=_auth_headers(api_client))
 
@@ -121,7 +169,8 @@ def test_requirement_center_context_returns_real_governance_data(api_client: Tes
     assert payload["stats"]["total"] == len(payload["issues"])
     assert payload["stats"]["requirements"] >= 1
     assert payload["stats"]["bugs"] >= 1
-    assert payload["workspaces"] == []
+    assert len(payload["workspaces"]) == 1
+    assert payload["selected_workspace_id"] == api_client.params["space_id"]
     assert payload["current_user"]["can_access_admin"] is True
 
 
@@ -131,11 +180,11 @@ def test_requirement_center_context_returns_joined_spaces_with_frontend_whitelis
     outsider, _ = _create_frontend_user(api_client, "spaceoutsider")
     _seed_space_facts(owner["id"], member["id"], outsider["id"])
 
-    owner_payload = api_client.get("/api/v1/requirement-center/context", headers=_login(api_client, "spaceowner", owner_password)).json()["data"]
+    owner_payload = api_client.get("/api/v1/requirement-center/projects", headers=_login(api_client, "spaceowner", owner_password)).json()["data"]
     assert [workspace["workspace_id"] for workspace in owner_payload["workspaces"]] == ["space_owned"]
     assert owner_payload["workspaces"][0]["role"] == "拥有者"
 
-    response = api_client.get("/api/v1/requirement-center/context", headers=_login(api_client, "spacemember", member_password))
+    response = api_client.get("/api/v1/requirement-center/projects", headers=_login(api_client, "spacemember", member_password))
 
     assert response.status_code == 200, response.text
     payload = response.json()["data"]
@@ -146,7 +195,6 @@ def test_requirement_center_context_returns_joined_spaces_with_frontend_whitelis
     assert workspaces["space_frozen"]["readonly"] is True
     assert "space_recycle" not in workspaces
     assert "space_hidden" not in workspaces
-    assert payload["selected_workspace_id"] in workspaces
     serialized = response.text
     assert "member_quota" not in serialized
     assert "storage_quota_gb" not in serialized
@@ -260,7 +308,8 @@ def test_requirement_center_context_maps_stage_and_drift(api_client: TestClient)
 
     assert response.status_code == 200
     issues = {issue["id"]: issue for issue in response.json()["data"]["issues"]}
-    assert issues["REQ-0013"]["stage"] in {"ready-dev", "development", "acceptance"}
+    assert issues["REQ-0013"]["stage"] == "done"
+    assert issues["REQ-0013"]["blocked"] is None
     if issues["REQ-0013"]["task_progress"] is not None:
         assert issues["REQ-0013"]["task_progress"][1] > 0
     assert isinstance(issues["REQ-0013"]["drift_warnings"], list)
@@ -493,17 +542,17 @@ entries:
     assert docs["capture.md"]["editable"] is True
     assert docs["trace.md"]["editable"] is False
 
-    saved = api_client.put(
+    saved = _save_and_read(api_client,
         "/api/v1/requirement-center/issues/REQ-9100-capture-edit/documents/capture.md",
         headers=headers,
         json={"content": "# new capture"},
     )
-    trace_denied = api_client.put(
+    trace_denied = _save_and_read(api_client,
         "/api/v1/requirement-center/issues/REQ-9100-capture-edit/documents/trace.md",
         headers=headers,
         json={"content": "# trace"},
     )
-    stage_denied = api_client.put(
+    stage_denied = _save_and_read(api_client,
         "/api/v1/requirement-center/issues/REQ-9101-approved-edit/documents/capture.md",
         headers=headers,
         json={"content": "# approved"},
@@ -649,12 +698,12 @@ openspec_changes:
     assert spec.status_code == 200
     content = spec.json()["data"]["content"]
     assert "<!-- source: alpha/spec.md -->" in content
-    saved = api_client.put(
+    saved = _save_and_read(api_client,
         "/api/v1/requirement-center/changes/update-change-docs/documents/spec.md",
         headers=headers,
         json={"content": content.replace("Requirement: A", "Requirement: A2")},
     )
-    trace_denied = api_client.put(
+    trace_denied = _save_and_read(api_client,
         "/api/v1/requirement-center/changes/update-change-docs/documents/trace.md",
         headers=headers,
         json={"content": "# hacked"},
@@ -663,7 +712,7 @@ openspec_changes:
     assert saved.status_code == 200, saved.text
     assert "Requirement: A2" in (change_dir / "specs" / "alpha" / "spec.md").read_text(encoding="utf-8")
     assert trace_denied.status_code == 403
-    assert "trace.md" in trace_denied.text
+    assert "不允许编辑" in trace_denied.text
 
 
 def test_requirement_center_acceptance_tasks_are_toggle_only(
@@ -707,17 +756,17 @@ entries:
     assert docs["tasks.md"]["capability"]["human_editable"] is False
 
     toggled = "# Tasks\n\n- [x] 第一项\n- [x] 第二项\n"
-    saved = api_client.put(
+    saved = _save_and_read(api_client,
         "/api/v1/requirement-center/changes/update-toggle/documents/tasks.md/tasks",
         headers=headers,
         json={"content": toggled},
     )
-    text_denied = api_client.put(
+    text_denied = _save_and_read(api_client,
         "/api/v1/requirement-center/changes/update-toggle/documents/tasks.md/tasks",
         headers=headers,
         json={"content": "# Tasks\n\n- [x] 第一项已改\n- [x] 第二项\n"},
     )
-    full_denied = api_client.put(
+    full_denied = _save_and_read(api_client,
         "/api/v1/requirement-center/changes/update-toggle/documents/tasks.md",
         headers=headers,
         json={"content": toggled},
@@ -764,14 +813,14 @@ entries:
 
     monkeypatch.setattr(Path, "write_text", readonly_write_text)
 
-    response = api_client.put(
+    response = _save_and_read(api_client,
         "/api/v1/requirement-center/issues/REQ-9102-readonly-save/documents/capture.md",
         headers=_auth_headers(api_client),
         json={"content": "# new capture"},
     )
 
     assert response.status_code == 503
-    assert response.json()["detail"] == "文档保存失败，治理目录暂不可写"
+    assert response.json()["message"] == "文档保存失败，治理目录暂不可写"
     assert str(tmp_path) not in response.text
 
 
@@ -793,5 +842,5 @@ def test_requirement_center_context_reports_sanitized_missing_governance_root(
     response = api_client.get("/api/v1/requirement-center/context", headers=_auth_headers(api_client))
 
     assert response.status_code == 503
-    assert response.json()["detail"] == "需求中心数据源暂不可用"
+    assert response.json()["code"] == 2603
     assert str(tmp_path) not in response.text

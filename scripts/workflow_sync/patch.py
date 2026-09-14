@@ -7,6 +7,7 @@ from typing import Any
 
 from .collect import IssueRecord, SprintRecord, parse_frontmatter, read_text
 from .constants import ROOT, SCOPE_MARKERS
+from .execution import atomic_write
 from .derive import DerivedChange, DerivedIssue
 from .timefmt import normalize_datetime, normalize_milestone_datetime, now_shanghai, touch_frontmatter
 
@@ -24,7 +25,7 @@ def persist_markdown(path: Path, text: str, original: str, write: bool) -> bool:
         text, ts_changed = touch_frontmatter(text, bump_updated=changed)
         changed = changed or ts_changed
         if changed:
-            path.write_text(text, encoding="utf-8")
+            atomic_write(path, text, original)
     return changed
 
 
@@ -284,7 +285,7 @@ def patch_sprint_yaml_scope(
         changed = True
 
     if changed and write:
-        path.write_text(text, encoding="utf-8")
+        atomic_write(path, text, original)
         if change_id not in sprint.changes:
             sprint.changes.append(change_id)
     elif changed and not write and change_id not in sprint.changes:
@@ -381,7 +382,7 @@ def render_bugs_table(
     changes: dict[str, DerivedChange],
 ) -> str:
     lines = [
-        "| 编号 | 名称 | 优先级 | 状态 | 说明 |",
+        "| 编号 | 名称 | 严重度 | 状态 | 说明 |",
         "|---|---|---|---|---|",
     ]
     for bug_id in sprint.bugs:
@@ -1255,7 +1256,10 @@ def append_workflow_event_record(
     if derived.linked_change != change_id:
         return text
     change_status = change_status_map.get(change_id)
-    if event == "opsx.apply" and change_status in {"applied", "in_progress"}:
+    if event in {"opsx.start", "opsx.progress"} and change_status == "in_progress":
+        command = "/opsx-apply"
+        description = f"Change `{change_id}` {event} 已同步；研发中，未宣告完成。"
+    elif event == "opsx.apply" and change_status in {"applied", "in_progress"}:
         command = "/opsx-apply"
         description = (
             f"Change `{change_id}` apply 完成，待 archive。"
@@ -1444,6 +1448,7 @@ def patch_registry_entry(
     derived: DerivedIssue,
     sprint: SprintRecord | None,
     write: bool = True,
+    sync_classification_fields: bool = True,
 ) -> PatchResult:
     if not registry_path.exists():
         return PatchResult(str(registry_path.relative_to(ROOT)), False, "missing registry")
@@ -1467,6 +1472,12 @@ def patch_registry_entry(
     stage = _issue_stage(issue)
     sprint_id = _issue_sprint(issue, sprint)
     path = str(issue.path.relative_to(ROOT)).rstrip("/") + "/"
+    from .classification import VALUES
+    if sync_classification_fields and issue.priority in VALUES[issue.kind]:
+        key = "priority" if issue.kind == "req" else "severity"
+        other = "severity" if issue.kind == "req" else "priority"
+        entry = re.sub(rf"^    (?:{other}|priority_hint|severity_hint):[^\n]*\n", "", entry, flags=re.M)
+        entry = replace_entry_scalar(entry, key, issue.priority)
     entry = replace_entry_scalar(entry, "status", derived.display_status)
     entry = replace_entry_scalar(entry, "lifecycle_stage", stage)
     entry = replace_entry_scalar(entry, "path", path)
@@ -1477,5 +1488,5 @@ def patch_registry_entry(
     text = text[: match.start(1)] + entry + text[match.end(1) :]
     changed = text != original
     if changed and write:
-        registry_path.write_text(text, encoding="utf-8")
+        atomic_write(registry_path, text, original)
     return PatchResult(str(registry_path.relative_to(ROOT)), changed, issue_id)

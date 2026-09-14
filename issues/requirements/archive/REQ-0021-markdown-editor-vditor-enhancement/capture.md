@@ -2,11 +2,11 @@
 req_id: REQ-0021-markdown-editor-vditor-enhancement
 status: done
 created_at: 2026-08-19 11:30:07
-updated_at: 2026-09-04 15:29:30
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: explore
-priority_hint: P1
 parent_requirement: REQ-0020-requirement-center-card-document-actions-ai-chat
+priority: P1
 ---
 
 # 一句话

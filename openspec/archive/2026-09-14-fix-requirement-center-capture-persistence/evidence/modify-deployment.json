@@ -1,0 +1,22 @@
+{
+  "source": "observed",
+  "backend": "healthy",
+  "web": "healthy",
+  "controller": "healthy",
+  "project_readiness": {
+    "ready": true,
+    "mode": "continuous"
+  },
+  "api_source_writable": false,
+  "controller_restart_ready": true,
+  "target_account_create": "passed",
+  "test_capture_records_created_in_target": 2,
+  "records": [
+    "REQ-0027-capture",
+    "BUG-0016-capture"
+  ],
+  "full_page_reload_retained": true,
+  "browser_capture_documents_readable": true,
+  "filesystem_capture_trace_registry_changelog_verified": true,
+  "records_retained": true
+}

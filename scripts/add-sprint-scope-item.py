@@ -4,6 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import math
+import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import contextlib
 import fcntl
 import re
@@ -171,15 +175,20 @@ def estimate_totals(lines: list[str]) -> tuple[float, float]:
     return story_points, person_days
 
 
+DEFAULT_CAPACITY_PERSON_DAYS = 30.0
+
+
 def scalar_from_capacity(lines: list[str], key: str) -> float | None:
     for line in lines:
-        stripped = line.strip()
-        if stripped.startswith(f"{key}:"):
-            raw = stripped.split(":", 1)[1].strip()
+        if line.startswith(f"{key}:"):
+            raw = line.split(":", 1)[1].split("#", 1)[0].strip().strip("\"'")
             try:
-                return float(raw)
+                value = float(raw)
             except ValueError:
-                return None
+                raise ValueError(f"{key} must be a positive finite number") from None
+            if not math.isfinite(value) or value <= 0:
+                raise ValueError(f"{key} must be a positive finite number")
+            return value
     return None
 
 
@@ -192,7 +201,13 @@ def format_number(value: float) -> str:
 def update_capacity(lines: list[str]) -> bool:
     story_points, person_days = estimate_totals(lines)
     capacity = scalar_from_capacity(lines, "capacity_person_days")
-    changed = False
+    if capacity is None:
+        capacity = DEFAULT_CAPACITY_PERSON_DAYS
+    if not math.isfinite(person_days) or person_days < 0 or not math.isfinite(story_points) or story_points < 0:
+        raise ValueError("estimates must be finite nonnegative numbers")
+    if person_days > capacity * 1.2:
+        raise ValueError("Sprint capacity exceeds 120%; adjust scope or explicit capacity before writing")
+    changed = set_scalar(lines, "capacity_person_days", format_number(capacity))
     changed |= set_scalar(lines, "estimated_story_points", format_number(story_points))
     changed |= set_scalar(lines, "estimated_person_days", format_number(person_days))
     if capacity and capacity > 0:
@@ -213,6 +228,9 @@ def patch_capacity_gate(lines: list[str], person_days: float, usage: float, capa
     start, end = bounds
     changed = False
     replacements = {
+        "capacity_person_days": format_number(capacity),
+        "status": "warning" if usage > 1 or (1 - usage) < .3 else "pass",
+        "note": "按当前容量重新计算；低于30%的剩余缓冲需提示风险。",
         "estimated_person_days": format_number(person_days),
         "capacity_usage": f"{usage:.4f}".rstrip("0").rstrip("."),
     }
@@ -233,14 +251,15 @@ def main() -> int:
     parser.add_argument("--req")
     parser.add_argument("--bug")
     parser.add_argument("--change")
+    parser.add_argument("--capacity-person-days", type=float, help="Explicit capacity override; absent values default to 30, existing capacity is preserved")
     parser.add_argument("--size", default="S")
     parser.add_argument("--story-points", default="1")
     parser.add_argument("--person-days", default="1")
     parser.add_argument("--rationale", required=True)
     args = parser.parse_args()
 
-    if not args.req and not args.bug and not args.change:
-        raise SystemExit("at least one of --req, --bug or --change is required")
+    if not args.req and not args.bug and not args.change and args.capacity_person_days is None:
+        raise SystemExit("at least one scope item or --capacity-person-days is required")
     if args.req and args.bug:
         raise SystemExit("--req and --bug are mutually exclusive")
 
@@ -253,6 +272,11 @@ def main() -> int:
         original = read_text(path)
         lines = original.splitlines()
         changed = False
+        if args.capacity_person_days is not None:
+            if not math.isfinite(args.capacity_person_days) or args.capacity_person_days <= 0:
+                raise SystemExit("capacity must be a positive finite number")
+            changed |= set_scalar(lines, "capacity_person_days", format_number(args.capacity_person_days))
+            changed |= set_scalar(lines, "capacity_override_reason", json.dumps(args.rationale, ensure_ascii=False))
 
         if args.req:
             changed |= ensure_list_item(lines, "requirements", args.req, after_key="capacity")
@@ -262,19 +286,22 @@ def main() -> int:
             changed |= ensure_list_item(lines, "changes", args.change, after_key="bugs")
 
         item_id = args.req or args.bug or args.change
-        changed |= ensure_scope_estimate(
-            lines,
-            item_id=item_id,
-            req_id=args.req,
-            bug_id=args.bug,
-            change_id=args.change,
-            size=args.size,
-            story_points=args.story_points,
-            person_days=args.person_days,
-            rationale=args.rationale,
-        )
+        if item_id:
+            changed |= ensure_scope_estimate(
+                lines,
+                item_id=item_id,
+                req_id=args.req,
+                bug_id=args.bug,
+                change_id=args.change,
+                size=args.size,
+                story_points=args.story_points,
+                person_days=args.person_days,
+                rationale=args.rationale,
+            )
         changed |= update_capacity(lines)
 
+        if changed:
+            set_scalar(lines, "updated_at", datetime.now(ZoneInfo("Asia/Shanghai")).strftime("'%Y-%m-%d %H:%M:%S'"))
         updated = "\n".join(lines) + ("\n" if original.endswith("\n") else "")
         if updated != original:
             path.write_text(updated, encoding="utf-8")

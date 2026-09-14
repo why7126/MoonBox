@@ -2,13 +2,13 @@
 req_id: REQ-0010-admin-user-menu-password-change
 status: archived
 created_at: 2026-08-10 08:47:44
-updated_at: 2026-08-14 08:45:11
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement: REQ-0005-admin-auth-system
 captured_via: capture
 classification_rationale: 尚未交付的新能力；用户描述为后台管理用户菜单栏新增密码修改入口与流程，不是已有能力偏差。
+priority: P1
 ---
 
 # 一句话

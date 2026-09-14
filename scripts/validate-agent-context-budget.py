@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate command skills follow Agent context budget guardrails."""
+"""校验命令上下文预算、输出边界及 Apply 连续执行契约引用与旧文案回退。"""
 
 from __future__ import annotations
 
@@ -357,6 +357,64 @@ def validate_explore_chain_identity_contract(path: Path) -> list[str]:
     return errors
 
 
+APPLY_SKILLS = {"opsx-apply", "openspec-apply-change"}
+APPLY_CONTRACT_DOC = "docs/08-command-execution-order.md"
+APPLY_CONTRACT_REFERENCE = "../../../docs/08-command-execution-order.md#apply-连续执行契约"
+APPLY_CONTRACT_SECTIONS = ("连续推进", "硬阻塞与停止", "完成门禁", "中断续接")
+# 针对已发现的指令回退；这是静态治理检查，不推断运行时 Agent 行为。
+APPLY_LEGACY_PATTERNS = tuple(re.compile(pattern, re.IGNORECASE) for pattern in (
+    r"Stop and ask if task is ambiguous",
+    r"Task is unclear.*ask for clarification",
+    r"If task is ambiguous, pause and ask",
+    r"If implementation reveals issues, pause",
+    r"Implementation reveals a design issue.*suggest updating artifacts",
+    r"Error or blocker encountered.*report and wait for guidance",
+    r"Pause on errors, blockers, or unclear requirements",
+    r'all_done.*(?:congratulate|suggest archive)',
+    r"All tasks complete! Ready to archive",
+    r"continue through `/opsx-modify`",
+))
+
+
+def validate_apply_execution_contract(path: Path) -> list[str]:
+    if path.parent.name not in APPLY_SKILLS:
+        return []
+    text = path.read_text(encoding="utf-8")
+    rel = path.relative_to(ROOT)
+    errors = []
+    for term in (APPLY_CONTRACT_REFERENCE, *APPLY_CONTRACT_SECTIONS):
+        if term not in text:
+            errors.append(f"{rel}: 缺少 Apply 连续执行契约引用 `{term}`")
+    for lineno, line in enumerate(text.splitlines(), 1):
+        for pattern in APPLY_LEGACY_PATTERNS:
+            match = pattern.search(line)
+            if match and not is_negated(line[:match.start()]):
+                errors.append(f"{rel}:{lineno}: Apply 暂停或完成旧文案回退")
+                break
+    return errors
+
+
+def validate_apply_contract_source() -> list[str]:
+    path = ROOT / APPLY_CONTRACT_DOC
+    if not path.is_file():
+        return [f"{APPLY_CONTRACT_DOC}: 缺少 Apply 连续执行契约事实源"]
+    text = path.read_text(encoding="utf-8")
+    section = re.search(r"^## Apply 连续执行契约\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    if not section:
+        return [f"{APPLY_CONTRACT_DOC}: 缺少 Apply 连续执行契约章节"]
+    errors = []
+    for heading in APPLY_CONTRACT_SECTIONS:
+        body = re.search(r"^### " + heading + r"\n(.*?)(?=^### |\Z)", section[1], re.M | re.S)
+        if not body or not body[1].strip():
+            errors.append(f"{APPLY_CONTRACT_DOC}: 缺少或空白子契约 `{heading}`")
+    for term in ("### 停止前决策", "### 行为验收", "validate-apply-behavior.py", "无可执行任务"):
+        if term not in section[1]:
+            errors.append(f"{APPLY_CONTRACT_DOC}: 缺少停止决策或行为验收 `{term}`")
+    if not (ROOT / "scripts/validate-apply-behavior.py").is_file():
+        errors.append("缺少apply行为轨迹校验器")
+    return errors
+
+
 def validate_governance_privacy_boundaries() -> list[str]:
     errors: list[str] = []
     paths: set[Path] = set()
@@ -454,6 +512,8 @@ def main() -> int:
         errors.extend(validate_sprint_gate_no_bypass(path))
         errors.extend(validate_issue_target_contract(path))
         errors.extend(validate_explore_chain_identity_contract(path))
+        errors.extend(validate_apply_execution_contract(path))
+    errors.extend(validate_apply_contract_source())
     errors.extend(validate_governance_privacy_boundaries())
     errors.extend(validate_command_execution_review_hook())
 
@@ -471,7 +531,7 @@ def main() -> int:
         "未发现最终输出占位模板、通用示例或规范语气泄漏风险，"
         "且未发现非 REQ/BUG / 纯治理 Change 跳过 Sprint 门禁表述、"
         "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID、"
-        "命令执行复盘 Hook 中央契约缺失或治理文档本机路径泄露。"
+        "Apply 连续执行契约缺失或旧暂停/完成文案回退、命令执行复盘 Hook 中央契约缺失或治理文档本机路径泄露。"
     )
     return 0
 

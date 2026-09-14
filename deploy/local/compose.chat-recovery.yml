@@ -1,0 +1,22 @@
+# Chat SQLite 本地恢复 worker。无网络、无仓库挂载，不启动模型或执行代码。
+# 从仓库根目录运行 docker compose -f docker-compose.yml -f deploy/local/compose.chat-recovery.yml up -d --no-deps chat-recovery
+services:
+  chat-recovery:
+    image: ${BACKEND_IMAGE:-moonbox-backend:local}
+    command: ["python", "-m", "app.chat.worker"]
+    restart: unless-stopped
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 32
+    mem_limit: 128m
+    cpus: 0.5
+    environment:
+      APP_ENV: local
+      DATABASE_TYPE: sqlite
+      DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
+    volumes:
+      - ./data/runtime/backend:/app/data
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m

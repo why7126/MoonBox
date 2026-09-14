@@ -4,7 +4,7 @@ sprint_id: sprint-002
 status: completed
 lifecycle_stage: archive
 created_at: 2026-08-09 07:26:26
-updated_at: 2026-08-14 16:29:34
+updated_at: 2026-09-12 22:27:53
 ---
 
 # sprint-002 迭代规划
@@ -128,7 +128,7 @@ updated_at: 2026-08-14 16:29:34
 <!-- workflow-sync:scope-requirements:end -->
 
 <!-- workflow-sync:scope-bugs:start -->
-| 编号 | 名称 | 优先级 | 状态 | 说明 |
+| 编号 | 名称 | 严重度 | 状态 | 说明 |
 |---|---|---|---|---|
 | BUG-0001 | Docker Web 管理后台登录 API 误路由且缺少 SPA fallback | high | done | archived `fix-admin-web-login-api-proxy-and-spa-fallback`（2026-08-10 08:24:16） |
 | BUG-0002 | 首页前台登录入口误跳后台登录页 | high | done | archived `fix-homepage-frontend-login-entry-routes-to-admin`（2026-08-10 23:34:40） |

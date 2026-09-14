@@ -2,10 +2,8 @@
 bug_id: BUG-0007-docker-media-upload-acceptance-hardcodes-3000-port
 status: done
 lifecycle_stage: archive
-severity: high
-priority: P1
 created_at: 2026-08-12 12:08:14
-updated_at: 2026-08-13 22:51:12
+updated_at: 2026-09-12 22:27:53
 related_requirement:
 related_bug:
 related_change: fix-docker-media-upload-acceptance-gate
@@ -14,6 +12,7 @@ openspec_changes:
   - change_id: fix-docker-media-upload-acceptance-gate
     type: fix
     status: archived
+severity: high
 ---
 
 # BUG-0007 Docker 媒体上传横切验收依赖固定端口和默认管理员密码

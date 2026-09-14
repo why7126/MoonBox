@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .constants import ROOT
+from .shared import execution_metadata
 
 # issues/requirements 与 issues/bugs 下的生命周期阶段子目录（见 rules/issues-lifecycle.md）
 ISSUE_STAGE_DIRS = frozenset({"plan", "review", "archive"})
@@ -72,6 +73,7 @@ class ChangeRecord:
     archive_date: str | None = None
     tasks: TaskProgress = field(default_factory=TaskProgress)
     openspec_status: str | None = None
+    trace: dict[str, Any] = field(default_factory=dict)
     linked_req: str | None = None
     linked_bug: str | None = None
 
@@ -83,6 +85,7 @@ class IssueRecord:
     path: Path
     title: str = ""
     priority: str = "P1"
+    classification_error: str | None = None
     trace_status: str | None = None
     openspec_changes: list[dict[str, Any]] = field(default_factory=list)
     related_changes: list[str] = field(default_factory=list)
@@ -432,7 +435,11 @@ def load_issue_record(path: Path, kind: str) -> IssueRecord | None:
             related_requirement = block.get("related_requirement")
             related_change = block.get("related_change")
 
+    from .classification import resolve_classification
+    priority, classification_error = resolve_classification(path, kind)
+
     return IssueRecord(
+        classification_error=classification_error,
         issue_id=issue_id,
         kind=kind,
         path=path,
@@ -482,13 +489,13 @@ def infer_change_links(change_id: str, issues: dict[str, IssueRecord]) -> tuple[
         archived / "proposal.md" if archived and (archived / "proposal.md").exists() else None
     )
     if proposal and proposal.exists():
-        text = read_text(proposal)
-        req_match = re.search(r"(REQ-\d{4}(?:-[a-z0-9-]+)?)", text)
-        bug_match = re.search(r"(BUG-\d{4}(?:-[a-z0-9-]+)?)", text)
-        if req_match:
-            linked_req = normalize_issue_id(req_match.group(1), "issues/requirements")
-        if bug_match:
-            linked_bug = normalize_issue_id(bug_match.group(1), "issues/bugs")
+        frontmatter = parse_frontmatter_yaml(read_text(proposal))
+        req_value = frontmatter.get("requirement_id") or frontmatter.get("req_id") or frontmatter.get("source_requirement")
+        bug_value = frontmatter.get("bug_id") or frontmatter.get("source_bug")
+        if isinstance(req_value, str) and req_value.strip():
+            linked_req = normalize_issue_id(req_value.strip(), "issues/requirements")
+        if isinstance(bug_value, str) and bug_value.strip():
+            linked_bug = normalize_issue_id(bug_value.strip(), "issues/bugs")
     return linked_req, linked_bug
 
 
@@ -546,6 +553,7 @@ def load_change_record(change_id: str, issues: dict[str, IssueRecord], openspec_
             location="active",
             tasks=tasks,
             openspec_status=openspec_entry.get("status") if openspec_entry else "active",
+            trace={**parse_frontmatter_yaml(read_text(active_path / "trace.md")), **execution_metadata(read_text(active_path / "trace.md"))} if (active_path / "trace.md").exists() else {},
             linked_req=linked_req,
             linked_bug=linked_bug,
         )

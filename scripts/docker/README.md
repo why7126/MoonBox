@@ -49,3 +49,6 @@ data/tmp
 ## 说明
 
 按 `rules/directory-structure.md`，不在根目录新增 `docker/` 业务目录；Compose 与 Dockerfile 位置见上表。
+
+
+Chat常驻单机执行使用根脚本`--chat-platform`，先`--check`再配对启动/停止；需要显式仓库/空间及unlimited或有限策略配置。与可丢弃`--chat-test`互斥，私有数据长期保留，见`docs/02-deployment.md`。

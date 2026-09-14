@@ -6,10 +6,10 @@ version: v1
 status: done
 owner: product
 source: capture.md
-priority: P1
 parent_requirement:
 created_at: 2026-08-10 12:53:09
-updated_at: 2026-08-13 22:51:30
+updated_at: 2026-09-12 20:54:40
+priority: P1
 ---
 
 # P03-01 需求研发流转看板需求文档 v4.0.5

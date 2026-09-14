@@ -1,0 +1,7 @@
+ARG BACKEND_IMAGE=moonbox-backend:local
+FROM ${BACKEND_IMAGE}
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends docker-cli git && rm -rf /var/lib/apt/lists/*
+COPY container/seccomp-codex.json /app/container/seccomp-codex.json
+COPY app /app/app
+CMD ["python", "-m", "app.chat.platform_worker"]

@@ -1,4 +1,5 @@
 ---
+updated_at: 2026-09-12 17:46:39
 name: "req-generate"
 description: "需求生成 - 仅生成 requirement.md（PRD）"
 ---
@@ -100,3 +101,5 @@ python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --spr
 - 报告中 MUST 覆盖 `issues/requirements/CHANGELOG.md` 对应 REQ 行；若缺失该文件更新或 no-delta 记录，视为派生刷新未覆盖，必须修复 Workflow Sync 后重跑。
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).
+
+分级元数据遵循 `rules/document-governance.md` 的“Issue 分级元数据”：REQ 使用 priority，BUG 使用 severity，写入 Frontmatter；trace 为当前事实源，主文档与 capture 同步，初判依据留正文。

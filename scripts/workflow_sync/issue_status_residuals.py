@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .execution import atomic_write
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -192,11 +194,12 @@ def reconcile_issue_status_residuals(
     changed_fields = 0
     for path in sorted({plan.residual.file for plan in planned}):
         text = collect.read_text(path)
+        original = text
         text, fm_changed = _replace_frontmatter_status(text, issue_target_closed_status(issue))
         text, block_changed = _replace_yaml_block_status(text, issue_target_closed_status(issue))
         if fm_changed or block_changed:
             text, _ = touch_frontmatter(text, bump_updated=True)
-            path.write_text(text, encoding="utf-8")
+            atomic_write(path, text, original)
             changed_files += 1
             changed_fields += int(fm_changed) + int(block_changed)
 

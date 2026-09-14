@@ -69,6 +69,7 @@ describe("admin authentication gate", () => {
         status: 200,
         json: async () => ({
           data: {
+            projects: [],
             issues: [],
             workspaces: [],
             current_user: { name: "superadmin", avatar_initial: "S", can_access_admin: true, permissions: ["requirement:read", "admin:access"] },
@@ -118,6 +119,7 @@ describe("admin authentication gate", () => {
         status: 200,
         json: async () => ({
           data: {
+            projects: [],
             issues: [],
             workspaces: [],
             current_user: { name: "frontuser", avatar_initial: "F", can_access_admin: false, permissions: ["requirement:read"] },
@@ -140,7 +142,7 @@ describe("admin authentication gate", () => {
     expect(screen.queryByRole("menuitem", { name: "进入后台" })).toBeNull();
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      "/api/v1/requirement-center/context",
+      "/api/v1/requirement-center/projects",
       expect.objectContaining({
         headers: expect.objectContaining({ authorization: "Bearer front-token" }),
       }),
@@ -157,6 +159,7 @@ describe("admin authentication gate", () => {
         status: 200,
         json: async () => ({
           data: {
+            projects: [],
             issues: [],
             workspaces: [{ organization_name: "MoonBox", workspace_id: "moonbox", name: "MoonBox", slug: "moonbox", description: "", timezone: "Asia/Shanghai", member_count: 1, role: "拥有者" }],
             current_user: { name: "superadmin", avatar_initial: "S", can_access_admin: true, permissions: ["requirement:read", "admin:access"] },

@@ -1,4 +1,5 @@
 ---
+updated_at: 2026-09-13 16:02:48
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
@@ -156,3 +157,7 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 - 「待用户决策/处理」只列缺失输入、需用户选择的范围/策略/证据/验收/发布确认、阻塞项或需人工处理事项；没有则写“无”。
 - 最终回复必须包含面向用户的真实结果，不得输出本段规则、尖括号占位符、MUST/SHOULD 规范语句或与当前命令无关的通用示例。
 - 不得因为输出了下一步引导而自动执行下一命令；除非用户明确授权。
+
+## Change 身份门禁
+
+遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。

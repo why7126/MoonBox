@@ -1,15 +1,14 @@
 ---
 bug_id: BUG-0010-admin-user-actions-validation-no-feedback
 status: done
-severity: high
-priority: P1
 lifecycle_stage: archive
 iteration: sprint-002
 related_requirement:
 related_bug:
 related_change: fix-admin-user-actions-validation-feedback
 created_at: 2026-08-13 09:22:20
-updated_at: 2026-08-13 22:49:07
+updated_at: 2026-09-12 22:27:53
+severity: high
 ---
 
 # 追溯

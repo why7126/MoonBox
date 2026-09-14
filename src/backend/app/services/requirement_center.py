@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+from contextvars import ContextVar
+from functools import wraps
+from copy import deepcopy
+from contextlib import contextmanager
 from datetime import datetime
 import os
 from pathlib import Path
 import re
 from typing import Any
 
+from app.governance.lifecycle import change_state, aggregate_states
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 import yaml
@@ -36,6 +41,39 @@ def _resolve_governance_root(source_file: Path | None = None) -> Path:
 
 
 GOVERNANCE_ROOT = _resolve_governance_root()
+# Compatibility for offline governance tools/tests. HTTP callers always bind an
+# authorized immutable snapshot; concurrent requests never mutate module state.
+_SCOPED_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_root", default=None)
+
+def _governance_root() -> Path:
+    return _SCOPED_ROOT.get() or GOVERNANCE_ROOT
+
+@contextmanager
+def using_governance_root(root: Path, *, immutable: bool = False):
+    token = _SCOPED_ROOT.set(root)
+    memo_token = _READ_MEMO.set({} if immutable else None)
+    try:
+        yield
+    finally:
+        _SCOPED_ROOT.reset(token)
+        _READ_MEMO.reset(memo_token)
+
+# Request-local pure parsing only. Mutable legacy/writer contexts opt out.
+_READ_MEMO: ContextVar[dict | None] = ContextVar("requirement_center_read_memo", default=None)
+
+
+def _memoized_read(function):
+    @wraps(function)
+    def read(*args):
+        memo = _READ_MEMO.get()
+        if memo is None:
+            return function(*args)
+        key = (function.__name__, tuple(tuple(arg) if isinstance(arg, list) else arg for arg in args))
+        if key not in memo:
+            memo[key] = function(*args)
+        return deepcopy(memo[key])
+    return read
+
 STAGES = {
     "captured": "capture",
     "draft": "planning",
@@ -57,11 +95,14 @@ TASK_MARKER_RE = re.compile(r"^(\s*[-*]\s+\[)( |x|X)(\]\s+.*)$")
 def build_requirement_center_context(
     current_user: dict[str, Any] | None = None,
     db: Session | None = None,
+    visibility=None,
 ) -> RequirementCenterContext:
-    issues = _load_issues("requirement") + _load_issues("bug")
+    from app.governance.change_index import ChangeIndex
+    issues = ChangeIndex(_governance_root()).cards(visibility or (lambda _: True))
     issues.sort(key=lambda item: item.updated_at, reverse=True)
     stats = RequirementCenterStats(
         total=len(issues),
+        standalone_changes=sum(1 for item in issues if item.type == "change"),
         requirements=sum(1 for item in issues if item.type == "requirement"),
         bugs=sum(1 for item in issues if item.type == "bug"),
         blocked=sum(1 for item in issues if item.blocked),
@@ -79,7 +120,7 @@ def build_requirement_center_context(
 
 
 def _load_issues(issue_type: str) -> list[RequirementCenterIssue]:
-    registry_path = GOVERNANCE_ROOT / "issues" / ("requirements" if issue_type == "requirement" else "bugs") / "_registry.yaml"
+    registry_path = _governance_root() / "issues" / ("requirements" if issue_type == "requirement" else "bugs") / "_registry.yaml"
     if not registry_path.exists():
         raise FileNotFoundError(f"requirement center registry missing: {issue_type}")
     registry = _read_yaml(registry_path)
@@ -87,20 +128,35 @@ def _load_issues(issue_type: str) -> list[RequirementCenterIssue]:
     return [_build_issue(issue_type, entry) for entry in entries if isinstance(entry, dict)]
 
 
-def _build_issue(issue_type: str, entry: dict[str, Any]) -> RequirementCenterIssue:
+def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[str] | None = None, status_override: str | None = None) -> RequirementCenterIssue:
     issue_id = str(entry.get("id", "")).strip()
     issue_dir = _safe_issue_dir(entry.get("path"))
     trace = _frontmatter(issue_dir / "trace.md") if issue_dir else {}
-    changes = _linked_changes(entry, trace)
+    changes = _linked_changes(entry, trace) if changes_override is None else changes_override
     tasks = _change_tasks(changes)
     task_progress = (tasks.done, tasks.total) if tasks and tasks.total else None
     raw_sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
-    status = _change_status(changes) or trace.get("status") or entry.get("status") or "captured"
-    documents = _display_document_names(issue_dir, changes, status)
+    status = status_override or _issue_status(entry, trace, changes)
+    documents = [name for name in _display_document_names(issue_dir, changes, status) if name != "sprint.md"]
+    main_document = "requirement.md" if issue_type == "requirement" else "bug.md"
+    documents = [name for name in documents if name not in {"requirement.md", "bug.md"}]
+    if issue_dir and (issue_dir / main_document).is_file():
+        documents.insert(0, main_document)
+    if issue_type == "requirement":
+        documents.extend(name for name in _prototype_documents(issue_dir) if name not in documents)
+    sprint_document = _sprint_document(entry, trace)
+    if sprint_document:
+        documents.append("sprint.md")
     stage = _map_stage(str(status), documents, changes)
     sprint_id = raw_sprint_id if _should_show_sprint(stage) else None
     warnings = _drift_warnings(entry, trace, issue_dir, raw_sprint_id)
-    blocked = _blocked_reason(stage, issue_type, documents, warnings, issue_dir)
+    validation_documents = sorted((set(_document_names(issue_dir)) - {"sprint.md"}) | set(documents))
+    blocked = _blocked_reason(stage, issue_type, validation_documents, warnings, issue_dir)
+    if stage == "sprint-planning":
+        if not sprint_document:
+            blocked = "缺少关联 Sprint 的 sprint.md"
+        elif not sprint_document.read_text(encoding="utf-8").strip():
+            blocked = "文档内容为空：sprint.md"
     detail_url = _detail_url(issue_id)
     return RequirementCenterIssue(
         id=_short_id(issue_id),
@@ -120,7 +176,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any]) -> RequirementCenterIss
         blocked=blocked,
         sprint_id=str(sprint_id) if sprint_id else None,
         task_progress=task_progress,
-        test_progress=_test_progress(documents, stage),
+        test_progress=_test_progress(_document_names(issue_dir), stage),
         manual_acceptance_count=0,
         drift_warnings=warnings,
     )
@@ -128,6 +184,23 @@ def _build_issue(issue_type: str, entry: dict[str, Any]) -> RequirementCenterIss
 
 def _should_show_sprint(stage: str) -> bool:
     return stage in SPRINT_VISIBLE_STAGES
+
+
+def _prototype_documents(issue_dir: Path | None) -> list[str]:
+    if not issue_dir or not issue_dir.is_dir():
+        return []
+    candidates = [issue_dir / "prototype.html"]
+    folder = issue_dir / "prototype"
+    if folder.is_dir() and not folder.is_symlink():
+        candidates.extend(folder.rglob("*.html"))
+    result = []
+    for path in candidates:
+        relative = path.relative_to(issue_dir)
+        if any((issue_dir / Path(*relative.parts[:i])).is_symlink() for i in range(1, len(relative.parts) + 1)):
+            continue
+        if path.is_file() and path.resolve().is_relative_to(issue_dir.resolve()):
+            result.append(relative.as_posix())
+    return sorted(set(result))
 
 
 def _document_names(issue_dir: Path | None) -> list[str]:
@@ -142,10 +215,15 @@ def _display_document_names(issue_dir: Path | None, changes: list[str], status: 
     if changes and stage in SPRINT_VISIBLE_STAGES:
         change_documents = _change_document_names(changes[0])
         if change_documents:
-            return change_documents
+            # A Change trace never supplies the card's Issue trace existence.
+            names = [name for name in change_documents if name != "trace.md"]
+            if issue_dir and (issue_dir / "trace.md").is_file():
+                names.append("trace.md")
+            return names
     return _document_names(issue_dir)
 
 
+@_memoized_read
 def _change_document_names(change_id: str) -> list[str]:
     try:
         change_dir = _change_dir(change_id)
@@ -163,17 +241,21 @@ def _change_document_names(change_id: str) -> list[str]:
 def _document_entries(issue_id: str, documents: list[str], stage: str, issue_type: str, changes: list[str]) -> list[RequirementCenterDocument]:
     entries: list[RequirementCenterDocument] = []
     change_id = changes[0] if changes and stage in SPRINT_VISIBLE_STAGES else None
-    for name in documents:
+    trace_dir = _find_issue_dir(issue_id)
+    for name in dict.fromkeys([*documents, "trace.md", *(["sprint.md"] if stage == "sprint-planning" else [])]):
         suffix = Path(name).suffix.lower()
         if suffix == ".md":
-            path_category = "change" if change_id and name in CHANGE_DOCS else "issue"
+            path_category = "change" if change_id and name in CHANGE_DOCS and name != "trace.md" else "issue"
             capability = compute_document_capability(
                 issue_type=issue_type,
                 stage=stage,
                 document_name=name,
                 path_category=path_category,
-                exists=True,
+                exists=bool(trace_dir and (trace_dir / name).is_file()) if name == "trace.md" else True,
             )
+            if name == "sprint.md":
+                capability = RequirementCenterDocumentCapability(
+                    readable="sprint.md" in documents, reason="关联 Sprint 文档只读" if "sprint.md" in documents else "关联 Sprint 文档不存在或已移动")
             url = (
                 f"/api/v1/requirement-center/changes/{change_id}/documents/{name}"
                 if path_category == "change"
@@ -196,7 +278,7 @@ def _document_entries(issue_id: str, documents: list[str], stage: str, issue_typ
                     name=name,
                     type="html",
                     open_mode="new-tab",
-                    label=name,
+                    label=name.removeprefix("prototype/"),
                     url=f"/api/v1/requirement-center/issues/{issue_id}/documents/{name}/preview",
                 )
             )
@@ -213,6 +295,8 @@ def compute_document_capability(
 ) -> RequirementCenterDocumentCapability:
     if not exists:
         return RequirementCenterDocumentCapability(readable=False, reason="文档不存在或已移动")
+    if document_name == "sprint.md":
+        return RequirementCenterDocumentCapability(reason="关联 Sprint 文档只读")
     if document_name == "trace.md":
         return RequirementCenterDocumentCapability(ai_mutable=True, reason="trace.md 仅允许系统治理链路更新，人工始终只读")
     if path_category == "effective_spec":
@@ -287,18 +371,19 @@ def _stage_action(issue_id: str, issue_type: str, stage: str, blocked: str | Non
 def _safe_issue_dir(raw_path: Any) -> Path | None:
     if not raw_path:
         return None
-    candidate = (GOVERNANCE_ROOT / str(raw_path)).resolve()
+    candidate = (_governance_root() / str(raw_path)).resolve()
     try:
-        candidate.relative_to(GOVERNANCE_ROOT)
+        candidate.relative_to(_governance_root())
     except ValueError:
         return None
     return candidate
 
 
+@_memoized_read
 def _read_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
     return data if isinstance(data, dict) else {}
 
 
@@ -360,7 +445,7 @@ def _load_project_workspace(
     issues: list[RequirementCenterIssue],
     current_user: dict[str, Any] | None,
 ) -> list[RequirementCenterWorkspace]:
-    project = _read_yaml(GOVERNANCE_ROOT / "project.yaml").get("project", {})
+    project = _read_yaml(_governance_root() / "project.yaml").get("project", {})
     if not isinstance(project, dict):
         project = {}
     name = str(project.get("name") or project.get("code") or "MoonBox").strip()
@@ -406,6 +491,7 @@ def _workspace_role(user: dict[str, Any] | None) -> str:
     return "只读"
 
 
+@_memoized_read
 def _frontmatter(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
@@ -415,7 +501,7 @@ def _frontmatter(path: Path) -> dict[str, Any]:
     parts = text.split("---", 2)
     if len(parts) < 3:
         return {}
-    data = yaml.safe_load(parts[1])
+    data = yaml.load(parts[1], Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
     return data if isinstance(data, dict) else {}
 
 
@@ -433,13 +519,14 @@ def _linked_changes(entry: dict[str, Any], trace: dict[str, Any]) -> list[str]:
     return sorted(set(changes))
 
 
+@_memoized_read
 def _change_tasks(changes: list[str]) -> RequirementCenterTasks | None:
     total_done = 0
     total = 0
     blocked: list[str] = []
     source: str | None = None
     for change in changes:
-        tasks_path = GOVERNANCE_ROOT / "openspec" / "changes" / change / "tasks.md"
+        tasks_path = _change_dir(change) / "tasks.md"
         if not tasks_path.exists():
             continue
         source = change
@@ -465,27 +552,32 @@ def _change_status(changes: list[str]) -> str | None:
         return None
     statuses = []
     for change in changes:
-        trace = _frontmatter(GOVERNANCE_ROOT / "openspec" / "changes" / change / "trace.md")
-        if trace.get("status"):
-            statuses.append(str(trace["status"]))
-    if "in_progress" in statuses:
-        return "in_progress"
-    if "applied" in statuses:
-        return "applied"
-    return statuses[0] if statuses else "proposed"
+        directory = _change_dir(change)
+        if directory.parent == (_governance_root() / "openspec" / "archive").resolve():
+            statuses.append("archived")
+            continue
+        if not directory.is_dir():
+            continue
+        trace = _frontmatter(directory / "trace.md")
+        progress = _change_tasks([change])
+        statuses.append(change_state(trace, progress.done if progress else 0, progress.total if progress else 0))
+    return aggregate_states(statuses)
+
+
+def _issue_status(entry: dict[str, Any], trace: dict[str, Any], changes: list[str]) -> str:
+    status = str(trace.get("status") or entry.get("status") or "captured")
+    # Closed issues cannot be reopened by a historical Change status.
+    if status in {"done", "archived"}:
+        return status
+    return _change_status(changes) or status
 
 
 def _map_stage(status: str, documents: list[str], changes: list[str]) -> str:
     if status == "in_sprint" and changes:
         return "ready-dev"
-    if status in {"proposed", "in_sprint"} and changes:
-        progress = _change_task_progress(changes)
-        if progress and progress[1] > 0 and progress[0] == progress[1]:
-            return "acceptance"
-        return STAGES.get(status, "ready-dev")
     if status == "captured" and any(doc in documents for doc in ("requirement.md", "bug.md")):
         return "planning"
-    return STAGES.get(status, "capture")
+    return "unknown" if status == "unknown" else STAGES.get(status, "capture")
 
 
 def _drift_warnings(entry: dict[str, Any], trace: dict[str, Any], issue_dir: Path | None, sprint_id: Any) -> list[str]:
@@ -499,14 +591,48 @@ def _drift_warnings(entry: dict[str, Any], trace: dict[str, Any], issue_dir: Pat
     return warnings
 
 
+def _sprint_document(entry: dict[str, Any], trace: dict[str, Any]) -> Path | None:
+    """Resolve exactly the associated Sprint; never use an Issue or stale copy."""
+    sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
+    if not isinstance(sprint_id, str) or not re.fullmatch(r"sprint-\d{3,}", sprint_id):
+        return None
+    root = _governance_root().resolve()
+    directory = root / "iterations/change" / sprint_id
+    if not directory.exists():
+        directory = root / "iterations/archive" / sprint_id
+    directory = directory.resolve()
+    try:
+        directory.relative_to(root / "iterations")
+        target = (directory / "sprint.md").resolve()
+        target.relative_to(directory)
+    except ValueError:
+        return None
+    sprint = _read_yaml(directory / "sprint.yaml")
+    key = "requirements" if str(entry.get("id", "")).startswith("REQ-") else "bugs"
+    if entry.get("id") not in (sprint.get(key) or []):
+        return None
+    return target if target.is_file() else None
+
+
+def _issue_sprint_document(issue_id: str, issue_dir: Path) -> Path | None:
+    folder = "requirements" if issue_id.startswith("REQ-") else "bugs"
+    registry = _read_yaml(_governance_root() / "issues" / folder / "_registry.yaml")
+    entry = next((item for item in registry.get("entries", []) if item.get("id") == issue_id), {})
+    return _sprint_document(entry, _frontmatter(issue_dir / "trace.md"))
+
+
 def _sprint_contains(sprint_id: str, issue_id: str) -> bool:
-    sprint = _read_yaml(GOVERNANCE_ROOT / "iterations" / "change" / sprint_id / "sprint.yaml")
+    if Path(sprint_id).name != sprint_id:
+        return False
+    sprint = _read_yaml(_governance_root() / "iterations" / "change" / sprint_id / "sprint.yaml")
+    if not sprint:
+        sprint = _read_yaml(_governance_root() / "iterations" / "archive" / sprint_id / "sprint.yaml")
     key = "requirements" if issue_id.startswith("REQ-") else "bugs"
     return issue_id in (sprint.get(key) or [])
 
 
 def _load_open_sprints() -> list[str]:
-    base = GOVERNANCE_ROOT / "iterations" / "change"
+    base = _governance_root() / "iterations" / "change"
     if not base.exists():
         return []
     sprints: list[str] = []
@@ -519,7 +645,8 @@ def _load_open_sprints() -> list[str]:
 
 
 def read_requirement_center_document(issue_id: str, document_name: str) -> tuple[str, str]:
-    if Path(document_name).name != document_name:
+    nested_prototype = document_name.startswith("prototype/") and document_name.endswith(".html")
+    if Path(document_name).name != document_name and not nested_prototype:
         raise PermissionError("invalid document name")
     suffix = Path(document_name).suffix.lower()
     if suffix not in {".md", ".html"}:
@@ -527,6 +654,13 @@ def read_requirement_center_document(issue_id: str, document_name: str) -> tuple
     issue_dir = _find_issue_dir(issue_id)
     if issue_dir is None:
         raise FileNotFoundError("issue not found")
+    if nested_prototype and (not issue_id.startswith("REQ-") or document_name not in _prototype_documents(issue_dir)):
+        raise FileNotFoundError("prototype not found")
+    if document_name == "sprint.md":
+        target = _issue_sprint_document(issue_id, issue_dir)
+        if target is None:
+            raise FileNotFoundError("associated sprint document not found")
+        return target.read_text(encoding="utf-8"), suffix
     target = (issue_dir / document_name).resolve()
     try:
         target.relative_to(issue_dir.resolve())
@@ -542,6 +676,14 @@ def read_requirement_center_change_document(change_id: str, document_name: str) 
         raise PermissionError("invalid document name")
     if Path(document_name).suffix.lower() != ".md":
         raise ValueError("unsupported document type")
+    if document_name == "sprint.md":
+        from app.governance.change_index import ChangeIndex
+        index = ChangeIndex(_governance_root())
+        record = index.records.get(change_id)
+        target = index.sprint_document(record) if record else None
+        if target is None:
+            raise FileNotFoundError("associated sprint document not found")
+        return target.read_text(encoding="utf-8"), ".md"
     if document_name == "spec.md":
         spec_paths = _change_spec_paths(change_id)
         if not spec_paths:
@@ -647,6 +789,7 @@ def _change_document_path(change_id: str, document_name: str) -> Path:
     return target
 
 
+@_memoized_read
 def _change_spec_paths(change_id: str) -> list[Path]:
     change_dir = _change_dir(change_id)
     return sorted((change_dir / "specs").glob("*/spec.md"))
@@ -673,7 +816,7 @@ def _write_change_spec_document(change_id: str, content: str) -> str:
 
 
 def _change_stage(change_id: str) -> str:
-    status = _frontmatter(_change_dir(change_id) / "trace.md").get("status") or "proposed"
+    status = _change_status([change_id]) or "proposed"
     return STAGES.get(str(status), "ready-dev")
 
 
@@ -683,14 +826,22 @@ def _change_issue_type(change_id: str) -> str:
     return "bug" if source.startswith("BUG-") else "requirement"
 
 
+@_memoized_read
 def _change_dir(change_id: str) -> Path:
-    change_root = (GOVERNANCE_ROOT / "openspec" / "changes").resolve()
+    change_root = (_governance_root() / "openspec" / "changes").resolve()
     change_dir = (change_root / change_id).resolve()
     try:
         change_dir.relative_to(change_root)
     except ValueError as exc:
         raise PermissionError("invalid change path") from exc
-    return change_dir
+    if change_dir.is_dir():
+        return change_dir
+    archive_root = (_governance_root() / "openspec" / "archive").resolve()
+    # Full dated folder suffix, never a fuzzy or short-ID match.
+    matches = [path.resolve() for path in archive_root.glob("*")
+               if path.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}-" + re.escape(change_id), path.name)
+               and path.resolve().parent == archive_root]
+    return matches[0] if len(matches) == 1 else change_dir
 
 
 def _is_task_toggle_only_change(original: str, updated: str) -> bool:
@@ -718,20 +869,20 @@ def _is_task_toggle_only_change(original: str, updated: str) -> bool:
 
 def _issue_stage(issue_id: str, issue_dir: Path, documents: list[str]) -> str:
     issue_type = "requirements" if issue_id.startswith("REQ-") else "bugs"
-    registry = _read_yaml(GOVERNANCE_ROOT / "issues" / issue_type / "_registry.yaml")
+    registry = _read_yaml(_governance_root() / "issues" / issue_type / "_registry.yaml")
     trace = _frontmatter(issue_dir / "trace.md")
     entry = next(
         (item for item in registry.get("entries", []) if isinstance(item, dict) and str(item.get("id")) == issue_id),
         {},
     )
     changes = _linked_changes(entry, trace) if isinstance(entry, dict) else []
-    status = _change_status(changes) or trace.get("status") or (entry.get("status") if isinstance(entry, dict) else None) or "captured"
+    status = _issue_status(entry, trace, changes)
     return _map_stage(str(status), documents, changes)
 
 
 def _find_issue_dir(issue_id: str) -> Path | None:
     issue_type = "requirements" if issue_id.startswith("REQ-") else "bugs"
-    registry = _read_yaml(GOVERNANCE_ROOT / "issues" / issue_type / "_registry.yaml")
+    registry = _read_yaml(_governance_root() / "issues" / issue_type / "_registry.yaml")
     for entry in registry.get("entries", []) if isinstance(registry, dict) else []:
         if isinstance(entry, dict) and str(entry.get("id")) == issue_id:
             return _safe_issue_dir(entry.get("path"))
@@ -779,7 +930,7 @@ def _blocked_reason(stage: str, issue_type: str, documents: list[str], warnings:
     empty = _empty_documents(issue_dir, required)
     if empty:
         return f"文档内容为空：{', '.join(empty)}"
-    if warnings:
+    if warnings and stage != "done":
         return "存在数据漂移"
     return None
 
@@ -803,11 +954,14 @@ def _owner_name(value: Any) -> str:
 
 def _updated_at(value: Any) -> str:
     if isinstance(value, datetime):
-        return value.strftime("%H:%M")
-    if not value:
-        return "--:--"
-    text = str(value)
-    return text[11:16] if len(text) >= 16 else text
+        return value.strftime("%y/%m/%d %H:%M")
+    if not isinstance(value, str) or not re.match(r"^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}", value.strip()):
+        return "更新时间未知"
+    try:
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return "更新时间未知"
+    return parsed.strftime("%y/%m/%d %H:%M")
 
 
 def _short_id(issue_id: str) -> str:

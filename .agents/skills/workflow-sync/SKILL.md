@@ -1,4 +1,5 @@
 ---
+updated_at: 2026-09-12 21:30:04
 name: workflow-sync
 description: Sync REQ/BUG/Sprint/OpenSpec workflow status after req/bug/sprint/opsx commands
 ---
@@ -193,3 +194,9 @@ Workflow Sync 会在聚焦事件中同步 Issue 主文档和验收文档：
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。
 - 「下一步」只列可直接执行的命令或验证动作；「待用户决策/处理」只列需要用户选择、授权、提供资料或确认风险的事项。
 - 同一事项不得在「下一步」与「待用户决策/处理」中重复；不得重复输出等价事项。
+
+分级同步遵循 `rules/document-governance.md` 的“Issue 分级元数据”；聚焦同步前校验合法值，trace 优先，更新已有镜像与注册表，保留正文历史；缺失或非法值报告错误。
+
+## 执行生命周期事件
+
+opsx.start和opsx.progress为Change事件，同样要求Sprint范围与Issue门禁。execution.schema_version=1保存started_at、completed_at、last_event，区分启动、进度、完成。opsx.apply只在完成门禁通过后调用；CLI校验任务全完成。先写Change执行事实，再重放Issue/Sprint投影；重复操作幂等，旧终态兼容，CLI不伪造界面行为事件。启动同步不执行AI Usage完成Hook。

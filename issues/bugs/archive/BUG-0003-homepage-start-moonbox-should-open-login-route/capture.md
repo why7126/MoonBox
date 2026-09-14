@@ -2,11 +2,11 @@
 bug_id: BUG-0003-homepage-start-moonbox-should-open-login-route
 status: archived
 created_at: 2026-08-11 08:19:05
-updated_at: 2026-08-13 22:50:17
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: medium
 ---
 
 # 现象

@@ -132,6 +132,7 @@ legacy_target_dir="$legacy_root/$archive_date-$change_id"
 [[ -d "$active_dir" ]] || fail "active change not found: openspec/changes/$change_id"
 [[ ! -e "$target_dir" ]] || fail "archive target already exists: openspec/archive/$archive_date-$change_id"
 
+python scripts/validate-change-identity.py
 run_language_gate
 relocate_legacy_archives "$canonical_root" "$legacy_root"
 

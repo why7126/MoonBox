@@ -1,0 +1,55 @@
+{
+  "change": "add-chat-workbench-codex",
+  "requirement": "REQ-0025-chat-workbench",
+  "sprint": "sprint-004",
+  "status": "sidebar_verified",
+  "whole_change_status": "in_progress",
+  "unit_tests": {
+    "files": 9,
+    "passed": 87
+  },
+  "visual": {
+    "screenshots": 52,
+    "pair_comparisons": 12,
+    "viewports": [
+      "1440x900",
+      "1024x600",
+      "390x844"
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "page_errors": 0,
+    "session_regression_screenshots": 23,
+    "boundary": "合成账号/空间/API响应，只读页面验收，不代表平台真实Codex端到端通过"
+  },
+  "deployment": {
+    "web_image": "sha256:359cbba3480578efb9e8eb952215e27b730d2393abfb8e89faec6454588155f8",
+    "backend_image": "sha256:52ccb991e158f6ed75452b62e167becf3744cfb0d87586a2429328f24dcf7c24",
+    "backend_unchanged": true,
+    "recovery_unchanged": true,
+    "web_http": 200,
+    "backend_health": "ok",
+    "restart_counts": 0
+  },
+  "resolved_findings": [
+    "独立侧栏结构和Chat按钮级联导致分组、图标和账号入口不一致",
+    "390px空间浮层右侧越界",
+    "共享空间设置弹窗原遮罩留白和桌面分列导致窄屏越界",
+    "CSS收敛后执行栏select颜色回归已修复"
+  ],
+  "remaining_external_dependencies": [
+    "平台专用认证及正式仓库绑定",
+    "用户暂缓正式额度与删除时限配置"
+  ],
+  "governance": {
+    "openspec_strict": "pass",
+    "chinese": "pass",
+    "directory": "pass",
+    "sprint_scope": "pass",
+    "git_diff_check": "pass",
+    "workflow_sync": "dry-run only; errors=0; subdocuments=7; blockers=0",
+    "ai_usage_hook": "skipped: whole change remains in_progress; applied completion sync not run"
+  }
+}

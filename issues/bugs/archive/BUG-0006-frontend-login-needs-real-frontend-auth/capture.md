@@ -2,11 +2,11 @@
 bug_id: BUG-0006-frontend-login-needs-real-frontend-auth
 status: done
 created_at: 2026-08-11 22:58:07
-updated_at: 2026-08-13 22:51:42
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

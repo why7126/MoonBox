@@ -1,0 +1,33 @@
+{
+  "auth_source": "local ChatGPT login; not platform credential",
+  "runtime": "codex-cli 0.153.4",
+  "transport": "App Server stdio",
+  "repository": "temporary synthetic fixture",
+  "platform_isolation_validated": false,
+  "thread_created": true,
+  "turn_1": {
+    "status": "completed",
+    "before": "0",
+    "after": "1",
+    "expected_change": true
+  },
+  "thread_resumed_after_restart": true,
+  "turn_2": {
+    "status": "completed",
+    "before": "1",
+    "after": "2",
+    "expected_change": true
+  },
+  "probe_error": "RuntimeError:rpc_error:turn/interrupt:-32600",
+  "interrupt_recheck": {
+    "test": "interrupt_confirmation",
+    "runtime": "codex-cli 0.153.4",
+    "terminal": "interrupted"
+  },
+  "limitations": [
+    "Personal local ChatGPT session used only for controlled protocol validation",
+    "Immediate interrupt initially returned -32600; delayed interrupt confirmed interrupted; race semantics unresolved",
+    "Platform worker credential and resource isolation not validated",
+    "MoonBox conversation API not implemented"
+  ]
+}

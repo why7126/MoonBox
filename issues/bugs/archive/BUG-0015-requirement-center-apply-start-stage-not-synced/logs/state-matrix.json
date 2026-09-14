@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-09-12 17:44:10",
+  "mode": "synthetic_ast_function_execution",
+  "sources": {
+    "scripts/workflow_sync/derive.py": "93257c1f4d924319b18ba84dd768c4ad73ddb0027ae45e3fd0a7ce233b98b9d2",
+    "src/backend/app/services/requirement_center.py": "915e8ea163756f58db8ca888f19e7473430c2f03e7c331295279e8dae58d909a"
+  },
+  "method": "Extract derive_change_state and STAGES/_map_stage from source AST; inject synthetic ChangeRecord and task counts; no API, browser or workflow writes.",
+  "rows": [
+    {
+      "done": 0,
+      "total": 16,
+      "change_trace": "proposed",
+      "sync_derived": "proposed",
+      "board_stage": "ready-dev"
+    },
+    {
+      "done": 0,
+      "total": 16,
+      "change_trace": "in_progress",
+      "sync_derived": "proposed",
+      "board_stage": "development"
+    },
+    {
+      "done": 1,
+      "total": 16,
+      "change_trace": "proposed",
+      "sync_derived": "in_progress",
+      "board_stage": "ready-dev"
+    },
+    {
+      "done": 16,
+      "total": 16,
+      "change_trace": "in_progress",
+      "sync_derived": "applied",
+      "board_stage": "development"
+    }
+  ],
+  "assertions_passed": 4
+}

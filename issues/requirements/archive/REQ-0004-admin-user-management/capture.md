@@ -2,11 +2,11 @@
 req_id: REQ-0004-admin-user-management
 status: archived
 created_at: 2026-08-07 22:06:39
-updated_at: 2026-08-08 19:26:48
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 管理后台用户管理系统

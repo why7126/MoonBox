@@ -1,0 +1,119 @@
+{
+  "source": "observed",
+  "boundary": "真实应用构建、API、临时SQLite、专用项目与双账号；无API路由Mock；数据为隔离验收样本",
+  "steps": [
+    {
+      "event": "login-and-read",
+      "actor": "alice",
+      "visible": 2
+    },
+    {
+      "event": "standalone-document-and-escape",
+      "readonly": true
+    },
+    {
+      "event": "existing-title-progress-footer",
+      "passed": true,
+      "footer": "保留真实模式原有提示；Action Modal 仅在原Demo模式开放"
+    },
+    {
+      "event": "state-refresh",
+      "status": "in_progress",
+      "stage": "development"
+    },
+    {
+      "event": "state-refresh",
+      "status": "applied",
+      "stage": "acceptance"
+    },
+    {
+      "event": "archive-refresh",
+      "stage": "done"
+    },
+    {
+      "event": "new-association-refresh",
+      "visible": 1,
+      "standalone": 0,
+      "current": null
+    },
+    {
+      "event": "login-and-read",
+      "actor": "bob",
+      "visible": 2
+    },
+    {
+      "event": "long-id-390",
+      "fontSize": "10.5px"
+    }
+  ],
+  "styles": [
+    {
+      "theme": "dark",
+      "viewport": 1440,
+      "original": {
+        "fontSize": "10.5px",
+        "fontFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        "fontWeight": "500",
+        "fontStyle": "italic",
+        "lineHeight": "12.6px",
+        "color": "rgb(152, 160, 179)"
+      },
+      "change": {
+        "fontSize": "10.5px",
+        "fontFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        "fontWeight": "500",
+        "fontStyle": "italic",
+        "lineHeight": "12.6px",
+        "color": "rgb(152, 160, 179)"
+      },
+      "title": {
+        "fontSize": "13.5px",
+        "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+        "fontWeight": "600",
+        "fontStyle": "normal",
+        "lineHeight": "20.25px",
+        "color": "rgb(246, 241, 231)"
+      },
+      "card": {
+        "width": "300px",
+        "padding": "15px 16px 18px",
+        "borderRadius": "11px"
+      },
+      "idText": "REQ-0099"
+    },
+    {
+      "theme": "light",
+      "viewport": 1440,
+      "original": {
+        "fontSize": "10.5px",
+        "fontFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        "fontWeight": "500",
+        "fontStyle": "italic",
+        "lineHeight": "12.6px",
+        "color": "rgb(103, 112, 133)"
+      },
+      "change": {
+        "fontSize": "10.5px",
+        "fontFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        "fontWeight": "500",
+        "fontStyle": "italic",
+        "lineHeight": "12.6px",
+        "color": "rgb(103, 112, 133)"
+      },
+      "title": {
+        "fontSize": "13.5px",
+        "fontFamily": "Inter, \"Noto Sans SC\", system-ui, sans-serif",
+        "fontWeight": "600",
+        "fontStyle": "normal",
+        "lineHeight": "20.25px",
+        "color": "rgb(16, 24, 40)"
+      },
+      "card": {
+        "width": "300px",
+        "padding": "15px 16px 18px",
+        "borderRadius": "11px"
+      },
+      "idText": "REQ-0099"
+    }
+  ]
+}

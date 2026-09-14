@@ -1,4 +1,5 @@
 ---
+updated_at: 2026-09-12 17:46:39
 name: "bug-generate"
 description: "缺陷生成 - 仅生成 bug.md"
 ---
@@ -90,3 +91,5 @@ python scripts/sync-workflow-status.py --event bug.generate --bug <BUG-id> --spr
 - Exit code **MUST** be `0` before ending this command.
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).
+
+分级元数据遵循 `rules/document-governance.md` 的“Issue 分级元数据”：REQ 使用 priority，BUG 使用 severity，写入 Frontmatter；trace 为当前事实源，主文档与 capture 同步，初判依据留正文。

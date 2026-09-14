@@ -1,0 +1,54 @@
+{
+  "reference_revision": "5dda764ed3",
+  "reference_access": "read-only source and local browser; no reference files changed",
+  "visual_mode": "real React implementation with synthetic API fixture; browser screenshots observed in tool results",
+  "screenshots_observed": [
+    "desktop dark conversation 1440x900",
+    "desktop dark tool result 1440x900",
+    "desktop light tool result 1440x900",
+    "mobile light trajectory 390x844",
+    "mobile dark trajectory 390x844"
+  ],
+  "computed_style": {
+    "desktop": {
+      "viewport": 1440,
+      "documentOverflow": false,
+      "toolbar": {
+        "fontSize": "12px",
+        "padding": "6px",
+        "position": "sticky"
+      },
+      "detail": {
+        "width": "529.195px",
+        "padding": "12px"
+      },
+      "composer": {
+        "width": "800px",
+        "padding": "14px"
+      }
+    },
+    "mobile": {
+      "viewport": 390,
+      "documentOverflow": false,
+      "detailWidth": "302px",
+      "composerWidth": "294px"
+    }
+  },
+  "privacy": "No raw personal reference screenshots persisted. Browser screenshot observations and sanitized measurements retained here.",
+  "limitations": [
+    "No pixel-diff assertion against DSH",
+    "Schema and model-request grouping unavailable in current adapter",
+    "Live model run not part of synthetic visual validation"
+  ],
+  "tests": {
+    "web_passed": 31,
+    "backend_passed": 48,
+    "backend_skipped": 1
+  },
+  "deployment": {
+    "web": "healthy",
+    "worker": "healthy",
+    "active_runs_before_update": 0,
+    "worker_source_hash_verified": true
+  }
+}

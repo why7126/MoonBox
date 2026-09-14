@@ -2,11 +2,11 @@
 bug_id: BUG-0011-admin-user-list-enum-time-display-unclear
 status: done
 created_at: 2026-08-13 09:22:20
-updated_at: 2026-08-15 10:13:26
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: medium
 ---
 
 # 现象

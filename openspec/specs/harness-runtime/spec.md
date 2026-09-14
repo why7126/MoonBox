@@ -1,7 +1,11 @@
+---
+updated_at: 2026-09-10 09:16:21
+---
+
 # harness-runtime Specification
 
 ## Purpose
-TBD - created by archiving change add-opsx-modify-ui-screenshot-comparison-gate. Update Purpose after archive.
+定义 MoonBox Agent 开发治理，包括 UI 返修证据、工作流状态、Apply 连续执行、完成门禁与中断续接，保证实现、验证和归档过程可追溯。
 ## Requirements
 ### Requirement: UI 返修附件截图逐项视觉对照
 
@@ -210,4 +214,38 @@ TBD - created by archiving change add-opsx-modify-ui-screenshot-comparison-gate.
 - **WHEN** Workflow Sync 使用轻量 Frontmatter 解析器读取 `status`、`title`、`priority`、`severity` 或 `updated_at`
 - **THEN** 解析器必须忽略缩进字段
 - **AND** 结构化嵌套对象应由结构化 YAML 解析路径读取
+
+### Requirement: Apply 连续执行与完成门禁
+Agent MUST 在已授权 Change 范围内连续实现、验证和同步，不得仅因完成一批任务而等待用户继续；完整细则由命令顺序文档集中维护。
+
+#### Scenario: 可修复自检失败
+- **WHEN** 当前 apply 的编译、测试或视觉自检失败且可在授权范围内修复
+- **THEN** Agent 在当前 apply 内补证、修复并重跑相关检查，不将自检转为用户必须另发的 modify
+
+#### Scenario: 真实外部阻塞
+- **WHEN** 必需权限、关键业务决策或人工证据缺失且无法自主解决
+- **THEN** Agent 保留门禁并说明证据、已尝试动作与所需输入，在授权范围内继续不依赖阻塞的工作；用户明确停止时立即停止
+
+#### Scenario: 完整交付
+- **WHEN** 所有任务已有完成证据
+- **THEN** Agent 核实必要验证、文档同步和串行 Workflow Sync 后才宣布完成，非阻断 AI Usage warning 如实披露
+
+#### Scenario: 中断与恢复
+- **WHEN** 执行被中断或上下文被压缩后恢复
+- **THEN** Agent 根据 Change、任务、实际文件和验证证据核实进度，从首个可执行剩余任务继续，不重复确认已有授权，不把部分完成标记 applied
+
+### Requirement: Apply停止决策与行为轨迹验收
+Agent MUST 在结束apply前判断所有剩余任务的依赖；未完成且仍有可执行任务时持续执行。校验器 MUST 区分合成回归与真实行为证据。
+#### Scenario: 测试失败后自行修复
+- **WHEN** 范围内测试失败且可自主修复
+- **THEN** Agent修复并重验，不结束等待继续
+#### Scenario: 用户插话或上下文压缩
+- **WHEN** 用户询问进度或运行内发生上下文压缩
+- **THEN** Agent承接原目标继续首个可执行任务
+#### Scenario: 局部部署依赖缺失
+- **WHEN** 部署缺配置但有独立开发任务
+- **THEN** Agent询问必要输入并继续独立任务
+#### Scenario: 全部任务依赖外部输入
+- **WHEN** 无可执行任务且剩余任务均依赖有证据的必要外部输入
+- **THEN** Agent报告依赖和恢复动作，允许等待
 

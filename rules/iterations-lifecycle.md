@@ -4,7 +4,7 @@ content: change / archive 两阶段目录职责、准入条件、迁移时机与
 source: 项目团队确认
 update_method: Sprint 流程或目录边界变化时同步更新
 created_at: 2026-06-27 23:45:00
-updated_at: 2026-08-27 01:20:53
+updated_at: '2026-09-12 23:15:07'
 note: 与 issues plan/review/archive 互补；机器索引仍为 sprint.yaml
 ---
 
@@ -79,7 +79,7 @@ iterations/sprint-xxx/   # 遗留，deprecated
 capacity_usage = estimated_person_days / capacity_person_days
 ```
 
-- 若容量或估算缺失导致无法计算，MUST 先补齐输入；不得默认通过。
+- 容量缺失按默认30人天写入；显式容量非法或估算缺失时，MUST 补齐有效输入后计算，不得默认通过。
 - 当 `estimated_person_days > capacity_person_days * 1.2` 时，MUST 硬阻断正式规划：不得创建 `iterations/change/<sprint>/` 四件套，不得更新 `trace.md` 的 `iteration` 或 Change trace，并提示拆分 Sprint、移出低优先级项或替换范围后重新运行 `/sprint-propose`。
 - 当 `capacity_person_days < estimated_person_days <= capacity_person_days * 1.2` 时，MAY 继续生成 Sprint，但 MUST 在 `sprint.md` 记录容量风险、fix 缓冲影响和延后项建议。
 - 当 `estimated_person_days <= capacity_person_days` 时，按既有 Review Gate、Readiness Gate 和 Scope 规则继续。
@@ -181,3 +181,11 @@ python scripts/check-sprint-close-stale-scan.py --sprint <sprint-id>
 □ 是否运行 validate-sprint-archive-readiness / generate-sprint-fact-sheet / check-sprint-close-stale-scan？
 □ 是否运行 sync-workflow-status.py --check ？
 ```
+
+### Sprint 默认容量与显式覆盖
+
+- Sprint 默认容量为 **30 人天**，事实源为 `sprint.yaml` 顶层 `capacity_person_days`。新建或缺失时写入30；有效显式值优先，不从 developers/testers 或日期隐式重算。
+- 已有显式容量保留，只有用户明确调整才覆盖；本规则不批量修改其他 active 或归档 Sprint。
+- 零、负数、空值、非数字或非有限数均为非法值，不能回退为默认值。估算仍需明确。
+- 调整使用 `python scripts/add-sprint-scope-item.py --sprint sprint-005 --capacity-person-days 30 --rationale "用户确认容量纠正"`；随后 Workflow Sync 刷新四件套，复核并清理目标 Sprint 中过时的容量风险说明。
+- 修改容量后重新计算占用、剩余缓冲及120%硬门禁；默认30不豁免门禁，低于30%缓冲仍提示风险。

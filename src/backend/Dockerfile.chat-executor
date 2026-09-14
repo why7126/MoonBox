@@ -1,0 +1,17 @@
+FROM python:3.12-slim AS codex-package
+COPY container/install_codex.py /install_codex.py
+RUN python /install_codex.py
+
+FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir .
+COPY app ./app
+COPY container/seccomp-codex.json ./container/seccomp-codex.json
+COPY container/LICENSE.moby ./container/LICENSE.moby
+COPY --from=codex-package /out/ /opt/codex/
+RUN ln -s /opt/codex/bin/codex /usr/local/bin/codex && ln -s /opt/codex/codex-path/rg /usr/local/bin/rg && codex --version && mkdir /work /runtime && chown 10001:10001 /work /runtime
+USER 10001:10001
+CMD ["codex", "--version"]

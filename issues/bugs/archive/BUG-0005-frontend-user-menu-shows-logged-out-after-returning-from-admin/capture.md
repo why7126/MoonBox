@@ -2,11 +2,11 @@
 bug_id: BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
 status: done
 created_at: 2026-08-11 18:16:00
-updated_at: 2026-08-13 22:45:08
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: medium
 ---
 
 # 现象

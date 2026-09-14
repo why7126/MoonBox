@@ -1,62 +1,57 @@
+import { RequirementCenterError, RequirementCenterErrorDetails, readFailure, type ReadFailure } from "./RequirementCenterError";
+import { CaptureGrading } from "./CaptureGrading";
+import "../../styles/project-governance.css";
+import { clearAdminSession } from "../admin/adminAuth";
+import { clearFrontendSession } from "../home/frontendSession";
+import { governanceRequest, GovernanceError, scopedUrl, waitApplication, type Project, type Application } from "../../components/workbench/governanceApi";
 import {
-  Bot,
-  BookOpen,
-  Calendar,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  CircleDot,
-  ClipboardList,
-  Code2,
-  Command,
-  Copy,
-  FileCheck,
-  GitBranch,
-  ImageIcon,
-  Loader2,
-  KeyRound,
-  LayoutDashboard,
-  ListChecks,
-  LogOut,
-  Maximize2,
-  MessageCircle,
-  Minimize2,
-  Plus,
-  RefreshCw,
-  Search,
-  Send,
-  Settings,
-  Sigma,
-  SunMoon,
-  Table2,
-  UserRound,
-  Users,
-  Wrench,
-  X,
+Check,
+CircleDot,
+Code2,
+Command,
+Copy,
+ImageIcon,
+Loader2,
+Maximize2,
+Minimize2,
+RefreshCw,
+Search,
+Send,
+Sigma,
+Table2,
+Wrench,
+X
 } from "lucide-react";
-import { ChangeEvent, FormEvent, KeyboardEvent, MouseEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import type { LucideIcon } from "lucide-react";
-import type { AdminSession } from "../admin/adminAuth";
-import { PRODUCT_VERSION } from "../../../../shared/product-version";
-import { ChangePasswordModal } from "../admin/AdminUserManagementPage";
-import { canAccessAdmin, clearAdminSession, logoutAdmin, readAdminSession, updateAdminProfile } from "../admin/adminAuth";
-import { clearFrontendSession, readFrontendSession, saveFrontendSession } from "../home/frontendSession";
-import { readUiPreferences, saveUiTheme, UI_PREFERENCES_EVENT } from "../home/uiPreferences";
+import { FormEvent,KeyboardEvent,MouseEvent,RefObject,useCallback,useEffect,useMemo,useRef,useState } from "react";
+import { WorkbenchSidebar } from "../../components/workbench/WorkbenchSidebar";
+import { useWorkbenchTheme } from "../../components/workbench/useWorkbenchTheme";
+import { avatarInitial,emptyUser,emptyWorkspace,fallbackUserFromSession,getStoredWorkspace,readAccessToken,type FrontendUser,type Workspace } from "../../components/workbench/workbenchAccount";
+import { readFrontendSession } from "../home/frontendSession";
+
+const stages: Stage[] = [
+  { id: "capture", title: "采集池", subtitle: "Capture / req-capture / bug-capture", emptyTitle: "暂无采集", emptyHint: "从新建 Capture 开始", emptyDetail: "需求或缺陷会先进入这里", requiredDocs: ["capture.md", "trace.md"] },
+  { id: "planning", title: "规划中", subtitle: "req-generate / bug-generate", emptyTitle: "暂无需求", emptyHint: "从采集池生成需求", emptyDetail: "后会显示在这里", requiredDocs: ["requirement.md", "trace.md"] },
+  { id: "review-ready", title: "待评审", subtitle: "req-complete / bug-complete", emptyTitle: "暂无待评审项", emptyHint: "规划完成的需求", emptyDetail: "将流转至此", requiredDocs: ["acceptance.md", "trace.md"] },
+  { id: "approved", title: "已评审", subtitle: "review.md 已生成", emptyTitle: "暂无已评审项", emptyHint: "通过评审后", emptyDetail: "自动归档于此", requiredDocs: ["review.md", "trace.md"] },
+  { id: "sprint-planning", title: "迭代规划", subtitle: "sprint-propose", emptyTitle: "暂无迭代项", emptyHint: "评审通过的对象", emptyDetail: "可加入 Sprint", requiredDocs: ["sprint.md", "trace.md"] },
+  { id: "ready-dev", title: "待开发", subtitle: "req-opsx / bug-opsx", emptyTitle: "暂无待开发项", emptyHint: "生成 OpenSpec 后", emptyDetail: "会进入开发队列", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "development", title: "研发中", subtitle: "opsx-apply / sprint-apply", emptyTitle: "暂无研发中任务", emptyHint: "开始 apply 后", emptyDetail: "进度会显示在这里", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "acceptance", title: "验收中", subtitle: "测试与人工验收", emptyTitle: "暂无验收项", emptyHint: "研发完成后", emptyDetail: "等待测试与人工确认", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
+  { id: "done", title: "已完成", subtitle: "全链路留痕", emptyTitle: "暂无完成项", emptyHint: "归档完成后", emptyDetail: "会保留最终证据", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"] },
+];
+
 
 type IssueType = "requirement" | "bug";
+type CardType = IssueType | "change";
 type Theme = "dark" | "light";
-type SettingsTab = "general" | "members" | "agents" | "skills" | "integrations" | "danger";
-type ProfileUploadState = "idle" | "uploading" | "done" | "failed";
 type MarkdownUploadState = "idle" | "uploading" | "done" | "failed";
 type MarkdownViewMode = "preview" | "edit" | "split";
 type ProgressFocus = "development" | "test" | "manual";
 type MarkdownParts = { frontmatter: Array<[string, string]>; frontmatterRaw: string; body: string };
 type DrawerState =
   | { type: "none" }
-  | { type: "markdown"; issue: IssueCard; document: IssueDocument; content: string; draft: string; loading: boolean; saving: boolean; error: string; mode: MarkdownViewMode; dirty: boolean; savedAt?: string }
-  | { type: "tasks"; issue: IssueCard; focus: ProgressFocus }
-  | { type: "ai" };
+  | { type: "markdown"; issue: IssueCard; document: IssueDocument; content: string; draft: string; loading: boolean; saving: boolean; error: string; failure?: ReadFailure; readBlocked?: boolean; mode: MarkdownViewMode; dirty: boolean; savedAt?: string; version?: string; focus?: ProgressFocus }
+  | { type: "ai"; issue?: IssueCard };
 type ChoiceDialog =
   | { type: "none" }
   | { type: "generation" | "completion" | "sprint" | "review"; issue: IssueCard; error: string };
@@ -75,11 +70,17 @@ type Stage = {
   requiredDocs: string[];
 };
 
+type ChangeSummary = { id: string; title: string | null; stage: string; source_kind: string; task_progress?: [number, number] | null; document_entries?: IssueDocument[]; warnings?: string[] };
+
 type IssueCard = {
   id: string;
-  type: IssueType;
+  current_change?: ChangeSummary | null;
+  related_changes?: ChangeSummary[];
+  change_warning?: string | null;
+  drift_warnings?: string[];
+  type: CardType;
   title: string;
-  priority: "P0" | "P1" | "P2" | "P3";
+  priority: "P0" | "P1" | "P2" | "P3" | "";
   owner: string;
   source: string;
   stage: string;
@@ -142,27 +143,6 @@ type IssueTasks = {
   total: number;
   blocked?: string[];
   source?: string | null;
-};
-
-type Workspace = {
-  organizationName: string;
-  workspaceId: string;
-  name: string;
-  slug: string;
-  description: string;
-  timezone: string;
-  memberCount: number;
-  role: string;
-  status?: string;
-  readonly?: boolean;
-};
-
-type FrontendUser = {
-  name: string;
-  avatarInitial: string;
-  avatarUrl?: string | null;
-  canAccessAdmin: boolean;
-  permissions: string[];
 };
 
 type RequirementCenterContext = {
@@ -293,16 +273,17 @@ function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskTo
     window.setTimeout(() => setCopyState((current) => current?.key === key ? null : current), 1600);
   };
   while (index < lines.length) {
+    const blockStart = index;
     const line = lines[index];
     if (!line.trim()) {
       index += 1;
       continue;
     }
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       const level = heading[1].length;
       const className = `level-${level}`;
-      blocks.push(<h3 key={index} className={className}>{heading[2]}</h3>);
+      blocks.push(<h3 key={blockStart} data-task-heading="true" className={className}>{heading[2]}</h3>);
       index += 1;
       continue;
     }
@@ -317,7 +298,7 @@ function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskTo
       const code = codeLines.join("\n");
       const currentCopyState = copyState?.key === blockKey ? copyState.status : null;
       blocks.push(
-        <div key={index} className="code-block">
+        <div key={blockStart} className="code-block">
           <button type="button" className={`copy-code ${currentCopyState ?? ""}`} aria-label="复制代码块" onClick={() => void copyCodeBlock(code, blockKey)}>
             {currentCopyState === "copied" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
             <span>{currentCopyState === "copied" ? "已复制" : currentCopyState === "failed" ? "复制失败" : "复制"}</span>
@@ -336,7 +317,7 @@ function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskTo
         index += 1;
       }
       blocks.push(
-        <div key={index} className="table-scroll">
+        <div key={blockStart} className="table-scroll">
           <table>
             <tbody>
               {rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{markdownInlineParts(cell)}</td>)}</tr>)}
@@ -359,9 +340,9 @@ function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskTo
         index += 1;
       }
       blocks.push(
-        <ul key={index}>
+        <ul key={blockStart}>
           {items.map((item, itemIndex) => (
-            <li key={itemIndex} className={item.taskIndex === undefined ? undefined : "task-list-item"}>
+            <li key={itemIndex} data-task-item={item.taskIndex === undefined ? undefined : "true"} className={item.taskIndex === undefined ? undefined : "task-list-item"}>
               {item.taskIndex === undefined ? markdownInlineParts(item.content) : (
                 <label>
                   <input
@@ -381,11 +362,11 @@ function RenderedMarkdown({ content, onTaskToggle }: { content: string; onTaskTo
     }
     const paragraph = [line.trim()];
     index += 1;
-    while (index < lines.length && lines[index].trim() && !/^(#{1,3})\s+/.test(lines[index]) && !/^[-*]\s+/.test(lines[index]) && !/^```/.test(lines[index]) && !/^\|.+\|$/.test(lines[index])) {
+    while (index < lines.length && lines[index].trim() && !/^(#{1,6})\s+/.test(lines[index]) && !/^[-*]\s+/.test(lines[index]) && !/^```/.test(lines[index]) && !/^\|.+\|$/.test(lines[index])) {
       paragraph.push(lines[index].trim());
       index += 1;
     }
-    blocks.push(<p key={index}>{markdownInlineParts(paragraph.join(" "))}</p>);
+    blocks.push(<p key={blockStart}>{markdownInlineParts(paragraph.join(" "))}</p>);
   }
   return <>{blocks.length ? blocks : <p>暂无内容</p>}</>;
 }
@@ -413,10 +394,40 @@ function MarkdownMetadataPanel({ parts, open, onToggle, compact = false }: { par
   );
 }
 
-function MarkdownPreviewPane({ content, compact = false, metadataOpen, onToggleMetadata, showMetadata = true, onTaskToggle }: { content: string; compact?: boolean; metadataOpen: boolean; onToggleMetadata: () => void; showMetadata?: boolean; onTaskToggle?: (taskIndex: number, checked: boolean) => void }) {
+function MarkdownPreviewPane({ content, compact = false, metadataOpen, onToggleMetadata, showMetadata = true, onTaskToggle, focus }: { focus?: ProgressFocus; content: string; compact?: boolean; metadataOpen: boolean; onToggleMetadata: () => void; showMetadata?: boolean; onTaskToggle?: (taskIndex: number, checked: boolean) => void }) {
   const parsed = parseMarkdownFrontmatter(content);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [navigation, setNavigation] = useState("");
+  useEffect(() => {
+    if (!focus || !previewRef.current) return;
+    const patterns: Record<ProgressFocus, RegExp> = {
+      development: /研发|开发|实现|implementation|development/i,
+      test: /测试|回归|\btest(?:ing|s)?\b/i,
+      manual: /人工验收|人工确认|人工签收|manual(?: acceptance)?|human acceptance/i,
+    };
+    const candidates: HTMLElement[] = [];
+    for (const node of previewRef.current.querySelectorAll<HTMLElement>("[data-task-heading], [data-task-item]")) {
+      if (node.hasAttribute("data-task-heading") && /历史|返修记录/.test(node.textContent || "")) break;
+      candidates.push(node);
+    }
+    const target = candidates.find(node => node.hasAttribute("data-task-heading") && patterns[focus].test(node.textContent || ""))
+      || candidates.find(node => node.hasAttribute("data-task-item") && patterns[focus].test(node.textContent || ""));
+    if (!target) {
+      setNavigation(`tasks.md 中未找到${progressFocusLabel[focus]}章节或任务，已展示完整文档。`);
+      return;
+    }
+    setNavigation(`已定位${progressFocusLabel[focus]}：${target.textContent}`);
+    target.classList.add("rc-task-navigation-target");
+    target.setAttribute("tabindex", "-1");
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView?.({ block: "center", behavior: "instant" });
+      target.focus({ preventScroll: true });
+    });
+    return () => { cancelAnimationFrame(frame); target.classList.remove("rc-task-navigation-target"); target.removeAttribute("tabindex"); };
+  }, [focus, content]);
   return (
-    <div className={`rc-markdown-prototype-preview${compact ? " compact" : ""}`} aria-label="Markdown 安全预览">
+    <div ref={previewRef} className={`rc-markdown-prototype-preview${compact ? " compact" : ""}`}  aria-label="Markdown 安全预览">
+      {focus && <p role="status" data-task-navigation="true">{navigation}</p>}
       {showMetadata && <MarkdownMetadataPanel parts={parsed} open={metadataOpen} onToggle={onToggleMetadata} compact={compact} />}
       <div className="rc-markdown-preview-section">
         <div className="rc-rendered-markdown" data-testid="markdown-rendered-preview">
@@ -458,70 +469,6 @@ function VditorEditorShell({ value, sourceContent, documentName, mode, uploadSta
   );
 }
 
-type CreatedSpaceApplicationResult = {
-  application: {
-    id: string;
-    name: string;
-    code: string;
-    status: string;
-  };
-};
-
-const emptyWorkspace: Workspace = {
-  organizationName: "MoonBox",
-  workspaceId: "",
-  name: "暂无空间",
-  slug: "",
-  description: "",
-  timezone: "Asia/Shanghai",
-  memberCount: 0,
-  role: "只读",
-  readonly: true,
-};
-
-const emptyUser: FrontendUser = {
-  name: "未登录",
-  avatarInitial: "未",
-  avatarUrl: null,
-  canAccessAdmin: false,
-  permissions: [],
-};
-
-const frontendNavGroups: Array<{
-  group: string;
-  items: Array<{ label: string; title: string; icon: LucideIcon; active?: boolean }>;
-}> = [
-  {
-    group: "WORKSPACE",
-    items: [
-      { label: "研发总览", title: "研发总览", icon: LayoutDashboard },
-      { label: "Chat 工作台", title: "Chat 工作台", icon: MessageCircle },
-      { label: "需求中心", title: "需求中心", icon: ClipboardList, active: true },
-      { label: "Spec", title: "Spec", icon: GitBranch },
-      { label: "任务中心", title: "任务中心", icon: ListChecks },
-    ],
-  },
-  {
-    group: "CAPABILITIES",
-    items: [
-      { label: "Skill Center", title: "Skill Center", icon: Command },
-      { label: "Agent Center", title: "Agent Center", icon: Bot },
-      { label: "知识中心", title: "知识中心", icon: BookOpen },
-    ],
-  },
-] as const;
-
-const stages: Stage[] = [
-  { id: "capture", title: "采集池", subtitle: "Capture / req-capture / bug-capture", emptyTitle: "暂无采集", emptyHint: "从新建 Capture 开始", emptyDetail: "需求或缺陷会先进入这里", requiredDocs: ["capture.md", "trace.md"] },
-  { id: "planning", title: "规划中", subtitle: "req-generate / bug-generate", emptyTitle: "暂无需求", emptyHint: "从采集池生成需求", emptyDetail: "后会显示在这里", requiredDocs: ["requirement.md", "trace.md"] },
-  { id: "review-ready", title: "待评审", subtitle: "req-complete / bug-complete", emptyTitle: "暂无待评审项", emptyHint: "规划完成的需求", emptyDetail: "将流转至此", requiredDocs: ["acceptance.md", "trace.md"] },
-  { id: "approved", title: "已评审", subtitle: "review.md 已生成", emptyTitle: "暂无已评审项", emptyHint: "通过评审后", emptyDetail: "自动归档于此", requiredDocs: ["review.md", "trace.md"] },
-  { id: "sprint-planning", title: "迭代规划", subtitle: "sprint-propose", emptyTitle: "暂无迭代项", emptyHint: "评审通过的对象", emptyDetail: "可加入 Sprint", requiredDocs: ["sprint.md", "trace.md"] },
-  { id: "ready-dev", title: "待开发", subtitle: "req-opsx / bug-opsx", emptyTitle: "暂无待开发项", emptyHint: "生成 OpenSpec 后", emptyDetail: "会进入开发队列", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
-  { id: "development", title: "研发中", subtitle: "opsx-apply / sprint-apply", emptyTitle: "暂无研发中任务", emptyHint: "开始 apply 后", emptyDetail: "进度会显示在这里", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
-  { id: "acceptance", title: "验收中", subtitle: "测试与人工验收", emptyTitle: "暂无验收项", emptyHint: "研发完成后", emptyDetail: "等待测试与人工确认", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"] },
-  { id: "done", title: "已完成", subtitle: "全链路留痕", emptyTitle: "暂无完成项", emptyHint: "归档完成后", emptyDetail: "会保留最终证据", requiredDocs: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"] },
-];
 
 const stageTitleById = new Map(stages.map((stage) => [stage.id, stage.title]));
 
@@ -537,7 +484,7 @@ const stageVisibleDocs: Record<string, string[]> = {
   done: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"],
 };
 
-const stageAction: Record<string, Record<IssueType, string>> = {
+const stageAction: Record<string, Partial<Record<CardType, string>>> = {
   capture: { requirement: "/req-generate", bug: "/bug-generate" },
   planning: { requirement: "/req-complete", bug: "/bug-complete" },
   "review-ready": { requirement: "/req-review", bug: "/bug-review" },
@@ -549,7 +496,7 @@ const stageAction: Record<string, Record<IssueType, string>> = {
   done: { requirement: "只读", bug: "只读" },
 };
 
-const stageActionLabel: Record<string, Record<IssueType, string>> = {
+const stageActionLabel: Record<string, Partial<Record<CardType, string>>> = {
   capture: { requirement: "生成需求 →", bug: "生成 Bug →" },
   planning: { requirement: "完善需求 →", bug: "完善 Bug →" },
   "review-ready": { requirement: "发起评审 →", bug: "确认修复 →" },
@@ -598,7 +545,8 @@ const canToggleTaskDocument = (document: IssueDocument) => documentCapability(do
 
 const canMutateMarkdownDocument = (document: IssueDocument) => canEditDocument(document) || canToggleTaskDocument(document);
 
-const capabilityForStage = (issueType: IssueType, stage: string, name: string): DocumentCapability => {
+const capabilityForStage = (issueType: CardType, stage: string, name: string): DocumentCapability => {
+  if (issueType === "change") return { readable: true, human_editable: false, task_toggle_only: false, ai_mutable: false, reason: "独立 Change 只读" };
   if (name === "trace.md") {
     return { readable: true, human_editable: false, ai_mutable: true, task_toggle_only: false, reason: "trace.md 仅允许系统治理链路更新，人工始终只读" };
   }
@@ -650,8 +598,22 @@ const issueDocumentEntries = (issue: IssueCard): IssueDocument[] =>
       });
 
 const visibleIssueDocuments = (stage: Stage, issue: IssueCard) => {
+  if (issue.type === "change" || stage.id === "unknown") return issueDocumentEntries(issue);
   const allowed = new Set(stageVisibleDocs[stage.id] || stage.requiredDocs);
-  return issueDocumentEntries(issue).filter((document) => allowed.has(document.name));
+  const mainDocument = issue.type === "requirement" ? "requirement.md" : "bug.md";
+  allowed.add(mainDocument);
+  allowed.add("sprint.md");
+  const stageOrder = stage.id === "done" ? ["archive.md", "tasks.md", "spec.md", "design.md", "proposal.md"]
+    : ["development", "acceptance"].includes(stage.id) ? ["tasks.md", "spec.md", "design.md", "proposal.md"]
+    : stage.id === "approved" ? ["review.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md"]
+    : (stageVisibleDocs[stage.id] || stage.requiredDocs);
+  const order = [...new Set([mainDocument, "sprint.md", "trace.md", ...stageOrder])];
+  const prototypes = issue.type === "requirement" ? issueDocumentEntries(issue).filter(doc => doc.name === "prototype.html" || (doc.name.startsWith("prototype/") && doc.name.endsWith(".html"))).map(doc => doc.name).sort() : [];
+  prototypes.forEach(name => allowed.add(name));
+  order.splice(1, 0, ...prototypes);
+  return issueDocumentEntries(issue)
+    .filter((document) => allowed.has(document.name) && (!["requirement.md", "bug.md"].includes(document.name) || document.name === mainDocument))
+    .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
 };
 
 const issueDetailUrl = (issue: IssueCard) => issue.detailUrl || `/requirements/${issue.id}`;
@@ -667,11 +629,20 @@ const choiceForStage = (stageId: string): IssueAction["requiresChoice"] | "revie
 };
 
 const actionCommandForStage = (issue: IssueCard, stageId: string) => {
+  if (issue.type === "change") return "只读";
   if (stageId === "approved") return `/sprint-propose ${issueCommandTarget(issue)} ${issue.id}`;
   return `${stageAction[stageId]?.[issue.type] || "只读"} ${issue.id}`.trim();
 };
 
 const actionForStage = (issue: IssueCard, stageId: string): IssueAction | undefined => {
+  if (issue.type === "change") {
+    const action = {
+      "ready-dev": { label: "开始开发", command: `/opsx-apply ${issue.id}` },
+      development: { label: "查看进度", command: `查看进度 ${issue.id}` },
+      acceptance: { label: "完成 / 归档", command: `/opsx-archive ${issue.id}` },
+    }[stageId];
+    return action;
+  }
   const label = stageActionLabel[stageId]?.[issue.type]?.replace(" →", "") || "只读";
   if (label === "只读") return undefined;
   return {
@@ -685,11 +656,14 @@ const actionChoice = (action: IssueAction | undefined, issue?: IssueCard) => act
 
 const actionDisabledReason = (action: IssueAction | undefined) => action?.disabledReason || action?.disabled_reason || "";
 
-const issueAction = (issue: IssueCard) =>
-  issue.action || actionForStage(issue, issue.stage) || {
-    command: "只读",
-    label: "只读",
+const issueAction = (issue: IssueCard): IssueAction => {
+  const fallback = actionForStage(issue, issue.stage);
+  if (issue.type === "change") return {
+    ...(fallback || { command: "只读", label: "只读" }),
+    disabledReason: actionDisabledReason(issue.action) || fallback?.disabledReason,
   };
+  return issue.action || fallback || { command: "只读", label: "只读" };
+};
 
 const actionDialogType = (issue: IssueCard, action?: AuxiliaryAction | IssueAction): ActionDialogKind => {
   if (action?.label.includes("分析")) return "analysis";
@@ -846,8 +820,7 @@ const appendTransitionDocuments = (issue: IssueCard, stageId: string) => {
 };
 
 const drawerTitle = (drawer: DrawerState) => {
-  if (drawer.type === "markdown") return `${drawer.issue.id} · ${drawer.document.name}`;
-  if (drawer.type === "tasks") return `${drawer.issue.id} · tasks.md`;
+  if (drawer.type === "markdown") return `${drawer.issue.id} · ${drawer.document.label || drawer.document.name}`;
   if (drawer.type === "ai") return "AI Chat";
   return "";
 };
@@ -874,9 +847,10 @@ const progressFocusLabel: Record<ProgressFocus, string> = {
   manual: "人工验收",
 };
 
-const progressPercent = (done = 0, total = 0) => (total ? Math.round((done / total) * 100) : 0);
+
 
 const auxiliaryActions = (issue: IssueCard): AuxiliaryAction[] => {
+  if (issue.type === "change" || issue.stage === "unknown") return [];
   if (issue.stage !== "capture") return [];
   if (issue.type === "bug") return [{ command: `/bug-explore ${issue.id}`, label: "Bug 分析" }];
   return [{ command: `/req-explore ${issue.id}`, label: "需求分析" }];
@@ -1495,268 +1469,6 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
   };
 }
 
-const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
-  { id: "general", label: "常规" },
-  { id: "members", label: "成员与权限" },
-  { id: "agents", label: "Agent" },
-  { id: "skills", label: "Skill" },
-  { id: "integrations", label: "集成" },
-  { id: "danger", label: "高级设置" },
-];
-
-function getStoredWorkspace(workspaces: Workspace[], selectedWorkspaceId?: string) {
-  try {
-    const raw = window.localStorage.getItem("moonbox.workspace");
-    const fallback = workspaces.find((workspace) => workspace.workspaceId === selectedWorkspaceId) || workspaces[0] || emptyWorkspace;
-    if (!workspaces.length) {
-      window.localStorage.removeItem("moonbox.workspace");
-      return emptyWorkspace;
-    }
-    if (!raw) {
-      window.localStorage.setItem("moonbox.workspace", JSON.stringify(fallback));
-      return fallback;
-    }
-    const stored = JSON.parse(raw) as Partial<Workspace>;
-    const matched = workspaces.find((workspace) => workspace.workspaceId === stored.workspaceId);
-    if (matched) return matched;
-    window.localStorage.setItem("moonbox.workspace", JSON.stringify(fallback));
-    return fallback;
-  } catch {
-    const fallback = workspaces[0] || emptyWorkspace;
-    if (workspaces.length) window.localStorage.setItem("moonbox.workspace", JSON.stringify(fallback));
-    return fallback;
-  }
-}
-
-const apiBase = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-
-const apiUrl = (path: string) => `${apiBase}${path}`;
-
-const avatarImageSrc = (avatarUrl: string | null | undefined) => {
-  const url = avatarUrl?.trim();
-  if (!url) return null;
-  if (/^(https?:|blob:|data:)/i.test(url)) return url;
-  return url.startsWith("/") ? apiUrl(url) : url;
-};
-
-const authenticatedAvatarCache = new Map<string, Promise<string>>();
-
-const readAuthenticatedAvatar = async (source: string, token: string) => {
-  const cached = authenticatedAvatarCache.get(source);
-  if (cached) return cached;
-  const pending = fetch(source, { headers: { authorization: `Bearer ${token}` } })
-    .then((response) => {
-      if (!response.ok) throw new Error("头像读取失败");
-      return response.blob();
-    })
-    .then((blob) => URL.createObjectURL(blob))
-    .catch((error) => {
-      authenticatedAvatarCache.delete(source);
-      throw error;
-    });
-  authenticatedAvatarCache.set(source, pending);
-  return pending;
-};
-
-async function readProfileApiError(response: Response, fallback = "头像上传失败，请重试。") {
-  try {
-    const payload = await response.json();
-    return payload.detail || payload.message || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function AuthenticatedRequirementAvatar({
-  avatarUrl,
-  alt,
-  fallback,
-}: {
-  avatarUrl: string | null | undefined;
-  alt: string;
-  fallback: string;
-}) {
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isActive = true;
-    setObjectUrl(null);
-    const source = avatarImageSrc(avatarUrl);
-    if (!source) return undefined;
-    if (/^(blob:|data:)/i.test(source)) {
-      setObjectUrl(source);
-      return undefined;
-    }
-    const session = readFrontendSession();
-    const adminSession = readAdminSession();
-    const token = session?.access_token || adminSession?.access_token;
-    if (!token) return undefined;
-    void readAuthenticatedAvatar(source, token)
-      .then((nextObjectUrl) => {
-        if (isActive) setObjectUrl(nextObjectUrl);
-      })
-      .catch(() => {
-        if (isActive) setObjectUrl(null);
-      });
-    return () => {
-      isActive = false;
-    };
-  }, [avatarUrl]);
-
-  return <span className="rc-avatar">{objectUrl ? <img src={objectUrl} alt={alt} /> : fallback}</span>;
-}
-
-function frontendUserFromAdmin(user: AdminSession["user"], fallback: FrontendUser): FrontendUser {
-  const displayName = (user.nickname || user.username || fallback.name || emptyUser.name).trim();
-  return {
-    ...fallback,
-    name: displayName,
-    avatarInitial: avatarInitial(displayName, fallback.avatarInitial),
-    avatarUrl: user.avatar_url ?? null,
-  };
-}
-
-function avatarInitial(name: string | null | undefined, fallback = emptyUser.avatarInitial) {
-  const displayName = name?.trim();
-  return displayName ? displayName.slice(0, 2).toUpperCase() : fallback;
-}
-
-const sessionAvatarUrl = (avatarUrl: string | null | undefined) =>
-  avatarUrl?.startsWith("/api/v1/admin/users/avatar/") ? null : avatarUrl ?? null;
-
-function fallbackUserFromSession(): FrontendUser {
-  const frontendSession = readFrontendSession();
-  const adminSession = readAdminSession();
-  const sessionUser = frontendSession?.user || adminSession?.user;
-  const displayName = (
-    frontendSession?.username ||
-    adminSession?.user.nickname ||
-    adminSession?.user.username ||
-    ""
-  ).trim();
-  if (!displayName) return emptyUser;
-  return {
-    name: displayName,
-    avatarInitial: avatarInitial(displayName),
-    avatarUrl: sessionAvatarUrl(sessionUser?.avatar_url),
-    canAccessAdmin: canAccessAdmin(sessionUser),
-    permissions: ["requirement:read"],
-  };
-}
-
-function FrontendProfileModal({
-  user,
-  onClose,
-  onSaved,
-}: {
-  user: FrontendUser;
-  onClose: () => void;
-  onSaved: (nextUser: AdminSession["user"]) => void;
-}) {
-  const frontendSessionUser = readFrontendSession()?.user;
-  const adminSessionUser = readAdminSession()?.user;
-  const sessionUser = frontendSessionUser || adminSessionUser;
-  const username = sessionUser?.username || user.name;
-  const [nickname, setNickname] = useState(sessionUser?.nickname ?? user.name);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatarUrl ?? sessionUser?.avatar_url ?? null);
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(avatarImageSrc(user.avatarUrl ?? sessionUser?.avatar_url));
-  const [uploadState, setUploadState] = useState<ProfileUploadState>("idle");
-  const [uploadError, setUploadError] = useState("");
-  const [saveError, setSaveError] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const avatarButtonText = uploadState === "uploading" ? "上传中" : avatarUrl ? "更换" : "上传";
-
-  const uploadAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setUploadState("uploading");
-    setUploadError("");
-    const session = readAdminSession();
-    try {
-      if (!session?.access_token) throw new Error("登录已失效，请重新登录");
-      const formData = new FormData();
-      formData.append("file", file);
-      const response = await fetch(apiUrl("/api/v1/auth/avatar"), {
-        method: "POST",
-        headers: { authorization: `Bearer ${session.access_token}` },
-        body: formData,
-      });
-      if (!response.ok) throw new Error(await readProfileApiError(response));
-      const payload = await response.json();
-      const persistentUrl = payload.data.url as string;
-      const objectUrl = await readAuthenticatedAvatar(apiUrl(persistentUrl), session.access_token);
-      setAvatarUrl(persistentUrl);
-      setAvatarPreviewUrl(objectUrl);
-      setUploadState("done");
-    } catch (error) {
-      setUploadError(error instanceof Error ? error.message : "头像上传失败，请重试。");
-      setUploadState("failed");
-    } finally {
-      event.target.value = "";
-    }
-  };
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (isSaving || uploadState === "uploading") return;
-    setIsSaving(true);
-    setSaveError("");
-    try {
-      const nextUser = await updateAdminProfile(nickname.trim() || null, avatarUrl);
-      onSaved(nextUser);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "个人资料保存失败，请重试。");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className="rc-profile-mask" role="presentation" onMouseDown={onClose}>
-      <form
-        className="rc-profile-modal"
-        aria-label="个人资料"
-        onSubmit={submit}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <header className="rc-profile-head">
-          <h2>个人资料</h2>
-          <button aria-label="关闭个人资料" type="button" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </header>
-        <p className="rc-profile-summary">{username}</p>
-        <div className="rc-form-row">
-          <label><span>头像</span></label>
-          <div className="rc-profile-avatar-picker">
-            <AuthenticatedRequirementAvatar avatarUrl={avatarPreviewUrl} alt="头像预览" fallback={avatarInitial(nickname || username || user.name)} />
-            <span className="rc-profile-avatar-copy">
-              <small>支持 JPG、PNG、WEBP，建议 1:1，最大 2MB</small>
-              <button type="button" aria-label="上传或更换头像" disabled={uploadState === "uploading" || isSaving} onClick={() => fileInputRef.current?.click()}>
-                {avatarButtonText}
-              </button>
-            </span>
-            <input ref={fileInputRef} className="rc-profile-avatar-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择头像文件" onChange={uploadAvatar} />
-          </div>
-          {uploadState === "failed" && <div className="rc-profile-error" aria-live="polite">{uploadError}</div>}
-        </div>
-        <div className="rc-form-row">
-          <label htmlFor="rc-profile-nickname">昵称</label>
-          <input id="rc-profile-nickname" maxLength={128} value={nickname} onChange={(event) => setNickname(event.target.value)} />
-        </div>
-        {saveError && <div className="rc-profile-error" aria-live="polite">{saveError}</div>}
-        <footer>
-          <button type="button" onClick={onClose}>取消</button>
-          <button className="primary" type="submit" disabled={uploadState === "uploading" || isSaving}>
-            {isSaving ? "保存中" : "保存"}
-          </button>
-        </footer>
-      </form>
-    </div>
-  );
-}
-
 function normalizeContext(payload: RequirementCenterContext, frontendUsername?: string): RequirementCenterContext {
   const rawContext = payload as RequirementCenterContext & {
     current_user?: FrontendUser;
@@ -1820,16 +1532,7 @@ function normalizeContext(payload: RequirementCenterContext, frontendUsername?: 
   };
 }
 
-function canManageWorkspace(item: Workspace) {
-  if (!item.workspaceId || item.readonly || item.status === "FROZEN") return false;
-  return ["拥有者", "管理员"].includes(item.role);
-}
-
-function isReadonlyWorkspace(item: Workspace) {
-  return Boolean(item.readonly || item.status === "FROZEN");
-}
-
-function requiredDocsForIssue(stageId: string, issueType: IssueType) {
+function requiredDocsForIssue(stageId: string, issueType: CardType) {
   const requirementReviewDocs = ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"];
   const bugReviewDocs = ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md"];
   if (stageId === "capture") return ["capture.md", "trace.md"];
@@ -1844,6 +1547,9 @@ function missingDocs(stageId: string, issue: IssueCard) {
 }
 
 function blockedTip(stageId: string, issue: IssueCard, action: IssueAction | undefined) {
+  // Terminal cards have no pending action; archive.md is not a required artifact.
+  if (stageId === "done" || stageId === "unknown") return "";
+  if (issue.type === "change") return actionDisabledReason(action) || issue.blocked || "";
   const reason = actionDisabledReason(action) || issue.blocked || "";
   if (reason) return reason;
   const missing = missingDocs(stageId, issue);
@@ -1856,286 +1562,60 @@ function canArchive(issue: IssueCard) {
   return testsDone && (issue.manualAcceptanceCount || 0) === 0;
 }
 
-function readAccessToken() {
-  const adminSession = readAdminSession();
-  const frontendSession = readFrontendSession();
-  return frontendSession?.access_token || adminSession?.access_token || "";
-}
-
-function toLocalDateTimeInputValue(date: Date) {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-}
-
-function defaultExpiryAt() {
-  const now = new Date();
-  const quarterEndMonth = Math.floor(now.getMonth() / 3) * 3 + 2;
-  const quarterEnd = new Date(now.getFullYear(), quarterEndMonth + 1, 0, 23, 59, 59);
-  if (quarterEnd <= now) {
-    quarterEnd.setMonth(quarterEnd.getMonth() + 3);
-  }
-  return `${toLocalDateTimeInputValue(quarterEnd)}Z`;
-}
-
-function datetimeLocalValue(value: string) {
-  return (value || defaultExpiryAt()).replace("Z", "").slice(0, 19);
-}
-
-function toDateTimeDisplayValue(value: string) {
-  return datetimeLocalValue(value).replace("T", " ");
-}
-
-function fromDateTimeDisplayValue(value: string) {
-  const normalized = value.trim().replace(/\//g, "-").replace(/\s+/, "T");
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(normalized)) return "";
-  const parsed = new Date(`${normalized}Z`);
-  if (!Number.isFinite(parsed.getTime())) return "";
-  return `${normalized}Z`;
-}
-
-function daysInMonth(year: number, month: number) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function clampTimePart(value: string, max: number) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return "00";
-  return String(Math.min(Math.max(parsed, 0), max)).padStart(2, "0");
-}
-
-function isFutureExpiry(value: string) {
-  const parsed = new Date(value);
-  return Number.isFinite(parsed.getTime()) && parsed > new Date();
-}
-
-function nextFixedExpiryValue(value: string) {
-  return isFutureExpiry(value) ? value : defaultExpiryAt();
-}
-
-function validateCreateApplicationForm(form: {
-  name: string;
-  code: string;
-  member_quota: string;
-  storage_quota_gb: string;
-  ai_quota_tokens: string;
-  expiry_type: string;
-  expires_at: string;
-}) {
-  const name = form.name.trim();
-  const code = form.code.trim();
-  const members = Number(form.member_quota);
-  const storage = Number(form.storage_quota_gb);
-  const aiTokens = Number(form.ai_quota_tokens);
-  if (name.length < 2 || name.length > 80) return "空间名称需为 2-80 个字符";
-  if (!/^[a-z][a-z0-9-]{1,31}$/.test(code)) return "空间标识需为 2-32 位，以小写字母开头，仅支持小写字母、数字和连字符";
-  if (!Number.isInteger(members) || members < 1 || members > 100000) return "成员上限需为 1-100000 的整数";
-  if (!Number.isFinite(storage) || storage <= 0) return "存储空间必须大于 0";
-  if (!Number.isInteger(aiTokens) || aiTokens < 0) return "AI Tokens 需为不小于 0 的整数";
-  if (form.expiry_type === "fixed_date" && !isFutureExpiry(form.expires_at)) return "到期时间必须晚于当前时间";
-  return "";
-}
-
-function RequirementDateTimePicker({ ariaLabel, value, onChange }: { ariaLabel: string; value: string; onChange: (value: string) => void }) {
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(toDateTimeDisplayValue(value));
-  const [panelRect, setPanelRect] = useState({ top: 0, left: 0, width: 0, maxHeight: 360, placement: "bottom" as "top" | "bottom" });
-  const selectedLocalValue = datetimeLocalValue(value || defaultExpiryAt());
-  const selectedDate = new Date(selectedLocalValue);
-  const calendarDate = Number.isFinite(selectedDate.getTime()) ? selectedDate : new Date(datetimeLocalValue(defaultExpiryAt()));
-  const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth();
-  const monthDays = daysInMonth(year, month);
-  const leadingDays = (new Date(year, month, 1).getDay() + 6) % 7;
-  const weekdays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
-  const days = Array.from({ length: leadingDays + monthDays }, (_, index) => index < leadingDays ? 0 : index - leadingDays + 1);
-
-  useEffect(() => {
-    setDraft(toDateTimeDisplayValue(value));
-  }, [value]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const updatePanelRect = () => {
-      const rect = rootRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const width = Math.max(rect.width, 360);
-      const left = Math.min(Math.max(12, rect.left), window.innerWidth - width - 12);
-      const margin = 12;
-      const gap = 4;
-      const preferredHeight = 392;
-      const belowSpace = window.innerHeight - rect.bottom - margin;
-      const aboveSpace = rect.top - margin;
-      const openUpward = belowSpace < preferredHeight && aboveSpace > belowSpace;
-      const availableHeight = Math.max(320, Math.min(preferredHeight, openUpward ? aboveSpace - gap : belowSpace));
-      const rawTop = openUpward ? rect.top - gap - availableHeight : rect.bottom + gap;
-      const top = Math.min(Math.max(margin, rawTop), window.innerHeight - availableHeight - margin);
-      setPanelRect({ top, left, width, maxHeight: availableHeight, placement: openUpward ? "top" : "bottom" });
-    };
-    const handlePointerDown = (event: globalThis.MouseEvent) => {
-      const target = event.target as Node;
-      const panel = document.querySelector(".admin-datetime-panel");
-      if (rootRef.current?.contains(target) || panel?.contains(target)) return;
-      setOpen(false);
-    };
-    updatePanelRect();
-    window.addEventListener("resize", updatePanelRect);
-    window.addEventListener("scroll", updatePanelRect, true);
-    document.addEventListener("mousedown", handlePointerDown, true);
-    return () => {
-      window.removeEventListener("resize", updatePanelRect);
-      window.removeEventListener("scroll", updatePanelRect, true);
-      document.removeEventListener("mousedown", handlePointerDown, true);
-    };
-  }, [open]);
-
-  const commitLocalValue = (nextLocalValue: string) => {
-    onChange(`${nextLocalValue}Z`);
-    setDraft(nextLocalValue.replace("T", " "));
-  };
-  const updateDatePart = (nextDate: Date) => {
-    const current = datetimeLocalValue(value || defaultExpiryAt());
-    const [, time = "23:59:59"] = current.split("T");
-    commitLocalValue(`${toLocalDateTimeInputValue(nextDate).slice(0, 10)}T${time}`);
-  };
-  const updateTimePart = (part: "hour" | "minute" | "second", rawValue: string) => {
-    const [datePart, timePart = "23:59:59"] = selectedLocalValue.split("T");
-    const [hour = "23", minute = "59", second = "59"] = timePart.split(":");
-    const nextHour = part === "hour" ? clampTimePart(rawValue, 23) : hour;
-    const nextMinute = part === "minute" ? clampTimePart(rawValue, 59) : minute;
-    const nextSecond = part === "second" ? clampTimePart(rawValue, 59) : second;
-    commitLocalValue(`${datePart}T${nextHour}:${nextMinute}:${nextSecond}`);
-  };
-  const shiftMonth = (step: number) => {
-    const next = new Date(year, month + step, Math.min(calendarDate.getDate(), 28), calendarDate.getHours(), calendarDate.getMinutes(), calendarDate.getSeconds());
-    updateDatePart(next);
-  };
-  const applyShortcut = (mode: "today" | "quarter" | "year") => {
-    const now = new Date();
-    if (mode === "today") {
-      commitLocalValue(`${toLocalDateTimeInputValue(now).slice(0, 10)}T23:59:59`);
-      setOpen(false);
-      return;
-    }
-    if (mode === "year") {
-      commitLocalValue(`${now.getFullYear() + 1}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}T23:59:59`);
-      setOpen(false);
-      return;
-    }
-    commitLocalValue(datetimeLocalValue(defaultExpiryAt()));
-    setOpen(false);
-  };
-  const commitDraft = () => {
-    const parsed = fromDateTimeDisplayValue(draft);
-    if (parsed) {
-      onChange(parsed);
-      setDraft(toDateTimeDisplayValue(parsed));
-    } else {
-      setDraft(toDateTimeDisplayValue(value));
-    }
-  };
-  const panel = open && createPortal(
-    <div className={`admin-datetime-panel ${themeClassFromBody()}`} data-placement={panelRect.placement} role="dialog" aria-label={`${ariaLabel}选择器`} style={{ top: panelRect.top, left: panelRect.left, width: panelRect.width, maxHeight: panelRect.maxHeight }}>
-      <div className="admin-datetime-calendar-head">
-        <button type="button" aria-label="上个月" onClick={() => shiftMonth(-1)}><ChevronLeft size={16} /></button>
-        <strong>{year}年{month + 1}月</strong>
-        <button type="button" aria-label="下个月" onClick={() => shiftMonth(1)}><ChevronRight size={16} /></button>
-      </div>
-      <div className="admin-datetime-weekdays">{weekdays.map((day) => <span key={day}>{day}</span>)}</div>
-      <div className="admin-datetime-days">
-        {days.map((day, index) => day === 0 ? <span key={`blank-${index}`} /> : (
-          <button key={day} type="button" className={day === calendarDate.getDate() ? "active" : ""} onClick={() => updateDatePart(new Date(year, month, day, calendarDate.getHours(), calendarDate.getMinutes(), calendarDate.getSeconds()))}>{day}</button>
-        ))}
-      </div>
-      <div className="admin-datetime-time" aria-label="时间选择">
-        <label>时<input type="number" min="0" max="23" value={selectedLocalValue.slice(11, 13)} onChange={(event) => updateTimePart("hour", event.target.value)} /></label>
-        <label>分<input type="number" min="0" max="59" value={selectedLocalValue.slice(14, 16)} onChange={(event) => updateTimePart("minute", event.target.value)} /></label>
-        <label>秒<input type="number" min="0" max="59" value={selectedLocalValue.slice(17, 19)} onChange={(event) => updateTimePart("second", event.target.value)} /></label>
-      </div>
-      <div className="admin-datetime-shortcuts">
-        <button type="button" onClick={() => applyShortcut("today")}>今天 23:59:59</button>
-        <button type="button" onClick={() => applyShortcut("quarter")}>本季度末</button>
-        <button type="button" onClick={() => applyShortcut("year")}>一年后</button>
-      </div>
-    </div>,
-    document.body,
-  );
-
-  return (
-    <div className="admin-datetime-picker" ref={rootRef} data-testid="catalog-datetime-picker">
-      <input ref={inputRef} aria-label={ariaLabel} type="text" required value={draft} onBlur={commitDraft} onChange={(event) => setDraft(event.target.value)} onFocus={() => setOpen(true)} placeholder="yyyy-mm-dd hh:mm:ss" />
-      <button
-        type="button"
-        aria-label={`选择${ariaLabel}`}
-        onClick={() => {
-          if (open) {
-            setOpen(false);
-            return;
-          }
-          setOpen(true);
-          inputRef.current?.focus();
-        }}
-      >
-        <Calendar size={16} />
-      </button>
-      {panel}
-    </div>
-  );
-}
-
-function themeClassFromBody() {
-  if (typeof document === "undefined") return "dark";
-  return document.querySelector(".requirement-center.theme-light") ? "light" : "dark";
-}
-
 export function RequirementCenterPage() {
   const [context, setContext] = useState<RequirementCenterContext | null>(null);
   const [isLoadingContext, setIsLoadingContext] = useState(true);
   const [isRefreshingContext, setIsRefreshingContext] = useState(false);
   const [contextError, setContextError] = useState("");
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [theme, setTheme] = useState<Theme>(() => readUiPreferences().theme);
-  const [typeFilter, setTypeFilter] = useState<"all" | IssueType>("all");
+  const [contextFailure, setContextFailure] = useState<ReadFailure | null>(null);
+  const [errorDetails, setErrorDetails] = useState<ReadFailure | null>(null);
+  const [lastSuccess, setLastSuccess] = useState("");
+  const documentFlight = useRef<string | null>(null);
+  const [theme] = useWorkbenchTheme();
+  const [showArchived, setShowArchived] = useState(true);
+  const [typeFilter, setTypeFilter] = useState<"all" | CardType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("全部负责人");
   const [priorityFilter, setPriorityFilter] = useState("全部优先级");
   const [sprintFilter, setSprintFilter] = useState("全部 Sprint");
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isSpacePopoverOpen, setIsSpacePopoverOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [workspace, setWorkspace] = useState<Workspace>(emptyWorkspace);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isApplicationOpen, setIsApplicationOpen] = useState(false);
-  const [applicationError, setApplicationError] = useState("");
-  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
-  const [createdSpaceResult, setCreatedSpaceResult] = useState<CreatedSpaceApplicationResult | null>(null);
-  const [isCodeManuallyEdited, setIsCodeManuallyEdited] = useState(false);
-  const [createApplicationForm, setCreateApplicationForm] = useState({
-    name: "",
-    code: "",
-    description: "",
-    member_quota: "20",
-    storage_quota_gb: "100",
-    ai_quota_tokens: "1000000",
-    expiry_type: "fixed_date",
-    expires_at: defaultExpiryAt(),
-  });
-  const [settingsTab, setSettingsTab] = useState<SettingsTab>("general");
   const [toast, setToast] = useState("");
+  const [project, setProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [syncLabel, setSyncLabel] = useState("正在读取项目连接");
+  const projectRef = useRef<Project | null>(null);
+  const requestedSpace = useRef("");
+  const requestEpoch = useRef(0);
+  const contextController = useRef<AbortController | null>(null);
+  const contextFlight = useRef<{ key: string; promise: Promise<void> } | null>(null);
+  const revisionRef = useRef("");
+  const documentEpoch = useRef(0);
+  const pollFailures = useRef(0);
+  const pollPaused = useRef(false);
+  const [workspace, setWorkspace] = useState<Workspace>(emptyWorkspace);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(false);
   const [captureForm, setCaptureForm] = useState({
     type: "requirement" as IssueType,
     title: "",
-    priority: "P1" as IssueCard["priority"],
+    priority: "P1" as "P0" | "P1" | "P2" | "P3",
+    severity: "medium",
     description: "",
     owner: "产品团队",
     source: "explore",
   });
   const [captureError, setCaptureError] = useState("");
+  const [captureBusy, setCaptureBusy] = useState(false);
+  const [captureReady, setCaptureReady] = useState<{ ready: boolean; reason: string } | null>(null);
+  const [captureCheck, setCaptureCheck] = useState(0);
+  const captureController = useRef<AbortController | null>(null);
+  const captureAttempt = useRef<{ fingerprint: string; key: string } | null>(null);
+  const closeCapture = () => {
+    captureController.current?.abort(); captureController.current = null;
+    setCaptureBusy(false); setCaptureOpen(false);
+  };
+  useEffect(() => () => captureController.current?.abort(), []);
   const [drawer, setDrawer] = useState<DrawerState>({ type: "none" });
+  const drawerRef = useRef(drawer); drawerRef.current = drawer;
   const [drawerWidth, setDrawerWidth] = useState(760);
   const [isDrawerFullscreen, setIsDrawerFullscreen] = useState(false);
   const [markdownUploadState, setMarkdownUploadState] = useState<MarkdownUploadState>("idle");
@@ -2148,10 +1628,6 @@ export function RequirementCenterPage() {
     { role: "ai", content: "我会在这里汇总卡片动作、命令上下文和失败原因。" },
   ]);
   const [aiDraft, setAiDraft] = useState("");
-  const [draftWorkspace, setDraftWorkspace] = useState(emptyWorkspace);
-  const closeTimerRef = useRef<number | null>(null);
-  const userZoneRef = useRef<HTMLDivElement>(null);
-  const spacePopoverRef = useRef<HTMLElement>(null);
   const captureTitleRef = useRef<HTMLInputElement | null>(null);
   const drawerResizeRef = useRef({ active: false, startX: 0, startWidth: 760 });
   const markdownEditorRef = useRef<HTMLTextAreaElement | null>(null);
@@ -2163,20 +1639,20 @@ export function RequirementCenterPage() {
   const sprintOptions = context?.sprintOptions || context?.sprint_options || [];
 
   const isEditableDocument = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
-    state.type === "markdown" && canEditDocument(state.document)
+    state.type === "markdown" && !project?.readonly && canEditDocument(state.document)
   );
 
   const isTaskToggleDocument = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
-    state.type === "markdown" && canToggleTaskDocument(state.document)
+    state.type === "markdown" && !project?.readonly && canToggleTaskDocument(state.document)
   );
 
   const isMutableMarkdownDrawer = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
-    state.type === "markdown" && canMutateMarkdownDocument(state.document)
+    state.type === "markdown" && !project?.readonly && canMutateMarkdownDocument(state.document)
   );
 
   const isDirtyMarkdownDrawer = useCallback((state: DrawerState = drawer) => (
     isMutableMarkdownDrawer(state) && state.dirty && composeMarkdownContent(state.content, state.draft) !== state.content
-  ), [drawer]);
+  ), [drawer, project?.readonly]);
   const isCurrentMarkdownDirty = isDirtyMarkdownDrawer(drawer);
 
   useEffect(() => {
@@ -2195,6 +1671,7 @@ export function RequirementCenterPage() {
     const dirtyName = drawer.type === "markdown" ? drawer.document.name : "文档";
     if (isDirtyMarkdownDrawer() && !window.confirm(`${dirtyName} 有未保存修改，确认关闭？`)) return;
     setIsDrawerFullscreen(false);
+    documentEpoch.current++; documentFlight.current = null;
     setDrawer({ type: "none" });
   }, [drawer, isDirtyMarkdownDrawer]);
 
@@ -2205,93 +1682,111 @@ export function RequirementCenterPage() {
     document.body.classList.add("rc-resizing-drawer");
   };
 
-  const loadContext = useCallback(async (mode: "initial" | "refresh" = "initial") => {
-    const isRefresh = mode === "refresh";
-    if (isRefresh) {
-      setIsRefreshingContext(true);
-    } else {
-      setIsLoadingContext(true);
-    }
-    setContextError("");
+  const loadContext = useCallback((mode: "initial" | "refresh" = "initial"): Promise<void> => {
+    const key = JSON.stringify([requestedSpace.current || projectRef.current?.space_id || "initial", projectRef.current?.repository_id || ""]);
+    if (contextFlight.current?.key === key && !contextController.current?.signal.aborted) return contextFlight.current.promise;
+    const run = async () => {
+    const epoch = ++requestEpoch.current;
+    contextController.current?.abort();
+    const controller = new AbortController(); contextController.current = controller;
+    const current = () => epoch === requestEpoch.current && !controller.signal.aborted;
+    if (mode === "initial") setIsLoadingContext(true); else setIsRefreshingContext(true);
     try {
-      const frontendSession = readFrontendSession();
+      const username = readFrontendSession()?.username;
       if (isWorkflowDemoMode()) {
-        const nextContext = buildWorkflowDemoContext(frontendSession?.username);
-        const nextWorkspace = getStoredWorkspace(nextContext.workspaces, nextContext.selectedWorkspaceId);
-        setContext(nextContext);
-        setSessionFallbackUser(nextContext.currentUser);
-        setWorkspace(nextWorkspace);
-        setDraftWorkspace(nextWorkspace);
-        return;
+        const next = buildWorkflowDemoContext(username);
+        setContext(next); setWorkspace(getStoredWorkspace(next.workspaces, next.selectedWorkspaceId));
+        setSessionFallbackUser(next.currentUser); return;
       }
-      const token = readAccessToken();
-      const response = await fetch("/api/v1/requirement-center/context", {
-        headers: {
-          accept: "application/json",
-          ...(token ? { authorization: `Bearer ${token}` } : {}),
-        },
-      });
-      if (response.status === 401 || response.status === 403) {
-        setContext(null);
-        clearFrontendSession();
-        clearAdminSession();
-        setSessionFallbackUser(emptyUser);
-        if (window.location.pathname !== "/login") {
-          window.history.replaceState(null, "", "/login");
-          window.dispatchEvent(new PopStateEvent("popstate"));
+      const directory = await governanceRequest<{ projects: Project[]; workspaces: Workspace[]; current_user: FrontendUser }>("/api/v1/requirement-center/projects", { signal: controller.signal });
+      if (!current()) return;
+      if (!Array.isArray(directory.projects)) throw new Error("项目目录响应不兼容，请刷新或联系管理员完成协同升级");
+      setProjects(directory.projects);
+      const directoryContext = normalizeContext({ ...directory, issues: [] } as unknown as RequirementCenterContext, username);
+      const preferred = requestedSpace.current || new URLSearchParams(window.location.search).get("space_id") || getStoredWorkspace(directoryContext.workspaces, "").workspaceId;
+      const repository = projectRef.current?.repository_id || new URLSearchParams(window.location.search).get("repository_id");
+      const selected = directory.projects.find(p => p.space_id === preferred && p.repository_id === repository)
+        || directory.projects.find(p => p.space_id === preferred) || (!requestedSpace.current ? directory.projects[0] : undefined);
+      setSessionFallbackUser(directoryContext.currentUser);
+      setWorkspace(directoryContext.workspaces.find(w => w.workspaceId === (selected?.space_id || preferred)) || emptyWorkspace);
+      if (projectRef.current && (selected?.space_id !== projectRef.current.space_id || selected?.repository_id !== projectRef.current.repository_id)) {
+        documentEpoch.current++; documentFlight.current = null; revisionRef.current = "";
+        setContext(null); setDrawer({ type: "none" }); setErrorDetails(null); setLastSuccess("");
+      }
+      setProject(selected || null); projectRef.current = selected || null;
+      if (contextFlight.current) contextFlight.current.key = JSON.stringify([requestedSpace.current || selected?.space_id || "initial", selected?.repository_id || ""]);
+      if (!selected) { setContext(directoryContext); setSyncLabel("当前空间尚未绑定本地项目"); setContextError(""); return; }
+      const data = await governanceRequest<RequirementCenterContext & { snapshot_revision: string }>(scopedUrl("/api/v1/requirement-center/context", selected), { signal: controller.signal });
+      if (!current()) return;
+      const next = normalizeContext(data, username);
+      setWorkspace(next.workspaces.find(w => w.workspaceId === selected.space_id) || emptyWorkspace);
+      if (!next.workspaces.length) window.localStorage.removeItem("moonbox.workspace");
+      next.selectedWorkspaceId = selected.space_id;
+      setContext(next); // Visibility can change without a file revision change.
+      const opened = drawerRef.current;
+      if (opened.type === "markdown" && !next.issues.some(issue => issue.id === opened.issue.id)) {
+        documentEpoch.current++; documentFlight.current = null; setDrawer({ type: "none" }); setErrorDetails(null);
+      }
+      if (opened.type === "markdown" && next.issues.some(issue => issue.id === opened.issue.id) && (revisionRef.current !== data.snapshot_revision || opened.error) && !opened.loading && !opened.saving) {
+        const docEpoch = documentEpoch.current;
+        try {
+          const latest = await governanceRequest<{ content: string; version: string }>(scopedUrl(opened.document.url || `/api/v1/requirement-center/issues/${opened.issue.id}/documents/${opened.document.name}`, selected), { signal: controller.signal });
+          if (!current()) return;
+          if (docEpoch === documentEpoch.current) setDrawer(value => {
+            if (value.type !== "markdown" || value.document !== opened.document || value.saving) return value;
+            if (latest.version === value.version) return { ...value, error: "", failure: undefined, readBlocked: false };
+            if (value.dirty) return { ...value, readBlocked: true, error: "项目文档已有新版本；当前草稿已保留，旧基准保存将被拒绝。请复制草稿后重新打开核对。" };
+            return { ...value, content: latest.content, draft: parseMarkdownFrontmatter(latest.content).body, version: latest.version, error: "", readBlocked: false, failure: undefined };
+          });
+        } catch (error) {
+          if (!current()) return;
+          if (docEpoch === documentEpoch.current) setDrawer(value => value.type === "markdown" && value.document === opened.document ? { ...value, ...(error instanceof GovernanceError && [401,403].includes(error.status) ? {content: "", draft: "", dirty: false} : {}), error: "文档暂时无法加载", readBlocked: true, failure: readFailure(error) } : value);
         }
-        setContextError("登录态已失效，请重新登录");
-        return;
       }
-      if (!response.ok) {
-        throw new Error(`需求中心数据加载失败：${response.status}`);
+      revisionRef.current = data.snapshot_revision;
+      setContextError(""); setContextFailure(null); setLastSuccess(new Date().toLocaleTimeString()); setSyncLabel("已同步 · " + new Date().toLocaleTimeString()); pollFailures.current = 0; pollPaused.current = false;
+    } catch (error) {
+      if (!current()) return;
+      pollFailures.current++;
+      const denied = error instanceof GovernanceError && [401, 403].includes(error.status);
+      if (denied || mode === "initial") setContext(null);
+      if (denied) { setProject(null); projectRef.current = null; documentEpoch.current++; setDrawer({ type: "none" }); setErrorDetails(null); revisionRef.current = ""; }
+      setSyncLabel(denied ? "项目访问权限已失效" : "同步失败，将自动重试");
+      if (error instanceof GovernanceError && error.status === 401) {
+        clearFrontendSession(); clearAdminSession(); setSessionFallbackUser(emptyUser);
+        window.history.replaceState(null, "", "/login"); window.dispatchEvent(new PopStateEvent("popstate"));
       }
-      const envelope = (await response.json()) as ApiEnvelope<RequirementCenterContext>;
-      const nextContext = normalizeContext(envelope.data, frontendSession?.username);
-      const nextWorkspace = getStoredWorkspace(nextContext.workspaces, nextContext.selectedWorkspaceId);
-      setContext(nextContext);
-      setSessionFallbackUser(nextContext.currentUser);
-      setWorkspace(nextWorkspace);
-      setDraftWorkspace(nextWorkspace);
-    } catch {
-      if (isRefresh) {
-        setToast("刷新失败，已保留当前看板");
-      } else {
-        setContext(null);
-        setContextError("需求中心数据暂时不可用，请稍后重试");
-      }
+      if (denied || mode === "initial") setContextError("需求中心数据暂时不可用：" + (error instanceof Error ? error.message : "项目暂不可用"));
+      setContextFailure(readFailure(error)); pollPaused.current = readFailure(error).kind === "source_invalid";
     } finally {
-      if (isRefresh) {
-        setIsRefreshingContext(false);
-      } else {
-        setIsLoadingContext(false);
-      }
+      if (current()) { setIsLoadingContext(false); setIsRefreshingContext(false); }
     }
+    };
+    const flight = { key, promise: Promise.resolve() };
+    contextFlight.current = flight;
+    flight.promise = run().finally(() => { if (contextFlight.current === flight) contextFlight.current = null; });
+    return flight.promise;
   }, []);
 
   useEffect(() => {
-    void loadContext();
+    let timer: ReturnType<typeof setTimeout>;
+    let stopped = false;
+    const poll = async () => {
+      if (!document.hidden && !pollPaused.current) await loadContext("refresh");
+      if (!stopped) timer = setTimeout(poll, Math.min(30000, 3000 * 2 ** Math.min(pollFailures.current, 3)));
+    };
+    void loadContext().then(() => { if (!stopped) timer = setTimeout(poll, 3000); });
+    const focus = () => { if (!document.hidden && !pollPaused.current) void loadContext("refresh"); };
+    window.addEventListener("focus", focus); document.addEventListener("visibilitychange", focus);
+    return () => { stopped = true; clearTimeout(timer); contextController.current?.abort(); window.removeEventListener("focus", focus); document.removeEventListener("visibilitychange", focus); };
   }, [loadContext]);
 
-  useEffect(() => {
-    const syncTheme = () => setTheme(readUiPreferences().theme);
-    window.addEventListener(UI_PREFERENCES_EVENT, syncTheme);
-    window.addEventListener("storage", syncTheme);
-    return () => {
-      window.removeEventListener(UI_PREFERENCES_EVENT, syncTheme);
-      window.removeEventListener("storage", syncTheme);
-    };
-  }, []);
 
   useEffect(() => {
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setIsSpacePopoverOpen(false);
-      setIsUserMenuOpen(false);
-      setIsSettingsOpen(false);
-      setIsProfileModalOpen(false);
-      setIsPasswordModalOpen(false);
-      setCaptureOpen(false);
+      if (event.key !== "Escape" || document.querySelector('[data-testid="rc-error-details-dialog"]')) return;
+      captureController.current?.abort(); captureController.current = null;
+      setCaptureBusy(false); setCaptureOpen(false);
       setAgentOpen(false);
       setChoiceDialog({ type: "none" });
       setActionDialog({ type: "none" });
@@ -2332,16 +1827,7 @@ export function RequirementCenterPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const closeOnOutsideClick = (event: globalThis.MouseEvent) => {
-      const target = event.target as Node;
-      if (userZoneRef.current?.contains(target) || spacePopoverRef.current?.contains(target)) return;
-      setIsUserMenuOpen(false);
-      setIsSpacePopoverOpen(false);
-    };
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
-  }, []);
+
 
   useEffect(() => {
     if (!toast) return;
@@ -2353,6 +1839,22 @@ export function RequirementCenterPage() {
     if (!captureOpen) return;
     window.setTimeout(() => captureTitleRef.current?.focus(), 0);
   }, [captureOpen]);
+
+  useEffect(() => {
+    if (!captureOpen) return;
+    const target = projectRef.current;
+    setCaptureReady(null);
+    if (!target) { setCaptureReady({ ready: false, reason: "当前项目未连接" }); return; }
+    const controller = new AbortController();
+    let disposed = false;
+    const timer = window.setTimeout(() => controller.abort(), 10000);
+    governanceRequest<{ ready: boolean; reason: string }>(scopedUrl("/api/v1/requirement-center/capture-readiness", target), { signal: controller.signal })
+      .then(result => { if (!controller.signal.aborted) setCaptureReady(result); })
+      .catch(() => { if (!controller.signal.aborted) setCaptureReady({ ready: false, reason: "暂时无法检查写入服务，请刷新状态" }); })
+      .finally(() => window.clearTimeout(timer));
+    controller.signal.addEventListener("abort", () => { if (!disposed) setCaptureReady({ ready: false, reason: "写入服务检查超时，请刷新状态" }); }, { once: true });
+    return () => { disposed = true; window.clearTimeout(timer); controller.abort(); };
+  }, [captureOpen, captureCheck, project?.space_id, project?.repository_id]);
 
   const owners = useMemo(() => ["全部负责人", ...Array.from(new Set(issues.map((issue) => issue.owner)))], [issues]);
   const priorities = ["全部优先级", "P0", "P1", "P2"];
@@ -2368,7 +1870,7 @@ export function RequirementCenterPage() {
     [issues],
   );
 
-  const filteredIssues = useMemo(() => {
+  const filteredCandidates = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return issues.filter((issue) => {
       const matchesType = typeFilter === "all" || issue.type === typeFilter;
@@ -2376,147 +1878,55 @@ export function RequirementCenterPage() {
         !query ||
         issue.id.toLowerCase().includes(query) ||
         issue.title.toLowerCase().includes(query) ||
+        issue.related_changes?.some(change => change.id.toLowerCase().includes(query) || change.title?.toLowerCase().includes(query)) ||
         issue.owner.toLowerCase().includes(query) ||
         issue.documents.some((doc) => doc.toLowerCase().includes(query));
       const matchesOwner = ownerFilter === "全部负责人" || issue.owner === ownerFilter;
       const matchesPriority = priorityFilter === "全部优先级" || issue.priority === priorityFilter;
       const matchesSprint = sprintFilter === "全部 Sprint" || visibleSprintId(issue) === sprintFilter;
-      return matchesType && matchesSearch && matchesOwner && matchesPriority && matchesSprint;
+      return matchesType && matchesSearch && matchesOwner && matchesPriority && matchesSprint && (showArchived || issue.stage !== "done");
     });
-  }, [issues, ownerFilter, priorityFilter, searchQuery, sprintFilter, typeFilter]);
+  }, [issues, ownerFilter, priorityFilter, searchQuery, sprintFilter, typeFilter, showArchived]);
 
-  const manageableWorkspace = canManageWorkspace(workspace);
+
+  const filteredIssues = filteredCandidates.filter(issue => issue.stage !== "unknown");
+  const diagnosticIssues = filteredCandidates.filter(issue => issue.stage === "unknown");
 
   const stats = [
     { label: "全部对象", value: filteredIssues.length },
     { label: "需求", value: filteredIssues.filter((issue) => issue.type === "requirement").length },
     { label: "Bug", value: filteredIssues.filter((issue) => issue.type === "bug").length },
+    { label: "独立 Change", value: filteredIssues.filter((issue) => issue.type === "change").length },
     { label: "当前阻塞", value: filteredIssues.filter((issue) => issue.blocked).length },
   ];
   const activeFilterCount = [
+    !showArchived,
     ownerFilter !== "全部负责人",
     priorityFilter !== "全部优先级",
     sprintFilter !== "全部 Sprint",
   ].filter(Boolean).length;
 
-  const cancelSpacePopoverClose = () => {
-    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = null;
-  };
 
-  const scheduleSpacePopoverClose = () => {
-    cancelSpacePopoverClose();
-    closeTimerRef.current = window.setTimeout(() => {
-      setIsSpacePopoverOpen(false);
-    }, 180);
-  };
-
-  const closeSpacePopoverNow = () => {
-    cancelSpacePopoverClose();
-    setIsSpacePopoverOpen(false);
-  };
-
-  const openApplicationCenter = () => {
-    closeSpacePopoverNow();
-    setIsUserMenuOpen(false);
-    setIsApplicationOpen(true);
-    setApplicationError("");
-    setCreatedSpaceResult(null);
-  };
-
-  const submitCreateApplication = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const validationError = validateCreateApplicationForm(createApplicationForm);
-    if (validationError) {
-      setApplicationError(validationError);
-      return;
-    }
-    setIsSubmittingApplication(true);
-    setApplicationError("");
-    try {
-      const token = readAccessToken();
-      const response = await fetch("/api/v1/catalog/workspace-applications/create", {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          ...createApplicationForm,
-          member_quota: Number(createApplicationForm.member_quota),
-          storage_quota_gb: Number(createApplicationForm.storage_quota_gb),
-          ai_quota_tokens: Number(createApplicationForm.ai_quota_tokens),
-          expires_at: createApplicationForm.expiry_type === "fixed_date" ? createApplicationForm.expires_at : null,
-        }),
-      });
-      if (!response.ok) throw new Error(await response.text());
-      const envelope = (await response.json()) as ApiEnvelope<CreatedSpaceApplicationResult>;
-      setCreatedSpaceResult(envelope.data);
-      setToast("创建空间申请已提交");
-      setCreateApplicationForm({ name: "", code: "", description: "", member_quota: "20", storage_quota_gb: "100", ai_quota_tokens: "1000000", expiry_type: "fixed_date", expires_at: defaultExpiryAt() });
-      setIsCodeManuallyEdited(false);
-      await loadContext("refresh");
-    } catch {
-      setApplicationError("创建空间失败，请检查必填项、空间标识和配额范围");
-    } finally {
-      setIsSubmittingApplication(false);
-    }
-  };
-
-  const updateCreateName = (value: string) => {
-    const slug = value
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 32);
-    setCreateApplicationForm((current) => ({ ...current, name: value, code: isCodeManuallyEdited ? current.code : slug }));
-  };
-
-  const enterAdmin = () => {
-    closeSpacePopoverNow();
-    setIsUserMenuOpen(false);
-    window.history.pushState(null, "", "/admin");
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
-
-  const openChangePassword = () => {
-    closeSpacePopoverNow();
-    setIsUserMenuOpen(false);
-    setIsPasswordModalOpen(true);
-  };
-
-  const openProfile = () => {
-    closeSpacePopoverNow();
-    setIsUserMenuOpen(false);
-    setIsProfileModalOpen(true);
-  };
-
-  const completeProfileSave = (nextUser: AdminSession["user"]) => {
-    const nextFrontendUser = frontendUserFromAdmin(nextUser, activeUser);
-    setContext((current) => current ? { ...current, currentUser: nextFrontendUser } : current);
-    const session = readAdminSession();
-    if (session) {
-      saveFrontendSession({ ...session, user: nextUser });
-    } else {
-      saveFrontendSession(nextFrontendUser.name);
-    }
-    setIsProfileModalOpen(false);
-    setToast("个人资料已更新");
-  };
-
-  const completePasswordChange = () => {
-    setIsPasswordModalOpen(false);
-    clearFrontendSession();
-    window.history.pushState(null, "", "/login");
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
 
   const openIssueDetail = (issue: IssueCard) => {
+    if (issue.type === "change") {
+      const document = issueDocumentEntries(issue)[0];
+      if (document) void openDocument(issue, document);
+      else setToast("Change 文档缺失或归档版本待核实");
+      return;
+    }
     window.open(issueDetailUrl(issue), "_blank", "noopener,noreferrer");
   };
 
-  const openDocument = async (issue: IssueCard, document: IssueDocument) => {
+  const openDocument = async (issue: IssueCard, document: IssueDocument, focus?: ProgressFocus) => {
+    if (isDirtyMarkdownDrawer() && !window.confirm("文档有未保存修改，确认打开另一份文档？")) return;
+    const selectedProject = projectRef.current;
+    const flightKey = JSON.stringify([selectedProject?.space_id, selectedProject?.repository_id, issue.id, document.url || document.name]);
+    if (documentFlight.current === flightKey) return;
+    const epoch = ++documentEpoch.current;
     const mode = document.openMode || document.open_mode;
     if (document.status && document.status !== "available") {
-      setToast("文档暂不可用，未触发卡片流转");
+      setToast(`${document.name} 暂不可用，未触发卡片流转`);
       return;
     }
     if (document.type === "html" || mode === "new-tab") {
@@ -2533,12 +1943,13 @@ export function RequirementCenterPage() {
     setMarkdownUploadError("");
     setMarkdownMetadataOpen(false);
     setIsDrawerFullscreen(false);
-    setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: true, saving: false, error: "", mode: "preview", dirty: false });
+    setDrawer({ type: "markdown", issue, document, focus, content: "", draft: "", loading: true, saving: false, error: "", mode: "preview", dirty: false });
     if (document.content) {
       setDrawer({
         type: "markdown",
         issue,
         document,
+        focus,
         content: document.content,
         draft: parseMarkdownFrontmatter(document.content).body,
         loading: false,
@@ -2550,21 +1961,29 @@ export function RequirementCenterPage() {
       return;
     }
     try {
-      const token = readAccessToken();
-      const response = await fetch(document.url || `/api/v1/requirement-center/issues/${issue.id}/documents/${document.name}`, {
-        headers: { accept: "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-      });
-      if (!response.ok) throw new Error(response.status === 403 ? "无权读取该文档" : "文档读取失败");
-      const envelope = (await response.json()) as ApiEnvelope<{ content: string }>;
-      setDrawer({ type: "markdown", issue, document, content: envelope.data.content, draft: parseMarkdownFrontmatter(envelope.data.content).body, loading: false, saving: false, error: "", mode: "preview", dirty: false });
+      documentFlight.current = flightKey;
+      if (!selectedProject) throw new Error("项目未连接");
+      const data = await governanceRequest<{ content: string; version: string }>(scopedUrl(document.url || `/api/v1/requirement-center/issues/${issue.id}/documents/${document.name}`, selectedProject));
+      if (epoch !== documentEpoch.current || selectedProject.space_id !== projectRef.current?.space_id || selectedProject.repository_id !== projectRef.current?.repository_id) return;
+      setDrawer({ type: "markdown", issue, document, focus, version: data.version, content: data.content, draft: parseMarkdownFrontmatter(data.content).body, loading: false, saving: false, error: "", mode: "preview", dirty: false });
     } catch (error) {
-      setDrawer({ type: "markdown", issue, document, content: "", draft: "", loading: false, saving: false, error: sanitizeFeedback(error instanceof Error ? error.message : "文档读取失败"), mode: "preview", dirty: false });
+      if (epoch !== documentEpoch.current) return;
+      setDrawer({ type: "markdown", issue, document, focus, content: "", draft: "", loading: false, saving: false, error: "文档暂时无法加载", readBlocked: true, failure: readFailure(error), mode: "preview", dirty: false });
+    } finally {
+      if (epoch === documentEpoch.current && documentFlight.current === flightKey) documentFlight.current = null;
     }
   };
 
+  const openTasksAt = (issue: IssueCard, focus: ProgressFocus) => {
+    const document = issueDocumentEntries(issue).find(entry => entry.name === "tasks.md");
+    if (!document) { setToast(`${issue.id} 未关联 tasks.md，无法打开${progressFocusLabel[focus]}。`); return; }
+    void openDocument(issue, document, focus);
+  };
+
   const saveMarkdownDocument = async () => {
-    if (drawer.type !== "markdown" || !isMutableMarkdownDrawer(drawer) || drawer.saving) return;
+    if (drawer.type !== "markdown" || !isMutableMarkdownDrawer(drawer) || drawer.saving || contextFailure || drawer.readBlocked) return;
     const currentDrawer = drawer;
+    const saveProject = projectRef.current!;
     setDrawer({ ...currentDrawer, saving: true, error: "" });
     try {
       const contentToSave = composeMarkdownContent(currentDrawer.content, currentDrawer.draft);
@@ -2584,14 +2003,14 @@ export function RequirementCenterPage() {
       }
       const token = readAccessToken();
       const baseUrl = currentDrawer.document.url || `/api/v1/requirement-center/issues/${currentDrawer.issue.id}/documents/${currentDrawer.document.name}`;
-      const response = await fetch(isTaskToggleDocument(currentDrawer) ? `${baseUrl}/tasks` : baseUrl, {
+      const response = await fetch(scopedUrl(baseUrl, saveProject, isTaskToggleDocument(currentDrawer) ? "/tasks" : ""), {
         method: "PUT",
         headers: {
           accept: "application/json",
           "content-type": "application/json",
           ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ content: contentToSave }),
+        body: JSON.stringify({ content: contentToSave, expected_version: currentDrawer.version, idempotency_key: crypto.randomUUID() }),
       });
       if (!response.ok) {
         if (response.status === 403) {
@@ -2615,15 +2034,16 @@ export function RequirementCenterPage() {
         }
         throw new Error(detail || "文档保存失败，内容已保留");
       }
-      const envelope = (await response.json()) as ApiEnvelope<{ content: string }>;
-      if (typeof envelope.data?.content !== "string") {
-        throw new Error("文档保存响应异常，内容已保留");
-      }
-      setDrawer({ ...currentDrawer, content: envelope.data.content, draft: parseMarkdownFrontmatter(envelope.data.content).body, saving: false, error: "", mode: "preview", dirty: false, savedAt: "刚刚保存" });
+      const queued = (await response.json()) as ApiEnvelope<Application>;
+      const result = await waitApplication(queued.data.id);
+      if (result.state === "conflict") captureAttempt.current = null;
+      if (result.state !== "applied") throw new Error(result.state === "recovery_blocked" ? "应用已暂停，需要管理员处理恢复；草稿已保留" : "文件版本冲突或维护窗口不可用；草稿已保留");
+      const saved = await governanceRequest<{ content: string; version: string }>(scopedUrl(baseUrl, saveProject));
+      setDrawer(latest => latest.type === "markdown" && latest.document === currentDrawer.document ? { ...latest, content: saved.content, version: saved.version, draft: latest.draft === currentDrawer.draft ? parseMarkdownFrontmatter(saved.content).body : latest.draft, saving: false, error: "", mode: latest.draft === currentDrawer.draft ? "preview" : latest.mode, dirty: latest.draft !== currentDrawer.draft, savedAt: "刚刚保存" } : latest);
       setToast(`${currentDrawer.document.name} 已保存`);
     } catch (error) {
       const message = sanitizeFeedback(error instanceof Error ? error.message : "文档保存失败，内容已保留");
-      setDrawer((latest) => (latest.type === "markdown" ? { ...latest, saving: false, error: message } : latest));
+      setDrawer((latest) => (latest.type === "markdown" && latest.document === currentDrawer.document ? { ...latest, saving: false, error: message } : latest));
       setToast(message);
     }
   };
@@ -2702,47 +2122,49 @@ export function RequirementCenterPage() {
     setDrawer({ ...drawer, draft: parseMarkdownFrontmatter(drawer.content).body, mode: "preview", dirty: false, savedAt: undefined });
   };
 
-  const submitCapture = (event: FormEvent<HTMLFormElement>) => {
+  const submitCapture = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (captureController.current || !captureReady?.ready || contextFailure) return;
     const title = captureForm.title.trim();
-    if (!title) {
-      setCaptureError("标题不能为空");
-      return;
+    if (!title) { setCaptureError("标题不能为空"); return; }
+    const target = projectRef.current;
+    if (!target || target.readonly || target.status !== "connected") {
+      setCaptureError("当前项目未连接或没有写入权限"); return;
     }
-    const prefix = captureForm.type === "requirement" ? "REQ" : "BUG";
-    const nextNumber = Math.max(
-      0,
-      ...issues
-        .filter((issue) => issue.id.startsWith(`${prefix}-`))
-        .map((issue) => Number(issue.id.split("-")[1]) || 0),
-    ) + 1;
-    const id = `${prefix}-${String(nextNumber).padStart(4, "0")}`;
-    const newIssue: IssueCard = {
-      id,
-      type: captureForm.type,
-      title,
-      priority: captureForm.priority,
-      owner: captureForm.owner,
-      source: captureForm.source,
-      stage: "capture",
-      documents: ["capture.md", "trace.md"],
-      documentEntries: [
-        { name: "capture.md", type: "markdown", openMode: "drawer", label: "capture.md", status: "available" },
-        { name: "trace.md", type: "markdown", openMode: "drawer", label: "trace.md", status: "available" },
-      ],
-      updatedAt: "刚刚",
-      detailUrl: `/requirements/${id}`,
-      action: {
-        command: `${captureForm.type === "requirement" ? "/req-generate" : "/bug-generate"} ${id}`,
-        label: captureForm.type === "requirement" ? "生成需求" : "生成 Bug",
-        requiresChoice: "generation",
-      },
-    };
-    setContext((current) => current ? { ...current, issues: [newIssue, ...current.issues] } : current);
-    setCaptureForm({ type: "requirement", title: "", priority: "P1", description: "", owner: "产品团队", source: "explore" });
-    setCaptureError("");
-    setCaptureOpen(false);
-    setToast("Capture 已创建并插入采集池");
+    const { priority, severity, ...captureFields } = captureForm;
+    const payload = { ...captureFields, title, ...(captureForm.type === "bug" ? { severity } : { priority }) };
+    const fingerprint = JSON.stringify([target.space_id, target.repository_id, payload]);
+    if (captureAttempt.current?.fingerprint !== fingerprint) {
+      captureAttempt.current = { fingerprint, key: crypto.randomUUID() };
+    }
+    const controller = new AbortController(); captureController.current = controller;
+    const timer = window.setTimeout(() => controller.abort(), 30000);
+    const active = () => captureController.current === controller &&
+      projectRef.current?.space_id === target.space_id && projectRef.current?.repository_id === target.repository_id;
+    setCaptureBusy(true); setCaptureError("");
+    try {
+      const queued = await governanceRequest<Application>(scopedUrl("/api/v1/requirement-center/captures", target), {
+        method: "POST", body: JSON.stringify({ ...payload, idempotency_key: captureAttempt.current.key }), signal: controller.signal,
+      });
+      const result = await waitApplication(queued.id, controller.signal);
+      if (!active()) return;
+      if (result.state === "conflict") captureAttempt.current = null;
+      if (result.state !== "applied") throw new Error(result.state === "recovery_blocked"
+        ? "创建需要恢复，请联系项目管理员；输入已保留" : "创建未完成，请检查项目写入条件；输入已保留");
+      const data = await governanceRequest<RequirementCenterContext & { snapshot_revision: string }>(
+        scopedUrl("/api/v1/requirement-center/context", target), { signal: controller.signal });
+      if (!active()) return;
+      setContext(normalizeContext(data, readFrontendSession()?.username));
+      revisionRef.current = data.snapshot_revision;
+      captureAttempt.current = null;
+      setCaptureForm({ type: "requirement", title: "", priority: "P1", severity: "medium", description: "", owner: "产品团队", source: "explore" });
+      setCaptureOpen(false); setToast("Capture 已创建并插入采集池");
+    } catch (error) {
+      if (active()) setCaptureError(controller.signal.aborted ? "等待超时，输入已保留；再次提交将查询同一次创建结果" : error instanceof Error ? error.message : "创建失败，输入已保留");
+    } finally {
+      window.clearTimeout(timer);
+      if (captureController.current === controller) { captureController.current = null; setCaptureBusy(false); }
+    }
   };
 
   const handleCaptureKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
@@ -2785,10 +2207,27 @@ export function RequirementCenterPage() {
   };
 
   const openIssueActionDialog = (issue: IssueCard, auxAction?: AuxiliaryAction) => {
+    if (contextFailure) { setToast("请先重新加载项目数据"); return; }
+    if (issue.stage === "unknown") return;
+    const blocked = blockedTip(issue.stage, issue, issueAction(issue));
+    if (!auxAction && blocked) { setToast(blocked); return; }
+    if (issue.stage === "development" && !auxAction) { openTasksAt(issue, "development"); return; }
+    if (!isWorkflowDemoMode()) {
+      if (issue.type !== "requirement" || issue.stage !== "capture" || auxAction) { setToast("当前仅支持采集需求的生成动作"); return; }
+      const target = projectRef.current;
+      if (!target || target.readonly || lockedActionId) { setToast("项目不可写或正在准备会话"); return; }
+      setLockedActionId(issue.id);
+      void governanceRequest<{ conversation_id: string; prompt: string }>("/api/v1/chat/governance-preparations", { method: "POST", body: JSON.stringify({ space_id: target.space_id, repository_id: target.repository_id, object_id: issue.id, action: "req-generate" }) }).then(result => {
+        sessionStorage.setItem(`moonbox.governance.prompt:${result.conversation_id}`, result.prompt);
+        window.history.pushState(null, "", `/chat?space_id=${encodeURIComponent(target.space_id)}&conversation_id=${encodeURIComponent(result.conversation_id)}`);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      }).catch(error => setToast(error.message)).finally(() => setLockedActionId(""));
+      return;
+    }
     const action = auxAction || issueAction(issue);
     if (actionDisabledReason(action as IssueAction)) {
       appendAiMessage(`${issue.id} 前置条件不满足：${actionDisabledReason(action as IssueAction)}`);
-      setDrawer({ type: "ai" });
+      setDrawer({ type: "ai", issue });
       return;
     }
     const type = actionDialogType(issue, action);
@@ -2818,10 +2257,11 @@ export function RequirementCenterPage() {
 
   const runIssueAction = async (issue: IssueCard, options?: { sprintId?: string; importedFile?: File; confirmed?: boolean }) => {
     const action = issueAction(issue);
-    if (lockedActionId) return;
-    if (actionDisabledReason(action)) {
-      appendAiMessage(`${issue.id} 前置条件不满足：${actionDisabledReason(action)}`);
-      setDrawer({ type: "ai" });
+    if (lockedActionId || contextFailure) return;
+    const blocked = blockedTip(issue.stage, issue, action);
+    if (blocked) {
+      appendAiMessage(`${issue.id} 前置条件不满足：${blocked}`);
+      setDrawer({ type: "ai", issue });
       return;
     }
     const choice = actionChoice(action, issue);
@@ -2830,7 +2270,7 @@ export function RequirementCenterPage() {
       return;
     }
     if (issue.stage === "development") {
-      setDrawer({ type: "tasks", issue, focus: "development" });
+      openTasksAt(issue, "development");
       return;
     }
     setLockedActionId(issue.id);
@@ -2880,7 +2320,7 @@ export function RequirementCenterPage() {
   };
 
   const confirmActionDialog = async () => {
-    if (actionDialog.type === "none" || actionDialog.running) return;
+    if (actionDialog.type === "none" || actionDialog.running || contextFailure) return;
     const { issue, type } = actionDialog;
     if (type === "progress") {
       appendAiMessage(`${issue.id} 当前研发进度：${issue.taskProgress?.[0] || 0}/${issue.taskProgress?.[1] || 0}`);
@@ -2906,65 +2346,13 @@ export function RequirementCenterPage() {
     await runIssueAction(issue, { confirmed: true });
   };
 
-  const logoutFrontend = async () => {
-    closeSpacePopoverNow();
-    setIsUserMenuOpen(false);
-    const adminSession = readAdminSession();
-    if (adminSession?.access_token) {
-      await logoutAdmin();
-    } else {
-      clearFrontendSession();
-    }
-    window.history.pushState(null, "", "/login");
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed((value) => !value);
-    setIsUserMenuOpen(false);
-    setIsSpacePopoverOpen(false);
-  };
-
   const selectWorkspace = (item: Workspace) => {
-    setWorkspace(item);
-    setDraftWorkspace(item);
-    setContext((current) => current ? { ...current, selectedWorkspaceId: item.workspaceId } : current);
-    setTypeFilter("all");
-    setSearchQuery("");
-    setOwnerFilter("全部负责人");
-    setPriorityFilter("全部优先级");
-    setSprintFilter("全部 Sprint");
-    window.localStorage.setItem("moonbox.workspace", JSON.stringify(item));
-    setIsSpacePopoverOpen(false);
-    setIsUserMenuOpen(false);
-    setToast(`已切换到 ${item.name}`);
-  };
-
-  const openSpaceSettings = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    setDraftWorkspace(workspace);
-    setIsSettingsOpen(true);
-    setIsUserMenuOpen(false);
-    setIsSpacePopoverOpen(false);
-  };
-
-  const updateDraft = (field: keyof Workspace) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setDraftWorkspace((current) => ({ ...current, [field]: event.target.value }));
-  };
-
-  const saveSpaceSettings = () => {
-    setWorkspace(draftWorkspace);
-    window.localStorage.setItem("moonbox.workspace", JSON.stringify(draftWorkspace));
-    setIsSettingsOpen(false);
-    setToast("空间设置已保存");
-    void loadContext();
-  };
-
-  const handleMenuKey = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      setIsUserMenuOpen(false);
-      setIsSpacePopoverOpen(false);
-    }
+    if (isDirtyMarkdownDrawer() && !window.confirm("文档有未保存修改，确认切换项目并放弃草稿？")) return;
+    documentEpoch.current++; documentFlight.current = null; pollPaused.current = false; requestedSpace.current = item.workspaceId; projectRef.current = null; revisionRef.current = "";
+    setDrawer({ type: "none" }); setContext(null); setProject(null); setContextFailure(null); setErrorDetails(null); setLastSuccess("");
+    setWorkspace(item); void loadContext();
+    setContext(current => current ? { ...current, selectedWorkspaceId: item.workspaceId } : current);
+    setShowArchived(true); setTypeFilter("all"); setSearchQuery(""); setOwnerFilter("全部负责人"); setPriorityFilter("全部优先级"); setSprintFilter("全部 Sprint");
   };
 
   const stageColumns = stages.map((stage) => ({
@@ -2973,6 +2361,11 @@ export function RequirementCenterPage() {
   }));
 
   const runAgentStageAction = (stage: Stage, issue: IssueCard) => {
+    if (issue.type === "change") {
+      if (stage.id === "done") openIssueDetail(issue);
+      else openIssueActionDialog(issue);
+      return;
+    }
     setAgentOpen(false);
     if (stage.id === "done") {
       window.open(issue.archiveUrl || issueDetailUrl(issue), "_blank", "noopener,noreferrer");
@@ -2984,11 +2377,16 @@ export function RequirementCenterPage() {
   const renderIssueCard = (stage: Stage, issue: IssueCard) => {
     const action = issueAction(issue);
     const tip = blockedTip(stage.id, issue, action);
-    const actionLabel = action.label || stageActionLabel[stage.id][issue.type];
+    const actionLabel = action.label || stageActionLabel[stage.id]?.[issue.type];
     const isDoneStage = stage.id === "done";
-    const showArchive = !isDoneStage && (stage.id !== "acceptance" || canArchive(issue));
+    const showArchive = issue.type === "change"
+      ? ["ready-dev", "development", "acceptance"].includes(stage.id) && (stage.id !== "acceptance" || canArchive(issue))
+      : stage.id !== "unknown" && !isDoneStage && (stage.id !== "acceptance" || canArchive(issue));
     const isLocked = lockedActionId === issue.id;
     const documents = visibleIssueDocuments(stage, issue);
+    const persistentNames = ["requirement.md", "bug.md", "sprint.md", "trace.md"];
+    if (issue.type === "requirement") persistentNames.push(...documents.filter(doc => doc.name === "prototype.html" || doc.name.startsWith("prototype/") && doc.name.endsWith(".html")).map(doc => doc.name));
+    const documentGroups = [documents.filter(doc => persistentNames.includes(doc.name)), documents.filter(doc => !persistentNames.includes(doc.name))];
     const taskProgress = visibleTaskProgress(issue);
     const manualProgress = visibleManualAcceptanceProgress(issue);
     const auxActions = auxiliaryActions(issue);
@@ -2999,21 +2397,26 @@ export function RequirementCenterPage() {
           <strong>{issue.id}</strong>
           {visibleSprintId(issue) && <span className="rc-sprint-tag">{visibleSprintId(issue)}</span>}
         </div>
-        <button className="rc-card-title" type="button" onClick={() => openIssueDetail(issue)}>{issue.title}</button>
+        {(issue.current_change || issue.change_warning) && <div className="rc-change-id-row"><strong data-change-id={issue.current_change?.id}>{issue.current_change?.id || issue.change_warning}</strong></div>}
+        <button className="rc-card-title" type="button" onClick={() => openIssueDetail(issue)}>{issue.current_change?.title || issue.title}</button>
         <div className="rc-card-meta rc-card-tags">
-          <span className={`rc-priority-tag rc-tag ${issue.priority.toLowerCase()}`}>{issue.priority}</span>
+          {issue.priority && <span className={`rc-priority-tag rc-tag ${issue.priority.toLowerCase()}`}>{issue.priority}</span>}
           <span className="rc-owner-tag rc-tag">{issue.owner}</span>
         </div>
         <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
-          {documents.map((document, index) => (
-            <span className="rc-doc-item" key={document.name}>
-              {index > 0 && <span className="rc-doc-separator" aria-hidden="true"> </span>}
-              <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
-                {document.label || document.name}
-              </button>
-            </span>
+          {documentGroups.map((group, groupIndex) => group.length > 0 && (
+            <div className="rc-doc-group" role="group" aria-label={groupIndex === 0 ? "常驻文档" : "阶段文档"} key={groupIndex}>
+              {group.map(document => (
+                <span className="rc-doc-item" key={document.url || document.name}>
+                  <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
+                    {document.label || document.name}
+                  </button>
+                </span>
+              ))}
+            </div>
           ))}
         </div>
+        {issue.type === "change" && !issue.taskProgress && <p className="rc-progress">任务进度未知</p>}
         {tip ? (
           <p className="rc-blocked"><CircleDot size={12} /> {tip}</p>
         ) : null}
@@ -3024,7 +2427,7 @@ export function RequirementCenterPage() {
                 aria-label={`研发 ${taskProgress[0]}/${taskProgress[1]}`}
                 className="rc-progress-action"
                 type="button"
-                onClick={() => setDrawer({ type: "tasks", issue, focus: "development" })}
+                onClick={() => openTasksAt(issue, "development")}
               >
                 <span className="rc-progress-label">研发</span>
                 <b className="rc-progress-value">{taskProgress[0]}/{taskProgress[1]}</b>
@@ -3035,7 +2438,7 @@ export function RequirementCenterPage() {
                 aria-label={`测试 ${issue.testProgress[0]}/${issue.testProgress[1]}`}
                 className="rc-progress-action"
                 type="button"
-                onClick={() => setDrawer({ type: "tasks", issue, focus: "test" })}
+                onClick={() => openTasksAt(issue, "test")}
               >
                 <span className="rc-progress-label">测试</span>
                 <b className="rc-progress-value">{issue.testProgress[0]}/{issue.testProgress[1]}</b>
@@ -3046,7 +2449,7 @@ export function RequirementCenterPage() {
                 aria-label={`人工验收 ${manualProgress[0]}/${manualProgress[1]}`}
                 className="rc-progress-action"
                 type="button"
-                onClick={() => setDrawer({ type: "tasks", issue, focus: "manual" })}
+                onClick={() => openTasksAt(issue, "manual")}
               >
                 <span className="rc-progress-label">人工验收</span>
                 <b className="rc-progress-value">{manualProgress[0]}/{manualProgress[1]}</b>
@@ -3055,7 +2458,7 @@ export function RequirementCenterPage() {
           </div>
         )}
         <footer>
-          <span className="rc-updated">更新 {issue.updatedAt}</span>
+          <span className="rc-updated">{/^\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}$/.test(issue.updatedAt || "") ? `更新 ${issue.updatedAt}` : "更新时间未知"}</span>
           <span className="rc-card-actions" aria-label={`${issue.id} 卡片动作`}>
             {auxActions.map((auxAction) => (
               <button
@@ -3071,7 +2474,7 @@ export function RequirementCenterPage() {
               </button>
             ))}
             {showArchive && (
-              <button className="primary" type="button" title={action.command} disabled={isLocked || Boolean(actionDisabledReason(action))} onClick={() => openIssueActionDialog(issue)}>
+              <button className="primary" type="button" title={tip || action.command} disabled={isLocked || Boolean(tip)} onClick={() => openIssueActionDialog(issue)}>
                 {isLocked && <Loader2 size={13} aria-hidden="true" />} {actionLabel} →
               </button>
             )}
@@ -3095,8 +2498,6 @@ export function RequirementCenterPage() {
   const renderActionDialogBody = (dialog: Exclude<ActionDialog, { type: "none" }>) => {
     const copy = actionModalCopy(dialog.issue, dialog.type);
     const docs = commandDocsForAction(dialog.issue, dialog.type);
-    const taskProgress = dialog.issue.taskProgress || [0, 0];
-    const testProgress = dialog.issue.testProgress;
     const estimate = dialog.issue.priority === "P0" ? 5 : dialog.issue.priority === "P1" ? 3 : 2;
     const changeCount = dialog.issue.type === "requirement" && ["P0", "P1"].includes(dialog.issue.priority) ? 2 : 1;
 
@@ -3279,24 +2680,6 @@ export function RequirementCenterPage() {
       );
     }
 
-    if (dialog.type === "progress") {
-      return (
-        <div className="rc-action-field">
-          <label>Change 研发进度</label>
-          <div className="rc-action-change">
-            <div className="rc-action-change-head"><strong>{dialog.issue.id}</strong><span>{taskProgress[0]}/{taskProgress[1]}</span></div>
-            <small>{dialog.issue.title}</small>
-            <div className="rc-mini-bar"><span style={{ width: `${taskProgress[1] ? Math.round((taskProgress[0] / taskProgress[1]) * 100) : 0}%` }} /></div>
-          </div>
-          {testProgress && (
-            <div className="rc-action-change">
-              <div className="rc-action-change-head"><strong>自动化测试</strong><span>{testProgress[0]}/{testProgress[1]}</span></div>
-              <div className="rc-mini-bar"><span style={{ width: `${testProgress[1] ? Math.round((testProgress[0] / testProgress[1]) * 100) : 0}%` }} /></div>
-            </div>
-          )}
-        </div>
-      );
-    }
 
     return (
       <>
@@ -3352,177 +2735,7 @@ export function RequirementCenterPage() {
 
   return (
     <main className={`requirement-center theme-${theme}`} data-theme={theme}>
-      <aside className={`rc-sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
-        <div className="rc-brand">
-          <span className="rc-brand-mark">
-            <img src="/brand/moonbox/moonbox-app-icon-256.png" alt="MoonBox 产品图标" />
-          </span>
-          {!isSidebarCollapsed && (
-            <div className="rc-brand-copy">
-              <strong>MoonBox</strong>
-              <small>OPS WORKBENCH</small>
-            </div>
-          )}
-          {!isSidebarCollapsed && <span className="rc-version-badge">{PRODUCT_VERSION}</span>}
-          <button
-            className="rc-collapse"
-            type="button"
-            onClick={toggleSidebar}
-            aria-label={isSidebarCollapsed ? "展开侧边栏" : "收起侧边栏"}
-          >
-            {isSidebarCollapsed ? "›" : "‹"}
-          </button>
-        </div>
-        <nav className="rc-nav" aria-label="前台导航">
-          {frontendNavGroups.map((group) => (
-            <div className="rc-nav-group" key={group.group}>
-              <span className="rc-nav-group-label">{group.group}</span>
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    className={`rc-nav-item ${item.active ? "active" : ""}`}
-                    type="button"
-                    title={item.title}
-                    aria-current={item.active ? "page" : undefined}
-                    key={item.label}
-                  >
-                    <Icon className="rc-nav-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
-                    <span className="rc-nav-label">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-        <div className="rc-sidebar-bottom">
-          <div className="rc-user-zone" ref={userZoneRef} onKeyDown={handleMenuKey}>
-            <button
-              className="rc-user-trigger"
-              type="button"
-              onClick={() => setIsUserMenuOpen((value) => !value)}
-              aria-haspopup="menu"
-              aria-expanded={isUserMenuOpen}
-            >
-              <AuthenticatedRequirementAvatar avatarUrl={activeUser.avatarUrl} alt={`${activeUser.name} 头像`} fallback={activeUser.avatarInitial} />
-              {!isSidebarCollapsed && (
-              <span className="rc-user-copy">
-                <strong>{activeUser.name}</strong>
-                <em>{workspace.name}</em>
-              </span>
-            )}
-              {!isSidebarCollapsed && <span className={`rc-user-chevron ${isUserMenuOpen ? "open" : ""}`} aria-hidden="true">{isUserMenuOpen ? "⌄" : "⌃"}</span>}
-            </button>
-            {isUserMenuOpen && !isSidebarCollapsed && (
-              <div className="rc-user-menu" role="menu" aria-label="用户菜单" onMouseLeave={scheduleSpacePopoverClose} onMouseEnter={cancelSpacePopoverClose}>
-                <div className="rc-menu-group" role="group" aria-label="账号">
-                  <button role="menuitem" type="button" onMouseEnter={closeSpacePopoverNow} onClick={openProfile}>
-                    <UserRound className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /> 个人资料
-                  </button>
-                  <button role="menuitem" type="button" onMouseEnter={closeSpacePopoverNow} onClick={openChangePassword}>
-                    <KeyRound className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /> 修改密码
-                  </button>
-                  {activeUser.canAccessAdmin && (
-                    <button role="menuitem" type="button" onMouseEnter={closeSpacePopoverNow} onClick={enterAdmin}>
-                      <LayoutDashboard className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /> 进入后台
-                    </button>
-                  )}
-                </div>
-                <div className="rc-menu-group" role="group" aria-label="空间">
-                  <button
-                    className="rc-has-submenu"
-                    role="menuitem"
-                    type="button"
-                    onMouseEnter={() => {
-                      cancelSpacePopoverClose();
-                      setIsSpacePopoverOpen(true);
-                    }}
-                  >
-                    <Users className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" />
-                    <span>切换空间</span>
-                    <span className="rc-submenu-arrow" aria-hidden="true">&gt;</span>
-                  </button>
-                  {manageableWorkspace && (
-                    <button role="menuitem" type="button" onMouseEnter={closeSpacePopoverNow} onClick={openSpaceSettings}>
-                      <Settings className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /> 设置空间
-                    </button>
-                  )}
-                </div>
-                <div className="rc-menu-group" role="group" aria-label="偏好">
-                  <button
-                    id="themeSwitch"
-                    className="rc-theme-switch"
-                    role="switch"
-                    type="button"
-                    aria-checked={theme === "light"}
-                    aria-label="切换明暗主题"
-                    onMouseEnter={closeSpacePopoverNow}
-                    onClick={() => {
-                      const nextTheme = theme === "dark" ? "light" : "dark";
-                      setTheme(nextTheme);
-                      saveUiTheme(nextTheme);
-                      setToast(nextTheme === "light" ? "已切换为浅色主题" : "已切换为深色主题");
-                    }}
-                  >
-                    <SunMoon className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" />
-                    <span>界面主题</span>
-                    <i className={`rc-theme-toggle ${theme === "light" ? "on" : ""}`} aria-hidden="true" />
-                  </button>
-                </div>
-                <div className="rc-menu-group rc-menu-session" role="group" aria-label="会话">
-                  <button className="logout" role="menuitem" type="button" onMouseEnter={closeSpacePopoverNow} onClick={() => void logoutFrontend()}>
-                    <LogOut className="rc-menu-icon" size={14} strokeWidth={1.5} aria-hidden="true" /> 退出登录
-                  </button>
-                </div>
-              </div>
-            )}
-            {isSpacePopoverOpen && !isSidebarCollapsed && (
-              <section
-                className="rc-space-popover"
-                data-testid="space-switcher-popover"
-                ref={spacePopoverRef}
-                role="dialog"
-                aria-label="切换空间"
-                onMouseEnter={cancelSpacePopoverClose}
-                onMouseLeave={scheduleSpacePopoverClose}
-              >
-                <div className="rc-space-list" data-state={isLoadingContext ? "loading" : contextError ? "error" : availableWorkspaces.length ? "ready" : "empty"}>
-                  {isLoadingContext && (
-                    <div className="rc-space-state" data-testid="space-loading-state" role="status">空间加载中</div>
-                  )}
-                  {!isLoadingContext && contextError && (
-                    <div className="rc-space-state error" data-testid="space-error-state" role="alert">空间暂不可用，请稍后重试</div>
-                  )}
-                  {!isLoadingContext && !contextError && availableWorkspaces.length === 0 && (
-                    <div className="rc-space-state" data-testid="space-empty-state">暂无空间</div>
-                  )}
-                  {!isLoadingContext && !contextError && availableWorkspaces.map((item) => (
-                    <button
-                      className={`${item.workspaceId === workspace.workspaceId ? "selected" : ""} ${isReadonlyWorkspace(item) ? "readonly" : ""}`.trim()}
-                      type="button"
-                      key={item.workspaceId}
-                      data-testid={`space-option-${item.workspaceId}`}
-                      data-current={item.workspaceId === workspace.workspaceId ? "true" : "false"}
-                      data-readonly={isReadonlyWorkspace(item) ? "true" : "false"}
-                      onClick={() => selectWorkspace(item)}
-                    >
-                      <span>
-                        <strong>{item.name}</strong>
-                        <em>{item.role} · {item.memberCount} 人</em>
-                      </span>
-                      {isReadonlyWorkspace(item) && <i className="rc-space-status" data-testid="space-frozen-badge">只读</i>}
-                      {item.workspaceId === workspace.workspaceId && <Check size={15} aria-label="当前空间" />}
-                    </button>
-                  ))}
-                </div>
-                <div className="rc-space-actions">
-                  <button type="button" data-testid="space-create-or-join-entry" onClick={openApplicationCenter}><Plus size={14} /> 创建空间</button>
-                </div>
-              </section>
-            )}
-          </div>
-        </div>
-      </aside>
+      <WorkbenchSidebar activePage="requirements" activeUser={activeUser} workspace={workspace} availableWorkspaces={availableWorkspaces} isLoadingContext={isLoadingContext} contextError={contextError} onWorkspaceChange={selectWorkspace} onUserChange={(currentUser) => setContext(current => current ? { ...current, currentUser } : current)} onRefresh={() => loadContext("refresh")} />
 
       <section className="rc-content">
         <header className="rc-page-header">
@@ -3535,11 +2748,18 @@ export function RequirementCenterPage() {
           </button>
         </header>
 
+        {projects.filter(p => p.space_id === workspace.workspaceId).length > 1 && <select aria-label="本地项目" value={project?.repository_id || ""} onChange={event => {
+          if (isDirtyMarkdownDrawer() && !window.confirm("文档有未保存修改，确认切换项目并放弃草稿？")) return;
+          documentEpoch.current++; projectRef.current = projects.find(p => p.space_id === workspace.workspaceId && p.repository_id === event.target.value) || null;
+          contextController.current?.abort();
+          requestedSpace.current = workspace.workspaceId; revisionRef.current = ""; documentEpoch.current++; documentFlight.current = null; setContextFailure(null); setErrorDetails(null); setLastSuccess(""); setDrawer({ type: "none" }); setContext(null); void loadContext();
+        }}>{projects.filter(p => p.space_id === workspace.workspaceId).map(p => <option key={p.repository_id} value={p.repository_id}>{p.repository_id}</option>)}</select>}
+
         <section className="rc-stats" aria-label="需求中心统计" data-state={isLoadingContext ? "loading" : contextError ? "error" : "ready"}>
           {stats.map((item, index) => (
             <article className="rc-stat" key={item.label}>
               <span>{item.label}</span>
-              <strong>{item.value}</strong>
+              <strong>{isLoadingContext ? <span className="rc-loading-number" aria-hidden="true" /> : item.value}</strong>
             </article>
           ))}
         </section>
@@ -3560,12 +2780,13 @@ export function RequirementCenterPage() {
               ["all", "全部"],
               ["requirement", "需求"],
               ["bug", "Bug"],
+              ["change", "Change"],
             ].map(([value, label]) => (
               <button
                 className={typeFilter === value ? "selected" : ""}
                 type="button"
                 key={value}
-                onClick={() => setTypeFilter(value as "all" | IssueType)}
+                onClick={() => setTypeFilter(value as "all" | CardType)}
                 disabled={isLoadingContext || Boolean(contextError)}
               >
                 {label}
@@ -3578,6 +2799,7 @@ export function RequirementCenterPage() {
               <span className="rc-filter-badge" aria-label={`已启用 ${activeFilterCount} 个筛选`}>{activeFilterCount}</span>
             </summary>
             <div className="rc-filter-menu" role="group" aria-label="筛选条件">
+              <label className="rc-filter-field"><span>已完成 / 归档</span><input type="checkbox" aria-label="显示已完成和归档" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} /></label>
               <label className="rc-filter-field">
                 <span>负责人</span>
                 <select aria-label="负责人筛选" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
@@ -3603,7 +2825,7 @@ export function RequirementCenterPage() {
             type="button"
             aria-label="刷新需求中心"
             aria-busy={isRefreshingContext}
-            title="刷新"
+            title={`刷新 · ${syncLabel}`}
             disabled={isLoadingContext || isRefreshingContext}
             onClick={() => void loadContext("refresh")}
           >
@@ -3611,20 +2833,22 @@ export function RequirementCenterPage() {
           </button>
         </section>
 
-        <section className="rc-board-wrap" aria-label="9 阶段需求研发流转看板" data-state={isLoadingContext ? "loading" : contextError ? "error" : filteredIssues.length ? "ready" : "empty"}>
-          {isLoadingContext && (
-            <div className="rc-state-panel" role="status">
-              <span className="rc-skeleton" />
-              <strong>正在聚合需求中心数据</strong>
-              <p>读取 REQ、BUG、Sprint 和 OpenSpec Change 状态。</p>
-            </div>
-          )}
+        {contextFailure && context && <section className="rc-stale-notice" aria-label="更新失败">
+          <span>更新失败 · 上次成功同步 {lastSuccess || "时间未记录"}，当前结果可能不是最新，写入已暂停。</span>
+          <button type="button" disabled={isRefreshingContext} onClick={() => void loadContext("refresh")}>{isRefreshingContext ? "正在加载…" : "重新加载"}</button>
+          <button type="button" onClick={() => setErrorDetails(contextFailure)}>查看详情</button>
+        </section>}
+        {!isLoadingContext && !contextError && diagnosticIssues.length > 0 && (
+          <details className="rc-data-diagnostics">
+            <summary>数据异常 · {diagnosticIssues.length} 项</summary>
+            <p>以下对象的状态或归档身份无法唯一确认，未计入看板统计。请核对项目治理记录。</p>
+            <ul>{diagnosticIssues.map(issue => <li key={issue.id}><code>{issue.id}</code><span>状态或归档版本存在歧义</span></li>)}</ul>
+          </details>
+        )}
+        <section className="rc-board-wrap" aria-busy={isLoadingContext} aria-label="9 阶段需求研发流转看板" data-state={isLoadingContext ? "loading" : contextError ? "error" : filteredIssues.length ? "ready" : "empty"}>
+          {isLoadingContext && <span className="rc-loading-announcement" role="status">正在加载需求</span>}
           {!isLoadingContext && contextError && (
-            <div className="rc-state-panel error" role="alert">
-              <strong>{contextError}</strong>
-              <p>筛选与看板已暂停，避免展示过期治理信息。</p>
-              <button type="button" onClick={() => void loadContext()}>重试</button>
-            </div>
+            <RequirementCenterError busy={isLoadingContext || isRefreshingContext} onRetry={() => void loadContext("refresh")} onDetails={() => setErrorDetails(contextFailure || {})} />
           )}
           {!isLoadingContext && !contextError && filteredIssues.length === 0 && (
             <div className="rc-state-panel" role="status">
@@ -3639,51 +2863,39 @@ export function RequirementCenterPage() {
                   <h2 id={`stage-${stage.id}`}>{stage.title}</h2>
                   <p>{stage.subtitle}</p>
                 </div>
-                <span aria-label={`${stage.title} ${items.length} 个对象`}>{String(items.length).padStart(2, "0")}</span>
+                <span aria-label={isLoadingContext ? `${stage.title}加载中` : `${stage.title} ${items.length} 个对象`}>{isLoadingContext ? <i className="rc-loading-count" aria-hidden="true" /> : String(items.length).padStart(2, "0")}</span>
               </header>
             ))}
             {stageColumns.map(({ stage, items }) => (
               <section className="rc-column" data-stage={stage.id} aria-labelledby={`stage-${stage.id}`} key={stage.id}>
-                <div className={`rc-column-body ${items.length === 0 ? "empty" : ""}`}>
-                  {items.length === 0 && (
+                <div className={`rc-column-body ${!isLoadingContext && items.length === 0 ? "empty" : ""}`}>
+                  {!isLoadingContext && items.length === 0 && (
                     <div className="rc-empty-stage" aria-label={`${stage.title}暂无对象`}>
                       <span className="rc-empty-stage-icon" aria-hidden="true">◌</span>
                       <strong>{stage.emptyTitle}</strong>
                       <p>{stage.emptyHint}<br />{stage.emptyDetail}</p>
                     </div>
                   )}
-                  {items.map((issue) => renderIssueCard(stage, issue))}
+                  {isLoadingContext ? <div className="rc-loading-card" aria-hidden="true">
+                    <span /><span /><span /><span />
+                  </div> : items.map((issue) => renderIssueCard(stage, issue))}
                 </div>
               </section>
             ))}
           </div>
         </section>
+
       </section>
 
-      {isPasswordModalOpen && (
-        <ChangePasswordModal
-          onClose={() => setIsPasswordModalOpen(false)}
-          onChanged={completePasswordChange}
-        />
-      )}
-
-      {isProfileModalOpen && (
-        <FrontendProfileModal
-          user={activeUser}
-          onClose={() => setIsProfileModalOpen(false)}
-          onSaved={completeProfileSave}
-        />
-      )}
-
       {captureOpen && (
-        <div className="rc-settings-mask rc-capture-mask" role="presentation" onMouseDown={() => setCaptureOpen(false)}>
+        <div className="rc-settings-mask rc-capture-mask" role="presentation" onMouseDown={closeCapture}>
           <form className="rc-flow-dialog rc-capture-dialog" role="dialog" aria-modal="true" aria-label="新建 Capture" onSubmit={submitCapture} onKeyDown={handleCaptureKeyDown} onMouseDown={(event) => event.stopPropagation()}>
             <header className="rc-dialog-head">
               <div>
                 <h2>新建 Capture</h2>
                 <span>快速记录一条需求或缺陷，稍后可在采集池中生成正式需求</span>
               </div>
-              <button aria-label="关闭 Capture 表单" type="button" onClick={() => setCaptureOpen(false)}><X size={17} /></button>
+              <button aria-label="关闭 Capture 表单" type="button" onClick={closeCapture}><X size={17} /></button>
             </header>
             <section className="rc-capture-body">
               <fieldset className="rc-capture-fieldset">
@@ -3698,6 +2910,7 @@ export function RequirementCenterPage() {
                       data-type={value}
                       key={value}
                       type="button"
+                      disabled={captureBusy}
                       onClick={() => setCaptureForm({ ...captureForm, type: value as IssueType })}
                     >
                       {label}
@@ -3709,6 +2922,7 @@ export function RequirementCenterPage() {
                 <span className="rc-field-label">标题 <b aria-hidden="true">*</b></span>
               <input
                 ref={captureTitleRef}
+                disabled={captureBusy}
                 aria-label="Capture 标题"
                 aria-invalid={captureError ? "true" : undefined}
                 className={captureError ? "invalid" : ""}
@@ -3724,45 +2938,35 @@ export function RequirementCenterPage() {
               </label>
               <label className="rc-form-row">
                 <span className="rc-field-label">一句话描述</span>
-                <textarea aria-label="一句话描述" maxLength={200} placeholder="用一两句话说清楚背景和诉求，方便后续生成需求时理解上下文..." value={captureForm.description} onChange={(event) => setCaptureForm({ ...captureForm, description: event.target.value })} />
+                <textarea disabled={captureBusy} aria-label="一句话描述" maxLength={200} placeholder="用一两句话说清楚背景和诉求，方便后续生成需求时理解上下文..." value={captureForm.description} onChange={(event) => setCaptureForm({ ...captureForm, description: event.target.value })} />
                 <small className="rc-capture-count">{captureForm.description.length}/200</small>
               </label>
               <div className="rc-capture-grid">
                 <label className="rc-form-row">
                   <span className="rc-field-label">负责人</span>
-                  <select aria-label="负责人" value={captureForm.owner} onChange={(event) => setCaptureForm({ ...captureForm, owner: event.target.value })}>
+                  <select disabled={captureBusy} aria-label="负责人" value={captureForm.owner} onChange={(event) => setCaptureForm({ ...captureForm, owner: event.target.value })}>
                     {captureOwners.map((owner) => <option key={owner}>{owner}</option>)}
                   </select>
                 </label>
                 <label className="rc-form-row">
                   <span className="rc-field-label">来源 <b aria-hidden="true">*</b></span>
-                  <select aria-label="来源" required value={captureForm.source} onChange={(event) => setCaptureForm({ ...captureForm, source: event.target.value })}>
+                  <select disabled={captureBusy} aria-label="来源" required value={captureForm.source} onChange={(event) => setCaptureForm({ ...captureForm, source: event.target.value })}>
                     {captureSources.map((source) => <option key={source.value} value={source.value}>{source.label}</option>)}
                   </select>
                 </label>
               </div>
-              <fieldset className="rc-capture-fieldset">
-                <legend>优先级 <b aria-hidden="true">*</b></legend>
-                <div className="rc-capture-segmented priority" role="group" aria-label="Capture 优先级" aria-required="true">
-                  {(["P0", "P1", "P2", "P3"] as const).map((priority) => (
-                    <button
-                      className={captureForm.priority === priority ? "selected" : ""}
-                      data-priority={priority}
-                      key={priority}
-                      type="button"
-                      onClick={() => setCaptureForm({ ...captureForm, priority })}
-                    >
-                      {priority}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
+              <CaptureGrading key={captureForm.type} type={captureForm.type} value={captureForm.type === "bug" ? captureForm.severity : captureForm.priority} disabled={captureBusy}
+                onChange={value => setCaptureForm({ ...captureForm, ...(captureForm.type === "bug" ? { severity: value } : { priority: value as "P0" | "P1" | "P2" | "P3" }) })} />
             </section>
+            {!captureReady?.ready && <div className="rc-application-alert rc-capture-readiness" role="status">
+              {captureReady === null ? "正在检查Capture写入服务…" : captureReady.reason}
+              {captureReady && !captureReady.ready && <button className="rc-secondary-action" type="button" onClick={() => setCaptureCheck(value => value + 1)}>刷新状态</button>}
+            </div>}
             {captureError && <p className="rc-application-alert" role="alert">{captureError}</p>}
             <footer className="rc-dialog-actions rc-capture-actions-only">
               <div>
-                <button className="rc-secondary-action" type="button" onClick={() => setCaptureOpen(false)}>取消</button>
-                <button className="rc-primary-action" type="submit" disabled={!captureForm.title.trim()}>＋ 创建 Capture</button>
+                <button className="rc-secondary-action" type="button" onClick={closeCapture}>取消</button>
+                <button className="rc-primary-action" type="submit" disabled={captureBusy || !captureReady?.ready || !captureForm.title.trim() || Boolean(contextFailure)}>{captureBusy ? "创建中…" : "＋ 创建 Capture"}</button>
               </div>
             </footer>
           </form>
@@ -3839,7 +3043,7 @@ export function RequirementCenterPage() {
                 const isDone = stage.id === "done";
                 const disabledReason = selectedIssue && !isDone ? actionDisabledReason(action || undefined) : "";
                 const buttonLabel = selectedIssue
-                  ? (isDone ? "查看归档" : (action?.label || stageActionLabel[stage.id][selectedIssue.type]).replace(" →", ""))
+                  ? (isDone ? "查看归档" : (action?.label || stageActionLabel[stage.id]?.[selectedIssue.type] || "只读").replace(" →", ""))
                   : "暂无对象";
                 return (
                   <article className="rc-agent-stage" data-stage={stage.id} key={stage.id}>
@@ -3879,7 +3083,7 @@ export function RequirementCenterPage() {
             <header className="rc-drawer-head">
               {drawer.type === "markdown" ? (
                 <div className="rc-drawer-title-block">
-                  <div className="rc-drawer-crumb">{drawer.issue.id}<span>·</span>{drawer.document.name}</div>
+                  <div className="rc-drawer-crumb">{drawer.issue.id}<span>·</span>{drawer.document.label || drawer.document.name}</div>
                   <h2>{drawer.issue.title}</h2>
                   <span>{drawerIssueSubtitle(drawer)}</span>
                 </div>
@@ -3934,9 +3138,23 @@ export function RequirementCenterPage() {
                   </div>
                 )}
                 <section className="rc-markdown-view" data-testid="markdown-drawer">
+                  {!drawer.loading && !drawer.error && (drawer.issue.related_changes?.length || drawer.issue.type === "change") ? (
+                    <details className="rc-markdown-frontmatter-panel" aria-label="Change 追溯属性">
+                      <summary>Change 追溯属性</summary>
+                      {drawer.issue.type === "change" && <p>{drawer.issue.taskProgress ? `任务 ${drawer.issue.taskProgress.join("/")}` : "任务进度未知"} · {drawer.issue.drift_warnings?.join("；")}</p>}
+                      {drawer.issue.related_changes?.map(change => (
+                        <div key={change.id}>
+                          <p>{change.id} · {stageTitleById.get(change.stage) || "状态待核实"} · {change.task_progress ? `任务 ${change.task_progress.join("/")}` : "任务进度未知"}</p>
+                          <p>{change.title || "缺少 Change 中文业务标题，保留原标题"}{change.warnings?.length ? `；${change.warnings.join("；")}` : ""}</p>
+                          <div className="rc-docs">{change.document_entries?.map(doc => <button key={doc.url || doc.name} type="button" onClick={() => void openDocument(drawer.issue, {...doc, label: `${change.id} / ${doc.name}`})}>{doc.name === "trace.md" ? "Change trace.md" : doc.name}</button>)}</div>
+                        </div>
+                      ))}
+                    </details>
+                  ) : null}
                   {drawer.loading && <p role="status"><Loader2 size={14} /> Markdown 加载中</p>}
-                  {drawer.error && <p role="alert">{drawer.error}</p>}
-                  {!drawer.loading && (
+                  {drawer.error && !drawer.readBlocked && <p role="alert">{drawer.error}</p>}
+                  {drawer.error && drawer.readBlocked && <RequirementCenterError drawer busy={drawer.loading || isRefreshingContext} onRetry={() => drawer.dirty ? void loadContext("refresh") : void openDocument(drawer.issue, drawer.document, drawer.focus)} onDetails={() => setErrorDetails(drawer.failure || {})}>{drawer.dirty ? "项目文档已有新版本或暂不可读，当前草稿已保留。请复制草稿后核对新版本，保存暂时停用。" : undefined}</RequirementCenterError>}
+                  {!drawer.loading && (!drawer.error || !!drawer.content || drawer.dirty) && (
                     isEditableDocument(drawer) && drawer.mode !== "preview" ? (
                       <VditorEditorShell
                         value={drawer.draft}
@@ -3952,6 +3170,7 @@ export function RequirementCenterPage() {
                       />
                     ) : (
                       <MarkdownPreviewPane
+                        focus={drawer.error ? undefined : drawer.focus}
                         content={composeMarkdownContent(drawer.content, drawer.draft)}
                         metadataOpen={markdownMetadataOpen}
                         onToggleMetadata={() => setMarkdownMetadataOpen((open) => !open)}
@@ -3960,7 +3179,7 @@ export function RequirementCenterPage() {
                     )
                   )}
                 </section>
-                {!drawer.loading && (
+                {!drawer.loading && (!drawer.error || !!drawer.content || drawer.dirty) && (
                   <footer className="rc-markdown-footer">
                     <div className="rc-markdown-footer-status">
                       <span className={isCurrentMarkdownDirty ? "dirty" : ""} />
@@ -3972,7 +3191,7 @@ export function RequirementCenterPage() {
                       <div className="rc-markdown-footer-actions">
                         <button type="button" className="flow" disabled>{issueAction(drawer.issue).label}</button>
                         <button type="button" onClick={cancelMarkdownDraft}>取消</button>
-                        <button type="button" className="primary" disabled={drawer.saving || !isCurrentMarkdownDirty} onClick={() => void saveMarkdownDocument()}>
+                        <button type="button" className="primary" disabled={drawer.saving || !isCurrentMarkdownDirty || Boolean(contextFailure) || Boolean(drawer.readBlocked)} onClick={() => void saveMarkdownDocument()}>
                           {drawer.saving && <Loader2 size={13} aria-hidden="true" />} 保存
                         </button>
                       </div>
@@ -3981,53 +3200,9 @@ export function RequirementCenterPage() {
                 )}
               </>
             )}
-            {drawer.type === "tasks" && (
-              <section className="rc-tasks-view" data-testid="tasks-drawer">
-                {(() => {
-                  const taskDone = drawer.issue.tasks?.done ?? drawer.issue.taskProgress?.[0] ?? 0;
-                  const taskTotal = drawer.issue.tasks?.total ?? drawer.issue.taskProgress?.[1] ?? 0;
-                  const testDone = drawer.issue.testProgress?.[0] ?? 0;
-                  const testTotal = drawer.issue.testProgress?.[1] ?? 0;
-                  const manualProgress = visibleManualAcceptanceProgress(drawer.issue) || [0, 0];
-                  const manualCount = drawer.issue.manualAcceptanceCount ?? 0;
-                  return (
-                    <>
-                <div className="rc-progress-drawer-summary">
-                  <strong>{progressFocusLabel[drawer.focus]}</strong>
-                  <p>{drawer.issue.id} · {drawer.issue.tasks?.source || "tasks.md"} · 只读进度</p>
-                </div>
-                <div className="rc-progress-drawer-grid">
-                  <section className={`rc-progress-drawer-section ${drawer.focus === "development" ? "active" : ""}`} aria-label="研发任务进度">
-                    <div className="rc-progress-drawer-section-head">
-                      <span>研发任务</span>
-                      <b>{taskDone}/{taskTotal}</b>
-                    </div>
-                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(taskDone, taskTotal)}%` }} /></div>
-                  </section>
-                  <section className={`rc-progress-drawer-section ${drawer.focus === "test" ? "active" : ""}`} aria-label="自动化测试进度">
-                    <div className="rc-progress-drawer-section-head">
-                      <span>自动化测试</span>
-                      <b>{testDone}/{testTotal}</b>
-                    </div>
-                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(testDone, testTotal)}%` }} /></div>
-                  </section>
-                  <section className={`rc-progress-drawer-section ${drawer.focus === "manual" ? "active" : ""}`} aria-label="人工验收进度">
-                    <div className="rc-progress-drawer-section-head">
-                      <span>人工验收</span>
-                      <b>{manualProgress[0]}/{manualProgress[1]}</b>
-                    </div>
-                    <div className="rc-mini-bar"><span style={{ width: `${progressPercent(manualProgress[0], manualProgress[1])}%` }} /></div>
-                    <p>{manualCount > 0 ? `仍有 ${manualCount} 项需要人工处理` : "暂无待处理人工验收项"}</p>
-                  </section>
-                </div>
-                {(drawer.issue.tasks?.blocked || []).length ? drawer.issue.tasks?.blocked?.map((item) => <span key={item}>{item}</span>) : <span>暂无阻塞</span>}
-                    </>
-                  );
-                })()}
-              </section>
-            )}
             {drawer.type === "ai" && (
               <section className="rc-ai-chat" data-testid="ai-chat-drawer">
+                <a href={`/chat?${new URLSearchParams({ space_id: workspace.workspaceId, ...(drawer.issue ? { object_id: drawer.issue.id } : {}) })}`} className="rc-secondary-action">在Chat工作台继续</a>
                 <div className="rc-ai-messages">
                   {aiMessages.map((message, index) => <p key={`${message.role}-${index}`} className={message.role}>{message.content}</p>)}
                 </div>
@@ -4046,153 +3221,10 @@ export function RequirementCenterPage() {
         <span>Agent 助手</span>
       </button>
 
-      {isApplicationOpen && (
-        <div className="rc-settings-mask" role="presentation" onMouseDown={() => setIsApplicationOpen(false)}>
-          <section className="rc-space-application" role="dialog" aria-modal="true" aria-labelledby="space-application-title" onMouseDown={(event) => event.stopPropagation()}>
-            <header className="rc-settings-head">
-              <div>
-                <h2 id="space-application-title">创建空间</h2>
-                <p>每个空间对应一个产品，成员与数据相互隔离；提交后进入平台管理员审批，通过后系统会创建空间并分配你为负责人。</p>
-              </div>
-              <button aria-label="关闭空间申请" type="button" onClick={() => setIsApplicationOpen(false)}><X size={17} /></button>
-            </header>
-            {applicationError && <p className="rc-application-alert" role="alert">{applicationError}</p>}
-            {createdSpaceResult ? (
-              <section className="rc-application-result" role="status">
-                <strong>{createdSpaceResult.application.name} 申请已提交</strong>
-                <p>{createdSpaceResult.application.code} · 当前状态：{createdSpaceResult.application.status}，待平台管理员审批后才可使用。</p>
-                <button className="rc-primary-action" type="button" onClick={() => setIsApplicationOpen(false)}>知道了</button>
-              </section>
-            ) : (
-              <form className="rc-application-panel" aria-label="创建空间" onSubmit={submitCreateApplication}>
-                <div className="rc-application-grid">
-                  <div className="rc-form-row"><label htmlFor="create-space-name">空间名称 <b aria-hidden="true">*</b></label><input id="create-space-name" aria-label="空间名称" required value={createApplicationForm.name} onChange={(event) => updateCreateName(event.target.value)} placeholder="例如：MoonBox 产品研发" /></div>
-                  <div className="rc-form-row"><label htmlFor="create-space-code">空间标识 <b aria-hidden="true">*</b></label><input id="create-space-code" aria-label="空间标识" required value={createApplicationForm.code} onChange={(event) => { setIsCodeManuallyEdited(true); setCreateApplicationForm({ ...createApplicationForm, code: event.target.value }); }} placeholder="moonbox-product" /></div>
-                </div>
-                <div className="rc-form-row"><label htmlFor="create-space-description">空间说明</label><textarea id="create-space-description" value={createApplicationForm.description} onChange={(event) => setCreateApplicationForm({ ...createApplicationForm, description: event.target.value })} placeholder="简要说明这个空间对应的产品与协作目标" /></div>
-                <strong className="rc-application-section">空间配额</strong>
-                <div className="rc-application-grid">
-                  <div className="rc-form-row">
-                    <label htmlFor="create-space-members">成员上限 <b aria-hidden="true">*</b></label>
-                    <div className="rc-unit-field">
-                      <input id="create-space-members" aria-label="成员上限" required type="number" min="1" max="100000" step="1" value={createApplicationForm.member_quota} onChange={(event) => setCreateApplicationForm({ ...createApplicationForm, member_quota: event.target.value })} />
-                      <span>人</span>
-                    </div>
-                  </div>
-                  <div className="rc-form-row">
-                    <label htmlFor="create-space-storage">存储空间 <b aria-hidden="true">*</b></label>
-                    <div className="rc-unit-field">
-                      <input id="create-space-storage" aria-label="存储空间" required type="number" min="0.01" step="0.01" value={createApplicationForm.storage_quota_gb} onChange={(event) => setCreateApplicationForm({ ...createApplicationForm, storage_quota_gb: event.target.value })} />
-                      <span>GB</span>
-                    </div>
-                  </div>
-                  <div className="rc-form-row">
-                    <label htmlFor="create-space-ai">AI Tokens <b aria-hidden="true">*</b></label>
-                    <input id="create-space-ai" aria-label="AI Tokens" required type="number" min="0" step="1" value={createApplicationForm.ai_quota_tokens} onChange={(event) => setCreateApplicationForm({ ...createApplicationForm, ai_quota_tokens: event.target.value })} />
-                  </div>
-                  <div className="rc-form-row">
-                    <label>有效期 <b aria-hidden="true">*</b></label>
-                    <div className="rc-period-options">
-                      <label><input type="radio" checked={createApplicationForm.expiry_type === "long_term"} onChange={() => setCreateApplicationForm({ ...createApplicationForm, expiry_type: "long_term", expires_at: "" })} /> 长期有效</label>
-                      <label><input type="radio" checked={createApplicationForm.expiry_type === "fixed_date"} onChange={() => setCreateApplicationForm({ ...createApplicationForm, expiry_type: "fixed_date", expires_at: nextFixedExpiryValue(createApplicationForm.expires_at) })} /> 固定日期</label>
-                    </div>
-                  </div>
-                </div>
-                {createApplicationForm.expiry_type === "fixed_date" && (
-                  <div className="rc-form-row rc-application-date-row">
-                    <label htmlFor="create-space-expires">到期时间 <b aria-hidden="true">*</b></label>
-                    <RequirementDateTimePicker ariaLabel="到期时间" value={createApplicationForm.expires_at} onChange={(value) => setCreateApplicationForm({ ...createApplicationForm, expires_at: value })} />
-                  </div>
-                )}
-                <div className="rc-application-actions">
-                  <button type="button" onClick={() => setIsApplicationOpen(false)}>取消</button>
-                  <button className="rc-primary-action" type="submit" disabled={isSubmittingApplication}>{isSubmittingApplication ? "正在创建..." : "创建空间"}</button>
-                </div>
-              </form>
-            )}
-          </section>
-        </div>
-      )}
-
-      {isSettingsOpen && (
-        <div className="rc-settings-mask" role="presentation" onMouseDown={() => setIsSettingsOpen(false)}>
-          <section
-            className="rc-space-settings"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="space-settings-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <aside className="rc-settings-nav">
-              <div className="rc-settings-head">
-                <h2 id="space-settings-title">空间设置</h2>
-                <button aria-label="关闭空间设置" type="button" onClick={() => setIsSettingsOpen(false)}>
-                  <X size={17} />
-                </button>
-              </div>
-              <p>{workspace.organizationName}</p>
-              {settingsTabs.map((tab) => (
-                <button
-                  className={settingsTab === tab.id ? "selected" : ""}
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setSettingsTab(tab.id)}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </aside>
-            <div className="rc-settings-body">
-              <form className="rc-settings-panel" aria-label="空间常规设置" onSubmit={(event) => event.preventDefault()}>
-                {settingsTab === "general" ? (
-                  <>
-                    <div className="rc-panel-intro">
-                      <h3>常规</h3>
-                      <p>配置当前空间“{workspace.name}”的基本信息。</p>
-                    </div>
-                    <div className="rc-form-row">
-                      <label htmlFor="workspace-name">空间名称</label>
-                      <input id="workspace-name" value={draftWorkspace.name} onChange={updateDraft("name")} />
-                      <span>用于侧边栏、通知和空间切换列表。</span>
-                    </div>
-                    <div className="rc-form-row">
-                      <label htmlFor="workspace-slug">空间标识</label>
-                      <input id="workspace-slug" value={draftWorkspace.slug} onChange={updateDraft("slug")} />
-                      <span>创建后可修改，修改可能影响外部集成。</span>
-                    </div>
-                    <div className="rc-form-row">
-                      <label htmlFor="workspace-description">空间描述</label>
-                      <textarea id="workspace-description" value={draftWorkspace.description} onChange={updateDraft("description")} />
-                    </div>
-                    <div className="rc-form-row">
-                      <label htmlFor="workspace-timezone">默认时区</label>
-                      <select id="workspace-timezone" value={draftWorkspace.timezone} onChange={updateDraft("timezone")}>
-                        <option value="Asia/Shanghai">Asia/Shanghai (UTC+08:00)</option>
-                        <option value="Asia/Tokyo">Asia/Tokyo</option>
-                        <option value="UTC">UTC</option>
-                      </select>
-                    </div>
-                  </>
-                ) : (
-                  <div className="rc-settings-placeholder">
-                    <FileCheck size={20} aria-hidden="true" />
-                    <strong>{settingsTabs.find((tab) => tab.id === settingsTab)?.label}</strong>
-                    <span>当前分组配置项已预留，后续按权限与集成契约接入。</span>
-                  </div>
-                )}
-              </form>
-            </div>
-            <footer>
-              <button type="button" onClick={() => setIsSettingsOpen(false)}>取消</button>
-              <button className="primary" type="button" onClick={saveSpaceSettings}>保存更改</button>
-            </footer>
-          </section>
-        </div>
-      )}
-
+      {errorDetails && <RequirementCenterErrorDetails failure={errorDetails} onClose={() => setErrorDetails(null)} />}
       {toast && (
         <div className="rc-toast" role="status">
-          <Check size={15} aria-hidden="true" /> {toast}
+          <Check size={15} aria-hidden="true" /><span>{toast}</span>
         </div>
       )}
     </main>

@@ -4,7 +4,7 @@ sprint_id: sprint-003
 status: completed
 lifecycle_stage: archive
 created_at: 2026-08-14 17:00:00
-updated_at: 2026-09-04 15:49:25
+updated_at: 2026-09-12 22:27:53
 closed_at: 2026-09-04 15:47:14
 ---
 
@@ -188,7 +188,7 @@ Change `apply-tilesfst-req-review-governance`：apply tilesfst req review govern
 <!-- workflow-sync:scope-requirements:end -->
 
 <!-- workflow-sync:scope-bugs:start -->
-| 编号 | 名称 | 优先级 | 状态 | 说明 |
+| 编号 | 名称 | 严重度 | 状态 | 说明 |
 |---|---|---|---|---|
 | BUG-0011 | 用户管理列表枚举标签与时间字段展示不清晰 | medium | done | archived `fix-admin-user-list-enum-time-display`（2026-08-15 10:04:45） |
 | BUG-0012 | REQ-0017 需求索引仍指向 review 路径但真实目录已归档 | medium | done | archived `fix-requirement-registry-changelog-req0017-archive-drift`（2026-08-15 11:12:00） |

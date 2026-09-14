@@ -3,6 +3,8 @@
 
 from pathlib import Path
 import sys
+import subprocess
+from change_identity import validate as validate_change_identity
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -166,7 +168,13 @@ ALLOWED_ROOT_DIRS = {
     "mintlify",
 }
 
-errors = []
+errors = validate_change_identity(ROOT)
+# Local diagnostics are allowed only with an explicit ignore and no tracked files.
+if (ROOT / "logs").exists():
+    ignored = subprocess.run(["git", "check-ignore", "-q", "--no-index", "logs/"], cwd=ROOT)
+    tracked = subprocess.run(["git", "ls-files", "--", "logs"], cwd=ROOT, capture_output=True, text=True)
+    if ignored.returncode != 0 or tracked.returncode != 0 or tracked.stdout.strip():
+        errors.append("本地 logs/ 必须被 Git 忽略且不得包含已跟踪文件")
 
 FORBIDDEN_PATHS = [
     "openspec/changes/archive",
@@ -180,6 +188,7 @@ IGNORED_ROOT_NAMES = {
     ".pytest_cache",
     ".venv",
     "tmp",
+    "logs",
 }
 
 

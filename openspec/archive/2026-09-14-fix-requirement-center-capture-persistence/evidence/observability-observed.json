@@ -1,0 +1,207 @@
+{
+  "source": "observed",
+  "request_logs": [
+    {
+      "request_id": "8c976ae3-4eb1-44fc-8c1c-d8859e80d6ec",
+      "method": "POST",
+      "status_code": 202,
+      "route_template": "/api/v1/requirement-center/captures"
+    },
+    {
+      "request_id": "d66345be-2e89-4165-8429-a14bb62128ac",
+      "method": "POST",
+      "status_code": 503,
+      "route_template": "/api/v1/requirement-center/captures"
+    },
+    {
+      "request_id": "9fd9660f-5e60-4738-a627-31afdcc40c26",
+      "method": "POST",
+      "status_code": 202,
+      "route_template": "/api/v1/requirement-center/captures"
+    },
+    {
+      "request_id": "d54d0352-00b0-4287-8b70-ee7c31b5f5a2",
+      "method": "POST",
+      "status_code": 202,
+      "route_template": "/api/v1/requirement-center/captures"
+    }
+  ],
+  "behavior_events": [
+    {
+      "event_name": "governance.capture",
+      "parent_request_id": "8c976ae3-4eb1-44fc-8c1c-d8859e80d6ec",
+      "result": "success",
+      "properties": "{\"operation_id\": \"f0206040-7aa7-4d29-86c1-5c12664ba666\"}"
+    },
+    {
+      "event_name": "governance.capture",
+      "parent_request_id": "d66345be-2e89-4165-8429-a14bb62128ac",
+      "result": "failure",
+      "properties": "{}"
+    },
+    {
+      "event_name": "governance.capture",
+      "parent_request_id": "9fd9660f-5e60-4738-a627-31afdcc40c26",
+      "result": "success",
+      "properties": "{\"operation_id\": \"8edaddb8-e6ab-4633-8f13-76ad9d08bad3\"}"
+    }
+  ],
+  "task_traces": [
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "turn_id": "governance:f0206040-7aa7-4d29-86c1-5c12664ba666",
+      "parent_request_id": "8c976ae3-4eb1-44fc-8c1c-d8859e80d6ec",
+      "status": "applied",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "turn_id": "governance:8edaddb8-e6ab-4633-8f13-76ad9d08bad3",
+      "parent_request_id": "9fd9660f-5e60-4738-a627-31afdcc40c26",
+      "status": "applied",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "turn_id": "governance:05e3e23b-55cc-4a8e-a41b-0dbd2dec0872",
+      "parent_request_id": "d54d0352-00b0-4287-8b70-ee7c31b5f5a2",
+      "status": "applied",
+      "metadata": "{}"
+    }
+  ],
+  "spans": [
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.queued",
+      "status": "queued",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "8e6cc17d-bb93-4d10-a2b0-61ff06d47f98",
+      "span_name": "governance.applied",
+      "status": "applied",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.queued",
+      "status": "queued",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "9aaa86c4-d9b9-489b-bd87-cbd10e4593d0",
+      "span_name": "governance.applied",
+      "status": "applied",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.queued",
+      "status": "queued",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applying",
+      "status": "applying",
+      "metadata": "{}"
+    },
+    {
+      "task_trace_id": "47e7b3a1-6009-4876-813c-507c4ffed60a",
+      "span_name": "governance.applied",
+      "status": "applied",
+      "metadata": "{}"
+    }
+  ],
+  "direct_api": {
+    "request_id": "d54d0352-00b0-4287-8b70-ee7c31b5f5a2",
+    "operation_id": "05e3e23b-55cc-4a8e-a41b-0dbd2dec0872",
+    "state": "applied",
+    "behavior_event_added": false
+  },
+  "redaction": "allowlisted identifiers/stages only"
+}

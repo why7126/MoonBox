@@ -2,11 +2,11 @@
 req_id: REQ-0014-frontend-user-menu-profile
 status: archived
 created_at: 2026-08-11 16:04:37
-updated_at: 2026-08-13 22:44:04
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement: REQ-0012-frontend-requirement-center
+priority: P1
 ---
 
 # 一句话

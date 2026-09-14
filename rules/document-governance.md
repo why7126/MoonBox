@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-19 12:10:48
+updated_at: 2026-09-13 16:02:21
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -137,6 +137,13 @@ estimated_person_days: <number>
 
 ## 6. OpenSpec 目录
 
+### Change 身份唯一性
+
+Change ID 在 `openspec/changes/` 与 `openspec/archive/` 跨目录全局唯一，归档日期不是版本号。初建归档后的强化 MUST 使用新的 ID，并在 trace 说明承接关系。创建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 时运行不带 `--new-id` 的全库检查。归档前及目录结构校验共用该检查，任何同 ID 多目录或 trace 身份不一致均失败，不自动选择最新版本。
+
+历史身份纠正须保留原 ID、原路径与修正依据，逐项同步明确引用；归档状态依据目录事实同步，不虚构归档时间或重写历史验收结论。
+
+
 - `openspec/specs/`：已生效能力；开发中不得直接修改。
 - `openspec/changes/`：开发中的需求、BUG 修复、技术改造。
 - `openspec/archive/`：已完成变更。
@@ -237,3 +244,18 @@ python scripts/sync-workflow-status.py --event <event> [--sprint auto] [--change
 - 开发中直接修改 `openspec/specs/`。
 - 把需求、BUG、迭代、Spec 混在同一文档。
 - 生成无来源、无状态、无验收标准的需求或 BUG 文档。
+
+## Issue 分级元数据
+
+- REQ 仅使用 `priority: P0|P1|P2|P3`；BUG 仅使用 `severity: blocker|critical|high|medium|low`。不得互相映射或把 BUG 的严重度称为优先级。
+- `trace.md` Frontmatter 是当前分级事实源；`capture.md` 和已存在的 `requirement.md` / `bug.md` Frontmatter 保存同步镜像。不创建缺失子文档。
+- `_registry.yaml` 保存对应类型字段；CHANGELOG、Sprint Scope 和父需求关联缺陷表仅展示引用值。Sprint REQ 表头使用“优先级”，BUG 表头使用“严重度”。
+- 验收、根因、workaround、用户故事、原型和 OpenSpec 文档不重复保存 Issue 分级元数据；评审正文可记录调整理由。
+- 首次 Capture 明确初判并写入正式字段；暂定依据放正文。后续调整先改 trace，并在变更记录登记旧值、新值和依据，再运行聚焦 Workflow Sync。
+- 兼容读取顺序为 trace、对应主文档、capture；每份文件先正式字段再同类型 hint。最高优先来源显式非法值阻断聚焦同步；全部缺失也报错，不猜测默认等级。
+- 聚焦同步补齐正式 Frontmatter 字段、清理异类字段与旧 hint，并同步注册表。仅更新当前聚焦 Issue 或所选 Sprint/Change 关联条目；不批量迁移历史归档。正文历史保留，重复同步无分级差异时不刷新时间，created_at 不变。
+- 同步前可执行 `python scripts/sync-workflow-status.py --event bug.capture --bug BUG-0015-requirement-center-apply-start-stage-not-synced --sprint none --dry-run` 检查差异。
+
+## Change 执行事实
+
+Change trace的可选execution.schema_version=1保存started_at、completed_at、last_event；status由执行事实派生，Issue主状态仍in_sprint。opsx.start在实施前门禁后写入，opsx.progress不声明完成，opsx.apply在完成门禁后写入completed_at。旧条目兼容读取但不伪造时间，不批量重写历史终态。CLI与后端复用src/backend/app/governance/lifecycle.py的状态契约，索引和看板仅作投影。

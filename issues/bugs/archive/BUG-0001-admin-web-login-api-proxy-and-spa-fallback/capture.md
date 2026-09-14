@@ -2,11 +2,11 @@
 bug_id: BUG-0001-admin-web-login-api-proxy-and-spa-fallback
 status: done
 created_at: 2026-08-09 23:04:45
-updated_at: 2026-08-13 22:45:16
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: docker
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

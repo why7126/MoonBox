@@ -1,0 +1,38 @@
+{
+  "containers": [
+    {
+      "service": "moonbox-backend",
+      "image": "sha256:6f4dec87b51713f0a7c6d7a3c686f2a4bdb2d6c82369cb154999c709d9a94a4c",
+      "state": "running",
+      "health": "healthy",
+      "restarts": 0,
+      "network": "moonbox-network",
+      "read_only": false,
+      "cap_drop": null
+    },
+    {
+      "service": "moonbox-chat-recovery-1",
+      "image": "sha256:6f4dec87b51713f0a7c6d7a3c686f2a4bdb2d6c82369cb154999c709d9a94a4c",
+      "state": "running",
+      "health": null,
+      "restarts": 0,
+      "network": "none",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ]
+    }
+  ],
+  "migration": {
+    "chat_table_count": 10,
+    "baseline_table_present": true,
+    "turn_history_index_present": true
+  },
+  "health": "ok",
+  "unauthenticated_spaces": 401,
+  "model_execution_enabled": false,
+  "regular_backend_checks": 48,
+  "mysql_chat_checks": 16,
+  "real_two_round_probe": true,
+  "platform_isolation_validated": false
+}

@@ -2,11 +2,11 @@
 req_id: REQ-0003-database-compatibility
 status: archived
 created_at: 2026-07-30 08:58:57
-updated_at: 2026-08-07 18:03:54
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-08-31 08:36:34
+updated_at: 2026-09-12 17:46:07
 ---
 
 # 需求管理规范
@@ -214,3 +214,5 @@ related_requirements: []
 ## 8. 参考命令
 
 对应 Agent 工具入口中的 `req-*` 技能说明。
+
+分级字段、Frontmatter 范围与同步事实源统一遵循 [文档治理：Issue 分级元数据](document-governance.md#issue-分级元数据)。

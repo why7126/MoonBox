@@ -64,41 +64,32 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 系统 MUST 使用 MoonBox 前台框架承载需求中心，并保持统一的侧边栏、品牌、主题、会话展示和页面结构。
 
-#### Scenario: 需求中心使用前台侧边栏
+#### Scenario: 需求中心使用现代 Ops 工作台 Shell
 
 - **WHEN** 用户打开需求中心
-- **THEN** 页面必须展示 MoonBox 前台侧边栏
+- **THEN** 页面必须展示现代 Ops 工作台 Shell
 - **AND** 需求中心导航项必须高亮
-- **AND** 侧边栏必须展示原型定义的 8 个前台菜单：研发总览、Chat 工作台、需求中心、Spec、任务中心、Skill Center、Agent Center、知识中心
-- **AND** 品牌区必须展示 MoonBox、`AI原生软件工厂` 副标题和版本徽标
-- **AND** 前台 8 个菜单必须按前台信息架构分组展示，分组标题在收起态隐藏
-- **AND** 当前导航项必须使用金色左线表达 active 态
-- **AND** 品牌区、导航密度、字体字号、图标尺寸、折叠按钮、收起态行为和用户菜单视觉层级必须与管理后台侧栏保持一致
+- **AND** 侧边栏必须展示登录后产品工作台的信息架构分组
+- **AND** 品牌区必须展示 MoonBox、工作台版本或等价产品状态标记
+- **AND** 前台品牌区的 Logo、产品名、副标题、版本标记和展开/收起按钮视觉规格必须与后台侧边栏品牌区保持一致，同时副标题可保留前台工作台业务语义
+- **AND** 当前导航项必须使用现代 Ops active 态表达，不得只依赖旧品牌叙事样式
+- **AND** 侧边栏、导航密度、字体字号、图标尺寸、折叠按钮、收起态行为和用户菜单视觉层级必须与管理后台 Shell 保持一致
 - **AND** 前后台用户菜单必须使用区别于侧边栏的浮层背景、边框、阴影和 hover 态
-- **AND** 前台用户菜单必须按账号、空间、偏好、会话分组，后台用户菜单必须按账号、导航、偏好、会话分组
-- **AND** 前台“进入后台”菜单项必须仅对具备用户级后台访问权限的用户展示，不得用当前空间角色替代后台访问权限
-- **AND** 前后台用户菜单中语义相同的功能必须使用相同图标，不同功能不得复用同一图标
 - **AND** 退出登录必须在前后台用户菜单中单独成组并使用一致危险色
-- **AND** 侧边栏必须支持展开 224px 与收起 72px 形态
-- **AND** 收起后必须保留图标、悬停提示和当前菜单高亮
+- **AND** 侧边栏必须支持展开与收起形态，收起后必须保留图标、悬停提示和当前菜单高亮
+- **AND** 窄屏下必须避免品牌区、版本标记和页面标题互相挤压；可隐藏版本标记以优先保证主标题和主操作可读
+- **AND** 需求中心右侧内容标题区必须采用与后台用户/空间管理一致的内容页标题布局，英文小标题必须显示为 `Requirement Operations`，不得使用额外底部分隔线、sticky 顶栏感、半透明背景或 blur
 
-#### Scenario: 页面不新增右侧全局顶部导航栏
-
-- **WHEN** 需求中心页面展示
-- **THEN** 右侧内容区不得新增全局顶部导航栏
-- **AND** 页面只能保留页面标题、局部动作栏、统计区、筛选工具栏和看板
-
-#### Scenario: 主题切换保持 MoonBox token
+#### Scenario: 主题切换使用现代 Ops Token
 
 - **WHEN** 用户在用户菜单内切换明暗主题
-- **THEN** 页面必须即时应用对应 MoonBox token
-- **AND** 默认深色主题必须保持可读
-- **AND** 浅色主题下文字、面板、边框和交互态必须清晰可读
+- **THEN** 页面必须即时应用现代 Ops 深色或浅色 Token
+- **AND** 深浅主题下文字、面板、边框、状态色、focus、disabled 和 loading 状态必须清晰可读
 - **AND** 主题切换不得改变业务状态
 
 ### Requirement: 前台需求中心生命周期看板
 
-系统 MUST 在 MoonBox 前台提供需求中心看板，以 9 个阶段统一展示 Requirement 与 Bug 从采集到归档的生命周期。
+系统 MUST 在 MoonBox 前台提供需求中心看板，保留 9 个阶段展示 Requirement 与 Bug 生命周期，并展示独立 Change 的对应交付阶段。
 
 #### Scenario: 用户打开需求中心看到 9 阶段看板
 
@@ -107,14 +98,15 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **AND** Requirement 与 Bug 必须共享阶段框架
 - **AND** 每个阶段列头必须展示阶段标题、原型定义的命令副标题和两位数对象数量
 - **AND** 页面必须通过横向看板结构表达 9 个阶段，筛选为 Bug 时仍保留全部 9 个阶段列，且不得展示冗余横向滚动提示文案
-- **AND** Requirement 卡片必须以蓝色左边框表达对象类型
+- **AND** Requirement 卡片必须复用当前实现的类型边框与主题样式
 - **AND** Bug 卡片必须以红色左边框表达对象类型
+- **AND** 独立Change卡片必须使用主题info蓝色左边框，与需求和缺陷区分
 
 #### Scenario: 卡片展示治理对象摘要
 
 - **WHEN** 看板渲染 Requirement 或 Bug 卡片
 - **THEN** 卡片必须展示 ID、标题、优先级、负责人或来源、阶段产物、更新时间、阻塞状态、研发或测试进度以及阶段主动作
-- **AND** 卡片必须使用原型式单 pill meta、文档分隔区、无边框 mini action 和弱层级更新时间
+- **AND** 卡片必须保持当前实现的标签、文档分组、进度、底部动作和更新时间结构，仅按当前 Change 身份展示契约新增 ID 行与替换标题
 - **AND** 已进入迭代规划及后续阶段的卡片必须展示唯一 `sprint-xxx` 标签
 - **AND** 未纳入迭代的卡片不得展示空 Sprint 标签
 
@@ -349,28 +341,24 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 ### Requirement: 原型驱动 UI 验收
 
-系统 MUST 将 REQ-0020 的产品原型作为设计输入，并在实现、验收和归档阶段保持文档一致。
+系统 MUST 将 REQ-0023 的产品原型和附件视觉方向作为设计输入，并在实现、验收和归档阶段保持文档一致。
 
-#### Scenario: Change 设计承接原型拆解
+#### Scenario: Change 设计承接现代 Ops 原型拆解
 
 - **WHEN** OpenSpec Change 创建完成
 - **THEN** `design.md` 必须包含 UI Contract
+- **AND** UI Contract 必须声明事实源优先级、品牌分层、Token、组件、交互状态、权限规则、Mock/API 边界和 computed style 验收点
 - **AND** `design.md` 必须包含 UI Skeleton
 - **AND** UI Skeleton 必须覆盖页面结构、区域边界、组件层级、状态容器、数据依赖、可测选择器和 1440px 验收焦点
 - **AND** `tasks.md` 中 UI Skeleton 任务必须早于细节实现任务
 
-#### Scenario: 实现阶段完成 1440px 视觉验收
+#### Scenario: 视觉验收覆盖现代 Ops 关键状态
 
-- **WHEN** `/opsx-apply` 完成前台需求中心实现
-- **THEN** 必须在 1440px 桌面视口验收首屏结构、间距、对齐、主题、字号、弹窗、toast、滚动、右侧抽屉、Loading 和文本溢出
-- **AND** 必须记录截图或等价证据入口
-- **AND** 必须记录关键 computed style 验收点
-
-#### Scenario: 归档前完成最终一致性检查
-
-- **WHEN** Change 准备归档
-- **THEN** 必须确认 REQ `requirement.md`、`acceptance.md`、`trace.md` 与最终 Change 设计、实现证据和 1440px 验收结果一致
-- **AND** 若实现阶段调整原型意图，必须先回填 REQ 与 Change 文档
+- **WHEN** `/opsx-apply` 完成 UI 实现
+- **THEN** 必须产出 1440px 桌面视觉证据
+- **AND** 视觉证据必须覆盖默认首屏、侧边栏展开/收起、用户菜单、筛选 Popover、看板横向滚动、空列、错误态、卡片 hover、右侧抽屉、AI 入口、深浅主题和窄屏状态
+- **AND** computed style 证据必须覆盖关键字体、字号、行高、间距、圆角、边框、背景、颜色、z-index、overflow 和 position
+- **AND** `/opsx-archive` 前必须确认 REQ 文档、Change 设计、最终实现和验收证据一致
 
 ### Requirement: 前台创建空间申请流程
 
@@ -501,14 +489,14 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 #### Scenario: 用户创建 Capture
 
 - **WHEN** 用户打开 Capture 新建表单
-- **THEN** 表单必须支持对象类型、标题、优先级和补充说明
-- **AND** 类型与优先级应使用轻量选择控件，避免低频下拉增加采集成本
+- **THEN** 表单必须支持对象类型、标题、对应类型分级和补充说明
+- **AND** 类型与分级应使用轻量选择控件，避免低频下拉增加采集成本
 - **AND** 标题必须必填
 - **AND** 标题输入框打开弹窗后必须自动聚焦
 - **AND** 标题为空时系统必须阻止提交并展示校验提示
 - **AND** 标题校验提示必须在表单内展示，并在输入框上体现明确错误态
 - **AND** 表单应减少字段间分割线和纵向留白，保持 Capture 快速采集心智
-- **AND** 创建成功后系统必须展示成功反馈，并将新对象插入采集池
+- **AND** 服务端完成目标项目目录、capture.md、trace.md、注册表与当前态索引持久化后，系统才可展示成功反馈，并用服务端完整ID将新对象插入采集池
 
 #### Scenario: 生成阶段导入文件校验
 
@@ -523,6 +511,64 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **THEN** 系统必须允许合法 ZIP 或约定多文件集合
 - **AND** 文件缺失、文件名不符、类型不符、重复文件或解析失败时，系统不得执行命令或流转状态
 - **AND** 校验异常必须在 AI 聊天或等价反馈区域展示
+
+#### Scenario: 两类采集内容持久化与重新加载
+
+- **WHEN** 有写权限的用户提交合法 Requirement 或 Bug Capture
+- **THEN** 系统 MUST 在授权项目对应plan目录生成唯一完整ID、capture.md及trace.md，并同步注册表和当前态索引为captured
+- **AND** 描述、标题、对应类型分级、负责人和来源等有效字段 MUST 保留
+- **AND** 完整刷新后同一条目及文档 MUST 可重新读取
+- **AND** 创建 MUST NOT 自动进入评审、Sprint或OpenSpec
+
+#### Scenario: 并发与重复请求
+
+- **WHEN** 多个客户端同时创建或重试同一创建请求
+- **THEN** 服务端 MUST 协调编号与文件版本，避免覆盖已存在条目
+- **AND** 同一操作者、项目和幂等键的相同请求 MUST 返回同一操作与ID
+- **AND** 相同键但不同内容 MUST 返回冲突
+
+#### Scenario: 写入失败与处理中反馈
+
+- **WHEN** 请求仅被受理、发生网络失败或部分文件写入失败
+- **THEN** 界面 MUST NOT 提示创建成功或伪造可用文档
+- **AND** 系统 MUST 保留输入并提供重试或查询原操作的反馈
+- **AND** 服务端 MUST 通过受控恢复防止半成品作为完整条目展示，遇到较新外部修改时不得覆盖
+
+#### Scenario: 项目授权与异步响应隔离
+
+- **WHEN** 无写权限用户提交、请求伪造项目或用户在提交后切换项目
+- **THEN** 服务端 MUST 拒绝越权创建，不修改未授权目录
+- **AND** 旧项目的异步结果 MUST NOT 插入新项目看板
+
+#### Scenario: 创建链路可追踪
+
+- **WHEN** 创建操作成功、失败或进入恢复
+- **THEN** 系统 MUST 可通过请求ID关联操作和任务节点摘要
+- **AND** 日志 MUST NOT 保存表单全文、凭证或本机路径，直接API调用不得伪造用户行为事件
+
+#### Scenario: Capture服务就绪与持续创建
+
+- **WHEN** 用户打开Capture弹窗或刷新写入状态
+- **THEN** 系统 MUST 查询当前授权项目的写入就绪状态，未就绪时禁用创建并提供脱敏原因
+- **AND** 显式continuous部署 MUST 通过最近controller心跳和绑定版本校验支持日常Capture，不依赖人工每小时续期
+- **AND** controller失联或项目存在恢复屏障时 MUST 拒绝新建，重启就绪后可恢复
+- **AND** 常驻Capture MUST NOT 放宽其他治理操作的维护窗口、项目授权、版本冲突或恢复保护
+
+#### Scenario: 按类型选择并持久化分级
+
+- **WHEN** 用户切换Capture类型
+- **THEN** REQ展示priority P0/P1/P2/P3，BUG展示severity blocker/critical/high/medium/low，并保留各自选值
+- **AND** 提交仅包含对应类型字段，缺失、非法值和混用字段必须拒绝
+- **AND** capture、trace、注册表和索引保存相同正式分级，不固定BUG为medium，不写入异类字段或hint
+
+#### Scenario: Capture 弹窗尺寸与分级解释
+
+- **WHEN** 用户在桌面打开Capture弹窗
+- **THEN** 弹窗宽度为840px，窄屏按视口留边收缩
+- **AND** REQ显示P0/P1/P2/P3，BUG显示致命/严重/高/中/低并提交原英文枚举
+- **AND** 分级不显示鼠标悬停或键盘聚焦浮层，仅在下方显示当前选中说明；原生键盘与触屏选择仍可更新说明
+
+- **AND** 就绪成功不显示文案或状态容器，检查中和异常仍提示并保持创建校验
 
 ### Requirement: tasks 进度抽屉与受限验收
 
@@ -560,4 +606,163 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **AND** 必要任务和验收项均满足完成条件
 - **THEN** 系统必须允许发送 `/opsx-archive <完整 REQ 或 BUG ID>`
 - **AND** 归档成功后对象必须进入已完成阶段
+
+### Requirement: Markdown 文档人工编辑权限矩阵
+
+系统 MUST 在需求中心按治理阶段、对象类型、文档名和文档路径类别计算 Markdown 文档的人工编辑能力，避免单一 `editable` 布尔值或前端硬编码决定编辑入口。
+
+#### Scenario: 采集池只允许 capture
+
+- **WHEN** Requirement 或 Bug 对象处于采集池阶段
+- **THEN** 仅 `capture.md` 的 `human_editable` MUST 为 true
+- **AND** `trace.md` 的 `human_editable` MUST 为 false
+
+#### Scenario: 规划中只允许主文档
+
+- **WHEN** Requirement 对象处于规划中阶段
+- **THEN** 仅 `requirement.md` 的 `human_editable` MUST 为 true
+- **AND** `bug.md` MUST NOT 因矩阵存在而对 Requirement 开放
+- **WHEN** Bug 对象处于规划中阶段
+- **THEN** 仅 `bug.md` 的 `human_editable` MUST 为 true
+- **AND** `requirement.md` MUST NOT 因矩阵存在而对 Bug 开放
+
+#### Scenario: 待评审允许完善类文档
+
+- **WHEN** Requirement 对象处于待评审阶段
+- **THEN** `user-stories.md`、`business-flow.md`、`acceptance.md` 和 `requirement.md` 的 `human_editable` MUST 为 true
+- **AND** 其他文档 MUST 保持人工只读
+- **WHEN** Bug 对象处于待评审阶段
+- **THEN** `root-cause.md`、`workaround.md`、`acceptance.md` 和 `bug.md` 的 `human_editable` MUST 为 true
+- **AND** 其他文档 MUST 保持人工只读
+
+#### Scenario: 已评审允许评审材料编辑
+
+- **WHEN** Requirement 或 Bug 对象处于已评审阶段
+- **THEN** 待评审阶段可编辑文档和 `review.md` 的 `human_editable` MUST 为 true
+- **AND** `trace.md` MUST 保持人工只读
+
+#### Scenario: 受控阶段关闭全文编辑
+
+- **WHEN** 对象处于迭代规划、研发中或已完成阶段
+- **THEN** 所有 Markdown 文档的 `human_editable` MUST 为 false
+- **AND** 前端 MUST 展示阅读态和受限原因
+
+### Requirement: Markdown 抽屉能力驱动渲染
+
+系统 MUST 根据后端返回的文档能力对象渲染 Markdown 抽屉，不得继续以 `capture.md` 或单一阶段判断硬编码编辑体验。
+
+#### Scenario: 完整编辑态
+
+- **WHEN** 文档能力中 `human_editable` 为 true
+- **THEN** 前端 MUST 显示完整 Markdown 编辑、分栏、保存和脏状态保护
+- **AND** 保存成功后关闭抽屉 MUST NOT 触发未保存确认
+
+#### Scenario: 只读态
+
+- **WHEN** 文档能力中 `readable` 为 true 且 `human_editable` 和 `task_toggle_only` 均为 false
+- **THEN** 前端 MUST 以阅读态展示文档
+- **AND** 前端 MUST 展示可理解的只读原因
+- **AND** 关闭只读文档 MUST NOT 触发未保存确认
+
+#### Scenario: checkbox-only 态
+
+- **WHEN** 文档能力中 `task_toggle_only` 为 true
+- **THEN** 前端 MUST 只渲染任务清单 checkbox 操作
+- **AND** 前端 MUST NOT 显示 Vditor 工具栏、源码编辑区、全文保存入口或分栏编辑入口
+
+#### Scenario: 待开发 Change 文档展示范围
+
+- **WHEN** 用户查看待开发阶段的 OpenSpec Change 文档
+- **THEN** 前端 MUST 清楚展示文档属于当前 Change 工作区
+- **AND** 前端 MUST 避免让用户将 Change 草案 `spec.md` 与已生效 `openspec/specs/**/spec.md` 混淆
+
+### Requirement: 验收中 tasks 勾选能力
+
+系统 MUST 在验收中阶段仅允许用户对 `tasks.md` 执行 checkbox-only 操作，不允许全文 Markdown 编辑。
+
+#### Scenario: 验收中 tasks 返回 checkbox-only
+
+- **WHEN** 对象处于验收中阶段且用户打开 `tasks.md`
+- **THEN** 文档能力 MUST 返回 `task_toggle_only=true`
+- **AND** `human_editable` MUST 为 false
+
+#### Scenario: 验收中其他文档只读
+
+- **WHEN** 对象处于验收中阶段且用户打开非 `tasks.md` 文档
+- **THEN** `human_editable` MUST 为 false
+- **AND** `task_toggle_only` MUST 为 false
+
+#### Scenario: tasks checkbox-only 操作不产生全文编辑脏状态
+
+- **WHEN** 用户只切换 `tasks.md` 中的任务 checkbox
+- **THEN** 前端 MUST 仅标记 task toggle 待保存状态
+- **AND** 前端 MUST NOT 打开完整 Markdown 未保存确认流程
+
+### Requirement: 当前 Change 标识与中文标题
+系统 SHALL 在现有卡片基础上仅增加原REQ/BUG ID下方的同字号Change ID文本行，并用同一Change中文标题替换卡片标题。
+
+#### Scenario: 唯一当前 Change
+- **WHEN** Issue 已关联唯一可确定的当前 Change
+- **THEN** 系统 SHALL 在 .rc-card-top 后、.rc-card-title 前显示 Change ID，其font-size与原ID相同，当前CSS基准10.5px
+- **AND** 标题保持原13.5px样式和点击目标，仅替换中文文本；新增ID不新增按钮或弹窗
+
+#### Scenario: 无关联或多关联歧义
+- **WHEN** 无Change、缺中文标题或多个关联无法唯一确定当前项
+- **THEN** 系统 SHALL 分别保持原卡片、回退原Issue标题或在新增行提示待核实且保留原标题
+- **AND** 不任意选择第一项或混用多个Change进度
+
+#### Scenario: 独立卡片身份
+- **WHEN** 渲染独立Change卡片
+- **THEN** 系统 SHALL 使用自身ID与中文业务标题，不伪造REQ行、不重复显示同一ID，阶段动作遵循独立变更阶段按钮契约
+
+### Requirement: 当前卡片增量视觉验收
+系统 SHALL 将原型作为设计输入，最终验收结合design、acceptance、真实截图、computed style、Mock/API边界和REQ最终一致性。
+
+#### Scenario: 实施与归档门禁
+- **WHEN** 开始UI细节实现或归档
+- **THEN** 系统 SHALL 先完成Skeleton和1440px首轮确认；归档前具有1440px深浅主题、关键交互、390px长ID、原ID同字号采样及REQ子文档一致性证据
+- **AND** 未改区域与当前实现一致，原型演示及任务勾选不能替代真实观察
+
+### Requirement: 独立变更的唯一迭代标签
+系统 SHALL 为已完成及其他交付阶段的独立 Change 解析唯一 Sprint 标签，保持既有标签样式。
+
+#### Scenario: 历史变更缺少迭代字段
+- **WHEN** iteration 缺失、null 或空串，活动及归档 Sprint changes 中仅有唯一 Sprint ID 包含该 Change
+- **THEN** 系统 SHALL 展示该 Sprint 标签，且不因 sprint.md 缺失而隐藏标签
+- **AND** 文档入口仍 SHALL 要求 sprint.md 存在
+
+#### Scenario: 歧义与显式关联
+- **WHEN** 解析 Sprint 归属
+- **THEN** 系统 SHALL 优先核对显式合法 iteration 与成员关系，显式错误不被反查覆盖
+- **AND** 无显式 iteration 且多个 Sprint 成员关系时 SHALL 不展示标签，并提示待核实
+- **AND** 同 ID 活动 Sprint SHALL 优先于归档，不使用归档补活动缺口
+
+### Requirement: 独立变更阶段按钮
+系统 SHALL 复用REQ/BUG的阶段按钮、弹窗族、权限与执行能力门禁。
+
+#### Scenario: 阶段匹配
+- **WHEN** 独立Change位于待开发、研发中或验收中
+- **THEN** 系统 SHALL 分别提供开始开发、查看进度、受验收门禁控制的完成/归档入口
+- **AND** 已完成及未知状态 SHALL 不显示阶段主按钮
+
+#### Scenario: 能力与权限
+- **WHEN** 用户触发阶段动作
+- **THEN** 写动作 SHALL 校验项目可写、对象权限、Sprint及前置证据，不得因独立Change类型固定禁用，真实能力反馈与同阶段REQ/BUG一致
+- **AND** 查看进度 SHALL 仅要求读取权限，缺tasks提示缺失；不得伪造REQ身份或执行结果
+- **AND** Demo SHALL 不调用真实写入，成功执行后 SHALL 刷新稳定快照
+
+#### Scenario: 原型验收
+- **WHEN** 完成按钮增补
+- **THEN** 系统 SHALL 以design、acceptance、新增1440px及关键交互截图、computed style、Mock/API声明和REQ一致性共同验收；原型仅为设计输入
+
+#### Scenario: 无固定禁用提示
+- **WHEN** 独立Change满足现有阶段文档及权限门禁
+- **THEN** 系统 SHALL 不添加固定验收核对提示，使用REQ/BUG相同的动作处理器与testProgress/manualAcceptanceCount门禁
+- **AND** 真实模式尚未支持的动作 SHALL 给出相同能力反馈，不执行虚假流转
+
+#### Scenario: 独立变更从追溯正文读取中文标题
+
+- **WHEN** trace显式标题与proposal/design业务标题均缺失，但trace正文存在有效中文一级业务标题
+- **THEN** 卡片必须使用该业务标题，保留完整Change ID身份行
+- **AND** 追溯、背景与动机、验证记录等通用章节名不得作为业务标题；无有效标题时回退完整Change ID
 

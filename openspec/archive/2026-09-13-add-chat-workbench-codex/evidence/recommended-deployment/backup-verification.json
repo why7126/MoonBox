@@ -1,0 +1,12 @@
+{
+  "adapter": "SQLite online backup with independent deletion ledger",
+  "tests_passed": 4,
+  "restored_deleted_content_absent": true,
+  "audit_and_code_preserved": true,
+  "queued_work_quarantined": true,
+  "missing_ledger_and_corrupt_backup_rejected": true,
+  "physical_expiry_distinct_from_restore_filtering": true,
+  "cleanup_status_verified_after_expiry": true,
+  "production_mysql_s3_restore_verified": false,
+  "empty_conversation_deletion_replayed": true
+}

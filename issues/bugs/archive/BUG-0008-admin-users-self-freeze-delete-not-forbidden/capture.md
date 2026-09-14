@@ -2,11 +2,11 @@
 bug_id: BUG-0008-admin-users-self-freeze-delete-not-forbidden
 status: done
 created_at: 2026-08-12 13:39:06
-updated_at: 2026-08-13 22:41:53
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

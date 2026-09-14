@@ -1,0 +1,14 @@
+{
+  "api_healthy": true,
+  "web_healthy": true,
+  "minio_healthy": true,
+  "worker_healthy": true,
+  "worker_nonroot": true,
+  "single_auth_file_readonly": true,
+  "trusted_controller_socket_only": true,
+  "restart_policy": "unless-stopped",
+  "api_gate_ready": true,
+  "backup_ledger_valid": true,
+  "account_browser_acceptance": "passed",
+  "existing_data_preserved": true
+}

@@ -1,9 +1,8 @@
 ---
 requirement_id: REQ-0012-frontend-requirement-center
 status: done
-priority: P1
 created_at: 2026-08-10 12:47:39
-updated_at: 2026-08-13 22:51:12
+updated_at: 2026-09-14 09:25:00
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-08-10 12:47:39
@@ -15,7 +14,7 @@ iteration: sprint-002
 openspec_changes:
   - change_id: add-frontend-requirement-center
     type: add
-    status: archived
+    status: proposed
 related_requirements: []
 knowledge_base_refs:
   - docs/knowledge-base/best-practices/admin-modal-width-css-cascade.md
@@ -35,6 +34,8 @@ prototype_gate:
   ui_skeleton: done
   visual_acceptance_1440: passed
   req_final_consistency: passed
+related_change: add-frontend-requirement-center
+priority: P1
 ---
 
 # REQ-0012-frontend-requirement-center Trace
@@ -133,3 +134,18 @@ prototype_gate:
 | REQ 最终一致性 | passed | REQ `requirement.md`、`acceptance.md`、`trace.md` 已与 Change design、delta spec、实现证据和 1440px 视觉验收结果一致。 |
 - 2026-08-13 22:51:12 workflow-sync：状态同步为 done（Change archived）
 - 归档同步：/opsx-archive add-frontend-requirement-center
+
+## 关联缺陷
+
+| BUG | 严重等级 | 状态 | 关联 Change | 说明 |
+|---|---|---|---|---|
+| BUG-0014-requirement-center-capture-not-persisted | high | done | fix-requirement-center-capture-persistence | 需求中心新建 Capture 仅创建前端临时卡片，未持久化 REQ/BUG 目录、文档、注册表与索引 |
+| BUG-0015-requirement-center-apply-start-stage-not-synced | medium | done | fix-requirement-center-apply-lifecycle-sync | 研发启动后需求中心卡片仍停留准备开发态，缺少 apply 启动状态同步 |
+
+## BUG-0014 修复反向追溯
+
+BUG-0014-requirement-center-capture-not-persisted在sprint-005通过fix-requirement-center-capture-persistence补齐Capture真实持久化。仅更新修复关联，不重开父需求或改变其归档状态；父需求无新增视觉设计，既有原型无需改稿。API、数据库语义、部署与回归证据见该Change trace。
+
+## BUG-0015 修复反向追溯
+
+fix-requirement-center-apply-lifecycle-sync 已实现启动事实同步与0/N阶段流转；验证见 openspec/archive/2026-09-14-fix-requirement-center-apply-lifecycle-sync/verification.md。父需求保持历史归档状态，本次交付由BUG-0015与sprint-005承接。

@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-09-08 14:50:39",
+  "sqlite_chat_tests": 9,
+  "mysql_chat_tests": 9,
+  "mysql_version": "8.2.0 dedicated disposable container",
+  "regression_tests": 20,
+  "typescript": "passed",
+  "orval_version": "8.29.0",
+  "backend_image": "sha256:30edc6fb1d1fff042e2a7259deba62a35a8d9e085a23501c43ca6bc7229567a5",
+  "deployed_health_http": 200,
+  "deployed_chat_unauthenticated_http": 401,
+  "recovery_worker": {
+    "root_readonly": true,
+    "network_blocked": true,
+    "no_codex_credentials": true,
+    "no_repository_mount": true,
+    "no_docker_socket": true,
+    "capabilities_dropped": true
+  },
+  "execution_ready": false,
+  "limitations": [
+    "Recovery worker is not the model execution worker",
+    "No atomic quota or storage reservation yet",
+    "Relations and revoked historical object context are not implemented",
+    "No cleanup of conversations with turns",
+    "MySQL 8.4 production matrix remains pending"
+  ],
+  "deployed_sse_contract": "text/event-stream"
+}

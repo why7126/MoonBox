@@ -47,7 +47,8 @@ def test_docker_up_does_not_require_vite_api_base_url(tmp_path: Path) -> None:
 
     assert result.returncode == 0, result.stderr
     capture = (tmp_path / "capture.txt").read_text()
-    assert "compose up -d --build backend web minio" in capture
+    assert "up -d --build backend web minio" in capture
+    assert "--env-file " in capture
     assert "VITE_API_BASE_URL=" in capture
 
 
@@ -56,5 +57,6 @@ def test_docker_up_ignores_runtime_vite_api_base_url_for_docker_web(tmp_path: Pa
 
     assert result.returncode == 0, result.stderr
     capture = (tmp_path / "capture.txt").read_text()
-    assert "compose up -d --build backend web minio" in capture
+    assert "up -d --build backend web minio" in capture
+    assert "--env-file " in capture
     assert "VITE_API_BASE_URL=" in capture

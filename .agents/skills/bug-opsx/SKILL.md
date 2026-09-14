@@ -1,4 +1,5 @@
 ---
+updated_at: 2026-09-13 16:02:48
 name: "bug-opsx"
 description: "已评审缺陷 → OpenSpec fix-* Change（CLI）；原 /bug-to-change"
 ---
@@ -184,3 +185,7 @@ python scripts/sync-workflow-status.py --event bug.opsx --bug <BUG-id> --change 
 - Exit code **MUST** be `0` before ending this command.
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).
+
+## Change 身份门禁
+
+遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。

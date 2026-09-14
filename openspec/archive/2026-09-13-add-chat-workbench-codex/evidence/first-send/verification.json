@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-11",
+  "mode": "synthetic API with actual React components; backend disposable SQLite",
+  "visual": {
+    "viewports": [
+      [
+        1440,
+        900
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "screenshots": "Observed in browser tool output; not persisted as image files",
+    "horizontal_overflow": false,
+    "desktop": {
+      "composer_width": 800,
+      "composer_padding": "14px",
+      "repository_font": "12px",
+      "repository_padding": "4px 8px"
+    },
+    "mobile": {
+      "composer_width": 294,
+      "input_width": 272,
+      "send_white_space": "nowrap"
+    },
+    "interactions": [
+      "enter draft directly",
+      "first send selects conversation and updates URL",
+      "new session clears URL without modal"
+    ],
+    "repository_colors": {
+      "dark": "rgb(152, 160, 179)",
+      "light": "rgb(103, 112, 133)"
+    }
+  },
+  "backend": {
+    "passed": 39,
+    "skipped": 1,
+    "skip_reason": "opt-in real model run"
+  },
+  "limitations": [
+    "No new real model run",
+    "No repeated MySQL deployment validation",
+    "Drafts are memory-only"
+  ],
+  "frontend": {
+    "passed": 23,
+    "files": 5,
+    "build": "passed",
+    "typescript": "passed",
+    "coverage": [
+      "create response loss",
+      "turn response loss",
+      "duplicate clicks",
+      "single/multiple repository",
+      "offline drafting",
+      "space draft isolation",
+      "history",
+      "relations",
+      "stop targeting"
+    ]
+  },
+  "openapi": {
+    "export": "passed",
+    "orval": "8.29.0 local binary passed",
+    "script_warning": "pnpm 11.7.0 vs requested 11.2.2 check"
+  },
+  "deployment": {
+    "web": "healthy",
+    "backend": "healthy",
+    "active_runs_before_update": 0,
+    "backend_creation_field": "verified over HTTP",
+    "service_sha256": "de1fcd857ba4baa54fdc777e8a565fd3e5ea5d66598b008171b6941a1ee7ce17",
+    "web_js": "index-CIChxlAc.js",
+    "web_css": "index-CbKeGcmN.css",
+    "worker": "not restarted; execution protocol unchanged"
+  },
+  "checks": {
+    "openspec": "passed",
+    "language": "passed",
+    "directory": "passed",
+    "context_budget": "passed",
+    "sprint_scope": "passed",
+    "observability": "passed",
+    "focused_diff_whitespace": "passed",
+    "global_diff_whitespace": "unrelated requirement-center tests contain trailing spaces"
+  }
+}

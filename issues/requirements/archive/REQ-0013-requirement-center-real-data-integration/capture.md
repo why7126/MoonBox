@@ -2,11 +2,11 @@
 req_id: REQ-0013-requirement-center-real-data-integration
 status: archived
 created_at: 2026-08-10 20:04:27
-updated_at: 2026-08-13 22:45:12
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户反馈
-priority_hint: P1
 parent_requirement: REQ-0012-frontend-requirement-center
+priority: P1
 ---
 
 # 一句话

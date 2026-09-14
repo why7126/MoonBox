@@ -74,10 +74,10 @@ Use this skill when the user asks to run the migrated source command `req-captur
 req_id: REQ-0008-example
 status: captured
 created_at: YYYY-MM-DD HH:mm:ss
-updated_at: 2026-08-15 09:50:00
+updated_at: 2026-09-12 17:46:39
 recorded_by: product
 source: 会议|反馈|竞品
-priority_hint: P1
+priority: P1
 parent_requirement:
 ---
 
@@ -127,3 +127,5 @@ done
 - Exit code **MUST** be `0`
 - Print summary **Workflow Sync Report**（多条时注明共 N 条）；use `--output detail` only for debugging
 - Do **not** hand-edit `sprint.md` Scope marker blocks
+
+分级元数据遵循 `rules/document-governance.md` 的“Issue 分级元数据”：REQ 使用 priority，BUG 使用 severity，写入 Frontmatter；trace 为当前事实源，主文档与 capture 同步，初判依据留正文。

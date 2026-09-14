@@ -6,7 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-09-04 16:28:01
+updated_at: 2026-09-14 09:27:31
 ---
 
 # Knowledge Base Usage
@@ -56,6 +56,16 @@ updated_at: 2026-09-04 16:28:01
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-005 | [Sprint-005 经验复盘](retrospectives/sprint-005-retrospective.md) | active | 6 |
+| sprint-004 | [Sprint-004 经验复盘](retrospectives/sprint-004-retrospective.md) | active | 7 |
 | sprint-003 | [Sprint-003 经验复盘](retrospectives/sprint-003-retrospective.md) | active | 6 |
 | sprint-002 | [Sprint-002 经验复盘](retrospectives/sprint-002-retrospective.md) | active | 5 |
 | sprint-001 | [Sprint-001 经验复盘](retrospectives/sprint-001-retrospective.md) | active | 4 |
+
+- [Capture假成功与多文件持久化](incidents/20260912-capture-persistence.md)：BUG-0014，终态反馈、锁内编号、幂等与恢复证据。
+
+## 研发启动状态经验
+
+[启动事实与任务进度分离](incidents/20260912-apply-start-stage.md)：BUG-0015已通过Change实现与验证，无新增未承接行动项。
+
+- [需求中心读取失败与重复解析](incidents/20260912-requirement-center-read-performance.md)：BUG-0016后端阶段证据，UI与部署验收仍待完成。

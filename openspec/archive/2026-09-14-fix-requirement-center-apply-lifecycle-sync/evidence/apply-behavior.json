@@ -1,0 +1,51 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#实施与验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "repair-fixtures",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "compaction",
+      "evidence": [
+        "verification.md#实施与验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "finish-validation-and-sync",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#实施结果",
+        "verification.md#实施与验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "implementation-validation-docs-sync",
+          "state": "done",
+          "deps": []
+        }
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

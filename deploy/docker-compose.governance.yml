@@ -1,0 +1,56 @@
+# Local governance writer; continuous Capture is explicitly selected by deployment.
+# Load after docker-compose.chat-platform.yml; no credential/socket access for writer.
+services:
+  backend:
+    user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
+    environment:
+      MOONBOX_GOVERNANCE_STATE_ROOT: /app/governance-state
+      MOONBOX_GOVERNANCE_CAPTURE_MODE: ${MOONBOX_GOVERNANCE_CAPTURE_MODE:-disabled}
+    volumes:
+      - ./issues:/app/governance/issues:ro
+      - ./openspec:/app/governance/openspec:ro
+      - ${MOONBOX_GOVERNANCE_HOST_STATE_ROOT}:/app/governance-state
+  chat-worker:
+    environment:
+      MOONBOX_GOVERNANCE_STATE_ROOT: /app/governance-state
+      MOONBOX_GOVERNANCE_CAPTURE_MODE: ${MOONBOX_GOVERNANCE_CAPTURE_MODE:-disabled}
+    volumes:
+      - ${MOONBOX_GOVERNANCE_HOST_STATE_ROOT}:/app/governance-state
+      - ./docs:/app/governance/docs:ro
+      - ./rules:/app/governance/rules:ro
+  governance-controller:
+    image: ${BACKEND_IMAGE:-moonbox-backend:local}
+    command: [python, -m, app.governance.controller]
+    init: true
+    restart: unless-stopped
+    user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
+    environment:
+      DATABASE_TYPE: sqlite
+      DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
+      SQLITE_DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
+      MOONBOX_CHAT_REPOSITORIES: ${MOONBOX_CHAT_REPOSITORIES}
+      MOONBOX_CHAT_REPOSITORY_BINDINGS: ${MOONBOX_CHAT_REPOSITORY_BINDINGS}
+      MOONBOX_GOVERNANCE_STATE_ROOT: /app/governance-state
+      MOONBOX_GOVERNANCE_CAPTURE_MODE: ${MOONBOX_GOVERNANCE_CAPTURE_MODE:-disabled}
+    volumes:
+      - ./data/runtime/backend:/app/data
+      - ${MOONBOX_GOVERNANCE_HOST_STATE_ROOT}:/app/governance-state
+      - ./issues:/app/governance/issues
+      - ./openspec:/app/governance/openspec
+      - ./iterations:/app/governance/iterations:ro
+      - ./docs:/app/governance/docs:ro
+      - ./rules:/app/governance/rules:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python, -c, "from app.governance.readiness import require_controller; require_controller()"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    depends_on:
+      backend:
+        condition: service_healthy

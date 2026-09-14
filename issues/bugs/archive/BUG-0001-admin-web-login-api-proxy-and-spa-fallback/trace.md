@@ -3,14 +3,13 @@ bug_id: BUG-0001-admin-web-login-api-proxy-and-spa-fallback
 status: done
 lifecycle_stage: archive
 created_at: 2026-08-09 23:04:45
-updated_at: 2026-08-13 22:45:09
-severity_hint: high
-priority: P1
+updated_at: 2026-09-12 22:27:53
 environment: docker
 related_requirement:
 related_bug:
 related_change: fix-admin-web-login-api-proxy-and-spa-fallback
 iteration: sprint-002
+severity: high
 ---
 
 # 追踪

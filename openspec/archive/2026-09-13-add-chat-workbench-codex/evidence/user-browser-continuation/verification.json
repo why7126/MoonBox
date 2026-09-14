@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-09",
+  "new_model_turns": 1,
+  "second_modification": "completed",
+  "same_executor_thread": true,
+  "actual_file": "2\n",
+  "turn_diff": "1 -> 2",
+  "cumulative_diff": "0 -> 2",
+  "usage_status": "unavailable",
+  "reservation_status": "reserved",
+  "reserved_tokens": 60000,
+  "actual_tokens": null,
+  "active_turns": 0,
+  "account_active_runs": 1,
+  "concurrency_limit": 1,
+  "stop_test_admission": "rejected",
+  "stop_test_executed": false,
+  "page_errors": 0,
+  "root_cause_status": "confirmed",
+  "root_cause": "已终态且用量缺失时不调用settle，而并发占用只在settle释放；因此未核实Token预留同时占住并发槽。",
+  "missing_usage_reason": "未验证，不能把并发释放缺陷当作用量缺失的根因",
+  "runtime_preserved": true
+}

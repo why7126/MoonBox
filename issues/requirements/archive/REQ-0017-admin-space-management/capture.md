@@ -2,11 +2,11 @@
 req_id: REQ-0017-admin-space-management
 status: archived
 created_at: 2026-08-12 10:01:05
-updated_at: 2026-08-14 16:21:02
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

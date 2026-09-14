@@ -1,10 +1,8 @@
 ---
 bug_id: BUG-0002-homepage-frontend-login-entry-routes-to-admin
 status: done
-severity: high
-priority: P1
 created_at: 2026-08-10 20:07:31
-updated_at: 2026-08-13 23:04:21
+updated_at: 2026-09-12 22:27:53
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-08-10 20:07:31
@@ -19,6 +17,7 @@ openspec_changes:
     status: archived
 related_requirement: null
 related_bug: null
+severity: high
 ---
 
 # BUG Trace

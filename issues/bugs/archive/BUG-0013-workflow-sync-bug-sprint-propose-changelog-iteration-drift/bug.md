@@ -1,8 +1,6 @@
 ---
 bug_id: BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
 title: Workflow Sync 对 BUG sprint.propose 的 CHANGELOG/iteration 派生刷新不完整
-severity: medium
-priority: P2
 status: done
 owner:
 discovered_at: 2026-08-15 11:11:51
@@ -10,7 +8,8 @@ environment: local governance workflow
 related_requirement:
 related_change: fix-workflow-sync-bug-sprint-propose-drift
 created_at: 2026-08-15 11:29:52
-updated_at: 2026-08-15 12:29:48
+updated_at: 2026-09-12 22:27:53
+severity: medium
 ---
 
 # Workflow Sync 对 BUG sprint.propose 的 CHANGELOG/iteration 派生刷新不完整

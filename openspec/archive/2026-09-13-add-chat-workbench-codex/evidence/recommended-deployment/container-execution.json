@@ -1,0 +1,17 @@
+{
+  "real_model_in_container": true,
+  "isolation": {
+    "credential_denied": true,
+    "no_peer_mount": true,
+    "no_database_mount": true,
+    "no_docker_socket": true,
+    "process_environment_denied": true,
+    "git_readonly": true,
+    "own_write": true,
+    "tool_network_denied": true
+  },
+  "two_file_changes": true,
+  "thread_resumed_after_container_recreation": true,
+  "stop_confirmed": true,
+  "temporary_credentials_and_workspaces_removed": true
+}

@@ -1,0 +1,57 @@
+# 单机常驻 Chat；只由显式 --chat-platform 加载。控制器拥有 Docker 权限，执行容器没有 socket。
+services:
+  backend:
+    environment: &chat-platform-env
+      MOONBOX_CHAT_EXECUTION_MODE: local-codex
+      MOONBOX_CHAT_REPOSITORIES: ${MOONBOX_CHAT_REPOSITORIES}
+      MOONBOX_CHAT_REPOSITORY_BINDINGS: ${MOONBOX_CHAT_REPOSITORY_BINDINGS}
+      MOONBOX_CHAT_LIMITS: ${MOONBOX_CHAT_LIMITS}
+      MOONBOX_CHAT_RETENTION: ${MOONBOX_CHAT_RETENTION}
+      MOONBOX_CHAT_STATE_ROOT: /app/chat-state
+      MOONBOX_CHAT_BACKUP_ROOT: /app/chat-backups
+      DATABASE_TYPE: sqlite
+      DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
+      SQLITE_DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
+    volumes:
+      - ${MOONBOX_CHAT_HOST_ROOT}/state:/app/chat-state:ro
+      - ${MOONBOX_CHAT_HOST_ROOT}/backups:/app/chat-backups
+      - ${MOONBOX_CHAT_HOST_ROOT}/workspaces:${MOONBOX_CHAT_HOST_ROOT}/workspaces:ro
+  chat-worker:
+    restart: unless-stopped
+    init: true
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile.chat-worker
+      args:
+        BACKEND_IMAGE: ${BACKEND_IMAGE:-moonbox-backend:local}
+    image: moonbox-chat-worker:local
+    user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
+    group_add:
+      - ${MOONBOX_CHAT_DOCKER_GID:-0}
+    environment:
+      <<: *chat-platform-env
+      APP_ENV: local
+      MOONBOX_CHAT_RUNTIME_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/runtime
+      MOONBOX_CHAT_AUTH_FILE: /run/secrets/codex-auth.json
+    volumes:
+      - ./data/runtime/backend:/app/data
+      - ${MOONBOX_CHAT_HOST_ROOT}/state:/app/chat-state
+      - ${MOONBOX_CHAT_HOST_ROOT}/backups:/app/chat-backups
+      - ${MOONBOX_CHAT_HOST_ROOT}/workspaces:${MOONBOX_CHAT_HOST_ROOT}/workspaces
+      - ${MOONBOX_CHAT_HOST_ROOT}/runtime:${MOONBOX_CHAT_HOST_ROOT}/runtime
+      - ${MOONBOX_CHAT_SOURCE_ROOT}:${MOONBOX_CHAT_SOURCE_ROOT}:ro
+      - ${MOONBOX_CHAT_AUTH_SOURCE}:/run/secrets/codex-auth.json:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./issues:/app/governance/issues:ro
+      - ./iterations:/app/governance/iterations:ro
+      - ./openspec:/app/governance/openspec:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import json,time; from pathlib import Path; v=json.loads(Path('/app/chat-state/worker-ready.json').read_text()); assert 0 <= time.time()-v['time'] < 5"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 60s
+    stop_grace_period: 90s

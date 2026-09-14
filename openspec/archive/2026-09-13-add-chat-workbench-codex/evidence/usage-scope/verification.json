@@ -1,0 +1,26 @@
+{
+  "protocol_rounds": 3,
+  "real_accounting_rounds": 2,
+  "real_dual_tab_rounds": 1,
+  "sqlite": "42 passed, 1 skipped",
+  "mysql": "39 passed, 1 skipped",
+  "web": "22 passed",
+  "openapi_chat_paths_unchanged": true,
+  "openapi_schemas_unchanged": true,
+  "legacy_receipts_auto_settlement": false,
+  "legacy_settled_values_overwritten": false,
+  "backend_regression": "64 passed, 6 skipped",
+  "health": {
+    "backend": 200,
+    "web": 200,
+    "chat": 200
+  },
+  "workflow_sync": {
+    "mode": "dry-run",
+    "subdocuments": 7,
+    "errors": 0,
+    "warnings": 0,
+    "blockers": 0,
+    "acceptance": "pending"
+  }
+}

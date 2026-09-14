@@ -27,7 +27,7 @@ x-common-service: &common-service
   restart: unless-stopped
   env_file:
     # .env 仅用于本地覆盖默认值；不存在时仍允许 docker compose config 通过。
-    - path: .env
+    - path: ${MOONBOX_ENV_FILE:-.env}
       required: false
   networks:
     - app-network

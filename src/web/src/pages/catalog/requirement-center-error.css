@@ -1,0 +1,23 @@
+.rc-read-error { display:flex; align-items:flex-start; gap:12px; padding:20px 24px; margin:12px 0; border:1px solid var(--rc-border, #343847); border-radius:12px; background:var(--rc-panel, #171b26); color:var(--rc-text, #eceef5); }
+.rc-read-error > svg { margin-top:2px; color:var(--rc-accent, #d3ae68); flex-shrink:0; }
+.rc-read-error h3 { margin:0; font-size:15px; line-height:24px; font-weight:600; }
+.rc-read-error p { margin:6px 0 16px; color:var(--rc-muted, #a2a8b8); font-size:13px; line-height:21px; }
+.rc-read-error-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.rc-read-error button, .rc-error-dialog button { font:inherit; font-size:13px; line-height:20px; padding:7px 14px; border-radius:7px; cursor:pointer; }
+.rc-read-error .rc-primary-action, .rc-error-dialog .rc-primary-action { border:1px solid #d3ae68; background:#d3ae68; color:#201a10; }
+.rc-read-error .rc-secondary-action, .rc-error-dialog .rc-secondary-action { border:1px solid var(--rc-border, #343847); background:transparent; color:inherit; }
+.rc-read-error button:disabled, .rc-error-dialog button:disabled { opacity:.55; cursor:wait; }
+.rc-read-error button:focus-visible, .rc-error-dialog button:focus-visible { outline:2px solid #d3ae68; outline-offset:3px; }
+.rc-error-backdrop { position:fixed; inset:0; z-index:1200; display:grid; place-items:center; background:#0008; padding:20px; }
+.rc-error-dialog { width:min(480px, 100%); max-height:calc(100dvh - 40px); overflow:auto; box-sizing:border-box; background:var(--rc-panel, #171b26); color:var(--rc-text, #eceef5); border:1px solid var(--rc-border, #343847); border-radius:14px; box-shadow:0 24px 80px #0005; outline:none; }
+.rc-error-dialog header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 24px 0; }
+.rc-error-dialog h2 { font-size:17px; line-height:26px; margin:0; }
+.rc-error-dialog header button { border:0; background:transparent; color:inherit; padding:5px; display:flex; }
+.rc-error-dialog-body { padding:8px 24px 20px; font-size:13px; line-height:22px; overflow-wrap:anywhere; }
+.rc-error-dialog dl { padding:12px; border-radius:8px; background:#8881; }
+.rc-error-dialog dt { color:var(--rc-muted, #a2a8b8); font-size:12px; }
+.rc-error-dialog dd { margin:0 0 8px; }
+.rc-error-dialog footer { display:flex; justify-content:flex-end; gap:8px; padding:16px 24px; border-top:1px solid var(--rc-border, #343847); }
+
+.rc-stale-notice { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:12px 0; padding:12px 16px; background:var(--rc-panel); border:1px solid var(--rc-border); border-radius:8px; color:var(--rc-text); font-size:13px; line-height:21px; }
+.rc-stale-notice button { border:1px solid var(--rc-border); background:var(--rc-panel); color:var(--rc-text); border-radius:6px; padding:6px 10px; cursor:pointer; }

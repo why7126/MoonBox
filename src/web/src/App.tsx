@@ -5,6 +5,7 @@ import { AdminSpaceManagementPage } from "./pages/admin/AdminSpaceManagementPage
 import { AdminUserManagementPage } from "./pages/admin/AdminUserManagementPage";
 import { ADMIN_SESSION_EVENT, AdminSession, canAccessAdmin, readAdminSession } from "./pages/admin/adminAuth";
 import { RequirementCenterPage } from "./pages/catalog/RequirementCenterPage";
+import { ChatWorkbenchPage } from "./pages/catalog/ChatWorkbenchPage";
 import { DesignSystemPage } from "./pages/dev/DesignSystemPage";
 import { readFrontendSession } from "./pages/home/frontendSession";
 import { Homepage } from "./pages/home/Homepage";
@@ -41,14 +42,15 @@ export function App() {
   if (isFrontendLoginRoute) {
     return <Homepage onAdminLogin={setAdminSession} />;
   }
-  if (isRequirementCenterRoute) {
+  const isChatRoute = routeKey === "/chat";
+  if (isRequirementCenterRoute || isChatRoute) {
     if (!readFrontendSession()) {
       if (window.location.pathname !== "/login") {
         window.history.replaceState(null, "", "/login");
       }
       return <Homepage />;
     }
-    return <RequirementCenterPage />;
+    return isChatRoute ? <ChatWorkbenchPage /> : <RequirementCenterPage />;
   }
   if (isAdminRoute || isAdminSpaceRoute) {
     if (!adminSession?.access_token || !canAccessAdmin(adminSession.user)) {

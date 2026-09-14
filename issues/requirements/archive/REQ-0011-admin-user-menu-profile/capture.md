@@ -2,11 +2,11 @@
 req_id: REQ-0011-admin-user-menu-profile
 status: done
 created_at: 2026-08-10 08:48:39
-updated_at: 2026-08-13 22:54:17
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

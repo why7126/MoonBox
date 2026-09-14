@@ -1,0 +1,66 @@
+{
+  "containers": [
+    {
+      "service": "moonbox-backend",
+      "image": "sha256:a6f91d0bf20ab317dbb2f3f5a4dc1bb0825f0a9942721fc09bb03d44ec8259dd",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0,
+      "network": "moonbox-network",
+      "read_only": false,
+      "cap_drop": null,
+      "security_options": null,
+      "memory": 0,
+      "cpu": 0
+    },
+    {
+      "service": "moonbox-web",
+      "image": "sha256:684e556ca822e6203f0345c77b4f1db7b8498e6812f1fb8db5869a0092037f63",
+      "status": "running",
+      "health": null,
+      "restarts": 0,
+      "network": "moonbox-network",
+      "read_only": false,
+      "cap_drop": null,
+      "security_options": null,
+      "memory": 0,
+      "cpu": 0
+    },
+    {
+      "service": "moonbox-chat-recovery-1",
+      "image": "sha256:a6f91d0bf20ab317dbb2f3f5a4dc1bb0825f0a9942721fc09bb03d44ec8259dd",
+      "status": "running",
+      "health": null,
+      "restarts": 0,
+      "network": "none",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "memory": 134217728,
+      "cpu": 500000000
+    }
+  ],
+  "http_without_auth": {
+    "/chat": 200,
+    "/api/v1/chat/spaces": 401
+  },
+  "sqlite_chat_tests": 13,
+  "mysql_8_2_chat_tests": 13,
+  "existing_api_tests": 20,
+  "chat_web_tests": 14,
+  "existing_web_tests": 64,
+  "real_browser": "Existing authenticated session fetched spaces and empty history successfully; repository catalog empty, create disabled.",
+  "visual_boundary": "9 screenshots use synthetic intercepted API responses.",
+  "execution_ready": false,
+  "admission_boundary": "Internal transactions tested; public send remains gated. Recovery worker does not execute models.",
+  "backend_health": {
+    "port": 18101,
+    "path": "/health",
+    "status": 200,
+    "contract": "pass"
+  }
+}

@@ -2,10 +2,8 @@
 bug_id: BUG-0005-frontend-user-menu-shows-logged-out-after-returning-from-admin
 status: done
 lifecycle_stage: archive
-severity: medium
-priority: P2
 created_at: 2026-08-11 18:16:00
-updated_at: 2026-08-13 22:45:09
+updated_at: 2026-09-12 22:27:53
 related_requirement:
 related_bug:
 related_change: fix-frontend-user-menu-session-state
@@ -14,6 +12,7 @@ openspec_changes:
   - change_id: fix-frontend-user-menu-session-state
     type: fix
     status: archived
+severity: medium
 ---
 
 # BUG-0005 从后台返回前台时用户菜单显示未登录

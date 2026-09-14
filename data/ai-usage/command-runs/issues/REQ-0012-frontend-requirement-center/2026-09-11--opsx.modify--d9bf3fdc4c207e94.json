@@ -1,0 +1,48 @@
+{
+  "command_runs": [
+    {
+      "source_session_hash": "d9bf3fdc4c207e946a762b4b04ceaf2508ca214c009f19031d27e2c1d76712c4",
+      "source_data_file": "~/.codex/sessions/2026/09/11/rollout-2026-09-11T09-54-36-01a08e2c-7fa1-7961-918d-b01277ba8d11.jsonl",
+      "source_line_start": 308,
+      "source_line_end": 318,
+      "turn_hash": "5cb32d68fa148965",
+      "started_at": "2026-09-11T08:54:15.911Z",
+      "ended_at": "2026-09-11T09:07:29.795Z",
+      "command": "opsx.modify",
+      "workflow_event": "opsx.modify",
+      "requirements": [
+        "REQ-0012-frontend-requirement-center",
+        "REQ-0022-local-project-import-product-iteration"
+      ],
+      "bugs": [],
+      "changes": [
+        "add-local-project-governance-loop"
+      ],
+      "sprint_id": "sprint-005",
+      "release_sprints": [
+        "sprint-005"
+      ],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "codex-auto-review",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "auto",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 1,
+      "input_tokens": 186999,
+      "cached_input_tokens": 170752,
+      "output_tokens": 104,
+      "reasoning_output_tokens": 31,
+      "total_tokens": 187103,
+      "tool_call_count": 0,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

@@ -1,19 +1,18 @@
 ---
 bug_id: BUG-0012-requirement-registry-changelog-req0017-archive-drift
 status: done
-severity: medium
-priority: P2
 lifecycle_stage: archive
 iteration: sprint-003
 related_requirement: REQ-0017-admin-space-management
 related_bug:
 related_change: fix-requirement-registry-changelog-req0017-archive-drift
 created_at: 2026-08-15 10:32:44
-updated_at: 2026-08-15 12:00:36
+updated_at: 2026-09-12 22:27:53
 openspec_changes:
   - change_id: fix-requirement-registry-changelog-req0017-archive-drift
     type: fix
     status: archived
+severity: medium
 ---
 
 # 追溯

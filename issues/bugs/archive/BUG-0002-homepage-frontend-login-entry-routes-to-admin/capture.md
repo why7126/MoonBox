@@ -2,11 +2,11 @@
 bug_id: BUG-0002-homepage-frontend-login-entry-routes-to-admin
 status: archived
 created_at: 2026-08-10 20:07:31
-updated_at: 2026-08-13 23:04:33
-severity_hint: high
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: high
 ---
 
 # 现象

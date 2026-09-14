@@ -1,7 +1,7 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
-updated_at: 2026-09-02 19:12:31
+updated_at: 2026-09-12 21:30:04
 ---
 
 # opsx-apply
@@ -57,7 +57,7 @@ Use this skill when the user asks to run `/opsx-apply <REQ-full-id|BUG-full-id|c
 - `/opsx-apply` MUST 位于 `/req-opsx` 或 `/bug-opsx` 之后，并且目标 Change 已纳入 Sprint scope；纯治理 Change 也 MUST 先纳入 Sprint。
 - 验收发现返修时，下一步使用 `/opsx-modify <REQ-full-id|BUG-full-id|change-id> <修改内容>`；返修完成并验证后再进入 `/opsx-archive`。
 - 后续命令参数 MUST 延续来源：REQ 用完整 `REQ-xxxx-slug`，BUG 用完整 `BUG-xxxx-slug`，纯治理 Change 才用 `<change-id>`。
-- Workflow Sync 和 AI Usage Post-command Hook MUST 在实现、任务勾选和验证之后串行执行；不得与写同一事实源的步骤并行。
+- 完成态 Workflow Sync 和 AI Usage Post-command Hook MUST 在实现、任务勾选和验证之后串行执行；不得与写同一事实源的步骤并行。
 
 ## Must Read
 
@@ -119,11 +119,11 @@ For every Change linked to a REQ/BUG:
    - `requirements[]` contains linked `REQ-*` and/or `bugs[]` contains linked `BUG-*`.
 4. Confirm each linked Issue `trace.md` has `iteration: <sprint-id>` and `status: in_sprint` or a later delivery state.
 
-If any check fails, **BLOCKED**: do not implement. Tell the user to run `/sprint-propose` to include the REQ/BUG/Change in a `sprint-xxx`, then rerun `/opsx-apply`.
+If any check fails, do not implement past the gate. Repair already-authorized scope synchronization gaps and recheck where possible; actual missing Sprint inclusion follows `/sprint-propose` and the shared hard-blocker contract.
 
 A resolved `sprint.yaml` with `status: planning` is eligible. Planning means `/sprint-propose` has created the official Sprint scope; it MUST NOT be treated as “Sprint not started” when the Issue trace is already `in_sprint` and the Sprint contains the linked Change.
 
-Only a Change with no linked REQ/BUG may bypass this gate; output the reason explicitly.
+Pure governance Changes MUST also resolve a Sprint containing the Change in `changes[]`; missing inclusion is blocking. No Issue trace is required when there is no linked REQ/BUG.
 
 ## Cross-cutting Apply Gate（MUST before `src/`）
 
@@ -159,7 +159,7 @@ For any Change with `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Sk
 3. Build the UI Skeleton first: route/page shell, layout regions, component slots, state containers, stable selectors, loading/empty/error/disabled states, and placeholder data boundaries; record the first 1440px Skeleton evidence before continuing detailed UI work.
 4. Do not mark UI implementation tasks complete until 1440px desktop and required key interaction visual acceptance have been run with Playwright/browser or an equivalent project-approved visual check.
 5. Record evidence in Change `trace.md` or `acceptance.md`: command/tool, viewport, inspected path, screenshot/evidence path when available, pass/fail summary, computed style checks for risky visual points, Mock/API boundary, and known exceptions.
-6. If visual or computed style acceptance fails, keep the task unchecked and continue through `/opsx-modify` or focused fixes inside the same Change.
+6. If visual or computed style acceptance fails, keep the task unchecked and perform evidence-based focused fixes inside the current apply until the required checks pass; follow the shared hard-blocker contract if external input is indispensable.
 
 Report:
 
@@ -195,6 +195,10 @@ Before implementation, if the Change touches API, DB, audit logs, usage events, 
 
 If the declaration is missing, update the Change governance docs before marking tasks complete. If the declaration says `not_applicable`, the `reason` MUST explain why API, DB, `request_logs`, `usage_events`, Task Trace, and request wrappers are unaffected; "无"、"不涉及" or bare "N/A" is not enough.
 
+## Apply 连续执行契约（MUST）
+
+MUST 读取并遵守 [Apply 连续执行契约](../../../docs/08-command-execution-order.md#apply-连续执行契约)，共用「连续推进」「硬阻塞与停止」「完成门禁」「中断续接」四项规则。每次final前执行中央「停止前决策」，CLI暂停提示不构成独立停止依据；按「行为验收」区分合成与真实证据。阶段进度不结束任务；自检修复留在当前 apply，完成判定和恢复入口均以该事实源为准。
+
 ## Implementation Loop
 
 For each pending task:
@@ -202,13 +206,13 @@ For each pending task:
 1. Announce current task.
 2. Make minimal scoped changes.
 3. Add/update tests when behavior changes.
-4. Mark task `- [ ]` → `- [x]` immediately after completion.
-5. Re-run focused checks/tests.
-6. Stop and ask if task is ambiguous, gate is blocked, or implementation reveals design conflict.
+4. Run focused checks/tests and repair failures inside this apply.
+5. Mark task `- [ ]` → `- [x]` only after implementation and required verification pass.
+6. Continue to the next eligible task; handle hard blockers and resumption using the shared Apply 连续执行契约.
 
 ## Completion Output
 
-Report change id, schema, completed tasks this session, total progress, tests/checks run, remaining tasks, and whether archive is ready.
+Only after the shared 完成门禁 passes, report change id, schema, total progress, verification evidence, documentation and sync results, and archive readiness. For a hard pause, report the blocker evidence and 中断续接 checkpoint without claiming completion.
 
 ## Output Contract（MUST）
 
@@ -222,7 +226,7 @@ Report change id, schema, completed tasks this session, total progress, tests/ch
 
 ## Final Step — Workflow Sync（MUST）
 
-Run:
+仅在共享完成门禁中实现、验证和文档条件满足后运行；部分实现或暂停不得执行 applied 完成同步。随后按 workflow-sync Skill 执行 AI Usage Hook，使用已解析的真实 Sprint。
 
 ```bash
 python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
@@ -236,3 +240,9 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 ## 当前态看板索引（MUST）
 
 若 Change 来源于 REQ 或 BUG，`opsx.apply` Workflow Sync 成功后 MUST 分别在 `issues/requirements/CHANGELOG.md` 或 `issues/bugs/CHANGELOG.md` 更新对应 Issue 当前态行。纯治理 Change 无需维护 Issue 当前态看板，但仍按 `/spec-opt` 或对应命令维护 `docs/spec-logs/CHANGELOG.md`。
+
+## 研发启动与进度同步
+
+实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `python scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
+
+完成门禁通过后才执行opsx.apply；全勾选不替代完成门禁。重复启动不重置时间，中断保留启动事实，不宣称Agent进程在线。CLI和后端共用执行事实判定，所有写入串行，冲突或中断后重跑修复投影；closed/archived Issue不重开。用户命令保留完整REQ/BUG身份。

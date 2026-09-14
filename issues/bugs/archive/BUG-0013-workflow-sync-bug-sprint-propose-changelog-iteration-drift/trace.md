@@ -1,19 +1,18 @@
 ---
 bug_id: BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift
 status: done
-severity: medium
-priority: P2
 lifecycle_stage: archive
 iteration: sprint-003
 related_requirement:
 related_bug:
 related_change: fix-workflow-sync-bug-sprint-propose-drift
 created_at: 2026-08-15 11:11:51
-updated_at: 2026-08-15 12:29:57
+updated_at: 2026-09-12 22:27:53
 openspec_changes:
   - change_id: fix-workflow-sync-bug-sprint-propose-drift
     type: fix
     status: archived
+severity: medium
 ---
 
 # 追溯

@@ -10,6 +10,7 @@ from app.api.v1.admin_spaces import spaces_router as admin_spaces_router
 from app.api.v1.admin_users import router as admin_users_router
 from app.api.v1.catalog_space_applications import router as catalog_space_applications_router
 from app.api.v1.catalog_space_applications import search_router as catalog_workspaces_router
+from app.chat.api import router as chat_router
 from app.core.config import settings
 from app.api.v1.health import router as health_router
 from app.api.v1.requirement_center import router as requirement_center_router
@@ -54,3 +55,7 @@ app.include_router(admin_space_applications_router)
 app.include_router(requirement_center_router)
 app.include_router(catalog_workspaces_router)
 app.include_router(catalog_space_applications_router)
+
+app.include_router(chat_router)
+from app.governance.api import router as governance_router
+app.include_router(governance_router)

@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-09",
+  "script_tests_passed": 11,
+  "control_tests_passed": 5,
+  "backend_backup_isolation_tests_passed": 5,
+  "bash_syntax": "passed",
+  "real_script_build_and_start": "passed",
+  "compose_services_healthy": [
+    "backend",
+    "web",
+    "minio"
+  ],
+  "final_http_status": {
+    "backend": 200,
+    "web": 200
+  },
+  "chat_port_released": true,
+  "model_turns_sent_this_batch": 0,
+  "formal_platform_execution_enabled": false,
+  "normal_services_left_running": true,
+  "chat_test_containers_remaining": 0,
+  "governance_checks": "passed",
+  "workflow_sync": {
+    "mode": "dry-run",
+    "errors": 0,
+    "warnings": 0,
+    "blockers": 0,
+    "subdocuments_checked": 7,
+    "acceptance": "pending"
+  }
+}

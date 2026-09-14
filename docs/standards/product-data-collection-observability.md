@@ -3,7 +3,7 @@ purpose: 产品数据采集与链路观测标准
 content: 行为事件、请求日志、任务链路、流程节点、脱敏、保留周期和治理门禁
 source: apply-tilesfst-data-collection-governance
 update_method: 数据采集、链路观测、日志审计、Task Trace、请求封装或保留周期规则变化时同步更新
-created_at: 2026-08-27 00:27:55
+created_at: 2026-09-12 17:20:59
 updated_at: 2026-08-27 00:27:55
 owner: MoonBox 产品团队
 ---
@@ -263,3 +263,7 @@ product_data_collection_observability:
 - `rules/database.md`
 - `rules/testing.md`
 - `scripts/validate-product-data-observability.py`
+
+## Capture 实现映射（BUG-0014）
+
+Capture沿用ChatRoute：请求层物理表为chat_request_logs；Web标记X-Chat-Client=web时写governance.capture至usage_events，仅允许operation_id关联属性。直接API不模拟页面行为。任务类型governance_application以governance前缀关联操作ID，节点沿用queued/applying/prepared/recovering/applied/conflict/recovery_blocked阶段，详细逐文件阶段保留在私有操作记录。沿用请求/已完成任务90天、行为180天保留清理；未终态恢复证据不自动清理。采集故障降级，表单正文、凭证和本机路径不得进入这些事件。

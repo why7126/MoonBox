@@ -1,0 +1,27 @@
+{
+  "sandboxes": [
+    {
+      "own_workspace_writable": true,
+      "root_readonly": true,
+      "git_readonly": true,
+      "no_peer_mount": true,
+      "no_database_mount": true,
+      "no_docker_socket": true,
+      "no_platform_credentials": true,
+      "non_root": true,
+      "network_denied": true
+    },
+    {
+      "own_workspace_writable": true,
+      "root_readonly": true,
+      "git_readonly": true,
+      "no_peer_mount": true,
+      "no_database_mount": true,
+      "no_docker_socket": true,
+      "no_platform_credentials": true,
+      "non_root": true,
+      "network_denied": true
+    }
+  ],
+  "boundary": "synthetic filesystem/network container checks only; not platform Codex credential execution"
+}

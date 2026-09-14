@@ -3,7 +3,7 @@ purpose: 数据库兼容测试矩阵
 content: 数据库兼容范围、测试环境、Schema/迁移验证、CRUD、查询、事务、类型映射、性能、安全、CI 门禁和初始化生成规则
 update_method: 项目初始化时由用户输入参数生成；数据库类型、兼容目标、迁移策略、测试框架、部署环境或质量门禁变化时更新；后续由 AI 辅助更新并经人工 Review
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-06-27 08:44:18
+updated_at: 2026-09-08 14:50:39
 owner: MoonBox
 status: draft
 note: 适用于 MoonBox 项目
@@ -253,3 +253,49 @@ AI Agent 在处理数据库测试矩阵时必须：
 - `compatibility/database/migration-rules.md`
 - `MoonBox` 下的实际 migration 文件
 - `tests/` 下的数据库相关测试
+
+
+## REQ-0025 Chat首批矩阵
+
+SQLite和临时MySQL 8.2.0均通过src/backend/tests/test_chat.py的9例：迁移重复执行、CRUD、空间/所有者权限、有效期、worker双并发抢占、fencing、去重、终态保护、断点重放、未知状态保锁及认证摘要。MySQL测试只接受独立CHAT_TEST_DATABASE_URL，绝不复用业务DATABASE_URL；测试会删除自己的表，只能针对专用空库。MySQL 8.4正式目标仍待验证。
+
+REQ-0025第二批：SQLite和独立MySQL 8.2.0各13例通过，新增空间目录权限、消息历史权限、用户/空间额度回滚、终态幂等结算、同会话并发入队只产生一次预留。MySQL 8.4未验证；一次httpx测试客户端弃用提示与Chat行为无关。
+
+REQ-0025执行增量：SQLite Chat16例+协议7例+工作区5例+既有API20例，共48通过；真实模型用例默认skip，显式运行1例通过（包含两轮）。MySQL 8.2.0 Chat16通过、真实模型用例skip；8.4未验证。
+
+Chat本轮矩阵：SQLite后端39通过、2个显式外部探针默认跳过；MySQL8.2.0专用空库26通过、真实模型探针跳过，临时容器已移除。覆盖16张受管表、关联撤权、immutable快照、重试/停止结算、治理写权限、观测降级及当前工作区历史删除。MySQL8.4生产版本仍待配置验证。
+
+最终增量复核：SQLite后端41通过、MySQL8.2.0 Chat28通过；新增授权停止事件关联和输出超限显式提示/中止测试。前述39/26为较早检查点，最终结果以本段为准。
+
+
+### Chat恢复与清理补验（2026-09-09）
+
+REQ-0025受控验证新增独占进程组守护、可信副本清理回调和失败重试，清理状态仍受当前空间权限控制。无DB结构或API字段变更。MySQL 8.2独立容器32 passed/1 skipped，SQLite后端回归46 passed/1 skipped，新增清理权限聚焦2 passed。非root只读镜像重启后保留unknown活动锁，不自动重领。真实Codex线程历史删除通过，但实际备份适配、正式平台配置与模型容器执行未完成；证据见openspec/changes/add-chat-workbench-codex/evidence/recovery-cleanup/，不代表正式发布。
+
+
+### REQ-0025推荐组合增量（2026-09-09）
+
+新增app/chat/backup.py本地SQLite适配：业务库之外的deletions.sqlite保存identity（数据库归属）、deletions（会话删除意图）和backups（副本摘要清单）。不增加业务库表字段，不改变MySQL业务schema；SQLite恢复不代表MySQL/S3恢复通过。在线一致性备份、独立删除日志、离线恢复重放、旧任务unknown隔离、清理库存验证和明确副本物理删除已测试。恢复账本仍需可信对账；日志不允许随旧业务库回滚。
+
+新增ContainerAppServer及隔离worker的container执行方式。模型工具无法读取认证、业务DB或Docker socket；实际双轮/同线程恢复/停止及后端claim、Diff持久化和用量结算通过。专用seccomp允许嵌套用户命名空间所需调用，保留非root和能力清空，不宣称达到虚拟机隔离强度。正常平台仍关闭发送；部署入口和限制见docs/02-deployment.md，证据见Change evidence/recommended-deployment/。
+
+本批最终兼容回归：后端51 passed/3 skipped，独立MySQL 8.2矩阵33 passed/1 skipped；SQLite本地备份4项通过。所有跳过的显式真实测试均与单独运行证据区分，详见Change evidence/recommended-deployment/verification.json。
+
+
+### 终态并发释放补充（2026-09-09）
+
+REQ-0025并发释放返修：SQLite增列/重复迁移、终态预留补偿、迟到结算与新轮次并存、两个补偿事务竞争通过；MySQL 8.2独立矩阵36 passed/1 skipped，同样覆盖旧结构迁移和竞争。concurrency_released使用INTEGER默认0，不依赖数据库专有布尔类型。
+
+
+### 执行进程计量范围补充（2026-09-09）
+
+计量范围与运行中撤权增量：SQLite42 passed/1 skipped（含workspace），MySQL8.2独立矩阵39 passed/1 skipped；累计值降低的恢复进程仍按本轮实际计量，未知用量和旧scope保持预留。无新DDL，不改变SQLite/MySQL差异边界。
+
+
+2026-09-09单机常驻策略：MySQL8.2矩阵加入显式unlimited配额、零Token预留实际结算、同会话互斥与无删除截止时间用例，43 passed/1 skipped。未改变业务schema；正式单机部署仍选择SQLite。
+
+### REQ-0022 本地项目治理
+
+2026-09-11：独立MySQL 8.2.0临时容器，`governance_mysql_matrix.py`执行13项测试通过，包含候选/应用/锁迁移、唯一键、真实文件回写、幂等、冲突、断电恢复与未知外部改动保护；测试数据库与业务库隔离，结束后删除。SQLite同组通过。数据库时间采用UTC ISO字符串，状态为字符串，项目fencing为BigInteger，幂等键SHA-256避免排序规则大小写差异。DDL编译检查与真实MySQL运行分别记录；新加文档保存测试尚需追加矩阵。此结果不等于生产升级验收。
+
+同日增量复核：治理MySQL矩阵18项通过，补充文档保存队列、读取期间写入完成与过期数据库事务重入；SQLite后端聚焦37项通过。

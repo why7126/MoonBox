@@ -1,0 +1,133 @@
+sprint_id: sprint-004
+status: completed
+lifecycle_stage: archive
+start_date: 2026-08-31 08:39:23
+end_date: 2026-09-14 08:39:23
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0023-product-workbench-modern-ops-visual-system
+  - REQ-0024-markdown-editor-human-edit-permission-matrix
+  - REQ-0025-chat-workbench
+bugs: []
+estimated_story_points: 32
+estimated_person_days: 32
+fix_buffer_person_days: 0
+capacity_usage: 1.0667
+created_at: 2026-08-31 08:39:23
+updated_at: 2026-09-14 00:06:11
+capacity_person_days: 30
+fix_buffer_ratio: 0
+capacity_gate:
+  status: warning
+  estimated_person_days: 32
+  capacity_person_days: 30
+  capacity_usage: 1.0667
+  note: 按当前容量重新计算；低于30%的剩余缓冲需提示风险。
+scope_estimates:
+  - id: REQ-0023-product-workbench-modern-ops-visual-system
+    change: update-product-workbench-modern-ops-visual-system
+    requirement: REQ-0023-product-workbench-modern-ops-visual-system
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 产品工作台现代 Ops 视觉系统升级涉及品牌分层、设计 token、字体体系、核心组件规范、深浅主题、原型驱动 UI Gate、需求中心和管理后台共用 Shell 视觉一致性；跨 UI 设计系统与多个高频工作台区域，按 XL=8 人天估算。
+  - id: add-ui-reference-replication-governance
+    change: add-ui-reference-replication-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：建立 UI 参考稿复刻前置契约与分批验收门禁，降低 REQ-0023 后续同类 UI 返修成本
+  - id: enforce-css-content-ascii-escape
+    change: enforce-css-content-ascii-escape
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：CSS content 非 ASCII 符号统一使用 escape 写法，涉及 UI 规则、设计系统校验脚本、OpenSpec 和治理日志；不触碰业务 src，按 S=1 人天估算。
+  - id: optimize-workflow-sync-observability-status-boundary
+    change: optimize-workflow-sync-observability-status-boundary
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：收紧 Workflow Sync Frontmatter 状态解析边界，避免嵌套 product_data_collection_observability.status 被误识别为主状态；影响脚本和单元测试，不触碰业务 src。
+  - id: REQ-0024-markdown-editor-human-edit-permission-matrix
+    change: update-markdown-editor-human-edit-permission-matrix
+    requirement: REQ-0024-markdown-editor-human-edit-permission-matrix
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Markdown 编辑器人工编辑权限矩阵涉及前台需求中心文档能力对象、后端保存授权校验、验收中 tasks.md checkbox-only、OpenSpec Change 文档边界、前端渲染分支、测试与产品数据采集观测声明；作为 REQ-0021 refinement 的单个权限能力闭环，按 M=3 人天估算。
+  - id: apply-tilesfst-local-session-jsonl-governance
+    change: apply-tilesfst-local-session-jsonl-governance
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理优化：补齐 AI Usage 本地 session JSONL 自动发现、隐私边界、历史回填和测试门禁；不触碰业务 src，按 S=1 人天估算。
+  - id: REQ-0025-chat-workbench
+    change: add-chat-workbench-codex
+    requirement: REQ-0025-chat-workbench
+    size: XXL
+    story_points: 13
+    estimated_person_days: 13
+    rationale: Chat 工作台真实 Codex 闭环：会话与上下文持久化3人天、执行接入和恢复中止3人天、Ops页面与动作族3人天、权限额度容量和部署2人天、双数据库与真实Diff及视觉验收2人天；合计XXL=13人天。接入路线未验证，估算存在上浮风险，需保留review RC-001至RC-004门禁。
+  - id: unify-apply-continuous-execution
+    change: unify-apply-continuous-execution
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 统一两份 apply 技能的连续执行、暂停、完成和续接契约，补齐治理校验与回归验证；不涉及业务实现，估算1人天。
+  - id: enforce-apply-stop-decision
+    change: enforce-apply-stop-decision
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 用户授权优化apply停止判定、依赖处理及行为轨迹验收；仅治理规则与脚本，估算1人天。
+  - id: repair-change-identity-uniqueness
+    change: repair-change-identity-uniqueness
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 用户授权修复初建与强化身份冲突，补齐唯一性校验与治理证据；估算1人天，保留已有容量。
+  - id: enhance-ui-reference-replication-action-matrix
+    change: enhance-ui-reference-replication-action-matrix
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 补登记已归档的动作矩阵强化，与初建分开追溯；S=1人天为治理补录估算，并非历史实际工时。
+changes:
+  - update-product-workbench-modern-ops-visual-system
+  - add-ui-reference-replication-governance
+  - enforce-css-content-ascii-escape
+  - optimize-workflow-sync-observability-status-boundary
+  - update-markdown-editor-human-edit-permission-matrix
+  - apply-tilesfst-local-session-jsonl-governance
+
+  - add-chat-workbench-codex
+  - unify-apply-continuous-execution
+  - enforce-apply-stop-decision
+  - repair-change-identity-uniqueness
+  - enhance-ui-reference-replication-action-matrix
+knowledge_intake:
+  source: docs/knowledge-base/retrospectives/sprint-003-retrospective.md
+  action_ids:
+    - S3-A004
+    - S3-A005
+  applications:
+    - action_id: S3-A004
+      requirement: REQ-0025-chat-workbench
+      coverage: 动作族、selector、modal及样式证据；AC-XCUT-006与AC-PROTOTYPE-001至008
+      boundary: 仅承接本需求验收方法，不宣称通用模板行动项完成
+    - action_id: S3-A005
+      requirement: REQ-0025-chat-workbench
+      coverage: 只读挂载、可写目录、失败反馈与草稿保留；AC-XCUT-007
+      boundary: 仅承接执行环境验收，不创建额外治理需求
+  other_open_actions:
+    - id: S3-A001
+      disposition: 本轮不新增范围；已有相关会话归因治理Change，是否完成由其证据单独判断
+    - id: S3-A002
+      disposition: 非Chat交付必需，本次不新增Fact Sheet治理范围
+    - id: S3-A003
+      disposition: 非Chat交付必需，本次仅区分规划与验收结果，不修改历史报告治理
+    - id: S3-A006
+      disposition: 非Chat交付必需，本次不处理历史归档噪音

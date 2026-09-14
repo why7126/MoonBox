@@ -72,8 +72,8 @@ Flags：`--severity blocker|critical|high|medium|low`（单条时；拆分时按
 bug_id: BUG-0001-example
 status: captured
 created_at: YYYY-MM-DD HH:mm:ss
-updated_at: 2026-08-15 09:50:00
-severity_hint: high
+updated_at: 2026-09-12 17:46:39
+severity: high
 environment: local|docker|prod
 related_requirement:
 related_bug:
@@ -125,3 +125,5 @@ done
 - Exit code **MUST** be `0`
 - Print summary **Workflow Sync Report**（多条时注明共 N 条）；use `--output detail` only for debugging
 - Do **not** hand-edit `sprint.md` Scope marker blocks
+
+分级元数据遵循 `rules/document-governance.md` 的“Issue 分级元数据”：REQ 使用 priority，BUG 使用 severity，写入 Frontmatter；trace 为当前事实源，主文档与 capture 同步，初判依据留正文。

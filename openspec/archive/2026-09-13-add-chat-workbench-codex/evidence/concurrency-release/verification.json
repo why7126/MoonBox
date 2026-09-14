@@ -1,0 +1,40 @@
+{
+  "migration_repaired_old_terminal_slot": true,
+  "old_unverified_tokens_preserved": true,
+  "old_environment_expired_before_stop_confirmation": true,
+  "fresh_environment_real_stop_after_tool_started": true,
+  "stopped_and_followup_survive_refresh": true,
+  "followup_send_completed": true,
+  "turns": [
+    {
+      "status": "stopped",
+      "error_code": null,
+      "reservation": "settled",
+      "actual_tokens": 10642,
+      "concurrency_released": 1
+    },
+    {
+      "status": "completed",
+      "error_code": null,
+      "reservation": "settled",
+      "actual_tokens": 348,
+      "concurrency_released": 1
+    }
+  ],
+  "active_runs": 0,
+  "page_errors": 0,
+  "normal_backend_rebuilt": true,
+  "validation": {
+    "sqlite_focused": "38 passed, 1 skipped",
+    "backend_regression": "59 passed, 5 skipped; 2 process probes blocked by sandbox ps permission, then 2 passed with permission",
+    "mysql_8_2": "36 passed, 1 skipped"
+  },
+  "health": {
+    "backend": 200,
+    "web": 200,
+    "chat": 200,
+    "deployed_migration": true
+  },
+  "governance": "passed",
+  "billing_evidence_note": "旧版本跨进程扣减存在少计风险；此处数值仅保留历史观测，不再作为计量准确性证明。更正后的验证见evidence/usage-scope/。"
+}

@@ -2,10 +2,8 @@
 bug_id: BUG-0004-frontend-user-menu-change-password-not-implemented
 status: done
 lifecycle_stage: archive
-severity: medium
-priority: P2
 created_at: 2026-08-11 16:07:33
-updated_at: 2026-08-13 22:48:26
+updated_at: 2026-09-12 22:27:53
 related_requirement:
 related_bug:
 related_change: fix-frontend-user-menu-change-password
@@ -14,6 +12,7 @@ openspec_changes:
   - change_id: fix-frontend-user-menu-change-password
     type: fix
     status: archived
+severity: medium
 ---
 
 # BUG-0004 前台用户菜单栏修改密码入口未实现

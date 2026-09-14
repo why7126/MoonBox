@@ -2,11 +2,11 @@
 req_id: REQ-0015-login-password-visibility-toggle
 status: archived
 created_at: 2026-08-11 21:54:28
-updated_at: 2026-08-13 22:45:28
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 反馈
-priority_hint: P1
 parent_requirement: REQ-0002-login-page
+priority: P1
 ---
 
 # 一句话

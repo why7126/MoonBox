@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
+import sys
+from .constants import ROOT, ISSUE_DONE_STATUSES
+from .execution import EVENTS, sync_lock, transition
 from dataclasses import dataclass, field, replace
 
 from .collect import (
@@ -37,6 +41,7 @@ from .patch import (
     patch_sprint_md,
     patch_sprint_yaml_scope,
 )
+from .classification import sync_classification
 from .constants import ROOT
 
 
@@ -213,7 +218,14 @@ class SyncEngine:
         self.dry_run = dry_run
         self.check = check
 
-    def run(
+    def run(self, **kwargs) -> SyncReport:
+        with sync_lock(ROOT):
+            try:
+                return self._run(**kwargs)
+            except (ValueError, OSError) as exc:
+                return SyncReport(event=kwargs.get("event"), errors=[str(exc)])
+
+    def _run(
         self,
         *,
         sprint_id: str | None = None,
@@ -266,6 +278,38 @@ class SyncEngine:
         change_records = {
             cid: load_change_record(cid, issues, openspec_data) for cid in sorted(change_ids)
         }
+        if event in EVENTS:
+            record = change_records.get(change_id or "")
+            if not record or not sprint or change_id not in sprint.changes:
+                report.errors.append("Execution requires an explicit Change in Sprint scope")
+                return report
+            linked = [issue for issue in issues.values() if
+                      issue.related_change == change_id or any(
+                          entry.get("change_id") == change_id for entry in issue.openspec_changes)]
+            declared = [record.trace.get(key) for key in ("bug_id", "requirement_id", "req_id") if record.trace.get(key)]
+            if any(value not in {issue.issue_id for issue in linked} for value in declared):
+                report.errors.append("Declared Issue has no reciprocal Change link")
+            for issue in linked:
+                if issue.classification_error:
+                    report.errors.append(issue.classification_error)
+                if issue.trace_status in ISSUE_DONE_STATUSES:
+                    report.errors.append("Closed Issue cannot restart execution")
+                elif issue.trace_status != "in_sprint" or issue.issue_id not in sprint.requirements + sprint.bugs:
+                    report.errors.append("Linked Issue is not formally in Sprint")
+                from .collect import parse_frontmatter, read_text
+                if parse_frontmatter(read_text(issue.path / "trace.md")).get("iteration") != sprint.sprint_id:
+                    report.errors.append("Issue iteration differs from Sprint")
+                if issue.kind == "bug":
+                    gate = subprocess.run([sys.executable, str(ROOT / "scripts/validate-root-cause-evidence.py"),
+                                           "--bug", issue.issue_id], capture_output=True, text=True)
+                    if gate.returncode:
+                        report.errors.append("BUG root-cause evidence gate failed: " + issue.issue_id)
+            if report.errors:
+                return report
+            before = dict(record.trace)
+            record.trace = transition(ROOT, record, event, write=not (self.dry_run or self.check))
+            if before != record.trace:
+                report.updated.append(PatchResult("openspec/changes/" + record.change_id + "/trace.md", True, event))
         derived_changes = {cid: derive_change_state(rec) for cid, rec in change_records.items()}
 
         issue_ids = set(sprint.requirements if sprint else []) | set(sprint.bugs if sprint else [])
@@ -303,10 +347,23 @@ class SyncEngine:
                 report.errors.extend(result.blockers)
             return report
 
+        classification_ids = {iid for iid in (req_id, bug_id) if iid in issues}
+        if change_id:
+            classification_ids.update(iid for iid, value in derived_issues.items() if value.linked_change == change_id)
+        if event and event.startswith("sprint.") and sprint:
+            classification_ids.update(iid for iid in issue_ids if iid in issues)
+        for iid in classification_ids:
+            if issues[iid].classification_error:
+                report.errors.append(issues[iid].classification_error)
+        if report.errors:
+            return report
+
         write = not (self.dry_run or self.check)
         subdocument_write = write or (apply_issue_subdocuments and not self.dry_run and not self.check)
 
         planned: list[PatchResult] = []
+        for iid in sorted(classification_ids):
+            planned.extend(sync_classification(issues[iid], write=write))
         if sprint and event in {"req.opsx", "bug.opsx"} and change_id:
             focus_issue_id = req_id or bug_id
             planned.append(
@@ -377,7 +434,7 @@ class SyncEngine:
                 should_sync_subdocuments = iid == req_id
             elif event and event.startswith("bug."):
                 should_sync_subdocuments = iid == bug_id
-            elif event in {"opsx.apply", "opsx.modify", "opsx.archive"}:
+            elif event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.archive"}:
                 should_sync_subdocuments = bool(change_id and derived.linked_change == change_id)
             elif event == "sprint.archive":
                 should_sync_subdocuments = bool(sprint and iid in {*sprint.requirements, *sprint.bugs})
@@ -406,13 +463,14 @@ class SyncEngine:
             )
             planned.append(
                 patch_registry_entry(
-                    registry, issue, derived, sprint, write=write
+                    registry, issue, derived, sprint, write=write,
+                    sync_classification_fields=iid in classification_ids
                 )
             )
             if (
                 (event and event.startswith("req.") and iid == req_id)
                 or (event and event.startswith("bug.") and iid == bug_id)
-                or (event in {"opsx.apply", "opsx.modify", "opsx.archive"} and change_id and derived.linked_change == change_id)
+                or (event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.archive"} and change_id and derived.linked_change == change_id)
                 or (event == "sprint.propose" and iid in {req_id, bug_id})
             ):
                 planned.append(

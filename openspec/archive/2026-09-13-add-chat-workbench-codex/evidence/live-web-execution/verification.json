@@ -1,0 +1,106 @@
+{
+  "runtime": "codex-cli 0.153.4",
+  "deployment": "loopback native API + built Web + independent worker",
+  "business_responses_mocked": false,
+  "native_isolation": {
+    "credential_denied": true,
+    "database_denied": true,
+    "peer_denied": true,
+    "workspace_read": true,
+    "git_write_denied": true,
+    "network_denied": true
+  },
+  "readonly_write_denied": true,
+  "cleanup_pending": false,
+  "same_thread_after_worker_restart": true,
+  "turns": [
+    {
+      "status": "completed",
+      "error_code": null,
+      "reservation": "settled",
+      "actual_tokens": 33873
+    },
+    {
+      "status": "completed",
+      "error_code": null,
+      "reservation": "settled",
+      "actual_tokens": 2489
+    },
+    {
+      "status": "stopped",
+      "error_code": null,
+      "reservation": "settled",
+      "actual_tokens": 28778
+    },
+    {
+      "status": "stopped",
+      "error_code": "usage_unavailable",
+      "reservation": "reserved",
+      "actual_tokens": null
+    }
+  ],
+  "chat_request_logs_count": 1975,
+  "usage_events_count": 6,
+  "task_traces_count": 4,
+  "task_trace_spans_count": 16,
+  "trace_request_linked": true,
+  "unique_events": true,
+  "cumulative_diff_correct": true,
+  "first": {
+    "real_login": true,
+    "real_send": true,
+    "page_reload": true,
+    "completed": true,
+    "actual_file": true,
+    "diff": true,
+    "other_actor_denied": true,
+    "pageerrors": []
+  },
+  "second": {
+    "real_login": true,
+    "real_send": true,
+    "page_reload": true,
+    "completed": true,
+    "actual_file": true,
+    "diff": true,
+    "other_actor_denied": true,
+    "pageerrors": []
+  },
+  "stop": {
+    "real_stop": true,
+    "terminal_confirmed": true,
+    "refresh_restored": true,
+    "actual_file_preserved": true,
+    "pageerrors": []
+  },
+  "restart-active": {
+    "real_stop": true,
+    "terminal_confirmed": true,
+    "refresh_restored": true,
+    "actual_file_preserved": true,
+    "pageerrors": []
+  },
+  "temporary_credentials_removed": true,
+  "test_repository_removed": true,
+  "test_database_removed": true,
+  "services_stopped": true,
+  "port_released": true,
+  "formal_execution_enabled": false,
+  "known_limitations": [
+    "One interrupted turn has no authoritative usage; its reservation was held until disposal of the entire test database.",
+    "Active worker restart tested with SIGTERM; abrupt worker loss is covered by recovery/fencing unit tests.",
+    "Browser stop observation initially timed out; reconnected to the same turn without resubmission."
+  ],
+  "backend_tests": {
+    "passed": 45,
+    "skipped": 2,
+    "seconds": 13.42
+  },
+  "web_tests": {
+    "passed": 28,
+    "files": 7
+  },
+  "openapi_schema_unchanged": true,
+  "governance_checks": "passed",
+  "workflow_sync": "dry-run: errors=0, warnings=0, blockers=0; overall acceptance pending"
+}

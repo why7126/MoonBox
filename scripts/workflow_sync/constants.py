@@ -44,6 +44,8 @@ ISSUE_SCOPED_EVENTS = frozenset(
 CHANGE_SCOPED_EVENTS = frozenset(
     {
         "opsx.propose",
+        "opsx.start",
+        "opsx.progress",
         "opsx.apply",
         "opsx.modify",
         "opsx.archive",

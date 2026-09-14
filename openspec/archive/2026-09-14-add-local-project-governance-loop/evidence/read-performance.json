@@ -1,0 +1,24 @@
+{
+  "mode": "local-filesystem-comparison-not-http",
+  "files": 1002,
+  "snapshot_ms": 817.16,
+  "samples": [
+    {
+      "materializations": 2,
+      "materialize_read_cleanup_ms": 894.09
+    },
+    {
+      "materializations": 1,
+      "materialize_read_cleanup_ms": 569.07
+    },
+    {
+      "materializations": 2,
+      "materialize_read_cleanup_ms": 1533.9
+    },
+    {
+      "materializations": 1,
+      "materialize_read_cleanup_ms": 720.22
+    }
+  ],
+  "scope": "Same stable snapshot; excludes DB authorization and HTTP queue; no claim for original 20.81s"
+}

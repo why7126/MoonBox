@@ -1,0 +1,191 @@
+{
+  "source": "observed",
+  "viewport_checks": [
+    {
+      "width": 1440,
+      "dialogWidth": 840,
+      "maxHeight": "880px",
+      "overflowY": "auto",
+      "buttonBottom": 847.078125,
+      "viewportHeight": 1000
+    },
+    {
+      "width": 390,
+      "dialogWidth": 342,
+      "maxHeight": "742.72px",
+      "overflowY": "auto",
+      "buttonBottom": 764.5,
+      "viewportHeight": 844
+    }
+  ],
+  "objects": [
+    {
+      "id": "REQ-0001-req",
+      "files": [
+        "issues/requirements/plan/REQ-0001-req/capture.md",
+        "issues/requirements/plan/REQ-0001-req/trace.md",
+        "issues/requirements/_registry.yaml",
+        "issues/requirements/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    },
+    {
+      "id": "BUG-0001-bug",
+      "files": [
+        "issues/bugs/plan/BUG-0001-bug/capture.md",
+        "issues/bugs/plan/BUG-0001-bug/trace.md",
+        "issues/bugs/_registry.yaml",
+        "issues/bugs/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    }
+  ],
+  "requests": [
+    {
+      "status": 202,
+      "operation_id": "52fa16ba-3242-419a-85cf-37d93cd93253",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "94dce677-9a55-432a-a98d-f58a4253e822"
+    },
+    {
+      "status": 200,
+      "operation_id": "52fa16ba-3242-419a-85cf-37d93cd93253",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "b20b0b22-532c-4ad2-8033-45618269a67b"
+    },
+    {
+      "status": 200,
+      "operation_id": "52fa16ba-3242-419a-85cf-37d93cd93253",
+      "state": "applied",
+      "object_id": "REQ-0001-req",
+      "request_id": "c9f4a0d0-8c46-49ad-9fbe-629049a97239"
+    },
+    {
+      "status": 503,
+      "operation_id": null,
+      "state": null,
+      "object_id": null,
+      "request_id": "ab594d8f-6504-4056-9dde-4839e12b786f"
+    },
+    {
+      "status": 202,
+      "operation_id": "2c965d03-bd65-4fca-b927-8b491b8b0887",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "176f8248-76b5-4f79-850b-27692288ab8a"
+    },
+    {
+      "status": 200,
+      "operation_id": "2c965d03-bd65-4fca-b927-8b491b8b0887",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "ce051ba1-f3a2-4ad0-8a7d-2a5e6fcba7cd"
+    },
+    {
+      "status": 200,
+      "operation_id": "2c965d03-bd65-4fca-b927-8b491b8b0887",
+      "state": "applied",
+      "object_id": "BUG-0001-bug",
+      "request_id": "d814f36a-9077-483d-91da-ea2f2c646561"
+    }
+  ],
+  "grading": [
+    {
+      "label": "Capture 优先级",
+      "width": 790,
+      "buttons": [
+        {
+          "text": "P0",
+          "selected": "false",
+          "width": 191.5,
+          "scrollWidth": 190,
+          "clientWidth": 190,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "P1",
+          "selected": "false",
+          "width": 191.5,
+          "scrollWidth": 190,
+          "clientWidth": 190,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "P2",
+          "selected": "false",
+          "width": 191.5,
+          "scrollWidth": 190,
+          "clientWidth": 190,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "P3",
+          "selected": "true",
+          "width": 191.5,
+          "scrollWidth": 190,
+          "clientWidth": 190,
+          "color": "rgb(159, 178, 222)",
+          "background": "rgba(143, 167, 216, 0.1)"
+        }
+      ]
+    },
+    {
+      "label": "Capture 严重性",
+      "width": 292,
+      "buttons": [
+        {
+          "text": "致命",
+          "selected": "false",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "严重",
+          "selected": "true",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(216, 172, 85)",
+          "background": "color(srgb 0.847059 0.67451 0.333333 / 0.16)"
+        },
+        {
+          "text": "高",
+          "selected": "false",
+          "width": 92,
+          "scrollWidth": 90,
+          "clientWidth": 90,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "中",
+          "selected": "false",
+          "width": 142,
+          "scrollWidth": 140,
+          "clientWidth": 140,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        },
+        {
+          "text": "低",
+          "selected": "false",
+          "width": 142,
+          "scrollWidth": 140,
+          "clientWidth": 140,
+          "color": "rgb(152, 160, 179)",
+          "background": "rgb(15, 19, 32)"
+        }
+      ]
+    }
+  ],
+  "no_tooltip_or_ready_container": true,
+  "touch_description": "严重：核心功能严重受损，或存在重大数据、安全影响"
+}

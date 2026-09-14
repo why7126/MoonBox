@@ -1,13 +1,14 @@
 ---
 change_id: add-ui-reference-replication-governance
 change_type: update
-status: applied
+status: archived
+lifecycle_stage: archive
 sprint: sprint-004
 source_requirement: null
 source_bug: null
 owner: MoonBox 产品团队
 created_at: 2026-09-01 14:23:52
-updated_at: 2026-09-01 14:23:52
+updated_at: 2026-09-13 23:45:17
 ---
 
 # Trace
@@ -38,3 +39,7 @@ updated_at: 2026-09-01 14:23:52
 - `python scripts/validate-sprint-scope.py sprint-004`：通过。
 - `python scripts/sync-workflow-status.py --event opsx.apply --change add-ui-reference-replication-governance --sprint auto`：通过，解析到 `sprint-004`，Updated 2，Errors 0。
 - AI Usage Hook：已运行，返回 `warning/unavailable`，原因是当前会话无可持久化 command-run token 事件。
+
+## 身份与归档状态纠正（2026-09-13 16:00:41）
+
+原初建与强化均使用 `add-ui-reference-replication-governance`；本次保留初建身份，2026-09-02 强化独立为 `enhance-ui-reference-replication-action-matrix`。本记录是治理纠正时间，不代表实际归档时间。原 trace 状态为 applied，强化另有 lifecycle_stage: change；现按既有归档目录同步 archived/archive。原实施与验证记录保留，旧 ID 命令按当时身份解释。修正前文件校验和见 `openspec/archive/2026-09-13-repair-change-identity-uniqueness/evidence/before-sha256.json`。

@@ -433,6 +433,9 @@ def init_database() -> None:
                     continue
                 raise
 
+    from app.chat.schema import migrate
+    migrate(engine)
+
 
 def validate_runtime_database() -> None:
     settings.validate_database()

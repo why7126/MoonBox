@@ -2,7 +2,7 @@
 purpose: 部署环境矩阵入口
 content: MoonBox deploy 目录职责、local/prod 环境 ID、Compose/env/script 分工
 created_at: 2026-08-04 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-09-12 21:05:12
 owner: MoonBox 产品团队
 ---
 
@@ -63,3 +63,9 @@ bash deploy/scripts/down.sh prod
 | 本地产品手册预览 | `bash deploy/scripts/up.sh local self-storage-sqlite` 后访问 `http://localhost:${HOST_PORT_MINTLIFY_DOCS:-3001}` |
 | 生产 Docker Compose 部署 | `bash deploy/scripts/up.sh prod external-storage-external-mysql` |
 | 只做配置校验 | `python deploy/scripts/validate-env.py --domain local --environment self-storage-sqlite --env-file deploy/local/self-storage-sqlite.env.example --profile self-hosted-storage` |
+
+
+REQ-0025单机常驻Chat通过根脚本显式`--chat-platform`加载`deploy/docker-compose.chat-platform.yml`，与现有local/prod矩阵入口分开；实际配置与配对启停见`docs/02-deployment.md`单机常驻章节。
+
+
+常驻Chat启动同时加载governance overlay，默认启用continuous Capture；治理私有目录0700，API源只读、controller写入。环境变量与维护模式差异见docs/02-deployment.md“BUG-0014 常驻Capture与目标环境返修”。

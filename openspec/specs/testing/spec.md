@@ -2,13 +2,14 @@
 purpose: Testing Governance 生效规格
 content: pytest、Vitest、E2E 目录、覆盖率和映射基线
 created_at: 2026-07-29 23:10:00
-updated_at: 2026-07-29 23:10:00
+updated_at: 2026-09-13 23:57:56
 owner: MoonBox 产品团队
 ---
 
 ## Purpose
 
-MoonBox 测试治理定义 pytest、Vitest、E2E 目录、覆盖率和映射基线。
+MoonBox 测试治理定义后端 pytest、前端 Vitest、E2E 目录、覆盖率和测试映射基线，说明测试资产的发现与校验方式。同时汇总 Docker 媒体上传验收的可控测试身份要求，以及 BUG 修复和验收返修的回归测试、替代证据与根因证据关联要求，为交付验证提供统一依据。
+
 ## Requirements
 ### Requirement: 后端测试基线
 

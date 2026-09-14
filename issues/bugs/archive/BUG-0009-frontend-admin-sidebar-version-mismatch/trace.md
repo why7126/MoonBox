@@ -2,14 +2,13 @@
 bug_id: BUG-0009-frontend-admin-sidebar-version-mismatch
 status: done
 created_at: 2026-08-12 14:12:57
-updated_at: 2026-08-13 22:40:16
-severity: medium
-priority: P2
+updated_at: 2026-09-12 22:27:53
 lifecycle_stage: archive
 related_requirement:
 related_bug:
 related_change: fix-frontend-admin-sidebar-version-mismatch
 iteration: sprint-002
+severity: medium
 ---
 
 # BUG-0009 追踪记录

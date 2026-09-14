@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-02 19:12:31
+updated_at: 2026-09-13 23:43:10
 owner: MoonBox 产品团队
 ---
 
@@ -53,6 +53,7 @@ rules/agent-context-budget.md
 
 | 域 | 命令 |
 |---|---|
+| 开发执行 | `/opsx-apply`（`openspec-apply-change` 共用连续执行契约） |
 | 通用探索 | `/explore` |
 | 治理优化 | `/spec-opt`、`/spec-study` |
 | Git 安全 | `/git-check` |
@@ -88,6 +89,8 @@ rules/agent-context-budget.md
 - OpenSpec 文档变更后运行中文优先校验；Mintlify 变更后运行产品手册校验。
 - 完成前运行相关验证；无法运行时在回复中说明原因。
 
+- 两份 apply 技能共用 [Apply 连续执行契约](docs/08-command-execution-order.md#apply-连续执行契约)：分批仅汇报进度，自检修复在当前 apply 内闭环，按硬阻塞、完成门禁和中断续接规则执行。每次final前执行停止前决策；存在可执行任务不得等待“继续”，局部依赖只阻断相关任务；行为验收区分合成回归与真实观察。
+
 ## 工作流同步
 
 状态变化后运行：
@@ -105,3 +108,11 @@ python scripts/promote-issue-stage.py --to archive [--change change-id] [--sprin
 ## 回复要求
 
 回复默认中文。涉及代码必须说明修改路径、影响面、验证结果，以及是否需要同步 API、数据库、UI、部署、安全或客户端生成。
+
+- REQ priority / BUG severity 的 Frontmatter 归属和同步统一遵循 `rules/document-governance.md` 的“Issue 分级元数据”。
+
+Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有效显式值保留，覆盖需明确请求；容量工具为 `scripts/add-sprint-scope-item.py --capacity-person-days`，修改后重算门禁与派生文档。
+
+Change 创建与归档遵循 [Change 身份唯一性](rules/document-governance.md#change-身份唯一性)，创建前检查活动与归档 ID 占用。
+
+本地 `logs/` 取证目录须被 Git 忽略且不得跟踪，归属和证据转存规则见 `rules/directory-structure.md`；保留现有日志，不因目录存在删除数据。

@@ -2,11 +2,11 @@
 req_id: REQ-0012-frontend-requirement-center
 status: archived
 created_at: 2026-08-10 12:47:39
-updated_at: 2026-08-13 22:51:20
+updated_at: 2026-09-12 20:54:40
 recorded_by: product
 source: 产品输入
-priority_hint: P1
 parent_requirement:
+priority: P1
 ---
 
 # 一句话

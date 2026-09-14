@@ -1,0 +1,66 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#执行问题与恢复"
+      ],
+      "tasks": [
+        {
+          "id": "repair-registry-and-css",
+          "state": "pending",
+          "deps": []
+        },
+        {
+          "id": "verify",
+          "state": "pending",
+          "deps": [
+            "repair-registry-and-css"
+          ]
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#视觉证据与用户确认"
+      ],
+      "tasks": [
+        {
+          "id": "ui-confirmation",
+          "state": "pending",
+          "deps": [],
+          "external": "首轮Skeleton用户确认",
+          "blocker_evidence": [
+            "verification.md#视觉证据与用户确认"
+          ]
+        },
+        {
+          "id": "backend",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "compaction",
+      "evidence": [
+        "verification.md#执行问题与恢复"
+      ],
+      "tasks": [
+        {
+          "id": "remaining-implementation",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

@@ -2,13 +2,13 @@
 bug_id: BUG-0012-requirement-registry-changelog-req0017-archive-drift
 status: done
 created_at: 2026-08-15 10:32:44
-updated_at: 2026-08-15 11:49:25
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: governance
 related_requirement: REQ-0017-admin-space-management
 related_bug:
 captured_via: capture
 classification_rationale: 已有需求治理索引与真实归档目录不一致，属于已交付治理资产的状态/路径偏差，按 BUG 记录。
+severity: medium
 ---
 
 # 现象

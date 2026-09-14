@@ -173,12 +173,40 @@ function seedAdminSession() {
   );
 }
 
+// 既有视图断言复用显式授权目录；文档与上下文继续由各测试单独设置。
+function stubFetch(name: string, mock: (input: RequestInfo | URL, init?: RequestInit) => unknown) {
+  const saved = new Map<string, unknown>();
+  const captured: Record<string, unknown>[] = [];
+  vi.stubGlobal(name, (input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(input).includes("/capture-readiness")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ready: true, reason: "" } }) });
+    if (String(input).includes("/captures?") && init?.method === "POST") {
+      const body = JSON.parse(String(init.body));
+      captured.push({ ...body, priority: body.priority || "P2", id: `${body.type === "bug" ? "BUG" : "REQ"}-9000-persisted`, stage: "capture", documents: ["capture.md", "trace.md"], updated_at: "刚刚", action: { command: `${body.type === "bug" ? "/bug-generate" : "/req-generate"} ${body.type === "bug" ? "BUG" : "REQ"}-9000-persisted`, label: body.type === "bug" ? "生成 Bug" : "生成需求", requires_choice: "generation" } });
+      return Promise.resolve({ ok: true, status: 202, json: async () => ({ data: { id: "test-operation", state: "pending" } }) });
+    }
+    if (String(input).endsWith("/projects")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, projects: [{ space_id: "moonbox-platform", repository_id: "moonbox", status: "connected", readonly: false }] } }) });
+    if (String(input).includes("/governance-applications/")) return Promise.resolve({ ok: true, json: async () => ({data: { id: "test-operation", state: "applied" }}) });
+    if ((!init?.method || init.method === "GET") && saved.has(String(input))) return Promise.resolve({ ok: true, json: async () => ({data: saved.get(String(input))}) });
+    return Promise.resolve(mock(input, init)).then(async (response) => {
+      const result = response as { json: () => Promise<{data?: Record<string, unknown>}> };
+      if (!result?.json) return response;
+      const body = await result.json();
+      if (init?.method === "PUT" && body.data?.content && (response as {ok?: boolean}).ok) {
+        saved.set(String(input).replace("/tasks?", "?"), { ...body.data, version: "b".repeat(64) });
+        return { ...result, status: 202, json: async () => ({data: {id: "test-operation", state: "pending"}}) };
+      }
+      if (!String(input).includes("/context")) return { ...result, json: async () => ({...body, data: body.data ? {...body.data, version: "a".repeat(64)} : body.data}) };
+      return { ...result, json: async () => ({ ...body, data: body.data ? { ...body.data, issues: [...captured, ...((body.data.issues || []) as unknown[])], snapshot_revision: JSON.stringify([body.data, captured]) } : body.data }) };
+    });
+  });
+}
+
 beforeEach(() => {
   window.history.replaceState(null, "", "/requirements");
   window.localStorage.clear();
   seedRequirementSession();
   vi.stubGlobal("scrollTo", vi.fn());
-  vi.stubGlobal(
+  stubFetch(
     "fetch",
     vi.fn(() =>
       Promise.resolve({
@@ -198,6 +226,150 @@ afterEach(() => {
 });
 
 describe("RequirementCenterPage", () => {
+  it("keeps per-Change progress and readonly sources in the existing document reader", async () => {
+    const related = ["first-change", "second-change"].map((id,index) => ({id,title:null,stage:"ready-dev",source_kind:"active",task_progress:[index,2],document_entries:[{name:"trace.md",type:"markdown",url:`/api/v1/requirement-center/changes/${id}/documents/trace.md`,capability:{human_editable:false}}]}));
+    const fixture = {...contextFixture,issues:[{...contextFixture.issues[0],current_change:null,related_changes:related,change_warning:"多个 Change，当前项待核实"}, {...contextFixture.issues[1],id:"archived-change",type:"change",stage:"done",priority:""}]};
+    const fetchMock=vi.fn((input)=>Promise.resolve({ok:true,status:200,json:async()=>({data:String(input).includes("/context")?fixture:{content:"# 追溯内容"}})}));stubFetch("fetch",fetchMock);
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByLabelText("显示已完成和归档"));
+    expect(document.querySelectorAll(".rc-card").length).toBe(1);
+    fireEvent.click(screen.getByRole("button", {name:"trace.md"}));
+    await screen.findByRole("heading", {name:"追溯内容"});
+    const details=screen.getByLabelText("Change 追溯属性");fireEvent.click(within(details).getByText("Change 追溯属性"));
+    expect(details.textContent).toContain("first-change · 待开发 · 任务 0/2");
+    expect(details.textContent).toContain("second-change · 待开发 · 任务 1/2");
+    expect(details.textContent).toContain("缺少 Change 中文业务标题");
+    fireEvent.click(within(details).getAllByRole("button", {name:"Change trace.md"})[1]);
+    await waitFor(()=>expect(fetchMock.mock.calls.some(([url])=>String(url).includes("/changes/second-change/documents/trace.md"))).toBe(true));
+  });
+
+  it("renders Change identity and title without replacing Issue identity or actions", async () => {
+    const fixture = {...contextFixture, issues: [{...contextFixture.issues[0],
+      current_change: {id: "identity-change", title: "当前变更中文标题", stage: "ready-dev", source_kind: "active"},
+      related_changes: [{id: "identity-change", title: "当前变更中文标题"}]}]};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true, status:200, json:async()=>({data:fixture})})));
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(<RequirementCenterPage />);
+    const title = await screen.findByRole("button", {name:"当前变更中文标题"});
+    const card = title.closest("article")!;
+    expect(card.getAttribute("data-issue-id")).toBe("REQ-0012");
+    expect(card.querySelector(".rc-change-id-row strong")?.textContent).toBe("identity-change");
+    expect(card.querySelector(".rc-change-id-row button")).toBeNull();
+    fireEvent.click(title);
+    expect(open).toHaveBeenCalledWith("/requirements/REQ-0012", "_blank", "noopener,noreferrer");
+    fireEvent.change(screen.getByPlaceholderText("搜索 ID、标题、文档或负责人"), {target:{value:"identity-change"}});
+    expect(document.querySelectorAll(".rc-card").length).toBe(1);
+    expect(within(card).getByRole("button", {name:/开始开发/})).toBeTruthy();
+  });
+
+  it("keeps unknown Changes out of cards and statistics while retaining scoped diagnostics", async () => {
+    const standalone = {id:"standalone-change",type:"change",title:"独立中文标题",stage:"ready-dev",priority:"",owner:"未分配",documents:["tasks.md"],
+      document_entries:[{name:"tasks.md",type:"markdown",open_mode:"drawer",url:"/api/v1/requirement-center/changes/standalone-change/documents/tasks.md",capability:{readable:true,human_editable:false,task_toggle_only:false}}]};
+    const fixture = {...contextFixture, issues:[contextFixture.issues[0], standalone, {...standalone,id:"unknown-change",stage:"unknown",title:"待核实变更"}]};
+    stubFetch("fetch", vi.fn((input) => Promise.resolve({ok:true,status:200,json:async()=>({data:String(input).includes("/context")?fixture:{content:"# 只读研发任务\n- [ ] 测试"}})})));
+    render(<RequirementCenterPage />);
+    await screen.findByRole("button", {name:"独立中文标题"});
+    fireEvent.click(within(screen.getByLabelText("对象类型筛选")).getByRole("button", {name:"Change"}));
+    expect(document.querySelectorAll(".rc-card").length).toBe(1);
+    expect(screen.queryByText("REQ-0012")).toBeNull();
+    const card = document.querySelector('[data-issue-id="standalone-change"]')!;
+    expect(card.querySelector(".rc-change-id-row")).toBeNull();
+    expect(card.querySelector(".rc-priority-tag")).toBeNull();
+    expect((card.querySelector(".rc-card-actions button") as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByRole("region", {name:"状态待核实"})).toBeNull();
+    expect(document.querySelector('[data-issue-id="unknown-change"]')).toBeNull();
+    expect(screen.getByText("数据异常 · 1 项")).toBeTruthy();
+    expect(screen.getByLabelText("需求中心统计").textContent).toContain("全部对象1");
+    expect(document.querySelector('.rc-data-diagnostics')?.hasAttribute('open')).toBe(false);
+    fireEvent.click(within(card as HTMLElement).getByRole("button", {name:"tasks.md"}));
+    expect(await screen.findByRole("heading", {name:"只读研发任务"})).toBeTruthy();
+    expect(screen.queryByRole("button", {name:"编辑"})).toBeNull();
+  });
+
+  it("shows standalone stage actions, fails closed for writes and opens progress read-only", async () => {
+    const rows = ["ready-dev", "development", "acceptance", "done"].map(stage => ({
+      id: `independent-${stage}`, type: "change", title: `变更${stage}`, stage, priority: "", owner: "产品", documents: ["tasks.md"],
+      action: {label:"阶段动作",command:"/opsx-apply",disabled_reason:stage === "development" ? "" : "当前空间只读"},
+      document_entries: [{name:"tasks.md",type:"markdown",open_mode:"drawer",url:`/api/v1/requirement-center/changes/independent-${stage}/documents/tasks.md`,capability:{readable:true,human_editable:false,task_toggle_only:false}}],
+    }));
+    const fetcher = vi.fn((input) => Promise.resolve({ok:true,status:200,json:async()=>({data:String(input).includes("/context")?{...contextFixture,issues:rows}:{content:"# 当前变更进度\n- [ ] 待完成"}})}));
+    stubFetch("fetch", fetcher);
+    render(<RequirementCenterPage />);
+    await screen.findByRole("button",{name:"变更ready-dev"});
+    for (const [stage,label] of [["ready-dev","开始开发 →"],["acceptance","完成 / 归档 →"]]) {
+      const card = document.querySelector(`[data-issue-id="independent-${stage}"]`)!;
+      const button = within(card as HTMLElement).getByRole("button",{name:label}) as HTMLButtonElement;
+      expect(button.disabled).toBe(true);fireEvent.click(button);
+    }
+    expect(document.querySelector('[data-issue-id="independent-done"] footer button')).toBeNull();
+    fireEvent.click(within(document.querySelector('[data-issue-id="independent-development"]') as HTMLElement).getByRole("button",{name:"查看进度 →"}));
+    expect(await screen.findByRole("heading",{name:"当前变更进度"})).toBeTruthy();
+    expect(screen.queryByRole("button",{name:"编辑"})).toBeNull();
+  });
+
+  it("does not invent standalone acceptance blockers and uses the shared real action entry", async () => {
+    const row = {id:"valid-change",type:"change",title:"验收条件齐备",stage:"acceptance",owner:"产品",priority:"",documents:[],test_progress:[3,3],manual_acceptance_count:0,action:{command:"/opsx-archive valid-change",label:"完成 / 归档",disabled_reason:null}};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})})));
+    render(<RequirementCenterPage />);
+    const button = await screen.findByRole("button",{name:"完成 / 归档 →"});
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByText(/需核对测试与人工验收证据/)).toBeNull();
+    fireEvent.click(button);
+    expect(await screen.findByText("当前仅支持采集需求的生成动作")).toBeTruthy();
+  });
+
+  it("keeps the original title when current Change is ambiguous or has no Chinese title", async () => {
+    const fixture = {...contextFixture, issues:[{...contextFixture.issues[0],current_change:null,change_warning:"多个 Change，当前项待核实"},
+      {...contextFixture.issues[1],current_change:{id:"no-title",title:null}}]};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:fixture})})));
+    render(<RequirementCenterPage />);
+    expect(await screen.findByRole("button", {name:"MoonBox 前台需求中心"})).toBeTruthy();
+    expect(screen.getByText("多个 Change，当前项待核实")).toBeTruthy();
+    expect(screen.getByRole("button", {name:"需求中心真实数据接入"})).toBeTruthy();
+  });
+
+  it.each(["capture", "planning", "review-ready", "approved", "sprint-planning", "ready-dev", "development", "acceptance", "done"])("keeps main document first and existing Sprint visible in %s", async (stage) => {
+    const fixture = {...contextFixture, issues: [
+      {id: "REQ-0998", type: "requirement", title: "需求主文档", stage, priority: "P1", owner: "产品", documents: ["trace.md", "sprint.md", "design.md", "proposal.md", "archive.md", "spec.md", "tasks.md", "requirement.md", "prototype/web/prototype.html"], updated_at: "26/09/12 07:03"},
+      {id: "BUG-0998", type: "bug", title: "缺陷主文档", stage, priority: "P1", owner: "产品", documents: ["trace.md", "sprint.md", "design.md", "proposal.md", "archive.md", "spec.md", "tasks.md", "bug.md"], updated_at: "now"}
+    ]};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok: true, status: 200, json: async () => ({data: fixture})})));
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0998");
+    for (const [id, name] of [["REQ-0998", "requirement.md"], ["BUG-0998", "bug.md"]]) {
+      const card = document.querySelector(`[data-issue-id="${id}"]`)!;
+      expect(card.querySelector(".rc-docs button")?.textContent).toBe(name);
+      expect(card.querySelector(".rc-updated")?.textContent).toBe(id.startsWith("REQ") ? "更新 26/09/12 07:03" : "更新时间未知");
+      expect(Array.from(card.querySelectorAll('[aria-label="常驻文档"] button')).map(node => node.textContent)).toEqual([name, ...(id.startsWith("REQ") ? ["prototype/web/prototype.html"] : []), "sprint.md", "trace.md"]);
+      expect(card.querySelectorAll('.rc-doc-group').length).toBe(["ready-dev", "development", "acceptance", "done"].includes(stage) ? 2 : 1);
+      expect(within(card as HTMLElement).getByRole("button", {name: "sprint.md"})).toBeTruthy();
+      expect(card.querySelectorAll(".rc-docs button").length).toBeGreaterThan(1);
+      const expectedStageDocs = stage === "done" ? ["archive.md", "tasks.md", "spec.md", "design.md", "proposal.md"] : ["development", "acceptance"].includes(stage) ? ["tasks.md", "spec.md", "design.md", "proposal.md"] : stage === "ready-dev" ? ["proposal.md", "spec.md", "design.md", "tasks.md"] : [];
+      expect(Array.from(card.querySelectorAll('[aria-label="阶段文档"] button')).map(node => node.textContent)).toEqual(expectedStageDocs);
+      expect(within(card as HTMLElement).getByRole("button", {name: "sprint.md"})).toBeTruthy();
+    }
+  });
+
+  it.each(["documents", "issue", "action"])("disables the main action using the same %s reason as the card", async (source) => {
+    const reason = source === "documents" ? "缺少 sprint.md" : "前置材料待补齐";
+    const issue = {id: "BUG-0999", type: "bug", title: "阻塞验证", stage: "sprint-planning", priority: "P1", owner: "产品", documents: source === "documents" ? ["trace.md"] : ["trace.md", "sprint.md"], blocked: source === "issue" ? reason : undefined, action: {command: "/bug-opsx BUG-0999-validation", label: "生成 Opsx", disabled_reason: source === "action" ? reason : undefined}, updated_at: "now"};
+    const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({ok: true, status: 200, json: async () => ({data: String(input).includes("/context") ? {...contextFixture, issues: [issue]} : {content: "# 真实文档"}})}));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await screen.findByText("BUG-0999");
+    const button = screen.getByRole("button", {name: "生成 Opsx →"}) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    expect(button.title).toBe(reason);
+    expect(document.querySelector(".rc-blocked")?.textContent?.trim()).toBe(reason);
+    const calls = fetchMock.mock.calls.length;
+    fireEvent.click(button);
+    expect(fetchMock.mock.calls.length).toBe(calls);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", {name: "trace.md"}));
+    expect(await screen.findByRole("heading", {name: "真实文档"})).toBeTruthy();
+  });
+
   it("is routed from the frontend app and renders the 9-stage board", async () => {
     render(<App />);
 
@@ -241,14 +413,14 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ data: contextFixture }),
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     window.history.replaceState(null, "", "/requirements?mock=workflow");
 
     render(<RequirementCenterPage />);
 
     expect(await screen.findByText("DEMO-REQ-CAPTURE-READY")).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context",
+      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
       expect.anything(),
     );
     ["采集池", "规划中", "待评审", "已评审", "迭代规划", "待开发", "研发中", "验收中", "已完成"].forEach((stage) => {
@@ -288,13 +460,13 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ data: contextFixture }),
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
 
     expect(await screen.findByText("REQ-0012")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context",
+      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
       expect.anything(),
     );
     expect(screen.queryByText("DEMO-REQ-CAPTURE-READY")).toBeNull();
@@ -316,7 +488,7 @@ describe("RequirementCenterPage", () => {
     const revokeObjectURLMock = vi.fn();
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: createObjectURLMock });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: revokeObjectURLMock });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     window.history.replaceState(null, "", "/requirements?mock=workflow");
 
     try {
@@ -582,8 +754,8 @@ describe("RequirementCenterPage", () => {
     expect(pageSource).toContain("aria-label={`研发 ${taskProgress[0]}/${taskProgress[1]}`}");
     expect(pageSource).toContain("aria-label={`测试 ${issue.testProgress[0]}/${issue.testProgress[1]}`}");
     expect(pageSource).toContain("aria-label={`人工验收 ${manualProgress[0]}/${manualProgress[1]}`}");
-    expect(pageSource).toContain('aria-label="自动化测试进度"');
-    expect(pageSource).toContain('aria-label="人工验收进度"');
+    expect(pageSource).toContain('openTasksAt(issue, "test")');
+    expect(pageSource).toContain('openTasksAt(issue, "manual")');
     expect(source).not.toContain(".rc-column-body:empty");
     expect(agentFab).toContain("right: 32px;");
     expect(agentFab).toContain("bottom: 28px;");
@@ -684,11 +856,10 @@ describe("RequirementCenterPage", () => {
 
     const developmentCard = document.querySelector('[data-issue-id="DEMO-REQ-DEVELOPMENT"]') as HTMLElement;
     fireEvent.click(within(developmentCard).getByRole("button", { name: "查看进度 →" }));
-    dialog = screen.getByRole("dialog", { name: "查看进度" });
-    expect(within(dialog).getByText("Change 研发进度")).toBeTruthy();
-    expect(dialog.querySelector(".rc-mini-bar")).toBeTruthy();
-    fireEvent.mouseDown(document.querySelector(".rc-action-mask") as HTMLElement);
-    expect(screen.queryByRole("dialog", { name: "查看进度" })).toBeNull();
+    expect(await screen.findByTestId("markdown-drawer")).toBeTruthy();
+    expect(screen.queryByText("Change 研发进度")).toBeNull();
+    fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
+    expect(screen.queryByTestId("markdown-drawer")).toBeNull();
   });
 
   it("locks the action modal style contract against the reference component family", () => {
@@ -774,7 +945,7 @@ describe("RequirementCenterPage", () => {
     expect(source).toContain('emptyTitle: "暂无需求"');
     expect(source).toContain('emptyHint: "从采集池生成需求"');
     expect(source).toContain('emptyDetail: "后会显示在这里"');
-    expect(source).toContain('className={`rc-column-body ${items.length === 0 ? "empty" : ""}`}');
+    expect(source).toContain('className={`rc-column-body ${!isLoadingContext && items.length === 0 ? "empty" : ""}`}');
     expect(source).toContain("stageColumns.map(({ stage, items })");
     expect(source).toContain('className="rc-empty-stage"');
     expect(source).toContain('className="rc-empty-stage-icon"');
@@ -958,7 +1129,7 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
-    vi.stubGlobal(
+    stubFetch(
       "fetch",
       vi.fn(() =>
         Promise.resolve({
@@ -1019,7 +1190,7 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) }));
+    stubFetch("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) }));
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0199");
@@ -1028,11 +1199,11 @@ describe("RequirementCenterPage", () => {
     expect(within(reqCard).getByRole("button", { name: /capture.md/ })).toBeTruthy();
     expect(within(reqCard).getByRole("button", { name: /trace.md/ })).toBeTruthy();
     expect(within(reqCard).queryByRole("button", { name: /acceptance.md/ })).toBeNull();
-    expect(within(reqCard).queryByRole("button", { name: /requirement.md/ })).toBeNull();
+    expect(within(reqCard).getByRole("button", { name: /requirement.md/ })).toBeTruthy();
     expect(within(reqCard).queryByRole("button", { name: /研发 18\/18/ })).toBeNull();
     expect(within(reqCard).getByRole("button", { name: "需求分析" }).getAttribute("title")).toBe("/req-explore REQ-0199");
-    expect(reqCard.querySelector(".rc-docs")?.textContent).toBe("capture.md trace.md");
-    expect(reqCard.querySelector(".rc-doc-separator")?.textContent).toBe(" ");
+    expect(Array.from(reqCard.querySelectorAll(".rc-docs button")).map(node => node.textContent)).toEqual(["requirement.md", "trace.md", "capture.md"]);
+    expect(reqCard.querySelectorAll(".rc-doc-group")).toHaveLength(2);
     const reqCardActionsText = reqCard.querySelector("footer .rc-card-actions")?.textContent || "";
     expect(reqCardActionsText).toContain("生成需求");
     expect(reqCardActionsText).toContain("需求分析");
@@ -1045,13 +1216,8 @@ describe("RequirementCenterPage", () => {
     const bugCard = document.querySelector('[data-issue-id="BUG-0199"]') as HTMLElement;
     expect(within(bugCard).getByRole("button", { name: "Bug 分析" }).getAttribute("title")).toBe("/bug-explore BUG-0199");
     fireEvent.click(within(reqCard).getByRole("button", { name: "需求分析" }));
-    const actionDialog = await screen.findByRole("dialog", { name: "需求分析" });
-    expect(within(actionDialog).getByText("/req-explore REQ-0199")).toBeTruthy();
-    expect(within(actionDialog).getByText(/AI 正在分析上下文/)).toBeTruthy();
-    await waitFor(() => expect(within(actionDialog).getByText("解决方案要点（可选择采纳）")).toBeTruthy());
-    fireEvent.click(within(actionDialog).getByRole("button", { name: "采纳 3/3 项并保留分析 →" }));
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "需求分析" })).toBeNull());
-    expect(screen.getByRole("status").textContent).toContain("已保存分析结论");
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("当前仅支持采集需求的生成动作");
+    expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
   it("keeps action gates for missing documents and acceptance archive entry", async () => {
@@ -1131,7 +1297,7 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
-    vi.stubGlobal(
+    stubFetch(
       "fetch",
       vi.fn(() => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })),
     );
@@ -1179,7 +1345,7 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
-    vi.stubGlobal(
+    stubFetch(
       "fetch",
       vi.fn(() => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })),
     );
@@ -1189,37 +1355,8 @@ describe("RequirementCenterPage", () => {
 
     const reqCard = document.querySelector('[data-issue-id="REQ-9400"]') as HTMLElement;
     fireEvent.click(within(reqCard).getByRole("button", { name: "发起评审 →" }));
-    let reviewDialog = screen.getByRole("dialog", { name: "发起评审" });
-    expect(within(reviewDialog).getByText("/req-review REQ-9400 --approve")).toBeTruthy();
-    expect(within(reviewDialog).getByText("review.md")).toBeTruthy();
-    fireEvent.click(within(reviewDialog).getByRole("button", { name: "发起评审，进入已评审 →" }));
-    let reqApprovedCard = reqCard;
-    await waitFor(() => {
-      reqApprovedCard = document.querySelector('[data-issue-id="REQ-9400"]') as HTMLElement;
-      expect(within(reqApprovedCard).getByRole("button", { name: "加入迭代 →" })).toBeTruthy();
-    });
-    expect(within(reqApprovedCard).queryByRole("button", { name: "发起评审 →" })).toBeNull();
-    const reqJoinButton = within(reqApprovedCard).getByRole("button", { name: "加入迭代 →" });
-    expect(reqJoinButton.getAttribute("title")).toBe("/sprint-propose --req REQ-9400");
-    fireEvent.click(reqJoinButton);
-    const sprintDialog = screen.getByRole("dialog", { name: "加入迭代" });
-    expect(within(sprintDialog).getByText(/正在评估工作量/)).toBeTruthy();
-    await waitFor(() => expect(within(sprintDialog).getByText(/预估工作量/)).toBeTruthy());
-    expect(within(sprintDialog).getByRole("tab", { name: "加入现有迭代" })).toBeTruthy();
-    fireEvent.click(within(sprintDialog).getByRole("button", { name: "关闭加入迭代" }));
-
-    const bugCard = document.querySelector('[data-issue-id="BUG-9400"]') as HTMLElement;
-    fireEvent.click(within(bugCard).getByRole("button", { name: "确认修复 →" }));
-    reviewDialog = screen.getByRole("dialog", { name: "确认修复" });
-    expect(within(reviewDialog).getByText("/bug-review BUG-9400 --approve")).toBeTruthy();
-    fireEvent.click(within(reviewDialog).getByRole("button", { name: "确认修复，进入已评审 →" }));
-    let bugApprovedCard = bugCard;
-    await waitFor(() => {
-      bugApprovedCard = document.querySelector('[data-issue-id="BUG-9400"]') as HTMLElement;
-      expect(within(bugApprovedCard).getByRole("button", { name: "加入迭代 →" })).toBeTruthy();
-    });
-    expect(within(bugApprovedCard).queryByRole("button", { name: "确认修复 →" })).toBeNull();
-    expect(within(bugApprovedCard).getByRole("button", { name: "加入迭代 →" }).getAttribute("title")).toBe("/sprint-propose --bug BUG-9400");
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("当前仅支持采集需求的生成动作");
+    expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
   it("creates a capture card from the reference-style modal", async () => {
@@ -1259,8 +1396,8 @@ describe("RequirementCenterPage", () => {
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "新建 Capture" })).toBeNull());
     expect(screen.getByText("新的采集需求")).toBeTruthy();
     expect(Array.from(document.querySelectorAll(".rc-owner-tag")).some((tag) => tag.textContent === "研发团队")).toBe(true);
-    expect(screen.getByText("更新 刚刚")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain("Capture 已创建");
+    expect(screen.getByText("新的采集需求").closest("article")?.querySelector(".rc-updated")?.textContent).toBe("更新时间未知");
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("Capture 已创建");
   });
 
   it("opens markdown in a right drawer, html in a new tab and routes the floating agent assistant through its action modal", async () => {
@@ -1283,7 +1420,7 @@ describe("RequirementCenterPage", () => {
       .fn()
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# PRD\n正文" } }) });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -1310,11 +1447,8 @@ describe("RequirementCenterPage", () => {
     const reopenedDialog = screen.getByRole("dialog", { name: "Agent 助手" });
     fireEvent.click(within(reopenedDialog).getByRole("button", { name: "完善需求 →" }));
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Agent 助手" })).toBeNull());
-    const actionDialog = screen.getByRole("dialog", { name: "完善需求" });
-    expect(within(actionDialog).getByText("/req-complete REQ-0012")).toBeTruthy();
-    expect(within(actionDialog).getByText("本次将生成 / 更新")).toBeTruthy();
-    fireEvent.click(within(actionDialog).getByRole("button", { name: "生成完善文档 →" }));
-    await waitFor(() => expect(screen.getByRole("status").textContent).toContain("已流转到 待评审"));
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("缺少 capture.md");
+    expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
   it("edits only capture.md in capture stage and guards dirty markdown drawer close", async () => {
@@ -1355,7 +1489,7 @@ describe("RequirementCenterPage", () => {
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "---\nreq_id: REQ-0199\nstatus: captured\n---\n\n# old capture\n\n一句话内容" } }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
 
     render(<RequirementCenterPage />);
@@ -1495,7 +1629,7 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ data: { content: "# trace\n\n```bash\npnpm test\npnpm build\n```" } }),
       });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0202");
@@ -1540,7 +1674,7 @@ describe("RequirementCenterPage", () => {
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "---\nreq_id: REQ-0198\nstatus: captured\n---\n\n# untouched capture" } }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(<RequirementCenterPage />);
@@ -1589,7 +1723,7 @@ describe("RequirementCenterPage", () => {
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "---\nreq_id: REQ-0200\nstatus: captured\n---\n\n# old capture" } }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false);
 
     render(<RequirementCenterPage />);
@@ -1646,7 +1780,7 @@ describe("RequirementCenterPage", () => {
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "---\nreq_id: REQ-0201\nstatus: captured\n---\n\n# 待澄清\n\n- [ ] MVP 是否先支持\n- [x] 已完成事项" } }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0201");
@@ -1714,13 +1848,13 @@ describe("RequirementCenterPage", () => {
         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
       }
       if (init?.method === "PUT") {
-        expect(url).toBe("/api/v1/requirement-center/changes/update-toggle/documents/tasks.md/tasks");
+        expect(url).toBe("/api/v1/requirement-center/changes/update-toggle/documents/tasks.md/tasks?space_id=moonbox-platform&repository_id=moonbox");
         expect(String(init.body)).toContain("- [x] 完成验收复核");
         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# Tasks\n\n- [x] 完成验收复核\n- [x] 保持已完成" } }) });
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { content: "# Tasks\n\n- [ ] 完成验收复核\n- [x] 保持已完成" } }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0203");
@@ -1738,68 +1872,69 @@ describe("RequirementCenterPage", () => {
     expect(await screen.findByText("tasks.md 已保存")).toBeTruthy();
   });
 
-  it("opens tasks progress drawer and validates generation imports", async () => {
+  it("opens task documents and validates generation imports", async () => {
+    stubFetch("fetch", vi.fn((input) => Promise.resolve({ ok: true, status: 200, json: async () => ({data: String(input).includes("/context") ? contextFixture : {content: "# Tasks\n\n## 研发任务\n- [ ] 实现界面\n## 自动化测试\n- [ ] 回归测试\n## 人工验收\n- [ ] 人工签收"}}) })));
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
-
-    fireEvent.click(screen.getAllByRole("button", { name: /研发 0\/36/ })[0]);
-    const tasksDrawer = screen.getByTestId("tasks-drawer");
-    expect(tasksDrawer).toBeTruthy();
-    expect(within(tasksDrawer).getByText("0/36")).toBeTruthy();
-    expect(screen.getByLabelText("研发任务进度").className).toContain("active");
-
-    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
-    fireEvent.click(screen.getByRole("button", { name: "测试 1/3" }));
-    const testTasksDrawer = screen.getByTestId("tasks-drawer");
-    expect(testTasksDrawer).toBeTruthy();
-    expect(screen.getByLabelText("自动化测试进度").className).toContain("active");
-    expect(within(testTasksDrawer).getByText("1/3")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
-    fireEvent.click(screen.getByRole("button", { name: "人工验收 0/1" }));
-    expect(screen.getByTestId("tasks-drawer")).toBeTruthy();
-    expect(screen.getByLabelText("人工验收进度").className).toContain("active");
-    expect(screen.getByText("仍有 1 项需要人工处理")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+    for (const [label, target] of [[/研发 0\/36/, "研发任务"], [/^测试 1\/3$/, "自动化测试"], [/^人工验收 0\/1$/, "人工验收"]] as const) {
+      fireEvent.click(screen.getAllByRole("button", {name: label})[0]);
+      await screen.findByText(`已定位${target}：${target}`);
+      expect(screen.getByTestId("markdown-drawer")).toBeTruthy();
+      expect(screen.queryByTestId("tasks-drawer")).toBeNull();
+      expect(document.querySelector(".rc-task-navigation-target")?.textContent).toBe(target);
+      expect(screen.getByRole("heading", {name: "研发任务"})).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
+    }
     fireEvent.click(screen.getByRole("button", { name: "新建 Capture" }));
     fireEvent.click(within(screen.getByRole("group", { name: "Capture 类型" })).getByRole("button", { name: "◈ Bug" }));
     fireEvent.change(screen.getByLabelText("Capture 标题"), { target: { value: "导入校验 Bug" } });
+    await waitFor(() => expect(screen.queryByText('正在检查Capture写入服务…')).toBeNull());
     fireEvent.click(screen.getByRole("button", { name: "＋ 创建 Capture" }));
-    fireEvent.click(screen.getByRole("button", { name: "生成 Bug →" }));
-    const actionDialog = screen.getByRole("dialog", { name: "生成 Bug" });
-    expect(within(actionDialog).getByText(/\/bug-generate/)).toBeTruthy();
-    expect(within(actionDialog).getByText("bug.md")).toBeTruthy();
-    expect(within(actionDialog).queryByLabelText("导入文件")).toBeNull();
-    fireEvent.click(within(actionDialog).getByRole("button", { name: "生成 Bug，进入规划中 →" }));
-    await waitFor(() => expect(screen.getByRole("status").textContent).toContain("已流转到 规划中"));
+    fireEvent.click(await screen.findByRole("button", { name: "生成 Bug →" }));
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("当前仅支持采集需求的生成动作");
+    expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
-  it("opens the unified progress drawer from acceptance Requirement and Bug progress entries", async () => {
+  it("opens full task documents for both Requirement and Bug without inventing a missing target", async () => {
     window.history.replaceState(null, "", "/requirements?mock=workflow");
     render(<RequirementCenterPage />);
     await screen.findByText("DEMO-REQ-ACCEPTANCE-READY");
+    for (const id of ["DEMO-REQ-ACCEPTANCE-READY", "DEMO-BUG-ACCEPTANCE-BLOCKED"]) {
+      const card = document.querySelector(`[data-issue-id="${id}"]`) as HTMLElement;
+      fireEvent.click(within(card).getByRole("button", {name: /^人工验收/}));
+      expect(await screen.findByTestId("markdown-rendered-preview")).toBeTruthy();
+      expect(document.querySelector("[data-task-navigation]")?.textContent).toMatch(/已定位人工验收|未找到人工验收/);
+      expect(screen.queryByTestId("tasks-drawer")).toBeNull();
+      fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
+    }
+  });
 
-    const reqCard = document.querySelector('[data-issue-id="DEMO-REQ-ACCEPTANCE-READY"]') as HTMLElement;
-    fireEvent.click(within(reqCard).getByRole("button", { name: "测试 3/3" }));
-    let drawer = screen.getByTestId("tasks-drawer");
-    expect(screen.getByLabelText("自动化测试进度").className).toContain("active");
-    expect(within(screen.getByLabelText("自动化测试进度")).getByText("3/3")).toBeTruthy();
-    expect(within(drawer).getByText("暂无待处理人工验收项")).toBeTruthy();
+  it("reports a missing tasks association without fetching another document", async () => {
+    const fixture = {...contextFixture, issues: contextFixture.issues.map(issue => ({...issue, documents: issue.documents.filter(name => name !== "tasks.md")}))};
+    const fetchMock = vi.fn(() => Promise.resolve({ok: true, status: 200, json: async () => ({data: fixture})}));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByRole("button", {name: "测试 1/3"}));
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("未关联 tasks.md");
+    expect(screen.queryByTestId("markdown-drawer")).toBeNull();
+    expect(fetchMock.mock.calls).toHaveLength(1);
+  });
 
-    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
-    fireEvent.click(within(reqCard).getByRole("button", { name: "人工验收 1/1" }));
-    drawer = screen.getByTestId("tasks-drawer");
-    expect(screen.getByLabelText("人工验收进度").className).toContain("active");
-    expect(within(drawer).getByText("7/7")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
-    const bugCard = document.querySelector('[data-issue-id="DEMO-BUG-ACCEPTANCE-BLOCKED"]') as HTMLElement;
-    fireEvent.click(within(bugCard).getByRole("button", { name: "人工验收 0/1" }));
-    drawer = screen.getByTestId("tasks-drawer");
-    expect(screen.getByLabelText("人工验收进度").className).toContain("active");
-    expect(within(drawer).getByText("仍有 1 项需要人工处理")).toBeTruthy();
-    expect(within(drawer).getByText("等待人工验收")).toBeTruthy();
+  it("does not navigate to historical tasks and reports document read failures", async () => {
+    let missing = false;
+    stubFetch("fetch", vi.fn((input) => Promise.resolve({ok: !missing, status: missing ? 404 : 200, json: async () => ({data: String(input).includes("/context") ? contextFixture : {content: "# Tasks\n\n- [ ] 实现界面\n\n## 验收返修记录\n- [x] 人工验收旧记录"}})})));
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    fireEvent.click(screen.getByRole("button", {name: "人工验收 0/1"}));
+    expect(await screen.findByText("tasks.md 中未找到人工验收章节或任务，已展示完整文档。")).toBeTruthy();
+    expect(document.querySelector(".rc-task-navigation-target")).toBeNull();
+    fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
+    missing = true;
+    fireEvent.click(screen.getByRole("button", {name: "测试 1/3"}));
+    expect(await screen.findByText("文档暂时无法加载")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("rc-document-error-details-trigger"));
+    expect(await screen.findByText("文档不存在或已移动。")).toBeTruthy();
   });
 
   it("supports sidebar collapse and user-menu theme switching without a standalone sidebar theme row", async () => {
@@ -1853,8 +1988,8 @@ describe("RequirementCenterPage", () => {
   it("guards the admin entry by frontend user permission", () => {
     const source = readFileSync("src/pages/catalog/RequirementCenterPage.tsx", "utf8");
 
-    expect(source).toContain("canAccessAdmin: boolean");
-    expect(source).toContain("activeUser.canAccessAdmin &&");
+    expect(readFileSync("src/components/workbench/workbenchAccount.tsx", "utf8")).toContain("canAccessAdmin: boolean");
+    expect(readFileSync("src/components/workbench/WorkbenchSidebar.tsx", "utf8")).toContain("activeUser.canAccessAdmin &&");
     expect(source).not.toContain("const initialIssues");
     expect(source).not.toContain("const workspaces");
     expect(source).not.toContain("const currentUser");
@@ -1902,7 +2037,7 @@ describe("RequirementCenterPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Growth Studio/ }));
 
     expect(JSON.parse(window.localStorage.getItem("moonbox.workspace") || "{}").workspaceId).toBe("moonbox-growth");
-    expect(screen.getByRole("status").textContent).toContain("已切换到 Growth Studio");
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("已切换到 Growth Studio");
     expect(screen.getByRole("button", { name: /许同学/ }).textContent).toContain("Growth Studio");
   });
 
@@ -1926,7 +2061,7 @@ describe("RequirementCenterPage", () => {
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: contextFixture }) });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2000,7 +2135,7 @@ describe("RequirementCenterPage", () => {
   });
 
   it("shows an empty space state without rendering stale mock workspaces", async () => {
-    vi.stubGlobal(
+    stubFetch(
       "fetch",
       vi.fn(() =>
         Promise.resolve({
@@ -2045,12 +2180,12 @@ describe("RequirementCenterPage", () => {
       .fn()
       .mockResolvedValueOnce({ ok: false, status: 503, json: () => Promise.resolve({}) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: contextFixture }) });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
 
-    expect((await screen.findByRole("alert")).textContent).toContain("需求中心数据暂时不可用");
-    fireEvent.click(screen.getByRole("button", { name: "重试" }));
+    expect(await screen.findByText("需求中心暂时无法加载")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("rc-error-retry"));
     expect(await screen.findByText("REQ-0013")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -2087,7 +2222,7 @@ describe("RequirementCenterPage", () => {
       .fn()
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: contextFixture }) })
       .mockReturnValueOnce(refreshPromise);
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2112,7 +2247,7 @@ describe("RequirementCenterPage", () => {
       .fn()
       .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ data: contextFixture }) })
       .mockRejectedValueOnce(new Error("network down"));
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2120,7 +2255,7 @@ describe("RequirementCenterPage", () => {
     fireEvent.change(screen.getByLabelText("搜索治理对象"), { target: { value: "REQ-0012" } });
     fireEvent.click(screen.getByRole("button", { name: "刷新需求中心" }));
 
-    expect(await screen.findByText("刷新失败，已保留当前看板")).toBeTruthy();
+    expect(await screen.findByLabelText("更新失败")).toBeTruthy();
     expect(screen.getByText("REQ-0012")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
     expect((screen.getByLabelText("搜索治理对象") as HTMLInputElement).value).toBe("REQ-0012");
@@ -2129,7 +2264,7 @@ describe("RequirementCenterPage", () => {
 
   it("keeps the session user visible while the context request is pending", () => {
     const fetchMock = vi.fn(() => new Promise<Response>(() => undefined));
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
 
@@ -2146,7 +2281,7 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ detail: "登录态已失效" }),
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
 
@@ -2164,13 +2299,13 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ data: contextFixture }),
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context",
+      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
       expect.objectContaining({
         headers: expect.objectContaining({ authorization: "Bearer admin-token" }),
       }),
@@ -2202,7 +2337,7 @@ describe("RequirementCenterPage", () => {
         status: 200,
         blob: () => Promise.resolve(new Blob(["avatar"], { type: "image/png" })),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
 
@@ -2257,7 +2392,7 @@ describe("RequirementCenterPage", () => {
             },
           }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
     const sessionChanged = vi.fn();
     window.addEventListener("moonbox.session.changed", sessionChanged);
 
@@ -2292,7 +2427,7 @@ describe("RequirementCenterPage", () => {
 
     await waitFor(() => expect(screen.queryByRole("form", { name: "个人资料" })).toBeNull());
     expect(screen.getByRole("button", { name: /月盒同学/ })).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain("个人资料已更新");
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("个人资料已更新");
     expect(window.localStorage.getItem("moonbox.session")).toContain("月盒同学");
     expect(window.localStorage.getItem("moonbox.session")).toContain("/api/v1/auth/avatar/rc-profile.png");
     expect(sessionChanged).toHaveBeenCalled();
@@ -2352,7 +2487,7 @@ describe("RequirementCenterPage", () => {
         blob: () => Promise.resolve(new Blob(["restored"], { type: "image/webp" })),
       } as Response;
     });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2387,7 +2522,7 @@ describe("RequirementCenterPage", () => {
         status: 400,
         json: () => Promise.resolve({ detail: "仅支持 JPG、PNG、WEBP 格式头像" }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2430,7 +2565,7 @@ describe("RequirementCenterPage", () => {
             },
           }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2465,7 +2600,7 @@ describe("RequirementCenterPage", () => {
         status: 400,
         json: () => Promise.resolve({ detail: "个人资料保存失败。" }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2490,7 +2625,7 @@ describe("RequirementCenterPage", () => {
         permissions: ["requirement:read", "admin:access"],
       },
     };
-    vi.stubGlobal(
+    stubFetch(
       "fetch",
       vi.fn(() =>
         Promise.resolve({
@@ -2525,7 +2660,7 @@ describe("RequirementCenterPage", () => {
         status: 200,
         json: () => Promise.resolve({ data: { status: "done" } }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2559,7 +2694,7 @@ describe("RequirementCenterPage", () => {
         status: 200,
         json: () => Promise.resolve({ data: { changed: true } }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2621,7 +2756,7 @@ describe("RequirementCenterPage", () => {
         status: 200,
         json: () => Promise.resolve({ data: { changed: true } }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2663,7 +2798,7 @@ describe("RequirementCenterPage", () => {
         status: 400,
         json: () => Promise.resolve({ detail: "当前密码不正确" }),
       });
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
@@ -2702,7 +2837,7 @@ describe("RequirementCenterPage", () => {
         json: () => Promise.resolve({ data: anonymousContext }),
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");

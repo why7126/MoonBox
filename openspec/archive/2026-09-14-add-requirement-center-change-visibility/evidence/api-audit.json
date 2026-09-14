@@ -1,0 +1,21 @@
+{
+  "source": "observed",
+  "boundary": "隔离数据库的聚合计数；不保存请求体、token或主机路径",
+  "counts": [
+    {
+      "method": "GET",
+      "status": 200,
+      "count": 65
+    },
+    {
+      "method": "GET",
+      "status": 403,
+      "count": 1
+    },
+    {
+      "method": "PUT",
+      "status": 403,
+      "count": 2
+    }
+  ]
+}

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from .collect import ChangeRecord, IssueRecord, SprintRecord
 from .timefmt import normalize_datetime
+from .shared import change_state
 
 
 @dataclass
@@ -29,18 +30,19 @@ class DerivedIssue:
 
 
 def derive_change_state(record: ChangeRecord) -> DerivedChange:
-    if record.location == "archived":
+    if record.location == "archived" or record.trace.get("status") == "archived":
         state = "archived"
         display = "archived"
         date = normalize_datetime(record.archive_date) or "archived"
         note = f"archived `{record.change_id}`（{date}）"
     elif record.location == "active":
         done, total = record.tasks.done, record.tasks.total
-        if total > 0 and done >= total:
+        state = change_state(record.trace, done, total)
+        if state == "applied":
             state = "applied"
             display = "applied"
             note = f"apply {done}/{total}；待 archive `{record.change_id}`"
-        elif done > 0:
+        elif state == "in_progress":
             state = "in_progress"
             display = "in_progress"
             note = f"in_progress {done}/{total}；`{record.change_id}`"

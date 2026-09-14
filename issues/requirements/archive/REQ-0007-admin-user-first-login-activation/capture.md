@@ -2,11 +2,11 @@
 req_id: REQ-0007-admin-user-first-login-activation
 status: archived
 created_at: 2026-08-08 20:38:28
-updated_at: 2026-08-08 22:49:54
+updated_at: 2026-09-12 22:27:53
 recorded_by: product
 source: 用户反馈
-priority_hint: P1
 parent_requirement: REQ-0004-admin-user-management
+priority: P1
 ---
 
 # 一句话

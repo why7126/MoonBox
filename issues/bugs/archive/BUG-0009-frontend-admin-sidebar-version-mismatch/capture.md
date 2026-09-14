@@ -2,11 +2,11 @@
 bug_id: BUG-0009-frontend-admin-sidebar-version-mismatch
 status: done
 created_at: 2026-08-12 14:12:57
-updated_at: 2026-08-13 22:40:22
-severity_hint: medium
+updated_at: 2026-09-12 22:27:53
 environment: local
 related_requirement:
 related_bug:
+severity: medium
 ---
 
 # 现象

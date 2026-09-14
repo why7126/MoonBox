@@ -2,10 +2,8 @@
 bug_id: BUG-0006-frontend-login-needs-real-frontend-auth
 status: done
 lifecycle_stage: archive
-severity: high
-priority: P1
 created_at: 2026-08-11 22:58:07
-updated_at: 2026-08-13 22:51:59
+updated_at: 2026-09-12 22:27:53
 related_requirement:
 related_bug:
 related_change: fix-unified-frontend-login-auth
@@ -14,6 +12,7 @@ openspec_changes:
   - change_id: fix-unified-frontend-login-auth
     type: fix
     status: archived
+severity: high
 ---
 
 # BUG-0006 前台登录入口缺少真正前台用户认证能力

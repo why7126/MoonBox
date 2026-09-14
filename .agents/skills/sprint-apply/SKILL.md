@@ -145,3 +145,7 @@ python scripts/sync-workflow-status.py --event sprint.apply --sprint <sprint-id>
 - Exit code MUST be `0`。
 - Print summary Workflow Sync Report；use `--output detail` only for debugging。
 - Do not hand-edit workflow-sync marker blocks。
+
+## Change执行状态
+
+每个Change门禁通过后由apply共用入口运行opsx.start，分批验证后opsx.progress，完成门禁通过后opsx.apply；不把Sprint总状态当作单条目启动事实。重复和恢复遵守同一契约。

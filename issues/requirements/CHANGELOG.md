@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-09-04 15:30:02
+updated_at: 2026-09-14 09:07:45
 owner: MoonBox 产品团队
 ---
 
@@ -28,9 +28,20 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| REQ-0024-markdown-editor-human-edit-permission-matrix | Markdown 编辑器按治理阶段扩展人工编辑权限矩阵 | in_sprint | review | P1 | sprint-004 | update-markdown-editor-human-edit-permission-matrix | 2026-09-04 08:41:40 | `/opsx-archive REQ-0024-markdown-editor-human-edit-permission-matrix` | `issues/requirements/review/REQ-0024-markdown-editor-human-edit-permission-matrix/trace.md` |
-| REQ-0023-product-workbench-modern-ops-visual-system | MoonBox 产品工作台全面升级为现代 Ops 视觉系统 | in_sprint | review | P1 | sprint-004 | update-product-workbench-modern-ops-visual-system | 2026-08-31 09:18:31 | `/opsx-archive REQ-0023-product-workbench-modern-ops-visual-system` | `issues/requirements/review/REQ-0023-product-workbench-modern-ops-visual-system/trace.md` |
-| REQ-0022-local-project-import-product-iteration | REQ-0022-local-project-import-product-iteration | captured | plan | P1 | 无 | 无 | 2026-08-19 15:25:08 | `/req-generate REQ-0022-local-project-import-product-iteration` | `issues/requirements/plan/REQ-0022-local-project-import-product-iteration/trace.md` |
+| REQ-0035-chat-agent-model-reasoning-selector | 聊天框新增 Agent、模型和推理程序选择 | captured | plan | P1 | 无 | 无 | 2026-09-14 09:07:45 | `/req-generate REQ-0035-chat-agent-model-reasoning-selector` | `issues/requirements/plan/REQ-0035-chat-agent-model-reasoning-selector/trace.md` |
+| REQ-0034-requirement-center-default-current-iteration-cards | 需求中心默认只显示当前迭代卡片 | captured | plan | P1 | 无 | 无 | 2026-09-14 09:07:45 | `/req-generate REQ-0034-requirement-center-default-current-iteration-cards` | `issues/requirements/plan/REQ-0034-requirement-center-default-current-iteration-cards/trace.md` |
+| REQ-0033-requirement-center-filter-multiselect-search | 需求中心筛选下拉框支持复选搜索多选与排序优化 | captured | plan | P1 | 无 | 无 | 2026-09-14 09:07:45 | `/req-generate REQ-0033-requirement-center-filter-multiselect-search` | `issues/requirements/plan/REQ-0033-requirement-center-filter-multiselect-search/trace.md` |
+| REQ-0032-requirement-center-sprint-dropdown-status | 需求中心 Sprint 下拉列表新增状态展示 | captured | plan | P2 | 无 | 无 | 2026-09-14 09:07:45 | `/req-generate REQ-0032-requirement-center-sprint-dropdown-status` | `issues/requirements/plan/REQ-0032-requirement-center-sprint-dropdown-status/trace.md` |
+| REQ-0031-requirement-center-current-iteration-capacity | 需求中心显示当前迭代容量已使用与总容量 | captured | plan | P1 | 无 | 无 | 2026-09-14 09:07:44 | `/req-generate REQ-0031-requirement-center-current-iteration-capacity` | `issues/requirements/plan/REQ-0031-requirement-center-current-iteration-capacity/trace.md` |
+| REQ-0030-requirement-center-sprint-completion-metrics | 需求中心指标卡新增 Sprint 已完成与累计数量 | captured | plan | P1 | 无 | 无 | 2026-09-14 09:07:44 | `/req-generate REQ-0030-requirement-center-sprint-completion-metrics` | `issues/requirements/plan/REQ-0030-requirement-center-sprint-completion-metrics/trace.md` |
+| REQ-0029-capture-multimodal-candidate-review | 新建 Capture 支持图文 AI 整理、候选审阅与确认后幂等批量采集 | captured | plan | P1 | 无 | 无 | 2026-09-14 08:40:20 | `/req-generate REQ-0029-capture-multimodal-candidate-review` | `issues/requirements/plan/REQ-0029-capture-multimodal-candidate-review/trace.md` |
+| REQ-0028-chat-skill-codex | Chat工作台支持多图片输入与仓库Skill快速引用，对话区以提供的Codex截图为基线，保留现有轨迹详情及权限边界；关 | P1 | captured | plan | 无 | 无 | 2026-09-13 23:48:20 | `/req-generate REQ-0028-chat-skill-codex` | `issues/requirements/plan/REQ-0028-chat-skill-codex/trace.md` |
+| REQ-0027-capture | Capture 部署验收：需求持久化 | P1 | captured | plan | 无 | 无 | 2026-09-12 21:11:40 | `/req-generate REQ-0027-capture` | `issues/requirements/plan/REQ-0027-capture/trace.md` |
+| REQ-0026-requirement-center-standalone-change-cards | 需求中心 Change 可见性与关联追溯 | done | archive | P1 | sprint-005 | add-requirement-center-change-visibility | 2026-09-14 08:45:04 | 无 | `issues/requirements/archive/REQ-0026-requirement-center-standalone-change-cards/trace.md` |
+| REQ-0025-chat-workbench | Chat 工作台与 Codex 持续对话执行 | done | archive | P1 | sprint-004 | add-chat-workbench-codex | 2026-09-14 00:07:19 | 无 | `issues/requirements/archive/REQ-0025-chat-workbench/trace.md` |
+| REQ-0024-markdown-editor-human-edit-permission-matrix | Markdown 编辑器按治理阶段扩展人工编辑权限矩阵 | done | archive | P1 | sprint-004 | update-markdown-editor-human-edit-permission-matrix | 2026-09-14 00:07:19 | 无 | `issues/requirements/archive/REQ-0024-markdown-editor-human-edit-permission-matrix/trace.md` |
+| REQ-0023-product-workbench-modern-ops-visual-system | MoonBox 产品工作台全面升级为现代 Ops 视觉系统 | done | archive | P1 | sprint-004 | update-product-workbench-modern-ops-visual-system | 2026-09-13 23:48:14 | 无 | `issues/requirements/archive/REQ-0023-product-workbench-modern-ops-visual-system/trace.md` |
+| REQ-0022-local-project-import-product-iteration | 本地项目绑定与 Chat、需求中心迭代闭环 | done | archive | P1 | sprint-005 | add-local-project-governance-loop | 2026-09-14 09:00:37 | 无 | `issues/requirements/archive/REQ-0022-local-project-import-product-iteration/trace.md` |
 | REQ-0021-markdown-editor-vditor-enhancement | Markdown 文档 Vditor 增强编辑器 | done | archive | P1 | sprint-003 | update-markdown-editor-vditor-enhancement | 2026-09-04 15:29:23 | 无 | `issues/requirements/archive/REQ-0021-markdown-editor-vditor-enhancement/trace.md` |
 | REQ-0020-requirement-center-card-document-actions-ai-chat | 需求中心卡片文档查看、动作流转与 AI 聊天增强 | done | archive | P1 | sprint-003 | update-requirement-center-card-document-actions-ai-chat | 2026-09-04 15:30:02 | 无 | `issues/requirements/archive/REQ-0020-requirement-center-card-document-actions-ai-chat/trace.md` |
 | REQ-0019-space-creation-join-application-flow | 前台创建空间流程 | done | archive | P1 | sprint-003 | add-space-creation-join-application-flow | 2026-08-27 08:10:14 | 无 | `issues/requirements/archive/REQ-0019-space-creation-join-application-flow/trace.md` |
@@ -52,6 +63,6 @@ owner: MoonBox 产品团队
 | REQ-0003-database-compatibility | 数据库双环境兼容 | done | archive | P1 | sprint-001 | add-database-compatibility | 2026-07-30 08:58:57 | 无 | `issues/requirements/archive/REQ-0003-database-compatibility/trace.md` |
 | REQ-0002-login-page | 登录页功能 | done | archive | P1 | sprint-001 | add-login-page | 2026-07-30 08:04:01 | 无 | `issues/requirements/archive/REQ-0002-login-page/trace.md` |
 | REQ-0001-homepage | 首页功能 | done | archive | P1 | sprint-001 | add-homepage-brand-visual | 2026-07-30 08:04:01 | 无 | `issues/requirements/archive/REQ-0001-homepage/trace.md` |
-| REQ-0000-build-test-standard | 建立 Testing Governance | done | archive | P1 | sprint-000 | build-test-framework | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-test-standard/trace.md` |
-| REQ-0000-build-design-system | 建立 Design System | done | archive | P1 | sprint-000 | build-design-system | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-design-system/trace.md` |
-| REQ-0000-build-api-standard | 建立 API Governance | done | archive | P1 | sprint-000 | build-api-standard | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-api-standard/trace.md` |
+| REQ-0000-build-test-standard | 建立 Testing Governance | done | archive | P0 | sprint-000 | build-test-framework | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-test-standard/trace.md` |
+| REQ-0000-build-design-system | 建立 Design System | done | archive | P0 | sprint-000 | build-design-system | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-design-system/trace.md` |
+| REQ-0000-build-api-standard | 建立 API Governance | done | archive | P0 | sprint-000 | build-api-standard | 2026-07-29 22:55:00 | 无 | `issues/requirements/archive/REQ-0000-build-api-standard/trace.md` |

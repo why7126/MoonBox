@@ -1,0 +1,167 @@
+sprint_id: sprint-005
+status: completed
+lifecycle_stage: archive
+start_date: 2026-09-14 09:00:00
+end_date: 2026-09-28 09:00:00
+capacity:
+  developers: 1
+  testers: 1
+capacity_person_days: 30
+requirements:
+  - REQ-0022-local-project-import-product-iteration
+  - REQ-0026-requirement-center-standalone-change-cards
+bugs:
+  - BUG-0014-requirement-center-capture-not-persisted
+  - BUG-0015-requirement-center-apply-start-stage-not-synced
+  - BUG-0016-capture
+estimated_story_points: 32
+estimated_person_days: 32
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+capacity_usage: 1.0667
+created_at: 2026-09-11 08:59:42
+updated_at: '2026-09-14 09:24:31'
+capacity_gate:
+  status: warning
+  estimated_person_days: 32
+  capacity_person_days: 30
+  capacity_usage: 1.0667
+  note: 按当前容量重新计算；低于30%的剩余缓冲需提示风险。
+scope_estimates:
+  - id: REQ-0022-local-project-import-product-iteration
+    change: add-local-project-governance-loop
+    requirement: REQ-0022-local-project-import-product-iteration
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 项目绑定与自动刷新2人天、受控应用与恢复3人天、UI联动1人天、真实验证与文档2人天；复用REQ-0025执行能力，保留RC-001至004门禁。
+  - id: BUG-0014-requirement-center-capture-not-persisted
+    change: fix-requirement-center-capture-persistence
+    bug: BUG-0014-requirement-center-capture-not-persisted
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: Capture服务端持久化与编号一致性2人天、前端接入与失败保留1人天、并发恢复权限和真实刷新验收及文档2人天；合计L=5人天。承接S3-A005写入边界经验，覆盖AC-001至010。
+  - id: unify-issue-classification-metadata
+    change: unify-issue-classification-metadata
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 统一 Issue 分级元数据与治理同步
+  - id: BUG-0015-requirement-center-apply-start-stage-not-synced
+    change: fix-requirement-center-apply-lifecycle-sync
+    bug: BUG-0015-requirement-center-apply-start-stage-not-synced
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 启动事实与同步契约1人天、看板状态投影一致性1人天、REQ/BUG回归与真实刷新及文档1人天；覆盖AC-001至011，复用现有入口，不改版UI。追加后17/20人天，剩余机动3人天低于30%建议，暂停追加低优先范围。
+  - id: REQ-0026-requirement-center-standalone-change-cards
+    change: add-requirement-center-change-visibility
+    requirement: REQ-0026-requirement-center-standalone-change-cards
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 原范围5人天；新增阶段按钮和弹窗族1人天、权限与执行能力门禁1人天、视觉回归和文档1人天，合计8人天。新增动作已评审未实施，先同步OpenSpec；不新增执行服务。
+  - id: standardize-sprint-default-capacity
+    change: standardize-sprint-default-capacity
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 默认容量30人天、显式覆盖CLI及规范、sprint-005纠正和治理校验，共1人天；用户明确授权容量治理。
+  - id: BUG-0016-capture
+    change: fix-requirement-center-loading-and-errors
+    bug: BUG-0016-capture
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 解析故障与读取优化2人天、异常交互及详情弹窗1人天、权限并发和性能及真实部署验收1.5人天、文档0.5人天；覆盖AC-001至019，共L=5人天。
+  - id: refresh-issue-index-after-archive-promotion
+    change: refresh-issue-index-after-archive-promotion
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 归档 promote 后自动刷新 Issue registry 与 CHANGELOG 当前态路径，避免二次 Workflow Sync
+knowledge_intake:
+  source: docs/knowledge-base/retrospectives/sprint-003-retrospective.md
+  action_ids:
+    - S3-A004
+    - S3-A005
+  applications:
+    - action_id: S3-A004
+      requirement: REQ-0022-local-project-import-product-iteration
+      coverage: 动作族、selector、弹窗与computed style；AC-PROTOTYPE-001至006
+      boundary: 仅承接本需求验证方法，不宣称通用模板行动项完成
+    - action_id: S3-A005
+      requirement: REQ-0022-local-project-import-product-iteration
+      coverage: 受控写通道、只读挂载、失败恢复及草稿保留；AC-005、012、016
+      boundary: 仅承接本需求部署验收，不新增治理范围
+    - action_id: S3-A005
+      bug: BUG-0014-requirement-center-capture-not-persisted
+      coverage: Capture持久化的可写边界、故障恢复、失败保留输入及脱敏请求日志；AC-006至009
+      boundary: 仅承接本BUG验证，不宣称通用治理行动项完成
+    - action_id: S3-A004
+      bug: BUG-0015-requirement-center-apply-start-stage-not-synced
+      coverage: 承接需求中心阶段与动作矩阵，验证启动0/N、动作切换、恢复与真实刷新；AC-001至011。
+      boundary: 仅复用状态矩阵与真实观察方法，不新增原型复刻或宣称通用模板行动项完成。
+    - action_id: S3-A004
+      requirement: REQ-0026-requirement-center-standalone-change-cards
+      coverage: 现有卡片标识与标题，并增补独立Change阶段按钮、弹窗族及能力门禁；AC-ACTION-001至006、AC-XCUT-003；AC-PROTOTYPE-001至005、AC-XCUT-001/002，真实1440px及390px和computed
+        style。
+      boundary: 复用当前组件族，不另做关联面板/抽屉，不宣称通用行动项完成。
+    - action_id: S3-A004
+      bug: BUG-0016-capture
+      coverage: AC-011至019，页内错误、抽屉与详情弹窗动作矩阵，键盘关闭、1440px及窄屏computed style。
+      boundary: 仅承接方法；附件是现状证据，不是一对一原型复刻，不宣称通用模板行动项完成。
+    - action_id: S3-A005
+      bug: BUG-0016-capture
+      coverage: AC-003、004、007、009、010、012至014，数据源解析、写入围栏、部署读取证据和草稿保留。
+      boundary: 仅承接本BUG验收；不修改部署写权限或宣称通用清单完成。
+  other_open_actions:
+    - id: S3-A001
+      disposition: 不属于本次单项目闭环必需范围，保留原行动项，不自动创建跟进
+    - id: S3-A002
+      disposition: 不属于本次单项目闭环必需范围，保留原行动项，不自动创建跟进
+    - id: S3-A003
+      disposition: 不属于本次单项目闭环必需范围，保留原行动项，不自动创建跟进
+    - id: S3-A006
+      disposition: 不属于本次单项目闭环必需范围，保留原行动项，不自动创建跟进
+product_data_collection_observability:
+  status: applicable
+  affected_layers:
+    - web
+    - api
+    - request_logs
+    - usage_events
+    - task_traces
+    - task_trace_spans
+    - agent_workflow
+    - deployment
+  reason: 项目查询与成果受控应用形成跨页面、执行与文件写入链路；对象存储无新增依赖，DB结构由设计判断。
+  validation: BUG-0015涉及agent_workflow、后端治理读取及web，根因6条证据与11项验收具备，真实启动和刷新验收待实施；API/DB与对象存储暂无确定新增边界。REQ声明及AC-016、BUG-0014声明及AC-009已具备；BUG涉及web、api、request_logs，真实请求、权限、幂等和恢复验收待执行，DB与对象存储无已确定新增范围。
+    REQ-0026适用web/api，AC-009/010覆盖行为关联、读取及拒绝日志、授权回归；无新增DB、部署、对象存储或异步任务链路，真实验收待执行。
+changes:
+  - add-local-project-governance-loop
+  - fix-requirement-center-capture-persistence
+  - unify-issue-classification-metadata
+  - fix-requirement-center-apply-lifecycle-sync
+  - add-requirement-center-change-visibility
+  - standardize-sprint-default-capacity
+  - fix-requirement-center-loading-and-errors
+  - refresh-issue-index-after-archive-promotion
+capacity_risks:
+  - REQ-0026增补后31/30人天，占用103.33%，超出1人天且剩余缓冲为0；低于120%硬门禁。保留权限与真实视觉验收，建议后续低优先体验优化延后，不追加新范围。
+capacity_override_reason: "用户明确纠正sprint-005容量为默认30人天，保留人员和日期。"
+bug0016_observability:
+  product_data_collection_observability: applicable
+  affected_layers: [web, api, request_logs]
+  reason: 看板与文档读取、错误恢复及分段耗时涉及Web和API；本次规划无DB、对象存储、客户端生成或部署配置变化。
+  validation: 根因门禁7条证据通过；AC-001至019覆盖功能、性能、权限、异常交互和脱敏观测，真实验收待实施。
+
+req0026_scope_revision:
+  status: planned
+  incremental_person_days: 3
+  review: approved
+  delivery: pending_openspec_update
+  product_data_collection_observability: applicable
+  affected_layers: [web, api]
+  validation: AC-ACTION-001至006及AC-XCUT-003待实施验证，复用行为事件、请求日志和已有Task Trace；无新增DB、部署、对象存储或保留周期。

@@ -2,10 +2,8 @@
 bug_id: BUG-0008-admin-users-self-freeze-delete-not-forbidden
 status: done
 lifecycle_stage: archive
-severity: high
-priority: P1
 created_at: 2026-08-12 13:39:06
-updated_at: 2026-08-13 22:42:01
+updated_at: 2026-09-12 22:27:53
 related_requirement:
 related_bug:
 related_change: fix-admin-user-self-freeze-delete-protection
@@ -14,6 +12,7 @@ openspec_changes:
   - change_id: fix-admin-user-self-freeze-delete-protection
     type: fix
     status: archived
+severity: high
 ---
 
 # BUG-0008 管理后台登录用户不能冻结和删除自己

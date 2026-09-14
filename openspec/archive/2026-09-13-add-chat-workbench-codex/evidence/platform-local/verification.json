@@ -1,0 +1,50 @@
+{
+  "real_worker_container": true,
+  "quota_mode": "unlimited",
+  "rounds": [
+    {
+      "status": "completed",
+      "tokens": 10569,
+      "settled": true
+    },
+    {
+      "status": "completed",
+      "tokens": 10769,
+      "settled": true
+    }
+  ],
+  "restart_without_replay": true,
+  "source_unchanged": true,
+  "delete_restore_no_resurrection": true,
+  "executor_and_explicit_backup_cleanup": true,
+  "credential_copies_removed": true,
+  "mysql_passed": 43,
+  "mysql_skipped": 1,
+  "frontend_passed": 22,
+  "script_tests_passed": 4,
+  "compose_readonly_check": true,
+  "formal_repository_mapping": "pending",
+  "formal_services_changed": false,
+  "backend_passed": 71,
+  "backend_skipped": 7,
+  "chat_openapi_unchanged": true,
+  "validation": {
+    "openspec": "pass",
+    "language": "pass",
+    "directory": "pass",
+    "sprint_scope": "pass",
+    "observability": "pass",
+    "env_ignore": "pass",
+    "context_budget": "pass",
+    "diff_check": "pass"
+  },
+  "workflow_sync": {
+    "mode": "dry-run",
+    "subdocuments": 7,
+    "errors": 0,
+    "warnings": 0,
+    "blockers": 0,
+    "acceptance": "pending"
+  },
+  "probe_containers_remaining": 0
+}

@@ -1,0 +1,94 @@
+{
+  "source": "observed",
+  "viewport_checks": [
+    {
+      "width": 1440,
+      "dialogWidth": 560,
+      "maxHeight": "880px",
+      "overflowY": "auto",
+      "buttonBottom": 852.90625,
+      "viewportHeight": 1000
+    },
+    {
+      "width": 390,
+      "dialogWidth": 342,
+      "maxHeight": "742.72px",
+      "overflowY": "auto",
+      "buttonBottom": 786.15625,
+      "viewportHeight": 844
+    }
+  ],
+  "objects": [
+    {
+      "id": "REQ-0002-req",
+      "files": [
+        "issues/requirements/plan/REQ-0002-req/capture.md",
+        "issues/requirements/plan/REQ-0002-req/trace.md",
+        "issues/requirements/_registry.yaml",
+        "issues/requirements/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    },
+    {
+      "id": "BUG-0002-bug",
+      "files": [
+        "issues/bugs/plan/BUG-0002-bug/capture.md",
+        "issues/bugs/plan/BUG-0002-bug/trace.md",
+        "issues/bugs/_registry.yaml",
+        "issues/bugs/CHANGELOG.md"
+      ],
+      "reload_and_document": true
+    }
+  ],
+  "requests": [
+    {
+      "status": 202,
+      "operation_id": "58992f81-334a-4017-aa0c-d02d1edd445c",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "47f78505-bc14-4590-a29c-6322492ad2d6"
+    },
+    {
+      "status": 200,
+      "operation_id": "58992f81-334a-4017-aa0c-d02d1edd445c",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "b5ff541e-9a3c-45c2-a637-50ef000ee72b"
+    },
+    {
+      "status": 200,
+      "operation_id": "58992f81-334a-4017-aa0c-d02d1edd445c",
+      "state": "applied",
+      "object_id": "REQ-0002-req",
+      "request_id": "a9508957-73a4-488f-b70a-0da36cdca85e"
+    },
+    {
+      "status": 503,
+      "operation_id": null,
+      "state": null,
+      "object_id": null,
+      "request_id": "17d6f5e2-81b0-4cc5-9176-d8bb97b7dc43"
+    },
+    {
+      "status": 202,
+      "operation_id": "fd2a7542-cc92-464b-bcdf-8a5a77985c4b",
+      "state": "pending",
+      "object_id": null,
+      "request_id": "c5fbac36-2b77-4190-aeff-1fb1b918f240"
+    },
+    {
+      "status": 200,
+      "operation_id": "fd2a7542-cc92-464b-bcdf-8a5a77985c4b",
+      "state": "applying",
+      "object_id": null,
+      "request_id": "c142aead-9d43-4308-90e3-0d72838ae038"
+    },
+    {
+      "status": 200,
+      "operation_id": "fd2a7542-cc92-464b-bcdf-8a5a77985c4b",
+      "state": "applied",
+      "object_id": "BUG-0002-bug",
+      "request_id": "8a0849f7-78d3-4ab7-9519-9258b291b99f"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-11",
+  "reference": "user annotated screenshot: top two rows",
+  "mode": "actual React components with synthetic API",
+  "tests": {
+    "passed": 27,
+    "typescript": "passed",
+    "build": "passed"
+  },
+  "visual": {
+    "screenshots": "observed in browser tool output",
+    "viewports": [
+      [
+        1440,
+        900
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "header_top": 0,
+    "header_height": 64,
+    "desktop_composer_width": 800,
+    "mobile_composer_width": 294,
+    "desktop_composer_bottom": 880,
+    "mobile_composer_bottom": 832,
+    "overflow": false,
+    "interactions": [
+      "default repository selected",
+      "draft survives panel toggles",
+      "theme switch through sidebar"
+    ]
+  },
+  "api_db_changes": false,
+  "deployment": {
+    "web": "running; HTTP smoke passed; no Docker Health field",
+    "image": "7f7970fdb55687c16a4036b0b2df8772af4290631c57aa39d1c435c66dc6899c",
+    "css": "index-Ded6VelV.css",
+    "js": "index-B0S9ZBrC.js",
+    "backend_worker": "not restarted"
+  }
+}

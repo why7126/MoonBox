@@ -1,0 +1,65 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "compaction",
+      "evidence": [
+        "trace.md#实施与证据映射"
+      ],
+      "tasks": [
+        {
+          "id": "remaining-tests",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "trace.md#最终验证摘要"
+      ],
+      "tasks": [
+        {
+          "id": "fixture-and-retry-fix",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#最终验证摘要"
+      ],
+      "tasks": [
+        {
+          "id": "workflow-sync",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#最终验证摘要"
+      ],
+      "tasks": [
+        {
+          "id": "workflow-sync",
+          "state": "done",
+          "deps": []
+        }
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

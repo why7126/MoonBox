@@ -1,0 +1,125 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "trace.md#已完成的验证"
+      ],
+      "tasks": [
+        {
+          "id": "repair_scope_and_retest",
+          "state": "pending"
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#后端增量结果"
+      ],
+      "tasks": [
+        {
+          "id": "ui_confirmation",
+          "state": "pending",
+          "external": "Skeleton首轮人工确认",
+          "blocker_evidence": [
+            "trace.md#原型与界面证据"
+          ]
+        },
+        {
+          "id": "backend_validation",
+          "state": "pending"
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#目标环境预检与停止前决策"
+      ],
+      "tasks": [
+        {
+          "id": "independent_backend",
+          "state": "done"
+        },
+        {
+          "id": "ui_confirmation",
+          "state": "pending",
+          "external": "等待已发送的Skeleton确认卡片回复",
+          "blocker_evidence": [
+            "trace.md#原型与界面证据"
+          ]
+        },
+        {
+          "id": "validation_environment",
+          "state": "pending",
+          "external": "等待真实验证项目选择及维护窗口",
+          "blocker_evidence": [
+            "trace.md#目标环境预检与停止前决策"
+          ]
+        },
+        {
+          "id": "frontend_integration_and_visual",
+          "state": "pending",
+          "deps": [
+            "ui_confirmation"
+          ]
+        },
+        {
+          "id": "target_deployment_and_real_loop",
+          "state": "pending",
+          "deps": [
+            "validation_environment",
+            "frontend_integration_and_visual"
+          ]
+        },
+        {
+          "id": "final_acceptance_docs_and_sync",
+          "state": "pending",
+          "deps": [
+            "target_deployment_and_real_loop"
+          ]
+        }
+      ],
+      "gates_passed": false,
+      "action": "wait"
+    },
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "trace.md#真实执行发现与当前-apply-修复"
+      ],
+      "tasks": [
+        {
+          "id": "repair_prepared_workspace_policy",
+          "state": "done"
+        },
+        {
+          "id": "real_validation",
+          "state": "pending"
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#完成门禁与真实交付证据"
+      ],
+      "tasks": [
+        {
+          "id": "all_22_implementation_tasks",
+          "state": "done"
+        }
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}
