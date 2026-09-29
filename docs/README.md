@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-13 23:43:10
+updated_at: 2026-09-18 16:07:12
 owner: MoonBox 产品团队
 ---
 
@@ -25,6 +25,7 @@ owner: MoonBox 产品团队
 | `../data/ai-usage/README.md` | AI Usage 本地 session JSONL 输入、脱敏派生事实、自动发现与历史回填边界 |
 | `standards/prototype-ui-acceptance.md` | 带 prototype 的 UI Change 的 UI Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单 |
 | `../rules/root-cause-evidence.md` | 问题排查、BUG 完善、验收返修和效果不符场景的证据化根因分析规则 |
+| `../rules/directory-structure.md#data-本地数据目录边界` | `data/sqlite`、`data/s3`、`data/runtime` 的本地持久数据与运行控制状态边界 |
 | `knowledge-base/` | Sprint 复盘、经验和事故沉淀 |
 | `spec-logs/` | 规范工程日志：`/spec-study` 学习报告使用 `YYYYMMDDhhmmss-study-xxx.md`，`/spec-opt` 治理迭代日志使用 `YYYYMMDDhhmmss-governance-xxx.md` |
 

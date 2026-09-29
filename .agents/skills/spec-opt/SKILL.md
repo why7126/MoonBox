@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-09-13 16:02:48
+updated_at: 2026-09-15 09:13:30
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
@@ -115,8 +115,9 @@ YYYYMMDDhhmmss-governance-xxx.md
 4. 按文档同步矩阵做最小范围修改。
 5. 修改脚本时补充或运行脚本级最小验证。
 6. 写入或更新 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md` 治理迭代日志。
-7. 每完成一组 task，立即把 `tasks.md` 对应 `- [ ]` 标记为 `- [x]`。
-8. 使用聚焦 diff 复核没有修改 `src/` 业务代码。
+7. 在 Change 内保留需求中心可识别的交付验证来源。纯治理 Change 不强制生成 `acceptance.md` 或 `verification.md`；优先在 Change `trace.md` 写入非空 `## 验证记录` 或 `## 验证摘要`，复杂证据可用 `trace.acceptance_refs` 指向 Change 内 Markdown。不得只依赖最终回复、治理日志、tasks 全勾或 Workflow Sync 成功。
+8. 每完成一组 task，立即把 `tasks.md` 对应 `- [ ]` 标记为 `- [x]`。
+9. 使用聚焦 diff 复核没有修改 `src/` 业务代码。
 
 ## Validation（MUST）
 
@@ -130,6 +131,8 @@ openspec validate <change-id>
 ```
 
 如修改脚本，MUST 至少运行被修改脚本本身或对应测试；如仅修改 Markdown 规范，可说明业务测试不适用。
+
+完成校验结果必须同时写入 Change 内可识别验证来源。推荐在 `trace.md` 增加或更新 `## 验证记录` / `## 验证摘要`；只有需要承载长报告、截图索引或多文件证据时才新增独立 Markdown 并通过 `acceptance_refs` 引用。`acceptance.md` 与 `verification.md` 是可选入口，不是纯治理 Change 的固定必需文件。
 
 ## Final Step — Workflow Sync
 

@@ -96,6 +96,9 @@ export interface RequirementCenterTasks {
 }
 
 export interface RequirementCenterIssue {
+  display_title?: string | null;
+  title_source?: string | null;
+  title_warning?: string | null;
   current_change?: RequirementCenterChangeSummary | null;
   related_changes?: RequirementCenterChangeSummary[];
   change_warning?: string | null;
@@ -103,6 +106,7 @@ export interface RequirementCenterIssue {
   type: string;
   title: string;
   priority?: string;
+  severity?: string;
   owner: string;
   source: string;
   stage: string;
@@ -117,6 +121,7 @@ export interface RequirementCenterIssue {
   sprint_id?: string | null;
   task_progress?: [number, number] | null;
   test_progress?: [number, number] | null;
+  manual_acceptance_progress?: [number, number] | null;
   manual_acceptance_count?: number;
   drift_warnings?: string[];
 }
@@ -151,6 +156,126 @@ export interface RequirementCenterStats {
   drift: number;
 }
 
+export interface RequirementCenterSprintMetrics {
+  completed_count?: number;
+  total_count?: number;
+  source?: 'sprint_lifecycle';
+  warning?: string | null;
+  refreshed_at?: string | null;
+}
+
+export type RequirementCenterSprintOptionLifecycleStage = typeof RequirementCenterSprintOptionLifecycleStage[keyof typeof RequirementCenterSprintOptionLifecycleStage];
+
+
+export const RequirementCenterSprintOptionLifecycleStage = {
+  change: 'change',
+  archive: 'archive',
+  unknown: 'unknown',
+} as const;
+
+export type RequirementCenterSprintOptionStatus = typeof RequirementCenterSprintOptionStatus[keyof typeof RequirementCenterSprintOptionStatus];
+
+
+export const RequirementCenterSprintOptionStatus = {
+  planning: 'planning',
+  in_progress: 'in_progress',
+  completed: 'completed',
+  archived: 'archived',
+  unknown: 'unknown',
+} as const;
+
+export interface RequirementCenterSprintOption {
+  sprint_id: string;
+  label: string;
+  lifecycle_stage?: RequirementCenterSprintOptionLifecycleStage;
+  status?: RequirementCenterSprintOptionStatus;
+  status_label: string;
+  warning?: string | null;
+}
+
+export type RequirementCenterCurrentIterationCapacityCapacitySource = typeof RequirementCenterCurrentIterationCapacityCapacitySource[keyof typeof RequirementCenterCurrentIterationCapacityCapacitySource];
+
+
+export const RequirementCenterCurrentIterationCapacityCapacitySource = {
+  explicit: 'explicit',
+  default: 'default',
+  unknown: 'unknown',
+} as const;
+
+export type RequirementCenterCurrentIterationCapacityStatus = typeof RequirementCenterCurrentIterationCapacityStatus[keyof typeof RequirementCenterCurrentIterationCapacityStatus];
+
+
+export const RequirementCenterCurrentIterationCapacityStatus = {
+  normal: 'normal',
+  near_limit: 'near_limit',
+  over_limit: 'over_limit',
+  unknown: 'unknown',
+} as const;
+
+export type RequirementCenterCurrentIterationArchiveReadinessDisplayMode = typeof RequirementCenterCurrentIterationArchiveReadinessDisplayMode[keyof typeof RequirementCenterCurrentIterationArchiveReadinessDisplayMode];
+
+
+export const RequirementCenterCurrentIterationArchiveReadinessDisplayMode = {
+  hidden: 'hidden',
+  disabled: 'disabled',
+  enabled: 'enabled',
+} as const;
+
+export type RequirementCenterCurrentIterationArchiveReadinessReasonCode = typeof RequirementCenterCurrentIterationArchiveReadinessReasonCode[keyof typeof RequirementCenterCurrentIterationArchiveReadinessReasonCode];
+
+
+export const RequirementCenterCurrentIterationArchiveReadinessReasonCode = {
+  ready: 'ready',
+  capacity_zero: 'capacity_zero',
+  capacity_unknown: 'capacity_unknown',
+  unarchived_scope: 'unarchived_scope',
+  missing_signoff: 'missing_signoff',
+  permission_denied: 'permission_denied',
+  workflow_sync_failed: 'workflow_sync_failed',
+  unknown: 'unknown',
+} as const;
+
+export type RequirementCenterArchiveReadinessBlockerType = typeof RequirementCenterArchiveReadinessBlockerType[keyof typeof RequirementCenterArchiveReadinessBlockerType];
+
+
+export const RequirementCenterArchiveReadinessBlockerType = {
+  requirement: 'requirement',
+  bug: 'bug',
+  change: 'change',
+  acceptance_report: 'acceptance_report',
+  permission: 'permission',
+  workflow_sync: 'workflow_sync',
+  capacity: 'capacity',
+} as const;
+
+export interface RequirementCenterArchiveReadinessBlocker {
+  type: RequirementCenterArchiveReadinessBlockerType;
+  id?: string | null;
+  status?: string | null;
+  message: string;
+  action_hint?: string | null;
+  visible?: boolean;
+}
+
+export interface RequirementCenterCurrentIterationArchiveReadiness {
+  can_enter_confirmation?: boolean;
+  display_mode?: RequirementCenterCurrentIterationArchiveReadinessDisplayMode;
+  reason_code?: RequirementCenterCurrentIterationArchiveReadinessReasonCode;
+  safe_summary?: string | null;
+  blockers?: RequirementCenterArchiveReadinessBlocker[];
+}
+
+export interface RequirementCenterCurrentIterationCapacity {
+  sprint_id: string;
+  used_capacity?: number | null;
+  total_capacity?: number | null;
+  capacity_unit?: 'person_day';
+  capacity_source?: RequirementCenterCurrentIterationCapacityCapacitySource;
+  status?: RequirementCenterCurrentIterationCapacityStatus;
+  message?: string | null;
+  archive_readiness?: RequirementCenterCurrentIterationArchiveReadiness | null;
+}
+
 export interface RequirementCenterContext {
   repository_id?: string;
   snapshot_revision?: string;
@@ -160,7 +285,10 @@ export interface RequirementCenterContext {
   current_user: RequirementCenterUser;
   selected_workspace_id: string;
   stats: RequirementCenterStats;
+  sprint_metrics?: RequirementCenterSprintMetrics;
   sprint_options?: string[];
+  sprint_option_details?: RequirementCenterSprintOption[];
+  current_iteration_capacity?: RequirementCenterCurrentIterationCapacity[];
 }
 
 export interface ApiResponseRequirementCenterContext {

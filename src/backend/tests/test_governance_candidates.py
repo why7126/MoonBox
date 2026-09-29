@@ -18,13 +18,16 @@ from test_governance_scope import bind,fixture_tree
 OID='REQ-0099-local-check';BASE=f'issues/requirements/plan/{OID}'
 
 def front(data,body='\n需求说明正文，包含本地验证目标与验收条件。\n'):
+    if 'requirement_id' in data:
+        data={**data, 'title':'本地需求业务主题'}
+        body='# 本地需求业务主题\n'+body
     return ('---\n'+yaml.safe_dump(data,allow_unicode=True)+'---\n'+body).encode()
 
 
 def contents():
     meta={'requirement_id':OID,'status':'captured','iteration':None,'openspec_changes':[], 'lifecycle':{'captured':'2026-09-11'}}
     files={f'{BASE}/capture.md':b'captured input',f'{BASE}/trace.md':front(meta),
-      'issues/requirements/_registry.yaml':yaml.safe_dump({'next_id':100,'entries':[{'id':OID,'status':'captured','path':BASE}]}).encode(),
+      'issues/requirements/_registry.yaml':yaml.safe_dump({'next_id':100,'entries':[{'id':OID,'title':'本地需求业务主题','status':'captured','path':BASE}]}).encode(),
       'issues/bugs/_registry.yaml':b'entries: []\n',
       'issues/requirements/CHANGELOG.md':front({'purpose':'index','updated_at':'2026-09-11'},f'| {OID} | captured | {BASE} |\n')}
     result=copy.deepcopy(files);result[f'{BASE}/requirement.md']=front({'requirement_id':OID,'status':'draft'})
@@ -53,7 +56,7 @@ def test_prepare_isolated_uncommitted_and_success_candidate(chat,tmp_path,monkey
     before,after=contents()
     for name,body in before.items():
         path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body)
-    for name in ['AGENTS.md','openspec/project.md','.agents/skills/req-generate/SKILL.md','.agents/skills/workflow-sync/SKILL.md','scripts/sync-workflow-status.py','scripts/ai_usage.py']:
+    for name in ['AGENTS.md','openspec/project.md','.agents/skills/req-generate/SKILL.md','.agents/skills/workflow-sync/SKILL.md','scripts/sync-workflow-status.py','scripts/ai_usage.py','scripts/validate-document-titles.py','src/backend/app/governance/titles.py']:
         target=source/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text('# Synthetic control file\n')
     git(source,'init');git(source,'add','.');git(source,'-c','user.name=Test','-c','user.email=test@invalid','commit','-m','baseline')
     (source/f'{BASE}/capture.md').write_text('latest uncommitted governance input')
@@ -85,3 +88,33 @@ def test_mysql_schema_compiles_with_durable_identity():
         statement=str(CreateTable(table).compile(dialect=mysql.dialect()))
         assert table.name in statement
     assert 'uq_governance_application_request' in str(CreateTable(governance_applications).compile(dialect=mysql.dialect()))
+
+
+@pytest.mark.parametrize('invalid', ['missing', 'english', 'h1', 'registry'])
+def test_title_gate_rejects_candidate_without_mutating_source(invalid):
+    before, after = contents()
+    original = copy.deepcopy(before)
+    path = f'{BASE}/requirement.md'
+    if invalid == 'missing':
+        after[path] = after[path].replace('title: 本地需求业务主题\n'.encode(), b'')
+    elif invalid == 'english':
+        after[path] = after[path].replace('title: 本地需求业务主题'.encode(), b'title: English')
+    elif invalid == 'h1':
+        after[path] = after[path].replace('# 本地需求业务主题'.encode(), '# 其他业务标题'.encode())
+    else:
+        data = yaml.safe_load(after['issues/requirements/_registry.yaml'])
+        data['entries'][0]['title'] = '其他业务标题'
+        after['issues/requirements/_registry.yaml'] = yaml.safe_dump(data, allow_unicode=True).encode()
+    with pytest.raises(service.ChatError):
+        validate(before, after, OID, BASE)
+    assert before == original
+
+
+def test_candidate_accepts_business_title_change_with_registry_sync():
+    before, after = contents()
+    for name in (f'{BASE}/requirement.md', f'{BASE}/trace.md'):
+        after[name] = after[name].replace('本地需求业务主题'.encode(), '更新后的业务标题'.encode())
+    data = yaml.safe_load(after['issues/requirements/_registry.yaml'])
+    data['entries'][0]['title'] = '更新后的业务标题'
+    after['issues/requirements/_registry.yaml'] = yaml.safe_dump(data, allow_unicode=True).encode()
+    assert validate(before, after, OID, BASE)['manifest_hash']

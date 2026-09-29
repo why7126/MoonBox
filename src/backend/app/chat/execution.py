@@ -81,10 +81,14 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=300, sto
                     content_hash=initial['hash'], payload=json.dumps(initial,ensure_ascii=False), token_total=0))
             db.execute(update(conversations).where(conversations.c.id == parent['id']).values(workspace_id=workspace.name))
             db.commit()
-        from app.chat.policy import write_allowed
-        with factory() as db: permitted_write=write_allowed(db,parent['owner_id'],parent)
+        from app.chat.policy import write_policy, WRITE_SCOPE_READ_ONLY
+        with factory() as db: current_write_policy=write_policy(db,parent['owner_id'],parent)
+        permitted_scope = current_write_policy['write_scope']
         server = server_factory(workspace)
-        server.write = permitted_write
+        if hasattr(server, 'set_write_scope'):
+            server.set_write_scope(permitted_scope)
+        else:
+            server.write = permitted_scope != WRITE_SCOPE_READ_ONLY
         thread_id = server.connect(parent['thread_id'])
         with factory() as db:
             current, _ = owned(db, token)
@@ -102,7 +106,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=300, sto
             while terminal is None:
                 with factory() as db:
                     current, _ = owned(db, token)
-                    if permitted_write and not write_allowed(db,parent['owner_id'],parent):
+                    if permitted_scope != WRITE_SCOPE_READ_ONLY and write_policy(db,parent['owner_id'],parent)['write_scope'] != permitted_scope:
                         raise ExecutorError('write_permission_revoked')
                     db.commit()
                 if time.monotonic() >= deadline: raise ExecutorError('execution_deadline_unknown')

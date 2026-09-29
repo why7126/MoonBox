@@ -67,3 +67,15 @@ tmp/uploads/{uuid}.part
 - 上传成功后同一会话立即回显。
 - Docker 本地验收必须解析实际 `HOST_PORT_WEB`，默认使用 `18102` Web 同源入口完成上传、读取和回显；不得硬编码 `:3000`。
 - Docker 本地验收必须由脚本准备一次性测试用户、测试会话或可回收 fixture，不得依赖 `data/runtime/backend` 持久库中的管理员密码等于 `ADMIN_INITIAL_PASSWORD`。
+
+## Chat 图片与文件上下文上传
+
+REQ-0028 当前版本通过后端接收 Chat 工作台图片与文件上传，按 `capabilities.materials` 限制验证 MIME、单文件体积、总量、空间、仓库和用户权限后写入对象存储。对象 key 由服务端生成，格式为 `chat/materials/{space_id}/{repository_id}/{opaque-id}.{ext}`；前端只获得 opaque `ref_id`、名称、MIME、大小、类型和状态。不得把本机绝对路径、浏览器临时路径、完整对象 key、签名 URL、临时凭据、图片正文或文件正文写入轮次历史、请求日志、usage_events、task_traces 或错误信息。
+
+上传成功后 Chat 轮次只绑定服务端 opaque `ref_id` 与脱敏摘要，读取历史时仍通过授权接口回显摘要或代理资源，前端不得直连私有 MinIO。清理策略需同步会话删除、备份删除重放和对象生命周期；对象删除失败必须保留待清理状态重试，不得仅因数据库轮次删除而假定对象已清理。
+
+## Capture 私有材料（REQ-0029，实施中）
+
+复用标准Bucket与 `images/original/` 前缀，文件名为服务端随机值。对外仅暴露材料ID和授权内容代理，不暴露对象key、访问凭证或公开签名地址。PUT前持久化uploading记录及配额，进程中断后仍有可清理对象身份。静态PNG/JPEG/WebP同时检查签名、格式、解码、动画帧、像素及字节限制。
+
+自动清理每60秒检查主动删除材料和24小时未关联上传；候选来源及非终态整理使用中的材料跳过清理。从当前草稿移除的材料标记detached，重新关联可恢复ready。确认引用转retained长期保留，不受草稿清理影响。删除意图独立于业务库备份；对象删除失败保留待清理状态重试。正式来源存储独立于90天Task Trace和180天行为事件保留周期。

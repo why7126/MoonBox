@@ -1,0 +1,73 @@
+{
+  "route": "/requirements?mock=workflow",
+  "filterOrder": [
+    "Sprint",
+    "分级",
+    "负责人",
+    "阶段"
+  ],
+  "levelGroups": [
+    "需求优先级",
+    "缺陷严重性"
+  ],
+  "levelOptions": [
+    "P0 最高",
+    "P1 高",
+    "P2 中",
+    "P3 低",
+    "blocker 阻断",
+    "critical 严重",
+    "high 高",
+    "medium 中",
+    "low 低"
+  ],
+  "trigger": {
+    "selector": "[data-testid=\"requirement-filter-trigger-level\"]",
+    "width": 330,
+    "height": 34,
+    "display": "grid",
+    "gap": "7px",
+    "backgroundColor": "color(srgb 0.847059 0.67451 0.333333 / 0.06)",
+    "borderColor": "color(srgb 0.437647 0.378824 0.271922)",
+    "color": "rgb(236, 234, 228)",
+    "overflow": "visible",
+    "gridTemplateColumns": "19.8906px 270.875px 7.23438px"
+  },
+  "popover": {
+    "selector": "[data-testid=\"requirement-filter-popover-level\"]",
+    "width": 324,
+    "height": 300.9375,
+    "display": "grid",
+    "gap": "normal",
+    "backgroundColor": "rgb(26, 31, 44)",
+    "borderColor": "rgb(36, 42, 58)",
+    "color": "rgb(236, 234, 228)",
+    "overflow": "hidden",
+    "gridTemplateColumns": "322px"
+  },
+  "option": {
+    "selector": "[data-testid=\"requirement-filter-option-level-requirement:P1\"]",
+    "width": 310,
+    "height": 36,
+    "display": "grid",
+    "gap": "8px",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "borderColor": "rgba(0, 0, 0, 0)",
+    "color": "rgb(236, 234, 228)",
+    "overflow": "visible",
+    "gridTemplateColumns": "16px 270px"
+  },
+  "footer": {
+    "selector": ".rc-multi-filter-footer",
+    "width": 322,
+    "height": 46.9375,
+    "display": "flex",
+    "gap": "8px",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "borderColor": "rgb(27, 33, 48) rgb(152, 160, 179) rgb(152, 160, 179)",
+    "color": "rgb(152, 160, 179)",
+    "overflow": "visible",
+    "gridTemplateColumns": "none"
+  },
+  "outsideClickClosed": true
+}

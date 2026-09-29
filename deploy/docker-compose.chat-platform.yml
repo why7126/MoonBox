@@ -16,7 +16,9 @@ services:
       - ${MOONBOX_CHAT_HOST_ROOT}/state:/app/chat-state:ro
       - ${MOONBOX_CHAT_HOST_ROOT}/backups:/app/chat-backups
       - ${MOONBOX_CHAT_HOST_ROOT}/workspaces:${MOONBOX_CHAT_HOST_ROOT}/workspaces:ro
+      - ./.agents:/app/governance/.agents:ro
   chat-worker:
+    container_name: ${CHAT_WORKER_CONTAINER_NAME:-moonbox-chat-worker}
     restart: unless-stopped
     init: true
     build:
@@ -25,12 +27,19 @@ services:
       args:
         BACKEND_IMAGE: ${BACKEND_IMAGE:-moonbox-backend:local}
     image: moonbox-chat-worker:local
+    networks:
+      - app-network
     user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
     group_add:
       - ${MOONBOX_CHAT_DOCKER_GID:-0}
     environment:
       <<: *chat-platform-env
       APP_ENV: local
+      OBJECT_STORAGE_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-change-me}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-change-me}
+      MINIO_BUCKET: ${MINIO_BUCKET:-moonbox}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
       MOONBOX_CHAT_RUNTIME_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/runtime
       MOONBOX_CHAT_AUTH_FILE: /run/secrets/codex-auth.json
     volumes:
@@ -45,6 +54,7 @@ services:
       - ./issues:/app/governance/issues:ro
       - ./iterations:/app/governance/iterations:ro
       - ./openspec:/app/governance/openspec:ro
+      - ./.agents:/app/governance/.agents:ro
     depends_on:
       backend:
         condition: service_healthy

@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-09-13 16:02:21
+updated_at: 2026-09-15 09:46:43
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -167,12 +167,22 @@ design.md
 tasks.md
 trace.md
 acceptance.md
+acceptance-fixes.md
 test-plan.md
 specs/
 implementation/
 ```
 
-归档前 MUST 先完成文档同步复核：根据 `tasks.md`、`trace.md`、delta spec 与实现影响范围，更新受影响的长期文档、README、`.env.example`、API / DB / 部署 / 发布 / 兼容性文档或明确记录“不适用”原因。API 变更必须同步 `docs/03-api-index.md`、API 治理说明与 Orval 相关说明；DB 变更必须同步 `docs/04-database-design.md`；Docker、环境变量、发布镜像变更必须同步部署、发布与示例环境文档。不得在 docs 同步缺失或未说明豁免原因时执行归档。真实 `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` 允许存在于本地工作区，但不得被提交、stage、复制进归档、产品手册、release 产物或输出其真实内容；若它们被 Git ignore 覆盖，存在本身不得阻断归档。根目录 `tmp/` 仅允许作为本地临时工作目录存在，且必须被 Git ignore 覆盖；长期验收、归档或发布需要引用的视觉证据必须沉淀到对应 Change 的 `evidence/` 目录或脱敏摘要中。
+Change 文档职责分层：
+
+- `tasks.md` 是计划任务、执行勾选和完成门禁入口；验收返修阶段只保留可关闭的返修任务项、简短摘要和完整台账链接，不承载完整返修台账。
+- `acceptance-fixes.md` 是 `/opsx-modify` 完整验收返修台账事实源，记录反馈批次、偏差证据、附件截图逐项视觉对照表、调整内容、验证证据、REQ/BUG 子文档一致性扫尾检查，以及未更新文档或系统边界的原因。既有 Change 已在 `tasks.md` 保存完整返修记录的可作为 legacy 兼容，不强制迁移；新返修记录 SHOULD 使用该文件。
+- `trace.md` 记录 Change 执行事实、返修摘要、证据入口、验证摘要和台账路径，不复制完整台账。所有 applied Change MUST 在 Change 内保留需求中心可识别的交付验证来源；纯治理 Change 不强制生成 `acceptance.md` 或 `verification.md`，优先使用 `trace.md` 的 `## 验证记录` 或 `## 验证摘要`，复杂证据可通过 `trace.acceptance_refs` 指向 Change 内 Markdown。可运行 `python scripts/validate-change-delivery-evidence.py [--change <change-id>]` 扫描 active applied Change 是否缺少需求中心可识别验证来源。
+- `/opsx-modify` 返修执行中用户可见阶段展示为“研发中”；返修完成、验证和 Workflow Sync 通过后回到“验收中 / 待复验”。该阶段切换属于返修投影语义，必须保留 Change canonical `applied` 状态和首次 apply 的 `execution.completed_at`，不得用普通 `in_progress` 覆盖已完成 apply 事实。
+- linked Issue `acceptance.md` 记录验收状态、人工验收结论、证据列表和失败项；linked Issue `trace.md` 只记录生命周期事件投影，优先由 Workflow Sync 维护。
+- Sprint 四件套记录范围级验收入口、发布摘要和整体风险，不复制单个 Change 的完整返修台账。
+
+归档前 MUST 先完成文档同步复核：根据 `tasks.md`、`acceptance-fixes.md`（存在时）、`trace.md`、delta spec 与实现影响范围，更新受影响的长期文档、README、`.env.example`、API / DB / 部署 / 发布 / 兼容性文档或明确记录“不适用”原因。API 变更必须同步 `docs/03-api-index.md`、API 治理说明与 Orval 相关说明；DB 变更必须同步 `docs/04-database-design.md`；Docker、环境变量、发布镜像变更必须同步部署、发布与示例环境文档。不得在 docs 同步缺失、Change 内交付验证来源缺失、验收返修台账缺失或未说明豁免原因时执行归档。真实 `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` 允许存在于本地工作区，但不得被提交、stage、复制进归档、产品手册、release 产物或输出其真实内容；若它们被 Git ignore 覆盖，存在本身不得阻断归档。根目录 `tmp/` 仅允许作为本地临时工作目录存在，且必须被 Git ignore 覆盖；长期验收、归档或发布需要引用的视觉证据必须沉淀到对应 Change 的 `evidence/` 目录或脱敏摘要中。
 
 归档时合并 delta spec 到 `openspec/specs/`，更新 Issue/Sprint 状态，并移动 Change 到 `openspec/archive/YYYY-MM-DD-<change-id>/`；不得删除归档内容。OpenSpec 文档以中文为主，正式 spec、proposal、design、tasks、trace、acceptance 和 test-plan 的标题、说明、任务、验收和场景叙述 MUST 使用中文；`Requirement:`、`Scenario:`、`GIVEN`、`WHEN`、`THEN`、`SHALL` 等 OpenSpec 关键字、代码标识、API 路径和专有技术名词 MAY 保留英文。归档后清理脚手架占位文案。
 
@@ -187,7 +197,7 @@ python scripts/validate-env-ignore-policy.py
 OpenSpec 文档变更后 SHOULD 运行：
 
 ```bash
-python scripts/validate-openspec-language.py
+bash scripts/validate-openspec.sh --change <change-id> --residual-report
 ```
 
 归档批量复核可加 `--include-archive`。

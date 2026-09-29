@@ -71,6 +71,7 @@ REQUIRED_PATHS = [
     "scripts/validate-release.py",
     "scripts/generate-mintlify-docs.py",
     "scripts/validate-mintlify-docs.py",
+    "scripts/validate-openspec.sh",
     "scripts/validate-openspec-language.py",
     "scripts/validate-image-build.py",
     "scripts/build-images.sh",
@@ -169,6 +170,7 @@ ALLOWED_ROOT_DIRS = {
 }
 
 errors = validate_change_identity(ROOT)
+warnings = []
 # Local diagnostics are allowed only with an explicit ignore and no tracked files.
 if (ROOT / "logs").exists():
     ignored = subprocess.run(["git", "check-ignore", "-q", "--no-index", "logs/"], cwd=ROOT)
@@ -180,12 +182,25 @@ FORBIDDEN_PATHS = [
     "openspec/changes/archive",
 ]
 
+LEGACY_DATA_PATH_WARNINGS = {
+    "data/runtime/backend/sqlite": (
+        "legacy backend SQLite runtime path exists; canonical local SQLite "
+        "storage is data/sqlite/. Keep the legacy path only during an explicit "
+        "migration window."
+    ),
+    "data/runtime/backend/media": (
+        "legacy backend media runtime path exists; canonical object storage "
+        "is data/s3/ and transient processing belongs under data/tmp/."
+    ),
+}
+
 IGNORED_ROOT_NAMES = {
     ".DS_Store",
     ".env",
     ".env.local",
     ".env.mysql",
     ".pytest_cache",
+    ".vite",
     ".venv",
     "tmp",
     "logs",
@@ -209,6 +224,10 @@ for item in FORBIDDEN_PATHS:
     if (ROOT / item).exists():
         errors.append(f"禁止使用旧 OpenSpec 归档路径: {item}，请改用 openspec/archive")
 
+for item, message in LEGACY_DATA_PATH_WARNINGS.items():
+    if (ROOT / item).exists():
+        warnings.append(f"{item}: {message}")
+
 for child in ROOT.iterdir():
     if child.name in IGNORED_ROOT_NAMES:
         continue
@@ -228,3 +247,7 @@ if errors:
     sys.exit(1)
 
 print("目录结构校验通过。")
+if warnings:
+    print("目录结构校验警告：")
+    for warning in warnings:
+        print(f"- {warning}")

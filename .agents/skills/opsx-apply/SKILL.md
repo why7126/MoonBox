@@ -1,7 +1,7 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
-updated_at: 2026-09-12 21:30:04
+updated_at: 2026-09-15 09:13:30
 ---
 
 # opsx-apply
@@ -227,6 +227,8 @@ Only after the shared 完成门禁 passes, report change id, schema, total progr
 ## Final Step — Workflow Sync（MUST）
 
 仅在共享完成门禁中实现、验证和文档条件满足后运行；部分实现或暂停不得执行 applied 完成同步。随后按 workflow-sync Skill 执行 AI Usage Hook，使用已解析的真实 Sprint。
+
+完成态同步前 MUST 确认 Change 内存在需求中心可识别的交付验证来源。允许的来源包括非空 `acceptance.md`、非空 `verification.md`、`trace.acceptance_refs` 指向的 Change 内 Markdown，或 Change `trace.md` 中非空 `## 验证记录` / `## 验证摘要` / `## 验证结果` / `## 验收记录` / `## 验收结果` / `## Validation Log` / `## 实施与验证记录` 章节。纯治理 Change 不强制生成 `acceptance.md` 或 `verification.md`，但不得只依赖最终回复、治理日志、tasks 全勾或 Workflow Sync 成功作为交付验证来源。
 
 ```bash
 python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto

@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-09-13 16:02:48
+updated_at: 2026-09-15 09:38:43
 ---
 
 # opsx-archive
@@ -28,9 +28,9 @@ Use when the user asks `/opsx-archive <REQ-full-id|BUG-full-id|change-id>` or wa
 - 标准 capture 文案 MUST 分条包含：建议命令、类型倾向、标题、背景、影响范围、建议验收或复现要点、来源 Change/Sprint/命令；多个 follow-up 事项 MUST 逐条输出，且每条可独立用于后续 capture。
 - 如用户明确授权并实际创建 follow-up Issue，MUST 按 `/req-capture`、`/bug-capture` 或 `/capture` 规则落盘，并运行对应 `req.capture` 或 `bug.capture` Workflow Sync。
 
-- 归档复核优先 `openspec status`、`tasks.md` checkbox、delta spec heading 与 sync/promote 报告摘要；不得为归档全量读取 active/archived specs。
+- 归档复核优先 `openspec status`、`tasks.md` checkbox、`acceptance-fixes.md`（存在时）、delta spec heading 与 sync/promote 报告摘要；不得为归档全量读取 active/archived specs。
 - MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，不重复全量读取。
-- Read focused artifacts only: `tasks.md`, delta spec headings, related trace/status snippets.
+- Read focused artifacts only: `tasks.md`, `acceptance-fixes.md`（存在时）, delta spec headings, related trace/status snippets.
 - Do not full-read `issues/**`, `iterations/**`, or all `openspec/specs/**`; use `rg -n "^### Requirement:|^### ADDED|^### MODIFIED|^### REMOVED"` then open the relevant sections.
 - If a script fails, inspect the named files/snippets from the report instead of broad directory reads.
 - Keep command output summarized; include full stdout only for validation reports or failures.
@@ -66,6 +66,7 @@ rules/directory-structure.md
 rules/issues-lifecycle.md
 .agents/skills/workflow-sync/SKILL.md
 openspec/changes/<change-id>/tasks.md
+openspec/changes/<change-id>/acceptance-fixes.md（存在时）
 openspec/changes/<change-id>/trace.md（存在时）
 ```
 
@@ -82,6 +83,8 @@ openspec status --change "<change-id>" --json
 | Delta spec | if `specs/` exists, assess ADDED/MODIFIED/REMOVED before moving |
 | MODIFIED title | matching `openspec/specs/<capability>/spec.md` requirement title MUST exist |
 | Documentation sync | before archive, affected long-lived docs / README / `.env.example` / API index / DB design / Orval notes / release or deployment docs MUST be checked and updated or explicitly marked not applicable |
+| Delivery evidence source | every applied Change MUST keep a Requirement Center-readable evidence source inside the Change; pure governance Changes do not require `acceptance.md` or `verification.md`, but must have a non-empty trace verification heading, valid `trace.acceptance_refs`, or another accepted Markdown evidence entry |
+| Acceptance-fix ledger | if `/opsx-modify` ran after apply, `acceptance-fixes.md` SHOULD contain the full ledger; legacy `tasks.md` ledgers are accepted, but new Changes MUST keep full ledger in `acceptance-fixes.md` and `tasks.md` as summary/link only |
 | Product data observability | API / DB / audit log / usage event / Task Trace / Web/admin request wrapper / object storage / Agent Workflow observability changes MUST have `product_data_collection_observability` status, `affected_layers`, N/A reason and validation evidence; read `docs/standards/product-data-collection-observability.md` |
 | Prototype final consistency | if linked REQ or Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton, linked REQ `requirement.md` / `acceptance.md` / `trace.md` MUST match final Change design, implementation evidence and 1440px visual acceptance |
 | UI reference replication consistency | if linked REQ or Change has reference HTML/screenshots/attached mockups or `UI Reference Replication Contract`, final evidence MUST cover selector mapping, action button to modal matrix, computed style sampling, batch screenshots, non-goals and preserved business semantics |
@@ -100,7 +103,10 @@ openspec status --change "<change-id>" --json
    - delta exists => summarize capability, operation type, and affected Requirement titles;
    - prefer `scripts/archive-change.sh "<change-id>"` so OpenSpec CLI output is normalized to canonical `openspec/archive/` and legacy `openspec/changes/archive/` is migrated/blocked.
 4. Before moving or merging the Change, complete documentation sync:
-   - inspect `tasks.md`, `trace.md`, delta spec headings, and implementation notes to identify affected docs;
+   - inspect `tasks.md`, `acceptance-fixes.md` when present, `trace.md`, delta spec headings, and implementation notes to identify affected docs;
+   - verify the applied Change has a readable delivery evidence source inside the Change. Do not require `acceptance.md` or `verification.md` for pure governance Changes; accept non-empty trace verification headings or valid `trace.acceptance_refs`;
+   - run `python scripts/validate-change-delivery-evidence.py --change <change-id>` before archive to reuse the same delivery evidence source check as Requirement Center;
+   - if acceptance fixes were recorded, verify the full ledger, trace summary, Issue acceptance projection, and tasks summary/link are consistent; BLOCK archive when the ledger is missing, evidence is stale after `/opsx-modify`, or the trace summary contradicts the ledger;
    - update required long-lived docs according to `rules/document-governance.md` and task-specific rules, including `docs/03-api-index.md` / Orval notes for API changes, `docs/04-database-design.md` for DB changes, deployment / release docs and `.env.example` for environment or Docker changes, and README or compatibility docs when affected;
    - do not read, print, copy, or archive real env file contents; local `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` are allowed to exist when Git ignore policy covers them;
    - if no documentation update is required, record the reason in the archive output; do not silently skip this gate.

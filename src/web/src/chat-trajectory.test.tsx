@@ -15,8 +15,11 @@ it("pairs interleaved tools by executor identity without mutating history", () =
 });
 it("searches detail fields and renders output as inert text", () => {
  render(<TrajectoryView events={events}/>);
+ expect(document.querySelector(".trace-wrap")).not.toBeNull();
+ expect(document.querySelector(".scrub")).not.toBeNull();
  fireEvent.change(screen.getByLabelText("搜索轨迹"),{target:{value:"echo hi"}});
  expect(screen.getAllByRole("listitem")).toHaveLength(1);
+ expect(screen.getAllByRole("listitem")[0].className).toContain("event-row");
  fireEvent.click(screen.getByLabelText("查看事件 1 详情"));
  fireEvent.click(screen.getByRole("tab",{name:"结果"}));
  expect(screen.getByText("<img src=x>")).toBeTruthy();expect(document.querySelector("img")).toBeNull();

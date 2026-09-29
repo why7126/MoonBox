@@ -200,6 +200,8 @@ product_data_collection_observability:
 
 若 `status: not_applicable`，`reason` 必须说明为什么不影响 API、DB、请求日志、行为事件、Task Trace 或端请求封装；不得只写“无”“不涉及”或 “N/A”。
 
+REQ-0028 Chat 图片/文件与 Skill 上下文属于 `applicable`：`usage_events.properties` 仅允许记录 `turn_id`、`image_count`、`file_count`、`skill_count` 等脱敏标识和小整数；`chat_request_logs` 仍只保存服务端 request_id、路由、状态、耗时和受限材料计数，不保存完整请求体；`task_traces.metadata` 与 `task_trace_spans.metadata` 只记录材料数量、上传登记模式和节点状态。禁止把图片二进制、文件正文、浏览器本机路径、对象存储完整 key、签名 URL、Skill 全文、完整 Prompt 或完整回复写入四层观测数据。
+
 ## 6. Task Trace 分级覆盖
 
 满足以下任一条件的接口或任务 SHOULD 进入 Task Trace 候选清单；影响关键数据、安全、发布、审批或 Agent Workflow 的高风险操作 MUST 优先接入：
@@ -267,3 +269,9 @@ product_data_collection_observability:
 ## Capture 实现映射（BUG-0014）
 
 Capture沿用ChatRoute：请求层物理表为chat_request_logs；Web标记X-Chat-Client=web时写governance.capture至usage_events，仅允许operation_id关联属性。直接API不模拟页面行为。任务类型governance_application以governance前缀关联操作ID，节点沿用queued/applying/prepared/recovering/applied/conflict/recovery_blocked阶段，详细逐文件阶段保留在私有操作记录。沿用请求/已完成任务90天、行为180天保留清理；未终态恢复证据不自动清理。采集故障降级，表单正文、凭证和本机路径不得进入这些事件。
+
+## Capture 候选审阅映射（REQ-0029，实施中）
+
+product_data_collection_observability：applicable。affected_layers：API、DB、request_logs、usage_events、task_traces、Web请求封装、对象存储。validation：已覆盖显式Web事件、直接API无伪造行为、纯GET/草稿请求无Task Trace、观测到期不删业务来源；真实浏览器跨层关联仍待联调。
+
+行为事件为capture.upload、capture.organize、capture.review_save、capture.confirm、capture.retry；仅识别有效Web行为ID和链路ID。服务端可信request_id通过请求审计关联，properties不保存正文或图片。Task Trace类型为capture_organize/capture_confirmation，记录排队、运行、计划、逐文件、恢复和结果阶段；只存不透明标识与受限阶段名称，不复制用户材料。终态Trace保留90天、行为保留180天；来源快照和正式图片独立长期保存。简单读取和同步草稿保存没有异步任务，不新增Task Trace。观测写入失败只记固定错误摘要，不替换业务结果。

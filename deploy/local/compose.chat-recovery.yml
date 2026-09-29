@@ -2,6 +2,7 @@
 # 从仓库根目录运行 docker compose -f docker-compose.yml -f deploy/local/compose.chat-recovery.yml up -d --no-deps chat-recovery
 services:
   chat-recovery:
+    container_name: ${CHAT_RECOVERY_CONTAINER_NAME:-moonbox-chat-recovery}
     image: ${BACKEND_IMAGE:-moonbox-backend:local}
     command: ["python", "-m", "app.chat.worker"]
     restart: unless-stopped

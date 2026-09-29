@@ -11,7 +11,11 @@ it("renders supported Markdown without active HTML, images or unsafe protocols",
   expect(document.querySelector('a[href^="javascript"]')).toBeNull();
 });
 it("distinguishes turn/cumulative changes and metadata-only files", () => {
-  render(<DiffView diff={{available:true,files:[{path:'image.bin',status:'added',reason:'二进制文件',after_size:12}],cumulative_files:[{path:'new.txt',previous_path:'old.txt',status:'renamed',patch:''}]}} />);
+  render(<DiffView diff={{available:true,files:[{path:'image.bin',status:'added',reason:'二进制文件',after_size:12,workspace_status:'untracked'},{path:'stale.txt',status:'modified',patch:'-old\n+new',workspace_status:'mismatch'}],cumulative_files:[{path:'new.txt',previous_path:'old.txt',status:'renamed',patch:''}]}} />);
+  expect(screen.getByText('本轮执行快照')).toBeTruthy();
+  expect(screen.getByText('新增（未跟踪）')).toBeTruthy();
+  expect(screen.getByText('当前工作区：未跟踪')).toBeTruthy();
+  expect(screen.getByText('快照内容与当前磁盘内容不一致，页面展示的是执行快照。')).toBeTruthy();
   expect(screen.getByText(/二进制文件；仅展示文件元数据/)).toBeTruthy();
   fireEvent.change(screen.getByLabelText('Diff 比较范围'),{target:{value:'cumulative'}});
   expect(screen.getByText('原路径：old.txt')).toBeTruthy();

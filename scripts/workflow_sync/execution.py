@@ -73,9 +73,12 @@ def transition(root: Path, record, event: str, *, write: bool) -> dict:
     if event != "opsx.start" and not (execution or {}).get("started_at"):
         raise ValueError("Run opsx.start before progress/completion")
     execution = dict(execution or {})
-    execution.setdefault("schema_version", 1)
-    execution.setdefault("started_at", now_shanghai())
-    execution.setdefault("completed_at", None)
+    if not execution.get("schema_version"):
+        execution["schema_version"] = 1
+    if not execution.get("started_at"):
+        execution["started_at"] = now_shanghai()
+    if "completed_at" not in execution:
+        execution["completed_at"] = None
     if event == "opsx.apply":
         if record.tasks.total <= 0 or record.tasks.done != record.tasks.total:
             raise ValueError("Completion requires all tasks checked")

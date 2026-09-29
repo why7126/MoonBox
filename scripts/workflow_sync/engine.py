@@ -253,6 +253,12 @@ class SyncEngine:
         report.sprint_id = resolved
         report.sprint_skip_reason = skip_reason
 
+        from .title_gate import validate_generated
+        title_errors = validate_generated(ROOT, event, req_id or bug_id, change_id)
+        if title_errors:
+            report.errors.extend(title_errors)
+            return report
+
         issues = load_all_issues()
         openspec_data = run_openspec_list()
 
@@ -328,6 +334,31 @@ class SyncEngine:
             for iid in issue_ids
             if iid in issues
         }
+
+        issue_event_targets = {
+            "req.generate": (req_id, "draft"),
+            "req.complete": (req_id, "pending_review"),
+            "bug.generate": (bug_id, "draft"),
+            "bug.complete": (bug_id, "pending_review"),
+        }
+        focus_issue_id, target_status = issue_event_targets.get(event or "", (None, None))
+        if focus_issue_id and target_status and focus_issue_id in derived_issues:
+            current = derived_issues[focus_issue_id]
+            allowed_source_statuses = {
+                "draft",
+                "enriching",
+                target_status,
+            } if target_status == "pending_review" else {
+                "captured",
+                "exploring",
+                target_status,
+            }
+            if current.display_status in allowed_source_statuses:
+                derived_issues[focus_issue_id] = replace(
+                    current,
+                    display_status=target_status,
+                    note=f"status `{target_status}`",
+                )
 
         if reconcile_issue_status_residuals_flag:
             if not (req_id or bug_id):
@@ -434,6 +465,8 @@ class SyncEngine:
                 should_sync_subdocuments = iid == req_id
             elif event and event.startswith("bug."):
                 should_sync_subdocuments = iid == bug_id
+            elif event == "sprint.propose":
+                should_sync_subdocuments = iid in {req_id, bug_id}
             elif event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.archive"}:
                 should_sync_subdocuments = bool(change_id and derived.linked_change == change_id)
             elif event == "sprint.archive":

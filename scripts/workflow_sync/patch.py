@@ -1223,11 +1223,51 @@ def update_nested_yaml_scalar(block: str, parent: str, key: str, value: str) -> 
     return "\n".join(lines) + "\n"
 
 
+def update_nested_yaml_scalar_if_empty(block: str, parent: str, key: str, value: str) -> str:
+    lines = block.rstrip("\n").splitlines()
+    parent_index: int | None = None
+    for index, line in enumerate(lines):
+        if re.match(rf"^{re.escape(parent)}:\s*$", line):
+            parent_index = index
+            break
+    if parent_index is None:
+        return update_nested_yaml_scalar(block, parent, key, value)
+
+    index = parent_index + 1
+    while index < len(lines):
+        line = lines[index]
+        if line and not line.startswith(" "):
+            break
+        match = re.match(rf"^\s+{re.escape(key)}:\s*(.*)$", line)
+        if match:
+            current = match.group(1).strip()
+            if current and current.lower() not in {"null", "none", "~"}:
+                return block
+            break
+        index += 1
+    return update_nested_yaml_scalar(block, parent, key, value)
+
+
 def update_openspec_changes_in_block(block: str, change_id: str, status: str) -> str:
     lines = block.splitlines()
     out: list[str] = []
+    in_openspec_changes = False
     in_target = False
     for line in lines:
+        if re.match(r"^openspec_changes:\s*$", line):
+            in_openspec_changes = True
+            out.append(line)
+            continue
+        if in_openspec_changes and line and not line.startswith(" "):
+            in_openspec_changes = False
+        if in_openspec_changes:
+            scalar_match = re.match(rf"^(\s*)-\s*{re.escape(change_id)}\s*$", line)
+            if scalar_match:
+                indent = scalar_match.group(1)
+                out.append(f"{indent}- change_id: {change_id}")
+                out.append(f"{indent}  status: {status}")
+                in_target = False
+                continue
         if re.match(rf"^\s*- change_id:\s*{re.escape(change_id)}\s*$", line):
             in_target = True
             out.append(line)
@@ -1243,6 +1283,25 @@ def update_openspec_changes_in_block(block: str, change_id: str, status: str) ->
     return "\n".join(out)
 
 
+def ensure_openspec_change_in_block(block: str, change_id: str, status: str) -> str:
+    updated = update_openspec_changes_in_block(block, change_id, status)
+    if re.search(rf"^\s*- change_id:\s*{re.escape(change_id)}\s*$", updated, re.MULTILINE):
+        return updated
+
+    lines = updated.rstrip("\n").splitlines()
+    section = _top_level_section_bounds(lines, "openspec_changes")
+    entry = [f"  - change_id: {change_id}", f"    status: {status}"]
+    if section is None:
+        if lines:
+            lines.extend(["openspec_changes:", *entry])
+        else:
+            lines = ["openspec_changes:", *entry]
+    else:
+        _, end = section
+        lines[end:end] = entry
+    return "\n".join(lines) + "\n"
+
+
 def append_workflow_event_record(
     text: str,
     *,
@@ -1251,31 +1310,46 @@ def append_workflow_event_record(
     derived: DerivedIssue,
     change_status_map: dict[str, str],
 ) -> str:
-    if "## 变更记录" not in text or not event or not change_id:
+    if "## 变更记录" not in text or not event:
         return text
-    if derived.linked_change != change_id:
+
+    if event in {"req.generate", "bug.generate"}:
+        expected_kind = "req" if event.startswith("req.") else "bug"
+        if derived.kind != expected_kind:
+            return text
+        command = "/req-generate" if event == "req.generate" else "/bug-generate"
+        primary_doc = "requirement.md" if event == "req.generate" else "bug.md"
+        description = f"{derived.issue_id} 已生成 {primary_doc}，状态同步为 draft。"
+    elif event in {"req.complete", "bug.complete"}:
+        expected_kind = "req" if event.startswith("req.") else "bug"
+        if derived.kind != expected_kind:
+            return text
+        if derived.display_status != "pending_review":
+            return text
+        command = "/req-complete" if event == "req.complete" else "/bug-complete"
+        description = f"{derived.issue_id} 已完成文档补齐，状态同步为 pending_review。"
+    elif not change_id or derived.linked_change != change_id:
         return text
-    change_status = change_status_map.get(change_id)
-    if event in {"opsx.start", "opsx.progress"} and change_status == "in_progress":
+    elif event in {"opsx.start", "opsx.progress"} and change_status_map.get(change_id) == "in_progress":
         command = "/opsx-apply"
         description = f"Change `{change_id}` {event} 已同步；研发中，未宣告完成。"
-    elif event == "opsx.apply" and change_status in {"applied", "in_progress"}:
+    elif event == "opsx.apply" and change_status_map.get(change_id) in {"applied", "in_progress"}:
         command = "/opsx-apply"
         description = (
             f"Change `{change_id}` apply 完成，待 archive。"
-            if change_status == "applied"
+            if change_status_map.get(change_id) == "applied"
             else f"Change `{change_id}` apply 进行中，待补齐剩余验收。"
         )
-    elif event == "opsx.modify" and change_status in {"applied", "in_progress"}:
+    elif event == "opsx.modify" and change_status_map.get(change_id) in {"applied", "in_progress"}:
         command = "/opsx-modify"
         description = f"Change `{change_id}` 验收返修已同步，待复验或 archive。"
-    elif event == "opsx.archive" and change_status == "archived":
+    elif event == "opsx.archive" and change_status_map.get(change_id) == "archived":
         command = "/opsx-archive"
         description = f"Change `{change_id}` 已归档，状态同步完成。"
     else:
         return text
 
-    if command in text and change_id in text and description in text:
+    if command in text and description in text:
         return text
 
     stamp = now_shanghai()
@@ -1323,7 +1397,27 @@ def normalize_change_record_table(text: str) -> str:
     return text[: match.start(2)] + normalized_body + text[match.end(2) :]
 
 
-def update_current_status_section(text: str, issue: IssueRecord, derived: DerivedIssue) -> str:
+def update_current_status_yaml_block(
+    block: str,
+    issue: IssueRecord,
+    derived: DerivedIssue,
+    change_status_map: dict[str, str],
+) -> str:
+    next_step = _issue_next_step(issue, derived).strip("`")
+    block = update_yaml_scalar(block, "next", next_step)
+    for change_id, status in change_status_map.items():
+        block = ensure_openspec_change_in_block(block, change_id, status)
+    if not block.endswith("\n"):
+        block += "\n"
+    return block
+
+
+def update_current_status_section(
+    text: str,
+    issue: IssueRecord,
+    derived: DerivedIssue,
+    change_status_map: dict[str, str] | None = None,
+) -> str:
     if "## 当前状态" not in text:
         return text
     stage = issue.path.parent.name if issue.path.parent.name in {"plan", "review", "archive"} else None
@@ -1334,12 +1428,28 @@ def update_current_status_section(text: str, issue: IssueRecord, derived: Derive
             text,
             count=1,
         )
-    return re.sub(
+    text = re.sub(
         r"(?m)^- 状态：.+$",
         f"- 状态：{derived.display_status}",
         text,
         count=1,
     )
+
+    section_pattern = re.compile(r"(## 当前状态\n\n)(.*?)(?=\n## |\Z)", re.DOTALL)
+    match = section_pattern.search(text)
+    if not match or not change_status_map:
+        return text
+
+    body = match.group(2)
+    yaml_pattern = re.compile(r"(```yaml\n)(.*?)(```)", re.DOTALL)
+    yaml_match = yaml_pattern.search(body)
+    if not yaml_match:
+        return text
+
+    block = yaml_match.group(2).rstrip("\n") + "\n"
+    updated_block = update_current_status_yaml_block(block, issue, derived, change_status_map)
+    updated_body = body[: yaml_match.start(2)] + updated_block + body[yaml_match.end(2) :]
+    return text[: match.start(2)] + updated_body + text[match.end(2) :]
 
 
 def patch_issue_trace(
@@ -1378,6 +1488,10 @@ def patch_issue_trace(
         if sprint_id != "无":
             block = update_yaml_scalar(block, "iteration", sprint_id)
         block = update_yaml_scalar(block, "lifecycle_stage", stage)
+        if event in {"req.generate", "bug.generate"} and derived.display_status == "draft":
+            block = update_nested_yaml_scalar_if_empty(block, "lifecycle", "generated", now_shanghai())
+        if event in {"req.complete", "bug.complete"} and derived.display_status == "pending_review":
+            block = update_nested_yaml_scalar_if_empty(block, "lifecycle", "completed", now_shanghai())
         if derived.linked_change:
             block = update_yaml_scalar(block, "related_change", derived.linked_change)
         for change_id, status in change_status_map.items():
@@ -1399,6 +1513,8 @@ def patch_issue_trace(
             sprint_id = sprint.sprint_id
         if derived.display_status == "in_sprint" and sprint_id:
             block = update_nested_yaml_scalar(block, "lifecycle", "iteration", sprint_id)
+        if event in {"req.complete", "bug.complete"} and derived.display_status == "pending_review":
+            block = update_nested_yaml_scalar_if_empty(block, "lifecycle", "completed", now_shanghai())
         block = update_nested_yaml_scalar(block, "lifecycle", "status", derived.display_status)
         block = update_nested_yaml_scalar(block, "lifecycle", "stage", stage)
         if derived.linked_change:
@@ -1436,7 +1552,7 @@ def patch_issue_trace(
         derived=derived,
         change_status_map=change_status_map,
     )
-    text = update_current_status_section(text, issue, derived)
+    text = update_current_status_section(text, issue, derived, change_status_map)
 
     changed = persist_markdown(trace_path, text, original, write)
     return PatchResult(str(trace_path.relative_to(ROOT)), changed, derived.display_status)
@@ -1466,7 +1582,7 @@ def patch_registry_entry(
     def replace_entry_scalar(entry_text: str, key: str, value: str) -> str:
         scalar_pattern = re.compile(rf"^(\s+{re.escape(key)}:\s*).*$", re.MULTILINE)
         if scalar_pattern.search(entry_text):
-            return scalar_pattern.sub(rf"\1{value}", entry_text, count=1)
+            return scalar_pattern.sub(lambda match: match.group(1) + value, entry_text, count=1)
         return entry_text.rstrip() + f"\n    {key}: {value}\n"
 
     stage = _issue_stage(issue)
@@ -1478,6 +1594,11 @@ def patch_registry_entry(
         other = "severity" if issue.kind == "req" else "priority"
         entry = re.sub(rf"^    (?:{other}|priority_hint|severity_hint):[^\n]*\n", "", entry, flags=re.M)
         entry = replace_entry_scalar(entry, key, issue.priority)
+    if sync_classification_fields:
+        from .title_gate import titles
+        import json
+        if titles.business_title(issue.title):
+            entry = replace_entry_scalar(entry, "title", json.dumps(issue.title, ensure_ascii=False))
     entry = replace_entry_scalar(entry, "status", derived.display_status)
     entry = replace_entry_scalar(entry, "lifecycle_stage", stage)
     entry = replace_entry_scalar(entry, "path", path)

@@ -16,6 +16,7 @@ conversations = Table('chat_conversations', metadata, *identity(),
     Column('owner_id', String(64), ForeignKey('admin_users.id'), nullable=False),
     Column('space_id', String(64), ForeignKey('admin_spaces.id'), nullable=False),
     Column('repository_id', String(64), nullable=False), Column('title', String(200), nullable=False),
+    Column('branch_name', String(128), nullable=False, default='main'),
     Column('pinned', Integer, nullable=False, default=0), Column('archived', Integer, nullable=False, default=0),
     Column('deleted_at', String(32)), Column('active_turn_id', String(64)),
     Column('thread_id', String(128)), Column('workspace_id', String(64)),
@@ -29,6 +30,9 @@ turns = Table('chat_turns', metadata, *identity(),
     Column('worker_id', String(64)), Column('generation', Integer, nullable=False, default=0),
     Column('heartbeat_at', String(32)), Column('executor_turn_id', String(128)),
     Column('error_code', String(64)), Column('reserved_bytes', BigInteger, nullable=False, default=0),
+    Column('requested_config', Text, nullable=False, default='{}'),
+    Column('effective_config', Text, nullable=False, default='{}'),
+    Column('config_fallback_reason', String(200)),
     UniqueConstraint('conversation_id', 'client_request_id', name='uq_chat_request'))
 Index('ix_chat_turn_queue', turns.c.status, turns.c.created_at)
 events = Table('chat_events', metadata, *identity(),
@@ -40,6 +44,22 @@ events = Table('chat_events', metadata, *identity(),
 messages = Table('chat_messages', metadata, *identity(),
     Column('turn_id', String(64), ForeignKey('chat_turns.id'), nullable=False),
     Column('role', String(24), nullable=False), Column('content', LargeText, nullable=False))
+turn_materials = Table('chat_turn_materials', metadata, *identity(),
+    Column('turn_id', String(64), ForeignKey('chat_turns.id'), nullable=False),
+    Column('kind', String(24), nullable=False), Column('ordinal', Integer, nullable=False),
+    Column('status', String(24), nullable=False), Column('name', String(200), nullable=False),
+    Column('summary', LargeText, nullable=False), Column('mime_type', String(80)),
+    Column('size_bytes', BigInteger, nullable=False, default=0), Column('ref_id', String(128)),
+    Column('metadata', Text, nullable=False, default='{}'),
+    UniqueConstraint('turn_id', 'kind', 'ordinal', name='uq_chat_turn_material_ordinal'))
+Index('ix_chat_material_turn', turn_materials.c.turn_id, turn_materials.c.kind, turn_materials.c.ordinal)
+uploaded_materials = Table('chat_uploaded_materials', metadata, *identity(),
+    Column('actor_id', String(64), nullable=False), Column('space_id', String(64), nullable=False),
+    Column('repository_id', String(64), nullable=False), Column('object_key', String(200), nullable=False),
+    Column('kind', String(24), nullable=False), Column('name', String(200), nullable=False),
+    Column('mime_type', String(80), nullable=False), Column('size_bytes', BigInteger, nullable=False),
+    Column('status', String(24), nullable=False), Column('deleted_at', String(32)))
+Index('ix_chat_uploaded_material_owner', uploaded_materials.c.actor_id, uploaded_materials.c.space_id, uploaded_materials.c.repository_id, uploaded_materials.c.status)
 snapshots = Table('chat_context_snapshots', metadata, *identity(),
     Column('turn_id', String(64), ForeignKey('chat_turns.id'), nullable=False),
     Column('object_id', String(128), nullable=False), Column('version', String(128), nullable=False),
@@ -51,14 +71,32 @@ diffs = Table('chat_diff_snapshots', metadata, *identity(),
 audit = Table('chat_request_logs', metadata, *identity(),
     Column('request_id', String(64), nullable=False), Column('actor_id', String(64)),
     Column('route_template', String(256), nullable=False), Column('method', String(12), nullable=False),
-    Column('status_code', Integer, nullable=False), Column('duration_ms', Integer, nullable=False))
+    Column('status_code', Integer, nullable=False), Column('duration_ms', Integer, nullable=False),
+    Column('metadata', Text, nullable=False, default='{}'))
 
-CHAT_TABLES = [conversations, turns, events, messages, snapshots, diffs, audit]
+CHAT_TABLES = [conversations, turns, events, messages, turn_materials, uploaded_materials, snapshots, diffs, audit]
 
 def migrate(engine):
+    from app.governance.capture_schema import TABLES as capture_tables
+    for table in capture_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     metadata.create_all(engine, tables=CHAT_TABLES)
     from sqlalchemy import inspect, text
     with engine.begin() as connection:
+        turn_columns = {column['name'] for column in inspect(connection).get_columns('chat_turns')}
+        if 'requested_config' not in turn_columns:
+            connection.execute(text("ALTER TABLE chat_turns ADD COLUMN requested_config TEXT NOT NULL DEFAULT '{}'"))
+        if 'effective_config' not in turn_columns:
+            connection.execute(text("ALTER TABLE chat_turns ADD COLUMN effective_config TEXT NOT NULL DEFAULT '{}'"))
+        if 'config_fallback_reason' not in turn_columns:
+            connection.execute(text('ALTER TABLE chat_turns ADD COLUMN config_fallback_reason VARCHAR(200)'))
+        conversation_columns = {column['name'] for column in inspect(connection).get_columns('chat_conversations')}
+        if 'branch_name' not in conversation_columns:
+            connection.execute(text("ALTER TABLE chat_conversations ADD COLUMN branch_name VARCHAR(128) NOT NULL DEFAULT 'main'"))
+        audit_columns = {column['name'] for column in inspect(connection).get_columns('chat_request_logs')}
+        if 'metadata' not in audit_columns:
+            connection.execute(text("ALTER TABLE chat_request_logs ADD COLUMN metadata TEXT NOT NULL DEFAULT '{}'"))
         columns = {column['name'] for column in inspect(connection).get_columns('chat_usage_reservations')}
         if 'concurrency_released' not in columns:
             connection.execute(text('ALTER TABLE chat_usage_reservations ADD COLUMN concurrency_released INTEGER NOT NULL DEFAULT 0'))

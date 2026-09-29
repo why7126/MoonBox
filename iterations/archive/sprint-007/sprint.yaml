@@ -1,0 +1,149 @@
+sprint_id: sprint-007
+status: completed
+lifecycle_stage: archive
+created_at: '2026-09-15 00:03:01'
+updated_at: '2026-09-29 14:42:54'
+start_date: '2026-09-15 00:03:01'
+end_date: '2026-09-29 00:03:01'
+capacity:
+  developers: 1
+  testers: 1
+capacity_person_days: 30
+requirements:
+  - REQ-0029-capture-multimodal-candidate-review
+  - REQ-0037-current-iteration-archive-entry
+  - REQ-0036-requirement-center-document-drawer-simplification
+bugs:
+  - BUG-0017-compose-container-name-suffix-one
+  - BUG-0019-requirement-center-issue-title-overridden
+  - BUG-0023-requirement-center-acceptance-progress-task-classification
+changes:
+  - add-current-iteration-archive-entry
+  - fix-compose-container-name-suffix-one
+  - add-capture-multimodal-candidate-review
+  - optimize-opsx-modify-acceptance-fix-ledger
+  - unify-change-delivery-evidence-source
+  - add-change-delivery-evidence-source-check
+  - clarify-opsx-modify-repair-stage-flow
+  - fix-requirement-center-stage-business-titles
+  - fix-requirement-center-acceptance-progress-task-classification
+  - sync-sprint-propose-bug-main-status
+  - remove-requirement-center-document-drawer-change-attributes
+  - add-capture-dedup-gate
+  - standardize-data-runtime-storage-layout
+scope_estimates:
+  - id: REQ-0029-capture-multimodal-candidate-review
+    change: add-capture-multimodal-candidate-review
+    requirement: REQ-0029-capture-multimodal-candidate-review
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 图文上传与真实模型链路1.5人天、稳定候选/版本与审阅交互2人天、确认编号/幂等及批量恢复2人天、来源权限与保留1人天、集成/故障注入/视觉与文档验收1.5人天，共8人天；已有受控写入基础复用，实际工作量在Change设计时复核。
+  - id: REQ-0037-current-iteration-archive-entry
+    change: add-current-iteration-archive-entry
+    requirement: REQ-0037-current-iteration-archive-entry
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 当前迭代容量区域新增归档入口与 readiness 安全摘要，复用 Sprint archive 既有门禁；涉及前端入口/禁用态、后端
+      readiness 汇总或脚本增强、权限/Workflow Sync/验收 sign-off 校验穿透验证，按中等 UI+治理改造估算 3 人天。
+  - id: BUG-0017-compose-container-name-suffix-one
+    change: fix-compose-container-name-suffix-one
+    bug: BUG-0017-compose-container-name-suffix-one
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Docker/Compose 命名修复覆盖 chat-worker、governance-controller、chat-recovery 三个入口，需补齐可覆盖的 container_name、更新部署文档或脚本说明，并增加配置解析与运行态命名回归；按中等部署修复估算 3 人天。
+  - id: optimize-opsx-modify-acceptance-fix-ledger
+    change: optimize-opsx-modify-acceptance-fix-ledger
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 纯治理规范优化：调整 /opsx-modify 验收返修台账文档结构，更新 opsx-modify、opsx-archive 与文档治理规则，不涉及业务 src，实现与验证范围较小。
+  - id: unify-change-delivery-evidence-source
+    change: unify-change-delivery-evidence-source
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 纯治理规范优化：统一 applied Change 的交付验证来源契约，明确纯治理 Change 不强制 acceptance.md 或 verification.md，但必须在 Change 内保留可识别验证入口。
+  - id: add-change-delivery-evidence-source-check
+    change: add-change-delivery-evidence-source-check
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 纯治理脚本优化：新增 applied Change 交付验证来源校验脚本，复用需求中心识别口径，防止验收中卡片再次出现未找到交付验证记录。
+  - id: clarify-opsx-modify-repair-stage-flow
+    change: clarify-opsx-modify-repair-stage-flow
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 纯治理规范优化：明确 /opsx-modify 返修执行中展示为研发中、返修完成后回到验收中，同时保留 Change applied 事实，不用普通 in_progress 覆盖首次 apply 完成事实。
+  - id: BUG-0019-requirement-center-issue-title-overridden
+    change: fix-requirement-center-stage-business-titles
+    bug: BUG-0019-requirement-center-issue-title-overridden
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 按阶段治理标题读取与回退1人天、Web显示与身份一致性0.5人天、全部文档生成模板及入口校验2人天、自动回归和1440px真实观察及文档同步1.5人天，共5人天；包含全生成入口而非单行UI修复。
+  - id: BUG-0023-requirement-center-acceptance-progress-task-classification
+    change: fix-requirement-center-acceptance-progress-task-classification
+    bug: BUG-0023-requirement-center-acceptance-progress-task-classification
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 需求中心验收卡片三类进度口径修复横跨后端 tasks.md 分类解析、API 响应与 OpenAPI/客户端类型、前端卡片展示、回归测试和 tasks.md/opsx-modify 返修任务统计口径沉淀；按中等偏大的展示与治理口径修复估算 5 人天。
+  - id: sync-sprint-propose-bug-main-status
+    change: sync-sprint-propose-bug-main-status
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理脚本优化：让 Workflow Sync 在 sprint.propose 聚焦 BUG 时自动同步 bug.md 主状态，补聚焦单元测试和治理日志，不触达业务 src，估算0.5人天。
+  - id: REQ-0036-requirement-center-document-drawer-simplification
+    change: remove-requirement-center-document-drawer-change-attributes
+    requirement: REQ-0036-requirement-center-document-drawer-simplification
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 需求中心文档抽屉删除 Change 属性模块，复用现有文档读取和权限链路；主要改动为前端抽屉渲染、既有入口回归、1440px/窄视口视觉与权限验证，按小型 UI 收敛项估算 1 人天。
+  - id: add-capture-dedup-gate
+    change: add-capture-dedup-gate
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理规范优化：为 capture、req-capture、bug-capture 增加创建前重复/相似 Issue 检查门禁；仅触达治理 Skill、规则、OpenSpec 文档和治理日志，估算0.5人天。
+  - id: standardize-data-runtime-storage-layout
+    change: standardize-data-runtime-storage-layout
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理变更：统一 data/sqlite、data/s3、data/runtime 目录边界，补目录规范、部署/数据库文档、校验脚本 warning、OpenSpec delta 和治理日志；不迁移真实数据、不改业务 src，估算0.5人天。
+estimated_story_points: 32
+estimated_person_days: 30.5
+capacity_usage: 1.0167
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+capacity_gate:
+  status: warning
+  capacity_person_days: 30
+  estimated_person_days: 30.5
+  capacity_usage: 1.0167
+  note: 按当前容量重新计算；低于30%的剩余缓冲需提示风险。
+knowledge_intake:
+  latest_retrospective: docs/knowledge-base/retrospectives/sprint-005-retrospective.md
+  carried_actions:
+    - S5-A001
+    - S5-A002
+    - S5-A003
+    - S5-A004
+    - S5-A005
+    - S5-A006
+  note: 读取并审视open建议，承接本需求相关预防经验；不将建议自动当作正式Issue/Change或额外范围。
+product_data_collection_observability:
+  status: applicable
+  affected_layers:
+    - usage_events
+    - request_logs
+    - task_traces
+    - task_trace_spans
+  reason: REQ-0029 的图文上传、候选整理审阅、版本确认和批量落盘涉及 Web/API/DB/对象存储及 Agent Workflow；REQ-0037 的 Sprint 归档入口涉及 usage_events、request_logs 与 task_traces；BUG-0023 涉及需求中心后端 API 聚合字段、OpenAPI/客户端类型和 Web 卡片展示口径。四层适用，无层级 N/A。
+  validation: 规划检查已通过；实施按 REQ-0029 的 AC-OBS-001 至 004、6 条 media-upload 横切 AC、真实模型样例和批量故障注入验证；REQ-0037 继续验证入口点击、权限拒绝、门禁失败、安全摘要、归档确认与 Workflow Sync 结果刷新；BUG-0023 需验证 API 响应、OpenAPI/客户端类型、前端卡片进度和 tasks.md 三类任务及 /opsx-modify 返修任务统计口径一致。

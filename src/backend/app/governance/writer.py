@@ -46,7 +46,7 @@ def maintenance(project):
 
 
 def write_permission(project, kind):
-    if kind == 'capture':
+    if kind in ('capture', 'capture_batch'):
         from app.governance.readiness import require_capture
         require_capture(project)
     else:
@@ -224,7 +224,20 @@ def set_state(db,oid,state,phase,error=None):
     db.execute(update(applications).where(applications.c.id==oid).values(state=state,phase=phase,error_code=error,updated_at=service.now()))
     from app.governance.observability import trace
     trace(db,oid,state)
+    from app.governance.capture_schema import confirmations as capture_confirmations
+    capture_row=db.execute(select(capture_confirmations).where(capture_confirmations.c.operation_id==oid)).mappings().first()
+    if capture_row:
+        from app.governance.capture_observability import trace as capture_trace
+        capture_trace(db,capture_row['id'],phase if phase in ('prepared','verified') or phase.startswith('file-') else state,
+                      actor=capture_row['actor_id'],kind='capture_confirmation')
     db.commit()
+
+
+def refresh_capture_authorization(db,row,record):
+    db.commit()  # Refresh MySQL's authorization snapshot at each durable boundary.
+    project=scope.authorize(db,row['actor_id'],row['space_id'],row['repository_id'],write=True)
+    if project.binding_revision!=record['binding_revision']:raise ValueError('binding_changed')
+    return project
 
 
 def process(db,oid,*,after_write=None):
@@ -252,15 +265,23 @@ def process(db,oid,*,after_write=None):
         try:
             write_permission(project, record.get('kind'))
             if project.binding_revision!=record['binding_revision']: raise ValueError('binding_changed')
+            if record['kind'] in ('capture','capture_batch') and not record.get('planned'):
+                baseline=digest(read_once(project.root))
+                if recovering:
+                    if record.get('planning_baseline_hash')!=baseline:raise ValueError('capture_plan_missing')
+                else:
+                    record['planning_baseline_hash']=baseline
+                    store.write(oid,'operation',record)
             lock=db.execute(select(locks).where(locks.c.scope_key==project.key)).mappings().first()
             fence=(lock['fencing_token'] if lock else 0)+1;worker_id=str(uuid4())
             values={'operation_id':oid,'fencing_token':fence,'worker_id':worker_id,'updated_at':service.now()}
             if lock:db.execute(update(locks).where(locks.c.scope_key==project.key).values(**values))
             else:db.execute(insert(locks).values(scope_key=project.key,**values))
             db.execute(update(applications).where(applications.c.id==oid).values(fencing_token=fence,worker_id=worker_id,state='recovering' if recovering else 'applying',phase='validating'));db.commit()
-            if record['kind'] == 'capture' and not record.get('planned'):
-                from app.governance.capture import plan
-                record.update(plan(project, record['payload'], row['actor_id'], oid))
+            if record['kind'] in ('capture', 'capture_batch') and not record.get('planned'):
+                from app.governance.capture import plan, batch_plan
+                planner = batch_plan if record['kind'] == 'capture_batch' else plan
+                record.update(planner(project, record['payload'], row['actor_id'], oid))
                 store.write(oid, 'operation', record)
                 before = {p: b.encode() for p, b in record['before'].items()}
                 after = {p: b.encode() for p, b in record['after'].items()}
@@ -273,7 +294,7 @@ def process(db,oid,*,after_write=None):
                     elif actual!=before.get(path):raise ValueError('external_change')
             if current!=expected: raise ValueError('source_conflict')
             reader=ProjectReader(db,row['actor_id'],project)
-            if record['kind'] != 'capture':
+            if record['kind'] not in ('capture', 'capture_batch'):
                 authorized = reader.authorize_object(Snapshot(before,digest(before)),record['object_id'],change=record.get('function')=='update_requirement_center_change_document',write=True)
                 if record.get('function') == 'update_requirement_center_change_document' and not authorized:
                     raise ValueError('standalone_change_readonly')
@@ -283,7 +304,7 @@ def process(db,oid,*,after_write=None):
                 service.conversation(db,row['actor_id'],candidate['conversation_id'])
                 result=validate(before,{**before,**after},record['object_id'],record['base_path'])
                 if result['manifest_hash']!=candidate['manifest_hash']: raise ValueError('candidate_changed')
-            elif record['kind'] == 'capture':
+            elif record['kind'] in ('capture', 'capture_batch'):
                 if not record.get('planned') or not record.get('object_id'): raise ValueError('invalid_capture_plan')
             else:
                 # Reapply legacy capability/task-toggle validation to the original immutable input.
@@ -294,17 +315,22 @@ def process(db,oid,*,after_write=None):
             record['phase']='prepared';store.write(oid,'operation',record)
             set_state(db,oid,'recovering' if recovering else 'applying','prepared')
             for index,(path,body) in enumerate(sorted(after.items())):
+                if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
                 write_permission(project, record.get('kind'))
                 actual=read_once(project.root)
                 if actual!=expected: raise ValueError('external_change')
                 if actual.get(path)!=body:
                     wrote=True
-                    replace_file(project.root,path,before.get(path),body,oid,create_parents=record['kind']=='capture')
+                    replace_file(project.root,path,before.get(path),body,oid,create_parents=record['kind'] in ('capture','capture_batch'))
                 expected[path]=body
                 if after_write: after_write(index,path)
                 record['phase']=f'file-{index+1}';store.write(oid,'operation',record)
                 set_state(db,oid,'applying',record['phase'])
+            if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
             if stable(project.root).files!={**before,**after}:raise ValueError('final_conflict')
+            if record['kind'] == 'capture_batch':
+                from app.governance.capture_confirmations import complete
+                complete(db, project, record['payload']['task_id'], record['issue_links'])
             set_state(db,oid,'applied','verified')
             if row['candidate_id']:
                 db.execute(update(candidates).where(candidates.c.id==row['candidate_id']).values(state='applied',updated_at=service.now()))

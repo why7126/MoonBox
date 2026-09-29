@@ -9,7 +9,7 @@ updated_at: 2026-09-10 09:16:21
 ## Requirements
 ### Requirement: UI 返修附件截图逐项视觉对照
 
-系统 MUST 在 UI 型 `/opsx-modify` 返修前，对验收反馈中的附件截图、标注截图、原型截图或实际截图建立逐项视觉对照表，并以该表作为进入实现返修的前置检查。
+系统 MUST 在 UI 型 `/opsx-modify` 返修前，对验收反馈中的附件截图、标注截图、原型截图或实际截图建立逐项视觉对照表，并以该表作为进入实现返修的前置检查。完整验收返修台账 MUST 优先记录在 Change `acceptance-fixes.md`；`tasks.md` MUST 只保留返修任务勾选、简短摘要和台账链接，`trace.md` MUST 保留返修摘要、证据入口和验证结果。
 
 #### Scenario: UI 返修前建立逐项视觉对照表
 
@@ -30,25 +30,29 @@ updated_at: 2026-09-10 09:16:21
 - **WHEN** Agent 完成 UI 返修
 - **THEN** Agent MUST 将相关旧截图标记为 stale
 - **AND** Agent MUST 重新执行 1440px 或受影响视口的视觉验收
-- **AND** Agent MUST 在 Change `trace.md`、`tasks.md` 验收返修记录或等价验收证据中记录对照表复验结果
+- **AND** Agent MUST 在 Change `acceptance-fixes.md` 中记录完整对照表复验结果
+- **AND** Agent MUST 在 `tasks.md` 保留返修任务勾选和台账链接
+- **AND** Agent MUST 在 Change `trace.md` 记录台账路径、证据入口和验证摘要
 
 ### Requirement: 目录与临时证据治理
 
-系统 MUST 明确区分正式项目目录、Git 忽略的本地临时目录和可归档的验收证据目录，避免临时视觉证据阻断目录结构校验或误入长期文档。
+系统 MUST 明确区分正式项目目录、Git 忽略的本地临时目录、本地工具缓存目录、本地持久数据目录、运行时控制状态目录和可归档的验收证据目录，避免临时视觉证据、本地工具缓存或运行时控制状态阻断目录结构校验或误入长期文档。
 
-#### Scenario: 本地视觉证据临时目录被 ignore
+#### Scenario: data 持久存储与 runtime 控制状态分离
 
-- **WHEN** Agent 或开发者在 UI 验收中生成截图、computed style JSON 或视觉对照中间产物
-- **THEN** 这些临时产物 MAY 写入被 `.gitignore` 覆盖的 `tmp/visual-evidence/`
-- **AND** 根目录 `tmp/` MUST NOT 被视为正式项目顶层目录
-- **AND** 目录结构校验 MUST NOT 因被 ignore 的根目录 `tmp/` 存在而失败
+- **WHEN** 本地开发、Docker 本地部署、Chat Platform 或治理控制器需要在仓库 `data/` 下写入数据
+- **THEN** 本地 SQLite 持久数据库 MUST 归属 `data/sqlite/`
+- **AND** 本地 MinIO/S3 对象数据 MUST 归属 `data/s3/`
+- **AND** Chat Platform、Governance、Codex 执行器的会话状态、控制状态、工作区、备份和执行器内部状态 MAY 归属 `data/runtime/`
+- **AND** `data/runtime/` MUST NOT 作为业务 SQLite 数据库或对象存储数据的 canonical 根目录
 
-#### Scenario: 长期视觉证据必须沉淀到 Change
+#### Scenario: legacy runtime backend 存储目录迁移期可见
 
-- **WHEN** 视觉证据需要支撑 Change 验收、Issue 验收或归档闭环
-- **THEN** 关键证据 MUST 转存到对应 `openspec/changes/<change-id>/evidence/` 或写入脱敏后的证据摘要
-- **AND** `/opsx-archive` MUST NOT 只依赖 `tmp/visual-evidence/` 作为唯一证据入口
-- **AND** 证据 MUST NOT 包含真实客户数据、密钥、访问令牌、Cookie、Authorization header、真实 `.env`、未脱敏日志或个人信息
+- **WHEN** 目录结构校验发现 `data/runtime/backend/sqlite/` 或 `data/runtime/backend/media/`
+- **THEN** 校验 SHOULD 输出迁移期 warning
+- **AND** warning MUST 指向 `data/sqlite/` 与 `data/s3/` 的 canonical 归属
+- **AND** 在完成独立迁移 Change 前，校验 MAY 不阻断当前工作流
+- **AND** 迁移动作 MUST NOT 在未停服、未备份、未校验数据库完整性的情况下执行
 
 ### Requirement: 引导式用户反馈契约
 
@@ -248,4 +252,78 @@ Agent MUST 在结束apply前判断所有剩余任务的依赖；未完成且仍�
 #### Scenario: 全部任务依赖外部输入
 - **WHEN** 无可执行任务且剩余任务均依赖有证据的必要外部输入
 - **THEN** Agent报告依赖和恢复动作，允许等待
+
+### Requirement: opsx-modify 返修阶段流转
+
+系统 SHALL 在 `/opsx-modify` 验收返修期间区分 Change canonical status、首次 apply execution facts、返修投影状态和验收状态。返修执行中用户可见阶段 SHALL 展示为研发中；返修完成并通过验证、文档同步和 Workflow Sync 后 SHALL 自动回到验收中。系统 SHALL 保留 Change `applied` 事实和首次 apply 的 `execution.completed_at`，不得用普通 `in_progress` 覆盖首次 apply 完成事实。
+
+#### Scenario: 返修执行中展示研发中
+
+- **GIVEN** Change 已完成 `/opsx-apply` 并处于 `applied`
+- **WHEN** Agent 开始执行 `/opsx-modify` 并处理验收反馈
+- **THEN** 用户可见阶段 SHALL 展示为研发中
+- **AND** Change canonical status SHALL 继续保留 apply 完成事实
+- **AND** 首次 apply 的 `execution.completed_at` SHALL NOT 被清空、覆盖或改写为新的普通进行中状态
+
+#### Scenario: 返修完成后回到验收中
+
+- **GIVEN** `/opsx-modify` 的返修任务、验证证据、文档同步和 Workflow Sync 已完成
+- **WHEN** 返修结果仍属于原 Change 范围
+- **THEN** 用户可见阶段 SHALL 回到验收中
+- **AND** linked Issue 的验收入口 SHALL 保持待复验语义
+- **AND** 下一步 SHALL 指向复验或 `/opsx-archive`
+
+#### Scenario: 返修不回退 applied 事实
+
+- **GIVEN** Change 已记录首次 apply 的 execution facts
+- **WHEN** 返修过程需要表达正在处理
+- **THEN** 系统 SHALL 使用返修投影语义表达研发中
+- **AND** 系统 SHALL NOT 将 Change canonical status 简单覆盖为普通 `in_progress`
+- **AND** 系统 SHALL NOT 伪造新的首次 apply 启动或完成时间
+
+### Requirement: tasks 分类统计口径
+
+MoonBox MUST 在 `tasks.md` 中沉淀可被需求中心稳定识别的研发、测试、人工验收三类任务口径。该口径 MUST 适用于首次 `/opsx-apply` 任务和后续 `/opsx-modify` 验收返修任务。
+
+#### Scenario: 生成可分类任务
+
+- **WHEN** `/req-opsx`、`/bug-opsx` 或等价命令生成 Change `tasks.md`
+- **THEN** 任务应按实施任务、回归验证、文档同步和人工验收等稳定章节或显式标记组织
+- **AND** 需求中心可将可关闭 checkbox 分类为研发、测试或人工验收
+- **AND** 任务正文、证据链接、说明段落和表格正文不得作为卡片进度分母
+
+#### Scenario: 返修任务纳入分类
+
+- **WHEN** `/opsx-modify` 根据验收反馈追加返修任务
+- **THEN** 返修实现任务必须进入研发类分母
+- **AND** 返修回归测试、视觉证据和校验任务必须进入测试类分母
+- **AND** 人工复验、人工确认或 sign-off 任务必须进入人工验收类分母
+- **AND** `acceptance-fixes.md` 继续作为完整返修台账事实源，但其表格正文和说明文字不直接计入卡片进度
+
+#### Scenario: 分类口径缺失时提示
+
+- **WHEN** Change `tasks.md` 缺少可识别分类
+- **THEN** 需求中心 SHALL 返回待核实或降级提示
+- **AND** Agent 在后续修复、返修或归档前 SHOULD 补齐分类口径或记录不适用原因
+- **AND** 系统不得通过文档存在性、默认人工验收计数或总 checkbox 完成率误报三类进度完成
+
+### Requirement: 生成文档中文标题与一致性
+所有生成 Markdown 文档 SHALL 包含中文 Frontmatter title 与一致的一级标题，覆盖 capture、trace、user-stories、review、requirement、bug、business-flow、acceptance、root-cause、workaround、proposal、design、tasks、spec 及其他生成文档。业务主文档表达业务目标，辅助文档结合业务主题及用途。注册表每条 SHALL 包含中文业务 title。
+
+#### Scenario: 标题生成与注册表同步
+- **WHEN** 创建或重新生成文档
+- **THEN** 生成非空中文 title 和一致一级标题，允许英文专名，不接受纯类别或模板标题
+- **AND** Issue 主文档业务标题同步注册表，不被 Change 业务标题覆盖；保留 OpenSpec 解析关键字
+
+### Requirement: 标题校验阻止无效生成完成
+CLI、技能及产品 Agent 生成入口 SHALL 在应用产物或声明完成之前校验标题，失败不得推进工作流。
+
+#### Scenario: 不合法产物
+- **WHEN** 产物缺标题、空白、纯英文或ID、模板/类别标题，或字段与一级标题冲突
+- **THEN** 返回文件与字段级错误，不应用部分结果、不声明完成、不推进状态；修正后重验
+
+#### Scenario: 历史资料与聚焦校验
+- **WHEN** 校验当前 Issue 或 Change 的生成产物
+- **THEN** 当前失败阻断完成，无关历史残留单独报告；不批量改写归档
+- **AND** 读取历史缺失标题使用受控回退与提示，不阻断整个看板
 

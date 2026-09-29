@@ -35,7 +35,7 @@ def prepare(db,actor,space_id,repository_id,object_id,request_id=None):
     trace(db,row['id'],'prepared',actor=actor,request_id=request_id)
     db.commit()
     return {'preparation_id':row['id'],'conversation_id':parent['id'],'object_id':object_id,
-            'prompt':f'/req-generate {object_id}\n本次仅生成目标 requirement.md，并同步目标 trace、注册表条目与当前态索引行。请保留其他文件与对象；治理成果以实际差异校验，禁止推进评审或 Sprint。四个文件之外的 AI Usage 与治理记录仅在回复汇报，不落盘；同步前先检查 dry-run，只更新目标条目。控制读取范围，不打印整份注册表、索引或历史归档。','state':'prepared'}
+            'prompt':f'/req-generate {object_id}\n所有生成Markdown必须有中文业务title与一致一级标题，辅助文档标题结合业务主题及用途；requirement.md业务title同步注册表，禁止使用纯文档类别标题。本次仅生成目标 requirement.md，并同步目标 trace、注册表条目与当前态索引行。请保留其他文件与对象；治理成果以实际差异校验，禁止推进评审或 Sprint。四个文件之外的 AI Usage 与治理记录仅在回复汇报，不落盘；同步前先检查 dry-run，只更新目标条目。控制读取范围，不打印整份注册表、索引或历史归档。','state':'prepared'}
 
 
 def for_conversation(db,cid):
@@ -66,7 +66,8 @@ def initialize_workspace(db,parent,source,workspace):
     # read without following links. Never bring in local env/auth/runtime files.
     from app.chat.relations import _read_file
     control_names=['AGENTS.md','openspec/project.md','.agents/skills/req-generate/SKILL.md',
-        '.agents/skills/workflow-sync/SKILL.md','scripts/sync-workflow-status.py','scripts/ai_usage.py']
+        '.agents/skills/workflow-sync/SKILL.md','scripts/sync-workflow-status.py','scripts/ai_usage.py',
+        'scripts/validate-document-titles.py','src/backend/app/governance/titles.py']
     control_names += [str(path.relative_to(source)) for path in (source/'scripts/workflow_sync').glob('*.py')]
     controls={name:_read_file(source,name) for name in sorted(control_names)}
     if controls!={name:_read_file(source,name) for name in controls}:

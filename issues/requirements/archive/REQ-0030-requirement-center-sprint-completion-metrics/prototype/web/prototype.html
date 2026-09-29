@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REQ-0030 Sprint 数量指标原型</title>
+  <style>
+    :root {
+      --bg: #0A0D14;
+      --panel: #131826;
+      --panel-2: #1A1F2C;
+      --border: #242A3A;
+      --line: #1B2130;
+      --gold: #D8AC55;
+      --text: #ECEAE4;
+      --title: #F6F1E7;
+      --muted: #98A0B3;
+      --danger: #E05A5A;
+      --info: #6EA8FE;
+    }
+
+    [data-theme="light"] {
+      --bg: #F4F6FA;
+      --panel: #FFFFFF;
+      --panel-2: #EEF2F7;
+      --border: #DDE3EE;
+      --line: #E8EDF5;
+      --gold: #B9832E;
+      --text: #202636;
+      --title: #101828;
+      --muted: #677085;
+      --danger: #C24141;
+      --info: #2F6FDB;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+      line-height: 1.45;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+      background: #0F1320;
+    }
+
+    [data-theme="light"] .sidebar {
+      background: #FFFFFF;
+    }
+
+    .brand {
+      color: var(--title);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 28px;
+    }
+
+    .nav span {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--muted);
+      padding: 9px 10px;
+      font-size: 13px;
+    }
+
+    .nav .active {
+      border-color: var(--border);
+      background: var(--panel-2);
+      color: var(--title);
+    }
+
+    main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--title);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .subtle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      min-height: 60px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 10px 14px;
+    }
+
+    .metric-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .metric-info {
+      position: relative;
+      width: 16px;
+      height: 16px;
+      cursor: help;
+    }
+
+    .metric-info::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      width: max-content;
+      max-width: 220px;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--title);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+      font-size: 11px;
+      line-height: 1.45;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 4px);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      white-space: normal;
+    }
+
+    .metric-info:hover::before,
+    .metric-info:focus-visible::before {
+      content: attr(data-tooltip);
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .metric-value {
+      color: var(--title);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .metric-value .divider {
+      color: var(--muted);
+      font-weight: 500;
+      padding: 0 6px;
+    }
+
+    .metric-hint {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .metric.sprint {
+      border-color: color-mix(in srgb, var(--gold), var(--border) 56%);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .control {
+      min-width: 120px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      padding: 8px 10px;
+      font-size: 12px;
+      background: var(--bg);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(172px, 1fr));
+      gap: 10px;
+      overflow: auto;
+      padding-bottom: 12px;
+    }
+
+    .column {
+      min-height: 280px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel), var(--bg) 20%);
+    }
+
+    .column header {
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      color: var(--title);
+      font-size: 12px;
+      background: var(--panel);
+    }
+
+    .card {
+      margin: 10px;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      padding: 10px;
+      background: var(--bg);
+    }
+
+    .card strong {
+      display: block;
+      color: var(--title);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .metric[data-state="loading"] .metric-value {
+      color: transparent;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--panel-2), var(--border), var(--panel-2));
+    }
+
+    .metric[data-state="error"] {
+      border-color: color-mix(in srgb, var(--danger), var(--border) 55%);
+    }
+
+    .metric[data-state="error"] .metric-value {
+      color: var(--danger);
+      font-size: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .app { grid-template-columns: 72px minmax(0, 1fr); }
+      .sidebar { padding-inline: 8px; }
+      .nav span { font-size: 0; min-height: 36px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 16px; }
+      .topbar { align-items: start; flex-direction: column; }
+      .metrics { grid-template-columns: 1fr; }
+      .metric-value { font-size: 24px; }
+      .board { grid-template-columns: repeat(9, 172px); }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">MoonBox</div>
+      <nav class="nav" aria-label="主导航">
+        <span>项目工作台</span>
+        <span class="active">需求中心</span>
+        <span>产品手册</span>
+      </nav>
+    </aside>
+
+    <main>
+      <section class="topbar">
+        <div>
+          <h1>需求中心</h1>
+          <div class="subtle">Requirement、Bug、Sprint 与 Change 的研发治理看板</div>
+        </div>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()">切换主题</button>
+      </section>
+
+      <section class="metrics" data-testid="requirement-center-metrics" aria-label="指标区">
+        <article class="metric">
+          <div class="metric-label">全部对象 <span class="metric-info" tabindex="0" data-tooltip="当前筛选条件下可见对象总数">ⓘ</span></div>
+          <div class="metric-value">28</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">需求 <span class="metric-info" tabindex="0" data-tooltip="当前筛选条件下已完成需求 / 需求总体">ⓘ</span></div>
+          <div class="metric-value">8<span class="divider">/</span>19</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">Bug <span class="metric-info" tabindex="0" data-tooltip="当前筛选条件下已完成 Bug / Bug 总体">ⓘ</span></div>
+          <div class="metric-value">4<span class="divider">/</span>9</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">独立 Change <span class="metric-info" tabindex="0" data-tooltip="当前筛选条件下已完成独立 Change / 独立 Change 总体">ⓘ</span></div>
+          <div class="metric-value">1<span class="divider">/</span>2</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">当前阻塞 <span class="metric-info" tabindex="0" data-tooltip="当前筛选条件下存在阻塞提示的对象数量">ⓘ</span></div>
+          <div class="metric-value">2</div>
+        </article>
+        <article class="metric sprint" data-testid="sprint-completion-metric" data-state="ready">
+          <div class="metric-label">Sprint <span class="metric-info" tabindex="0" data-tooltip="项目级 Sprint 已完成 / 总体，不随筛选变化">ⓘ</span></div>
+          <div class="metric-value">
+            <span data-testid="sprint-completion-metric-completed">3</span>
+            <span class="divider">/</span>
+            <span data-testid="sprint-completion-metric-total">5</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="toolbar" aria-label="筛选区">
+        <div class="control">搜索 ID 或标题</div>
+        <div class="control">全部类型</div>
+        <div class="control">全部负责人</div>
+        <div class="control">全部优先级</div>
+        <div class="control">全部 Sprint</div>
+      </section>
+
+      <section class="board" aria-label="9 阶段看板">
+        <div class="column"><header>采集池</header><div class="card"><strong>REQ-0030</strong><p>新增 Sprint 数量指标</p></div></div>
+        <div class="column"><header>规划中</header></div>
+        <div class="column"><header>待评审</header></div>
+        <div class="column"><header>已评审</header></div>
+        <div class="column"><header>迭代规划</header></div>
+        <div class="column"><header>待开发</header></div>
+        <div class="column"><header>研发中</header></div>
+        <div class="column"><header>验收中</header></div>
+        <div class="column"><header>已完成</header></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      body.dataset.theme = body.dataset.theme === "light" ? "dark" : "light";
+    }
+  </script>
+</body>
+</html>

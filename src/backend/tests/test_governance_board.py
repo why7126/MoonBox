@@ -39,12 +39,30 @@ def test_acceptance_checks_issue_documents_not_card_display_list(tmp_path):
     write(issue / "trace.md", "---\nstatus: in_sprint\n---\n")
     write(issue / "acceptance.md", "# Acceptance\n")
     write(tmp_path / "openspec/changes/validation/trace.md", "---\nstatus: applied\n---\n")
-    write(tmp_path / "openspec/changes/validation/tasks.md", "- [x] complete\n")
+    write(
+        tmp_path / "openspec/changes/validation/tasks.md",
+        "\n".join(
+            [
+                "# Tasks",
+                "## 实施任务",
+                "- [x] complete",
+                "## 回归验证",
+                "- [x] unit tests",
+                "- [ ] e2e tests",
+                "## 验收返修",
+                "- [ ] 返修验证截图",
+                "- [ ] 人工复验通过",
+            ]
+        )
+        + "\n",
+    )
     entry = dict(id=issue.name, path=str(issue.relative_to(tmp_path)), status="in_sprint", related_change="validation")
     with service.using_governance_root(tmp_path):
         row = service._build_issue("requirement", entry)
         assert row.stage == "acceptance" and row.blocked is None
-        assert row.test_progress == (2, 3)
+        assert row.task_progress == (1, 1)
+        assert row.test_progress == (1, 3)
+        assert row.manual_acceptance_progress == (0, 1)
         (issue / "acceptance.md").unlink()
         assert service._build_issue("requirement", entry).blocked == "缺少 acceptance.md"
         write(issue / "acceptance.md", " ")
@@ -105,6 +123,8 @@ def test_sprint_document_uses_associated_sprint_for_card_and_read(tmp_path,kind,
     oid=f'{prefix}-0099-validation'
     issue=tmp_path/f'issues/{kind}/review/{oid}'
     entry=dict(id=oid,path=str(issue.relative_to(tmp_path)),status='in_sprint',iteration='sprint-005')
+    if prefix == 'BUG':
+        entry['severity'] = 'medium'
     write(tmp_path/f'issues/{kind}/_registry.yaml',yaml.safe_dump({'entries':[entry]}))
     write(issue/'trace.md','---\nstatus: in_sprint\n---\n')
     write(issue/'sprint.md','# Incorrect Issue copy')
@@ -188,6 +208,33 @@ def test_card_updated_date(value, expected):
 def test_card_updated_datetime():
     from datetime import datetime
     assert service._updated_at(datetime(2026, 1, 2, 3, 4)) == "26/01/02 03:04"
+
+
+def test_issue_card_classification_uses_priority_for_req_and_severity_for_bug(tmp_path):
+    req = tmp_path / "issues/requirements/review/REQ-0099-validation"
+    bug = tmp_path / "issues/bugs/review/BUG-0099-validation"
+    write(req / "trace.md", "---\nstatus: in_sprint\npriority: P0\n---\n")
+    write(bug / "trace.md", "---\nstatus: in_sprint\nseverity: medium\n---\n")
+    with service.using_governance_root(tmp_path):
+        req_row = service._build_issue("requirement", {"id": req.name, "path": str(req.relative_to(tmp_path)), "priority": "P0"})
+        bug_row = service._build_issue("bug", {"id": bug.name, "path": str(bug.relative_to(tmp_path)), "severity": "medium"})
+        assert req_row.priority == "P0" and req_row.severity == ""
+        assert bug_row.priority == "" and bug_row.severity == "medium"
+        assert not bug_row.drift_warnings
+
+
+@pytest.mark.parametrize("entry,expected", [
+    ({"id": "BUG-0099-validation"}, "缺少 severity"),
+    ({"id": "BUG-0099-validation", "severity": "P2"}, "非法 severity: p2"),
+])
+def test_bug_card_classification_does_not_default_to_priority(tmp_path, entry, expected):
+    bug = tmp_path / "issues/bugs/review/BUG-0099-validation"
+    write(bug / "trace.md", "---\nstatus: in_sprint\n---\n")
+    with service.using_governance_root(tmp_path):
+        row = service._build_issue("bug", {**entry, "path": str(bug.relative_to(tmp_path))})
+        assert row.priority == ""
+        assert row.severity == ""
+        assert any(expected in warning for warning in row.drift_warnings)
 
 
 @pytest.mark.parametrize("stage", ["plan", "review", "archive"])

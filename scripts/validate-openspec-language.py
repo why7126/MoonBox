@@ -67,8 +67,30 @@ def is_english_task(text: str) -> bool:
     return bool(ALPHA_RE.search(task_text)) and not has_cjk(task_text)
 
 
-def iter_change_docs(root: Path, include_archive: bool) -> list[Path]:
+def iter_change_docs(root: Path, include_archive: bool, changes: list[str] | None = None) -> list[Path]:
     paths: list[Path] = []
+    change_ids = sorted(set(changes or []))
+    if change_ids:
+        for change_id in change_ids:
+            found = False
+            change_dir = root / "openspec" / "changes" / change_id
+            if change_dir.exists():
+                found = True
+                paths.extend(path for path in change_dir.glob("*.md") if path.name in CHANGE_DOCS)
+
+            if include_archive:
+                archive_root = root / "openspec" / "archive"
+                if archive_root.exists():
+                    for archived_dir in archive_root.glob(f"*-{change_id}"):
+                        if archived_dir.is_dir():
+                            found = True
+                            paths.extend(path for path in archived_dir.glob("*.md") if path.name in CHANGE_DOCS)
+
+            if not found:
+                location = "openspec/changes 或 openspec/archive" if include_archive else "openspec/changes"
+                raise ValueError(f"未找到 Change：{change_id}（搜索范围：{location}）")
+        return sorted(paths)
+
     change_root = root / "openspec" / "changes"
     if change_root.exists():
         for path in change_root.glob("*/*.md"):
@@ -83,6 +105,11 @@ def iter_change_docs(root: Path, include_archive: bool) -> list[Path]:
                     paths.append(path)
 
     return sorted(paths)
+
+
+def iter_residual_docs(root: Path, include_archive: bool, focus_paths: list[Path]) -> list[Path]:
+    focus = {path.resolve() for path in focus_paths}
+    return [path for path in iter_change_docs(root, include_archive) if path.resolve() not in focus]
 
 
 def validate_file(path: Path, root: Path) -> list[str]:
@@ -112,25 +139,70 @@ def validate_file(path: Path, root: Path) -> list[str]:
     return errors
 
 
+def collect_errors(paths: list[Path], root: Path) -> list[str]:
+    errors: list[str] = []
+    for path in paths:
+        errors.extend(validate_file(path, root))
+    return errors
+
+
+def print_errors(title: str, errors: list[str]) -> None:
+    print(title)
+    for error in errors:
+        print(f"- {error}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate Chinese-first OpenSpec change documents.")
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--include-archive", action="store_true")
+    parser.add_argument(
+        "--change",
+        action="append",
+        default=[],
+        help="只校验指定 Change，可重复传入；默认校验全部 active Change。",
+    )
+    parser.add_argument(
+        "--residual-report",
+        action="store_true",
+        help="与 --change 配合输出非当前 Change 中文残留报告；残留不影响当前 Change 退出码。",
+    )
     args = parser.parse_args()
 
     root = args.root.resolve()
-    errors: list[str] = []
-    for path in iter_change_docs(root, args.include_archive):
-        errors.extend(validate_file(path, root))
+    if args.residual_report and not args.change:
+        parser.error("--residual-report requires --change")
+
+    try:
+        paths = iter_change_docs(root, args.include_archive, args.change)
+    except ValueError as exc:
+        print(f"OpenSpec 文档语言校验失败：{exc}")
+        return 2
+
+    errors = collect_errors(paths, root)
 
     if errors:
-        print("OpenSpec 文档语言校验失败：")
-        for error in errors:
-            print(f"- {error}")
+        title = "OpenSpec 当前 Change 中文校验失败：" if args.change else "OpenSpec 文档语言校验失败："
+        print_errors(title, errors)
         print("\n修复建议：标题和任务描述使用中文优先；OpenSpec 关键字、命令、路径、代码标识符可保留英文。")
         return 1
 
-    print("OpenSpec 文档语言校验通过")
+    if args.change:
+        print(f"OpenSpec 当前 Change 中文校验通过：{', '.join(args.change)}")
+    else:
+        print("OpenSpec 文档语言校验通过")
+
+    if args.change and args.residual_report:
+        residual_errors = collect_errors(iter_residual_docs(root, args.include_archive, paths), root)
+        print("\n全仓残留分离报告：")
+        if residual_errors:
+            print(f"- 非当前 Change 中文残留：{len(residual_errors)} 项")
+            for error in residual_errors[:20]:
+                print(f"  - {error}")
+            if len(residual_errors) > 20:
+                print(f"  - ... 另有 {len(residual_errors) - 20} 项未展开")
+        else:
+            print("- 未发现非当前 Change 中文残留")
     return 0
 
 

@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: '2026-09-12 23:15:38'
+updated_at: '2026-09-15 09:46:43'
 owner: MoonBox 产品团队
 ---
 
@@ -39,12 +39,14 @@ owner: MoonBox 产品团队
 - `/req-review <REQ-full-id>` 无 flag 时默认评审通过，下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/bug-review <BUG-full-id>` 同理，下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`。`--approve` 仅作为兼容别名，拒绝或延后必须显式使用反向 flag。
 - `/req-opsx` 和 `/bug-opsx` 遇到 `status: approved` 但尚未 `in_sprint` 时 MUST 停止，并提示先运行对应 `/sprint-propose`。
 - `/req-opsx` / `/bug-opsx` 完成后 MUST 运行 Workflow Sync，把新 Change 回填到同一个 Sprint 的 `changes[]` 与 `scope_estimates[].change`。
+- `/req-opsx` / `/bug-opsx` 生成 Change 后 MUST 运行 `python scripts/validate-openspec-language.py --change <change-id> --residual-report`；当前 Change 中文优先问题阻断当前链路，其他 active Change 残留只进入分离报告和复盘 warning。
 - 如果 REQ/BUG 已经纳入 Sprint，但 `/opsx-apply --dry-run` 仍解析不到 Sprint，优先修复 `sprint.yaml` 机器事实源，不要求用户重复口头确认。
 
 ## Apply / Modify / Archive
 
 - `/opsx-apply` 前 MUST 通过 `python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` 确认目标 Change 位于 Sprint scope。
 - `/opsx-modify` 只用于 `/opsx-apply` 之后、`/opsx-archive` 之前的验收返修；超出原 Change 范围时应创建新 REQ/BUG 或新 Change。
+- `/opsx-modify` 执行返修期间用户可见阶段展示为“研发中”；返修完成、验证和 Workflow Sync 通过后自动回到“验收中 / 待复验”。该展示属于返修投影语义，不得用普通 `in_progress` 覆盖 Change 的 `applied` 事实或首次 apply 的 `execution.completed_at`。
 - `/opsx-archive` 只能归档已完成 tasks 且 artifact 完整的 Change。
 - 归档步骤必须严格串行：归档脚本或 OpenSpec archive → 目录校验 → env ignore 校验 → archive evidence → Workflow Sync → Issue promote → AI Usage。
 
@@ -106,7 +108,7 @@ OpenSpec CLI 的动态提示（包括 Pause if you hit blockers or need clarific
 | 变更触达面 | 必跑或优先校验 | 说明 |
 |---|---|---|
 | `.agents/skills/**`、`rules/agent-context-budget.md` | `python scripts/validate-agent-context-budget.py` | 校验 Skill 是否保留上下文预算、执行复盘、下一步输出等共享契约。 |
-| OpenSpec Change 文档 | `python scripts/validate-openspec-language.py`、`openspec validate <change-id>` | 中文优先与目标 Change 结构校验；归档前还需校验合并后的正式规格。 |
+| OpenSpec Change 文档 | `bash scripts/validate-openspec.sh --change <change-id> --residual-report` | 当前 Change 中文优先与结构校验；其他 active Change 残留只作为分离报告，归档前还需校验合并后的正式规格。 |
 | 目录边界、ignore、临时证据 | `python scripts/validate-directory-structure.py`、必要时 `python scripts/validate-env-ignore-policy.py` | 校验顶层目录、legacy 路径、运行时数据和环境变量 ignore 策略。 |
 | Sprint scope | `python scripts/validate-sprint-scope.py --sprint <sprint-id>` | 校验 `sprint.yaml`、派生表和范围估算一致性。 |
 | Workflow Sync 行为 | `python scripts/sync-workflow-status.py --event <event> ... --dry-run`，必要时运行 focused pytest | 先 dry-run 定位派生影响，再执行写入；脚本变更必须跑对应测试或自检。 |

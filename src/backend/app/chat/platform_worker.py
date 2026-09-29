@@ -55,10 +55,16 @@ def main():
         with persistent_container_server(probe,runtime,auth): pass
         import hashlib
         shutil.rmtree(runtime/hashlib.sha256(str(probe).encode()).hexdigest())
+    from app.governance.capture_worker import recover_interrupted, tick as capture_tick
+    from app.governance.capture_executor import STOP as capture_stop, recover_copies
+    recover_copies()
+    recover_interrupted(factory)
     running=True;job=None;token=None;maintenance_at=0;backup_at=time.monotonic()+86400
+    capture_job=None
     def stop(*_):
         nonlocal running
         running=False
+        capture_stop.set()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     def server(path): return persistent_container_server(path,runtime,auth)
     def execute(claim,path):
@@ -70,6 +76,9 @@ def main():
         return source,root/cid
     try:
         while running:
+            if capture_job is None or not capture_job.is_alive():
+                capture_job=threading.Thread(target=capture_tick,args=(factory,),daemon=True)
+                capture_job.start()
             stamp=state/'worker-ready.tmp'
             stamp.write_text(json.dumps({'time':time.time(),'configuration':fingerprint()}));stamp.chmod(0o600);stamp.replace(state/'worker-ready.json')
             if job is None or not job.is_alive():
@@ -109,6 +118,8 @@ def main():
             time.sleep(.25)
     finally:
         (state/'worker-ready.json').unlink(missing_ok=True)
+        capture_stop.set()
+        if capture_job and capture_job.is_alive():capture_job.join(timeout=25)
         if job and job.is_alive():
             with factory() as db:
                 db.execute(update(turns).where(turns.c.id==token['turn_id'],turns.c.worker_id==token['worker_id'],turns.c.generation==token['generation'],turns.c.status.in_(('connecting','running'))).values(status='stopping'));db.commit()

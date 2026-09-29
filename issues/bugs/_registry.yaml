@@ -1,29 +1,127 @@
-next_id: 19
+next_id: 26
 entries:
-- id: BUG-0018-standalone-change-acceptance-source-unverified
-  title: 独立 Change 卡片误报验收来源待核实
+- id: BUG-0025-test
+  title: 待澄清：test 的具体意图
   status: captured
-  owner: 产品团队
-  source: 用户反馈
+  severity: medium
+  owner: user_f694abc671d548b48d9eb897f720ba4d
+  source: capture
   lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0018-standalone-change-acceptance-source-unverified/
-  created: '2026-09-14 09:16:42'
+  path: issues/bugs/plan/BUG-0025-test/
+  created: '2026-09-16 23:49:40'
   iteration: null
   related_change: null
+  reporter: user
+  related_requirement: null
+  related_bug: null
+- id: BUG-0024-capture
+  title: 列表刷新后滚动位置回到顶部
+  status: captured
+  severity: medium
+  owner: user_f694abc671d548b48d9eb897f720ba4d
+  source: capture
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0024-capture/
+  created: '2026-09-16 20:00:07'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: null
+  related_bug: null
+- id: BUG-0023-requirement-center-acceptance-progress-task-classification
+  title: "需求中心验收中卡片进度未按 tasks.md 分类统计返修任务"
+  status: done
+  owner: 产品团队
+  source: /bug-capture
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0023-requirement-center-acceptance-progress-task-classification/
+  created: '2026-09-15 22:32:37'
+  iteration: sprint-007
+  related_change: fix-requirement-center-acceptance-progress-task-classification
+  severity: medium
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
+- id: BUG-0022-requirement-center-html-preview-auth-lost
+  title: "需求中心卡片 HTML 预览直开受保护接口导致认证失败"
+  status: done
+  owner: 产品团队
+  source: explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0022-requirement-center-html-preview-auth-lost/
+  created: '2026-09-14 15:10:06'
+  iteration: sprint-006
+  related_change: fix-requirement-center-html-preview-auth-lost
+  severity: medium
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
+- id: BUG-0021-requirement-center-bug-card-severity-display
+  title: "需求中心 BUG 卡片显示优先级 P 值而非严重性"
+  status: done
+  owner: 产品团队
+  source: /explore 截图反馈
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0021-requirement-center-bug-card-severity-display/
+  created: '2026-09-14 13:13:50'
+  iteration: sprint-006
+  related_change: fix-requirement-center-bug-card-severity-display
+  severity: medium
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: BUG-0020-req-complete-status-projection-drift
+- id: BUG-0020-req-complete-status-projection-drift
+  title: "req.complete 后 REQ 状态投影残留 draft/enriching 导致数据漂移"
+  status: done
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0020-req-complete-status-projection-drift/
+  created: '2026-09-14 11:33:24'
+  iteration: sprint-006
+  related_change: fix-req-complete-status-projection-drift
+  severity: medium
+  reporter: user
+  related_requirement: REQ-0029-capture-multimodal-candidate-review
+  related_bug: null
+- id: BUG-0019-requirement-center-issue-title-overridden
+  title: "需求中心阶段业务标题来源与文档中文标题校验"
+  status: done
+  owner: 产品团队
+  source: explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0019-requirement-center-issue-title-overridden/
+  created: '2026-09-14 10:25:53'
+  iteration: sprint-007
+  related_change: fix-requirement-center-stage-business-titles
+  severity: medium
+  reporter: user
+  related_requirement: null
+  related_bug: null
+- id: BUG-0018-standalone-change-acceptance-source-unverified
+  title: "独立 Change 卡片误报验收来源待核实"
+  status: done
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0018-standalone-change-acceptance-source-unverified/
+  created: '2026-09-14 09:16:42'
+  iteration: sprint-006
+  related_change: fix-standalone-change-acceptance-source
   severity: medium
   reporter: user
   related_requirement: REQ-0026-requirement-center-standalone-change-cards
   related_bug: null
 - id: BUG-0017-compose-container-name-suffix-one
-  title: 容器名不应自动追加 -1 后缀
-  status: captured
+  title: "容器名不应自动追加 -1 后缀"
+  status: done
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0017-compose-container-name-suffix-one/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0017-compose-container-name-suffix-one/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-007
+  related_change: fix-compose-container-name-suffix-one
   severity: medium
   reporter: user
   related_requirement: null

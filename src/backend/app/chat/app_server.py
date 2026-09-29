@@ -22,17 +22,18 @@ class ExecutorError(RuntimeError):
 
 class AppServer:
     VERSION = 'codex-cli 0.153.4'
-    def __init__(self, executable, workspace, codex_home, *, home, write=False, timeout=30, permission_profile=None, effort=None):
+    def __init__(self, executable, workspace, codex_home, *, home, write=False, timeout=30, permission_profile=None, effort=None, write_scope=None):
         self.workspace = trusted_directory(workspace)
         self.codex_home = trusted_directory(codex_home)
         self.home = trusted_directory(home)
         if self.codex_home == self.workspace or self.workspace in self.codex_home.parents:
             raise ExecutorError('credential_directory_inside_workspace')
-        if permission_profile is not None and not re.fullmatch(r'moonbox-(read|write)', permission_profile):
+        if permission_profile is not None and not re.fullmatch(r'moonbox-(read|write|governance)', permission_profile):
             raise ExecutorError('invalid_permission_profile')
         if effort not in (None,'low','medium','high'):raise ExecutorError('invalid_executor_effort')
         self.effort = effort
-        self.permission_profile = permission_profile
+        self.write_scope = self._normalize_write_scope(write_scope if write_scope is not None else ('implementation_write' if write else 'read_only'))
+        self.permission_profile = permission_profile or self.permission_profile_for_scope(self.write_scope)
         self.timeout = timeout; self.write = write; self.seq = 0
         self.incoming = queue.Queue(maxsize=128); self.pending = deque(); self.failure = None; self.closed = False
         self.env = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': str(self.home), 'CODEX_HOME': str(self.codex_home)}
@@ -53,6 +54,19 @@ class AppServer:
 
     def launch_command(self, executable):
         return [str(executable), 'app-server', '--stdio', '-c', 'shell_environment_policy.inherit="none"']
+
+    def _normalize_write_scope(self, scope):
+        if scope in ('implementation_write', 'write', True): return 'implementation_write'
+        if scope in ('governance_write', 'governance'): return 'governance_write'
+        return 'read_only'
+
+    def permission_profile_for_scope(self, scope):
+        return {'implementation_write': 'moonbox-write', 'governance_write': 'moonbox-governance'}.get(self._normalize_write_scope(scope), 'moonbox-read')
+
+    def set_write_scope(self, scope):
+        self.write_scope = self._normalize_write_scope(scope)
+        self.write = self.write_scope == 'implementation_write'
+        self.permission_profile = self.permission_profile_for_scope(self.write_scope)
 
     def _read(self):
         try:
@@ -125,7 +139,8 @@ class AppServer:
              'excludeTmpdirEnvVar': True, 'excludeSlashTmp': True} if self.write else {'type': 'readOnly'}}
         if self.permission_profile:
             # Resolve read/write for every turn, so a governance downgrade cannot retain write rights.
-            policy = {'permissions': 'moonbox-write' if self.write else 'moonbox-read'}
+            scope = 'read_only' if self.write_scope == 'implementation_write' and not self.write else self.write_scope
+            policy = {'permissions': self.permission_profile_for_scope(scope)}
         result = self.rpc('turn/start', {'threadId': thread_id, 'input': [{'type': 'text', 'text': prompt}],
             'cwd': str(self.workspace), 'approvalPolicy': 'never', **({'effort':self.effort} if self.effort else {}), **policy})
         turn = result.get('turn', {})

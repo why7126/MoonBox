@@ -150,3 +150,9 @@ python scripts/extract-ai-usage.py --post-command-hook --workflow-event req.revi
 
 - Print only the compact hook summary: `status`, `usage_mode`, `command_run_count`, `sprint_snapshot`, `warning_count`, and `recommended_action`.
 - If local session input is unavailable, report `usage_mode: unavailable` and the recommended action; do not treat that as parent command failure.
+
+## 中文标题生成门禁
+
+本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
+
+在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。

@@ -13,9 +13,15 @@ from app.chat.workspace import trusted_directory
 def write_profiles(runtime):
     runtime = trusted_directory(runtime)
     config = 'model_reasoning_effort="low"\ncli_auth_credentials_store="file"\nweb_search="disabled"\n[features]\napps=false\nmulti_agent=false\n[analytics]\nenabled=false\n'
-    for mode in ('read', 'write'):
+    profiles = {
+        'read': {'/':'read','/runtime':'deny','/proc':'deny','/work':'read','/work/.git':'read'},
+        'write': {'/':'read','/runtime':'deny','/proc':'deny','/work':'write','/work/.git':'read'},
+        'governance': {'/':'read','/runtime':'deny','/proc':'deny','/work':'read',
+            '/work/issues':'write','/work/openspec/changes':'write','/work/iterations':'write','/work/docs/spec-logs':'write','/work/.git':'read'},
+    }
+    for mode, paths in profiles.items():
         config += f'\n[permissions.moonbox-{mode}.filesystem]\n'
-        for path, access in {'/':'read','/runtime':'deny','/proc':'deny','/work':mode,'/work/.git':'read'}.items():
+        for path, access in paths.items():
             config += json.dumps(path) + '=' + json.dumps(access) + '\n'
         config += f'\n[permissions.moonbox-{mode}.network]\nenabled=false\n'
     (runtime / 'config.toml').write_text(config)
@@ -25,7 +31,7 @@ def write_profiles(runtime):
 class ContainerAppServer(AppServer):
     IMAGE = 'moonbox-chat-executor:0.153.4-test'
 
-    def __init__(self, workspace, runtime, *, write=True, timeout=30):
+    def __init__(self, workspace, runtime, *, write=True, timeout=30, write_scope=None):
         self.docker = shutil.which('docker')
         if not self.docker:raise ExecutorError('container_runtime_unavailable')
         if os.getuid()==0:raise ExecutorError('nonroot_controller_required')
@@ -40,8 +46,9 @@ class ContainerAppServer(AppServer):
                        '--mount', f'type=bind,src={workspace / ".git"},dst=/work/.git,readonly',
                        '--mount', f'type=bind,src={runtime},dst=/runtime']
         # A test-owned runtime is prepared by the controller; never load personal config.
+        scope = write_scope or ('implementation_write' if write else 'read_only')
         super().__init__(self.docker, workspace, runtime, home=runtime, write=write,
-                         timeout=timeout, permission_profile='moonbox-write' if write else 'moonbox-read', effort='low')
+                         timeout=timeout, permission_profile=None, effort='low', write_scope=scope)
 
     def options(self):
         return ['--read-only','--log-driver','none','--user',f'{os.getuid()}:{os.getgid()}','--cap-drop','ALL',

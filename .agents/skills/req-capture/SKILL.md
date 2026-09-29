@@ -46,10 +46,11 @@ Use this skill when the user asks to run the migrated source command `req-captur
 
 ## Steps
 
-1. 读 `rules/requirement-management.md`、`issues/requirements/_registry.yaml`
+1. 读 `rules/requirement-management.md`、`issues/requirements/_registry.yaml`、`issues/requirements/CHANGELOG.md`
 2. **评估并拆分**（见下节）
-3. 为每条 REQ 分配 ID、创建 capture + trace、更新 registry
-4. 输出 Capture 摘要（多条用表格）
+3. 对每条候选 REQ 执行创建前重复/相似 Issue 检查（见下节），确认非重复后才分配新 ID
+4. 为每条新 REQ 创建 capture + trace、更新 registry
+5. 输出重复检查摘要 + Capture 摘要（多条用表格）
 
 ---
 
@@ -64,6 +65,28 @@ Use this skill when the user asks to run the migrated source command `req-captur
 **实为缺陷** → 引导 `/bug-capture`，不要 req-capture。
 
 **规则**：每条独立 REQ-ID 与目录；禁止 umbrella REQ。未拆分时回复一句话 rationale。
+
+---
+
+## 创建前重复/相似 Issue 检查（MUST）
+
+在分配新 REQ ID 前，MUST 检查项目中是否已有相同、相似或可作为父级的需求。
+
+检查顺序：
+
+1. 先读取 `issues/requirements/CHANGELOG.md` 与 `issues/requirements/_registry.yaml`，形成 plan / review / archive 中的候选 REQ 清单。
+2. 基于用户输入的标题、关键词、业务域、目标用户、交付能力、验收闭环、非目标和关联模块筛选候选。
+3. 候选不清晰时，只读取候选目录中 `capture.md` 与 `trace.md` 的标题、Frontmatter、摘要段落、当前状态、关联 Sprint/Change 和下一步；不得为判重全量读取无关 REQ 正文或历史归档大目录。
+
+发现疑似重复或 refinement 时，MUST 先输出候选表，包含：REQ ID、标题、当前状态/阶段、相似原因、建议处理方式、事实源路径。
+
+处理选项：
+
+- 关联/更新原 REQ（推荐）：同一业务目标、同一交付能力、同一验收闭环或只是补充细节时使用；必要时引导后续更新原 REQ。
+- 作为父子关系记录：对已有 REQ 的体验、策略或边界补充，优先使用 `parent_requirement`，而不是创建无关联 peer REQ。
+- 确认非重复后新建：只有用户确认目标独立、优先级/验收/交付闭环不同，或候选只是背景相关时才继续创建新 REQ。
+
+如果疑似重复但用户尚未确认，MUST 暂停该条创建，并在「待用户决策/处理」给出推荐选项；不得静默分配新 REQ ID。
 
 ---
 
@@ -129,3 +152,9 @@ done
 - Do **not** hand-edit `sprint.md` Scope marker blocks
 
 分级元数据遵循 `rules/document-governance.md` 的“Issue 分级元数据”：REQ 使用 priority，BUG 使用 severity，写入 Frontmatter；trace 为当前事实源，主文档与 capture 同步，初判依据留正文。
+
+## 中文标题生成门禁
+
+本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
+
+在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。

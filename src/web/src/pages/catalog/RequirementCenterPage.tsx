@@ -1,16 +1,17 @@
 import { RequirementCenterError, RequirementCenterErrorDetails, readFailure, type ReadFailure } from "./RequirementCenterError";
-import { CaptureGrading } from "./CaptureGrading";
 import "../../styles/project-governance.css";
 import { clearAdminSession } from "../admin/adminAuth";
 import { clearFrontendSession } from "../home/frontendSession";
-import { governanceRequest, GovernanceError, scopedUrl, waitApplication, type Project, type Application } from "../../components/workbench/governanceApi";
+import { governanceRequest, governanceTextRequest, GovernanceError, scopedUrl, waitApplication, type Project, type Application } from "../../components/workbench/governanceApi";
 import {
+Archive,
 Check,
 CircleDot,
 Code2,
 Command,
 Copy,
 ImageIcon,
+Info,
 Loader2,
 Maximize2,
 Minimize2,
@@ -22,10 +23,11 @@ Table2,
 Wrench,
 X
 } from "lucide-react";
-import { FormEvent,KeyboardEvent,MouseEvent,RefObject,useCallback,useEffect,useMemo,useRef,useState } from "react";
+import { CSSProperties,FormEvent,KeyboardEvent,MouseEvent,RefObject,useCallback,useEffect,useMemo,useRef,useState } from "react";
 import { WorkbenchSidebar } from "../../components/workbench/WorkbenchSidebar";
 import { useWorkbenchTheme } from "../../components/workbench/useWorkbenchTheme";
 import { avatarInitial,emptyUser,emptyWorkspace,fallbackUserFromSession,getStoredWorkspace,readAccessToken,type FrontendUser,type Workspace } from "../../components/workbench/workbenchAccount";
+import { CaptureDialog, type CaptureExistingIssue } from "../../components/requirement-center/capture/CaptureDialog";
 import { readFrontendSession } from "../home/frontendSession";
 
 const stages: Stage[] = [
@@ -59,6 +61,9 @@ type ActionDialogKind = "analysis" | "command" | "complete" | "sprint" | "opsx" 
 type ActionDialog =
   | { type: "none" }
   | { type: ActionDialogKind; issue: IssueCard; tab: "ai" | "import" | "existing" | "new"; ready: boolean; running: boolean; fileName: string; sprintId: string; newSprintId: string; sprintEstimate: number; error: string; adoptedPointIndexes: number[] };
+type ArchiveDialog =
+  | { type: "none" }
+  | { type: "current_iteration_archive"; item: CurrentIterationCapacity };
 
 type Stage = {
   id: string;
@@ -73,6 +78,9 @@ type Stage = {
 type ChangeSummary = { id: string; title: string | null; stage: string; source_kind: string; task_progress?: [number, number] | null; document_entries?: IssueDocument[]; warnings?: string[] };
 
 type IssueCard = {
+  display_title?: string | null;
+  title_source?: string | null;
+  title_warning?: string | null;
   id: string;
   current_change?: ChangeSummary | null;
   related_changes?: ChangeSummary[];
@@ -80,7 +88,8 @@ type IssueCard = {
   drift_warnings?: string[];
   type: CardType;
   title: string;
-  priority: "P0" | "P1" | "P2" | "P3" | "";
+  priority?: "P0" | "P1" | "P2" | "P3" | "";
+  severity?: "blocker" | "critical" | "high" | "medium" | "low" | "";
   owner: string;
   source: string;
   stage: string;
@@ -157,17 +166,108 @@ type RequirementCenterContext = {
     blocked: number;
     drift: number;
   };
+  sprintMetrics?: SprintMetrics;
+  sprint_metrics?: SprintMetrics;
+  currentIterationCapacity?: CurrentIterationCapacity[];
+  current_iteration_capacity?: CurrentIterationCapacity[];
   sprintOptions?: string[];
   sprint_options?: string[];
+  sprintOptionDetails?: SprintFilterOption[];
+  sprint_option_details?: SprintFilterOption[];
+};
+
+type CurrentIterationCapacity = {
+  sprintId?: string;
+  sprint_id?: string;
+  usedCapacity?: number | null;
+  used_capacity?: number | null;
+  totalCapacity?: number | null;
+  total_capacity?: number | null;
+  capacityUnit?: "person_day" | string;
+  capacity_unit?: "person_day" | string;
+  capacitySource?: "explicit" | "default" | "unknown" | string;
+  capacity_source?: "explicit" | "default" | "unknown" | string;
+  status?: "normal" | "near_limit" | "over_limit" | "unknown" | string;
+  message?: string | null;
+  archiveReadiness?: ArchiveReadiness | null;
+  archive_readiness?: ArchiveReadiness | null;
+};
+
+type ArchiveReadiness = {
+  canEnterConfirmation?: boolean;
+  can_enter_confirmation?: boolean;
+  displayMode?: "hidden" | "disabled" | "enabled" | string;
+  display_mode?: "hidden" | "disabled" | "enabled" | string;
+  reasonCode?: string;
+  reason_code?: string;
+  safeSummary?: string | null;
+  safe_summary?: string | null;
+  blockers?: ArchiveReadinessBlocker[];
+};
+
+type ArchiveReadinessBlocker = {
+  type?: string;
+  id?: string | null;
+  status?: string | null;
+  message?: string | null;
+  actionHint?: string | null;
+  action_hint?: string | null;
+  visible?: boolean;
+};
+
+type SprintMetrics = {
+  completed_count?: number;
+  total_count?: number;
+  completedCount?: number;
+  totalCount?: number;
+  source?: string;
+  warning?: string | null;
+  refreshed_at?: string | null;
+  refreshedAt?: string | null;
 };
 
 type SprintOptionModel = {
   id: string;
-  status: "进行中" | "规划中";
+  status: SprintStatusLabel;
   used: number;
   total: number;
   disabled: boolean;
 };
+type MetricStatValue = number | { completed: number; total: number };
+type MetricStat = {
+  label: string;
+  value: MetricStatValue;
+  description: string;
+  testId?: string;
+};
+type SprintStatusKey = "planning" | "in_progress" | "completed" | "archived" | "unknown";
+type SprintStatusLabel = "规划中" | "进行中" | "已完成" | "已归档" | "状态待核实";
+type SprintFilterStatusLabel = "进行中" | "已归档";
+type SprintFilterOption = {
+  sprint_id?: string;
+  sprintId?: string;
+  id?: string;
+  label?: string;
+  lifecycle_stage?: string;
+  lifecycleStage?: string;
+  status?: string;
+  status_label?: string;
+  statusLabel?: string;
+  warning?: string | null;
+};
+type MultiFilterKey = "stage" | "owner" | "level" | "sprint";
+type MultiFilterOption = {
+  value: string;
+  label: string;
+  meta?: string;
+  group?: string;
+  searchAliases?: string;
+  statusLabel?: SprintFilterStatusLabel;
+  warning?: string | null;
+  disabled?: boolean;
+};
+
+const UNASSIGNED_SPRINT_FILTER_VALUE = "__unassigned_sprint__";
 
 type ApiEnvelope<T> = {
   data: T;
@@ -232,15 +332,21 @@ const nextSprintId = (options: string[]) => {
   return `sprint-${String(maxNumber + 1).padStart(3, "0")}`;
 };
 
-const sprintOptionModels = (options: string[], estimate: number): SprintOptionModel[] => {
+const sprintOptionModels = (options: string[], estimate: number, details: SprintFilterOption[] = []): SprintOptionModel[] => {
   const baseOptions = options.length ? options : ["sprint-004"];
   const ids = baseOptions.length > 1 ? baseOptions : [...baseOptions, nextSprintId(baseOptions)];
+  const statusById = new Map<string, SprintFilterOption>();
+  details.forEach((option) => {
+    const id = option.sprint_id || option.sprintId || option.id;
+    if (id) statusById.set(id, option);
+  });
   return ids.map((id, index) => {
     const total = 12;
     const used = index === 0 ? 8 : 11;
+    const detail = statusById.get(id);
     return {
       id,
-      status: index === 0 ? "进行中" : "规划中",
+      status: detail ? normalizeSprintStatus(detail.status, detail.status_label || detail.statusLabel) : (index === 0 ? "进行中" : "规划中"),
       used,
       total,
       disabled: estimate > total - used,
@@ -249,6 +355,63 @@ const sprintOptionModels = (options: string[], estimate: number): SprintOptionMo
 };
 
 const firstSelectableSprintId = (options: SprintOptionModel[]) => options.find((option) => !option.disabled)?.id || "";
+
+const sprintStatusLabels: Record<SprintStatusKey, SprintStatusLabel> = {
+  planning: "规划中",
+  in_progress: "进行中",
+  completed: "已完成",
+  archived: "已归档",
+  unknown: "状态待核实",
+};
+
+const normalizeSprintStatus = (value?: string | null, label?: string | null): SprintStatusLabel => {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized === "archive") return sprintStatusLabels.archived;
+  if (normalized in sprintStatusLabels) return sprintStatusLabels[normalized as SprintStatusKey];
+  if (label === "规划中" || label === "进行中" || label === "已完成" || label === "已归档" || label === "状态待核实") return label;
+  return sprintStatusLabels.unknown;
+};
+
+const sprintStatusClass = (label: SprintStatusLabel) => {
+  if (label === "进行中") return "active";
+  if (label === "规划中") return "planned";
+  if (label === "已完成") return "completed";
+  if (label === "已归档") return "archived";
+  return "unknown";
+};
+
+const sprintFilterStatusLabel = (option?: SprintFilterOption): SprintFilterStatusLabel => {
+  const lifecycle = option?.lifecycle_stage || option?.lifecycleStage;
+  const status = String(option?.status || "").toLowerCase();
+  const label = option?.status_label || option?.statusLabel;
+  if (lifecycle === "archive" || status === "archived" || status === "archive" || status === "completed" || label === "已归档" || label === "已完成") return "已归档";
+  return "进行中";
+};
+
+const issueLevelFilterValue = (issue: IssueCard) => {
+  if (issue.type === "requirement" && issue.priority) return `requirement:${issue.priority}`;
+  if (issue.type === "bug" && issue.severity) return `bug:${issue.severity}`;
+  return "";
+};
+
+const isRatioStatValue = (value: MetricStatValue): value is { completed: number; total: number } => typeof value === "object";
+
+const MetricLabel = ({ id, label, description }: { id: string; label: string; description: string }) => (
+  <span className="rc-stat-label">
+    <span>{label}</span>
+    <span id={id} className="rc-stat-info" tabIndex={0} aria-label={`${label}说明：${description}`} data-tooltip={description}>
+      <Info size={13} aria-hidden="true" />
+    </span>
+  </span>
+);
+
+const normalizeSprintOptionId = (option: SprintFilterOption) => option.sprint_id || option.sprintId || option.id || "";
+
+const isCurrentSprintOption = (option: SprintFilterOption) => {
+  const lifecycle = option.lifecycle_stage || option.lifecycleStage;
+  const status = String(option.status || "").toLowerCase();
+  return lifecycle === "change" && (status === "planning" || status === "in_progress");
+};
 
 const markdownInlineParts = (text: string) => text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).map((part, index) => {
   if (part.startsWith("`") && part.endsWith("`")) return <code key={index}>{part.slice(1, -1)}</code>;
@@ -597,6 +760,38 @@ const issueDocumentEntries = (issue: IssueCard): IssueDocument[] =>
         };
       });
 
+
+const documentSemanticKey = (document: IssueDocument, source: "issue" | "change", changeId?: string) => {
+  const name = (document.name || document.label || "").trim().toLowerCase();
+  if (source === "change" && name === "trace.md") return `change:${changeId || "current"}:trace.md`;
+  return name;
+};
+
+const relatedChangeDocumentGroups = (issue: IssueCard, issueDocuments: IssueDocument[] = []): { change: ChangeSummary; documents: IssueDocument[] }[] => {
+  if (issue.type === "change") return [];
+  const seenDocumentKeys = new Set(issueDocuments.map((document) => documentSemanticKey(document, "issue")));
+  const changes = issue.related_changes?.length ? issue.related_changes : issue.current_change ? [issue.current_change] : [];
+  return changes
+    .map((change) => {
+      const documents = (change.document_entries || []).filter((document) => {
+        const key = documentSemanticKey(document, "change", change.id);
+        if (seenDocumentKeys.has(key)) return false;
+        seenDocumentKeys.add(key);
+        return true;
+      });
+      return { change, documents };
+    })
+    .filter((group) => group.documents.length > 0);
+};
+
+const changeDocumentShortLabel = (index: number, total: number) => (total > 1 ? `Change ${index + 1}` : "Change");
+
+const changeDocumentButtonLabel = (document: IssueDocument, index: number, total: number) => {
+  const name = document.label || document.name;
+  const documentName = document.name === "trace.md" ? "Change trace.md" : name;
+  return total > 1 ? `${changeDocumentShortLabel(index, total)} ${documentName}` : documentName;
+};
+
 const visibleIssueDocuments = (stage: Stage, issue: IssueCard) => {
   if (issue.type === "change" || stage.id === "unknown") return issueDocumentEntries(issue);
   const allowed = new Set(stageVisibleDocs[stage.id] || stage.requiredDocs);
@@ -837,8 +1032,7 @@ const visibleManualAcceptanceProgress = (issue: IssueCard): [number, number] | u
   if (issue.stage !== "acceptance" || !issue.testProgress) return undefined;
   if (issue.manualAcceptanceProgress) return issue.manualAcceptanceProgress;
   const pendingCount = issue.manualAcceptanceCount ?? 0;
-  if (pendingCount <= 0) return [1, 1];
-  return [0, pendingCount];
+  return pendingCount > 0 ? [0, pendingCount] : undefined;
 };
 
 const progressFocusLabel: Record<ProgressFocus, string> = {
@@ -1069,7 +1263,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-CAPTURE-READY",
       type: "bug",
       title: "采集用户反馈中的按钮状态异常",
-      priority: "P2",
+      severity: "medium",
       owner: "前端体验",
       source: "demo",
       stage: "capture",
@@ -1083,7 +1277,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-CAPTURE-EMPTY-CAPTURE",
       type: "bug",
       title: "采集缺陷描述为空待补充",
-      priority: "P1",
+      severity: "high",
       owner: "测试团队",
       source: "demo",
       stage: "capture",
@@ -1125,7 +1319,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-PLANNING-READY",
       type: "bug",
       title: "生成文档后 trace 时间未刷新",
-      priority: "P0",
+      severity: "critical",
       owner: "平台工程",
       source: "demo",
       stage: "planning",
@@ -1139,7 +1333,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-PLANNING-EMPTY-BUG",
       type: "bug",
       title: "规划中 Bug 正文为空",
-      priority: "P1",
+      severity: "high",
       owner: "平台工程",
       source: "demo",
       stage: "planning",
@@ -1181,7 +1375,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-REVIEW-READY",
       type: "bug",
       title: "禁用态二次点击保护待确认",
-      priority: "P1",
+      severity: "medium",
       owner: "前端体验",
       source: "demo",
       stage: "review-ready",
@@ -1195,7 +1389,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-REVIEW-EMPTY-ROOT-CAUSE",
       type: "bug",
       title: "待评审 Bug 根因文档为空",
-      priority: "P0",
+      severity: "critical",
       owner: "平台工程",
       source: "demo",
       stage: "review-ready",
@@ -1237,7 +1431,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-APPROVED-READY",
       type: "bug",
       title: "按钮禁用态缺少二次点击保护",
-      priority: "P2",
+      severity: "medium",
       owner: "前端体验",
       source: "demo",
       stage: "approved",
@@ -1251,7 +1445,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-APPROVED-DRIFT",
       type: "bug",
       title: "已评审 Bug 存在数据漂移",
-      priority: "P1",
+      severity: "high",
       owner: "平台工程",
       source: "demo",
       stage: "approved",
@@ -1280,7 +1474,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-SPRINT-READY",
       type: "bug",
       title: "迭代规划中的 Bug 待生成 Opsx",
-      priority: "P1",
+      severity: "medium",
       owner: "平台工程",
       source: "demo",
       stage: "sprint-planning",
@@ -1312,7 +1506,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-READY-DEV",
       type: "bug",
       title: "归档详情页新 Tab 打开状态异常",
-      priority: "P1",
+      severity: "medium",
       owner: "平台工程",
       source: "demo",
       stage: "ready-dev",
@@ -1346,7 +1540,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-DEVELOPMENT",
       type: "bug",
       title: "修复任务流转后状态未刷新",
-      priority: "P1",
+      severity: "high",
       owner: "平台工程",
       source: "demo",
       stage: "development",
@@ -1383,7 +1577,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-ACCEPTANCE-BLOCKED",
       type: "bug",
       title: "验收报告缺少 computed style 证据",
-      priority: "P1",
+      severity: "medium",
       owner: "测试团队",
       source: "demo",
       stage: "acceptance",
@@ -1421,7 +1615,7 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       id: "DEMO-BUG-DONE",
       type: "bug",
       title: "归档缺陷保留最终追踪证据",
-      priority: "P3",
+      severity: "low",
       owner: "平台工程",
       source: "demo",
       stage: "done",
@@ -1465,7 +1659,49 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       blocked: issues.filter((issue) => issue.blocked).length,
       drift: 0,
     },
+    sprintMetrics: { completed_count: 1, total_count: 2, source: "sprint_lifecycle" },
+    currentIterationCapacity: [
+      {
+        sprintId: "sprint-004",
+        usedCapacity: 28,
+        totalCapacity: 30,
+        capacityUnit: "person_day",
+        capacitySource: "explicit",
+        status: "near_limit",
+        message: "接近容量上限",
+        archiveReadiness: {
+          canEnterConfirmation: false,
+          displayMode: "disabled",
+          reasonCode: "unarchived_scope",
+          safeSummary: "Sprint archive readiness 未通过：REQ 1 项、BUG 1 项、Change 1 项 未闭环。",
+          blockers: [
+            { type: "requirement", id: "DEMO-REQ-ACCEPTANCE-READY", status: "applied", message: "范围内需求尚未归档闭环" },
+            { type: "bug", id: "DEMO-BUG-ACCEPTANCE-BLOCKED", status: "applied", message: "范围内 BUG 尚未归档闭环" },
+            { type: "change", id: "demo-change", status: "applied", message: "范围内 Change 尚未归档闭环" },
+          ],
+        },
+      },
+      {
+        sprintId: "sprint-003",
+        usedCapacity: 18,
+        totalCapacity: 30,
+        capacityUnit: "person_day",
+        capacitySource: "explicit",
+        status: "normal",
+        message: "归档 readiness 已通过",
+        archiveReadiness: {
+          canEnterConfirmation: true,
+          displayMode: "enabled",
+          reasonCode: "ready",
+          safeSummary: "范围内 REQ、BUG 与独立 Change 均已归档闭环，验收 sign-off、权限与 Workflow Sync 将在 Sprint archive 确认流程中继续复核。",
+          blockers: [],
+        },
+      },
+    ],
     sprintOptions: ["sprint-004"],
+    sprintOptionDetails: [
+      { sprint_id: "sprint-004", label: "sprint-004", lifecycle_stage: "change", status: "in_progress", status_label: "进行中" },
+    ],
   };
 }
 
@@ -1528,8 +1764,176 @@ function normalizeContext(payload: RequirementCenterContext, frontendUsername?: 
     })),
     currentUser: normalizedUser,
     selectedWorkspaceId: rawContext.selected_workspace_id || payload.selectedWorkspaceId,
+    sprintMetrics: rawContext.sprint_metrics || payload.sprintMetrics || { completed_count: 0, total_count: 0, source: "sprint_lifecycle" },
+    currentIterationCapacity: (rawContext.current_iteration_capacity || payload.currentIterationCapacity || []).map(normalizeCapacityItem),
     sprintOptions: rawContext.sprint_options || payload.sprintOptions || [],
+    sprintOptionDetails: rawContext.sprint_option_details || payload.sprintOptionDetails || [],
   };
+}
+
+function normalizeCapacityItem(item: CurrentIterationCapacity): CurrentIterationCapacity {
+  return {
+    sprintId: item.sprint_id || item.sprintId,
+    usedCapacity: item.used_capacity ?? item.usedCapacity ?? null,
+    totalCapacity: item.total_capacity ?? item.totalCapacity ?? null,
+    capacityUnit: item.capacity_unit || item.capacityUnit || "person_day",
+    capacitySource: item.capacity_source || item.capacitySource || "unknown",
+    status: item.status || "unknown",
+    message: item.message || null,
+    archiveReadiness: normalizeArchiveReadiness(item.archive_readiness || item.archiveReadiness || null),
+  };
+}
+
+function normalizeArchiveReadiness(readiness: ArchiveReadiness | null): ArchiveReadiness | null {
+  if (!readiness) return null;
+  return {
+    canEnterConfirmation: readiness.can_enter_confirmation ?? readiness.canEnterConfirmation ?? false,
+    displayMode: readiness.display_mode || readiness.displayMode || "hidden",
+    reasonCode: readiness.reason_code || readiness.reasonCode || "unknown",
+    safeSummary: readiness.safe_summary ?? readiness.safeSummary ?? null,
+    blockers: (readiness.blockers || []).map((blocker) => ({
+      type: blocker.type,
+      id: blocker.id ?? null,
+      status: blocker.status ?? null,
+      message: blocker.message ?? null,
+      actionHint: blocker.action_hint ?? blocker.actionHint ?? null,
+      visible: blocker.visible ?? true,
+    })),
+  };
+}
+
+function issueLevelTag(issue: IssueCard) {
+  if (issue.type === "bug") {
+    return issue.severity ? { value: issue.severity, className: `rc-severity-tag ${issue.severity}` } : null;
+  }
+  if (issue.type === "requirement") {
+    return issue.priority ? { value: issue.priority, className: `rc-priority-tag ${issue.priority.toLowerCase()}` } : null;
+  }
+  return null;
+}
+
+const capacityStatusLabel = (status?: string) => {
+  if (status === "near_limit") return "接近上限";
+  if (status === "over_limit") return "已超量";
+  if (status === "unknown") return "待核实";
+  return "正常";
+};
+
+const capacityUnitLabel = (unit?: string) => unit === "person_day" ? "人天" : unit || "人天";
+
+const capacitySourceLabel = (source?: string) => {
+  if (source === "explicit") return "显式容量";
+  if (source === "default") return "默认容量";
+  return "待核实";
+};
+
+const formatCapacityValue = (item: CurrentIterationCapacity) => {
+  const used = item.usedCapacity;
+  const total = item.totalCapacity;
+  if (typeof used !== "number" || typeof total !== "number") return "待核实";
+  return `${Number.isInteger(used) ? used : used.toFixed(1)} / ${Number.isInteger(total) ? total : total.toFixed(1)} ${capacityUnitLabel(item.capacityUnit)}`;
+};
+
+const capacityProgressPercent = (item: CurrentIterationCapacity) => {
+  const used = item.usedCapacity;
+  const total = item.totalCapacity;
+  if (typeof used !== "number" || typeof total !== "number" || total <= 0) return 0;
+  return Math.max(0, Math.min(100, (used / total) * 100));
+};
+
+const archiveReadinessSummary = (readiness?: ArchiveReadiness | null) => readiness?.safeSummary || "Sprint archive readiness 待核实";
+
+const archiveActionHint = (readiness: ArchiveReadiness | null | undefined, archiveEnabled: boolean) => {
+  const summary = archiveReadinessSummary(readiness);
+  return archiveEnabled ? `归档当前迭代：${summary}` : `无法归档当前迭代：${summary}`;
+};
+
+const capacityStatusHint = (item: CurrentIterationCapacity) => {
+  const source = capacitySourceLabel(item.capacitySource);
+  const message = item.message || `${source}，容量状态${capacityStatusLabel(item.status)}`;
+  return `容量来源：${source}；说明：${message}`;
+};
+
+function CurrentIterationCapacityStrip({
+  items,
+  loading,
+  stale,
+  onArchive,
+}: {
+  items: CurrentIterationCapacity[];
+  loading: boolean;
+  stale: boolean;
+  onArchive: (item: CurrentIterationCapacity) => void;
+}) {
+  if (!loading && items.length === 0) return null;
+  return (
+    <section
+      className={`rc-current-capacity${stale ? " stale" : ""}`}
+      data-testid="current-iteration-capacity"
+      data-state={loading ? "loading" : stale ? "refresh_failed" : "ready"}
+      aria-label="当前迭代容量"
+    >
+      {stale && <div className="rc-current-capacity-notice">刷新失败，保留上次成功数据</div>}
+      <div className="rc-current-capacity-items">
+        {loading && items.length === 0 ? (
+          <article className="rc-capacity-item loading" data-testid="capacity-metric-item" data-state="loading">
+            <div className="rc-capacity-meta">
+              <span className="rc-loading-number" aria-hidden="true" />
+              <small>读取中</small>
+            </div>
+            <div className="rc-capacity-track">
+              <strong>正在读取容量</strong>
+              <span className="rc-capacity-bar" aria-hidden="true"><span /></span>
+            </div>
+            <span className="rc-capacity-status"><i aria-hidden="true" />待同步</span>
+          </article>
+        ) : items.map((item) => {
+          const status = item.status || "unknown";
+          const sprintId = item.sprintId || "sprint-unknown";
+          const readiness = item.archiveReadiness;
+          const archiveMode = readiness?.displayMode || "hidden";
+          const showArchiveEntry = archiveMode !== "hidden";
+          const archiveEnabled = archiveMode === "enabled" && Boolean(readiness?.canEnterConfirmation);
+          const archiveHint = archiveActionHint(readiness, archiveEnabled);
+          const progressStyle = { "--capacity-progress": `${capacityProgressPercent(item)}%` } as CSSProperties;
+          return (
+            <article className={`rc-capacity-item ${status}`} key={sprintId} data-testid="capacity-metric-item" data-state={status}>
+              <div className="rc-capacity-main">
+                <div className="rc-capacity-meta">
+                  <b>{sprintId}</b>
+                  <span className="rc-capacity-status" data-testid="current-iteration-capacity-status" title={capacityStatusHint(item)}><i aria-hidden="true" />{capacityStatusLabel(status)}</span>
+                </div>
+                <div className="rc-capacity-track">
+                  <strong>{formatCapacityValue(item)}</strong>
+                  <span className="rc-capacity-bar" style={progressStyle} aria-hidden="true"><span /></span>
+                </div>
+              </div>
+              {showArchiveEntry && (
+                <div className="rc-capacity-archive">
+                  <span
+                    className="rc-capacity-archive-tip"
+                    data-testid="current-iteration-archive-summary"
+                    title={archiveHint}
+                  >
+                    <button
+                      type="button"
+                      aria-label={archiveEnabled ? `归档当前迭代 ${sprintId}` : `无法归档当前迭代 ${sprintId}`}
+                      data-testid="current-iteration-archive-action"
+                      disabled={!archiveEnabled}
+                      title={archiveHint}
+                      onClick={() => onArchive(item)}
+                    >
+                      <Archive size={15} aria-hidden="true" />
+                    </button>
+                  </span>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function requiredDocsForIssue(stageId: string, issueType: CardType) {
@@ -1572,12 +1976,14 @@ export function RequirementCenterPage() {
   const [lastSuccess, setLastSuccess] = useState("");
   const documentFlight = useRef<string | null>(null);
   const [theme] = useWorkbenchTheme();
-  const [showArchived, setShowArchived] = useState(true);
   const [typeFilter, setTypeFilter] = useState<"all" | CardType>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [ownerFilter, setOwnerFilter] = useState("全部负责人");
-  const [priorityFilter, setPriorityFilter] = useState("全部优先级");
-  const [sprintFilter, setSprintFilter] = useState("全部 Sprint");
+  const [selectedStages, setSelectedStages] = useState<string[]>([]);
+  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedSprints, setSelectedSprints] = useState<string[]>([]);
+  const [openFilter, setOpenFilter] = useState<MultiFilterKey | null>(null);
+  const [filterSearch, setFilterSearch] = useState<Record<MultiFilterKey, string>>({ stage: "", owner: "", level: "", sprint: "" });
   const [toast, setToast] = useState("");
   const [project, setProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -1623,6 +2029,7 @@ export function RequirementCenterPage() {
   const [markdownMetadataOpen, setMarkdownMetadataOpen] = useState(false);
   const [choiceDialog, setChoiceDialog] = useState<ChoiceDialog>({ type: "none" });
   const [actionDialog, setActionDialog] = useState<ActionDialog>({ type: "none" });
+  const [archiveDialog, setArchiveDialog] = useState<ArchiveDialog>({ type: "none" });
   const [lockedActionId, setLockedActionId] = useState("");
   const [aiMessages, setAiMessages] = useState<Array<{ role: "ai" | "user"; content: string }>>([
     { role: "ai", content: "我会在这里汇总卡片动作、命令上下文和失败原因。" },
@@ -1631,12 +2038,18 @@ export function RequirementCenterPage() {
   const captureTitleRef = useRef<HTMLInputElement | null>(null);
   const drawerResizeRef = useRef({ active: false, startX: 0, startWidth: 760 });
   const markdownEditorRef = useRef<HTMLTextAreaElement | null>(null);
+  const activeFilterRef = useRef<HTMLDivElement | null>(null);
+  const filterDetailsRef = useRef<HTMLDetailsElement | null>(null);
+  const defaultSprintSelectionKey = useRef("");
   const pendingMarkdownSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const issues = context?.issues ?? [];
   const availableWorkspaces = context?.workspaces ?? [];
   const [sessionFallbackUser, setSessionFallbackUser] = useState<FrontendUser>(() => fallbackUserFromSession());
   const activeUser = context?.currentUser ?? sessionFallbackUser;
   const sprintOptions = context?.sprintOptions || context?.sprint_options || [];
+  const sprintOptionDetails = context?.sprintOptionDetails || context?.sprint_option_details || [];
+  const sprintMetrics = context?.sprintMetrics || context?.sprint_metrics;
+  const currentIterationCapacity = context?.currentIterationCapacity || context?.current_iteration_capacity || [];
 
   const isEditableDocument = (state: DrawerState): state is Extract<DrawerState, { type: "markdown" }> => (
     state.type === "markdown" && !project?.readonly && canEditDocument(state.document)
@@ -1785,16 +2198,34 @@ export function RequirementCenterPage() {
   useEffect(() => {
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape" || document.querySelector('[data-testid="rc-error-details-dialog"]')) return;
+      if (openFilter) {
+        setOpenFilter(null);
+        filterDetailsRef.current?.removeAttribute("open");
+        return;
+      }
       captureController.current?.abort(); captureController.current = null;
       setCaptureBusy(false); setCaptureOpen(false);
       setAgentOpen(false);
       setChoiceDialog({ type: "none" });
       setActionDialog({ type: "none" });
+      setArchiveDialog({ type: "none" });
       closeDrawer();
     };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [closeDrawer]);
+  }, [closeDrawer, openFilter]);
+
+  useEffect(() => {
+    if (!openFilter) return;
+    const closeOnOutsidePointer = (event: globalThis.MouseEvent) => {
+      const target = event.target;
+      if (target instanceof Node && (activeFilterRef.current?.contains(target) || filterDetailsRef.current?.contains(target))) return;
+      setOpenFilter(null);
+      filterDetailsRef.current?.removeAttribute("open");
+    };
+    document.addEventListener("mousedown", closeOnOutsidePointer, true);
+    return () => document.removeEventListener("mousedown", closeOnOutsidePointer, true);
+  }, [openFilter]);
 
   useEffect(() => {
     if (actionDialog.type === "none" || actionDialog.ready) return;
@@ -1856,8 +2287,36 @@ export function RequirementCenterPage() {
     return () => { disposed = true; window.clearTimeout(timer); controller.abort(); };
   }, [captureOpen, captureCheck, project?.space_id, project?.repository_id]);
 
-  const owners = useMemo(() => ["全部负责人", ...Array.from(new Set(issues.map((issue) => issue.owner)))], [issues]);
-  const priorities = ["全部优先级", "P0", "P1", "P2"];
+  const stageOptions: MultiFilterOption[] = useMemo(() => stages.map((stage) => ({
+    value: stage.id,
+    label: stage.title,
+    meta: stage.subtitle,
+  })), []);
+  const owners = useMemo(() => {
+    const names = Array.from(new Set(issues.map((issue) => issue.owner).filter(Boolean)));
+    return names.sort((a, b) => {
+      if (a === activeUser.name) return -1;
+      if (b === activeUser.name) return 1;
+      return a.localeCompare(b, "zh-Hans-CN");
+    });
+  }, [issues, activeUser.name]);
+  const ownerOptions: MultiFilterOption[] = useMemo(() => owners.map((owner) => ({
+    value: owner,
+    label: owner,
+    meta: owner === activeUser.name ? "当前用户" : undefined,
+  })), [owners, activeUser.name]);
+  const levelOptions: MultiFilterOption[] = useMemo(() => [
+    ...(["P0", "P1", "P2", "P3"] as const).map((priority) => ({
+      value: `requirement:${priority}`,
+      label: `${priority} ${{ P0: "最高", P1: "高", P2: "中", P3: "低" }[priority]}`,
+      group: "需求优先级",
+    })),
+    ...(["blocker", "critical", "high", "medium", "low"] as const).map((severity) => ({
+      value: `bug:${severity}`,
+      label: `${severity} ${{ blocker: "阻断", critical: "严重", high: "高", medium: "中", low: "低" }[severity]}`,
+      group: "缺陷严重性",
+    })),
+  ], []);
   const captureOwners = ["产品团队", "研发团队", "设计团队", "未分配"];
   const captureSources = [
     { value: "explore", label: "explore · 前置探索" },
@@ -1865,45 +2324,282 @@ export function RequirementCenterPage() {
     { value: "internal", label: "internal · 内部提出" },
     { value: "incident", label: "incident · 故障复盘" },
   ];
-  const sprints = useMemo(
-    () => ["全部 Sprint", ...Array.from(new Set(issues.map((issue) => visibleSprintId(issue)).filter(Boolean)))],
-    [issues],
+  const sprints = useMemo(() => {
+    const sprintSet = new Set([...sprintOptions, ...issues.map((issue) => visibleSprintId(issue)).filter((value): value is string => Boolean(value))]);
+    return Array.from(sprintSet).sort((a, b) => {
+      const aNumber = Number(a.match(/^sprint-(\d+)$/)?.[1] || "-1");
+      const bNumber = Number(b.match(/^sprint-(\d+)$/)?.[1] || "-1");
+      if (aNumber !== bNumber) return bNumber - aNumber;
+      return a.localeCompare(b);
+    });
+  }, [issues, sprintOptions]);
+  const sprintStatusById = useMemo(() => {
+    const entries = new Map<string, SprintFilterOption>();
+    sprintOptionDetails.forEach((option) => {
+      const id = normalizeSprintOptionId(option);
+      if (id) entries.set(id, option);
+    });
+    return entries;
+  }, [sprintOptionDetails]);
+  const currentSprintIds = useMemo(() => sprintOptionDetails
+    .filter(isCurrentSprintOption)
+    .map(normalizeSprintOptionId)
+    .filter((value): value is string => Boolean(value)),
+    [sprintOptionDetails],
   );
+  const currentSprintSet = useMemo(() => new Set(currentSprintIds), [currentSprintIds]);
+  const sprintOptionsForFilter: MultiFilterOption[] = useMemo(() => [
+    ...sprints.map((sprint) => ({
+      value: sprint,
+      label: sprint,
+      meta: currentSprintSet.has(sprint) ? "当前迭代" : undefined,
+      statusLabel: sprintFilterStatusLabel(sprintStatusById.get(sprint)),
+      warning: sprintStatusById.get(sprint)?.warning || null,
+    })),
+    {
+      value: UNASSIGNED_SPRINT_FILTER_VALUE,
+      label: "未纳入 Sprint",
+      meta: "未纳入迭代范围",
+      searchAliases: "no sprint none unassigned",
+    },
+  ], [sprints, sprintStatusById, currentSprintSet]);
+  const effectiveSprintId = useCallback((issue: IssueCard) => {
+    if (issue.sprintId) return issue.sprintId;
+    const sprintId = visibleSprintId(issue);
+    if (sprintId) return sprintId;
+    return currentSprintIds.length === 1 && sprintVisibleStages.has(issue.stage) ? currentSprintIds[0] : "";
+  }, [currentSprintIds]);
+  const defaultSelectedSprints = useMemo(
+    () => isWorkflowDemoMode() ? [] : [...currentSprintIds, UNASSIGNED_SPRINT_FILTER_VALUE],
+    [currentSprintIds],
+  );
+
+  useEffect(() => {
+    if (!context || isWorkflowDemoMode()) return;
+    const key = [
+      context.selectedWorkspaceId || projectRef.current?.space_id || "",
+      projectRef.current?.repository_id || "",
+      defaultSelectedSprints.join(","),
+    ].join("|");
+    if (defaultSprintSelectionKey.current === key) return;
+    defaultSprintSelectionKey.current = key;
+    setSelectedSprints(defaultSelectedSprints);
+  }, [context, defaultSelectedSprints]);
+
+  const selectedForFilter = (key: MultiFilterKey) => {
+    if (key === "stage") return selectedStages;
+    if (key === "owner") return selectedOwners;
+    if (key === "level") return selectedLevels;
+    return selectedSprints;
+  };
+
+  const setSelectedForFilter = (key: MultiFilterKey, values: string[]) => {
+    if (key === "stage") setSelectedStages(values);
+    else if (key === "owner") setSelectedOwners(values);
+    else if (key === "level") setSelectedLevels(values);
+    else setSelectedSprints(values);
+  };
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setTypeFilter("all");
+    setSelectedStages([]);
+    setSelectedOwners([]);
+    setSelectedLevels([]);
+    setSelectedSprints(defaultSelectedSprints);
+    setFilterSearch({ stage: "", owner: "", level: "", sprint: "" });
+    setOpenFilter(null);
+    filterDetailsRef.current?.removeAttribute("open");
+  };
+
+  const sprintFilterIsDefault =
+    selectedSprints.length === defaultSelectedSprints.length &&
+    selectedSprints.every((sprint) => defaultSelectedSprints.includes(sprint));
+
+  const filterSummary = (selected: string[], options: MultiFilterOption[], placeholder: string, defaultSummary?: string) => {
+    if (!selected.length) return placeholder;
+    if (defaultSummary) return defaultSummary;
+    const labels = selected.map((value) => options.find((option) => option.value === value)?.label || value);
+    if (labels.length <= 2 && labels.join("、").length <= 12) return labels.join("、");
+    return `已选 ${labels.length} 项`;
+  };
+
+  const renderMultiFilter = (key: MultiFilterKey, label: string, placeholder: string, options: MultiFilterOption[]) => {
+    const selected = selectedForFilter(key);
+    const search = filterSearch[key].trim().toLowerCase();
+    const visibleOptions = options.filter((option) => {
+      const haystack = `${option.value} ${option.label} ${option.meta || ""} ${option.group || ""} ${option.searchAliases || ""}`.toLowerCase();
+      return !search || haystack.includes(search);
+    });
+    const selectableVisibleOptions = visibleOptions.filter((option) => !option.disabled);
+    const allVisibleSelected = selectableVisibleOptions.length > 0 && selectableVisibleOptions.every((option) => selected.includes(option.value));
+    const groupedVisibleOptions = visibleOptions.reduce<Array<{ group?: string; options: MultiFilterOption[] }>>((groups, option) => {
+      const last = groups[groups.length - 1];
+      if (last && last.group === option.group) last.options.push(option);
+      else groups.push({ group: option.group, options: [option] });
+      return groups;
+    }, []);
+    const disabled = isLoadingContext || Boolean(contextError);
+    return (
+      <div className="rc-multi-filter" data-testid={`requirement-filter-${key}`} ref={openFilter === key ? activeFilterRef : undefined}>
+        <button
+          className={`rc-multi-filter-trigger ${openFilter === key ? "open" : ""} ${selected.length ? "selected" : ""}`}
+          type="button"
+          data-testid={`requirement-filter-trigger-${key}`}
+          aria-expanded={openFilter === key}
+          aria-controls={`requirement-filter-popover-${key}`}
+          disabled={disabled}
+          onClick={() => setOpenFilter(openFilter === key ? null : key)}
+        >
+          <span>{label}</span>
+          <strong>{filterSummary(selected, options, placeholder, key === "sprint" && sprintFilterIsDefault ? "默认 Sprint 范围" : undefined)}</strong>
+          <em aria-hidden="true">⌄</em>
+        </button>
+        {openFilter === key && (
+          <div
+            className="rc-multi-filter-popover"
+            id={`requirement-filter-popover-${key}`}
+            data-testid={`requirement-filter-popover-${key}`}
+            role="group"
+            aria-label={`${label}筛选选项`}
+          >
+            <label className="rc-multi-filter-search">
+              <Search size={14} aria-hidden="true" />
+              <input
+                data-testid={`requirement-filter-search-${key}`}
+                aria-label={`${label}候选项搜索`}
+                value={filterSearch[key]}
+                onChange={(event) => setFilterSearch({ ...filterSearch, [key]: event.target.value })}
+                placeholder={`搜索${label}`}
+              />
+            </label>
+            <div className="rc-multi-filter-options" data-testid={`requirement-filter-options-${key}`}>
+              {groupedVisibleOptions.length ? groupedVisibleOptions.map((group) => (
+                <div className="rc-multi-filter-group" key={group.group || "default"}>
+                  {group.group && <p className="rc-multi-filter-group-label">{group.group}</p>}
+                  {group.options.map((option) => {
+                    const checked = selected.includes(option.value);
+                    return (
+                      <label
+                        className={`rc-multi-filter-option ${checked ? "checked" : ""} ${option.disabled ? "disabled" : ""}`}
+                        data-testid={`requirement-filter-option-${key}-${option.value}`}
+                        key={option.value}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={option.disabled}
+                          onChange={() => {
+                            const next = checked ? selected.filter((value) => value !== option.value) : [...selected, option.value];
+                            setSelectedForFilter(key, next);
+                          }}
+                        />
+                        <span>
+                          <strong>
+                            {option.label}
+                            {key === "sprint" && option.statusLabel && (
+                              <em className={`rc-sprint-status-pill ${sprintStatusClass(option.statusLabel)}`}>
+                                {option.statusLabel}
+                              </em>
+                            )}
+                            {option.meta && <small className="rc-multi-filter-inline-meta">{option.meta}</small>}
+                          </strong>
+                          {key === "sprint" && option.warning && <small>状态来源待核实</small>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )) : (
+                <p className="rc-multi-filter-empty">没有匹配的候选项</p>
+              )}
+            </div>
+            <footer className="rc-multi-filter-footer">
+              <span>{selected.length ? `已选 ${selected.length} 项` : "未选择"}</span>
+              <button
+                type="button"
+                data-testid={`requirement-filter-select-all-${key}`}
+                disabled={!selectableVisibleOptions.length || allVisibleSelected}
+                onClick={() => {
+                  const next = Array.from(new Set([...selected, ...selectableVisibleOptions.map((option) => option.value)]));
+                  setSelectedForFilter(key, next);
+                }}
+              >
+                {search ? "全选当前结果" : "全选"}
+              </button>
+              <button
+                type="button"
+                data-testid={`requirement-filter-clear-${key}`}
+                disabled={!selected.length}
+                onClick={() => setSelectedForFilter(key, [])}
+              >
+                清空
+              </button>
+            </footer>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const filteredCandidates = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return issues.filter((issue) => {
+      const sprintId = effectiveSprintId(issue);
+      const explicitSprintId = issue.sprintId || visibleSprintId(issue) || "";
       const matchesType = typeFilter === "all" || issue.type === typeFilter;
       const matchesSearch =
         !query ||
         issue.id.toLowerCase().includes(query) ||
         issue.title.toLowerCase().includes(query) ||
+        (issue.display_title ?? "").toLowerCase().includes(query) ||
         issue.related_changes?.some(change => change.id.toLowerCase().includes(query) || change.title?.toLowerCase().includes(query)) ||
         issue.owner.toLowerCase().includes(query) ||
+        (stageTitleById.get(issue.stage) || issue.stage).toLowerCase().includes(query) ||
+        issue.source.toLowerCase().includes(query) ||
         issue.documents.some((doc) => doc.toLowerCase().includes(query));
-      const matchesOwner = ownerFilter === "全部负责人" || issue.owner === ownerFilter;
-      const matchesPriority = priorityFilter === "全部优先级" || issue.priority === priorityFilter;
-      const matchesSprint = sprintFilter === "全部 Sprint" || visibleSprintId(issue) === sprintFilter;
-      return matchesType && matchesSearch && matchesOwner && matchesPriority && matchesSprint && (showArchived || issue.stage !== "done");
+      const matchesStage = selectedStages.length === 0 || selectedStages.includes(issue.stage);
+      const matchesOwner = selectedOwners.length === 0 || selectedOwners.includes(issue.owner);
+      const levelValue = issueLevelFilterValue(issue);
+      const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(levelValue);
+      const matchesUnassignedSprint = !explicitSprintId && selectedSprints.includes(UNASSIGNED_SPRINT_FILTER_VALUE);
+      const matchesDefaultCurrentSprint = !explicitSprintId && sprintFilterIsDefault && selectedSprints.includes(sprintId);
+      const matchesSprint = issue.stage === "unknown" || selectedSprints.length === 0 || selectedSprints.includes(explicitSprintId) || matchesUnassignedSprint || matchesDefaultCurrentSprint;
+      return matchesType && matchesSearch && matchesStage && matchesOwner && matchesLevel && matchesSprint;
     });
-  }, [issues, ownerFilter, priorityFilter, searchQuery, sprintFilter, typeFilter, showArchived]);
+  }, [effectiveSprintId, issues, selectedLevels, selectedOwners, selectedSprints, selectedStages, searchQuery, sprintFilterIsDefault, typeFilter]);
 
 
   const filteredIssues = filteredCandidates.filter(issue => issue.stage !== "unknown");
   const diagnosticIssues = filteredCandidates.filter(issue => issue.stage === "unknown");
 
-  const stats = [
-    { label: "全部对象", value: filteredIssues.length },
-    { label: "需求", value: filteredIssues.filter((issue) => issue.type === "requirement").length },
-    { label: "Bug", value: filteredIssues.filter((issue) => issue.type === "bug").length },
-    { label: "独立 Change", value: filteredIssues.filter((issue) => issue.type === "change").length },
-    { label: "当前阻塞", value: filteredIssues.filter((issue) => issue.blocked).length },
+  const completionValue = (cardType: CardType) => {
+    const scoped = filteredIssues.filter((issue) => issue.type === cardType);
+    return {
+      completed: scoped.filter((issue) => issue.stage === "done").length,
+      total: scoped.length,
+    };
+  };
+  const stats: MetricStat[] = [
+    { label: "全部对象", value: filteredIssues.length, description: "当前筛选条件下可见的需求、Bug 和独立 Change 总数。" },
+    { label: "需求", value: completionValue("requirement"), description: "当前筛选条件下，已完成需求数 / 需求总数。", testId: "requirement-completion-metric" },
+    { label: "Bug", value: completionValue("bug"), description: "当前筛选条件下，已完成 Bug 数 / Bug 总数。", testId: "bug-completion-metric" },
+    { label: "独立 Change", value: completionValue("change"), description: "当前筛选条件下，已完成独立 Change 数 / 独立 Change 总数。", testId: "change-completion-metric" },
+    { label: "当前阻塞", value: filteredIssues.filter((issue) => issue.blocked).length, description: "当前筛选条件下存在阻塞提示的对象数量。" },
   ];
+  const sprintMetricValue = {
+    completed: sprintMetrics?.completed_count ?? sprintMetrics?.completedCount ?? 0,
+    total: sprintMetrics?.total_count ?? sprintMetrics?.totalCount ?? 0,
+    warning: sprintMetrics?.warning || "",
+  };
+  const sprintMetricState = isLoadingContext ? "loading" : contextError && !context ? "error" : sprintMetricValue.total === 0 ? "empty" : "ready";
   const activeFilterCount = [
-    !showArchived,
-    ownerFilter !== "全部负责人",
-    priorityFilter !== "全部优先级",
-    sprintFilter !== "全部 Sprint",
+    searchQuery.trim(),
+    typeFilter !== "all",
+    selectedStages.length,
+    selectedOwners.length,
+    selectedLevels.length,
+    !sprintFilterIsDefault,
   ].filter(Boolean).length;
 
 
@@ -1936,7 +2632,26 @@ export function RequirementCenterPage() {
         window.setTimeout(() => URL.revokeObjectURL(demoUrl), 30_000);
         return;
       }
-      window.open(document.url || `${issueDetailUrl(issue)}?document=${encodeURIComponent(document.name)}`, "_blank", "noopener,noreferrer");
+      try {
+        documentFlight.current = flightKey;
+        if (!selectedProject) throw new Error("项目未连接，无法预览 HTML 文档");
+        if (!document.url) throw new Error("HTML 预览地址缺失");
+        const html = await governanceTextRequest(scopedUrl(document.url, selectedProject));
+        if (epoch !== documentEpoch.current || selectedProject.space_id !== projectRef.current?.space_id || selectedProject.repository_id !== projectRef.current?.repository_id) return;
+        const previewUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+        const opened = window.open(previewUrl, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          URL.revokeObjectURL(previewUrl);
+          setToast("浏览器拦截了 HTML 预览窗口，请允许弹出窗口后重试");
+          return;
+        }
+        window.setTimeout(() => URL.revokeObjectURL(previewUrl), 30_000);
+      } catch (error) {
+        if (epoch !== documentEpoch.current) return;
+        setToast(error instanceof GovernanceError ? `HTML 预览失败：${error.message}` : error instanceof Error ? `HTML 预览失败：${error.message}` : "HTML 预览失败");
+      } finally {
+        if (epoch === documentEpoch.current && documentFlight.current === flightKey) documentFlight.current = null;
+      }
       return;
     }
     setMarkdownUploadState("idle");
@@ -2232,7 +2947,7 @@ export function RequirementCenterPage() {
     }
     const type = actionDialogType(issue, action);
     const sprintEstimate = issueSprintEstimate(issue);
-    const sprintModels = sprintOptionModels(sprintOptions, sprintEstimate);
+    const sprintModels = sprintOptionModels(sprintOptions, sprintEstimate, sprintOptionDetails);
     const defaultSprintId = firstSelectableSprintId(sprintModels) || sprintModels[0]?.id || "sprint-auto";
     setAgentOpen(false);
     setChoiceDialog({ type: "none" });
@@ -2352,7 +3067,16 @@ export function RequirementCenterPage() {
     setDrawer({ type: "none" }); setContext(null); setProject(null); setContextFailure(null); setErrorDetails(null); setLastSuccess("");
     setWorkspace(item); void loadContext();
     setContext(current => current ? { ...current, selectedWorkspaceId: item.workspaceId } : current);
-    setShowArchived(true); setTypeFilter("all"); setSearchQuery(""); setOwnerFilter("全部负责人"); setPriorityFilter("全部优先级"); setSprintFilter("全部 Sprint");
+    defaultSprintSelectionKey.current = "";
+    setTypeFilter("all");
+    setSearchQuery("");
+    setSelectedStages([]);
+    setSelectedOwners([]);
+    setSelectedLevels([]);
+    setSelectedSprints([]);
+    setFilterSearch({ stage: "", owner: "", level: "", sprint: "" });
+    setOpenFilter(null);
+    filterDetailsRef.current?.removeAttribute("open");
   };
 
   const stageColumns = stages.map((stage) => ({
@@ -2387,9 +3111,11 @@ export function RequirementCenterPage() {
     const persistentNames = ["requirement.md", "bug.md", "sprint.md", "trace.md"];
     if (issue.type === "requirement") persistentNames.push(...documents.filter(doc => doc.name === "prototype.html" || doc.name.startsWith("prototype/") && doc.name.endsWith(".html")).map(doc => doc.name));
     const documentGroups = [documents.filter(doc => persistentNames.includes(doc.name)), documents.filter(doc => !persistentNames.includes(doc.name))];
+    const relatedChangeDocuments = relatedChangeDocumentGroups(issue, documentGroups.flat());
     const taskProgress = visibleTaskProgress(issue);
     const manualProgress = visibleManualAcceptanceProgress(issue);
     const auxActions = auxiliaryActions(issue);
+    const levelTag = issueLevelTag(issue);
 
     return (
       <article className={`rc-card ${issue.type}`} data-issue-id={issue.id} key={issue.id}>
@@ -2397,10 +3123,9 @@ export function RequirementCenterPage() {
           <strong>{issue.id}</strong>
           {visibleSprintId(issue) && <span className="rc-sprint-tag">{visibleSprintId(issue)}</span>}
         </div>
-        {(issue.current_change || issue.change_warning) && <div className="rc-change-id-row"><strong data-change-id={issue.current_change?.id}>{issue.current_change?.id || issue.change_warning}</strong></div>}
-        <button className="rc-card-title" type="button" onClick={() => openIssueDetail(issue)}>{issue.current_change?.title || issue.title}</button>
+        <button className="rc-card-title" title={issue.title_warning || undefined} type="button" onClick={() => openIssueDetail(issue)}>{issue.display_title || issue.title}</button>
         <div className="rc-card-meta rc-card-tags">
-          {issue.priority && <span className={`rc-priority-tag rc-tag ${issue.priority.toLowerCase()}`}>{issue.priority}</span>}
+          {levelTag && <span className={`${levelTag.className} rc-tag ${levelTag.value.toLowerCase()}`}>{levelTag.value}</span>}
           <span className="rc-owner-tag rc-tag">{issue.owner}</span>
         </div>
         <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
@@ -2413,6 +3138,24 @@ export function RequirementCenterPage() {
                   </button>
                 </span>
               ))}
+            </div>
+          ))}
+          {relatedChangeDocuments.map(({ change, documents }, changeIndex, groups) => (
+            <div className="rc-doc-group" role="group" aria-label={`${changeDocumentShortLabel(changeIndex, groups.length)} Change 文档`} key={change.id}>
+              {documents.map(document => {
+                const label = changeDocumentButtonLabel(document, changeIndex, groups.length);
+                return (
+                  <span className="rc-doc-item" key={`${change.id}:${document.url || document.name}`}>
+                    <button
+                      type="button"
+                      title={`${change.id} / ${document.name}`}
+                      onClick={(event) => { event.stopPropagation(); void openDocument(issue, { ...document, label }); }}
+                    >
+                      {label}
+                    </button>
+                  </span>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -2499,7 +3242,7 @@ export function RequirementCenterPage() {
     const copy = actionModalCopy(dialog.issue, dialog.type);
     const docs = commandDocsForAction(dialog.issue, dialog.type);
     const estimate = dialog.issue.priority === "P0" ? 5 : dialog.issue.priority === "P1" ? 3 : 2;
-    const changeCount = dialog.issue.type === "requirement" && ["P0", "P1"].includes(dialog.issue.priority) ? 2 : 1;
+    const changeCount = dialog.issue.type === "requirement" && ["P0", "P1"].includes(dialog.issue.priority || "") ? 2 : 1;
 
     if (dialog.type === "analysis") {
       const points = [
@@ -2585,7 +3328,7 @@ export function RequirementCenterPage() {
     }
 
     if (dialog.type === "sprint") {
-      const options = sprintOptionModels(sprintOptions, dialog.sprintEstimate || estimate);
+      const options = sprintOptionModels(sprintOptions, dialog.sprintEstimate || estimate, sprintOptionDetails);
       const selectedOption = options.find((option) => option.id === dialog.sprintId && !option.disabled) || options.find((option) => !option.disabled);
       return (
         <>
@@ -2624,7 +3367,7 @@ export function RequirementCenterPage() {
                         onClick={() => setActionDialog({ ...dialog, sprintId: option.id })}
                       >
                         <span className="rc-sprint-option-top">
-                          <span className="rc-sprint-option-name">{option.id}<em className={`rc-sprint-status-pill ${option.status === "进行中" ? "active" : "planned"}`}>{option.status}</em>{option.disabled && <em className="rc-sprint-capacity-badge">容量不足</em>}</span>
+                          <span className="rc-sprint-option-name">{option.id}<em className={`rc-sprint-status-pill ${sprintStatusClass(option.status)}`}>{option.status}</em>{option.disabled && <em className="rc-sprint-capacity-badge">容量不足</em>}</span>
                           <span className="rc-sprint-radio" />
                         </span>
                         <span className="rc-sprint-meta-row"><span>容量</span><span>{option.used}/{option.total} 项</span></span>
@@ -2752,19 +3495,47 @@ export function RequirementCenterPage() {
           if (isDirtyMarkdownDrawer() && !window.confirm("文档有未保存修改，确认切换项目并放弃草稿？")) return;
           documentEpoch.current++; projectRef.current = projects.find(p => p.space_id === workspace.workspaceId && p.repository_id === event.target.value) || null;
           contextController.current?.abort();
+          defaultSprintSelectionKey.current = "";
           requestedSpace.current = workspace.workspaceId; revisionRef.current = ""; documentEpoch.current++; documentFlight.current = null; setContextFailure(null); setErrorDetails(null); setLastSuccess(""); setDrawer({ type: "none" }); setContext(null); void loadContext();
         }}>{projects.filter(p => p.space_id === workspace.workspaceId).map(p => <option key={p.repository_id} value={p.repository_id}>{p.repository_id}</option>)}</select>}
 
         <section className="rc-stats" aria-label="需求中心统计" data-state={isLoadingContext ? "loading" : contextError ? "error" : "ready"}>
           {stats.map((item, index) => (
-            <article className="rc-stat" key={item.label}>
-              <span>{item.label}</span>
-              <strong>{isLoadingContext ? <span className="rc-loading-number" aria-hidden="true" /> : item.value}</strong>
+            <article className="rc-stat" key={item.label} data-testid={item.testId}>
+              <MetricLabel id={`rc-stat-tooltip-${index}`} label={item.label} description={item.description} />
+              <strong aria-label={isRatioStatValue(item.value) ? `${item.label}已完成 ${item.value.completed} 个，总体 ${item.value.total} 个` : `${item.label}${item.value}`}>
+                {isLoadingContext ? <span className="rc-loading-number" aria-hidden="true" /> : isRatioStatValue(item.value) ? (
+                  <>
+                    <b>{item.value.completed}</b>
+                    <em aria-hidden="true">/</em>
+                    <b>{item.value.total}</b>
+                  </>
+                ) : item.value}
+              </strong>
             </article>
           ))}
+          <article className="rc-stat rc-sprint-metric" data-testid="sprint-completion-metric" data-state={sprintMetricState}>
+            <MetricLabel id="rc-stat-tooltip-sprint" label="Sprint" description="项目级 Sprint 总览：已完成 Sprint 数 / 累计 Sprint 数，不随当前筛选变化。" />
+            <strong aria-label={`Sprint 已完成 ${sprintMetricValue.completed} 个，总体 ${sprintMetricValue.total} 个`}>
+              {isLoadingContext && !context ? <span className="rc-loading-number" aria-hidden="true" /> : (
+                <>
+                  <b data-testid="sprint-completion-metric-completed">{sprintMetricValue.completed}</b>
+                  <em aria-hidden="true">/</em>
+                  <b data-testid="sprint-completion-metric-total">{sprintMetricValue.total}</b>
+                </>
+              )}
+            </strong>
+          </article>
         </section>
 
-        <section className="rc-toolbar" aria-label="需求中心筛选">
+        <CurrentIterationCapacityStrip
+          items={currentIterationCapacity}
+          loading={isLoadingContext}
+          stale={Boolean(contextFailure && context)}
+          onArchive={(item) => setArchiveDialog({ type: "current_iteration_archive", item })}
+        />
+
+        <section className="rc-toolbar" aria-label="需求中心筛选" data-testid="requirement-filter-toolbar">
           <label className="rc-search">
             <Search size={15} aria-hidden="true" />
             <input
@@ -2793,31 +3564,25 @@ export function RequirementCenterPage() {
               </button>
             ))}
           </div>
-          <details className="rc-filter-popover">
+          <details className="rc-filter-popover" ref={filterDetailsRef}>
             <summary aria-label="打开筛选条件">
               筛选
               <span className="rc-filter-badge" aria-label={`已启用 ${activeFilterCount} 个筛选`}>{activeFilterCount}</span>
             </summary>
             <div className="rc-filter-menu" role="group" aria-label="筛选条件">
-              <label className="rc-filter-field"><span>已完成 / 归档</span><input type="checkbox" aria-label="显示已完成和归档" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} /></label>
-              <label className="rc-filter-field">
-                <span>负责人</span>
-                <select aria-label="负责人筛选" value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-                  {owners.map((owner) => <option key={owner}>{owner}</option>)}
-                </select>
-              </label>
-              <label className="rc-filter-field">
-                <span>优先级</span>
-                <select aria-label="优先级筛选" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-                  {priorities.map((priority) => <option key={priority}>{priority}</option>)}
-                </select>
-              </label>
-              <label className="rc-filter-field">
-                <span>Sprint</span>
-                <select aria-label="Sprint 筛选" value={sprintFilter} onChange={(event) => setSprintFilter(event.target.value)} disabled={isLoadingContext || Boolean(contextError)}>
-                  {sprints.map((sprint) => <option key={sprint}>{sprint}</option>)}
-                </select>
-              </label>
+              {renderMultiFilter("sprint", "Sprint", "全部 Sprint", sprintOptionsForFilter)}
+              {renderMultiFilter("level", "分级", "全部分级", levelOptions)}
+              {renderMultiFilter("owner", "负责人", "全部负责人", ownerOptions)}
+              {renderMultiFilter("stage", "阶段", "全部阶段", stageOptions)}
+              <button
+                className="rc-filter-clear-all"
+                type="button"
+                data-testid="requirement-filter-clear-all"
+                disabled={activeFilterCount === 0}
+                onClick={clearAllFilters}
+              >
+                清空全部筛选
+              </button>
             </div>
           </details>
           <button
@@ -2887,91 +3652,7 @@ export function RequirementCenterPage() {
 
       </section>
 
-      {captureOpen && (
-        <div className="rc-settings-mask rc-capture-mask" role="presentation" onMouseDown={closeCapture}>
-          <form className="rc-flow-dialog rc-capture-dialog" role="dialog" aria-modal="true" aria-label="新建 Capture" onSubmit={submitCapture} onKeyDown={handleCaptureKeyDown} onMouseDown={(event) => event.stopPropagation()}>
-            <header className="rc-dialog-head">
-              <div>
-                <h2>新建 Capture</h2>
-                <span>快速记录一条需求或缺陷，稍后可在采集池中生成正式需求</span>
-              </div>
-              <button aria-label="关闭 Capture 表单" type="button" onClick={closeCapture}><X size={17} /></button>
-            </header>
-            <section className="rc-capture-body">
-              <fieldset className="rc-capture-fieldset">
-                <legend>类型 <b aria-hidden="true">*</b></legend>
-                <div className="rc-capture-segmented" role="group" aria-label="Capture 类型" aria-required="true">
-                  {[
-                    ["requirement", "◆ 需求"],
-                    ["bug", "◈ Bug"],
-                  ].map(([value, label]) => (
-                    <button
-                      className={captureForm.type === value ? "selected" : ""}
-                      data-type={value}
-                      key={value}
-                      type="button"
-                      disabled={captureBusy}
-                      onClick={() => setCaptureForm({ ...captureForm, type: value as IssueType })}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              <label className="rc-form-row">
-                <span className="rc-field-label">标题 <b aria-hidden="true">*</b></span>
-              <input
-                ref={captureTitleRef}
-                disabled={captureBusy}
-                aria-label="Capture 标题"
-                aria-invalid={captureError ? "true" : undefined}
-                className={captureError ? "invalid" : ""}
-                maxLength={60}
-                placeholder="例如：本地存量项目导入 MoonBox 并支持产品内迭代闭环"
-                required
-                value={captureForm.title}
-                onChange={(event) => {
-                  setCaptureForm({ ...captureForm, title: event.target.value });
-                  if (captureError) setCaptureError("");
-                }}
-              />
-              </label>
-              <label className="rc-form-row">
-                <span className="rc-field-label">一句话描述</span>
-                <textarea disabled={captureBusy} aria-label="一句话描述" maxLength={200} placeholder="用一两句话说清楚背景和诉求，方便后续生成需求时理解上下文..." value={captureForm.description} onChange={(event) => setCaptureForm({ ...captureForm, description: event.target.value })} />
-                <small className="rc-capture-count">{captureForm.description.length}/200</small>
-              </label>
-              <div className="rc-capture-grid">
-                <label className="rc-form-row">
-                  <span className="rc-field-label">负责人</span>
-                  <select disabled={captureBusy} aria-label="负责人" value={captureForm.owner} onChange={(event) => setCaptureForm({ ...captureForm, owner: event.target.value })}>
-                    {captureOwners.map((owner) => <option key={owner}>{owner}</option>)}
-                  </select>
-                </label>
-                <label className="rc-form-row">
-                  <span className="rc-field-label">来源 <b aria-hidden="true">*</b></span>
-                  <select disabled={captureBusy} aria-label="来源" required value={captureForm.source} onChange={(event) => setCaptureForm({ ...captureForm, source: event.target.value })}>
-                    {captureSources.map((source) => <option key={source.value} value={source.value}>{source.label}</option>)}
-                  </select>
-                </label>
-              </div>
-              <CaptureGrading key={captureForm.type} type={captureForm.type} value={captureForm.type === "bug" ? captureForm.severity : captureForm.priority} disabled={captureBusy}
-                onChange={value => setCaptureForm({ ...captureForm, ...(captureForm.type === "bug" ? { severity: value } : { priority: value as "P0" | "P1" | "P2" | "P3" }) })} />
-            </section>
-            {!captureReady?.ready && <div className="rc-application-alert rc-capture-readiness" role="status">
-              {captureReady === null ? "正在检查Capture写入服务…" : captureReady.reason}
-              {captureReady && !captureReady.ready && <button className="rc-secondary-action" type="button" onClick={() => setCaptureCheck(value => value + 1)}>刷新状态</button>}
-            </div>}
-            {captureError && <p className="rc-application-alert" role="alert">{captureError}</p>}
-            <footer className="rc-dialog-actions rc-capture-actions-only">
-              <div>
-                <button className="rc-secondary-action" type="button" onClick={closeCapture}>取消</button>
-                <button className="rc-primary-action" type="submit" disabled={captureBusy || !captureReady?.ready || !captureForm.title.trim() || Boolean(contextFailure)}>{captureBusy ? "创建中…" : "＋ 创建 Capture"}</button>
-              </div>
-            </footer>
-          </form>
-        </div>
-      )}
+      {captureOpen && <CaptureDialog project={project} contextFailure={Boolean(contextFailure)} existingIssues={issues as CaptureExistingIssue[]} onClose={closeCapture} onCreated={() => loadContext("refresh")} />}
 
       {renderActionDialog()}
 
@@ -3075,6 +3756,76 @@ export function RequirementCenterPage() {
         </div>
       )}
 
+      {archiveDialog.type === "current_iteration_archive" && (() => {
+        const item = archiveDialog.item;
+        const sprintId = item.sprintId || "当前迭代";
+        const readiness = item.archiveReadiness;
+        const blockers = readiness?.blockers?.filter((blocker) => blocker.visible !== false) || [];
+        const canConfirm = Boolean(readiness?.canEnterConfirmation && readiness.displayMode === "enabled");
+        return (
+          <div className="rc-settings-mask rc-action-mask" role="presentation" onMouseDown={() => setArchiveDialog({ type: "none" })}>
+            <section className="rc-flow-dialog rc-archive-dialog" role="dialog" aria-modal="true" aria-label="归档当前迭代" data-testid="archive-sprint-confirm-dialog" onMouseDown={(event) => event.stopPropagation()}>
+              <header className="rc-dialog-head">
+                <div>
+                  <p>Sprint Archive</p>
+                  <h2>归档当前迭代</h2>
+                  <span>{sprintId} · {formatCapacityValue(item)}</span>
+                </div>
+                <button aria-label="关闭归档当前迭代确认" type="button" onClick={() => setArchiveDialog({ type: "none" })}><X size={17} /></button>
+              </header>
+              <div className="rc-archive-body">
+                <div className={`rc-archive-readiness ${canConfirm ? "ready" : "blocked"}`} data-state={canConfirm ? "ready" : "blocked"}>
+                  <strong>{canConfirm ? "Sprint archive readiness 已通过" : "Sprint archive readiness 未通过"}</strong>
+                  <p>{readiness?.safeSummary || "归档门禁状态待核实，请刷新后重试。"}</p>
+                </div>
+                <dl className="rc-archive-facts">
+                  <div><dt>Sprint</dt><dd>{sprintId}</dd></div>
+                  <div><dt>容量</dt><dd>{formatCapacityValue(item)}</dd></div>
+                  <div><dt>状态</dt><dd>{capacityStatusLabel(item.status)}</dd></div>
+                  <div><dt>门禁</dt><dd>{readiness?.reasonCode || "unknown"}</dd></div>
+                </dl>
+                <div className="rc-archive-gates" data-testid="archive-gate-checklist" aria-label="归档门禁">
+                  {["全部 REQ/BUG/独立 Change 已归档", "验收报告 sign-off", "归档权限复核", "Workflow Sync 校验"].map((gate) => (
+                    <span key={gate} className={canConfirm ? "ready" : "blocked"}><Check size={13} aria-hidden="true" />{gate}</span>
+                  ))}
+                </div>
+                {blockers.length > 0 && (
+                  <div className="rc-archive-blockers">
+                    <strong>安全摘要</strong>
+                    <ul>
+                      {blockers.slice(0, 6).map((blocker, index) => (
+                        <li key={`${blocker.type}-${blocker.id || index}`}>
+                          <span>{blocker.id || blocker.type}</span>
+                          <em>{blocker.message || "尚未闭环"}{blocker.status ? ` · ${blocker.status}` : ""}</em>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <footer className="rc-dialog-actions">
+                <p><kbd>Esc</kbd> 关闭</p>
+                <div>
+                  <button className="rc-secondary-action" data-testid="archive-sprint-cancel" type="button" onClick={() => setArchiveDialog({ type: "none" })}>取消</button>
+                  <button
+                    className="rc-primary-action"
+                    data-testid="archive-sprint-confirm"
+                    type="button"
+                    disabled={!canConfirm}
+                    onClick={() => {
+                      setArchiveDialog({ type: "none" });
+                      setToast(`请继续执行 /sprint-archive ${sprintId} 完成最终归档`);
+                    }}
+                  >
+                    进入归档确认流程
+                  </button>
+                </div>
+              </footer>
+            </section>
+          </div>
+        );
+      })()}
+
       {drawer.type !== "none" && (
         <div className="rc-drawer-layer" role="presentation">
           <button className="rc-drawer-backdrop" type="button" aria-label="关闭右侧抽屉蒙层" onClick={closeDrawer} />
@@ -3138,19 +3889,6 @@ export function RequirementCenterPage() {
                   </div>
                 )}
                 <section className="rc-markdown-view" data-testid="markdown-drawer">
-                  {!drawer.loading && !drawer.error && (drawer.issue.related_changes?.length || drawer.issue.type === "change") ? (
-                    <details className="rc-markdown-frontmatter-panel" aria-label="Change 追溯属性">
-                      <summary>Change 追溯属性</summary>
-                      {drawer.issue.type === "change" && <p>{drawer.issue.taskProgress ? `任务 ${drawer.issue.taskProgress.join("/")}` : "任务进度未知"} · {drawer.issue.drift_warnings?.join("；")}</p>}
-                      {drawer.issue.related_changes?.map(change => (
-                        <div key={change.id}>
-                          <p>{change.id} · {stageTitleById.get(change.stage) || "状态待核实"} · {change.task_progress ? `任务 ${change.task_progress.join("/")}` : "任务进度未知"}</p>
-                          <p>{change.title || "缺少 Change 中文业务标题，保留原标题"}{change.warnings?.length ? `；${change.warnings.join("；")}` : ""}</p>
-                          <div className="rc-docs">{change.document_entries?.map(doc => <button key={doc.url || doc.name} type="button" onClick={() => void openDocument(drawer.issue, {...doc, label: `${change.id} / ${doc.name}`})}>{doc.name === "trace.md" ? "Change trace.md" : doc.name}</button>)}</div>
-                        </div>
-                      ))}
-                    </details>
-                  ) : null}
                   {drawer.loading && <p role="status"><Loader2 size={14} /> Markdown 加载中</p>}
                   {drawer.error && !drawer.readBlocked && <p role="alert">{drawer.error}</p>}
                   {drawer.error && drawer.readBlocked && <RequirementCenterError drawer busy={drawer.loading || isRefreshingContext} onRetry={() => drawer.dirty ? void loadContext("refresh") : void openDocument(drawer.issue, drawer.document, drawer.focus)} onDetails={() => setErrorDetails(drawer.failure || {})}>{drawer.dirty ? "项目文档已有新版本或暂不可读，当前草稿已保留。请复制草稿后核对新版本，保存暂时停用。" : undefined}</RequirementCenterError>}

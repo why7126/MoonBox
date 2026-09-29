@@ -1,15 +1,15 @@
 ---
-title: Knowledge Base Usage
+title: 知识库使用说明
 purpose: 规定 docs/knowledge-base 如何被后续 Sprint、需求完善和 OpenSpec 实现流程复用
 content: 知识库入口、行动项状态、命令读取门禁和落地要求
 source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-09-14 09:27:31
+updated_at: 2026-09-29 14:47:32
 ---
 
-# Knowledge Base Usage
+# 知识库使用说明
 
 `docs/knowledge-base/` 保存跨 Sprint 可复用的经验、复盘、事故和最佳实践。它不是事后报告库；后续规划、需求完善和实现命令必须把这里的内容作为输入。
 
@@ -56,6 +56,8 @@ updated_at: 2026-09-14 09:27:31
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-007 | [Sprint-007 经验复盘](retrospectives/sprint-007-retrospective.md) | active | 6 |
+| sprint-006 | [Sprint-006 经验复盘](retrospectives/sprint-006-retrospective.md) | active | 6 |
 | sprint-005 | [Sprint-005 经验复盘](retrospectives/sprint-005-retrospective.md) | active | 6 |
 | sprint-004 | [Sprint-004 经验复盘](retrospectives/sprint-004-retrospective.md) | active | 7 |
 | sprint-003 | [Sprint-003 经验复盘](retrospectives/sprint-003-retrospective.md) | active | 6 |

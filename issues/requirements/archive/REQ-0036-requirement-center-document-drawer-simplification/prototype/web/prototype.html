@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REQ-0036 文档抽屉简化原型</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0d14;
+        --panel: #131826;
+        --panel-2: #0f1320;
+        --border: #242a3a;
+        --text: #eceae4;
+        --muted: #98a0b3;
+        --gold: #d8ac55;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+      }
+
+      .page {
+        display: grid;
+        grid-template-columns: minmax(320px, 1fr) minmax(420px, 620px);
+        min-height: 100vh;
+      }
+
+      .board {
+        padding: 32px;
+        border-right: 1px solid var(--border);
+      }
+
+      .card {
+        max-width: 520px;
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--gold);
+        border-radius: 8px;
+        padding: 18px;
+        background: var(--panel);
+      }
+
+      .card small,
+      .drawer-subtitle {
+        color: var(--muted);
+      }
+
+      .drawer {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        min-height: 100vh;
+        background: var(--panel);
+      }
+
+      .drawer-header {
+        padding: 28px 32px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .drawer-body {
+        overflow: auto;
+        padding: 24px 32px 48px;
+      }
+
+      .metadata {
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--gold);
+        border-radius: 8px;
+        background: var(--panel-2);
+        margin-bottom: 28px;
+      }
+
+      .metadata button {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 48px;
+        padding: 0 16px 0 20px;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-weight: 700;
+        text-align: left;
+      }
+
+      .metadata-content {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding: 0 20px 18px;
+      }
+
+      .metadata-content div {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .article {
+        line-height: 1.7;
+      }
+
+      .article h2 {
+        margin-top: 0;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+
+        .board {
+          min-height: 280px;
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .drawer {
+          min-height: 640px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="board" aria-label="需求中心卡片区">
+        <article class="card">
+          <small>REQ-0036</small>
+          <h1>需求中心文档抽屉简化</h1>
+          <p>关联 Change 文档入口保留在抽屉外，文档抽屉只负责当前文档阅读。</p>
+        </article>
+      </section>
+      <aside class="drawer" aria-label="文档抽屉">
+        <header class="drawer-header">
+          <small class="drawer-subtitle">proposal.md</small>
+          <h2>文档抽屉目标结构</h2>
+          <p class="drawer-subtitle">删除整个 Change 属性模块后，属性与正文直接相邻。</p>
+        </header>
+        <div class="drawer-body">
+          <section class="metadata" aria-label="文档属性">
+            <button type="button" aria-expanded="true">
+              <span>文档属性</span>
+              <span>收起</span>
+            </button>
+            <div class="metadata-content">
+              <div>类型：需求文档</div>
+              <div>状态：待评审</div>
+              <div>权限：只读/编辑沿用现有策略</div>
+              <div>来源：当前文档</div>
+            </div>
+          </section>
+          <article class="article">
+            <h2>正文</h2>
+            <p>这里直接进入当前文档正文。页面不再在正文前插入 Change 追溯属性、任务进度或关联 Change 列表。</p>
+            <p>需要核对关联 Change 时，用户从抽屉外的卡片、详情或既有文档分组入口选择目标 Change 文档。</p>
+          </article>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>

@@ -35,14 +35,42 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
+export interface BehaviorEventCreate {
+  /** @pattern ^chat\.(image_add|image_remove|file_add|file_remove|skill_select|skill_remove|config_select)$ */
+  event_name: string;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  image_count?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  file_count?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  skill_count?: number;
+  agent?: string | null;
+  model?: string | null;
+  reasoning?: string | null;
+}
+
 export interface ConversationRead {
   id: string;
   space_id: string;
   repository_id: string;
+  branch_name?: string;
   title: string;
   pinned: boolean;
   archived: boolean;
   active_turn_id: string | null;
+  /** @pattern ^(read_only|governance_write|implementation_write)$ */
+  write_scope?: string;
+  /** @maxLength 80 */
+  write_reason_code?: string;
   created_at: string;
   updated_at: string;
 }
@@ -73,6 +101,7 @@ export interface ConversationCreate {
      * @maxLength 64
      */
   repository_id: string;
+  branch_name?: string | null;
   /**
      * @minLength 1
      * @maxLength 200
@@ -86,21 +115,47 @@ export interface ApiResponseConversationRead {
   data: ConversationRead;
 }
 
+export interface BodyUploadMaterialApiV1ChatMaterialsPost {
+  file: Blob;
+}
+
 export interface ConversationPatch {
   title?: string | null;
   pinned?: boolean | null;
   archived?: boolean | null;
 }
 
+export type TurnCreateAttachmentsItem = { [key: string]: unknown };
+
+export type TurnCreateSkillsItem = { [key: string]: unknown };
+
+/**
+ * 本轮请求的 Agent、模型与推理配置稳定标识
+ */
+export type TurnCreateExecutionConfig = { [key: string]: unknown } | null;
+
 export interface TurnCreate {
   /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
   client_request_id: string;
+  /** @maxLength 32000 */
+  prompt?: string;
   /**
-     * @minLength 1
-     * @maxLength 32000
+     * 客户端已选择图片的引用登记摘要，不包含二进制
+     * @maxItems 5
      */
-  prompt: string;
+  attachments?: TurnCreateAttachmentsItem[];
+  /**
+     * 当前仓库Skill上下文引用摘要，不自动执行Skill命令
+     * @maxItems 5
+     */
+  skills?: TurnCreateSkillsItem[];
+  /** 本轮请求的 Agent、模型与推理配置稳定标识 */
+  execution_config?: TurnCreateExecutionConfig;
 }
+
+export type TurnReadRequestedConfig = { [key: string]: unknown };
+
+export type TurnReadEffectiveConfig = { [key: string]: unknown };
 
 export interface TurnRead {
   id: string;
@@ -111,6 +166,12 @@ export interface TurnRead {
   error_code: string | null;
   created_at: string;
   updated_at: string;
+  image_count?: number | null;
+  file_count?: number | null;
+  skill_count?: number | null;
+  requested_config?: TurnReadRequestedConfig;
+  effective_config?: TurnReadEffectiveConfig;
+  config_fallback_reason?: string | null;
 }
 
 export interface ApiResponseTurnRead {
@@ -196,6 +257,17 @@ page?: number;
 page_size?: number;
 };
 
+export type UploadMaterialApiV1ChatMaterialsPostParams = {
+/**
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @maxLength 64
+ */
+repository_id: string;
+};
+
 export type DeleteApiV1ChatConversationsCidDeleteParams = {
 expected_hash?: string | null;
 };
@@ -230,6 +302,17 @@ page?: number;
  * @maximum 100
  */
 page_size?: number;
+};
+
+export type SkillsApiV1ChatSkillsGetParams = {
+/**
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @maxLength 64
+ */
+repository_id: string;
 };
 
 export type ObjectsApiV1ChatConversationsCidObjectsGetParams = {
@@ -312,6 +395,82 @@ export const capabilitiesApiV1ChatCapabilitiesGet = async (params: CapabilitiesA
 
   const data: capabilitiesApiV1ChatCapabilitiesGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as capabilitiesApiV1ChatCapabilitiesGetResponse
+}
+
+
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponseSuccess = (behaviorEventApiV1ChatBehaviorEventsPostResponse200) & {
+  headers: Headers;
+};
+export type behaviorEventApiV1ChatBehaviorEventsPostResponseError = (behaviorEventApiV1ChatBehaviorEventsPostResponse403 | behaviorEventApiV1ChatBehaviorEventsPostResponse404 | behaviorEventApiV1ChatBehaviorEventsPostResponse409 | behaviorEventApiV1ChatBehaviorEventsPostResponse422 | behaviorEventApiV1ChatBehaviorEventsPostResponse503) & {
+  headers: Headers;
+};
+
+export type behaviorEventApiV1ChatBehaviorEventsPostResponse = (behaviorEventApiV1ChatBehaviorEventsPostResponseSuccess | behaviorEventApiV1ChatBehaviorEventsPostResponseError)
+
+export const getBehaviorEventApiV1ChatBehaviorEventsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/behavior-events`
+}
+
+/**
+ * @summary 记录Chat前端材料操作行为
+ */
+export const behaviorEventApiV1ChatBehaviorEventsPost = async (behaviorEventCreate: BehaviorEventCreate, options?: RequestInit): Promise<behaviorEventApiV1ChatBehaviorEventsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getBehaviorEventApiV1ChatBehaviorEventsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(behaviorEventCreate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: behaviorEventApiV1ChatBehaviorEventsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as behaviorEventApiV1ChatBehaviorEventsPostResponse
 }
 
 
@@ -465,6 +624,156 @@ const res = await fetch(getCreateApiV1ChatConversationsPostUrl(),
 
   const data: createApiV1ChatConversationsPostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as createApiV1ChatConversationsPostResponse
+}
+
+
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type uploadMaterialApiV1ChatMaterialsPostResponseSuccess = (uploadMaterialApiV1ChatMaterialsPostResponse200) & {
+  headers: Headers;
+};
+export type uploadMaterialApiV1ChatMaterialsPostResponseError = (uploadMaterialApiV1ChatMaterialsPostResponse403 | uploadMaterialApiV1ChatMaterialsPostResponse404 | uploadMaterialApiV1ChatMaterialsPostResponse409 | uploadMaterialApiV1ChatMaterialsPostResponse422 | uploadMaterialApiV1ChatMaterialsPostResponse503) & {
+  headers: Headers;
+};
+
+export type uploadMaterialApiV1ChatMaterialsPostResponse = (uploadMaterialApiV1ChatMaterialsPostResponseSuccess | uploadMaterialApiV1ChatMaterialsPostResponseError)
+
+export const getUploadMaterialApiV1ChatMaterialsPostUrl = (params: UploadMaterialApiV1ChatMaterialsPostParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/materials?${stringifiedParams}` : `/api/v1/chat/materials`
+}
+
+/**
+ * @summary 上传Chat私有材料
+ */
+export const uploadMaterialApiV1ChatMaterialsPost = async (bodyUploadMaterialApiV1ChatMaterialsPost: BodyUploadMaterialApiV1ChatMaterialsPost,
+    params: UploadMaterialApiV1ChatMaterialsPostParams, options?: RequestInit): Promise<uploadMaterialApiV1ChatMaterialsPostResponse> => {
+    const formData = new FormData();
+formData.append(`file`, bodyUploadMaterialApiV1ChatMaterialsPost.file);
+
+  const res = await fetch(getUploadMaterialApiV1ChatMaterialsPostUrl(params),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: uploadMaterialApiV1ChatMaterialsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as uploadMaterialApiV1ChatMaterialsPostResponse
+}
+
+
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponseSuccess = (materialContentApiV1ChatMaterialsMaterialIdContentGetResponse200) & {
+  headers: Headers;
+};
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponseError = (materialContentApiV1ChatMaterialsMaterialIdContentGetResponse403 | materialContentApiV1ChatMaterialsMaterialIdContentGetResponse404 | materialContentApiV1ChatMaterialsMaterialIdContentGetResponse409 | materialContentApiV1ChatMaterialsMaterialIdContentGetResponse422 | materialContentApiV1ChatMaterialsMaterialIdContentGetResponse503) & {
+  headers: Headers;
+};
+
+export type materialContentApiV1ChatMaterialsMaterialIdContentGetResponse = (materialContentApiV1ChatMaterialsMaterialIdContentGetResponseSuccess | materialContentApiV1ChatMaterialsMaterialIdContentGetResponseError)
+
+export const getMaterialContentApiV1ChatMaterialsMaterialIdContentGetUrl = (materialId: string,) => {
+
+
+
+
+  return `/api/v1/chat/materials/${materialId}/content`
+}
+
+/**
+ * @summary 授权读取Chat私有图片或文件
+ */
+export const materialContentApiV1ChatMaterialsMaterialIdContentGet = async (materialId: string, options?: RequestInit): Promise<materialContentApiV1ChatMaterialsMaterialIdContentGetResponse> => {
+
+  const res = await fetch(getMaterialContentApiV1ChatMaterialsMaterialIdContentGetUrl(materialId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: materialContentApiV1ChatMaterialsMaterialIdContentGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as materialContentApiV1ChatMaterialsMaterialIdContentGetResponse
 }
 
 
@@ -1278,6 +1587,153 @@ export const conversationMessagesApiV1ChatConversationsCidMessagesGet = async (c
 
   const data: conversationMessagesApiV1ChatConversationsCidMessagesGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as conversationMessagesApiV1ChatConversationsCidMessagesGetResponse
+}
+
+
+
+export type skillsApiV1ChatSkillsGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type skillsApiV1ChatSkillsGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type skillsApiV1ChatSkillsGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type skillsApiV1ChatSkillsGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type skillsApiV1ChatSkillsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type skillsApiV1ChatSkillsGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type skillsApiV1ChatSkillsGetResponseSuccess = (skillsApiV1ChatSkillsGetResponse200) & {
+  headers: Headers;
+};
+export type skillsApiV1ChatSkillsGetResponseError = (skillsApiV1ChatSkillsGetResponse403 | skillsApiV1ChatSkillsGetResponse404 | skillsApiV1ChatSkillsGetResponse409 | skillsApiV1ChatSkillsGetResponse422 | skillsApiV1ChatSkillsGetResponse503) & {
+  headers: Headers;
+};
+
+export type skillsApiV1ChatSkillsGetResponse = (skillsApiV1ChatSkillsGetResponseSuccess | skillsApiV1ChatSkillsGetResponseError)
+
+export const getSkillsApiV1ChatSkillsGetUrl = (params: SkillsApiV1ChatSkillsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/skills?${stringifiedParams}` : `/api/v1/chat/skills`
+}
+
+/**
+ * @summary 读取当前仓库Skill候选
+ */
+export const skillsApiV1ChatSkillsGet = async (params: SkillsApiV1ChatSkillsGetParams, options?: RequestInit): Promise<skillsApiV1ChatSkillsGetResponse> => {
+
+  const res = await fetch(getSkillsApiV1ChatSkillsGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: skillsApiV1ChatSkillsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as skillsApiV1ChatSkillsGetResponse
+}
+
+
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponseSuccess = (conversationSkillsApiV1ChatConversationsCidSkillsGetResponse200) & {
+  headers: Headers;
+};
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponseError = (conversationSkillsApiV1ChatConversationsCidSkillsGetResponse403 | conversationSkillsApiV1ChatConversationsCidSkillsGetResponse404 | conversationSkillsApiV1ChatConversationsCidSkillsGetResponse409 | conversationSkillsApiV1ChatConversationsCidSkillsGetResponse422 | conversationSkillsApiV1ChatConversationsCidSkillsGetResponse503) & {
+  headers: Headers;
+};
+
+export type conversationSkillsApiV1ChatConversationsCidSkillsGetResponse = (conversationSkillsApiV1ChatConversationsCidSkillsGetResponseSuccess | conversationSkillsApiV1ChatConversationsCidSkillsGetResponseError)
+
+export const getConversationSkillsApiV1ChatConversationsCidSkillsGetUrl = (cid: string,) => {
+
+
+
+
+  return `/api/v1/chat/conversations/${cid}/skills`
+}
+
+/**
+ * @summary 读取会话仓库Skill候选
+ */
+export const conversationSkillsApiV1ChatConversationsCidSkillsGet = async (cid: string, options?: RequestInit): Promise<conversationSkillsApiV1ChatConversationsCidSkillsGetResponse> => {
+
+  const res = await fetch(getConversationSkillsApiV1ChatConversationsCidSkillsGetUrl(cid),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: conversationSkillsApiV1ChatConversationsCidSkillsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as conversationSkillsApiV1ChatConversationsCidSkillsGetResponse
 }
 
 

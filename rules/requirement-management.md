@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-09-12 17:46:07
+updated_at: 2026-09-16 22:42:16
 ---
 
 # 需求管理规范
@@ -74,6 +74,12 @@ SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`�
 |------|---------------------|------|
 | `/capture` | — | 类型未决时自动分类；REQ 部分同 `/req-capture`（见 §3.2） |
 | `/req-capture` | — | capture.md、trace 壳（可一次输入多条，按 §3.1 评估拆分） |
+| `/req-explore` | captured, exploring | 默认无文件 |
+| `/req-generate` | captured, exploring | requirement.md → draft |
+| `/req-complete` | draft, enriching | 六件套 → pending_review |
+| `/req-review` | pending_review | review.md → approved/rejected/deferred；无 flag 默认 approved |
+| `/sprint-propose --req` | **approved** | 正式纳入 Sprint，status → in_sprint |
+| `/req-opsx` | **in_sprint** | openspec/changes/* |
 
 ### 3.2 `/capture` 与 req-capture
 
@@ -88,12 +94,16 @@ SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`�
 - **父需求 refinement**：对已有 REQ 的体验/策略补充 → 优先 `parent_requirement` 或更新原 REQ，而非随意新建 peer REQ。
 - **实为缺陷** → `/bug-capture`，不要 req-capture。
 - **禁止** umbrella REQ；创建多条时 Workflow Sync 对**每条**执行 `req.capture`。
-| `/req-explore` | captured, exploring | 默认无文件 |
-| `/req-generate` | captured, exploring | requirement.md → draft |
-| `/req-complete` | draft, enriching | 六件套 → pending_review |
-| `/req-review` | pending_review | review.md → approved/rejected/deferred；无 flag 默认 approved |
-| `/sprint-propose --req` | **approved** | 正式纳入 Sprint，status → in_sprint |
-| `/req-opsx` | **in_sprint** | openspec/changes/* |
+
+### 3.3 `/req-capture` 创建前重复/相似检查
+
+`/req-capture` 在分配新 REQ ID 前 MUST 检查项目中是否已有相同、相似或可作为父级的需求。
+
+- 先读取 `issues/requirements/CHANGELOG.md` 与 `issues/requirements/_registry.yaml`，形成 plan / review / archive 候选清单。
+- 基于标题、关键词、业务域、目标用户、交付能力、验收闭环、非目标和关联模块筛选候选。
+- 候选不清晰时，只读取候选目录中 `capture.md` 与 `trace.md` 的标题、Frontmatter、摘要段落、当前状态、关联 Sprint/Change 和下一步；不得为判重全量读取无关 REQ 正文或历史归档大目录。
+- 发现疑似重复或 refinement 时，MUST 先输出候选 REQ、相似原因、当前状态、事实源路径和处理选项；默认推荐关联/更新原 REQ，必要时使用 `parent_requirement`。
+- 只有用户确认目标独立、优先级/验收/交付闭环不同，或候选只是弱相关时，才继续创建新的 peer REQ。
 
 REQ 命令族输出下一步时 MUST 使用完整 `REQ-NNNN-slug`。`/req-review <REQ-full-id>` 无 flag 时默认评审通过，`--approve` 仅作为兼容别名；下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`。`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/req-opsx <REQ-full-id>`。当 REQ 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 REQ ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
 

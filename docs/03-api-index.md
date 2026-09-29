@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: '2026-09-14 00:43:26'
+updated_at: '2026-09-20 11:41:34'
 owner: MoonBox 产品团队
 ---
 
@@ -92,7 +92,7 @@ MoonBox API 采用 REST 风格，由 FastAPI 暴露 OpenAPI 契约，前端通�
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/v1/requirement-center/context` | 需 `Authorization: Bearer <access_token>`；接受统一登录态，不要求后台管理员角色；聚合 REQ、BUG、Sprint、OpenSpec Change、空间与用户权限，返回需求中心看板卡片、9 阶段映射、统计、漂移提示、空间列表、当前空间和当前用户摘要；`current_user.avatar_url` 返回当前用户头像地址，前端需继续用同一 Bearer token 读取受保护头像资源 |
+| GET | `/api/v1/requirement-center/context` | 需 `Authorization: Bearer <access_token>`；接受统一登录态，不要求后台管理员角色；聚合 REQ、BUG、Sprint、OpenSpec Change、空间与用户权限，返回需求中心看板卡片、9 阶段映射、统计、项目级 `sprint_metrics`、当前迭代容量 `current_iteration_capacity`、Sprint 筛选状态明细 `sprint_option_details`、验收中 `task_progress` / `test_progress` / `manual_acceptance_progress` 三类任务进度、漂移提示、空间列表、当前空间和当前用户摘要；`current_user.avatar_url` 返回当前用户头像地址，前端需继续用同一 Bearer token 读取受保护头像资源 |
 | GET | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}` | 需 `Authorization: Bearer <access_token>`；仅允许读取治理对象目录内的 `.md` 文档，返回 `name` 与 `content`，路径越界、缺失、类型不符和权限失败均返回脱敏错误 |
 | PUT | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}` | 需 `Authorization: Bearer <access_token>`；按后端返回的 `document_entries[].capability.human_editable` 校验人工全文编辑权限，支持采集池 `capture.md`、规划中主文档、待评审/已评审完善类文档；请求体为 `{ content }`，内容长度受限；`trace.md`、当前阶段只读文档、路径越界、缺失、类型不符和权限失败均返回脱敏错误且不写入 |
 | GET | `/api/v1/requirement-center/changes/{change_id}/documents/{document_name}` | 需 `Authorization: Bearer <access_token>`；读取当前 OpenSpec Change 下的 `.md` 文档，`spec.md` 会聚合 `specs/**/spec.md` 并用 source 标记分段；路径越界、缺失、类型不符和权限失败均返回脱敏错误 |
@@ -100,7 +100,7 @@ MoonBox API 采用 REST 风格，由 FastAPI 暴露 OpenAPI 契约，前端通�
 | PUT | `/api/v1/requirement-center/changes/{change_id}/documents/{document_name}/tasks` | 需 `Authorization: Bearer <access_token>`；仅用于验收中 `tasks.md` 的 checkbox 勾选/取消，后端只接受 `- [ ]` 与 `- [x]` 标记变化，不允许修改标题、任务描述或其他正文 |
 | GET | `/api/v1/requirement-center/issues/{issue_id}/documents/{document_name}/preview` | 需 `Authorization: Bearer <access_token>`；仅允许读取治理对象目录内的 `.html` 文档并以 HTML 预览响应返回，路径越界、缺失、类型不符和权限失败均返回脱敏错误 |
 
-需求中心 context 接口是读聚合 BFF。治理对象数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown/HTML 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。卡片响应额外返回受控 `document_entries`、`detail_url`、`archive_url`、`action`、`tasks` 与 `sprint_options`，用于前端文档抽屉、新 Tab 预览、阶段动作、tasks 进度和 Sprint 选择；`document_entries[].capability` 统一返回 `readable`、`human_editable`、`ai_mutable`、`task_toggle_only` 与 `reason`，前端据此决定 Vditor 全文编辑、只读阅读态或验收中 tasks checkbox 专用操作，兼容字段 `document_entries[].editable` 继续等同于 `human_editable`。`trace.md` 始终人工只读但允许系统治理链路更新；待开发阶段只显示并允许编辑当前 Change 下的 `proposal.md`、`spec.md`、`design.md`、`tasks.md`，不会写入已生效 `openspec/specs/`。`action.disabled_reason` 承载阶段主动作门禁：采集池 Requirement / Bug 生成动作要求 `capture.md` 与 `trace.md` 均存在且内容非空；规划中 Requirement / Bug 完善动作分别要求 `capture.md`、`trace.md`、`requirement.md` 或 `capture.md`、`trace.md`、`bug.md` 均存在且内容非空；待评审 Requirement / Bug 评审动作分别要求 `capture.md`、`trace.md`、`requirement.md`、`acceptance.md`、`business-flow.md`、`user-stories.md` 或 `capture.md`、`trace.md`、`bug.md`、`root-cause.md`、`workaround.md`、`acceptance.md` 均存在且内容非空；已评审 Requirement / Bug 加入迭代动作要求对应待评审文档包再加 `review.md` 非空。空间上下文来自后台空间事实源 `admin_spaces`、`admin_space_members` 与 `admin_space_products`：仅返回当前登录用户作为负责人或成员已加入、且未处于回收状态的空间；冻结空间保留可见并返回 `status=FROZEN` 与 `readonly=true`。空间响应只输出 `workspace_id`、`name`、`slug`、`description`、`member_count`、`role`、`status`、`readonly` 等前台白名单字段，不返回后台配额、审计、删除原因、负责人内部详情或高风险动作。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。响应不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；Markdown/HTML 全文只通过受控文档接口按单文件读取；人工保存只通过受控写入接口并由后端按阶段、文档名、路径类别和勾选专用规则二次校验；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
+需求中心 context 接口是读聚合 BFF。治理对象数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown/HTML 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`iterations/archive/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。卡片响应额外返回受控 `document_entries`、`detail_url`、`archive_url`、`action`、`tasks`、项目级 `sprint_metrics`、当前迭代容量 `current_iteration_capacity`、Sprint 标识列表 `sprint_options` 与状态明细 `sprint_option_details`，用于前端文档抽屉、新 Tab 预览、阶段动作、tasks 进度、Sprint 已完成/累计指标、当前迭代容量展示、Sprint 选择和 Sprint 筛选状态展示；验收中卡片的 `task_progress` 只统计 `tasks.md` 中实施/研发/开发/修复/文档同步类 checkbox，`test_progress` 只统计回归验证/测试/校验/视觉证据类 checkbox，`manual_acceptance_progress` 只统计人工验收/人工复验/sign-off 类 checkbox。`/opsx-modify` 追加的“验收返修”任务按单条文本归类：返修实现进入研发分母，返修验证、视觉证据和截图进入测试分母，人工复验或人工签收进入人工验收分母；`acceptance-fixes.md` 台账、`acceptance.md`、`review.md` 与 `trace.md` 文件存在性不进入三类进度分母，也不得把测试或人工验收推导为完成态。`sprint_option_details[]` 只返回 `sprint_id`、`label`、`lifecycle_stage`、`status`、`status_label` 和脱敏 `warning`，其中活动迭代可显示规划中/进行中，归档迭代显示已归档，未知或冲突来源显示状态待核实，不返回内部路径、原始 YAML 或堆栈。`sprint_metrics.completed_count` 统计已完成 Sprint，`sprint_metrics.total_count` 统计活动与归档 Sprint 去重后的累计数量，`sprint_metrics.warning` 仅返回脱敏口径提示，不返回内部路径或原始文件内容；该指标为项目级总览，不随前端搜索、对象类型、负责人、优先级或 Sprint 筛选变化。`current_iteration_capacity[]` 来自授权项目的活动 Sprint 事实源，每项包含 `sprint_id`、`used_capacity`、`total_capacity`、`capacity_unit=person_day`、`capacity_source`、`status`、安全提示和 `archive_readiness`；`used_capacity` 汇总 `scope_estimates[].estimated_person_days`，`total_capacity` 优先 `capacity_person_days`，缺失时使用默认容量并标记 `default`，异常或超过两个当前迭代时返回 `unknown`/待核实提示，不返回内部路径、原始 YAML、Markdown 正文或堆栈。`archive_readiness` 只用于当前迭代归档入口启用口径，返回 `can_enter_confirmation`、`display_mode`、`reason_code`、`safe_summary` 与脱敏 `blockers[]`；当范围内 REQ、BUG、独立 Change 或验收 sign-off 未闭环时入口必须隐藏或禁用，真实归档执行、权限和 Workflow Sync 仍由 `/sprint-archive` 既有门禁重新校验，不能信任客户端 readiness 状态。`document_entries[].capability` 统一返回 `readable`、`human_editable`、`ai_mutable`、`task_toggle_only` 与 `reason`，前端据此决定 Vditor 全文编辑、只读阅读态或验收中 tasks checkbox 专用操作，兼容字段 `document_entries[].editable` 继续等同于 `human_editable`。`trace.md` 始终人工只读但允许系统治理链路更新；待开发阶段只显示并允许编辑当前 Change 下的 `proposal.md`、`spec.md`、`design.md`、`tasks.md`，不会写入已生效 `openspec/specs/`。`action.disabled_reason` 承载阶段主动作门禁：采集池 Requirement / Bug 生成动作要求 `capture.md` 与 `trace.md` 均存在且内容非空；规划中 Requirement / Bug 完善动作分别要求 `capture.md`、`trace.md`、`requirement.md` 或 `capture.md`、`trace.md`、`bug.md` 均存在且内容非空；待评审 Requirement / Bug 评审动作分别要求 `capture.md`、`trace.md`、`requirement.md`、`acceptance.md`、`business-flow.md`、`user-stories.md` 或 `capture.md`、`trace.md`、`bug.md`、`root-cause.md`、`workaround.md`、`acceptance.md` 均存在且内容非空；已评审 Requirement / Bug 加入迭代动作要求对应待评审文档包再加 `review.md` 非空。空间上下文来自后台空间事实源 `admin_spaces`、`admin_space_members` 与 `admin_space_products`：仅返回当前登录用户作为负责人或成员已加入、且未处于回收状态的空间；冻结空间保留可见并返回 `status=FROZEN` 与 `readonly=true`。空间响应只输出 `workspace_id`、`name`、`slug`、`description`、`member_count`、`role`、`status`、`readonly` 等前台白名单字段，不返回后台配额、审计、删除原因、负责人内部详情或高风险动作。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。响应不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；Markdown/HTML 全文只通过受控文档接口按单文件读取；人工保存只通过受控写入接口并由后端按阶段、文档名、路径类别和勾选专用规则二次校验；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
 
 API 变更必须同步 OpenAPI、Orval 客户端、测试、`docs/03-api-index.md` 和相关 OpenSpec Change。
 
@@ -114,6 +114,10 @@ API 变更必须同步 OpenAPI、Orval 客户端、测试、`docs/03-api-index.m
 OpenAPI来源src/backend/app/main.py，生成物src/web/openapi.json；Orval 8.29.0及src/web/orval.config.ts按Chat标签生成src/web/src/api/generated/chat.ts。生成工具为devDependency，未替换既有手写客户端。
 
 Chat新增GET /api/v1/chat/spaces返回本人可用空间ID/名称，逐个重验有效期；GET /conversations/{id}/messages按页返回已持久化本人消息。Web会话管理已使用Bearer接口；事件使用鉴权fetch读取有限SSE页并按游标续读，失败停止重连并显示错误，重试由用户触发。历史轮次选择不改变停止按钮的当前运行目标。
+
+REQ-0028 增量：`GET /api/v1/chat/capabilities` 在原执行状态和仓库列表外返回 `materials` 限制与仓库 `branches`，作为 Web 与 API 的分支、图片/文件和 Skill 校验事实源；默认分支优先 `main`，无 `main` 时优先 `master`。`POST /api/v1/chat/conversations` 接收 `branch_name` 并在服务端校验，创建后分支随会话锁定。会话读取、创建、列表和更新响应返回 `write_scope` 与 `write_reason_code`：`read_only` 表示完全只读，`governance_write` 表示只允许治理目录写入、产品实现目录只读，`implementation_write` 表示满足主对象 `in_sprint`、active Change 与 Sprint 双向纳入后的实现写入权限；客户端只用于展示，发送前和执行中由后端重新校验。新增 `POST /api/v1/chat/materials?space_id=&repository_id=` 上传图片或受支持文件，后端验证空间、仓库、MIME、单文件体积和总量后写入对象存储，仅返回 opaque `ref_id`、类型、名称、MIME、大小和状态。新增 `GET /api/v1/chat/materials/{material_id}/content`，每次请求使用当前 Bearer 登录态重新校验上传材料所有者、ready 状态和删除状态，通过对象存储适配层读取真实内容并返回私有 `Response`，用于历史图片材料缺少 `preview_url` 时的真实预览回显；响应使用 `Cache-Control: private, no-store` 与 `X-Content-Type-Options: nosniff`，不返回对象存储内部 key、签名 URL 或本机路径。`POST /api/v1/chat/conversations/{cid}/turns` 支持 `attachments[]` 图片/文件引用摘要和 `skills[]` Skill 引用摘要；服务端按数量、MIME、体积、总量、上传材料所有者、仓库范围、Skill digest 与仓库权限二次校验，并把文本、材料引用、Skill 快照与 `client_request_id` 绑定为同一轮幂等上下文。新增 `GET /api/v1/chat/skills?space_id=&repository_id=` 与 `GET /api/v1/chat/conversations/{cid}/skills`，只返回当前授权仓库 `.agents/skills/*/SKILL.md` 的名称、相对来源、摘要、digest 和 `context_reference_only` 注入范围，不返回本机绝对路径或 Skill 全文。`POST /api/v1/chat/behavior-events` 接受 `chat.image_add`、`chat.image_remove`、`chat.file_add`、`chat.file_remove`、`chat.skill_select`、`chat.skill_remove` 及材料数量，用于脱敏 usage_events 归因。`GET /messages` 对用户消息返回 `materials[]` 脱敏摘要用于历史回显，图片材料在存在授权 `ref_id` 时可返回受控 `preview_url`。新增错误码：2510 文件或图片限制失败、2511 Skill 引用无效或失效、2512 空输入、2514 分支无效。OpenAPI JSON 与 Orval Chat 客户端已同步。
+
+REQ-0035 增量：`GET /api/v1/chat/capabilities` 新增 `execution` 配置能力，返回服务端策略版本、单项 `codex` Agent、模型列表、推理档位、默认值、可用状态和禁用原因。默认能力配置与 Codex 当前可选模型对齐，稳定值为 `gpt-5.6-sol`、`gpt-6-astra`、`gpt-5.6-terra`、`gpt-5.6-luna`、`gpt-5.5`，展示名为 `GPT-5.6 Sol`、`GPT-6 Astra`、`GPT-5.6 Terra`、`GPT-5.6 Luna`、`GPT-5.5`；页面继续只消费接口返回值，不在前端写死模型列表。`POST /api/v1/chat/conversations/{cid}/turns` 新增 `execution_config`，服务端按当前能力重新校验 `agent`、`model`、`reasoning`，未知配置返回 2513/422，不可用配置返回 2513/409；轮次响应、`GET /api/v1/chat/turns/{tid}`、轮次历史和消息历史返回 `requested_config`、`effective_config` 与可选 `config_fallback_reason` 脱敏摘要。`POST /api/v1/chat/behavior-events` 允许 `chat.config_select`，仅记录配置稳定标识和材料数量，不接收 Prompt、回复、Diff、密钥、Token 或本机路径。`chat.send` 行为、`chat_request_logs.metadata` 和 Task Trace metadata 只附加受限 `agent/model/reasoning/config_fallback` 摘要。OpenAPI/Orval Chat 生成类型已包含 `execution_config`、`requested_config`、`effective_config` 与 `config_fallback_reason`。
 
 
 Diff响应已登记DiffRead：available、reason、before_hash、after_hash、initial_hash、files与cumulative_files。未有可信快照时保持available=false；大文本/二进制/链接可返回元数据与不可展示原因，原样重命名包含previous_path；修改内容的重命名保守展示新增/删除对。事件新增execution.usage和execution.tool，保存用量数值及白名单工具类型、原标识/阶段。2026-09-11起 execution.tool 的既有payload可附加detail_version、tool_name、arguments、result、exit_code、status、recorded_at_ms、duration_ms、timing_source与truncated；工具参数和输出经过脱敏及限长，不保存完整原始协议、配置或RPC错误。OpenAPI及Orval已同步。
@@ -233,10 +237,35 @@ context 既有 sprint_id 字段采用以下解析，不增加响应字段：独�
 
 ## 独立交付验收来源返修（当前结论）
 
-验收中不再固定要求acceptance.md：优先校验trace.acceptance_refs声明的Change内相对Markdown路径；显式引用无效、缺失或为空返回具体待核实原因，不回退。未声明时查现有acceptance.md、verification.md，再识别trace中非空“验证记录/验收记录/验证结果/验收结果”章节。不得跨Change或通过绝对路径、父路径、符号链接越界读取。没有证据来源提示待核实，不补建文件；本机制定位证据，不自动判断验收通过，applied和tasks全勾均不代替验收。
+验收中不再固定要求acceptance.md或verification.md：优先校验trace.acceptance_refs声明的Change内相对Markdown路径；显式引用无效、缺失或为空返回具体待核实原因，不回退。未声明时查现有acceptance.md、verification.md，再识别trace中非空“验证记录/验收记录/验证结果/验收结果/验证摘要/Validation Log/实施与验证记录”章节。不得跨Change或通过绝对路径、父路径、符号链接越界读取。没有证据来源提示待核实，不补建文件；本机制定位证据，不自动判断验收通过，applied和tasks全勾、Workflow Sync成功或治理日志均不代替Change内交付验证来源。
 
 真实仓库样本standardize-sprint-default-capacity以trace验证记录作为来源；unify-issue-classification-metadata使用acceptance.md，两者当前源码均无来源阻塞。后端95项回归通过，包含显式引用、缺失、空源、越界与历史trace来源；浏览器复用真实组件+合成API在1440/390深浅主题验收，证据evidence/action-gates，非部署验收。
 
 运行页面核对：用户地址localhost:18102对应moonbox-web，加载index-y8JI4bjc.js，其中无旧能力提示；moonbox-backend镜像动作函数也无旧提示，但仍采用上一版固定acceptance.md清单，尚未部署本次解析。未对运行容器做重建或重启，截图旧提示的实际响应来源仍未取得，不断言缓存根因。
 
 REQ主文档、故事、流程、验收、trace、原型context及HTML已核对同步；capture/review保留历史，不需改写。API既有action字段形状不变，无需OpenAPI/Orval生成；product_data_collection_observability为applicable，affected_layers为api，复用请求日志/授权，验证无越界；无新增DB、部署配置、存储、保留周期或Task Trace。
+
+## 图文 Capture 草稿与候选确认（REQ-0029，实施中）
+
+所有接口位于 `/api/v1/requirement-center`，要求显式 space_id / repository_id 和登录授权；仅本人草稿可访问，每次请求复核项目绑定，不回退到其他项目。OpenAPI Capture 标签对应 Orval `capture.ts`。
+
+| 接口 | 行为 |
+|---|---|
+| POST /capture-drafts；GET /capture-drafts | 创建未编号草稿；分页读取本人草稿 |
+| GET/PATCH/DELETE /capture-drafts/{draft_id} | 读取；expected_revision CAS保存；主动删除 |
+| POST /capture-drafts/{draft_id}/materials | 私有静态图片上传，返回不透明media_id和授权预览地址 |
+| GET /capture-materials/{media_id}/content | 每次授权读取，private/no-store，不返回对象key |
+| POST /capture-drafts/{draft_id}/organize | 绑定指定版本，异步只读整理，202受理 |
+| GET /capture-drafts/{draft_id}/organize-tasks/{task_id} | 读取建议；迟到结果不覆盖人工版本 |
+| POST /capture-drafts/{draft_id}/confirmations | 冻结最终完整版本；202受理；重复/换键请求返回原任务 |
+| GET /capture-confirmations/{task_id}；POST 同路径/retries | 原任务状态与恢复；终态完成才返回全部编号映射 |
+| GET /capture-sources/{issue_id} | 返回确认快照、候选初始版本和合并拆分来源 |
+| GET /capture-capabilities | 实际输入上限、整理及写入就绪状态 |
+
+Candidate.type 为 requirement/bug，仅使用对应priority/severity。正式编号字段不属于请求DTO。上限：正文20000码点、候选50条、标题60码点、描述10000码点、静态图片10张/每张10MiB/合计50MiB/2000万像素。草稿50份、材料1GiB按用户和项目事务计量。409表示版本或恢复冲突，422为输入限制，403/404为权限边界，503为能力/存储暂不可用；沿用ChatError脱敏错误码2601/2604/2605/2606及统一响应，data.kind提供稳定机器原因。
+
+Web封装固定作用域和AbortSignal，业务动作携带独立行为ID；图片经带授权fetch读取Blob，调用方负责撤销预览URL。当前生产UI接入与完整端到端验收尚未完成。
+
+## 需求中心业务标题投影
+
+需求中心Issue响应新增可选display_title、title_source、title_warning；title保留Issue业务身份。采集读取注册表，规划至迭代规划读取主文档，开发至完成读取唯一Change proposal；缺失按主文档、注册表、ID回退。来源仅返回文件类型，不暴露本机路径。旧客户端仍可读取title；新客户端无display_title时回退title。

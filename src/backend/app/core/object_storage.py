@@ -68,6 +68,12 @@ class ObjectStorage:
             raise ObjectStorageError("对象读取失败。") from exc
         return StoredObject(key=key, content_type=content_type, data=data)
 
+    def remove(self, key: str) -> None:
+        try:
+            self._client.remove_object(self.bucket, key)
+        except Exception as exc:
+            raise ObjectStorageError("对象清理失败。") from exc
+
 
 def get_object_storage() -> ObjectStorage:
     return ObjectStorage()

@@ -3,8 +3,14 @@ import os
 from pathlib import Path
 import subprocess
 from test_docker_up_script import _fake_docker
+import yaml
 
 PROJECT=Path(__file__).resolve().parents[2]
+
+
+def _service(path, name):
+    document = yaml.safe_load((PROJECT / path).read_text(encoding="utf-8"))
+    return document["services"][name]
 
 
 def test_platform_missing_mapping_fails_before_docker(tmp_path):
@@ -36,3 +42,51 @@ def test_platform_check_is_readonly_and_start_uses_matching_override(tmp_path):
     assert 'docker-compose.chat-platform.yml' in text
     assert 'up -d --wait --wait-timeout 180 backend web minio chat-worker' in text
     assert not (data/'auth.json').exists()
+
+
+def test_chat_overlay_services_have_stable_container_names():
+    cases = [
+        (
+            "deploy/docker-compose.chat-platform.yml",
+            "chat-worker",
+            "${CHAT_WORKER_CONTAINER_NAME:-moonbox-chat-worker}",
+        ),
+        (
+            "deploy/docker-compose.governance.yml",
+            "governance-controller",
+            "${GOVERNANCE_CONTROLLER_CONTAINER_NAME:-moonbox-governance-controller}",
+        ),
+        (
+            "deploy/local/compose.chat-recovery.yml",
+            "chat-recovery",
+            "${CHAT_RECOVERY_CONTAINER_NAME:-moonbox-chat-recovery}",
+        ),
+    ]
+    for path, service_name, expected in cases:
+        assert _service(path, service_name)["container_name"] == expected
+
+
+def test_chat_overlay_container_name_defaults_do_not_use_compose_suffixes():
+    for variable in (
+        "CHAT_WORKER_CONTAINER_NAME",
+        "GOVERNANCE_CONTROLLER_CONTAINER_NAME",
+        "CHAT_RECOVERY_CONTAINER_NAME",
+    ):
+        assert variable in (PROJECT / ".env.example").read_text(encoding="utf-8")
+    defaults = {
+        "chat-worker": "moonbox-chat-worker",
+        "governance-controller": "moonbox-governance-controller",
+        "chat-recovery": "moonbox-chat-recovery",
+    }
+    for service_name, default in defaults.items():
+        assert not default.endswith("-1")
+
+
+def test_chat_and_governance_overlays_mount_agent_skills_readonly():
+    chat_backend = _service("deploy/docker-compose.chat-platform.yml", "backend")
+    chat_worker = _service("deploy/docker-compose.chat-platform.yml", "chat-worker")
+    governance_backend = _service("deploy/docker-compose.governance.yml", "backend")
+    governance_controller = _service("deploy/docker-compose.governance.yml", "governance-controller")
+    expected = "./.agents:/app/governance/.agents:ro"
+    for service in (chat_backend, chat_worker, governance_backend, governance_controller):
+        assert expected in service["volumes"]

@@ -1,4 +1,5 @@
 """Pure req-generate validation; model output cannot expand the allowed write set."""
+from app.governance.titles import validate_document
 import difflib
 import hashlib
 import re
@@ -32,11 +33,13 @@ def validate(before, after, object_id, base_path):
         changed={name for name in before.keys()|after.keys() if before.get(name)!=after.get(name)}
         if changed != allowed or any(not after.get(name,b'').strip() for name in allowed): raise ValueError('write_set')
         if sum(len(after[name]) for name in allowed)>512*1024: raise ValueError('size')
+        for name in (prd, trace):
+            if validate_document(after[name].decode('utf-8')): raise ValueError('document_title')
         prior,_=frontmatter(before[trace]);following,_=frontmatter(after[trace]);doc,body=frontmatter(after[prd])
         if prior.get('status')!='captured' or following.get('status')!='draft': raise ValueError('stage')
         if doc.get('requirement_id')!=object_id or doc.get('status')!='draft' or len(body.strip())<20: raise ValueError('prd')
         if following.get('requirement_id')!=object_id: raise ValueError('trace_id')
-        if without(prior,{'status','updated_at','lifecycle'})!=without(following,{'status','updated_at','lifecycle'}): raise ValueError('trace_scope')
+        if without(prior,{'status','updated_at','lifecycle','title'})!=without(following,{'status','updated_at','lifecycle','title'}): raise ValueError('trace_scope')
         old_lifecycle=prior.get('lifecycle',{});new_lifecycle=following.get('lifecycle',{})
         if not isinstance(old_lifecycle,dict) or not isinstance(new_lifecycle,dict): raise ValueError('lifecycle')
         if without(old_lifecycle,{'generated'})!=without(new_lifecycle,{'generated'}) or not new_lifecycle.get('generated'): raise ValueError('lifecycle')
@@ -47,7 +50,8 @@ def validate(before, after, object_id, base_path):
         for old,new in zip(old_entries,new_entries):
             if old['id']!=object_id:
                 if old!=new: raise ValueError('other_object')
-            elif new.get('status')!='draft' or without(old,{'status','updated_at'})!=without(new,{'status','updated_at'}): raise ValueError('registry_scope')
+            elif new.get('status')!='draft' or without(old,{'status','updated_at','title'})!=without(new,{'status','updated_at','title'}): raise ValueError('registry_scope')
+        if next(e for e in new_entries if e['id']==object_id).get('title') != doc.get('title'): raise ValueError('registry_title')
         # Preserve every line outside this object's exact table row and the header timestamp.
         def index_parts(content):
             metadata,body=frontmatter(content)

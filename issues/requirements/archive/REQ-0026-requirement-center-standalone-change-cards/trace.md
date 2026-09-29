@@ -3,7 +3,7 @@ requirement_id: REQ-0026-requirement-center-standalone-change-cards
 title: 需求中心 Change 可见性与关联追溯
 status: done
 created_at: '2026-09-12 17:51:26'
-updated_at: 2026-09-14 09:18:45
+updated_at: 2026-09-17 08:12:45
 lifecycle_stage: archive
 lifecycle:
   generated: '2026-09-12 21:11:07'
@@ -15,7 +15,7 @@ iteration: sprint-005
 openspec_changes:
   - change_id: add-requirement-center-change-visibility
     type: add
-    status: archived
+    status: proposed
 related_requirements:
   - REQ-0022-local-project-import-product-iteration
 knowledge_base_refs:
@@ -100,4 +100,4 @@ REQ主文档、故事、流程、验收、trace、原型context及HTML已核对�
 
 | BUG | 严重等级 | 状态 | 关联 Change | 说明 |
 |---|---|---|---|---|
-| BUG-0018-standalone-change-acceptance-source-unverified | medium | captured | — | 独立 Change 卡片误报验收来源待核实 |
+| BUG-0018-standalone-change-acceptance-source-unverified | medium | done | fix-standalone-change-acceptance-source | 独立 Change 卡片误报验收来源待核实 |

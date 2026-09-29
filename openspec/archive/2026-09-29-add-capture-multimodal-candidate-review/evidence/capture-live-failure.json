@@ -1,0 +1,52 @@
+{
+  "message": "locator.waitFor: Timeout 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: '新建 Capture' }).getByTestId('capture-review-list') to be visible\u001b[22m\n",
+  "text": "新建 Capture写下需求或问题，附上图片，审阅后再创建。关闭1原始材料2审阅候选3创建结果SOURCE MATERIAL编辑器材料文字、文本文件和图片保存在同一份草稿里。候选只引用稳定材料标识。MD 文本123/20000图片 1Unexpected token 'I', \"Internal S\"... is not valid JSON最多 10 张图片，单张 10 MiB。原始材料希望 Capture 弹窗只有一个 MD 编辑器，能直接放多张图片和多个文本文件。\n列表刷新后回到顶部像是问题，也请拆成候选。\n\n### 来源文件：notes.md\n\n```text\n补充材料：图片和文本文件都应在同一个编辑器材料流里。\n```\n 添加图片或文本文件文件会成为编辑器内的来源材料块signal is aborted without reason草稿已保存删除草稿AI 整理候选",
+  "responses": [
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-capabilities?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox&page=1&page_size=20",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-readiness?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c/materials?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c/organize?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 202,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:5190/api/v1/requirement-center/capture-drafts/421f5a9a-bcc7-4149-8a31-8f486751da0c/organize-tasks/e8b6c335-aeee-4273-90f9-5a1ca6772f7e?space_id=space_e4f61f87dfa442429e58862ddaa8df49&repository_id=moonbox",
+      "status": 200,
+      "body": ""
+    }
+  ],
+  "errors": []
+}

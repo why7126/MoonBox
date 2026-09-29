@@ -93,17 +93,18 @@ it('keeps drafts and repository capabilities scoped to each space',async()=>{
   return new Response(JSON.stringify({code:0,data}));
  }));
  render(<ChatWorkbenchPage/>);
- await waitFor(()=>expect((screen.getByLabelText('会话仓库') as HTMLSelectElement).value).toBe('repo-a'));
+ await waitFor(()=>expect(screen.getByTestId('chat-composer').getAttribute('data-repository')).toBe('repo-a'));
+ expect(screen.queryByLabelText('会话仓库')).toBeNull();
  fireEvent.change(screen.getByTestId('chat-prompt'),{target:{value:'A的草稿'}});
  fireEvent.click(screen.getByRole('button',{name:/用户菜单/}));
  fireEvent.click(screen.getByRole('menuitem',{name:/切换空间/}));
  fireEvent.click(await screen.findByTestId('space-option-space-b'));
- await waitFor(()=>expect((screen.getByLabelText('会话仓库') as HTMLSelectElement).value).toBe('repo-b'));
+ await waitFor(()=>expect(screen.getByTestId('chat-composer').getAttribute('data-repository')).toBe('repo-b'));
  expect((screen.getByTestId('chat-prompt') as HTMLTextAreaElement).value).toBe('');
  fireEvent.click(screen.getByRole('button',{name:/用户菜单/}));
  fireEvent.click(screen.getByRole('menuitem',{name:/切换空间/}));
  fireEvent.click(await screen.findByTestId('space-option-space'));
- await waitFor(()=>expect((screen.getByLabelText('会话仓库') as HTMLSelectElement).value).toBe('repo-a'));
+ await waitFor(()=>expect(screen.getByTestId('chat-composer').getAttribute('data-repository')).toBe('repo-a'));
  expect((screen.getByTestId('chat-prompt') as HTMLTextAreaElement).value).toBe('A的草稿');
  expect(vi.mocked(fetch).mock.calls.some(([,opts])=>opts?.method==='POST')).toBe(false);
 });
@@ -122,6 +123,9 @@ it('edits the selected title and switches sessions only through history',async()
  fireEvent.click(screen.getByTestId('chat-history-trigger'));
  expect(await screen.findByText('会话仅本人可查看，同时遵循空间、仓库与关联对象权限。')).toBeTruthy();
  expect(await screen.findByText('编辑后的名称')).toBeTruthy();
+ await waitFor(()=>expect(document.querySelector('.chat-history-row')).not.toBeNull());
+ expect(document.querySelector('.chat-history-group')).not.toBeNull();
+ expect(screen.getAllByText('编辑后的名称').some(node => !!node.closest('.chat-history-row'))).toBe(true);
 });
 it('does not create a conversation just to rename an unsent draft',async()=>{
  render(<ChatWorkbenchPage/>);

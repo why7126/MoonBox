@@ -1,0 +1,508 @@
+[
+  {
+    "case": "mixed-1",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "已有保存按钮点击后报500",
+          "description": "用户反馈点击已有保存按钮后报500。期望保存功能正常执行。",
+          "severity": "medium",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "已有保存能力出现异常，属于BUG；影响范围及是否存在替代方式未知，严重程度暂定medium。",
+          "clarifications": [
+            "保存按钮所在页面及保存的数据是什么？",
+            "触发时的操作条件、发生频率和影响范围是什么？",
+            "是否存在其他可用的保存方式？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "新增CSV导出功能",
+          "description": "用户希望新增CSV导出功能，导出对象、字段及范围待明确。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "用户明确提出新增导出能力，属于REQ；未提供紧急程度或交付时限，优先级暂定P2。该功能可与保存异常独立交付和验收。",
+          "clarifications": [
+            "需要导出哪些数据和字段？",
+            "导出范围是全部数据、筛选结果还是选中记录？",
+            "是否有CSV格式要求及期望交付时间？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 19.98
+  },
+  {
+    "case": "mixed-1",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 18.34
+  },
+  {
+    "case": "mixed-2",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "状态筛选不生效",
+          "description": "已支持筛选功能，但状态筛选不生效；期望状态筛选能够正常生效。",
+          "severity": "medium",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "属于已有筛选能力的行为偏差，归类为BUG；影响范围尚不明确，暂定medium。",
+          "clarifications": [
+            "状态筛选位于哪个页面或业务模块？",
+            "选择了什么状态，实际结果与预期结果分别是什么？",
+            "影响哪些用户或场景，是否有可用的替代方式？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "增加批量标签功能",
+          "description": "用户希望增加批量标签能力，具体操作对象及支持的标签操作待澄清。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "材料将批量标签表述为希望增加的能力，归类为REQ；未提供紧急程度或交付时间，暂定P2。",
+          "clarifications": [
+            "批量标签操作面向哪类对象或业务模块？",
+            "需要支持批量添加、移除、替换标签，还是其他操作？",
+            "预期验收标准、业务紧急程度及交付时间是什么？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 19.92
+  },
+  {
+    "case": "mixed-2",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 18.11
+  },
+  {
+    "case": "mixed-3",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "已有登录功能拒绝正确密码",
+          "description": "用户反馈已有登录功能在输入正确密码时仍拒绝登录。期望正确密码能够通过验证并正常登录。",
+          "severity": "high",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "已有登录功能未按预期接受正确密码，属于已有能力偏差；影响登录，严重程度暂定为high。",
+          "clarifications": [
+            "受影响的账号范围、发生频率及使用环境是什么？",
+            "具体操作步骤及拒绝登录时的提示是什么？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "新增扫码登录",
+          "description": "用户希望新增扫码登录能力。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "扫码登录被明确描述为新增能力，属于需求；材料未说明紧迫程度，优先级暂定为P2。",
+          "clarifications": [
+            "扫码登录涉及哪些客户端，使用什么应用扫码？",
+            "期望的登录流程和验收标准是什么？",
+            "是否有交付时间或优先级要求？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 16.92
+  },
+  {
+    "case": "mixed-3",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 18.92
+  },
+  {
+    "case": "mixed-4",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "切换已有深色模式后文字消失",
+          "description": "用户反馈：切换已有深色模式后文字消失。期望切换后文字仍能正常显示。",
+          "severity": "medium",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "深色模式是已有能力，切换后文字消失属于既有功能偏差。暂定 medium，实际影响范围待澄清。",
+          "clarifications": [
+            "哪些页面或文字受影响，是否阻碍主要操作？",
+            "发生问题的设备、系统和应用版本是什么？",
+            "具体切换步骤是什么，是否每次都会出现？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "支持定时切换主题",
+          "description": "用户希望支持定时切换主题。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "材料将定时切换主题表述为希望新增的能力，归为需求。未提供紧迫性或交付期限，暂定 P2。",
+          "clarifications": [
+            "定时切换需要支持哪些主题，以及怎样的时间和重复规则？",
+            "是否有期望交付时间或优先级依据？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 20.08
+  },
+  {
+    "case": "mixed-4",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 18.13
+  },
+  {
+    "case": "bug-1",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "点击保存后提示保存失败（HTTP 500）",
+          "description": "用户反馈保存接口本应成功，但点击保存后出现错误。提供的图片显示“ERROR: Save failed (HTTP 500)”。期望点击保存后成功完成保存。",
+          "severity": "medium",
+          "source_refs": [
+            "text",
+            "4f377906-12a4-425b-9406-9dac6a5c8491"
+          ],
+          "parents": [],
+          "classification_reason": "保存属于已有能力，实际报错偏离应成功保存的预期，因此归类为BUG。当前仅确认用户反馈的保存失败，影响范围及业务阻断程度未知，严重程度暂定为medium。",
+          "clarifications": [
+            "发生问题的页面、保存对象及运行环境是什么？",
+            "点击保存前的操作步骤和输入内容是什么？是否每次均出现该错误？",
+            "问题影响哪些用户或业务，是否有可用的替代保存方式？",
+            "报错后数据是否实际保存？能否提供对应请求与响应或相关日志以进一步确认？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 17.83
+  },
+  {
+    "case": "bug-1",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 18.35
+  },
+  {
+    "case": "bug-2",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "已有项目列表加载失败，提示 HTTP 503",
+          "description": "用户反馈已有项目列表，截图显示“Project list: Failed to load (HTTP 503)”。期望项目列表正常加载并显示用户的项目。",
+          "severity": "medium",
+          "source_refs": [
+            "text",
+            "4f377906-12a4-425b-9406-9dac6a5c8491"
+          ],
+          "parents": [],
+          "classification_reason": "项目列表是已有能力，当前加载失败属于已有功能的异常，归类为 BUG。暂按 medium 分级，影响范围与持续情况待澄清。",
+          "clarifications": [
+            "出现问题的环境、操作步骤和发生时间是什么？",
+            "加载失败是持续发生还是偶发，重试后是否恢复？",
+            "影响单个用户还是多个用户，是否阻断后续项目操作？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 14.62
+  },
+  {
+    "case": "bug-2",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 15.19
+  },
+  {
+    "case": "ambiguous-1",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "列表易用性问题待确认",
+          "description": "用户反馈“这个列表太难用了”。涉及的列表、具体操作障碍及期望行为尚不明确，暂无法确定具体偏差或验收标准。",
+          "severity": "low",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "反馈指向已有列表的使用体验，暂按 BUG 候选整理；尚无新增能力诉求。严重程度暂定 low，需根据实际影响确认。",
+          "clarifications": [
+            "反馈涉及哪个页面或列表？",
+            "进行什么操作时遇到了什么具体困难？",
+            "期望列表如何表现？",
+            "问题是否阻碍任务完成，影响哪些用户及使用场景？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 15.95
+  },
+  {
+    "case": "ambiguous-1",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 27.28
+  },
+  {
+    "case": "ambiguous-2",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "提交操作缓慢",
+          "description": "用户反馈提交很慢，尚不清楚是否与网络有关。期望改善提交速度；具体耗时和可接受的耗时待澄清。",
+          "severity": "medium",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "反馈指向已有提交能力的性能偏差，倾向归类为BUG。暂定medium，实际影响范围和阻碍程度待澄清；网络问题仅为用户猜测，不能认定为根因。",
+          "clarifications": [
+            "具体是哪个页面或业务中的提交操作？",
+            "提交实际耗时多久，期望多久完成？",
+            "问题出现的频率和影响范围如何，是否最终能提交成功？",
+            "出现问题时的网络环境是什么，其他网络环境下是否也有同样现象？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 14.93
+  },
+  {
+    "case": "ambiguous-2",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 14.03
+  },
+  {
+    "case": "image-1",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "保存失败并提示 HTTP 500",
+          "description": "图片显示错误提示“ERROR: Save failed (HTTP 500)”，表明保存操作失败。预期保存操作能够正常完成；具体保存对象、操作入口和触发条件尚不明确。",
+          "severity": "medium",
+          "source_refs": [
+            "4f377906-12a4-425b-9406-9dac6a5c8491"
+          ],
+          "parents": [],
+          "classification_reason": "材料呈现已有保存操作的失败提示，属于功能异常，倾向归类为 BUG。暂定 medium，实际影响范围及是否阻断关键流程待确认。",
+          "clarifications": [
+            "发生错误的产品、页面及保存对象是什么？",
+            "触发错误的操作步骤、输入内容及运行环境是什么？",
+            "错误是否持续出现，重试能否保存成功？",
+            "影响哪些用户或业务流程，是否存在数据丢失或可用的替代方式？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 16.22
+  },
+  {
+    "case": "image-1",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 20.08
+  },
+  {
+    "case": "image-2",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "requirement",
+          "title": "支持将项目导出为 CSV",
+          "description": "用户提出新增功能：将项目导出为 CSV 文件。",
+          "priority": "P2",
+          "source_refs": [
+            "4f377906-12a4-425b-9406-9dac6a5c8491"
+          ],
+          "parents": [],
+          "classification_reason": "图片明确标注为功能请求，未描述已有导出能力的异常，按新增能力归类为需求。未提供紧急程度，优先级暂定 P2。",
+          "clarifications": [
+            "需要导出哪些项目：单个项目、选定项目还是全部项目？",
+            "CSV 需要包含哪些字段及数据范围？",
+            "该需求的业务影响、期望交付时间和实际优先级是什么？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 19.91
+  },
+  {
+    "case": "image-2",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 21.12
+  },
+  {
+    "case": "lineage-1",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "requirement",
+          "title": "增加草稿保存和恢复能力",
+          "description": "希望增加草稿保存和恢复能力，两项作为同一交付单元一起验收。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "材料明确提出增加新能力，属于需求；草稿保存和恢复被明确要求一起验收，因此合并为一条候选。优先级暂定P2，材料未提供紧急程度。",
+          "clarifications": [
+            "需要保存和恢复哪类内容，适用于哪些业务场景？",
+            "草稿保存和恢复的触发方式及验收标准是什么？",
+            "实际优先级和期望交付时间待确认。"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "增加CSV导出能力",
+          "description": "希望增加CSV导出能力，作为独立诉求交付和验收。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "材料将CSV导出描述为独立的新能力诉求，属于需求，单独整理为一条候选。优先级暂定P2，材料未提供紧急程度。",
+          "clarifications": [
+            "需要导出哪些数据和字段，导出范围是什么？",
+            "CSV导出的格式要求和验收标准是什么？",
+            "实际优先级和期望交付时间待确认。"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 23.16
+  },
+  {
+    "case": "lineage-1",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 23.3
+  },
+  {
+    "case": "lineage-2",
+    "mode": "adapter",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "requirement",
+          "title": "新增保存能力",
+          "description": "用户说明保存能力尚未开发，先前称为“保存失败”的事项应作为新增保存需求整理。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "保存能力尚未交付，属于新增能力，归为需求而非已有功能缺陷。优先级暂定P2，待确认。",
+          "clarifications": [
+            "需保存的对象、内容、触发方式及成功验收标准是什么？",
+            "该需求的实际优先级是什么？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "新增导出能力",
+          "description": "用户提出新增导出能力，具体导出范围与行为尚未说明。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "材料明确提出新增导出，属于新能力，可与保存能力分别交付和验收。优先级暂定P2，待确认。",
+          "clarifications": [
+            "需导出的对象、内容范围、文件格式及成功验收标准是什么？",
+            "该需求的实际优先级是什么？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 17.13
+  },
+  {
+    "case": "lineage-2",
+    "mode": "baseline",
+    "valid": false,
+    "error_type": "ValidationError",
+    "seconds": 19.18
+  }
+]

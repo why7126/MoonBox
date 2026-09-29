@@ -9,6 +9,7 @@ services:
     volumes:
       - ./issues:/app/governance/issues:ro
       - ./openspec:/app/governance/openspec:ro
+      - ./.agents:/app/governance/.agents:ro
       - ${MOONBOX_GOVERNANCE_HOST_STATE_ROOT}:/app/governance-state
   chat-worker:
     environment:
@@ -19,6 +20,7 @@ services:
       - ./docs:/app/governance/docs:ro
       - ./rules:/app/governance/rules:ro
   governance-controller:
+    container_name: ${GOVERNANCE_CONTROLLER_CONTAINER_NAME:-moonbox-governance-controller}
     image: ${BACKEND_IMAGE:-moonbox-backend:local}
     command: [python, -m, app.governance.controller]
     init: true
@@ -40,6 +42,7 @@ services:
       - ./iterations:/app/governance/iterations:ro
       - ./docs:/app/governance/docs:ro
       - ./rules:/app/governance/rules:ro
+      - ./.agents:/app/governance/.agents:ro
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777

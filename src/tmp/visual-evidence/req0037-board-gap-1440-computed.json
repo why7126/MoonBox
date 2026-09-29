@@ -1,0 +1,31 @@
+{
+  "boundary": "focused 9-column DOM fixture with production globals.css; CSS/layout only; no API/backend mutation",
+  "evidence": {
+    "body": {
+      "paddingTop": "10px",
+      "paddingBottom": "34px",
+      "gap": "12px"
+    },
+    "emptyBefore": {
+      "top": "10px",
+      "bottom": "34px",
+      "borderTopWidth": "1px"
+    },
+    "board": {
+      "rowGap": "6px",
+      "columnGap": "10px",
+      "gridTemplateColumns": "320px 320px 320px 320px 320px 320px 320px 320px 320px"
+    },
+    "developmentGap": 16,
+    "headRect": {
+      "top": 18,
+      "bottom": 77,
+      "height": 59
+    },
+    "cardRect": {
+      "top": 93,
+      "bottom": 273,
+      "height": 180
+    }
+  }
+}

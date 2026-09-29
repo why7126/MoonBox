@@ -141,3 +141,74 @@ status: approved
     )
     patch_issue_changelog_index(issue, applied, sprint, write=True)
     assert "`/opsx-archive BUG-0099-sync-drift`" in changelog_path.read_text(encoding="utf-8")
+
+
+def test_current_status_yaml_block_syncs_change_status_and_next(tmp_path, monkeypatch) -> None:
+    import scripts.workflow_sync.patch as patch_module
+
+    monkeypatch.setattr(patch_module, "ROOT", tmp_path)
+    issue_dir = tmp_path / "issues/requirements/review/REQ-0099-current-status"
+    issue_dir.mkdir(parents=True)
+    trace_path = issue_dir / "trace.md"
+    trace_path.write_text(
+        """---
+requirement_id: REQ-0099-current-status
+status: in_sprint
+lifecycle_stage: review
+iteration: sprint-099
+openspec_changes:
+  - change_id: add-current-status-sync
+    status: proposed
+---
+
+# 追溯
+
+## 当前状态
+
+```yaml
+status: approved
+next: /req-opsx REQ-0099-current-status
+openspec_changes:
+  - add-current-status-sync
+```
+
+## 变更记录
+
+| 时间 | 命令 | 说明 |
+|---|---|---|
+""",
+        encoding="utf-8",
+    )
+
+    issue = IssueRecord(
+        issue_id="REQ-0099-current-status",
+        kind="req",
+        path=issue_dir,
+        title="Current status",
+        priority="P2",
+        trace_status="in_sprint",
+        openspec_changes=[{"change_id": "add-current-status-sync", "status": "proposed"}],
+    )
+    derived = DerivedIssue(
+        issue_id=issue.issue_id,
+        kind="req",
+        display_status="in_sprint",
+        linked_change="add-current-status-sync",
+        note="apply 完成，待 archive `add-current-status-sync`",
+    )
+
+    result = patch_issue_trace(
+        issue,
+        derived,
+        {"add-current-status-sync": "applied"},
+        event="opsx.apply",
+        focus_change="add-current-status-sync",
+        write=True,
+    )
+
+    trace_text = trace_path.read_text(encoding="utf-8")
+    assert result.changed
+    assert "## 当前状态" in trace_text
+    assert "next: /opsx-archive REQ-0099-current-status" in trace_text
+    assert "  - change_id: add-current-status-sync" in trace_text
+    assert "    status: applied" in trace_text

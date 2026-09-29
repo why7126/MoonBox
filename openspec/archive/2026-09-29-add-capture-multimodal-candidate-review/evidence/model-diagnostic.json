@@ -1,0 +1,44 @@
+[
+  {
+    "case": "mixed-1",
+    "mode": "baseline",
+    "valid": true,
+    "result": {
+      "candidates": [
+        {
+          "type": "bug",
+          "title": "已有保存按钮点击后报500",
+          "description": "用户反馈点击已有保存按钮后报500。预期保存操作正常完成，具体影响范围及复现条件待确认。",
+          "severity": "high",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "已有保存能力出现异常，属于BUG；与新增CSV导出具有独立修复及验收闭环，应拆分。建议严重度high，待确认影响范围。",
+          "clarifications": [
+            "保存按钮位于哪个页面，具体复现步骤及输入是什么？",
+            "是否每次发生，影响哪些用户，是否存在其他保存方式？"
+          ]
+        },
+        {
+          "type": "requirement",
+          "title": "新增CSV导出能力",
+          "description": "用户希望新增CSV导出能力。导出对象、入口、字段及数据范围待明确。",
+          "priority": "P2",
+          "source_refs": [
+            "text"
+          ],
+          "parents": [],
+          "classification_reason": "明确提出新增能力，属于REQ；与已有保存异常独立交付和验收，应拆分。暂建议优先级P2，待确认业务紧迫性。",
+          "clarifications": [
+            "需要在哪个页面导出哪些数据及字段？",
+            "导出范围是选中数据、当前筛选结果还是全部数据？",
+            "是否有权限限制和交付时限？"
+          ]
+        }
+      ],
+      "rules_version": "capture-organize-v1"
+    },
+    "seconds": 18.39
+  }
+]

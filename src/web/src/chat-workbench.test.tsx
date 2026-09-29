@@ -26,10 +26,22 @@ describe("Chat Skeleton boundary", () => {
     expect(screen.queryByTestId("chat-theme-toggle")).toBeNull();
     expect(screen.queryByTestId("project-binding")).toBeNull();
     expect(screen.getByTestId("chat-panel-toggle").closest(".chat-session-bar")).not.toBeNull();
+    expect(screen.getByRole("tab", { name: "对话" }).closest(".chat-subbar")).not.toBeNull();
+    expect(screen.getByTestId("chat-relations-bar").closest(".chat-subbar")).not.toBeNull();
     fireEvent.click(screen.getByTestId("chat-panel-toggle"));
     expect(screen.getByTestId("chat-execution-panel").hasAttribute("hidden")).toBe(false);
+    expect(screen.queryByText("仅展示实际执行产生的事件与文件变更")).toBeNull();
     fireEvent.click(screen.getByTestId("chat-panel-toggle"));
     expect(screen.getByTestId("chat-execution-panel").hasAttribute("hidden")).toBe(true);
+  });
+  it("keeps the trace tab content on the same width rail as the composer", async () => {
+    // @ts-expect-error Vitest runs this assertion in Node; app build does not import node:fs.
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("src/web/src/styles/chat-workbench.css", "utf8");
+    expect(css).toContain(".chat-main > .chat-composer");
+    expect(css).toMatch(/\.chat-main > \.chat-composer\s*\{[\s\S]*width:\s*min\(100% - 48px,\s*1120px\);[\s\S]*max-width:\s*1120px;/);
+    expect(css).toMatch(/\.chat-main > \.chat-execution-panel \.trace-wrap,\n\.chat-trajectory\.trace-wrap\s*\{[\s\S]*width:\s*min\(100% - 48px,\s*1120px\);[\s\S]*max-width:\s*1120px;[\s\S]*padding:\s*4px 0 40px;/);
+    expect(css).toMatch(/@media\(max-width: 820px\)\s*\{[\s\S]*\.chat-main > \.chat-execution-panel \.trace-wrap,\n  \.chat-trajectory\.trace-wrap\s*\{[\s\S]*width:\s*calc\(100% - 24px\);[\s\S]*padding:\s*4px 0 28px;/);
   });
   it("retains the login guard on direct Chat navigation", () => {
     window.history.replaceState(null, "", "/chat");

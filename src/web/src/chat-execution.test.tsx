@@ -45,3 +45,31 @@ it("does not retarget an open stop confirmation to a newer run", async () => {
   fireEvent.click(screen.getByTestId("chat-modal-submit"));
   expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).endsWith("/interrupt"))).toBe(false);
 });
+it("renders the v3 trace tab shell with snapshots and file changes", async () => {
+  localStorage.setItem("moonbox.session", JSON.stringify({ access_token: "synthetic" }));
+  const turn = { id: "done", conversation_id: "c", status: "completed", created_at: "2026-09-18T09:09:11Z" };
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+    if (url.includes("/events")) return new Response([
+      'id: 1\nevent: execution.state\ndata: {"status":"running"}',
+      'id: 2\nevent: execution.output\ndata: {"text":"检查轨迹"}',
+      'id: 3\nevent: execution.usage\ndata: {"total_tokens":15319}',
+    ].join("\n\n") + "\n\n", { headers: { "Content-Type": "text/event-stream" } });
+    let data: unknown;
+    if (url.endsWith("/turns")) data = { items: [turn] };
+    else if (url.endsWith("/context")) data = [{ object_id: "REQ-0039-test", version: "abcdef123456", title: "待澄清：test 的具体意图", content: "只读引用快照", truncated: false }];
+    else if (url.endsWith("/diff")) data = { available: true, files: [{ path: "src/components/UserCard.tsx", status: "modified", before_size: 10, after_size: 12 }], cumulative_files: [] };
+    else data = {};
+    return new Response(JSON.stringify({ code: 0, data }), { headers: { "Content-Type": "application/json" } });
+  }));
+  render(<ExecutionPanel conversation={{ id: "c" } as ConversationRead} />);
+  expect((await screen.findByTestId("chat-turn-status")).textContent).toBe("所选轮次当前状态：已完成");
+  expect(document.querySelector(".trace-wrap .trace-toolbar")).not.toBeNull();
+  expect(document.querySelector(".trace-wrap .trace-status")).not.toBeNull();
+  expect(document.querySelector(".trace-card .trace-controls")).not.toBeNull();
+  expect(document.querySelector(".trace-card .scrub")).not.toBeNull();
+  expect(screen.getByTestId("chat-raw-events").closest(".trace-card")).not.toBeNull();
+  expect(screen.getByTestId("chat-context-snapshots").className).toContain("section-block");
+  expect(await screen.findByText("REQ-0039-test")).toBeTruthy();
+  expect(screen.getByTestId("chat-diff").className).toContain("section-block");
+  expect(await screen.findByText("src/components/UserCard.tsx")).toBeTruthy();
+});

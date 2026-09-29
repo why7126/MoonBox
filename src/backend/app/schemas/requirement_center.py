@@ -34,13 +34,17 @@ class RequirementCenterChangeSummary(BaseModel):
 
 
 class RequirementCenterIssue(BaseModel):
+    display_title: str | None = None
+    title_source: str | None = None
+    title_warning: str | None = None
     current_change: RequirementCenterChangeSummary | None = None
     related_changes: list[RequirementCenterChangeSummary] = Field(default_factory=list)
     change_warning: str | None = None
     id: str
     type: str
     title: str
-    priority: str = "P2"
+    priority: str = ""
+    severity: str = ""
     owner: str
     source: str
     stage: str
@@ -55,6 +59,7 @@ class RequirementCenterIssue(BaseModel):
     sprint_id: str | None = None
     task_progress: tuple[int, int] | None = None
     test_progress: tuple[int, int] | None = None
+    manual_acceptance_progress: tuple[int, int] | None = None
     manual_acceptance_count: int = 0
     drift_warnings: list[str] = Field(default_factory=list)
 
@@ -120,6 +125,60 @@ class RequirementCenterStats(BaseModel):
     drift: int
 
 
+class RequirementCenterSprintMetrics(BaseModel):
+    completed_count: int = 0
+    total_count: int = 0
+    source: Literal["sprint_lifecycle"] = "sprint_lifecycle"
+    warning: str | None = None
+    refreshed_at: str | None = None
+
+
+class RequirementCenterArchiveReadinessBlocker(BaseModel):
+    type: Literal["requirement", "bug", "change", "acceptance_report", "permission", "workflow_sync", "capacity"]
+    id: str | None = None
+    status: str | None = None
+    message: str
+    action_hint: str | None = None
+    visible: bool = True
+
+
+class RequirementCenterCurrentIterationArchiveReadiness(BaseModel):
+    can_enter_confirmation: bool = False
+    display_mode: Literal["hidden", "disabled", "enabled"] = "hidden"
+    reason_code: Literal[
+        "ready",
+        "capacity_zero",
+        "capacity_unknown",
+        "unarchived_scope",
+        "missing_signoff",
+        "permission_denied",
+        "workflow_sync_failed",
+        "unknown",
+    ] = "unknown"
+    safe_summary: str | None = None
+    blockers: list[RequirementCenterArchiveReadinessBlocker] = Field(default_factory=list)
+
+
+class RequirementCenterCurrentIterationCapacity(BaseModel):
+    sprint_id: str
+    used_capacity: float | None = None
+    total_capacity: float | None = None
+    capacity_unit: Literal["person_day"] = "person_day"
+    capacity_source: Literal["explicit", "default", "unknown"] = "unknown"
+    status: Literal["normal", "near_limit", "over_limit", "unknown"] = "unknown"
+    message: str | None = None
+    archive_readiness: RequirementCenterCurrentIterationArchiveReadiness | None = None
+
+
+class RequirementCenterSprintOption(BaseModel):
+    sprint_id: str
+    label: str
+    lifecycle_stage: Literal["change", "archive", "unknown"] = "unknown"
+    status: Literal["planning", "in_progress", "completed", "archived", "unknown"] = "unknown"
+    status_label: str
+    warning: str | None = None
+
+
 class RequirementCenterContext(BaseModel):
     repository_id: str = ""
     snapshot_revision: str = ""
@@ -129,7 +188,10 @@ class RequirementCenterContext(BaseModel):
     current_user: RequirementCenterUser
     selected_workspace_id: str
     stats: RequirementCenterStats
+    sprint_metrics: RequirementCenterSprintMetrics = Field(default_factory=RequirementCenterSprintMetrics)
     sprint_options: list[str] = Field(default_factory=list)
+    sprint_option_details: list[RequirementCenterSprintOption] = Field(default_factory=list)
+    current_iteration_capacity: list[RequirementCenterCurrentIterationCapacity] = Field(default_factory=list)
 
 
 class RequirementCenterCaptureCreate(BaseModel):
@@ -154,7 +216,8 @@ class RequirementCenterCaptureCreate(BaseModel):
     @field_validator("title")
     @classmethod
     def nonempty_title(cls, value: str) -> str:
+        from app.governance.titles import business_title
         value = value.strip()
-        if not value or any(ord(char) < 32 for char in value):
-            raise ValueError("标题不能为空或包含控制字符")
+        if not business_title(value) or any(ord(char) < 32 for char in value):
+            raise ValueError("标题须为有效中文业务标题，不能包含控制字符")
         return value

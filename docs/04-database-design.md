@@ -2,7 +2,7 @@
 purpose: 数据库设计
 content: MoonBox SQLite 初始数据域与迁移治理
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-14 00:03:14
+updated_at: 2026-09-18 16:07:12
 owner: MoonBox 产品团队
 ---
 
@@ -10,7 +10,13 @@ owner: MoonBox 产品团队
 
 MoonBox MVP 采用双数据库策略：开发和自动化快速测试使用 SQLite，生产环境使用 MySQL。迁移策略为 Alembic 或等价 schema 初始化机制；在当前基线中，`schema_metadata` 由后端数据库初始化流程维护。
 
-本地 Docker 环境默认通过 `DATABASE_TYPE=sqlite` 与 `DATABASE_URL=sqlite:////app/data/sqlite/moonbox.db` 注入后端服务。运行时数据库文件属于本地数据，不得提交 Git。
+本地 Docker 环境默认通过 `DATABASE_TYPE=sqlite` 与 `DATABASE_URL=sqlite:////app/data/sqlite/moonbox.db` 注入后端服务。宿主机 canonical SQLite 目录为 `data/sqlite/`；历史部署若仍通过挂载让容器路径落到 `data/runtime/backend/sqlite/moonbox.db`，该路径只视为迁移期 legacy 位置。运行时数据库文件属于本地数据，不得提交 Git。
+
+SQLite 目录治理：
+
+- 本地 SQLite 文件 SHOULD 放在 `data/sqlite/`，默认库为 `data/sqlite/moonbox.db`。
+- `data/runtime/` 只承载 Chat Platform、Governance、Codex 执行器等运行控制状态，不作为业务数据库 canonical 根目录。
+- 将 legacy 数据库迁回 `data/sqlite/` 前必须停服、备份源库和目标库、执行 `PRAGMA integrity_check`，并对关键业务表行数做对比；不得在服务运行中直接移动或覆盖 SQLite 文件。
 
 生产环境必须显式设置 `DATABASE_TYPE=mysql`，并通过 `DATABASE_URL` 或 `MYSQL_DATABASE_URL` 注入 MySQL 连接串。MySQL 凭据不得写入仓库；生产环境配置缺失、连接串非 MySQL 或误用 SQLite 时，服务必须启动失败。
 
@@ -116,6 +122,10 @@ Chat执行基准增量：workspace_baselines以conversation_id为主键，worksp
 
 运行观测与清理增量：当前迁移共管理16张表（13张chat前缀业务/审计表以及 usage_events、task_traces、task_trace_spans）。chat_cleanup_jobs 独立记录主存储清理、执行副本与备份状态及到期时间，不随正文删除；task_traces/ spans 无业务外键级联，按90天观测周期保留。usage_events 只保存稳定字典、可信服务端request_id及结果，180天清理；不保存Prompt、引用原文或Diff。普通查询仅写请求日志，无长任务Trace。恢复worker执行本能力观测清理，不清理其他能力的事件。
 
+REQ-0028 增量：`chat_conversations` 增加 `branch_name`，保存会话创建时选定的 Git 分支，缺省为 `main` 或仓库可用的 `master`。`chat_uploaded_materials` 保存上传图片或文件的所有者、空间、仓库、opaque `ref_id`、服务端对象 key、类型、名称、MIME、大小、状态与删除标记；对象 key 只用于服务端对象存储操作，不进入轮次历史、请求日志或 Task Trace metadata。`chat_turn_materials` 保存每轮图片/文件引用与 Skill 上下文快照，使用 `turn_id + kind + ordinal` 唯一约束和 `ix_chat_material_turn` 查询索引。材料行仅保存名称、MIME、大小、opaque `ref_id`、上传状态和脱敏摘要；拒绝保存本机路径、完整对象 key、二进制、文件正文或临时凭据。Skill 行保存名称、相对来源、digest、摘要、`context_reference_only` 注入范围和截断后的注入摘要，不保存 Skill 全文且不会自动执行写入型命令。材料 JSON 参与轮次幂等 fingerprint 和容量预留估算，历史读取按会话权限重新授权后返回脱敏 `materials[]`。Task Trace 元数据只记录 `image_count`、`file_count`、`skill_count` 等小整数；usage_events 成功发送只附加受限 turn_id 和材料数量。
+
+REQ-0035 增量：`chat_turns` 增加 `requested_config`、`effective_config` 与 `config_fallback_reason`，SQLite/MySQL 通过 `migrate()` 检测缺失列后增量添加。两份 JSON 只保存服务端 allowlist 后的稳定标识：`agent`、`model`、`reasoning`；不保存 Prompt、回复、Diff、执行命令、环境变量、认证信息、本机路径或完整内部配置。`chat_request_logs` 增加 `metadata` JSON 文本列，当前仅允许状态码/错误码及 `agent/model/reasoning/config_fallback`、材料计数等脱敏摘要。`usage_events`、`task_traces` 与 `task_trace_spans` 继续复用既有表，通过 allowlist metadata 记录实际生效配置摘要和降级标识；观测失败不得回滚业务入队。
+
 历史删除检查会话锁、结算状态、当前git工作区与确认hash，允许历史有Diff但当前已处理的会话删除；代码目录不删。正文物理删除后副本/备份状态保留pending，不能仅因时钟到期自动标记清理完成。恢复备份必须从独立删除记录重放墓碑；执行副本清理及独立墓碑备份机制仍待平台部署验证，未配置时禁止正式历史删除。
 
 观测关联补充：成功且已授权的停止/发送/重试记录仅附加受限turn_id，失败越权请求不附加对象标识；调用端自报标记不能成为权限依据。
@@ -178,3 +188,22 @@ Chat预留表增加concurrency_released INTEGER NOT NULL DEFAULT 0，作为并�
 复用governance_applications、governance_project_locks及既有观测表，不新增表或迁移。幂等范围为actor、项目与键摘要；Capture前后镜像和最终完整ID位于既有私有operation记录，业务事实仍是项目issues目录内文件。编号在项目锁内读取注册表与所有阶段目录后分配；202不能视为提交完成，applied才代表整批核验通过。重启使用同一私有记录恢复，遇外部修改保留recovery_blocked读屏障。
 
 SQLite与一次性MySQL 8.2.0均验证创建、幂等、恢复和操作查询；数据库备份必须继续与私有状态目录成套，不把文件镜像移入行为事件或请求日志。
+
+## 图文 Capture 草稿持久化（REQ-0029，实施中）
+
+`app/governance/capture_schema.py` 注册到既有增量metadata迁移入口；使用可兼容SQLite/MySQL的LargeText保存规范化JSON与UTC时间字符串，不依赖数据库JSON函数。
+
+| 表 | 关键约束/用途 |
+|---|---|
+| capture_drafts | actor/scope隔离、revision CAS、绑定版本与确认任务 |
+| capture_revisions | draft_id+revision唯一，保存不可变历史 |
+| capture_quotas | actor_id+scope_key主键，条件更新预留数量和字节 |
+| capture_materials | 不透明ID、私有对象key、uploading/ready/detached/retained/delete_pending/deleted |
+| capture_confirmations | draft_id唯一；scope/draft/revision唯一；冻结内容及hash |
+| capture_confirmation_keys | actor/scope/key_hash主键，记录换键重试别名，防止键绑定其他内容 |
+| capture_issue_links | task/candidate唯一；scope/issue唯一，完成映射 |
+| capture_organize_tasks | 指定草稿版本的异步整理状态与校验结果 |
+
+确认按草稿行条件更新与事务冻结，最终REQ/BUG编号由既有governance项目锁下批次计划分配；状态库与文件计划通过前向恢复协调。原请求重复或失败重试不能重新分号。正式来源保留初判、用户修改、来源边和确认快照；确认图片转retained并退出草稿配额。
+
+删除意图使用治理私有状态目录内独立 `capture-deletions.sqlite`，权限0600；恢复旧业务库前重放删除，避免恢复已主动删除草稿。SQLite备份恢复入口已接入；MySQL原生恢复需在恢复库对外开放前调用同一replay，并保留独立删除日志。现有常驻模型worker部署入口仍只支持SQLite；MySQL数据契约已在临时MySQL8.2容器中回归，不能据此宣称MySQL整套部署已支持。

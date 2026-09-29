@@ -1,7 +1,7 @@
 ---
 name: "opsx-modify"
 description: "验收返修：在 OpenSpec Change 已 opsx-apply、未 archive 前，根据验收反馈调整实现并同步文档、验证和 AI Usage"
-updated_at: 2026-09-02 19:12:31
+updated_at: 2026-09-15 09:46:43
 ---
 
 # opsx-modify
@@ -11,7 +11,7 @@ Use this skill when the user asks `/opsx-modify <REQ-full-id|BUG-full-id|change-
 ## Context Budget Guardrails（MUST）
 
 - MUST 遵守 `rules/agent-context-budget.md`；同一会话已读且无变更的规则和 Skill 用摘要承接，优先摘要复用，不重复全量读取。
-- 返修定位先读验收反馈、`tasks.md`、`trace.md`、相关 acceptance 摘要；不要全量重读 Issue、Sprint、archive 或 generated 文件。
+- 返修定位先读验收反馈、`tasks.md`、`acceptance-fixes.md`（存在时）、`trace.md`、相关 acceptance 摘要；不要全量重读 Issue、Sprint、archive 或 generated 文件。
 - 大 diff 先用 `git diff --stat` / `git diff --name-only`；只展开手写源码、测试和本次文档片段。
 - 命令输出优先 `max_output_tokens <= 8000`；测试失败只展开失败用例、关键栈和相关片段。
 
@@ -55,7 +55,9 @@ Examples:
 - `/opsx-modify` 只能位于 `/opsx-apply` 之后、`/opsx-archive` 之前；不得用于已归档 Change。
 - 返修仍在原 Change 边界内时，继续使用原始完整 `REQ-xxxx-slug` 或 `BUG-xxxx-slug` 参数；纯治理 Change 才使用 `<change-id>`。
 - REQ 参数 MUST 是完整 `REQ-xxxx-slug`；BUG 参数 MUST 是完整 `BUG-xxxx-slug`。
-- 返修完成后 MUST 先更新 Change 文档、任务返修记录和验证证据，再串行执行 Workflow Sync 与 AI Usage Post-command Hook。
+- 返修执行中用户可见阶段展示为“研发中”；该展示是返修投影语义，不得把 Change canonical `applied` 状态或首次 apply 的 `execution.completed_at` 回退为普通 `in_progress`。
+- 返修完成后 MUST 先更新 Change 文档、返修任务、完整返修台账和验证证据，再串行执行 Workflow Sync 与 AI Usage Post-command Hook。
+- 返修完成且 Workflow Sync 通过后，用户可见阶段回到“验收中”，linked Issue 验收入口保持待复验语义，下一步为人工复验或 `/opsx-archive`。
 - 若反馈扩大 API、DB、权限、部署、对象存储或产品边界，停止本命令并引导创建新的 REQ/BUG 或 OpenSpec Change。
 
 适用：
@@ -102,6 +104,7 @@ Then read focused snippets:
 
 ```text
 openspec/changes/<change-id>/tasks.md
+openspec/changes/<change-id>/acceptance-fixes.md（存在时）
 openspec/changes/<change-id>/trace.md（存在时）
 openspec/changes/<change-id>/acceptance.md（存在时）
 issues/requirements|bugs/**/<REQ-or-BUG>/acceptance.md
@@ -130,6 +133,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 1. **Clarify Feedback**
    - Summarize the acceptance issue in 1-3 bullets.
    - Identify whether it is in-scope for the current Change.
+   - Treat the current work as a repair projection: while the command is actively modifying or validating the fix, report the user-visible phase as 研发中, but keep the Change canonical apply facts intact.
    - Identify affected files and tests.
    - Identify evidence status: `confirmed`、`probable`、`hypothesis` 或 `unknown`; if not `confirmed`, request human evidence before fixing unless there is an explicit P0 workaround reason.
    - UI/visual feedback preflight: if the feedback mentions UI、visual、prototype、截图、标注图、附件、页面状态或关键交互状态, MUST first identify all attached/reference screenshots and build an “附件截图逐项视觉对照表” before implementation.
@@ -159,8 +163,9 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 
 3. **Update Documents**
    - Documentation update is a **MUST gate**, not optional bookkeeping. Before validation, decide whether the acceptance feedback changes any behavior, UI rule, validation rule, user-visible text, API/DB contract, release note, acceptance criterion, or archive-bound spec wording.
-   - Update `openspec/changes/<change-id>/tasks.md` with a `## 验收返修记录` section if absent.
-   - Update Change `trace.md` when present with feedback, adjustment, and validation summary.
+   - Ensure `openspec/changes/<change-id>/acceptance-fixes.md` exists and update it as the full acceptance-fix ledger. This file is the canonical place for feedback batches, deviation evidence, attachment comparison tables, adjustment details, validation evidence, and REQ/BUG subdocument consistency sweeps.
+   - Update `openspec/changes/<change-id>/tasks.md` only with actionable acceptance-fix task checkboxes, a short summary, and a link to `acceptance-fixes.md`; do not duplicate the full ledger in `tasks.md`.
+   - Update Change `trace.md` when present with feedback summary, evidence entry points, validation summary, and the ledger path; do not duplicate the full ledger in `trace.md`.
    - If feedback changes or clarifies acceptance criteria, update the linked Issue `acceptance.md` or BUG acceptance/repro document, preserving frontmatter and refreshing `updated_at`.
    - If feedback changes or clarifies product behavior, UI/UE behavior, boundary, non-goal, validation strategy, or implementation decision while staying within the same Change scope, update the active Change docs such as `proposal.md`, `design.md`, `acceptance.md`, `test-plan.md`, or `implementation/` notes as applicable.
    - If feedback changes archive-bound capability wording, update `openspec/changes/<change-id>/specs/**/spec.md` delta so `/opsx-archive` will merge the corrected behavior into `openspec/specs/`.
@@ -174,12 +179,12 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 
    | Feedback touches | MUST update |
    |---|---|
-   | Acceptance wording, pass/fail criteria, or verification evidence | `openspec/changes/<change-id>/tasks.md`, Change `trace.md`, linked Issue `acceptance.md` if criteria changed, Sprint `acceptance-report.md` |
+   | Acceptance wording, pass/fail criteria, or verification evidence | `openspec/changes/<change-id>/acceptance-fixes.md`, `openspec/changes/<change-id>/tasks.md` summary/link, Change `trace.md`, linked Issue `acceptance.md` if criteria changed, Sprint `acceptance-report.md` |
    | Product/UI behavior that should survive archive | Change `design.md` and/or `proposal.md`, `openspec/changes/<change-id>/specs/**/spec.md`, linked Issue `requirement.md` / BUG doc when applicable |
    | User-visible release behavior | Sprint `release-note.md` |
    | Sprint plan, scope notes, risk notes, or implementation notes | Sprint `sprint.md` outside workflow-sync marker blocks |
    | API, DB, deployment, environment, security, media, compatibility, or public product docs | Corresponding `docs/**` file per `rules/document-governance.md` |
-   | Pure implementation-only bug with no behavior/spec/docs drift | Still update `tasks.md` + Change `trace.md`; explicitly record “无需更新其他文档” with reason |
+   | Pure implementation-only bug with no behavior/spec/docs drift | Still update `acceptance-fixes.md`, `tasks.md` summary/link, and Change `trace.md`; explicitly record “无需更新其他文档” with reason |
 
    Prototype-driven UI Gate:
 
@@ -195,7 +200,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    - If the target Change is sourced from a full `REQ-xxxx-slug`, before Validate MUST locate the linked REQ directory and check all existing REQ subdocuments/assets for consistency with the post-modify behavior.
    - The sweep MUST cover existing `requirement.md`, business process documents, user story documents, `acceptance.md`, `trace.md`, and `prototype/**` including `prototype.html`, `context.md`, screenshots, or equivalent prototype notes.
    - If the modify changes product behavior, UI/interaction, acceptance wording, Mock/API boundary, prototype intent, business flow, state transition, role/permission path, or user story, update every affected REQ subdocument before completing `/opsx-modify`.
-   - If a checked subdocument does not need updates, record “REQ 子文档一致性扫尾检查：无需更新 <items>，原因：...” in Change `tasks.md` `## 验收返修记录` or Change `trace.md`.
+   - If a checked subdocument does not need updates, record “REQ 子文档一致性扫尾检查：无需更新 <items>，原因：...” in `acceptance-fixes.md`; summarize the sweep result and ledger path in Change `trace.md`.
    - If the sweep finds drift that remains inside the current Change boundary, BLOCK completion until the relevant REQ subdocuments are updated. If the drift expands the boundary, BLOCK and suggest `/req-capture`, `/bug-capture`, or a new OpenSpec Change.
 
 4. **Validate**
@@ -212,6 +217,7 @@ python scripts/sync-workflow-status.py --event opsx.modify --change <change-id> 
 - Exit code MUST be `0`.
 - Print summary Workflow Sync Report.
 - Do not hand-edit workflow-sync marker blocks.
+- After successful sync, report that the user-visible phase has returned to 验收中 / 待复验; do not report the Change as newly in_progress unless its canonical tasks/execution facts genuinely indicate a non-applied Change.
 
 6. **AI Usage（MUST）**
 
@@ -255,6 +261,7 @@ AI Usage:
 Workflow event: `opsx.modify`
 
 This event means “验收返修已同步”，not first implementation and not archive.
+It returns the user-visible projection to “验收中 / 待复验” after the repair is complete; the temporary “研发中” wording only describes active repair work and must not overwrite the original `applied` execution fact.
 ## Output Contract（MUST）
 
 - 输出必须包含「下一步」和「待用户决策/处理」两类信息；没有对应事项时写「无」。

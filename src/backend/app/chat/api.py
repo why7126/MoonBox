@@ -4,18 +4,18 @@ import json
 import logging
 import time
 from uuid import uuid4
-from fastapi import APIRouter, Depends, Query, Request, Header
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import APIRouter, Depends, Query, Request, Header, UploadFile, File
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from fastapi.routing import APIRoute
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.orm import Session
 from app.api.v1.admin_auth import require_session_user
 from app.chat import service
 from app.chat.schema import audit, turns, messages
-from app.chat.settings import repository_catalog
+from app.chat.settings import repository_catalog, repository_branches
 from app.db.session import get_db, get_session_factory
 from app.schemas.common import ApiResponse, ErrorResponse
 
@@ -24,6 +24,7 @@ class ChatRoute(APIRoute):
         handler = super().get_route_handler()
         async def traced(request: Request):
             rid = str(uuid4()); request.state.chat_request_id=rid; start = time.monotonic(); response = None
+            metadata = {}
             try:
                 response = await handler(request)
             except service.ChatError as exc:
@@ -34,11 +35,25 @@ class ChatRoute(APIRoute):
                 response = JSONResponse(status_code=422,content={'code':1000,'message':'请求字段校验失败','data':None})
             finally:
                 try:
+                    audit_metadata = {}
+                    try:
+                        body = json.loads(response.body) if response and getattr(response, 'body', None) else {}
+                        if isinstance(body, dict) and body.get('code') not in (None, 0):
+                            audit_metadata['code'] = body.get('code')
+                        data = body.get('data') if isinstance(body, dict) else None
+                        if self.path == '/api/v1/chat/conversations/{cid}/turns' and request.method == 'POST' and isinstance(data, dict):
+                            for key in ('image_count', 'file_count', 'skill_count'):
+                                value = data.get(key)
+                                if type(value) is int and 0 <= value <= 100:
+                                    audit_metadata[key] = value
+                    except Exception:
+                        audit_metadata = {}
+                    metadata = dict(audit_metadata)
                     with get_session_factory()() as db:
                         db.execute(insert(audit).values(**service.identity(), request_id=rid,
                             actor_id=getattr(request.state, 'chat_actor', None), route_template=self.path,
                             method=request.method, status_code=response.status_code if response else 500,
-                            duration_ms=int((time.monotonic()-start)*1000)))
+                            duration_ms=int((time.monotonic()-start)*1000), metadata=json.dumps(audit_metadata)))
                         if request.headers.get('X-Chat-Client')=='web' and getattr(request.state,'chat_actor',None):
                             from app.chat.observability import behavior
                             names={('/api/v1/chat/conversations','POST'):'chat.session_create',('/api/v1/chat/conversations/{cid}','PATCH'):'chat.session_update',('/api/v1/chat/conversations/{cid}','DELETE'):'chat.session_delete',('/api/v1/chat/conversations/{cid}/relations','PUT'):'chat.relations_save',('/api/v1/chat/conversations/{cid}/turns','POST'):'chat.send',('/api/v1/chat/turns/{tid}/interrupt','POST'):'chat.stop',('/api/v1/chat/turns/{tid}/retries','POST'):'chat.retry'}
@@ -55,12 +70,22 @@ class ChatRoute(APIRoute):
                                     # Only successful authorized results may be linked to resource identifiers.
                                     payload=json.loads(response.body).get('data',{})
                                     if event == 'governance.capture':resource['operation_id']=payload.get('id')
-                                    elif event in ('chat.send','chat.retry','chat.stop'):resource['turn_id']=payload.get('id')
+                                    elif event in ('chat.send','chat.retry','chat.stop'):
+                                        resource['turn_id']=payload.get('id')
+                                        resource['image_count']=payload.get('image_count')
+                                        resource['skill_count']=payload.get('skill_count')
+                                        effective=payload.get('effective_config') or {}
+                                        for key in ('agent','model','reasoning'):
+                                            resource[key]=effective.get(key)
+                                        if payload.get('config_fallback_reason'):
+                                            resource['config_fallback']='applied'
                                     else:resource['conversation_id']=payload.get('id') or request.path_params.get('cid')
+                                metadata={**metadata, **{key:value for key,value in resource.items() if key in ('image_count','file_count','skill_count','agent','model','reasoning','config_fallback') and value is not None}}
                                 behavior(db,event,request.state.chat_actor,rid,'success' if success else 'failure','web',resource)
+                        db.execute(update(audit).where(audit.c.request_id==rid).values(metadata=json.dumps(metadata, ensure_ascii=False, sort_keys=True)))
                         db.commit()
                 except Exception:
-                    logging.getLogger('moonbox.chat').warning('chat.request_log_unavailable')
+                    logging.getLogger('moonbox.chat').exception('chat.request_log_unavailable')
             timings = getattr(getattr(request.state, 'governance_reader', None), 'timings', {})
             allowed_timings = ('snapshot_and_fences_ms', 'materialize_ms', 'object_authorization_ms', 'parse_ms', 'cleanup_ms', 'total_ms')
             if timings:
@@ -82,6 +107,7 @@ class ConversationCreate(BaseModel):
     client_request_id: str | None = Field(default=None, pattern=r'^[A-Za-z0-9_-]{1,64}$', description="可选创建幂等标识，同一用户重试使用原值；不作为授权依据")
     space_id: str = Field(min_length=1,max_length=64)
     repository_id: str = Field(min_length=1,max_length=64)
+    branch_name: str | None = Field(default=None, min_length=1, max_length=128)
     title: str = Field(default='新会话',min_length=1,max_length=200)
     @field_validator('title')
     @classmethod
@@ -106,21 +132,26 @@ class ConversationPatch(BaseModel):
 
 class TurnCreate(BaseModel):
     client_request_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
-    prompt: str = Field(min_length=1,max_length=32000)
+    prompt: str = Field(default='',max_length=32000)
+    attachments: list[dict] = Field(default_factory=list,max_length=5,description="客户端已选择图片的引用登记摘要，不包含二进制")
+    skills: list[dict] = Field(default_factory=list,max_length=5,description="当前仓库Skill上下文引用摘要，不自动执行Skill命令")
+    execution_config: dict | None = Field(default=None, description="本轮请求的 Agent、模型与推理配置稳定标识")
     @field_validator('prompt')
     @classmethod
-    def not_blank(cls,v):
-        if not v.strip(): raise ValueError('消息不能为空')
+    def clean_prompt(cls,v):
         return v
 
 class ConversationRead(BaseModel):
     id: str
     space_id: str
     repository_id: str
+    branch_name: str = 'main'
     title: str
     pinned: bool
     archived: bool
     active_turn_id: str | None
+    write_scope: str = Field(default='read_only', pattern=r'^(read_only|governance_write|implementation_write)$')
+    write_reason_code: str = Field(default='default_read_only', max_length=80)
     created_at: str
     updated_at: str
 
@@ -139,14 +170,45 @@ class TurnRead(BaseModel):
     error_code: str | None
     created_at: str
     updated_at: str
+    image_count: int | None = None
+    file_count: int | None = None
+    skill_count: int | None = None
+    requested_config: dict = Field(default_factory=dict)
+    effective_config: dict = Field(default_factory=dict)
+    config_fallback_reason: str | None = None
+
+
+class BehaviorEventCreate(BaseModel):
+    event_name: str = Field(pattern=r'^chat\.(image_add|image_remove|file_add|file_remove|skill_select|skill_remove|config_select)$')
+    image_count: int = Field(default=0,ge=0,le=100)
+    file_count: int = Field(default=0,ge=0,le=100)
+    skill_count: int = Field(default=0,ge=0,le=100)
+    agent: str | None = Field(default=None, pattern=r'^[A-Za-z0-9_.:-]{1,80}$')
+    model: str | None = Field(default=None, pattern=r'^[A-Za-z0-9_.:-]{1,80}$')
+    reasoning: str | None = Field(default=None, pattern=r'^[A-Za-z0-9_.:-]{1,80}$')
 
 @router.get('/capabilities', response_model=ApiResponse[dict], summary='读取Chat执行就绪状态')
 def capabilities(space_id: str = Query(max_length=64), uid: str = Depends(actor), db: Session = Depends(get_db)):
     service.authorize_space(db,uid,space_id)
     from app.chat.isolated import allowed
     ready=allowed(db,uid,space_id)
+    repos = []
+    for row in repository_catalog():
+        if row['space_id'] == space_id:
+            repos.append({**row, 'branches': repository_branches(row['id'], row['space_id'])})
     return ApiResponse(data={'execution_ready':ready,'reason':'仓库执行服务已就绪' if ready else '仓库执行服务尚未就绪或配置不完整',
-        'repositories':[r for r in repository_catalog() if r['space_id']==space_id]})
+        'repositories':repos, 'materials': service.material_capabilities(),
+        'execution': service.execution_capabilities()})
+
+
+@router.post('/behavior-events',response_model=ApiResponse[dict],summary='记录Chat前端材料操作行为')
+def behavior_event(payload: BehaviorEventCreate,request: Request,uid: str=Depends(actor),db: Session=Depends(get_db)):
+    from app.chat.observability import behavior
+    behavior(db,payload.event_name,uid,request.state.chat_request_id,'success','web',
+        {'image_count':payload.image_count,'file_count':payload.file_count,'skill_count':payload.skill_count,
+            'agent':payload.agent,'model':payload.model,'reasoning':payload.reasoning})
+    db.commit()
+    return ApiResponse(data={'recorded': True})
 
 @router.get('/conversations', response_model=ApiResponse[ConversationPage], summary='搜索本人会话')
 def listing(space_id: str = Query(max_length=64), q: str = Query('',max_length=200), archived: bool=False, filter: str|None=Query(None,pattern=r'^(all|pinned)$'),
@@ -157,9 +219,28 @@ def listing(space_id: str = Query(max_length=64), q: str = Query('',max_length=2
 def create(payload: ConversationCreate,uid: str=Depends(actor),db: Session=Depends(get_db)):
     return ApiResponse(data=service.create_conversation(db,uid,**payload.model_dump()))
 
+
+@router.post('/materials',response_model=ApiResponse[dict],summary='上传Chat私有材料')
+async def upload_material(space_id: str=Query(max_length=64),repository_id: str=Query(max_length=64),
+    file: UploadFile=File(),uid: str=Depends(actor),db: Session=Depends(get_db)):
+    from starlette.concurrency import run_in_threadpool
+    try:
+        content = await file.read(service.MATERIAL_LIMITS['max_file_bytes'] + 1)
+        return ApiResponse(data=await run_in_threadpool(service.upload_material, db, uid, space_id, repository_id,
+            file.filename or 'attachment', file.content_type or 'application/octet-stream', content))
+    finally:
+        await file.close()
+
+
+@router.get('/materials/{material_id}/content',summary='授权读取Chat私有图片或文件')
+def material_content(material_id: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
+    value=service.read_uploaded_material_content(db,uid,material_id)
+    return Response(content=value['data'],media_type=value['content_type'],
+        headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'})
+
 @router.get('/conversations/{cid}',response_model=ApiResponse[ConversationRead],summary='读取个人会话')
 def get(cid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
-    return ApiResponse(data=service.public_conversation(service.conversation(db,uid,cid)))
+    return ApiResponse(data=service.public_conversation(service.conversation(db,uid,cid),db,uid))
 
 @router.patch('/conversations/{cid}',response_model=ApiResponse[ConversationRead],summary='重命名置顶归档或恢复会话')
 def patch(cid: str,payload: ConversationPatch,uid: str=Depends(actor),db: Session=Depends(get_db)):
@@ -172,7 +253,7 @@ def delete(cid: str,expected_hash: str|None=Query(None,pattern=r'^[a-f0-9]{64}$'
 
 @router.post('/conversations/{cid}/turns',response_model=ApiResponse[TurnRead],summary='幂等提交轮次（执行门禁未通过时拒绝）')
 def send(cid: str,payload: TurnCreate,request: Request,uid: str=Depends(actor),db: Session=Depends(get_db)):
-    return ApiResponse(data=service.request_turn(db,uid,cid,payload.client_request_id,payload.prompt,request_id=request.state.chat_request_id))
+    return ApiResponse(data=service.request_turn(db,uid,cid,payload.client_request_id,payload.prompt,images=payload.attachments,skills=payload.skills,execution_config=payload.execution_config,request_id=request.state.chat_request_id))
 
 @router.get('/conversations/{cid}/turns',response_model=ApiResponse[dict],summary='读取轮次列表')
 def history(cid: str,page: int=Query(1,ge=1,le=10000),page_size: int=Query(20,ge=1,le=100),uid: str=Depends(actor),db: Session=Depends(get_db)):
@@ -227,10 +308,26 @@ def spaces(uid: str=Depends(actor),db: Session=Depends(get_db)):
 @router.get('/conversations/{cid}/messages',response_model=ApiResponse[dict],summary='分页读取本人会话消息')
 def conversation_messages(cid: str,page: int=Query(1,ge=1),page_size: int=Query(20,ge=1,le=100),uid: str=Depends(actor),db: Session=Depends(get_db)):
     service.conversation(db,uid,cid)
-    rows=db.execute(select(messages.c.id,messages.c.turn_id,messages.c.role,messages.c.content,messages.c.created_at)
+    rows=db.execute(select(messages.c.id,messages.c.turn_id,messages.c.role,messages.c.content,messages.c.created_at,
+            turns.c.effective_config,turns.c.config_fallback_reason)
         .join(turns,messages.c.turn_id==turns.c.id).where(turns.c.conversation_id==cid)
         .order_by(messages.c.created_at.desc(),messages.c.id.desc()).limit(page_size).offset((page-1)*page_size)).mappings()
-    return ApiResponse(data={'items':[dict(row) for row in rows],'page':page,'page_size':page_size})
+    items=[dict(row) for row in rows]
+    material_map=service.read_turn_materials(db,[row['turn_id'] for row in items if row.get('turn_id')])
+    for row in items:
+        row['materials']=material_map.get(row.get('turn_id'),[])
+        row['effective_config']=service._json_config(row.get('effective_config'))
+    return ApiResponse(data={'items':items,'page':page,'page_size':page_size})
+
+
+@router.get('/skills',response_model=ApiResponse[dict],summary='读取当前仓库Skill候选')
+def skills(space_id: str=Query(max_length=64),repository_id: str=Query(max_length=64),uid: str=Depends(actor),db: Session=Depends(get_db)):
+    return ApiResponse(data=service.skill_candidates(db,uid,space_id=space_id,repository_id=repository_id))
+
+
+@router.get('/conversations/{cid}/skills',response_model=ApiResponse[dict],summary='读取会话仓库Skill候选')
+def conversation_skills(cid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
+    return ApiResponse(data=service.skill_candidates(db,uid,cid=cid))
 
 class RelationsUpdate(BaseModel):
     primary: str | None = Field(default=None,max_length=128)

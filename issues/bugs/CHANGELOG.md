@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-09-14 09:18:20
+updated_at: 2026-09-29 14:18:37
 owner: MoonBox 产品团队
 ---
 
@@ -28,8 +28,15 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| BUG-0018-standalone-change-acceptance-source-unverified | 独立 Change 卡片误报验收来源待核实 | medium | captured | plan | 无 | 无 | 2026-09-14 09:18:20 | `/bug-generate BUG-0018-standalone-change-acceptance-source-unverified` | `issues/bugs/plan/BUG-0018-standalone-change-acceptance-source-unverified/trace.md` |
-| BUG-0017-compose-container-name-suffix-one | 容器名不应自动追加 -1 后缀 | medium | captured | plan | 无 | 无 | 2026-09-14 09:07:45 | `/bug-generate BUG-0017-compose-container-name-suffix-one` | `issues/bugs/plan/BUG-0017-compose-container-name-suffix-one/trace.md` |
+| BUG-0025-test | 待澄清：test 的具体意图 | medium | captured | plan | 无 | 无 | 2026-09-16 23:49:40 | `/bug-generate BUG-0025-test` | `issues/bugs/plan/BUG-0025-test/trace.md` |
+| BUG-0024-capture | 列表刷新后滚动位置回到顶部 | medium | captured | plan | 无 | 无 | 2026-09-16 20:00:07 | `/bug-generate BUG-0024-capture` | `issues/bugs/plan/BUG-0024-capture/trace.md` |
+| BUG-0023-requirement-center-acceptance-progress-task-classification | 需求中心验收中卡片进度未按 tasks.md 分类统计返修任务 | medium | done | archive | sprint-007 | fix-requirement-center-acceptance-progress-task-classification | 2026-09-17 10:24:39 | 无 | `issues/bugs/archive/BUG-0023-requirement-center-acceptance-progress-task-classification/trace.md` |
+| BUG-0022-requirement-center-html-preview-auth-lost | 需求中心卡片 HTML 预览直开受保护接口导致认证失败 | medium | done | archive | sprint-006 | fix-requirement-center-html-preview-auth-lost | 2026-09-14 18:20:45 | 无 | `issues/bugs/archive/BUG-0022-requirement-center-html-preview-auth-lost/trace.md` |
+| BUG-0021-requirement-center-bug-card-severity-display | 需求中心 BUG 卡片显示优先级 P 值而非严重性 | medium | done | archive | sprint-006 | fix-requirement-center-bug-card-severity-display | 2026-09-14 14:44:39 | 无 | `issues/bugs/archive/BUG-0021-requirement-center-bug-card-severity-display/trace.md` |
+| BUG-0020-req-complete-status-projection-drift | req.complete 后 REQ 状态投影残留 draft/enriching 导致数据漂移 | medium | done | archive | sprint-006 | fix-req-complete-status-projection-drift | 2026-09-14 13:12:02 | 无 | `issues/bugs/archive/BUG-0020-req-complete-status-projection-drift/trace.md` |
+| BUG-0019-requirement-center-issue-title-overridden | 需求中心阶段业务标题来源与文档中文标题校验 | medium | done | archive | sprint-007 | fix-requirement-center-stage-business-titles | 2026-09-29 14:18:37 | 无 | `issues/bugs/archive/BUG-0019-requirement-center-issue-title-overridden/trace.md` |
+| BUG-0018-standalone-change-acceptance-source-unverified | 独立 Change 卡片误报验收来源待核实 | medium | done | archive | sprint-006 | fix-standalone-change-acceptance-source | 2026-09-17 08:12:48 | 无 | `issues/bugs/archive/BUG-0018-standalone-change-acceptance-source-unverified/trace.md` |
+| BUG-0017-compose-container-name-suffix-one | 容器名不应自动追加 -1 后缀 | medium | done | archive | sprint-007 | fix-compose-container-name-suffix-one | 2026-09-17 08:12:08 | 无 | `issues/bugs/archive/BUG-0017-compose-container-name-suffix-one/trace.md` |
 | BUG-0016-capture | 需求中心刷新缓慢，MD 文档右侧抽屉加载缓慢或无法加载 | medium | done | archive | sprint-005 | fix-requirement-center-loading-and-errors | 2026-09-14 08:59:14 | 无 | `issues/bugs/archive/BUG-0016-capture/trace.md` |
 | BUG-0015-requirement-center-apply-start-stage-not-synced | 研发启动后需求中心卡片仍停留待开发，缺少 apply 启动状态同步 | medium | done | archive | sprint-005 | fix-requirement-center-apply-lifecycle-sync | 2026-09-14 08:59:57 | 无 | `issues/bugs/archive/BUG-0015-requirement-center-apply-start-stage-not-synced/trace.md` |
 | BUG-0014-requirement-center-capture-not-persisted | 需求中心新建 Capture 仅创建前端临时卡片，未持久化 REQ/BUG 目录、文档、注册表与索引 | high | done | archive | sprint-005 | fix-requirement-center-capture-persistence | 2026-09-14 08:50:34 | 无 | `issues/bugs/archive/BUG-0014-requirement-center-capture-not-persisted/trace.md` |

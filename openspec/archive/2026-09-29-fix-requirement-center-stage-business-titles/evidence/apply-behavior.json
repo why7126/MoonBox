@@ -1,0 +1,35 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#连续执行与自修记录"
+      ],
+      "tasks": [
+        {
+          "id": "fix-title-warning",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "compaction",
+      "evidence": [
+        "verification.md#连续执行与自修记录"
+      ],
+      "tasks": [
+        {
+          "id": "finish-verification",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

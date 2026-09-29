@@ -17,7 +17,7 @@ MoonBox MUST 提供 `/spec-study` 技能，用于学习其他项目的 Harness �
 
 ### Requirement: 规范优化命令 spec-opt
 
-`/spec-opt` MUST 作为项目治理规范优化入口，用于新增或修改 `.agents/skills/` 命令、`rules/` 文档、`docs/` 文档规范、`scripts/` 治理脚本、`AGENTS.md` 入口和 active OpenSpec Change 文档。`/spec-opt` 完成本项目规范、技能、脚本、目录边界或校验规则迭代后，MUST 在 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md` 写入治理迭代日志，并 SHOULD 同步更新 `docs/spec-logs/CHANGELOG.md` 的目录级变更历史。
+`/spec-opt` MUST 作为项目治理规范优化入口，用于新增或修改 `.agents/skills/` 命令、`rules/` 文档、`docs/` 文档规范、`scripts/` 治理脚本、`AGENTS.md` 入口和 active OpenSpec Change 文档。`/spec-opt` 完成本项目规范、技能、脚本、目录边界或校验规则迭代后，MUST 在 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md` 写入治理迭代日志，并 SHOULD 同步更新 `docs/spec-logs/CHANGELOG.md` 的目录级变更历史。`/spec-opt` 不强制纯治理 Change 生成 `acceptance.md` 或 `verification.md`，但当 Change 进入 applied 前，MUST 在 Change 内保留需求中心可识别的交付验证来源，优先使用 `trace.md` 的 `## 验证记录` 或 `## 验证摘要`，或使用 `trace.acceptance_refs` 指向 Change 内 Markdown 证据。
 
 #### Scenario: 输出治理迭代日志
 
@@ -35,6 +35,14 @@ MoonBox MUST 提供 `/spec-study` 技能，用于学习其他项目的 Harness �
 - **AND** `CHANGELOG.md` MUST 指向对应的单次治理日志或学习报告
 - **AND** `CHANGELOG.md` MUST NOT 替代单次治理日志、OpenSpec Change、Sprint 四件套或正式规格事实源
 - **AND** `CHANGELOG.md` MUST NOT 包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息、本机绝对路径、系统用户名或用户主目录
+
+#### Scenario: 纯治理 Change 保留可识别交付验证来源
+
+- **WHEN** `/spec-opt` 完成纯治理 Change 并准备进入 applied
+- **THEN** Agent MUST NOT 因纯治理 Change 缺少 `acceptance.md` 或 `verification.md` 而阻断
+- **AND** Agent MUST 在 Change 内记录可被需求中心识别的交付验证来源
+- **AND** 该来源 MUST 是 `trace.md` 非空验证类章节、非空 `acceptance.md` / `verification.md`，或 `trace.acceptance_refs` 指向的 Change 内 Markdown
+- **AND** Agent MUST NOT 只依赖最终回复、治理日志、tasks 全勾或 Workflow Sync 成功作为交付验证来源
 
 ### Requirement: 原型驱动 UI 开发门禁
 系统 SHALL 对带 `prototype/` 的 UI 页面建立从需求完善、OpenSpec 转换、实现、返修到归档的连续门禁，确保原型拆解、UI Contract、UI Skeleton 首轮确认、1440px 与关键交互视觉验收、computed style 验收、Mock/API 边界声明、图标文案一致性检查和 REQ 文档最终一致性检查均被记录并通过。
@@ -409,24 +417,218 @@ MoonBox SHALL 对明确引用附件 HTML、截图、标注图、既有页面或�
 
 ### Requirement: 研发执行生命周期同步
 
-系统 MUST 区分研发启动、任务进度与完成事件，并以一致事实源派生Change、Issue关联状态和看板；Issue主状态及分级字段遵循现有归属。
+系统 MUST 在 `/opsx-apply` 实施前写入 `opsx.start` 执行事实，在批次进展后写入 `opsx.progress`，并且只有完成门禁通过后才能写入 `opsx.apply`。执行事实 MUST 使用 `execution.schema_version: 1`，保存 `started_at`、`completed_at` 与 `last_event`；`status` MUST 由执行事实与任务进度派生，不能伪造历史启动或完成时间。所有 applied Change MUST 在完成态同步前保留 Change 内可识别交付验证来源；纯治理 Change 不强制生成 `acceptance.md` 或 `verification.md`，但 MUST 优先在 `trace.md` 写入 `## 验证记录` 或 `## 验证摘要`。
 
-#### Scenario: 门禁通过后启动零完成任务
-- **WHEN** 已纳入Sprint的REQ或BUG通过实施前门禁并正式开始apply
-- **THEN** 系统 MUST 幂等记录启动事实并使Change进入in_progress，即使任务完成数为零
-- **AND** 两份apply技能与Sprint编排 MUST 使用相同契约
+#### Scenario: 启动执行事实
 
-#### Scenario: 启动未通过门禁
-- **WHEN** 前置门禁失败或只执行dry-run
-- **THEN** 系统 MUST NOT 写入启动事实或改变待开发状态
+- **WHEN** `/opsx-apply` 通过实施前门禁并准备修改当前 Change 范围
+- **THEN** Agent MUST 先运行 `opsx.start` 同步
+- **AND** Change trace MUST 写入或保留 `execution.schema_version: 1`
+- **AND** `started_at` MUST 使用真实执行时间
+- **AND** `completed_at` MUST 保持为空
+- **AND** `last_event` MUST 记录启动或后续真实进展事件
 
-#### Scenario: 进度同步与中断恢复
-- **WHEN** 已启动Change更新任务、重跑同步或中断后恢复
-- **THEN** 系统 MUST 保留启动事实、真实任务计数和幂等性，不退回proposed，不自动标记完成
-- **AND** 跨文件部分失败 MUST 可重试修复投影且不覆盖并发修改
+#### Scenario: 进度不声明完成
 
-#### Scenario: 完成门禁与旧终态兼容
-- **WHEN** 新生命周期契约的Change任务全部勾选但尚未通过完成门禁
-- **THEN** 系统 MUST 保持研发中，仅在完成事件通过门禁后标记applied
-- **AND** 旧条目 MUST 保持兼容，不伪造启动时间，不重开已完成或归档Issue
+- **WHEN** Agent 完成一批任务但尚未通过完成门禁
+- **THEN** Agent MAY 运行 `opsx.progress`
+- **AND** `completed_at` MUST 保持为空
+- **AND** 系统 MUST NOT 将任务部分完成、CLI 进行中提示或前端查看进度解释为已完成
+
+#### Scenario: 完成同步要求交付验证来源
+
+- **WHEN** `/opsx-apply` 准备运行完成态 `opsx.apply`
+- **THEN** Agent MUST 确认全部任务完成、相关验证通过、文档同步完成且 Change 内存在可识别交付验证来源
+- **AND** 如果 Change 没有 `acceptance.md` 或 `verification.md`，Agent MUST 使用 `trace.md` 验证类章节或 `trace.acceptance_refs` 记录证据入口
+- **AND** Workflow Sync MUST 在完成门禁通过后写入 `completed_at` 和 `last_event: opsx.apply`
+- **AND** 系统 MUST NOT 用 tasks 全勾、`status: applied`、Workflow Sync 成功或治理日志替代交付验证来源
+
+#### Scenario: 旧终态兼容读取
+
+- **WHEN** 历史 Change 没有 execution block 但已有 legacy applied 状态或全量完成任务
+- **THEN** 系统 MAY 按旧终态兼容读取
+- **AND** 系统 MUST NOT 伪造 `started_at` 或 `completed_at`
+- **AND** 后续新执行事件 MUST 使用 execution schema v1 记录真实事实
+
+### Requirement: req.complete 当前态投影派生刷新
+Workflow Sync MUST 在 `req.complete` 聚焦同步成功后，将目标 REQ 的当前状态派生为 `pending_review`，并使用同一派生态刷新 trace、registry、CHANGELOG 与当前态看板。
+
+#### Scenario: 从 draft 完成后推进到 pending_review
+- **GIVEN** 目标 REQ 的 trace 或 registry 当前状态为 `draft`
+- **WHEN** 执行 `sync-workflow-status.py --event req.complete --req <REQ-full-id>`
+- **THEN** trace 当前状态 MUST 为 `pending_review`
+- **AND** registry、CHANGELOG 与当前态看板 MUST 使用 `pending_review`
+- **AND** CHANGELOG 的 next action MUST 指向 `/req-review <REQ-full-id>`
+
+#### Scenario: 从 enriching 完成后推进到 pending_review
+- **GIVEN** 目标 REQ 的 trace 或 registry 当前状态为 `enriching`
+- **WHEN** 执行 `sync-workflow-status.py --event req.complete --req <REQ-full-id>`
+- **THEN** trace 当前状态 MUST 为 `pending_review`
+- **AND** registry、CHANGELOG 与当前态看板 MUST 使用 `pending_review`
+- **AND** 当前态看板 MUST NOT 报告该 REQ 存在状态数据漂移
+
+#### Scenario: 重复完成事件保持幂等
+- **GIVEN** 目标 REQ 已经处于 `pending_review`
+- **WHEN** 再次执行 `sync-workflow-status.py --event req.complete --req <REQ-full-id>`
+- **THEN** trace、registry、CHANGELOG 与当前态看板 MUST 保持 `pending_review`
+- **AND** 同步过程 MUST NOT 将状态回退为 `draft` 或 `enriching`
+
+### Requirement: bug.complete 当前态投影派生刷新
+Workflow Sync MUST 在 `bug.complete` 聚焦同步成功后，将仍处于补齐阶段的目标 BUG 当前状态派生为 `pending_review`，并使用同一派生态刷新 trace、registry 与 CHANGELOG；已进入 Sprint 或后续交付态的 BUG MUST 保持当前交付状态不被 complete 事件回退。
+
+#### Scenario: BUG 从 draft 完成后推进到 pending_review
+- **GIVEN** 目标 BUG 的 trace 或 registry 当前状态为 `draft`
+- **WHEN** 执行 `sync-workflow-status.py --event bug.complete --bug <BUG-full-id>`
+- **THEN** trace 当前状态 MUST 为 `pending_review`
+- **AND** registry 与 CHANGELOG MUST 使用 `pending_review`
+
+#### Scenario: 已纳入 Sprint 的 BUG 不被 complete 事件回退
+- **GIVEN** 目标 BUG 已经处于 `in_sprint`
+- **WHEN** 执行 `sync-workflow-status.py --event bug.complete --bug <BUG-full-id>`
+- **THEN** trace、registry、CHANGELOG 与 Sprint 投影 MUST 保持 `in_sprint`
+- **AND** 同步过程 MUST NOT 将状态回退为 `pending_review`
+
+### Requirement: Workflow Sync 同步当前状态代码块
+
+Workflow Sync MUST 在同步 Issue `trace.md` 时维护正文 `## 当前状态` 章节内的 fenced `yaml` 当前态快照，使其 `openspec_changes` 与 `next` 字段和派生事实源一致。
+
+#### Scenario: 同步当前状态代码块的 Change 状态和下一步
+
+- **GIVEN** Issue `trace.md` 的 `## 当前状态` 章节包含 fenced `yaml` 代码块
+- **AND** 该代码块包含 `openspec_changes` 或 `next`
+- **WHEN** Workflow Sync 根据目标 Issue、Change 状态和 Sprint scope 刷新该 trace
+- **THEN** 系统 MUST 同步该代码块中的 `openspec_changes[].status`
+- **AND** 系统 MUST 同步该代码块中的 `next`
+- **AND** `next` MUST 继续遵守 REQ/BUG 链路身份参数规则
+
+#### Scenario: 当前状态代码块同步范围受限
+
+- **GIVEN** Issue `trace.md` 同时包含 Readiness、验收结果、历史示例或其他 fenced `yaml` 代码块
+- **WHEN** Workflow Sync 刷新正文当前态快照
+- **THEN** 系统 MUST 只处理 `## 当前状态` 章节内首个 fenced `yaml` 代码块
+- **AND** 系统 MUST NOT 改写其他章节的 fenced `yaml` 示例或验收语义块
+
+#### Scenario: 兼容旧式 scalar openspec_changes
+
+- **GIVEN** `## 当前状态` fenced `yaml` 中的 `openspec_changes` 使用旧式 scalar 条目
+- **WHEN** Workflow Sync 同步对应 Change 状态
+- **THEN** 系统 MUST 将目标条目升级为包含 `change_id` 与 `status` 的结构化条目
+- **AND** 系统 MUST 保留后续 Workflow Sync 可继续更新的结构
+
+### Requirement: OpenSpec 中文优先语言校验
+
+MoonBox MUST 校验 OpenSpec Change 文档的标题、任务项和业务叙述中文优先。校验可以按全部 active Change 执行，也可以按一个或多个指定 Change 聚焦执行；聚焦模式只用目标 Change 决定退出码，非目标残留通过分离报告呈现。
+
+#### Scenario: req-opsx 与 bug-opsx 中文化 CLI 模板标题
+
+- **WHEN** `/req-opsx <REQ-full-id>` 或 `/bug-opsx <BUG-full-id>` 使用 OpenSpec CLI `instructions` 或 template 生成 Change 文档
+- **THEN** 系统 MUST 将 `proposal.md`、`design.md` 和 `tasks.md` 的英文脚手架标题替换为项目中文标题
+- **AND** `Why` MUST 写为 `背景`
+- **AND** `What Changes` MUST 写为 `变更内容`
+- **AND** `Capabilities` MUST 写为 `能力影响`
+- **AND** `Impact` MUST 写为 `影响范围`
+- **AND** `Implementation`、`Testing` 和 `Documentation` MUST 写为中文任务标题
+- **AND** 系统 MUST NOT 将 CLI template 中的 HTML 注释、尖括号占位符或英文说明原样写入最终 Change 文档
+- **AND** OpenSpec 关键字、命令、路径、API 字段、代码标识和 capability ID MAY 保留英文
+
+### Requirement: OpenSpec 校验总入口聚焦执行
+
+MoonBox MUST 提供 OpenSpec 校验总入口脚本，用于串行运行当前 Change 常用 OpenSpec 文档门禁。总入口 MUST 支持按 Change ID 聚焦执行，并在聚焦模式下运行当前 Change 中文优先校验与 `openspec validate` 结构校验。
+
+#### Scenario: 总入口按 Change 聚焦校验
+
+- **WHEN** 系统运行 `bash scripts/validate-openspec.sh --change <change-id> --residual-report`
+- **THEN** 脚本 MUST 只用目标 Change 作为当前中文优先校验范围
+- **AND** 脚本 MUST 运行 `openspec validate <change-id>`
+- **AND** 非当前 Change 的中文残留 MUST NOT 改变当前 Change 的退出码
+
+#### Scenario: 总入口保持默认全局校验
+
+- **WHEN** 系统运行 `bash scripts/validate-openspec.sh`
+- **THEN** 脚本 MUST 运行目录结构校验
+- **AND** 脚本 MUST 运行默认全量 active Change 中文优先校验
+
+#### Scenario: 总入口聚焦归档 Change
+
+- **WHEN** 系统运行 `bash scripts/validate-openspec.sh --include-archive --change <change-id> --residual-report`
+- **AND** 目标 Change 已位于 `openspec/archive/`
+- **THEN** 脚本 MUST 校验目标归档 Change 的中文优先文档
+- **AND** 脚本 MUST 校验归档后已合并的正式规格结构
+
+#### Scenario: bug-opsx 生成后自动运行聚焦校验
+
+- **WHEN** `/bug-opsx <BUG-full-id>` 成功生成或确认当前 OpenSpec Change
+- **THEN** 系统 MUST 运行 `python scripts/validate-openspec-language.py --change <change-id> --residual-report`
+- **AND** 当前 Change 的中文优先失败 MUST 阻断本次 `/bug-opsx` 完成
+- **AND** 其他 active Change 的中文残留 MUST 以全仓残留分离报告呈现
+- **AND** 其他 active Change 的残留 MUST NOT 作为当前 BUG 链路的失败结论
+
+### Requirement: Change 执行事实
+
+MoonBox MUST 使用 Change trace frontmatter 的 `execution.schema_version=1` 保存 OpenSpec Change 执行事实。`execution` MUST 包含 `schema_version`、`started_at`、`completed_at` 和 `last_event` 字段。`/req-opsx` 创建 Change 时 MUST 写入 schema v1 初始块，后续 `opsx.start` 与 `opsx.apply` 由 Workflow Sync 维护实际启动、完成和最后事件。
+
+#### Scenario: req-opsx 创建 Change trace 时固化 execution schema v1
+
+- **WHEN** 系统通过 `/req-opsx <REQ-full-id>` 创建或补齐 `openspec/changes/<change-id>/trace.md`
+- **THEN** trace frontmatter MUST 包含 `execution.schema_version: 1`
+- **AND** `execution.started_at` MUST 初始为 `null`
+- **AND** `execution.completed_at` MUST 初始为 `null`
+- **AND** `execution.last_event` MUST 初始为 `req.opsx`
+- **AND** 系统 MUST NOT 在 `/req-opsx` 创建阶段伪造实施启动或完成时间
+
+#### Scenario: Workflow Sync 维护执行事实
+
+- **WHEN** 系统执行 `opsx.start` 或 `opsx.apply` Workflow Sync 事件
+- **THEN** Workflow Sync MUST 复用 `execution.schema_version: 1`
+- **AND** `opsx.start` MUST 写入真实 `started_at`
+- **AND** `opsx.apply` MUST 写入真实 `completed_at`
+- **AND** 旧 trace 缺少 `execution` 时 MAY 兼容补齐 schema v1，但不得批量重写历史终态
+
+### Requirement: Capture 创建前重复相似 Issue 检查
+
+`/capture`、`/req-capture` 和 `/bug-capture` MUST 在创建新 REQ/BUG 前执行重复/相似 Issue 检查。系统 MUST 先读取对应类型的 `CHANGELOG.md` 与 `_registry.yaml` 建立候选范围；候选不清晰时，MUST 只读取疑似候选目录中 `capture.md` 与 `trace.md` 的标题、Frontmatter、摘要、状态、关联 Sprint/Change 和下一步必要片段。系统 MUST NOT 为判重全量读取无关 Issue 正文、历史归档大目录或生成物。
+
+#### Scenario: req-capture 识别已有需求补充
+
+- **GIVEN** 用户输入的需求与现有 REQ 在业务域、目标用户、交付能力或验收闭环上高度相似
+- **WHEN** 系统执行 `/req-capture`
+- **THEN** 系统 MUST 在分配新 REQ ID 前输出候选 REQ、相似原因、当前状态、事实源路径和处理选项
+- **AND** 系统 MUST 默认推荐关联或更新原 REQ，必要时使用 `parent_requirement`
+- **AND** 系统 MUST 只有在用户确认非重复或候选仅弱相关后才创建新的 peer REQ
+
+#### Scenario: bug-capture 识别已有缺陷补充
+
+- **GIVEN** 用户输入的缺陷与现有 BUG 在页面、现象、触发条件、根因假设或修复面上高度相似
+- **WHEN** 系统执行 `/bug-capture`
+- **THEN** 系统 MUST 在分配新 BUG ID 前输出候选 BUG、相似原因、当前状态、事实源路径和处理选项
+- **AND** 系统 MUST 默认推荐关联或更新原 BUG，必要时填写 `related_bug` 或 `related_requirement`
+- **AND** 系统 MUST 只有在用户确认非重复或候选仅弱相关后才创建新的 peer BUG
+
+#### Scenario: capture 混合输入分别检查
+
+- **GIVEN** 用户通过 `/capture` 输入混合需求与缺陷
+- **WHEN** 系统完成分类和拆分
+- **THEN** 系统 MUST 对需求条目按 REQ 候选执行重复/相似检查
+- **AND** 系统 MUST 对缺陷条目按 BUG 候选执行重复/相似检查
+- **AND** 疑似重复条目 MUST 先完成用户决策，非重复条目 MAY 继续按正常 capture 流程创建
+
+### Requirement: Workflow Sync sprint.propose 同步聚焦 Issue 主文档
+
+Workflow Sync MUST 在 `sprint.propose` 聚焦 REQ 或 BUG 成功同步时，将对应 Issue 主文档的 `status` 镜像为当前派生主状态。REQ 主文档为 `requirement.md`，BUG 主文档为 `bug.md`；同步范围 MUST 限定为命令传入的聚焦 Issue，不得批量改写无关 Issue 子文档。
+
+#### Scenario: BUG 纳入 Sprint 后同步 bug.md 主状态
+
+- **GIVEN** 已评审 BUG 通过 `/sprint-propose --bug <BUG-full-id>` 纳入 Sprint
+- **AND** Workflow Sync 将该 BUG 派生为 `in_sprint`
+- **WHEN** Workflow Sync 执行 `--event sprint.propose --bug <BUG-full-id>`
+- **THEN** 系统 MUST 将该 BUG 的 `bug.md` Frontmatter `status` 同步为 `in_sprint`
+- **AND** 系统 MUST 保持未聚焦 BUG 的主文档状态不被本次同步改写
+
+#### Scenario: REQ 纳入 Sprint 后同步 requirement.md 主状态
+
+- **GIVEN** 已评审 REQ 通过 `/sprint-propose --req <REQ-full-id>` 纳入 Sprint
+- **AND** Workflow Sync 将该 REQ 派生为 `in_sprint`
+- **WHEN** Workflow Sync 执行 `--event sprint.propose --req <REQ-full-id>`
+- **THEN** 系统 MUST 将该 REQ 的 `requirement.md` Frontmatter `status` 同步为 `in_sprint`
+- **AND** 系统 MUST 保持未聚焦 REQ 的主文档状态不被本次同步改写
 

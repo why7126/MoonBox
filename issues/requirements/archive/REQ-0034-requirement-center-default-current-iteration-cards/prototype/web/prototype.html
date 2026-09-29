@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>需求中心默认当前迭代范围原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0A0D14;
+      --panel: #131826;
+      --panel-2: #1A1F2C;
+      --border: #242A3A;
+      --line: #1B2130;
+      --text: #ECEAE4;
+      --muted: #98A0B3;
+      --gold: #D8AC55;
+      --blue: #5D8CFF;
+      --red: #EF6B73;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+      line-height: 1.45;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: #0F1320;
+      padding: 18px 14px;
+    }
+
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 22px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav .active {
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 9px 10px;
+      border-radius: 6px;
+    }
+
+    main {
+      min-width: 0;
+      padding: 22px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .subtle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font: inherit;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .input,
+    .select,
+    .chip {
+      border: 1px solid var(--border);
+      background: #0F1320;
+      min-height: 32px;
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .input {
+      min-width: 220px;
+      flex: 1;
+    }
+
+    .chip.current {
+      color: var(--gold);
+      border-color: rgba(216, 172, 85, 0.5);
+      background: rgba(216, 172, 85, 0.08);
+    }
+
+    .notice {
+      border: 1px solid var(--line);
+      background: rgba(216, 172, 85, 0.06);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(220px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .column {
+      min-width: 220px;
+      border: 1px solid var(--border);
+      background: #0F1320;
+      border-radius: 6px;
+    }
+
+    .column header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      background: #111727;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .cards {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      min-height: 260px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      background: var(--panel);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .card.bug { border-left-color: var(--red); }
+    .card.change { border-left-color: var(--blue); }
+
+    .card-id {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .card-title {
+      margin-top: 6px;
+      font-size: 13.5px;
+      font-weight: 650;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 6px;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 120px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    @media (max-width: 760px) {
+      .shell { grid-template-columns: 72px minmax(0, 1fr); }
+      .sidebar { padding: 14px 8px; }
+      .brand { font-size: 12px; }
+      .nav span { display: none; }
+      main { padding: 14px; }
+      .header { flex-direction: column; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .input { min-width: 100%; }
+      .board { grid-template-columns: repeat(4, 220px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">MoonBox</div>
+      <nav class="nav">
+        <div class="active"><span>需求中心</span></div>
+      </nav>
+    </aside>
+    <main>
+      <section class="header">
+        <div>
+          <h1>需求中心</h1>
+          <div class="subtle">默认聚焦当前迭代，历史与未纳入范围可显式切换查看。</div>
+        </div>
+        <button type="button">刷新</button>
+      </section>
+
+      <section class="metrics" aria-label="指标概览">
+        <div class="metric"><span>当前迭代卡片</span><strong>12</strong></div>
+        <div class="metric"><span>阻塞项</span><strong>2</strong></div>
+        <div class="metric"><span>验收中</span><strong>3</strong></div>
+        <div class="metric"><span>Sprint</span><strong>1 / 6</strong></div>
+      </section>
+
+      <section class="toolbar" aria-label="筛选工具栏">
+        <div class="input">搜索 ID、标题或 Change</div>
+        <div class="chip current">范围：当前迭代</div>
+        <div class="select">Sprint：sprint-006</div>
+        <div class="select">类型：全部</div>
+        <div class="select">负责人：全部</div>
+        <button type="button">重置</button>
+      </section>
+
+      <div class="notice">当前仅展示 sprint-006 范围内的需求、缺陷和独立 Change。可切换为全部、历史、未纳入迭代或归档范围。</div>
+
+      <section class="board" aria-label="需求中心看板">
+        <article class="column">
+          <header><strong>迭代规划</strong><span>3</span></header>
+          <div class="cards">
+            <div class="card">
+              <div class="card-id">REQ-0034</div>
+              <div class="card-title">默认只显示当前迭代卡片</div>
+              <div class="meta"><span class="tag">sprint-006</span><span class="tag">P1</span></div>
+            </div>
+          </div>
+        </article>
+        <article class="column">
+          <header><strong>待开发</strong><span>4</span></header>
+          <div class="cards">
+            <div class="card change">
+              <div class="card-id">add-current-iteration-default</div>
+              <div class="card-title">需求中心默认范围策略</div>
+              <div class="meta"><span class="tag">sprint-006</span><span class="tag">Change</span></div>
+            </div>
+          </div>
+        </article>
+        <article class="column">
+          <header><strong>研发中</strong><span>2</span></header>
+          <div class="cards">
+            <div class="card bug">
+              <div class="card-id">BUG-0018</div>
+              <div class="card-title">筛选状态刷新后丢失</div>
+              <div class="meta"><span class="tag">sprint-006</span><span class="tag">high</span></div>
+            </div>
+          </div>
+        </article>
+        <article class="column">
+          <header><strong>验收中</strong><span>3</span></header>
+          <div class="cards">
+            <div class="empty">当前范围内暂无更多卡片</div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

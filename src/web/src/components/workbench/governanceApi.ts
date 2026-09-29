@@ -11,6 +11,15 @@ export async function governanceRequest<T>(url: string, options: RequestInit = {
   if (!response.ok) throw new GovernanceError(typeof body.message === "string" ? body.message : typeof body.detail === "string" ? body.detail : `项目请求失败（${response.status}）`, response.status, typeof body.code === "number" ? body.code : undefined, typeof body.data?.kind === "string" ? body.data.kind : undefined, response.headers?.get("X-Request-ID") || body.data?.request_id);
   return body.data;
 }
+export async function governanceTextRequest(url: string, options: RequestInit = {}): Promise<string> {
+  const token = readAccessToken();
+  const response = await fetch(url, { ...options, headers: { accept: "text/html, text/plain;q=0.9, */*;q=0.8", "X-Chat-Client": "web", ...(token ? { authorization: `Bearer ${token}` } : {}), ...options.headers } });
+  if (!response.ok) {
+    const body = await response.clone().json().catch(() => ({}));
+    throw new GovernanceError(typeof body.message === "string" ? body.message : typeof body.detail === "string" ? body.detail : `项目请求失败（${response.status}）`, response.status, typeof body.code === "number" ? body.code : undefined, typeof body.data?.kind === "string" ? body.data.kind : undefined, response.headers?.get("X-Request-ID") || body.data?.request_id);
+  }
+  return response.text();
+}
 export function scopedUrl(url: string, project: Project, suffix = "") {
   const parsed = new URL(url, window.location.origin);
   if (parsed.origin !== window.location.origin || !parsed.pathname.startsWith("/api/v1/requirement-center/")) throw new Error("文档地址无效");

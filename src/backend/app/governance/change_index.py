@@ -3,6 +3,7 @@
 Resolve relationships before applying visibility. Unknown references are never
 reclassified as independent objects, and archived copies never fill active gaps.
 """
+from app.governance.titles import read_title, project_title
 from dataclasses import dataclass, field
 from pathlib import Path
 import re
@@ -20,6 +21,15 @@ from app.schemas.requirement_center import (
 CHANGE_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 SOURCE_KEYS = ('requirement', 'requirement_id', 'source_requirement', 'requirements',
                'bug', 'bug_id', 'source_bug', 'bugs', 'source_issue', 'source_issues')
+DELIVERY_EVIDENCE_HEADINGS = {
+    '验证记录',
+    '验收记录',
+    '验收结果',
+    '验证结果',
+    '验证摘要',
+    'Validation Log',
+    '实施与验证记录',
+}
 
 
 @dataclass
@@ -40,28 +50,7 @@ class ChangeRecord:
 
 
 def chinese_title(directory: Path, trace: dict) -> str | None:
-    generic = {'变更提案', '设计', '技术设计', '任务清单', '实施任务', '追溯', 'Change 追溯', '背景', '目标', '需求', '概述', '验证记录', '验收记录', '验收结果', '验证结果', '变更追溯', '背景与动机', '变更内容', '能力范围', '目标与非目标', '设计决策'}
-    for value in (trace.get('chinese_title'), trace.get('title')):
-        if isinstance(value, str) and value.strip() not in generic and re.search(r'[\u4e00-\u9fff]', value):
-            return value.strip()
-    for filename in ('proposal.md', 'design.md', 'trace.md'):
-        path = directory / filename
-        if not path.is_file():
-            continue
-        try:
-            metadata = legacy._frontmatter(path)
-        except yaml.YAMLError:
-            metadata = {}
-        value = metadata.get('title')
-        if isinstance(value, str) and value.strip() not in generic and re.search(r'[\u4e00-\u9fff]', value):
-            return value.strip()
-        for line in path.read_text(encoding='utf-8').splitlines():
-            if not line.startswith('# '):
-                continue
-            value = re.sub(r'^(?:Change|变更提案|提案|设计)\s*[:：-]\s*', '', line[2:].strip())
-            if value not in generic and re.search(r'[\u4e00-\u9fff]', value):
-                return value
-    return None
+    return read_title(directory / 'proposal.md')
 
 
 class ChangeIndex:
@@ -236,7 +225,7 @@ class ChangeIndex:
         sections = re.split(r'(?m)^#{1,6} +', text)
         for section in sections[1:]:
             title, _, body = section.partition('\n')
-            if title.strip() in ('验证记录', '验收记录', '验收结果', '验证结果') and body.strip():
+            if title.strip() in DELIVERY_EVIDENCE_HEADINGS and body.strip():
                 return None
         return '验收来源待核实：未找到交付验证记录'
 
@@ -279,6 +268,13 @@ class ChangeIndex:
                 if (trace.get('status') or entry.get('status')) not in ('done', 'archived'):
                     card.stage = current.stage
                 card.drift_warnings.extend(self.warnings(current))
+            main_path = issue_dir / ('requirement.md' if kind == 'requirement' else 'bug.md') if issue_dir else None
+            card.title = (read_title(main_path) if main_path else None) or card.title
+            card.display_title, card.title_source, card.title_warning = project_title(
+                card.stage, entry.get('title'), oid, main_path,
+                current.directory / 'proposal.md' if current and current.directory else None)
+            if current and current.directory is None:
+                card.title_warning = 'Change 归档版本待核实，已回退 Issue 业务标题'
             cards.append(card)
         for record in visible.values():
             if record.issue_ids:

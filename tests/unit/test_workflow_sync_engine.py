@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -14,6 +15,8 @@ from scripts.workflow_sync.issue_subdocuments import (
     SubdocumentSyncResult,
 )
 from scripts.workflow_sync.patch import PatchResult
+from scripts.workflow_sync.patch import patch_issue_trace
+from scripts.workflow_sync.patch import update_openspec_changes_in_block
 
 
 def test_frontmatter_parser_ignores_nested_observability_status() -> None:
@@ -55,7 +58,63 @@ product_data_collection_observability:
     assert issue.trace_status == "in_sprint"
 
 
-def test_req_opsx_changelog_uses_newly_linked_change(monkeypatch) -> None:
+def test_load_issue_record_normalizes_scalar_openspec_changes(tmp_path) -> None:
+    issue_dir = tmp_path / "BUG-0099-scalar-change"
+    issue_dir.mkdir()
+    (issue_dir / "bug.md").write_text(
+        "---\ntitle: Scalar change\nseverity: medium\n---\n",
+        encoding="utf-8",
+    )
+    (issue_dir / "trace.md").write_text(
+        """---
+status: in_sprint
+openspec_changes:
+  - fix-scalar-change
+---
+""",
+        encoding="utf-8",
+    )
+
+    issue = load_issue_record(issue_dir, "bug")
+
+    assert issue is not None
+    assert issue.openspec_changes == [{"change_id": "fix-scalar-change"}]
+
+
+def test_load_issue_record_uses_related_change_as_openspec_fallback(tmp_path) -> None:
+    issue_dir = tmp_path / "REQ-0002-related-change"
+    issue_dir.mkdir()
+    (issue_dir / "trace.md").write_text(
+        """---
+status: in_sprint
+related_change: add-related-change
+---
+
+# Trace
+""",
+        encoding="utf-8",
+    )
+
+    issue = load_issue_record(issue_dir, "req")
+
+    assert issue is not None
+    assert issue.openspec_changes == [{"change_id": "add-related-change"}]
+    assert issue.related_change == "add-related-change"
+
+
+def test_update_openspec_changes_upgrades_scalar_entry() -> None:
+    block = """status: in_sprint
+openspec_changes:
+  - fix-scalar-change
+"""
+
+    updated = update_openspec_changes_in_block(block, "fix-scalar-change", "applied")
+
+    assert "  - change_id: fix-scalar-change" in updated
+    assert "    status: applied" in updated
+
+
+def test_req_opsx_changelog_uses_newly_linked_change(monkeypatch, tmp_path) -> None:
     import scripts.workflow_sync.engine as engine_module
 
     issue = IssueRecord(
@@ -120,6 +179,7 @@ def test_req_opsx_changelog_uses_newly_linked_change(monkeypatch) -> None:
 
     monkeypatch.setattr(engine_module, "patch_issue_changelog_index", capture_changelog)
 
+    seed_title_documents(tmp_path, monkeypatch, engine_module, "openspec/changes/" + change.change_id, ["proposal.md", "design.md", "tasks.md", "trace.md"])
     report = SyncEngine().run(
         sprint_id="auto",
         event="req.opsx",
@@ -129,6 +189,280 @@ def test_req_opsx_changelog_uses_newly_linked_change(monkeypatch) -> None:
 
     assert report.ok
     assert captured == [change.change_id]
+
+
+def test_req_generate_advances_focused_issue_to_draft(monkeypatch, tmp_path) -> None:
+    import scripts.workflow_sync.engine as engine_module
+
+    issue = IssueRecord(
+        issue_id="REQ-0099-generate-draft",
+        kind="req",
+        path=Path("issues/requirements/plan/REQ-0099-generate-draft"),
+        title="Generate draft",
+        priority="P1",
+        trace_status="captured",
+        openspec_changes=[],
+    )
+    captured: list[str] = []
+
+    monkeypatch.setattr(engine_module, "resolve_sprint_id", lambda *args, **kwargs: (None, "not in sprint"))
+    monkeypatch.setattr(engine_module, "load_all_issues", lambda: {issue.issue_id: issue})
+    monkeypatch.setattr(engine_module, "run_openspec_list", lambda: {})
+    monkeypatch.setattr(engine_module, "load_sprint", lambda sprint_id: None)
+
+    no_delta = lambda *args, **kwargs: PatchResult("noop", False, "")
+    monkeypatch.setattr(engine_module, "sync_classification", lambda *args, **kwargs: [])
+    monkeypatch.setattr(engine_module, "patch_registry_entry", no_delta)
+    monkeypatch.setattr(engine_module, "patch_parent_requirement_bug_index", no_delta)
+
+    def capture_trace(issue_record, derived, *args, **kwargs):
+        captured.append(derived.display_status)
+        return PatchResult("issues/requirements/plan/REQ-0099-generate-draft/trace.md", False, derived.display_status)
+
+    monkeypatch.setattr(engine_module, "patch_issue_trace", capture_trace)
+    monkeypatch.setattr(engine_module, "patch_issue_changelog_index", no_delta)
+    monkeypatch.setattr(
+        engine_module,
+        "sync_issue_subdocuments",
+        lambda *args, **kwargs: SubdocumentSyncResult(issue_id=issue.issue_id),
+    )
+
+    seed_title_documents(tmp_path, monkeypatch, engine_module, issue.path, ["requirement.md", "trace.md"])
+    report = SyncEngine().run(
+        sprint_id="auto",
+        event="req.generate",
+        req_id=issue.issue_id,
+    )
+
+    assert report.ok
+    assert captured == ["draft"]
+
+
+@pytest.mark.parametrize(
+    ("initial_status", "event", "issue_id", "kind", "expected_command"),
+    [
+        ("draft", "req.complete", "REQ-0099-complete-draft", "req", "/req-complete"),
+        ("enriching", "req.complete", "REQ-0099-complete-enriching", "req", "/req-complete"),
+        ("draft", "bug.complete", "BUG-0099-complete-draft", "bug", "/bug-complete"),
+    ],
+)
+def test_complete_advances_focused_issue_to_pending_review(
+    monkeypatch,
+    tmp_path,
+    initial_status: str,
+    event: str,
+    issue_id: str,
+    kind: str,
+    expected_command: str,
+) -> None:
+    import scripts.workflow_sync.engine as engine_module
+
+    base_path = (
+        Path("issues/requirements/plan") if kind == "req" else Path("issues/bugs/plan")
+    )
+    issue = IssueRecord(
+        issue_id=issue_id,
+        kind=kind,
+        path=base_path / issue_id,
+        title="Complete status projection",
+        priority="P1" if kind == "req" else "medium",
+        trace_status=initial_status,
+        openspec_changes=[],
+    )
+    captured: list[tuple[str, str]] = []
+
+    monkeypatch.setattr(engine_module, "resolve_sprint_id", lambda *args, **kwargs: (None, "not in sprint"))
+    monkeypatch.setattr(engine_module, "load_all_issues", lambda: {issue.issue_id: issue})
+    monkeypatch.setattr(engine_module, "run_openspec_list", lambda: {})
+    monkeypatch.setattr(engine_module, "load_sprint", lambda sprint_id: None)
+
+    no_delta = lambda *args, **kwargs: PatchResult("noop", False, "")
+    monkeypatch.setattr(engine_module, "sync_classification", lambda *args, **kwargs: [])
+    monkeypatch.setattr(engine_module, "patch_parent_requirement_bug_index", no_delta)
+
+    def capture_trace(issue_record, derived, *args, **kwargs):
+        captured.append(("trace", derived.display_status))
+        return PatchResult(str(issue_record.path / "trace.md"), False, derived.display_status)
+
+    def capture_registry(registry, issue_record, derived, *args, **kwargs):
+        captured.append(("registry", derived.display_status))
+        return PatchResult(str(registry), False, derived.display_status)
+
+    def capture_changelog(issue_record, derived, *args, **kwargs):
+        captured.append(("changelog", derived.display_status))
+        return PatchResult("CHANGELOG.md", False, expected_command)
+
+    monkeypatch.setattr(engine_module, "patch_issue_trace", capture_trace)
+    monkeypatch.setattr(engine_module, "patch_registry_entry", capture_registry)
+    monkeypatch.setattr(engine_module, "patch_issue_changelog_index", capture_changelog)
+    monkeypatch.setattr(
+        engine_module,
+        "sync_issue_subdocuments",
+        lambda *args, **kwargs: SubdocumentSyncResult(issue_id=issue.issue_id),
+    )
+
+    seed_title_documents(tmp_path, monkeypatch, engine_module, issue.path, ["requirement.md" if kind == "req" else "bug.md", "trace.md"])
+    kwargs = {"req_id": issue.issue_id} if kind == "req" else {"bug_id": issue.issue_id}
+    report = SyncEngine().run(
+        sprint_id="auto",
+        event=event,
+        **kwargs,
+    )
+
+    assert report.ok
+    assert captured == [
+        ("trace", "pending_review"),
+        ("registry", "pending_review"),
+        ("changelog", "pending_review"),
+    ]
+
+
+def test_sprint_propose_syncs_focused_bug_primary_document(monkeypatch) -> None:
+    import scripts.workflow_sync.engine as engine_module
+
+    issue = IssueRecord(
+        issue_id="BUG-0099-sprint-propose-main-status",
+        kind="bug",
+        path=Path("issues/bugs/review/BUG-0099-sprint-propose-main-status"),
+        title="Sprint propose main status",
+        priority="medium",
+        trace_status="approved",
+        openspec_changes=[],
+    )
+    sprint = SprintRecord(
+        sprint_id="sprint-099",
+        path=Path("iterations/change/sprint-099"),
+        status="planning",
+        bugs=[issue.issue_id],
+        changes=[],
+    )
+    captured: list[tuple[str, str, str | None]] = []
+
+    monkeypatch.setattr(engine_module, "resolve_sprint_id", lambda *args, **kwargs: ("sprint-099", None))
+    monkeypatch.setattr(engine_module, "load_all_issues", lambda: {issue.issue_id: issue})
+    monkeypatch.setattr(engine_module, "run_openspec_list", lambda: {})
+    monkeypatch.setattr(engine_module, "load_sprint", lambda sprint_id: sprint)
+    monkeypatch.setattr(
+        engine_module,
+        "derive_issue",
+        lambda issue_record, changes, sprint_record: DerivedIssue(
+            issue_id=issue_record.issue_id,
+            kind=issue_record.kind,
+            display_status="in_sprint",
+            linked_change=None,
+            note="status `in_sprint`",
+        ),
+    )
+
+    no_delta = lambda *args, **kwargs: PatchResult("noop", False, "")
+    monkeypatch.setattr(engine_module, "sync_classification", lambda *args, **kwargs: [])
+    monkeypatch.setattr(engine_module, "patch_sprint_md", no_delta)
+    monkeypatch.setattr(engine_module, "patch_release_note", no_delta)
+    monkeypatch.setattr(engine_module, "patch_acceptance_report", no_delta)
+    monkeypatch.setattr(engine_module, "patch_issue_trace", no_delta)
+    monkeypatch.setattr(engine_module, "patch_registry_entry", no_delta)
+    monkeypatch.setattr(engine_module, "patch_issue_changelog_index", no_delta)
+    monkeypatch.setattr(engine_module, "patch_parent_requirement_bug_index", no_delta)
+
+    def capture_subdocuments(issue_record, derived, *, event, source_change, write):
+        captured.append((issue_record.issue_id, derived.display_status, event))
+        return SubdocumentSyncResult(
+            issue_id=issue_record.issue_id,
+            checked_files=1,
+            updated_files=1,
+            updated_fields=1,
+            acceptance_status="not_started",
+        )
+
+    monkeypatch.setattr(engine_module, "sync_issue_subdocuments", capture_subdocuments)
+
+    report = SyncEngine().run(
+        sprint_id="auto",
+        event="sprint.propose",
+        bug_id=issue.issue_id,
+    )
+
+    assert report.ok
+    assert captured == [(issue.issue_id, "in_sprint", "sprint.propose")]
+
+
+def test_complete_trace_records_completed_lifecycle_and_command(monkeypatch, tmp_path) -> None:
+    import scripts.workflow_sync.patch as patch_module
+
+    issue_dir = tmp_path / "issues/requirements/plan/REQ-0099-complete-lifecycle"
+    issue_dir.mkdir(parents=True)
+    trace = issue_dir / "trace.md"
+    trace.write_text(
+        """---
+requirement_id: REQ-0099-complete-lifecycle
+status: draft
+created_at: 2026-09-14 10:00:00
+updated_at: 2026-09-14 10:00:00
+lifecycle:
+  generated: 2026-09-14 10:10:00
+  completed: null
+---
+
+# Trace
+
+## 变更记录
+
+| 时间 | 命令 | 说明 |
+|---|---|---|
+""",
+        encoding="utf-8",
+    )
+    issue = IssueRecord(
+        issue_id="REQ-0099-complete-lifecycle",
+        kind="req",
+        path=issue_dir,
+        title="Complete lifecycle",
+        priority="P1",
+        trace_status="draft",
+        openspec_changes=[],
+    )
+    derived = DerivedIssue(
+        issue_id=issue.issue_id,
+        kind="req",
+        display_status="pending_review",
+        linked_change=None,
+        note="status `pending_review`",
+    )
+
+    monkeypatch.setattr(patch_module, "ROOT", tmp_path)
+
+    result = patch_issue_trace(
+        issue,
+        derived,
+        {},
+        event="req.complete",
+        write=True,
+    )
+
+    text = trace.read_text(encoding="utf-8")
+    assert result.changed
+    assert "status: pending_review" in text
+    assert "completed: null" not in text
+    assert "/req-complete" in text
+    assert "状态同步为 pending_review" in text
+
+    second_result = patch_issue_trace(
+        IssueRecord(
+            issue_id=issue.issue_id,
+            kind="req",
+            path=issue_dir,
+            title="Complete lifecycle",
+            priority="P1",
+            trace_status="pending_review",
+            openspec_changes=[],
+        ),
+        derived,
+        {},
+        event="req.complete",
+        write=True,
+    )
+
+    assert not second_result.changed
 
 
 def test_subdocument_summary_lists_apply_details() -> None:
@@ -158,3 +492,11 @@ def test_subdocument_summary_lists_apply_details() -> None:
     assert "updated_fields=2" in summary
     assert "Subdocument apply details" in summary
     assert "safe_sync" in summary
+
+
+def seed_title_documents(root, monkeypatch, engine_module, directory, names):
+    monkeypatch.setattr(engine_module, "ROOT", root)
+    folder = root / directory
+    folder.mkdir(parents=True)
+    for name in names:
+        (folder / name).write_text("---\ntitle: 工作流状态同步业务标题\n---\n# 工作流状态同步业务标题\n")

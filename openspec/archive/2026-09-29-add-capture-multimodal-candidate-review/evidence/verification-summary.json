@@ -1,0 +1,67 @@
+{
+  "status": "applied_validation_passed",
+  "sqlite_regression": {
+    "passed": 78,
+    "seconds": 6.11
+  },
+  "mysql": {
+    "version": "8.2.0",
+    "passed": 39,
+    "seconds": 10.81
+  },
+  "web_requests": {
+    "passed": 3,
+    "typescript": "passed"
+  },
+  "real_storage_model_integration": {
+    "passed": 1,
+    "seconds": 17.75,
+    "materials": "synthetic; temporary DB and repository; objects removed"
+  },
+  "real_container_boundary": {
+    "workspace_readonly": true,
+    "credential_denied": true,
+    "no_formal_mount": true
+  },
+  "model_comparison": {
+    "cases": 12,
+    "valid_adapter_results": 12,
+    "valid_baseline_results": 12,
+    "same_candidate_counts": 12,
+    "same_types": 11,
+    "difference": "ambiguous usability feedback; both retain clarifications"
+  },
+  "acceptance_latency": {
+    "samples": 20,
+    "p95_seconds": 0.0107,
+    "max_seconds": 0.0279,
+    "boundary": "isolated small repository; excludes model and browser refresh"
+  },
+  "remaining": "归档前可由用户复验；本次 opsx.apply 门禁已通过，真实正式 Issue 创建未在浏览器脚本中执行，后端隔离仓库覆盖确认幂等与落盘。",
+  "final_focused_backend": {
+    "passed": 47,
+    "seconds": 3.68
+  },
+  "governance_checks": {
+    "openspec_strict": "passed",
+    "current_change_chinese": "passed",
+    "other_active_chinese_residuals": 0,
+    "sprint_scope": "passed",
+    "directory_structure": "passed",
+    "agent_context_budget": "passed",
+    "design_system_capture_violations": 0,
+    "design_system_other_repository_violations": 124
+  },
+  "local_deployment": "latest backend/web/worker/controller healthy; persistent data retained",
+  "frontend_ui": {
+    "typescript": "passed",
+    "capture_dialog_tests": 4,
+    "capture_api_tests": 3,
+    "requirement_center_unified_editor_tests": 1,
+    "save_race_regression": "passed",
+    "skeleton": "1440 dark/light and 390 synthetic fixture passed",
+    "live_browser": "input/upload/preview/model review passed with existing local account; no formal issue creation",
+    "synthetic_ui_states": "result/failure/conflict responsive screenshots passed with real app shell and mocked Capture API",
+    "workspace_width": "1200px sampled at 1440 viewport"
+  }
+}

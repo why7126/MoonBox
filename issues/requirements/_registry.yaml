@@ -1,120 +1,178 @@
-next_id: 36
+next_id: 40
 entries:
-- id: REQ-0035-chat-agent-model-reasoning-selector
-  title: 聊天框新增 Agent、模型和推理程序选择
+- id: REQ-0039-test
+  title: 待澄清：test 的具体意图
   status: captured
+  priority: P3
+  owner: user_f694abc671d548b48d9eb897f720ba4d
+  source: capture
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0039-test/
+  created: '2026-09-16 23:39:30'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  related_changes: []
+- id: REQ-0038-capture-md
+  title: Capture 弹窗使用单一 MD 编辑器统一承载图片与文本文件
+  status: captured
+  priority: P2
+  owner: user_f694abc671d548b48d9eb897f720ba4d
+  source: capture
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0038-capture-md/
+  created: '2026-09-16 20:00:07'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  related_changes: []
+- id: REQ-0037-current-iteration-archive-entry
+  title: "当前迭代容量区域新增归档当前迭代入口"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0035-chat-agent-model-reasoning-selector/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0037-current-iteration-archive-entry/
+  created: '2026-09-14 23:15:32'
+  iteration: sprint-007
+  related_change: add-current-iteration-archive-entry
+  type: feature
+  requester: user
+  parent_requirement: REQ-0031-requirement-center-current-iteration-capacity
+  related_changes: []
+- id: REQ-0036-requirement-center-document-drawer-simplification
+  title: "需求中心文档抽屉简化与 Change 属性模块移除"
+  status: done
+  priority: P2
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0036-requirement-center-document-drawer-simplification/
+  created: '2026-09-14 10:26:42'
+  iteration: sprint-007
+  related_change: remove-requirement-center-document-drawer-change-attributes
+  type: feature
+  requester: user
+  parent_requirement: REQ-0026-requirement-center-standalone-change-cards
+  related_changes: []
+- id: REQ-0035-chat-agent-model-reasoning-selector
+  title: "聊天框新增 Agent、模型和推理程序选择"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0035-chat-agent-model-reasoning-selector/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-chat-agent-model-reasoning-selector
   type: feature
   requester: user
   parent_requirement: REQ-0025-chat-workbench
   related_changes: []
 - id: REQ-0034-requirement-center-default-current-iteration-cards
-  title: 需求中心默认只显示当前迭代卡片
-  status: captured
+  title: "需求中心默认只显示当前迭代卡片"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0034-requirement-center-default-current-iteration-cards/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0034-requirement-center-default-current-iteration-cards/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-requirement-center-default-current-iteration-cards
   type: feature
   requester: user
   parent_requirement: REQ-0012-frontend-requirement-center
   related_changes: []
 - id: REQ-0033-requirement-center-filter-multiselect-search
-  title: 需求中心筛选下拉框支持复选搜索多选与排序优化
-  status: captured
+  title: "需求中心筛选下拉框支持复选搜索多选与排序优化"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0033-requirement-center-filter-multiselect-search/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0033-requirement-center-filter-multiselect-search/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-requirement-center-filter-multiselect-search
   type: feature
   requester: user
   parent_requirement: REQ-0012-frontend-requirement-center
   related_changes: []
 - id: REQ-0032-requirement-center-sprint-dropdown-status
-  title: 需求中心 Sprint 下拉列表新增状态展示
-  status: captured
+  title: "需求中心 Sprint 下拉列表新增状态展示"
+  status: done
   priority: P2
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0032-requirement-center-sprint-dropdown-status/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0032-requirement-center-sprint-dropdown-status/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-requirement-center-sprint-dropdown-status
   type: feature
   requester: user
   parent_requirement: REQ-0012-frontend-requirement-center
   related_changes: []
 - id: REQ-0031-requirement-center-current-iteration-capacity
-  title: 需求中心显示当前迭代容量已使用与总容量
-  status: captured
+  title: "需求中心显示当前迭代容量已使用与总容量"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0031-requirement-center-current-iteration-capacity/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0031-requirement-center-current-iteration-capacity/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-requirement-center-current-iteration-capacity
   type: feature
   requester: user
   parent_requirement: REQ-0012-frontend-requirement-center
   related_changes: []
 - id: REQ-0030-requirement-center-sprint-completion-metrics
-  title: 需求中心指标卡新增 Sprint 已完成与累计数量
-  status: captured
+  title: "需求中心指标卡新增 Sprint 已完成与累计数量"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0030-requirement-center-sprint-completion-metrics/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0030-requirement-center-sprint-completion-metrics/
   created: '2026-09-14 09:05:04'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-requirement-center-sprint-completion-metrics
   type: feature
   requester: user
   parent_requirement: REQ-0012-frontend-requirement-center
   related_changes: []
 - id: REQ-0029-capture-multimodal-candidate-review
-  title: 新建 Capture 支持图文 AI 整理、候选审阅与确认后幂等批量采集
-  status: captured
+  title: "新建 Capture 支持图文 AI 整理、候选审阅与确认后幂等批量采集"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0029-capture-multimodal-candidate-review/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0029-capture-multimodal-candidate-review/
   created: '2026-09-14 08:40:20'
-  iteration: null
-  related_change: null
+  iteration: sprint-007
+  related_change: add-capture-multimodal-candidate-review
   type: feature
   requester: user
   related_changes: []
 - id: REQ-0028-chat-skill-codex
-  title: Chat工作台支持多图片输入与仓库Skill快速引用，对话区以提供的Codex截图为基线，保留现有轨迹详情及权限边界；关
-  status: captured
+  title: "Chat 工作台支持多图片输入、仓库 Skill 快速引用与 Codex 截图基线体验增强"
+  status: done
   priority: P1
   owner: 产品团队
   source: internal
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0028-chat-skill-codex/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0028-chat-skill-codex/
   created: '2026-09-13 23:48:20'
-  iteration: null
-  related_change: null
+  iteration: sprint-006
+  related_change: add-chat-workbench-image-skill-context
   type: feature
   requester: user
   related_changes: []
@@ -133,7 +191,7 @@ entries:
   requester: user
   related_changes: []
 - id: REQ-0026-requirement-center-standalone-change-cards
-  title: 需求中心支持独立 OpenSpec Change 卡片
+  title: "需求中心 Change 可见性与关联追溯"
   status: done
   type: feature
   priority: P1
@@ -145,7 +203,7 @@ entries:
   target_iteration: null
   related_changes: []
   parent_requirement: null
-  iteration: sprint-005
+  iteration: null
   related_change: add-requirement-center-change-visibility
 - id: REQ-0025-chat-workbench
   title: 实现 Chat 工作台功能
@@ -382,7 +440,7 @@ entries:
   related_changes:
   - add-admin-user-menu-profile
 - id: REQ-0012-frontend-requirement-center
-  title: MoonBox 前台需求中心
+  title: "MoonBox 前台需求中心"
   status: done
   type: feature
   priority: P1

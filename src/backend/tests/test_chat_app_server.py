@@ -58,3 +58,13 @@ def test_named_profile_downgrades_write(server_config):
         assert calls[0][1]['permissions']=='moonbox-write'
         assert calls[1][1]['permissions']=='moonbox-read'
         assert all('sandboxPolicy' not in params for _,params in calls)
+
+
+def test_named_profile_supports_governance_scope(server_config):
+    with AppServer(**server_config,write_scope='governance_write') as server:
+        calls=[]
+        def rpc(method,params):
+            calls.append((method,params));return {'turn':{'id':'turn'}}
+        server.rpc=rpc
+        server.start_turn('thread','synthetic')
+        assert calls[0][1]['permissions']=='moonbox-governance'

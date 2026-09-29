@@ -1,0 +1,189 @@
+sprint_id: sprint-006
+status: completed
+lifecycle_stage: archive
+created_at: '2026-09-14 11:50:43'
+updated_at: '2026-09-29 14:40:34'
+start_date: '2026-09-14 11:50:43'
+end_date: '2026-09-28 11:50:43'
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0030-requirement-center-sprint-completion-metrics
+  - REQ-0031-requirement-center-current-iteration-capacity
+  - REQ-0032-requirement-center-sprint-dropdown-status
+  - REQ-0033-requirement-center-filter-multiselect-search
+  - REQ-0034-requirement-center-default-current-iteration-cards
+  - REQ-0028-chat-skill-codex
+  - REQ-0035-chat-agent-model-reasoning-selector
+capacity_person_days: 30
+estimated_story_points: 33
+estimated_person_days: 30.25
+capacity_usage: 1.0083
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+capacity_gate:
+  status: warning
+  capacity_person_days: 30
+  estimated_person_days: 30.25
+  capacity_usage: 1.0083
+  note: 按当前容量重新计算；低于30%的剩余缓冲需提示风险。
+knowledge_intake:
+  latest_retrospective: docs/knowledge-base/retrospectives/sprint-005-retrospective.md
+  carried_actions:
+    - S5-A001
+    - S5-A002
+    - S5-A003
+    - S5-A004
+    - S5-A005
+    - S5-A006
+product_data_collection_observability:
+  status: applicable
+  affected_layers:
+    - web_request_wrapper
+    - api
+    - db
+    - usage_events
+    - request_logs
+    - task_traces
+    - task_trace_spans
+  reason: 本 Sprint 已纳入需求中心容量、指标、下拉状态展示、BUG 卡片分级修复，以及 Chat 工作台输入区 Agent、模型和推理配置选择；范围预计涉及 Web 展示、请求封装、上下文/发送 API、轮次持久化、刷新/筛选/发送行为事件、请求日志摘要和 Agent Workflow 任务链路观测。
+  validation: Sprint 规划阶段已识别 Web/API/DB/观测影响；后续 req-opsx/bug-opsx/opsx-apply 需验证容量/指标/状态/分级字段事实源、Chat 配置选项获取与发送、轮次追溯、行为事件降级、请求日志脱敏、Task Trace metadata 脱敏、OpenAPI/客户端类型同步。
+bugs:
+  - BUG-0020-req-complete-status-projection-drift
+  - BUG-0021-requirement-center-bug-card-severity-display
+  - BUG-0022-requirement-center-html-preview-auth-lost
+  - BUG-0018-standalone-change-acceptance-source-unverified
+scope_estimates:
+  - id: BUG-0020-req-complete-status-projection-drift
+    change: fix-req-complete-status-projection-drift
+    bug: BUG-0020-req-complete-status-projection-drift
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: Workflow Sync req.complete 状态传播修复，medium BUG，根因 confirmed，回归测试范围聚焦，估算1人天。
+
+  - id: BUG-0021-requirement-center-bug-card-severity-display
+    change: fix-requirement-center-bug-card-severity-display
+    bug: BUG-0021-requirement-center-bug-card-severity-display
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心 BUG 卡片分级字段契约修复，涉及后端响应模型、构卡逻辑、前端渲染和测试 fixture，根因 confirmed，估算3人天。
+  - id: REQ-0030-requirement-center-sprint-completion-metrics
+    change: add-requirement-center-sprint-completion-metrics
+    requirement: REQ-0030-requirement-center-sprint-completion-metrics
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心 Sprint 数量指标增强，涉及需求中心聚合口径、前端指标区展示、筛选解耦、空态错误态和 API/观测验收，估算3人天。
+  - id: REQ-0031-requirement-center-current-iteration-capacity
+    change: add-requirement-center-current-iteration-capacity
+    requirement: REQ-0031-requirement-center-current-iteration-capacity
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心当前迭代容量展示，涉及容量聚合字段、前台统计区UI、双当前迭代/超量/待核实状态、观测验收与视觉证据，估算3人天。
+  - id: REQ-0032-requirement-center-sprint-dropdown-status
+    change: add-requirement-center-sprint-dropdown-status
+    requirement: REQ-0032-requirement-center-sprint-dropdown-status
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心 Sprint 筛选下拉状态展示，涉及状态事实源核实、前端筛选控件、API/类型兼容、观测和多视口验收，估算3人天。
+  - id: REQ-0033-requirement-center-filter-multiselect-search
+    change: add-requirement-center-filter-multiselect-search
+    requirement: REQ-0033-requirement-center-filter-multiselect-search
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心筛选下拉复选搜索多选与排序优化，涉及前台筛选控件、状态组合、权限脱敏、原型驱动UI验收和多视口验证，估算3人天。
+  - id: REQ-0034-requirement-center-default-current-iteration-cards
+    change: add-requirement-center-default-current-iteration-cards
+    requirement: REQ-0034-requirement-center-default-current-iteration-cards
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 需求中心默认当前迭代卡片范围策略，涉及筛选默认态、Sprint事实源、多当前迭代/空态/错误态、UI原型门禁和观测验收，按同类需求中心展示增强估算3人天。
+  - id: optimize-openspec-language-change-scope
+    change: optimize-openspec-language-change-scope
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 纯治理变更：为 /req-opsx 后续 OpenSpec 中文优先校验增加当前 Change 聚焦口径与全仓残留分离报告；仅触达治理脚本、Skill 和规范文档，估算1人天。
+  - id: enhance-workflow-sync-current-status-block
+    change: enhance-workflow-sync-current-status-block
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 治理脚本增强：Workflow Sync 同步 Issue trace 当前状态 yaml 代码块中的 openspec_changes 与 next
+  - id: BUG-0022-requirement-center-html-preview-auth-lost
+    change: fix-requirement-center-html-preview-auth-lost
+    bug: BUG-0022-requirement-center-html-preview-auth-lost
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 需求中心 HTML/prototype 预览认证失败修复，medium BUG，根因 confirmed，修复面集中在前端受控 fetch、Blob URL 预览和回归测试，估算1人天。
+  - id: solidify-req-opsx-execution-frontmatter-schema
+    change: solidify-req-opsx-execution-frontmatter-schema
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理变更：固化 /req-opsx 生成 Change trace 的 execution schema v1 模板，并用上下文预算校验防止回退；仅触达治理 Skill、规则、脚本和 OpenSpec 文档，估算0.5人天。
+  - id: solidify-bug-opsx-execution-frontmatter-schema
+    change: solidify-bug-opsx-execution-frontmatter-schema
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理变更：固化 /bug-opsx 生成 Change trace 的 execution schema v1 模板，并用上下文预算校验防止回退；仅触达治理 Skill、规则、脚本和 OpenSpec 文档，估算0.5人天。
+  - id: REQ-0028-chat-skill-codex
+    change: add-chat-workbench-image-skill-context
+    requirement: REQ-0028-chat-skill-codex
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Chat 工作台多图片输入、Skill 快速引用和 Codex 截图基线体验增强，涉及 Web 输入区、API/对象存储/观测、Task Trace、权限与原型驱动 UI 验收；按 P1 中等复杂度功能增强估算3人天。
+  - id: BUG-0018-standalone-change-acceptance-source-unverified
+    change: fix-standalone-change-acceptance-source
+    bug: BUG-0018-standalone-change-acceptance-source-unverified
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 需求中心独立 Change 验收来源识别修复，medium BUG，根因 confirmed，修复集中在后端 Change 交付来源标题识别与回归测试，估算1人天。
+  - id: REQ-0035-chat-agent-model-reasoning-selector
+    change: add-chat-agent-model-reasoning-selector
+    requirement: REQ-0035-chat-agent-model-reasoning-selector
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Chat 工作台输入区 Agent、模型和推理配置选择，涉及 Web 输入区 UI、发送 API/轮次事实源、权限降级、OpenAPI/客户端类型、DB兼容、usage_events/request_logs/task_traces/task_trace_spans 与原型驱动 UI 验收；按 P1 中等复杂度功能增强估算3人天。
+  - id: localize-openspec-cli-template-titles
+    change: localize-openspec-cli-template-titles
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 纯治理变更：将 OpenSpec CLI template 英文标题在 req-opsx/bug-opsx 生成阶段中文化，并用上下文预算校验防止契约回退；仅触达治理 Skill、规则、校验脚本和 OpenSpec 文档，估算0.5人天。
+  - id: ignore-local-vite-cache-directory
+    change: ignore-local-vite-cache-directory
+    size: S
+    story_points: 1
+    estimated_person_days: 0.25
+    rationale: 纯治理变更：将根目录 .vite/ 明确为 Vite 本地缓存，补充 Git ignore、目录结构校验忽略边界和目录规范；不触达业务 src，估算0.25人天。
+changes:
+  - fix-req-complete-status-projection-drift
+  - fix-requirement-center-bug-card-severity-display
+  - add-requirement-center-sprint-dropdown-status
+  - add-requirement-center-current-iteration-capacity
+  - add-requirement-center-filter-multiselect-search
+  - add-requirement-center-sprint-completion-metrics
+  - optimize-openspec-language-change-scope
+  - add-requirement-center-default-current-iteration-cards
+  - enhance-workflow-sync-current-status-block
+  - fix-requirement-center-html-preview-auth-lost
+  - solidify-req-opsx-execution-frontmatter-schema
+  - solidify-bug-opsx-execution-frontmatter-schema
+  - add-chat-workbench-image-skill-context
+  - fix-standalone-change-acceptance-source
+  - add-chat-agent-model-reasoning-selector
+  - localize-openspec-cli-template-titles
+  - ignore-local-vite-cache-directory

@@ -263,6 +263,130 @@ project:
     assert context.workspaces[0].role == "拥有者"
 
 
+def test_requirement_center_context_exposes_traceable_sprint_option_statuses(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.services import requirement_center
+
+    (tmp_path / "issues" / "requirements").mkdir(parents=True)
+    (tmp_path / "issues" / "bugs").mkdir(parents=True)
+    (tmp_path / "openspec").mkdir()
+    (tmp_path / "project.yaml").write_text("project:\n  name: Sprint Status\n", encoding="utf-8")
+    (tmp_path / "issues" / "requirements" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    (tmp_path / "issues" / "bugs" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    planning = tmp_path / "iterations" / "change" / "sprint-099"
+    unknown = tmp_path / "iterations" / "change" / "sprint-098"
+    archived = tmp_path / "iterations" / "archive" / "sprint-001"
+    for directory in (planning, unknown, archived):
+        directory.mkdir(parents=True)
+    (planning / "sprint.yaml").write_text("status: planning\n", encoding="utf-8")
+    (unknown / "sprint.yaml").write_text("status: paused\n", encoding="utf-8")
+    (archived / "sprint.yaml").write_text("status: completed\n", encoding="utf-8")
+    monkeypatch.setattr(requirement_center, "GOVERNANCE_ROOT", tmp_path)
+
+    context = requirement_center.build_requirement_center_context()
+    details = {item.sprint_id: item for item in context.sprint_option_details}
+
+    assert context.sprint_options == ["sprint-098", "sprint-099"]
+    assert details["sprint-099"].status == "planning"
+    assert details["sprint-099"].status_label == "规划中"
+    assert details["sprint-098"].status == "unknown"
+    assert details["sprint-098"].status_label == "状态待核实"
+    assert details["sprint-098"].warning == "sprint_status_unknown"
+    assert details["sprint-001"].status == "archived"
+    assert details["sprint-001"].status_label == "已归档"
+
+
+def test_requirement_center_context_returns_current_iteration_capacity(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.services import requirement_center
+
+    (tmp_path / "issues" / "requirements").mkdir(parents=True)
+    (tmp_path / "issues" / "bugs").mkdir(parents=True)
+    (tmp_path / "openspec").mkdir()
+    sprint_root = tmp_path / "iterations" / "change"
+    (sprint_root / "sprint-006").mkdir(parents=True)
+    (sprint_root / "sprint-007").mkdir(parents=True)
+    (sprint_root / "sprint-006" / "sprint.yaml").write_text(
+        """
+status: planning
+capacity_person_days: 30
+requirements:
+  - REQ-1
+bugs:
+  - BUG-1
+changes:
+  - change-1
+scope_estimates:
+  - id: REQ-1
+    estimated_person_days: 12
+  - id: BUG-1
+    estimated_person_days: 16
+""".strip(),
+        encoding="utf-8",
+    )
+    (sprint_root / "sprint-007" / "sprint.yaml").write_text(
+        """
+status: planning
+scope_estimates:
+  - id: REQ-2
+    estimated_person_days: 32
+""".strip(),
+        encoding="utf-8",
+    )
+    req_dir = tmp_path / "issues" / "requirements" / "archive" / "REQ-1"
+    req_dir.mkdir(parents=True)
+    (req_dir / "trace.md").write_text("---\nstatus: applied\n---\n", encoding="utf-8")
+    bug_dir = tmp_path / "issues" / "bugs" / "archive" / "BUG-1"
+    bug_dir.mkdir(parents=True)
+    (bug_dir / "trace.md").write_text("---\nstatus: applied\n---\n", encoding="utf-8")
+    change_dir = tmp_path / "openspec" / "changes" / "change-1"
+    change_dir.mkdir(parents=True)
+    (change_dir / "trace.md").write_text("---\nstatus: applied\n---\n", encoding="utf-8")
+    (change_dir / "tasks.md").write_text("- [x] implemented\n", encoding="utf-8")
+    (tmp_path / "issues" / "requirements" / "_registry.yaml").write_text(
+        """
+entries:
+  - id: REQ-1
+    title: 未归档需求
+    status: applied
+    path: issues/requirements/archive/REQ-1
+""".strip(),
+        encoding="utf-8",
+    )
+    (tmp_path / "issues" / "bugs" / "_registry.yaml").write_text(
+        """
+entries:
+  - id: BUG-1
+    title: 未归档缺陷
+    status: applied
+    path: issues/bugs/archive/BUG-1
+""".strip(),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(requirement_center, "GOVERNANCE_ROOT", tmp_path)
+
+    context = requirement_center.build_requirement_center_context()
+
+    capacity = {item.sprint_id: item for item in context.current_iteration_capacity}
+    assert set(capacity) == {"sprint-006", "sprint-007"}
+    assert capacity["sprint-006"].used_capacity == 28
+    assert capacity["sprint-006"].total_capacity == 30
+    assert capacity["sprint-006"].capacity_source == "explicit"
+    assert capacity["sprint-006"].status == "near_limit"
+    assert capacity["sprint-006"].archive_readiness is not None
+    assert capacity["sprint-006"].archive_readiness.display_mode == "disabled"
+    assert capacity["sprint-006"].archive_readiness.reason_code == "unarchived_scope"
+    blocker_types = {blocker.type for blocker in capacity["sprint-006"].archive_readiness.blockers}
+    assert {"requirement", "bug", "change", "acceptance_report"}.issubset(blocker_types)
+    assert capacity["sprint-007"].total_capacity == 30
+    assert capacity["sprint-007"].capacity_source == "default"
+    assert capacity["sprint-007"].status == "over_limit"
+
+
 def test_requirement_center_hides_sprint_before_sprint_planning(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
@@ -301,6 +425,59 @@ entries:
 
     assert context.issues[0].stage == "approved"
     assert context.issues[0].sprint_id is None
+
+
+def test_requirement_center_context_returns_project_level_sprint_metrics(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.services import requirement_center
+
+    (tmp_path / "issues" / "requirements").mkdir(parents=True)
+    (tmp_path / "issues" / "bugs").mkdir(parents=True)
+    (tmp_path / "openspec").mkdir()
+    for folder, sprint_id, status_value in (
+        ("change", "sprint-001", "planning"),
+        ("change", "sprint-002", "completed"),
+        ("archive", "sprint-002", "archived"),
+        ("archive", "sprint-003", "closed"),
+    ):
+        directory = tmp_path / "iterations" / folder / sprint_id
+        directory.mkdir(parents=True)
+        (directory / "sprint.yaml").write_text(f"sprint_id: {sprint_id}\nstatus: {status_value}\n", encoding="utf-8")
+    (tmp_path / "issues" / "requirements" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    (tmp_path / "issues" / "bugs" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    monkeypatch.setattr(requirement_center, "GOVERNANCE_ROOT", tmp_path)
+
+    context = requirement_center.build_requirement_center_context()
+
+    assert context.sprint_metrics.completed_count == 2
+    assert context.sprint_metrics.total_count == 3
+    assert context.sprint_metrics.source == "sprint_lifecycle"
+    assert context.sprint_metrics.warning is None
+
+
+def test_requirement_center_sprint_metrics_use_sanitized_warning_for_invalid_yaml(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.services import requirement_center
+
+    (tmp_path / "issues" / "requirements").mkdir(parents=True)
+    (tmp_path / "issues" / "bugs").mkdir(parents=True)
+    (tmp_path / "openspec").mkdir()
+    directory = tmp_path / "iterations" / "change" / "sprint-004"
+    directory.mkdir(parents=True)
+    (directory / "sprint.yaml").write_text("status: [broken\n", encoding="utf-8")
+    (tmp_path / "issues" / "requirements" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    (tmp_path / "issues" / "bugs" / "_registry.yaml").write_text("entries: []\n", encoding="utf-8")
+    monkeypatch.setattr(requirement_center, "GOVERNANCE_ROOT", tmp_path)
+
+    serialized = requirement_center.build_requirement_center_context().model_dump_json()
+
+    assert '"warning":"sprint_metrics_partial"' in serialized
+    assert str(tmp_path) not in serialized
+    assert "/Users/" not in serialized
 
 
 def test_requirement_center_context_maps_stage_and_drift(api_client: TestClient) -> None:

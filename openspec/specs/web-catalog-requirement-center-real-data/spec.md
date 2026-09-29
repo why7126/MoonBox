@@ -124,19 +124,38 @@
 
 ### Requirement: 真实统计、筛选和搜索
 
-系统 SHALL 基于真实治理对象支持统计、对象类型筛选、负责人筛选、优先级筛选、Sprint 筛选和关键词搜索。
+系统 SHALL 基于真实治理对象支持统计、对象类型筛选、负责人筛选、优先级筛选、Sprint 筛选、枚举筛选多选、下拉内候选项搜索和关键词搜索。
 
 #### Scenario: 统计与筛选一致
 
 - **WHEN** 用户调整筛选条件
 - **THEN** 统计区和看板卡片范围基于同一过滤结果刷新
+- **AND** 同一筛选维度内多选条件必须使用 OR 语义
+- **AND** 不同筛选维度之间必须使用 AND 语义
+- **AND** 阶段列、阶段计数、总数和筛选无结果态必须与过滤结果一致
 
 #### Scenario: 搜索覆盖关键字段
 
 - **WHEN** 用户输入 ID、标题、阶段产物、负责人或来源关键词
 - **THEN** 看板只展示匹配的治理对象，并保留 9 阶段列
 
+#### Scenario: 筛选候选项来自授权上下文
+
+- **WHEN** 系统构建对象类型、阶段或状态、优先级、负责人、Sprint、独立 Change 或归档可见性候选项
+- **THEN** 候选项必须只来自当前用户有权访问的需求中心上下文
+- **AND** 未授权对象不得参与候选项、数量、搜索提示、统计或异常详情
+- **AND** 候选项为空、解析失败或权限不足时必须返回可展示的脱敏空态或错误态
+- **AND** 系统不得暴露本机路径、内部堆栈、密钥、Token 或原始治理文档全文
+
+#### Scenario: 下拉候选项搜索不改变事实源
+
+- **WHEN** 用户在筛选下拉内搜索候选项
+- **THEN** 系统只过滤当前授权候选项的可见范围
+- **AND** 已选条件不得因搜索词变化丢失
+- **AND** 下拉内搜索不得触发跨权限对象探测或服务端授权绕过
+
 #### Scenario: 独立类型与关联搜索去重
+
 - **WHEN** 用户选择独立 Change 类型或搜索关联 Change ID
 - **THEN** 系统 SHALL 只计数独立 Change 卡片，关联 ID 搜索返回所属 Issue 卡片
 - **AND** 同筛选下总数等于需求、缺陷、独立卡片数量之和，页面九阶段卡片数量等于页面总数；unknown只计入单列的数据异常数量，接口原始统计不变
@@ -283,7 +302,7 @@
 - **WHEN** 授权项目快照含无 Issue 来源的 Change 或 Issue 已关联 Change
 - **THEN** 系统 SHALL 为独立 Change 返回 type=change 的自身身份、只读文档、状态及进度，且不伪造 Issue；阶段动作使用真实能力元数据，依据实际文档和权限给出禁用原因，不按独立Change类型固定禁用，文档仍只读
 - **AND** Issue 卡片保留原 id，返回受控关联摘要及可空当前 Change，含糊时不任意选取末项或首项
-- **AND** 卡片 ID、中文标题、文档和进度必须指向同一当前 Change；无分级的独立对象不得伪造默认优先级
+- **AND** 卡片 ID 保持当前对象身份，中文标题按阶段来源契约选择，关联文档和进度指向受控当前 Change；无分级的独立对象不得伪造默认优先级
 
 ### Requirement: 文档能力对象接口
 
@@ -395,16 +414,31 @@
 - **THEN** 系统 SHALL 保留受控同步失败状态，不能把全部Change判成独立，不能将旧项目迟到响应覆盖新项目
 
 ### Requirement: 独立变更交付验收来源
-系统 SHALL 按独立Change交付证据定位验收来源，不套用Issue的固定acceptance.md要求。
+
+系统 SHALL 按独立Change交付证据定位验收来源，不套用Issue的固定acceptance.md要求。系统 SHALL 在无显式验收来源引用时识别项目中实际使用的验证摘要和验证日志章节；证据存在 SHALL 仅表示发现可追溯验收来源，不得自动解释为验收通过。
 
 #### Scenario: 历史验证记录
+
 - **WHEN** 无显式acceptance_refs且没有acceptance.md或verification.md
-- **THEN** 系统 SHALL 接受trace中非空验证记录、验收记录、验证结果或验收结果章节作为证据入口；无来源时提示待核实
+- **THEN** 系统 SHALL 接受trace中非空验证记录、验收记录、验证结果、验收结果、验证摘要、Validation Log或实施与验证记录章节作为证据入口；无来源时提示待核实
 - **AND** 证据存在 SHALL 不被解释为自动验收通过
 
 #### Scenario: 显式来源
+
 - **WHEN** trace声明acceptance_refs
 - **THEN** 系统 SHALL 校验每个Change内相对Markdown引用，拒绝越界，缺失或空文件明确提示，不回退掩盖错误
+
+#### Scenario: 验证摘要不误报缺失
+
+- **WHEN** 独立Change处于验收中，trace存在非空验证摘要章节且未声明acceptance_refs
+- **THEN** 需求中心卡片 SHALL 不显示“未找到交付验证记录”的验收来源待核实提示
+- **AND** 系统 SHALL 保留后续验收通过、归档权限和任务完成门禁
+
+#### Scenario: Validation Log不误报缺失
+
+- **WHEN** 独立Change处于验收中，trace存在非空Validation Log章节且未声明acceptance_refs
+- **THEN** 需求中心卡片 SHALL 不显示“未找到交付验证记录”的验收来源待核实提示
+- **AND** 系统 SHALL 保留后续验收通过、归档权限和任务完成门禁
 
 ### Requirement: 稳定读取性能与授权一致性
 
@@ -514,3 +548,206 @@
 #### Scenario: 原型标签仅保留相对路径
 - **WHEN** 卡片显示原型HTML入口
 - **THEN** 标签为区分多端所需相对路径，不附加“原型 · ”前缀，排序与预览行为不变
+
+### Requirement: 当前迭代范围事实源聚合
+系统 SHALL 基于授权治理事实源识别当前迭代候选，并用同一过滤结果驱动需求中心统计、看板卡片、阶段列和异常状态。
+
+#### Scenario: 当前迭代候选来自 Sprint 生命周期事实源
+- **WHEN** 后端或前端需要确定需求中心默认当前迭代范围
+- **THEN** 系统必须优先使用 `iterations/change/` 中处于 planning 或 in_progress 的有效 Sprint
+- **AND** 已进入 `iterations/archive/` 的 Sprint 默认不得作为当前迭代
+- **AND** 系统不得仅依赖前端缓存、卡片标题、目录名、手写文案或未授权对象推断当前迭代
+
+#### Scenario: 当前迭代卡片归属
+- **WHEN** 系统构建当前迭代范围
+- **THEN** 已纳入当前 Sprint 的 REQ 和 BUG 必须进入当前范围
+- **AND** 与当前 Sprint 相关的独立 Change 必须进入当前范围
+- **AND** 未纳入 Sprint 的对象必须作为默认待规划范围随当前 Sprint 一并展示
+- **AND** 已归档或历史对象只能在用户显式选择对应范围后展示
+
+#### Scenario: 统计与卡片范围一致
+- **WHEN** 默认当前迭代范围、单个 Sprint 范围或非当前范围生效
+- **THEN** 统计区、9 阶段列数量、卡片集合和空态必须基于同一授权过滤结果
+- **AND** 页面九阶段卡片数量必须与当前结果总数一致
+- **AND** unknown 或异常对象不得被塞入业务阶段伪装为正常卡片
+
+#### Scenario: 刷新与上下文切换
+- **WHEN** 用户手动刷新需求中心
+- **THEN** 系统必须保留用户当前显式选择的范围
+- **AND** 系统必须重新读取稳定快照并更新该范围内的卡片集合
+- **WHEN** 用户切换空间或项目
+- **THEN** 系统必须废弃旧上下文迟到响应
+- **AND** 系统必须按新上下文重新识别当前迭代并恢复当前 Sprint + 未纳入 Sprint 默认范围
+
+#### Scenario: 解析失败与权限不足脱敏
+- **WHEN** Sprint 事实源解析失败、接口失败、权限不足或项目绑定不可用
+- **THEN** 系统必须展示轻量错误态或保留最近一次安全可用结果
+- **AND** 系统不得返回本机绝对路径、内部堆栈、未脱敏治理文档全文、密钥、token、`.env` 内容或未授权对象身份
+- **AND** 系统不得静默回退全量卡片并声明为当前迭代结果
+
+#### Scenario: 行为事件与请求日志边界
+- **WHEN** 页面加载、范围切换、筛选重置、手动刷新或空间/项目切换触发行为事件或上下文请求
+- **THEN** 行为事件只能记录脱敏筛选上下文、范围类型和结果摘要
+- **AND** 请求日志只能记录安全摘要、route、状态码、耗时、结果数量和脱敏错误码
+- **AND** 系统不得保存完整请求体、完整响应体、治理文档全文、本机路径、密钥、token 或 Authorization/Cookie 内容
+
+### Requirement: Sprint 指标事实源聚合
+需求中心上下文聚合 MUST 提供 Sprint 数量摘要，字段来自当前项目 Sprint 生命周期事实源，并支持已完成数、累计数、口径来源和脱敏 warning。
+
+#### Scenario: 聚合已完成与累计 Sprint
+- **WHEN** 需求中心请求上下文数据
+- **THEN** 响应必须包含 Sprint 数量摘要
+- **AND** `total_count` 必须统计 `iterations/change/` 与 `iterations/archive/` 下可识别的有效 Sprint
+- **AND** `completed_count` 必须统计已完成 Sprint
+- **AND** 同一 Sprint ID 同时出现在多个来源时必须只计数一次
+
+#### Scenario: 兼容 completed 未归档状态
+- **WHEN** `iterations/change/` 中存在 `status: completed` 但尚未迁入 `iterations/archive/` 的 Sprint
+- **THEN** 聚合逻辑必须明确是否计入 `completed_count`
+- **AND** 若同一 Sprint 后续进入 archive，已完成数不得重复增加
+- **AND** 测试必须固定该兼容口径
+
+#### Scenario: Sprint 指标不受看板筛选影响
+- **WHEN** 请求携带搜索、对象类型、负责人、优先级或 Sprint 筛选条件
+- **THEN** 需求、缺陷和看板卡片聚合可以按既有规则过滤
+- **AND** Sprint 数量摘要必须保持当前项目级总览口径
+
+#### Scenario: 响应字段安全脱敏
+- **WHEN** Sprint 生命周期文件读取、解析或权限检查失败
+- **THEN** 接口可以返回脱敏 warning 或受控错误
+- **AND** 响应不得包含本机绝对路径、系统用户名、内部堆栈、密钥、token、`.env` 内容或未脱敏治理文档全文
+- **AND** 请求日志不得记录原始治理文件内容
+
+#### Scenario: API 契约与客户端类型同步
+- **WHEN** Sprint 数量摘要字段进入需求中心上下文响应
+- **THEN** 后端响应 schema、OpenAPI 来源、API 文档和前端客户端类型必须同步
+- **AND** 前端不得依赖原型静态数字作为生产默认值
+
+### Requirement: 当前迭代容量上下文
+
+系统 SHALL 在需求中心上下文聚合中返回当前迭代容量摘要，容量数据必须来自授权项目的 Sprint 事实源，并按权限、脱敏和观测规则输出。
+
+#### Scenario: 返回单个当前迭代容量
+- **WHEN** 已登录用户请求需求中心上下文
+- **AND** 当前授权项目只有一个当前迭代
+- **THEN** 响应必须包含该 Sprint 的容量摘要
+- **AND** 容量摘要必须包含 Sprint ID、已使用容量、总容量、容量单位、容量来源和容量状态
+- **AND** 已使用容量必须来自 Sprint Scope 中 REQ、BUG 和 Change 的估算合计
+- **AND** 总容量必须来自 `capacity_person_days` 或 Sprint 默认容量规则
+
+#### Scenario: 返回两个当前迭代容量
+- **WHEN** 当前授权项目存在两个当前迭代
+- **THEN** 响应必须返回两个独立容量项
+- **AND** 系统不得静默合并、覆盖或只返回其中一个当前迭代
+- **AND** 如果响应包含汇总字段，汇总字段必须同时保留分项明细和统计范围
+
+#### Scenario: 容量状态和默认来源
+- **WHEN** 系统计算当前迭代容量
+- **THEN** 容量状态必须至少覆盖 `normal`、`near_limit`、`over_limit` 和 `unknown`
+- **AND** 总容量来自默认规则时必须标记默认来源
+- **AND** 容量字段缺失、冲突或无法计算时必须返回 `unknown` 或等价待核实状态
+- **AND** 待核实状态必须保留可安全展示的 Sprint ID
+- **AND** 系统不得用 `0/0` 或伪造默认值掩盖异常
+
+#### Scenario: 权限过滤容量信息
+- **WHEN** 当前用户无权访问某个项目、空间或 Sprint
+- **THEN** 容量摘要不得包含该 Sprint 的 ID、容量数值或可识别异常详情
+- **AND** 搜索、统计、诊断提示和错误响应不得泄露该 Sprint 存在
+
+#### Scenario: 刷新失败保留安全摘要
+- **WHEN** 已有一次成功上下文结果
+- **AND** 后续同项目刷新容量聚合失败
+- **THEN** 前端可继续使用上一次成功容量摘要
+- **AND** 后端错误响应必须使用脱敏错误码或安全摘要
+- **AND** 响应不得包含本机绝对路径、原始堆栈、Markdown 全文、Authorization、Cookie 或 `.env` 内容
+
+#### Scenario: 容量聚合观测
+- **WHEN** 需求中心上下文接口返回当前迭代容量摘要
+- **THEN** 请求日志必须记录路由、结果、耗时和脱敏错误摘要
+- **AND** Web 刷新、筛选或项目切换行为可以关联行为事件
+- **AND** 行为事件采集失败不得阻断上下文请求
+- **AND** 普通同步查询不得强制创建 Task Trace；若后续改为异步或批量容量任务，必须重新评估 Task Trace 和流程节点覆盖
+
+### Requirement: 文档进度入口
+
+系统 SHALL 允许用户从卡片进度入口打开当前关联 `tasks.md`，并定位对应章节或任务。
+
+#### Scenario: 卡片追踪文档固定所属Issue
+
+- **WHEN** 用户在任一阶段查看REQ或BUG卡片
+- **THEN** 卡片仅提供一个标签为trace.md的入口，读取所属Issue目录的trace.md
+- **AND** 不提供Change trace入口，文件缺失时明确不可用且不回退Change trace
+- **AND** Change仍用于内部阶段计算，其他文档入口和原授权边界保持
+
+#### Scenario: 卡片进度入口定位任务文档
+
+- **WHEN** 用户点击 REQ 或 BUG 卡片的研发、测试或人工验收入口
+- **THEN** 系统 SHALL 通过当前卡片关联文档入口读取完整 tasks.md，在加载后优先定位对应章节、其次定位匹配任务并高亮，不打开独立进度面板，不改变文档权限
+- **AND** 关联或文件缺失时 SHALL 明确提示；目标章节或任务缺失时 SHALL 展示完整文档并说明未找到目标，不回退其他文档或历史返修任务
+- **AND** 点击研发、测试或人工验收入口时，定位目标 SHALL 与对应分类进度使用同一 `tasks.md` 分类模型
+
+### Requirement: 当前迭代归档 readiness 上下文
+
+系统 SHALL 在需求中心上下文或等价 Sprint archive readiness 接口中提供当前迭代归档入口所需的安全摘要，确保前端入口状态与 Sprint archive 事实源一致，并保持权限、脱敏、观测和最终门禁边界。
+
+#### Scenario: 返回归档 readiness 安全摘要
+- **WHEN** 已登录用户请求需求中心上下文或当前迭代归档 readiness
+- **AND** 当前用户有权查看目标 Sprint
+- **THEN** 响应 SHALL 为每个可见当前迭代返回归档 readiness 安全摘要
+- **AND** 安全摘要 SHALL 包含目标 Sprint、入口展示模式、是否允许进入确认、原因码和可展示的阻塞摘要
+- **AND** 安全摘要 SHALL 基于 Sprint archive 事实源，不得由前端卡片数量或临时文案推断
+
+#### Scenario: 汇总未归档范围阻塞
+- **WHEN** 当前 Sprint 范围内存在未归档闭环的 REQ、BUG 或独立 Change
+- **THEN** readiness SHALL 标记归档入口不可执行
+- **AND** 响应 SHALL 返回安全的阻塞类型、可见对象标识或数量摘要
+- **AND** 响应 MUST NOT 返回当前用户无权查看的对象 ID、路径、文档正文或内部错误详情
+
+#### Scenario: 汇总验收 sign-off、权限和 Workflow Sync 阻塞
+- **WHEN** 验收报告未 sign-off、当前用户无归档权限或 Workflow Sync 校验失败
+- **THEN** readiness SHALL 标记归档入口不可执行
+- **AND** 响应 SHALL 提供可展示原因码和修复方向
+- **AND** 权限失败时响应 SHALL 使用安全摘要，不泄露不可见 Sprint、Change 或验收报告详情
+
+#### Scenario: 容量为零或待核实时不允许执行
+- **WHEN** 当前迭代 `used_capacity` 等于 0、容量事实源缺失或容量状态待核实
+- **THEN** readiness SHALL 标记归档入口不可执行
+- **AND** 响应 SHALL 保留可安全展示的解释
+- **AND** 系统 MUST NOT 用伪造 `0/0` 或默认通过状态掩盖异常
+
+#### Scenario: 归档执行重新校验
+- **WHEN** 用户从需求中心发起 Sprint archive 执行请求
+- **THEN** 后端或既有治理命令 SHALL 重新校验目标 Sprint、范围闭环、验收 sign-off、权限和 Workflow Sync
+- **AND** 客户端传入的 readiness、权限状态、Sprint ID 或链路字段 MUST NOT 替代服务端校验
+- **AND** 校验失败 SHALL 返回脱敏错误摘要和稳定错误码或原因码
+
+#### Scenario: readiness 与归档观测
+- **WHEN** 用户查看、点击、取消或执行当前迭代归档流程
+- **THEN** 行为事件 SHOULD 记录入口点击、确认取消、权限拒绝、门禁失败、归档成功和 Workflow Sync 失败的脱敏摘要
+- **AND** 归档执行请求 MUST 写入请求日志摘要，包含服务端可信 `request_id`、结果、耗时和脱敏错误码
+- **AND** Sprint archive 多步骤执行 MUST 复用或补齐 Task Trace，以定位校验、归档、同步和失败节点
+- **AND** 观测数据 MUST NOT 保存完整文档正文、本机路径、Authorization、Cookie、密钥、真实 `.env`、完整请求体或未脱敏错误堆栈
+
+#### Scenario: API 与客户端契约同步
+- **WHEN** 实现新增或调整 readiness 字段、归档执行响应、错误码或请求封装
+- **THEN** 系统 MUST 同步 OpenAPI 来源、前端生成类型、API 文档和相关测试
+- **AND** 若完全复用既有 Sprint archive API 与观测链路，Change trace 和验收记录 MUST 说明复用边界、不新增字段的原因和验证摘要
+
+### Requirement: 阶段业务标题来源
+系统 SHALL 按阶段选择显示标题，保留对象身份与来源信息，不读取 design 或 trace 作为 Change 业务标题。
+
+#### Scenario: 采集及规划阶段
+- **WHEN** 对象在采集池或规划至迭代规划阶段
+- **THEN** 采集池使用注册表 title，规划中、待评审、已评审、迭代规划使用 requirement.md 或 bug.md 中文业务标题
+- **AND** 主文档不可用时回退注册表，再回退对象 ID，并提示缺失
+
+#### Scenario: 开发及交付阶段
+- **WHEN** 对象在待开发、研发中、验收中或已完成
+- **THEN** 唯一关联 Change 的 proposal 中文业务标题优先，已完成读取唯一有效归档版本
+- **AND** 零个、多个、版本含糊或 proposal 标题不可用时依次回退主文档、注册表、对象 ID
+
+#### Scenario: 标题有效性及独立对象
+- **WHEN** 读取业务文档标题
+- **THEN** 优先有效中文 Frontmatter title，历史缺字段可读取有效中文一级标题；空白、纯ID、纯英文、纯文档类别不作为业务标题
+- **AND** 独立 Change 仅用 proposal 标题或 Change ID；Issue 详情保留 Issue 标题，点击不改变对象身份
+

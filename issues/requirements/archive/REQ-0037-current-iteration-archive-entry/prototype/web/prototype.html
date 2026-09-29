@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>当前迭代归档入口原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0d14;
+      --panel: #131826;
+      --panel-2: #1a1f2c;
+      --line: #242a3a;
+      --line-soft: #1b2130;
+      --text: #eceae4;
+      --muted: #98a0b3;
+      --gold: #d8ac55;
+      --danger: #e36f6f;
+      --ok: #7ec98f;
+      --warn: #d8ac55;
+      font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      font-weight: 650;
+    }
+    .subtle { color: var(--muted); }
+    .capacity-panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .capacity-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(240px, 2fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--line-soft);
+      background: #0f1320;
+      border-radius: 8px;
+    }
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: 0;
+    }
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #242a3a;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 63%;
+      background: var(--gold);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 8px 11px;
+      font: inherit;
+      cursor: default;
+      white-space: nowrap;
+    }
+    .primary {
+      border-color: #9a7939;
+      background: var(--gold);
+      color: #15120a;
+      font-weight: 650;
+    }
+    .danger {
+      border-color: rgba(227, 111, 111, .55);
+      color: #ffd5d5;
+    }
+    .dialog {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      max-width: 760px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .34);
+    }
+    .dialog header,
+    .dialog footer {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .dialog footer {
+      border-top: 1px solid var(--line-soft);
+      border-bottom: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .dialog-body {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .summary,
+    .gate {
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      padding: 12px;
+      background: #0f1320;
+    }
+    .gate-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .gate-list li {
+      display: grid;
+      grid-template-columns: 82px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+    .status-ok { color: var(--ok); }
+    .status-warn { color: var(--warn); }
+    .status-block { color: var(--danger); }
+    .link {
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    @media (max-width: 720px) {
+      main { padding: 18px; }
+      .toolbar,
+      .capacity-row {
+        grid-template-columns: 1fr;
+      }
+      .capacity-row {
+        display: grid;
+      }
+      .gate-list li {
+        grid-template-columns: 1fr;
+      }
+      .dialog footer {
+        flex-direction: column-reverse;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="toolbar">
+      <div>
+        <h1>需求中心</h1>
+        <div class="subtle">当前迭代容量与收尾动作</div>
+      </div>
+      <button>刷新</button>
+    </section>
+
+    <section class="capacity-panel" aria-label="当前迭代容量">
+      <div class="capacity-row">
+        <div>
+          <div class="mono">sprint-006</div>
+          <div class="subtle">当前迭代</div>
+        </div>
+        <div>
+          <div class="bar" aria-label="容量使用率"><span></span></div>
+          <div class="meta">
+            <span>已使用 19 / 30 人天</span>
+            <span>5 个 Change 待归档</span>
+            <span>验收报告待确认</span>
+          </div>
+        </div>
+        <button class="danger">归档当前迭代</button>
+      </div>
+    </section>
+
+    <section class="dialog" aria-label="归档当前迭代确认">
+      <header>
+        <strong>归档当前迭代</strong>
+        <div class="subtle">确认目标 Sprint 和门禁结果后再执行</div>
+      </header>
+      <div class="dialog-body">
+        <div class="summary">
+          <div class="mono">sprint-006</div>
+          <div class="subtle">当前状态：planning；容量：19 / 30 人天；归档后将移出当前迭代视图。</div>
+        </div>
+        <div class="gate">
+          <ul class="gate-list">
+            <li><span class="status-block">阻塞</span><span>仍有未归档 Change</span><span class="link">查看 Change</span></li>
+            <li><span class="status-warn">待确认</span><span>验收报告 sign-off 未完成</span><span class="link">打开报告</span></li>
+            <li><span class="status-ok">通过</span><span>当前用户具备归档权限</span><span></span></li>
+            <li><span class="status-ok">通过</span><span>Workflow Sync 预检查无结构错误</span><span></span></li>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <button>取消</button>
+        <button class="primary" disabled>门禁通过后归档</button>
+      </footer>
+    </section>
+  </main>
+</body>
+</html>

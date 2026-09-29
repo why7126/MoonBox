@@ -2,7 +2,7 @@
 purpose: 部署说明
 content: MoonBox 本地 docker-compose 部署、端口和环境变量边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-14 00:03:14
+updated_at: 2026-09-18 16:07:12
 owner: MoonBox 产品团队
 ---
 
@@ -116,7 +116,7 @@ OBJECT_STORAGE_DEPLOYMENT_MODE=external-minio DATABASE_DEPLOYMENT_MODE=external-
 | `BACKEND_CORS_ORIGINS` | `http://localhost:18102,http://127.0.0.1:18102` | 后端允许跨域来源 |
 | `VITE_API_BASE_URL` | 可选 | 本地 Vite dev 或前后端分域构建时使用的 API 基础地址；Docker Web 默认通过 nginx 同源 `/api` 反代访问后端，运行期不需要配置 |
 
-空间申请演示数据可通过 `python scripts/seed-admin-space-applications.py` 手动生成。脚本会加载本地 `.env`，并把 Docker 容器内 SQLite 路径 `sqlite:////app/data/sqlite/moonbox.db` 映射到宿主机运行库 `data/runtime/backend/sqlite/moonbox.db`，输出目标数据库路径和播种数量；生产环境拒绝执行演示播种。
+空间申请演示数据可通过 `python scripts/seed-admin-space-applications.py` 手动生成。脚本会加载本地 `.env`，并把 Docker 容器内 SQLite 路径 `sqlite:////app/data/sqlite/moonbox.db` 映射到宿主机运行库。目录治理目标是 `data/sqlite/moonbox.db` 作为本地 SQLite 唯一持久数据库；历史部署若仍映射到 `data/runtime/backend/sqlite/moonbox.db`，该路径只视为迁移期 legacy 位置，生产环境拒绝执行演示播种。
 | `MOONBOX_GOVERNANCE_ROOT` | `/app/governance` | 需求中心 BFF 治理事实源根目录；根目录本地开发 Compose 允许对 `issues/` 中采集池 `capture.md` 受控写入，其他治理目录保持只读 |
 | `DATABASE_TYPE` | `sqlite` | 数据库类型；开发默认 `sqlite`，生产必须显式为 `mysql` |
 | `DATABASE_DEPLOYMENT_MODE` | `sqlite` | 数据库部署模式：`sqlite`、`self-hosted-mysql`、`external-mysql` |
@@ -132,7 +132,7 @@ OBJECT_STORAGE_DEPLOYMENT_MODE=external-minio DATABASE_DEPLOYMENT_MODE=external-
 | `OBJECT_STORAGE_PREFIX_IMAGES_AVATARS` | `images/avatars/` | 管理后台头像对象前缀 |
 | `OBJECT_STORAGE_KEY_PATTERN` | `{resource_type}/{subtype}/{uuid}.{ext}` | 对象 Key 规则；桶内用二级目录/前缀区分资源类型 |
 | `OBJECT_STORAGE_PREFIX_*` | 见 `.env.example` | 标准二级对象前缀，例如 `images/original/`、`documents/source/` |
-| `DATA_ROOT` | `./data` | 本地数据根目录；自建 MinIO 对象目录默认 `data/s3` |
+| `DATA_ROOT` | `./data` | 本地数据根目录；SQLite canonical 目录为 `data/sqlite`，自建 MinIO 对象目录默认 `data/s3` |
 | `UPLOAD_DIR` / `PROCESSED_DIR` / `TMP_DIR` | `/app/data/...` | 容器内文件处理目录 |
 | `MEDIA_ENABLED` | `true` | 是否启用媒体能力 |
 | `MAX_UPLOAD_SIZE_MB` | `100` | 单文件上传大小上限 |
@@ -143,9 +143,25 @@ OBJECT_STORAGE_DEPLOYMENT_MODE=external-minio DATABASE_DEPLOYMENT_MODE=external-
 
 - 宿主机端口写在映射左侧，可通过 `.env` 覆盖；容器内端口保持稳定。
 - `.env` 为本地覆盖文件，Compose 中设置为可选读取，避免初始化校验依赖本地文件。
-- 后端运行时数据挂载到 `./data/runtime/backend`，自建 MinIO 对象数据挂载到项目根目录 `./data/s3`，自建 MySQL 数据使用命名卷 `mysql-data`。
+- 本地 SQLite canonical 宿主机目录为 `./data/sqlite`，自建 MinIO 对象数据挂载到 `./data/s3`，自建 MySQL 数据使用命名卷 `mysql-data`。历史部署中的 `./data/runtime/backend/sqlite` 与 `./data/runtime/backend/media` 仅作为迁移期 legacy 目录保留；切换 Compose 挂载前必须先完成停服、备份、完整性校验、关键表行数对比和回滚方案。
 - 需求中心治理事实源只读挂载到 `/app/governance`，仅用于读取 REQ、BUG、Sprint、OpenSpec 和长期文档状态，不得写回容器内挂载目录。
 - 示例凭据只允许用于本地开发，生产环境必须通过安全配置注入。
+
+## Docker Compose 稳定容器名
+
+主编排中的核心服务和常驻 Chat / 治理叠加服务使用稳定容器名，避免运行态回退为 Compose 默认的 `moonbox-<service>-1` 序号名称。默认约定：
+
+| 服务 | 默认容器名 | 覆盖变量 |
+|---|---|---|
+| `backend` | `moonbox-backend` | 已在主编排中固定 |
+| `web` | `moonbox-web` | 已在主编排中固定 |
+| `minio` | `moonbox-minio` | 已在主编排中固定 |
+| `mysql` | `moonbox-mysql` | 已在主编排中固定 |
+| `chat-worker` | `moonbox-chat-worker` | `CHAT_WORKER_CONTAINER_NAME` |
+| `governance-controller` | `moonbox-governance-controller` | `GOVERNANCE_CONTROLLER_CONTAINER_NAME` |
+| `chat-recovery` | `moonbox-chat-recovery` | `CHAT_RECOVERY_CONTAINER_NAME` |
+
+显式 `container_name` 适用于单副本本地部署和验收定位。若同一 Compose 项目内需要为上述叠加服务运行多副本，不应依赖固定容器名扩展副本，应改用 Compose 服务名、label 或按环境覆盖容器名，并在部署说明中记录选择。
 
 ## deploy 目录规范
 
@@ -250,9 +266,9 @@ SQLite本地恢复进程使用deploy/local/compose.chat-recovery.yml；从仓库
 
 升级前已做SQLite在线备份；只增表/索引，保留原业务数据。恢复镜像与后端同步更新，验证网络none、只读rootfs和cap-drop ALL仅适用于恢复进程。回退不自动删除新增基准表或恢复数据库。
 
-Chat 对象目录通过 MOONBOX_CHAT_REPOSITORY_BINDINGS 显式配置，每项包含 id、space_id、governance_root，前两项必须匹配 MOONBOX_CHAT_REPOSITORIES。governance_root 仅指向该仓库授权的容器内只读治理目录；不得把多空间共享的全量治理目录绑定给无权读取全部对象的空间。未配置时授权候选为空并显示原因，不影响无引用会话管理。读取逐级使用目录描述符与 NOFOLLOW，拒绝符号链接、硬链接和超1MiB源文件；禁止将平台凭证放入该目录。
+Chat 对象目录通过 MOONBOX_CHAT_REPOSITORY_BINDINGS 显式配置，每项包含 id、space_id、governance_root，前两项必须匹配 MOONBOX_CHAT_REPOSITORIES。governance_root 仅指向该仓库授权的容器内只读治理目录；不得把多空间共享的全量治理目录绑定给无权读取全部对象的空间。Chat Skill 候选读取同一 governance_root 下的 `.agents/skills`，本地 Compose 必须以 `./.agents:/app/governance/.agents:ro` 只读挂载项目 Skill，否则仓库存在 Skill 时页面会误显示空候选。未配置时授权候选为空并显示原因，不影响无引用会话管理。读取逐级使用目录描述符与 NOFOLLOW，拒绝符号链接、硬链接和超1MiB源文件；禁止将平台凭证放入该目录。
 
-Chat 开发写权限在每次真实执行前检查空间拥有者/管理员/编辑者及主对象 in_sprint、对应活动Change trace和Sprint双向纳入；不满足时 App Server 强制 read-only，运行期间写权限撤销会进入未知并关闭本地执行进程。此策略不能替代平台容器、凭证和网络隔离验收。
+Chat Codex 执行写权限分为三档：`read_only` 完全只读；`governance_write` 将 `/work` 整体保持只读，仅允许 `issues/`、`openspec/changes/`、`iterations/`、`docs/spec-logs/` 等受控治理目录写入；`implementation_write` 才允许产品实现工作区写入。早期 REQ/BUG 只要主对象可见且当前用户具备空间拥有者/管理员/编辑者角色，即可获得治理写权限，用于受控写入对应治理文档，不要求主对象已 `in_sprint`。产品实现写入仍在每次真实执行前检查主对象 `in_sprint`、对应活动 Change trace 和 Sprint 双向纳入；不满足时只能治理写或完全只读。运行期间写权限 scope 变化会进入未知并关闭本地执行进程。此策略不能替代平台容器、凭证和网络隔离验收。
 
 MOONBOX_CHAT_RETENTION 需要显式 executor_delete_seconds、backup_expiry_seconds。用户已选择先开发验证、暂不设置正式值；保持空对象。有历史会话删除前，MOONBOX_CHAT_REPOSITORY_BINDINGS 的 workspace_root 必须为预配置绝对容器目录，且 workspace_id 与会话ID一致。不能只按历史Diff计数永久禁删，也不能自动提交代码以通过清理检查。副本和备份实际删除适配尚待配置平台运行环境，pending状态不会按时间自动伪装完成。
 
@@ -381,7 +397,7 @@ bash scripts/docker-down.sh self-storage-sqlite --chat-test
 
 本次 REQ-0025 已选择单机 Compose、SQLite、本地独立备份和部署用户的 Codex 登录认证单文件。`--chat-platform` 启动常驻 API/Worker，区别于一小时自动清理的 `--chat-test`。正式仓库和空间仍须明确映射，不会自动选择当前项目或测试空间。
 
-在被 Git 忽略的本地 env 配置 `MOONBOX_CHAT_SOURCE_ROOT`（已提交本地 Git 仓库绝对路径）、`MOONBOX_CHAT_REPOSITORY_ID`（不透明标识）和 `MOONBOX_CHAT_SPACE_ID`（已有空间 ID）；私有根目录默认位于 `data/runtime/chat-platform`。可用 `MOONBOX_CHAT_AUTH_SOURCE` 指定本机认证文件，默认仅使用部署用户的 Codex `auth.json`，不会导入整个认证目录、配置或技能。宿主登录更新且替换了文件 inode 时，需要重建 Worker 容器以重新绑定文件；镜像和仓库不得包含认证。
+在被 Git 忽略的本地 env 配置 `MOONBOX_CHAT_SOURCE_ROOT`（已提交本地 Git 仓库绝对路径）、`MOONBOX_CHAT_REPOSITORY_ID`（不透明标识）和 `MOONBOX_CHAT_SPACE_ID`（已有空间 ID）；私有根目录默认位于 `data/runtime/chat-platform`。该目录只承载 Chat 状态、备份、工作区和 Codex 执行器 runtime，不作为业务 SQLite 或对象存储 canonical 目录。可用 `MOONBOX_CHAT_AUTH_SOURCE` 指定本机认证文件，默认仅使用部署用户的 Codex `auth.json`，不会导入整个认证目录、配置或技能。宿主登录更新且替换了文件 inode 时，需要重建 Worker 容器以重新绑定文件；镜像和仓库不得包含认证。
 
 用户确认不设运营上限，对应 `MOONBOX_CHAT_LIMITS`：
 
@@ -439,8 +455,24 @@ REQ-0025最终当前账号验收：用户重新登录后，在实际moonbox空�
 
 ## BUG-0014 常驻Capture与目标环境返修
 
-`bash scripts/docker-up.sh --chat-platform`（或已配置local-codex的普通启动）现在自动加载治理overlay，创建默认data/runtime/governance私有目录，并将API与controller设为同一宿主UID/GID，防止私有操作文件跨进程不可读。`--check`只读检查；停止脚本使用同一Compose集合，不删除数据。
+`bash scripts/docker-up.sh --chat-platform`（或已配置local-codex的普通启动）现在自动加载治理overlay，创建默认 `data/runtime/governance` 私有目录，并将 API 与 controller 设为同一宿主 UID/GID，防止私有操作文件跨进程不可读。`data/runtime/governance` 只承载治理控制状态，不作为业务 SQLite 或对象存储 canonical 目录。`--check` 只读检查；停止脚本使用同一 Compose 集合，不删除数据。
 
 `MOONBOX_GOVERNANCE_CAPTURE_MODE=continuous`明确启用日常Capture；可在环境文件设disabled关闭常驻模式。controller每轮发布私有心跳，包含绑定摘要与issues目录可写性；API在30秒心跳窗口内允许新建，失联、只读或绑定不一致时拒绝。重启后自动恢复，不生成或续期maintenance.json。此例外仅覆盖Capture，其他成果应用和文档写入仍遵守原维护窗口；不能用此配置绕过项目授权或外部内容冲突。
 
 授权项目可查询GET /api/v1/requirement-center/capture-readiness，弹窗检查服务并显示原因，未就绪禁用创建，可刷新且保留输入。DB与对象存储结构不变。当前本地backend/web/chat-worker/governance-controller已构建并健康，重启controller后就绪恢复；浏览器最终目标账号创建验证单独记录于Change trace，不以健康检查冒充创建验收。
+
+## Capture 整理 worker（REQ-0029，实施中）
+
+沿用 `bash scripts/docker-up.sh self-storage-sqlite --chat-platform --check` 预检，再使用相同命令去除 --check 启动。依赖已配置的本地仓库、空间/仓库绑定、私有运行目录及单文件Codex授权；不复制个人config或其他凭证。真实环境未就绪时整理返回503，草稿仍可保存。
+
+Capture worker复用常驻模型worker进程，正式写入仍由独立governance-controller处理。模型执行容器只有只读材料副本、隔离运行目录和只读权限配置，禁用shell、统一执行、多Agent、Apps及图片生成能力，不挂载正式治理仓库。输出经严格schema和来源ID校验后才保存为建议。
+
+运行目录中的临时材料与授权副本在正常结束清理；停止信号取消整理，启动时在独占worker锁内清理带本运行域标签的遗留Capture容器及有所有权标记的临时目录。草稿材料清理在worker维护循环执行。删除日志是治理私有状态的一部分，恢复旧数据库时必须保留该日志并先重放删除，再开放读取；不得通过回滚数据库恢复主动删除的材料。
+
+验证边界：本地SQLite服务已启动且真实模型读取合成图片成功，MySQL仅完成独立数据层验证，浏览器完整流程和模型质量验收尚未完成。
+
+Capture worker需要与backend相同的OBJECT_STORAGE_ENDPOINT及MINIO访问配置，用于读取私有材料与执行清理；Compose已显式复用这些变量。它们仅存在于可信worker进程环境，模型执行子容器使用独立最小环境，不继承对象存储凭证。
+
+worker同时接入app-network，通过服务名解析MinIO；仅注入配置但未加入应用网络会造成DNS失败。执行子容器的隔离挂载和权限配置不因此变化。
+
+恢复数据库后、开放流量前，在已配置的backend/worker运行环境执行 `python -m app.governance.capture_cleanup replay-deletions`；按需手工执行到期材料清理使用 `python -m app.governance.capture_cleanup cleanup`。两者使用部署配置，不接受客户端路径；后者会实际删除满足清理条件的对象，不作用于retained正式来源。

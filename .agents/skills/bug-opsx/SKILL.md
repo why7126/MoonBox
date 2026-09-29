@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-09-13 16:02:48
+updated_at: 2026-09-15 00:23:57
 name: "bug-opsx"
 description: "已评审缺陷 → OpenSpec fix-* Change（CLI）；原 /bug-to-change"
 ---
@@ -114,9 +114,31 @@ openspec new change "fix-<area>-<topic>"
 
 ## Step 4 — Artifacts
 
-按 CLI 生成 proposal（含 Rollback Plan）、design（根因+修复方案+测试）、specs（MODIFIED/ADDED）、tasks（**含回归测试**）。
+按 CLI 生成 proposal（含回滚方案）、design（根因+修复方案+测试）、specs（MODIFIED/ADDED）、tasks（**含回归测试**）。OpenSpec CLI 返回的英文 instruction 和 template 只作为结构参考，不得原样复制英文脚手架标题到项目文档。
 
 proposal **Why** 链接 `BUG-xxxx`。
+
+### Step 4.1 — OpenSpec CLI 模板标题中文化（MUST）
+
+生成或补齐 Change 文档时，MUST 将 CLI 模板标题替换为项目中文标题：
+
+| 文件 | CLI 标题 | 项目标题 |
+|---|---|---|
+| `proposal.md` | `Why` | `背景` |
+| `proposal.md` | `What Changes` | `变更内容` |
+| `proposal.md` | `Capabilities` | `能力影响` |
+| `proposal.md` | `New Capabilities` | `新增能力` |
+| `proposal.md` | `Modified Capabilities` | `修改能力` |
+| `proposal.md` | `Impact` | `影响范围` |
+| `design.md` | `Context` | `背景与现状` |
+| `design.md` | `Root Cause` / `Proposed Fix` | `根因` / `修复方案` |
+| `design.md` | `Test Strategy` | `测试策略` |
+| `design.md` | `Risks` / `Rollback Plan` | `风险` / `回滚方案` |
+| `tasks.md` | `Implementation` / `Testing` / `Documentation` | `实施任务` / `回归验证` / `文档同步` |
+
+- MODIFIED spec 的 `Requirement:` 标题必须与 `openspec/specs/` 既有能力标题一致；OpenSpec 关键字、命令、路径、API 字段和代码标识可保留英文。
+- 若 CLI template 中出现 HTML 注释、尖括号占位符或英文说明，写入项目前必须改写为当前 BUG 的中文事实，不得保留占位解释。
+- 生成后必须运行 `python scripts/validate-openspec-language.py --change <change-id> --residual-report`，确保当前 Change 不残留英文脚手架标题。
 
 ---
 
@@ -132,6 +154,34 @@ openspec_changes:
 ```
 
 tasks 末项提醒：`docs/knowledge-base/incidents/`（若适用）
+
+创建 `openspec/changes/<id>/trace.md` 时，新建 trace frontmatter MUST 固化 execution schema v1，最小模板如下：
+
+```yaml
+execution:
+  schema_version: 1
+  started_at: null
+  completed_at: null
+  last_event: bug.opsx
+```
+
+- `schema_version` MUST 为数字 `1`，不得写成字符串或省略。
+- `/bug-opsx` 创建 Change 时只声明 schema 与创建事件，不把 `started_at` 伪造为实施启动时间；后续 `/opsx-apply` 的 Workflow Sync 会在 `opsx.start` / `opsx.apply` 中维护实际启动、完成与最后事件。
+- 已存在 `execution` frontmatter 时，MUST 保留有效 `started_at`、`completed_at` 和 `last_event`，只补齐缺失的 `schema_version: 1`；不得批量重写历史终态。
+
+---
+
+## Step 5.5 — 当前 Change 中文校验与残留分离报告（MUST）
+
+成功生成或确认 Change 文档后，MUST 运行当前 Change 聚焦中文优先校验，并输出全仓残留分离报告：
+
+```bash
+python scripts/validate-openspec-language.py --change <change-id> --residual-report
+```
+
+- 当前 Change 校验失败时，MUST 修复当前 Change 文档并重跑，退出码为失败时不得结束 `/bug-opsx`。
+- 其他 active Change 的中文残留只作为“全仓残留分离报告”输出，不得混入当前 BUG → Change 链路的失败结论。
+- 若残留报告存在非当前 Change 问题，最终「执行链路复盘」可标记为 warning，并给出聚焦治理建议；默认不得自动修改无关 Change 或创建 follow-up Issue/Change。
 
 ---
 
@@ -185,7 +235,14 @@ python scripts/sync-workflow-status.py --event bug.opsx --bug <BUG-id> --change 
 - Exit code **MUST** be `0` before ending this command.
 - Print the summary **Workflow Sync Report** to the user; use `--output detail` only for debugging.
 - Do **not** hand-edit `sprint.md` Scope marker blocks (`<!-- workflow-sync:* -->`).
+- Workflow Sync 成功后仍 MUST 确认 Step 5.5 的当前 Change 聚焦中文校验已通过；全仓残留分离报告只影响复盘 warning 与后续治理建议，不阻断当前 Change。
 
 ## Change 身份门禁
 
 遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+
+## 中文标题生成门禁
+
+本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
+
+在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。

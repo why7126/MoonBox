@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REQ-0032 Sprint 状态下拉原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0A0D14;
+      --panel: #131826;
+      --panel-2: #1A1F2C;
+      --border: #242A3A;
+      --line: #1B2130;
+      --text: #ECEAE4;
+      --muted: #98A0B3;
+      --gold: #D8AC55;
+      --good: #59B887;
+      --done: #7AA2F7;
+      --warn: #D8AC55;
+      --unknown: #98A0B3;
+      font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 24px 0 18px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 74px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .toolbar {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 140px minmax(180px, 1fr) 150px 140px minmax(260px, 340px);
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    select,
+    input,
+    .sprint-combobox {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #0F1320;
+      color: var(--text);
+      border-radius: 6px;
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .sprint-combobox {
+      position: relative;
+      padding: 8px 10px;
+      min-height: 46px;
+    }
+
+    .selected-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .selected-line strong,
+    .option-main strong {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .menu {
+      position: absolute;
+      z-index: 20;
+      inset: calc(100% + 6px) 0 auto 0;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 6px;
+      max-height: 310px;
+      overflow: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 9px;
+      color: var(--text);
+      background: transparent;
+      text-align: left;
+    }
+
+    .option + .option { margin-top: 4px; }
+
+    .option.active,
+    .option:hover,
+    .option:focus-visible {
+      border-color: var(--gold);
+      background: rgba(216, 172, 85, 0.08);
+    }
+
+    .option-main {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .option-main span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: nowrap;
+      color: var(--muted);
+    }
+
+    .status.current { color: var(--good); border-color: rgba(89, 184, 135, 0.45); }
+    .status.planning { color: var(--warn); border-color: rgba(216, 172, 85, 0.5); }
+    .status.done { color: var(--done); border-color: rgba(122, 162, 247, 0.45); }
+    .status.archive { color: #B7C0D8; border-color: rgba(183, 192, 216, 0.35); }
+    .status.unknown { color: var(--unknown); border-style: dashed; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 132px;
+    }
+
+    .card small {
+      display: block;
+      color: var(--muted);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .card h2 {
+      margin: 8px 0 10px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 20px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { grid-template-columns: 1fr; }
+      .board { grid-template-columns: 1fr; }
+      .menu { position: static; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <h1>需求中心</h1>
+        <p class="sub">Sprint 筛选下拉新增状态展示，状态来自稳定事实源。</p>
+      </div>
+      <span class="status current">已连接</span>
+    </header>
+
+    <section class="stats" aria-label="需求中心统计">
+      <div class="metric"><span>需求</span><strong>12</strong></div>
+      <div class="metric"><span>缺陷</span><strong>4</strong></div>
+      <div class="metric"><span>阻塞</span><strong>1</strong></div>
+      <div class="metric"><span>漂移</span><strong>2</strong></div>
+    </section>
+
+    <section class="toolbar" aria-label="需求中心筛选">
+      <div class="filters">
+        <label>类型<select><option>全部类型</option></select></label>
+        <label>搜索<input value="Sprint 状态" aria-label="搜索" /></label>
+        <label>负责人<select><option>全部负责人</option></select></label>
+        <label>优先级<select><option>全部优先级</option></select></label>
+        <label>Sprint
+          <div class="sprint-combobox" role="combobox" aria-expanded="true" aria-label="Sprint 筛选">
+            <div class="selected-line">
+              <strong>sprint-006</strong>
+              <span class="status current">进行中</span>
+            </div>
+            <div class="menu" role="listbox" aria-label="Sprint 选项">
+              <button class="option" type="button" role="option">
+                <span class="option-main"><strong>全部 Sprint</strong><span>聚合查看所有可见迭代</span></span>
+              </button>
+              <button class="option active" type="button" role="option" aria-selected="true">
+                <span class="option-main"><strong>sprint-006</strong><span>当前迭代，12 项范围</span></span>
+                <span class="status current">进行中</span>
+              </button>
+              <button class="option" type="button" role="option">
+                <span class="option-main"><strong>sprint-007-requirement-center-iteration-insight</strong><span>长名称不撑破下拉</span></span>
+                <span class="status planning">规划中</span>
+              </button>
+              <button class="option" type="button" role="option">
+                <span class="option-main"><strong>sprint-005</strong><span>已完成闭环，可回看归档范围</span></span>
+                <span class="status archive">已归档</span>
+              </button>
+              <button class="option" type="button" role="option">
+                <span class="option-main"><strong>sprint-004</strong><span>历史状态来自 completed 事实</span></span>
+                <span class="status done">已完成</span>
+              </button>
+              <button class="option" type="button" role="option">
+                <span class="option-main"><strong>sprint-legacy</strong><span>状态字段缺失或冲突</span></span>
+                <span class="status unknown">待核实</span>
+              </button>
+            </div>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <section class="board" aria-label="筛选结果">
+      <article class="card">
+        <small>REQ-0032</small>
+        <h2>Sprint 下拉列表新增状态展示</h2>
+        <p>选择 sprint-006 后展示当前迭代范围内卡片。</p>
+      </article>
+      <article class="card">
+        <small>REQ-0031</small>
+        <h2>当前迭代容量展示</h2>
+        <p>同属迭代信息增强，口径需避免混淆。</p>
+      </article>
+      <article class="card">
+        <small>BUG-0018</small>
+        <h2>验收来源待核实</h2>
+        <p>异常状态需可解释，但不能伪装成正常完成。</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

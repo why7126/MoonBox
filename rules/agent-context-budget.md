@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-09-13 16:02:21
+updated_at: 2026-09-16 22:42:16
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -117,9 +117,14 @@ Agent 命令技能 SHOULD：
 - 对 apply/archive/sprint 类高消耗命令，明确要求先读取 OpenSpec CLI `contextFiles`、任务文件、trace/status 片段，再按需扩展。
 - 对工作流命令顺序，MUST 遵守 `docs/08-command-execution-order.md`：先评审、再纳入 Sprint、再创建 Change、再 apply/modify/archive，发布、镜像和产品手册位于交付闭环之后；写同一事实源的步骤不得并行。
 - 对 REQ/BUG 当前态看板索引，`issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` SHOULD 作为目录级当前状态入口；需要确认单条状态、验收、Sprint 或 Change 事实时，MUST 继续读取 `_registry.yaml`、目标 Issue `trace.md`、Sprint 四件套或 OpenSpec Change，不得用看板索引替代事实源。
+- 对 `/capture`、`/req-capture` 与 `/bug-capture` 创建前重复/相似 Issue 检查，MUST 先读取对应 `CHANGELOG.md` 与 `_registry.yaml` 建候选清单；候选不清晰时只读取疑似候选 `capture.md` / `trace.md` 的标题、Frontmatter、摘要、状态、关联 Sprint/Change 和下一步，不得为判重全量展开无关 Issue、历史归档大目录、截图、日志或生成物。
 - 对 REQ/BUG 评审后的下一步，MUST 先输出 `/sprint-propose --req <REQ-full-id>` 或 `/sprint-propose --bug <BUG-full-id>`；只有 Workflow Sync 将 Issue 同步为 `in_sprint` 后，才能输出或执行 `/req-opsx` / `/bug-opsx`。
+- 对 `/req-opsx` 与 `/bug-opsx` 生成后的 OpenSpec 中文优先校验，MUST 使用当前 Change 聚焦口径：`python scripts/validate-openspec-language.py --change <change-id> --residual-report`。当前 Change 失败阻断当前链路；其他 active Change 的残留只进入全仓残留分离报告和复盘 warning，不得作为当前 REQ/BUG 链路失败结论。
+- 对 `/req-opsx` 与 `/bug-opsx` 生成的 Change trace frontmatter，MUST 固化 `execution.schema_version: 1`，并带 `started_at: null`、`completed_at: null` 和来源命令 `last_event` 初始字段；`/req-opsx` 使用 `last_event: req.opsx`，`/bug-opsx` 使用 `last_event: bug.opsx`；后续 `opsx.start` 与 `opsx.apply` 由 Workflow Sync 维护真实启动和完成事实，不得在创建阶段伪造实施时间。
+- 对 `/req-opsx` 与 `/bug-opsx` 使用 OpenSpec CLI `instructions` 生成 Change 文档时，MUST 将 CLI template 的英文脚手架标题改写为项目中文标题，例如 `Why` → `背景`、`What Changes` → `变更内容`、`Capabilities` → `能力影响`、`Impact` → `影响范围`、`Implementation` / `Testing` / `Documentation` → `实施任务` / `验证任务` / `文档同步`；不得把 HTML 注释、尖括号占位符或英文说明原样落盘。
 - 对下一步可执行命令，MUST 保留完整链路身份：REQ 链路使用完整 `REQ-xxxx-slug`，BUG 链路使用完整 `BUG-xxxx-slug`；即使命令进入 `/opsx-apply`、`/opsx-modify` 或 `/opsx-archive`，也不得把来源于 REQ/BUG 的下一步参数降级为 `<change-id>`。只有非 REQ/BUG 的纯治理 Change 才使用 `<change-id>`。
 - 对问题排查、BUG 完善、验收返修或效果不如预期，MUST 遵守 `rules/root-cause-evidence.md`：证据不足时只读取必要片段并输出人工补证操作步骤；不得为猜测根因宽泛读取整仓、历史归档或生成物；人工补证返回后再按证据链确认根因。
+- 对 `/opsx-modify` 验收返修，执行中的用户可见阶段展示为“研发中”，完成返修、验证、文档同步和 Workflow Sync 后回到“验收中 / 待复验”；该展示只属于返修投影语义，MUST 保留 Change canonical `applied` 事实和首次 apply 的 `execution.completed_at`，不得用普通 `in_progress` 覆盖已完成 apply。
 - 对 REQ 来源 `/opsx-modify`，完成前 MUST 做 REQ 子文档一致性扫尾检查：只定位当前 linked REQ 目录，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 片段判断是否需同步；不得为了扫尾全量读取无关 REQ、历史归档或 generated 文件。
 - 对 `/spec-study` 跨项目 Harness 学习应用命令，MUST 明确先学习并输出候选内容、等待用户确认后再应用；学习对象存在 `docs/spec-logs/CHANGELOG.md` 时，MUST 优先采用“日志索引 -> 单次 study/governance 日志 -> 真实治理资产 -> 必要代码/脚本补证”的学习顺序，先理解治理演进和设计意图，再按 Learning Matrix 横向校验项目入口、`rules/`、`docs/`、Agent 目录、`scripts/`、部署与环境示例；日志只作为入口地图和历史背景，MUST NOT 替代当前资产、OpenSpec Change、Sprint 四件套或正式规格事实源；学习对象 MUST 全程只读且绝不允许被改动；应用阶段 MUST 遵守 active OpenSpec Change 与 Sprint Inclusion Gate，并禁止修改业务 `src/`；同一次学习应用流程只生成一份正式学习报告，学习报告 MUST 统一写入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，并承载本次学习触发的治理资产应用结果；不得额外生成内容重复的 `YYYYMMDDhhmmss-governance-xxx.md`，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息、学习对象源码、本机绝对路径、系统用户名或用户主目录；本地学习对象在持久化文档中 MUST 使用项目名或脱敏占位符描述。若学习成果涉及命令输出契约、Sprint 选择、发布升级或 AI Usage 语义，应用时 SHOULD 同步对应校验脚本，避免只写规则不落地门禁。
 - 对 AI Usage session JSONL 采集，MUST 只持久化脱敏派生事实，不得落盘原始 prompt、系统/developer 指令、完整 session JSONL、工具输出正文、密钥、Cookie、Authorization header、`.env` 内容、本机绝对路径或真实客户数据。普通 workflow hook MUST 按显式参数、session 环境变量、`AI_USAGE_SESSIONS_DIR`、默认本地 Codex sessions 目录 `~/.codex/sessions` 的顺序尝试定位本地 JSONL；自动发现失败、缺少 `token_count` 或覆盖不足时输出 `usage_mode: unavailable` / `estimated_fallback` 与推荐动作。历史回填或审计不得依赖自动发现，必须使用显式 session 和必要的 `--manual-map`。

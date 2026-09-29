@@ -2,7 +2,7 @@
 purpose: 缺陷（BUG）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-09-12 17:46:07
+updated_at: 2026-09-16 22:42:16
 ---
 
 # 缺陷管理规范
@@ -72,6 +72,12 @@ SHOULD 在以下事件后更新对应 BUG 当前态行：`capture`、`generate`�
 |------|------|
 | `/capture` | 类型未决时自动分类；BUG 部分同 `/bug-capture`（见 §3.2） |
 | `/bug-capture` | capture.md、trace 壳（可一次输入多条，按 §3.1 评估拆分） |
+| `/bug-explore` | 默认无文件 |
+| `/bug-generate` | bug.md |
+| `/bug-complete` | root-cause、workaround、acceptance、trace |
+| `/bug-review` | review.md、status |
+| `/sprint-propose --bug` | 正式纳入 Sprint，status → in_sprint |
+| `/bug-opsx` | openspec/changes/fix-* |
 
 ### 3.2 `/capture` 与 bug-capture
 
@@ -85,14 +91,20 @@ SHOULD 在以下事件后更新对应 BUG 当前态行：`capture`、`generate`�
 - **合并**：同一页面/弹窗且一次修复可闭环，或同一根因不可分割 → 单条 BUG；回复中一句话说明不拆理由。
 - **禁止** umbrella BUG（总记录 + 子 bullet）；每条 MUST 可独立走 explore → opsx → archive。
 - 创建多条时，`next_id` 连续递增；Workflow Sync 对**每条**执行 `bug.capture`。
-| `/bug-explore` | 默认无文件 |
-| `/bug-generate` | bug.md |
-| `/bug-complete` | root-cause、workaround、acceptance、trace |
-| `/bug-review` | review.md、status |
-| `/sprint-propose --bug` | 正式纳入 Sprint，status → in_sprint |
-| `/bug-opsx` | openspec/changes/fix-* |
+
+### 3.3 `/bug-capture` 创建前重复/相似检查
+
+`/bug-capture` 在分配新 BUG ID 前 MUST 检查项目中是否已有相同、相似或可关联的缺陷。
+
+- 先读取 `issues/bugs/CHANGELOG.md` 与 `issues/bugs/_registry.yaml`，形成 plan / review / archive 候选清单。
+- 基于页面/模块、现象、触发条件、环境、期望 vs 实际、复现步骤、根因假设、修复面、严重度和关联 REQ 筛选候选。
+- 候选不清晰时，只读取候选目录中 `capture.md` 与 `trace.md` 的标题、Frontmatter、摘要段落、当前状态、关联 Sprint/Change 和下一步；不得为判重全量读取无关 BUG 正文、截图、日志或历史归档大目录。
+- 发现疑似重复或补证项时，MUST 先输出候选 BUG、相似原因、当前状态、事实源路径和处理选项；默认推荐关联/更新原 BUG，必要时填写 `related_bug` 或 `related_requirement`。
+- 只有用户确认修复面、严重度、复现闭环或影响范围独立，或候选只是弱相关时，才继续创建新的 peer BUG。
 
 BUG 命令族输出下一步时 MUST 使用完整 `BUG-NNNN-slug`。`/bug-review --approve` 后下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`；`/sprint-propose` 同步为 `in_sprint` 后下一步才是 `/bug-opsx <BUG-full-id>`。当 BUG 已转 OpenSpec Change 后，后续 `/opsx-apply`、`/opsx-modify`、`/opsx-archive` 仍 MUST 使用该完整 BUG ID，不得改为 Change ID；Change ID 只作为内部解析和 Workflow Sync 参数。
+
+`/bug-opsx` 生成或确认修复 Change 后 MUST 运行当前 Change 聚焦中文优先校验：`python scripts/validate-openspec-language.py --change <change-id> --residual-report`。当前 Change 失败阻断当前 BUG 链路；其他 active Change 的残留只进入分离报告和复盘 warning，不得作为当前 BUG 链路失败结论。
 
 ## 4. 门禁
 

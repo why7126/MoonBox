@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-09-13 23:43:10
+updated_at: 2026-09-18 16:07:12
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -36,7 +36,31 @@ note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把
 | `models/` | 模型说明和校验信息；不得提交大模型权重 | 否 |
 | `deploy/` | 部署编排与发布脚本 | 否 |
 
-## 2.1 本地临时取证目录
+## 2.1 `data/` 本地数据目录边界
+
+`data/` 只用于本地开发、演示、测试样例、脱敏派生事实和运行时状态，所有内容默认必须被 Git 忽略，不得提交真实运行数据、真实客户数据、数据库文件、对象存储数据、密钥、访问令牌、Cookie、Authorization header 或真实 `.env`。
+
+推荐职责：
+
+```text
+data/
+├── sqlite/          # 本地 SQLite 唯一持久数据库目录
+├── s3/              # 自建 MinIO/S3 兼容对象数据目录
+├── runtime/         # Chat Platform、Governance、Codex 执行器等运行控制状态
+├── tmp/             # 本地临时文件处理目录
+├── ai-usage/        # AI Usage 脱敏派生事实
+└── visual-evidence/ # 本地视觉证据入口，长期证据需转存到 Change
+```
+
+边界：
+
+- `data/sqlite/` 是本地 SQLite canonical 目录；本地 SQLite 文件 SHOULD 放在 `data/sqlite/moonbox.db` 或同目录下的明确环境命名文件中。
+- `data/s3/` 是本地 MinIO/S3 兼容对象数据 canonical 目录；桶内对象按对象存储前缀治理，不应复制到 `data/runtime/` 作为事实源。
+- `data/runtime/` 只承载运行控制状态，例如 `chat-platform/state`、`chat-platform/runtime`、`chat-platform/workspaces`、`chat-platform/backups` 和 `governance/` 私有状态；不得作为业务 SQLite 数据库或对象存储数据的 canonical 根目录。
+- `data/runtime/backend/sqlite/` 与 `data/runtime/backend/media/` 属于历史迁移期 legacy 目录；目录结构校验 MAY 输出 warning。清理或迁移前必须停服、备份、校验 SQLite 完整性和关键表行数，不得在治理命令中直接删除真实运行数据。
+- Docker Compose 挂载路径调整必须通过独立 OpenSpec Change 执行，并同步部署文档、数据库文档、迁移步骤和回滚方案。
+
+## 2.2 本地临时取证目录
 
 根目录 `tmp/` MAY 仅作为本地临时工作目录存在，用于 Playwright 截图、computed style JSON、手工视觉对照中间产物或一次性调试输出。
 
@@ -47,6 +71,16 @@ note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把
 - `tmp/visual-evidence/` MAY 作为本地临时视觉证据采集目录；引用该目录时必须说明它是临时入口，不得作为归档闭环的唯一事实源。
 - `tmp/` MUST NOT 存放真实客户数据、密钥、访问令牌、Cookie、Authorization header、真实 `.env`、运行时数据库、未脱敏日志或包含个人信息的截图。
 - 目录结构校验 MAY 忽略被 `.gitignore` 覆盖的根目录 `tmp/`，但不得因此放宽新增正式顶层目录的规则。
+
+## 2.3 本地工具缓存目录
+
+根目录 `.vite/` MAY 仅作为 Vite 或前端测试工具生成的本地缓存目录存在。
+
+边界：
+
+- `.vite/` MUST 被 `.gitignore` 覆盖，不属于正式项目目录，不得写入 Sprint 四件套、OpenSpec 归档、release、Mintlify 或长期文档。
+- `.vite/` MUST NOT 存放真实客户数据、密钥、访问令牌、Cookie、Authorization header、真实 `.env`、运行时数据库、未脱敏日志或包含个人信息的截图。
+- 目录结构校验 MAY 忽略被 `.gitignore` 覆盖的根目录 `.vite/`，但不得因此放宽新增正式顶层目录的规则。
 
 ## 3. `releases/` 产品发布目录
 

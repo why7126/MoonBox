@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REQ-0031 Current Iteration Capacity Prototype</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0d14;
+        --panel: #131826;
+        --panel-2: #1a1f2c;
+        --border: #242a3a;
+        --text: #eceae4;
+        --muted: #98a0b3;
+        --gold: #d8ac55;
+        --warn: #e0b55a;
+        --danger: #e06f66;
+        --info: #78a6d8;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 224px 1fr;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--border);
+        background: #0f1320;
+        padding: 20px 16px;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .main {
+        padding: 24px;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .title h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        line-height: 1.35;
+      }
+
+      .title p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .button {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .capacity-strip {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .capacity-item {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 12px;
+        min-width: 0;
+      }
+
+      .capacity-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .sprint-id {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+      }
+
+      .status {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .status.warn {
+        border-color: rgba(224, 181, 90, 0.5);
+        color: var(--warn);
+      }
+
+      .status.danger {
+        border-color: rgba(224, 111, 102, 0.5);
+        color: var(--danger);
+      }
+
+      .capacity-value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .capacity-note {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .stat {
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 18px;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+        gap: 10px;
+      }
+
+      .column {
+        min-height: 260px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .column h2 {
+        margin: 0 0 10px;
+        font-size: 13px;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          grid-template-columns: 72px 1fr;
+        }
+
+        .capacity-strip,
+        .stats,
+        .board {
+          grid-template-columns: 1fr;
+        }
+
+        .brand {
+          writing-mode: vertical-rl;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside class="sidebar">
+        <div class="brand">MoonBox</div>
+      </aside>
+      <main class="main">
+        <section class="toolbar">
+          <div class="title">
+            <h1>需求中心</h1>
+            <p>当前迭代容量靠近 Sprint 统计区域，支持两个当前迭代并存。</p>
+          </div>
+          <button class="button" type="button">刷新</button>
+        </section>
+
+        <section class="capacity-strip" aria-label="当前迭代容量">
+          <article class="capacity-item">
+            <div class="capacity-top">
+              <span class="sprint-id">sprint-006</span>
+              <span class="status warn">接近上限</span>
+            </div>
+            <div class="capacity-value">28 / 30 人天</div>
+            <div class="capacity-note">显式容量，Scope 已纳入项合计。</div>
+          </article>
+          <article class="capacity-item">
+            <div class="capacity-top">
+              <span class="sprint-id">sprint-007</span>
+              <span class="status danger">已超量</span>
+            </div>
+            <div class="capacity-value">32 / 30 人天</div>
+            <div class="capacity-note">默认容量，需评估延期或拆分范围。</div>
+          </article>
+        </section>
+
+        <section class="stats" aria-label="需求中心统计">
+          <div class="stat"><span>全部对象</span><strong>42</strong></div>
+          <div class="stat"><span>需求</span><strong>26</strong></div>
+          <div class="stat"><span>缺陷</span><strong>8</strong></div>
+          <div class="stat"><span>Change</span><strong>8</strong></div>
+        </section>
+
+        <section class="board" aria-label="看板预览">
+          <div class="column"><h2>规划中</h2></div>
+          <div class="column"><h2>已通过</h2></div>
+          <div class="column"><h2>研发中</h2></div>
+          <div class="column"><h2>验收中</h2></div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

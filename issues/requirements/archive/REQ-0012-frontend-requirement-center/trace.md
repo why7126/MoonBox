@@ -2,7 +2,7 @@
 requirement_id: REQ-0012-frontend-requirement-center
 status: done
 created_at: 2026-08-10 12:47:39
-updated_at: 2026-09-14 09:25:00
+updated_at: 2026-09-17 10:24:34
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-08-10 12:47:39
@@ -141,6 +141,9 @@ priority: P1
 |---|---|---|---|---|
 | BUG-0014-requirement-center-capture-not-persisted | high | done | fix-requirement-center-capture-persistence | 需求中心新建 Capture 仅创建前端临时卡片，未持久化 REQ/BUG 目录、文档、注册表与索引 |
 | BUG-0015-requirement-center-apply-start-stage-not-synced | medium | done | fix-requirement-center-apply-lifecycle-sync | 研发启动后需求中心卡片仍停留准备开发态，缺少 apply 启动状态同步 |
+| BUG-0021-requirement-center-bug-card-severity-display | medium | done | fix-requirement-center-bug-card-severity-display | 需求中心 BUG 卡片显示优先级 P 值而非严重性 |
+| BUG-0022-requirement-center-html-preview-auth-lost | medium | done | fix-requirement-center-html-preview-auth-lost | 需求中心卡片 HTML 预览直开受保护接口导致认证失败 |
+| BUG-0023-requirement-center-acceptance-progress-task-classification | medium | done | fix-requirement-center-acceptance-progress-task-classification | 需求中心验收中卡片进度未按 tasks.md 分类统计返修任务 |
 
 ## BUG-0014 修复反向追溯
 

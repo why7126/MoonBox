@@ -54,6 +54,40 @@ def test_progress_without_start_and_unsupported_schema_fail_closed(change):
         change_state({"execution": {"schema_version": 9}}, 1, 2)
 
 
+def test_start_replaces_req_opsx_null_execution_template(change):
+    root, path, record = change
+    path.write_text(
+        """---
+status: proposed
+execution:
+  schema_version: 1
+  started_at: null
+  completed_at: null
+  last_event: req.opsx
+---
+
+## Notes
+Keep this.
+""",
+        encoding="utf-8",
+    )
+
+    record.trace = transition(root, record, "opsx.start", write=True)
+    execution = execution_metadata(path.read_text())["execution"]
+
+    assert execution["schema_version"] == 1
+    assert execution["started_at"]
+    assert execution["completed_at"] is None
+    assert execution["last_event"] == "req.opsx"
+
+    record.tasks.done = 2
+    record.trace = transition(root, record, "opsx.apply", write=True)
+    execution = execution_metadata(path.read_text())["execution"]
+
+    assert execution["completed_at"]
+    assert execution["last_event"] == "opsx.apply"
+
+
 @pytest.mark.parametrize("trace,done,total,expected", [
     ({}, 0, 2, "proposed"), ({}, 1, 2, "in_progress"),
     ({}, 2, 2, "applied"), ({"status": "in_progress"}, 0, 2, "in_progress"),

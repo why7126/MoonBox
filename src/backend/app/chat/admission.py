@@ -1,4 +1,5 @@
 """Transactional queue admission and settlement; API remains gated on executor verification."""
+import json
 from datetime import datetime, timezone
 from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
@@ -16,8 +17,10 @@ def _account(db, key):
             pass
 
 
-def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, request_id=None):
+def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None):
     """Caller must first verify the isolated executor. This function never starts a process."""
+    materials = materials or []
+    execution_config = execution_config or service.normalize_execution_config()
     if not limits:
         raise service.ChatError(2505, '执行额度尚未配置', 503)
     row = service.conversation(db, actor, cid)
@@ -29,8 +32,12 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, request
     previous = db.execute(select(turns).where(turns.c.conversation_id == cid, turns.c.client_request_id == client_id).with_for_update()).mappings().first()
     if previous:
         db.rollback()
-        if previous['prompt'] != prompt or previous['retry_of'] != retry_of: raise service.ChatError(2504, '同一请求标识不能用于不同输入')
-        return service.public_turn(previous)
+        previous_materials = service.read_turn_materials(db, [previous['id']]).get(previous['id'], [])
+        if previous['prompt'] != prompt or previous['retry_of'] != retry_of or service.material_fingerprint(previous_materials) != service.material_fingerprint(materials) or not service.same_requested_config(previous.get('requested_config'), execution_config['requested']):
+            raise service.ChatError(2504, '同一请求标识不能用于不同输入')
+        result = service.public_turn(previous)
+        result.update(service.material_counts(previous_materials))
+        return result
     if retry_of:
         original = service.turn(db, actor, retry_of)
         if original['conversation_id'] != cid or original['status'] not in ('failed','stopped') or original['prompt'] != prompt:
@@ -64,21 +71,28 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, request
             if capacity != 1 or budget != 1:
                 raise service.ChatError(2508, '并发、额度或存储容量不足')
         db.execute(insert(turns).values(**token, conversation_id=cid, client_request_id=client_id,
-            status='queued', prompt=prompt, retry_of=retry_of, generation=0, reserved_bytes=reserve_bytes))
+            status='queued', prompt=prompt, retry_of=retry_of, generation=0, reserved_bytes=reserve_bytes,
+            requested_config=json.dumps(execution_config['requested'], ensure_ascii=False, sort_keys=True),
+            effective_config=json.dumps(execution_config['effective'], ensure_ascii=False, sort_keys=True),
+            config_fallback_reason=execution_config.get('fallback_reason')))
+        service.save_materials(db, tid, materials)
         db.execute(insert(reservations).values(**service.identity(), turn_id=tid, owner_id=actor,
             space_id=row['space_id'], period=period, tokens=reserve_tokens, bytes=reserve_bytes, status='reserved'))
         from app.chat.relations import capture_for_turn, copy_for_retry
         context = copy_for_retry(db, actor, retry_of, tid) if retry_of else capture_for_turn(db, actor, row, tid)
-        import json
-        if len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt.encode()) >= reserve_bytes:
+        material_bytes = len(json.dumps(materials,ensure_ascii=False).encode())
+        if len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt.encode()) + material_bytes >= reserve_bytes:
             raise service.ChatError(2508, '引用快照超过本轮存储预留')
-        db.execute(insert(messages).values(**service.identity(), turn_id=tid, role='user', content=prompt))
+        db.execute(insert(messages).values(**service.identity(), turn_id=tid, role='user', content=service.material_message(prompt, materials)))
         from app.chat.observability import trace
-        trace(db,tid,'queued',actor=actor,request_id=request_id)
+        trace(db,tid,'queued',actor=actor,request_id=request_id,
+            metadata={**service.material_counts(materials), **service.execution_config_metadata(execution_config)})
         db.commit()
     except Exception:
         db.rollback(); raise
-    return service.public_turn(service.turn(db, actor, tid))
+    result = service.public_turn(service.turn(db, actor, tid))
+    result.update(service.material_counts(materials))
+    return result
 
 
 def release_concurrency(db, tid):

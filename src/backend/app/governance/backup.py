@@ -114,6 +114,14 @@ def restore(backup,destination):
     destination.mkdir(mode=0o700)
     try:
         history_store.restore(manifest['history_backup_id'],destination/'database.sqlite')
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import Session
+        from app.governance.capture_cleanup import replay
+        restored_engine=create_engine('sqlite:///'+str(destination/'database.sqlite'))
+        try:
+            with Session(restored_engine) as restored_db:
+                replay(restored_db);restored_db.commit()
+        finally:restored_engine.dispose()
         with sqlite3.connect(destination/'database.sqlite') as restored:
             live_ids={row[0] for table in ('governance_candidates','governance_applications') for row in restored.execute('SELECT id FROM '+table)}
         for name,body in blobs.items():

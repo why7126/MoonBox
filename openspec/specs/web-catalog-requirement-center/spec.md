@@ -91,28 +91,21 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 系统 MUST 在 MoonBox 前台提供需求中心看板，保留 9 个阶段展示 Requirement 与 Bug 生命周期，并展示独立 Change 的对应交付阶段。
 
-#### Scenario: 用户打开需求中心看到 9 阶段看板
-
-- **WHEN** 用户进入 MoonBox 前台需求中心
-- **THEN** 页面必须展示采集池、规划中、待评审、已通过、迭代规划、待开发、研发中、验收中、已完成 9 个阶段
-- **AND** Requirement 与 Bug 必须共享阶段框架
-- **AND** 每个阶段列头必须展示阶段标题、原型定义的命令副标题和两位数对象数量
-- **AND** 页面必须通过横向看板结构表达 9 个阶段，筛选为 Bug 时仍保留全部 9 个阶段列，且不得展示冗余横向滚动提示文案
-- **AND** Requirement 卡片必须复用当前实现的类型边框与主题样式
-- **AND** Bug 卡片必须以红色左边框表达对象类型
-- **AND** 独立Change卡片必须使用主题info蓝色左边框，与需求和缺陷区分
-
 #### Scenario: 卡片展示治理对象摘要
 
 - **WHEN** 看板渲染 Requirement 或 Bug 卡片
-- **THEN** 卡片必须展示 ID、标题、优先级、负责人或来源、阶段产物、更新时间、阻塞状态、研发或测试进度以及阶段主动作
+- **THEN** 卡片必须展示 ID、标题、分级标签、负责人或来源、阶段产物、更新时间、阻塞状态、研发或测试进度以及阶段主动作
+- **AND** Requirement 卡片分级标签必须展示 `priority`，合法值为 `P0`、`P1`、`P2`、`P3`
+- **AND** Bug 卡片分级标签必须展示 `severity`，合法值为 `blocker`、`critical`、`high`、`medium`、`low`，或产品确认的中文映射
+- **AND** Requirement 与 Bug 的分级标签必须在各自合法值范围内按等级呈现可区分颜色
+- **AND** Bug 卡片不得因缺少 `priority` 被默认展示为 `P2` 或其他 P 值
 - **AND** 卡片必须保持当前实现的标签、文档分组、进度、底部动作和更新时间结构，仅按当前 Change 身份展示契约新增 ID 行与替换标题
 - **AND** 已进入迭代规划及后续阶段的卡片必须展示唯一 `sprint-xxx` 标签
 - **AND** 未纳入迭代的卡片不得展示空 Sprint 标签
 
 ### Requirement: 前台需求中心筛选与搜索
 
-系统 MUST 支持用户按对象类型、关键字、负责人、优先级和 Sprint 聚焦需求中心看板范围。
+系统 MUST 支持用户按对象类型、关键字、负责人、优先级和 Sprint 聚焦需求中心看板范围，并在 Sprint 筛选选项中展示可追溯的 Sprint 状态。
 
 #### Scenario: 用户按对象类型筛选
 
@@ -131,6 +124,24 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **WHEN** 用户选择负责人、优先级或 Sprint 筛选项
 - **THEN** 看板卡片范围必须按筛选条件刷新
 - **AND** 筛选不得破坏 9 阶段列头与横向滚动行为
+- **AND** Sprint 筛选新增状态展示不得改变默认选中、手动选择、搜索叠加、刷新、项目切换或统计口径
+
+#### Scenario: Sprint 筛选展示状态
+
+- **WHEN** 用户打开需求中心工具栏中的 Sprint 筛选下拉
+- **THEN** 每个具体 Sprint 选项 MUST 展示 Sprint ID 或名称以及状态信息
+- **AND** “全部 Sprint” MUST 作为聚合筛选项展示，不得绑定或伪造单个 Sprint 状态
+- **AND** `planning`、`in_progress`、`completed` 和归档目录事实 MUST 分别映射为规划中、进行中、已完成和已归档
+- **AND** 状态缺失、非法或事实源冲突时 MUST 展示“状态待核实”或等价安全文案，且不得阻断其他 Sprint 选择
+- **AND** 状态展示 MUST 来自需求中心稳定快照、Sprint 结构化字段或后端可追溯派生结果，前端不得凭排序、选中项或 ID 文案临时推断状态
+
+#### Scenario: Sprint 状态展示保持安全和可达
+
+- **WHEN** 用户在深色主题、浅色主题、窄屏、长 Sprint 名称、键盘导航或权限受限场景中使用 Sprint 筛选
+- **THEN** 状态文本或标签 MUST 可读、可聚焦、可选择，且不得撑破筛选栏、遮挡选项或改变卡片布局
+- **AND** 无权 Sprint 不得进入可见选项
+- **AND** 状态异常、授权失败或上下文加载失败不得泄漏内部路径、原始日志或无权对象内容
+- **AND** 工具栏 Sprint 筛选与加入迭代弹窗的 Sprint 状态口径 MUST 保持一致
 
 #### Scenario: 用户手动刷新 9 阶段看板
 
@@ -343,22 +354,22 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 系统 MUST 将 REQ-0023 的产品原型和附件视觉方向作为设计输入，并在实现、验收和归档阶段保持文档一致。
 
-#### Scenario: Change 设计承接现代 Ops 原型拆解
+#### Scenario: OpenSpec 设计承接原型契约
 
-- **WHEN** OpenSpec Change 创建完成
-- **THEN** `design.md` 必须包含 UI Contract
+- **WHEN** 需求中心 UI 型需求进入 OpenSpec Change
+- **THEN** Change design.md 必须写明 Prototype Source、Conflict Resolution、UI Contract 和 UI Skeleton
 - **AND** UI Contract 必须声明事实源优先级、品牌分层、Token、组件、交互状态、权限规则、Mock/API 边界和 computed style 验收点
-- **AND** `design.md` 必须包含 UI Skeleton
 - **AND** UI Skeleton 必须覆盖页面结构、区域边界、组件层级、状态容器、数据依赖、可测选择器和 1440px 验收焦点
-- **AND** `tasks.md` 中 UI Skeleton 任务必须早于细节实现任务
+- **AND** 对于 REQ-0033，UI Skeleton 必须覆盖工具栏、多选下拉、搜索输入、复选框候选项、无结果空态、单维清空、全局清空、权限态、选中摘要和窄屏摘要
 
 #### Scenario: 视觉验收覆盖现代 Ops 关键状态
 
-- **WHEN** `/opsx-apply` 完成 UI 实现
-- **THEN** 必须产出 1440px 桌面视觉证据
+- **WHEN** 需求中心 UI 变更进入实现验收
+- **THEN** 系统必须保留 1440px 桌面视口视觉证据
 - **AND** 视觉证据必须覆盖默认首屏、侧边栏展开/收起、用户菜单、筛选 Popover、看板横向滚动、空列、错误态、卡片 hover、右侧抽屉、AI 入口、深浅主题和窄屏状态
-- **AND** computed style 证据必须覆盖关键字体、字号、行高、间距、圆角、边框、背景、颜色、z-index、overflow 和 position
-- **AND** `/opsx-archive` 前必须确认 REQ 文档、Change 设计、最终实现和验收证据一致
+- **AND** 对于 REQ-0033，视觉证据还必须覆盖多选摘要、下拉内搜索、搜索无结果、候选项内部滚动、全选入口、清空入口、刷新保留筛选和文本溢出检查
+- **AND** 验收材料必须记录关键筛选控件的 computed style 证据，包括触发器尺寸、Popover 宽高、复选框尺寸、focus ring、边框、背景、文字颜色和滚动容器高度
+- **AND** OpenSpec 归档前必须确认 requirement.md、acceptance.md、trace.md、Change design.md、实现证据和验收结论一致
 
 ### Requirement: 前台创建空间申请流程
 
@@ -411,7 +422,7 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 ### Requirement: 卡片文档查看与详情跳转
 
-系统 MUST 支持从需求中心卡片安全查看关联 Markdown/HTML 文档，并支持卡片标题和归档入口新 Tab 打开对象详情。
+系统 MUST 支持从需求中心卡片安全查看关联 Markdown/HTML 文档，并支持卡片标题和归档入口新 Tab 打开对象详情。Markdown 文档抽屉 MUST 只承载当前文档阅读、文档属性和既有编辑能力，不得在正文前渲染 Change 追溯属性模块。
 
 #### Scenario: Markdown 文档从右侧抽屉打开
 
@@ -422,6 +433,26 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **AND** 抽屉打开后必须显示背景蒙层
 - **AND** 桌面端抽屉必须支持 420px-760px 范围内拖拽调整宽度，移动端必须使用全屏宽度
 - **AND** 文件点击不得冒泡触发卡片详情或阶段动作
+
+#### Scenario: Markdown 文档抽屉不展示 Change 属性模块
+
+- **GIVEN** 用户打开 REQ、BUG 或独立 Change 的 Markdown 文档抽屉
+- **WHEN** 文档抽屉完成加载
+- **THEN** 抽屉正文前必须只保留文档属性区和当前文档正文
+- **AND** 抽屉不得渲染“Change 追溯属性”标题、模块边框、左侧色条、任务进度文案、告警分隔符、关联 Change 列表或模块内 Change 文档按钮
+- **AND** 文档属性区必须继续使用面向用户的“文档属性”标题，并保留展开/收起能力
+- **AND** 删除模块后不得保留空白占位、残留分隔线、贴边文本或正文顶部断层
+
+#### Scenario: 抽屉外 Change 文档入口保持可达
+
+- **GIVEN** REQ 或 BUG 关联一个或多个 Change
+- **WHEN** 用户需要查看关联 Change 的 proposal、design、tasks 或 Change trace
+- **THEN** 系统必须通过抽屉外的卡片、详情或既有文档分组入口提供可达路径
+- **AND** 卡片侧关联 Change 文档入口必须保持紧凑，使用直接紧凑文档入口承接，不得在卡片上展开完整 Change ID
+- **AND** Issue 自身文档与关联 Change 文档合并展示时，`proposal.md`、`spec.md`、`design.md`、`tasks.md`、`sprint.md` 等非 trace 同名文档必须按文件名和语义去重
+- **AND** 多 Change 场景不得默认选择第一个 Change
+- **AND** 系统不得把多个 Change 的任务进度汇总成单个 Change 的进度
+- **AND** Issue trace 与 Change trace 的入口标签或上下文必须可区分
 
 #### Scenario: 采集池 capture.md 受控编辑保存
 
@@ -440,20 +471,13 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **WHEN** 卡片关联文档包含 `.html` 文件
 - **THEN** 文件名必须展示为可点击入口
 - **AND** 点击后必须在新 Tab 打开受控 HTML 预览或详情页面
-- **AND** 系统不得向浏览器暴露本机绝对路径或内部文件系统结构
 
-#### Scenario: 卡片标题和查看归档打开详情
+#### Scenario: 文档抽屉视觉与权限回归
 
-- **WHEN** 用户点击任意卡片标题
-- **THEN** 系统必须在新 Tab 打开对应 Requirement 或 Bug 详情页
-- **AND** 已完成卡片的“查看归档”动作必须使用相同详情打开规则
-
-#### Scenario: 文档异常不触发流转
-
-- **WHEN** 文档不存在、类型不符、读取失败或权限不足
-- **THEN** 系统必须展示可理解的异常反馈
-- **AND** 系统不得触发卡片阶段流转
-- **AND** 错误反馈不得包含本机绝对路径、内部堆栈、密钥、token 或 `.env` 内容
+- **WHEN** 文档抽屉在 1440px、窄视口、深色主题或浅色主题下展示
+- **THEN** 文档属性、正文、关闭、全屏或恢复、滚动和长标题/长 ID/长正文不得重叠或溢出
+- **AND** 实现必须提供 1440px 与窄视口视觉证据，以及文档属性区和滚动容器的 computed style 或等价检查
+- **AND** 无权对象、只读成员、冻结空间、跨项目同 ID 和直接文档 URL 不得因模块删除暴露受限内容
 
 ### Requirement: 全局 AI 聊天与卡片动作反馈
 
@@ -488,15 +512,12 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 #### Scenario: 用户创建 Capture
 
-- **WHEN** 用户打开 Capture 新建表单
-- **THEN** 表单必须支持对象类型、标题、对应类型分级和补充说明
-- **AND** 类型与分级应使用轻量选择控件，避免低频下拉增加采集成本
-- **AND** 标题必须必填
-- **AND** 标题输入框打开弹窗后必须自动聚焦
-- **AND** 标题为空时系统必须阻止提交并展示校验提示
-- **AND** 标题校验提示必须在表单内展示，并在输入框上体现明确错误态
-- **AND** 表单应减少字段间分割线和纵向留白，保持 Capture 快速采集心智
-- **AND** 服务端完成目标项目目录、capture.md、trace.md、注册表与当前态索引持久化后，系统才可展示成功反馈，并用服务端完整ID将新对象插入采集池
+- **WHEN** 用户打开新建 Capture 工作区
+- **THEN** 系统 MUST 默认显示原始文字与图片输入，不要求预填标题、类型或分级
+- **AND** 系统 MUST 经 AI 整理形成未编号候选供用户编辑、改类型、合并、拆分、删除和查看来源；仅在审阅时校验标题与最终类型分级
+- **AND** 用户 MUST 确认最新完整候选版本后，服务端才可分配编号并创建采集记录
+- **AND** 系统 MUST 在整批目录、capture.md、trace.md、注册表、索引及编号映射校验完成后展示成功，以服务端完整 ID 刷新采集池
+- **AND** 详情遵循 capture-candidate-review 能力，候选阶段不占号、不写正式目录
 
 #### Scenario: 生成阶段导入文件校验
 
@@ -524,7 +545,7 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 - **WHEN** 多个客户端同时创建或重试同一创建请求
 - **THEN** 服务端 MUST 协调编号与文件版本，避免覆盖已存在条目
-- **AND** 同一操作者、项目和幂等键的相同请求 MUST 返回同一操作与ID
+- **AND** 同一操作者、项目和幂等键的相同请求 MUST 返回同一操作与ID；候选批次同一确认快照更换请求键也必须返回原任务，已确认批次不能改版本重建
 - **AND** 相同键但不同内容 MUST 返回冲突
 
 #### Scenario: 写入失败与处理中反馈
@@ -556,15 +577,15 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 #### Scenario: 按类型选择并持久化分级
 
-- **WHEN** 用户切换Capture类型
-- **THEN** REQ展示priority P0/P1/P2/P3，BUG展示severity blocker/critical/high/medium/low，并保留各自选值
+- **WHEN** 用户在候选审阅中切换Capture类型
+- **THEN** REQ展示priority P0/P1/P2/P3，BUG展示severity blocker/critical/high/medium/low；切换类型保留候选身份、内容和图片，重新建议目标类型分级供审阅，不做两类分级直接映射
 - **AND** 提交仅包含对应类型字段，缺失、非法值和混用字段必须拒绝
 - **AND** capture、trace、注册表和索引保存相同正式分级，不固定BUG为medium，不写入异类字段或hint
 
 #### Scenario: Capture 弹窗尺寸与分级解释
 
 - **WHEN** 用户在桌面打开Capture弹窗
-- **THEN** 弹窗宽度为840px，窄屏按视口留边收缩
+- **THEN** 输入态工作区使用居中单列布局，材料抽屉、MD 编辑器、草稿状态和删除草稿属于同一张 card；来源材料以紧凑 pill chip 展示，文本文件以内嵌来源块进入该编辑器，图片以同一材料流的 pill chip 展示；`AI 整理候选` 位于 card 外并全宽显示；900px以下单列，390px无横向溢出，头部步骤与主操作保持可达
 - **AND** REQ显示P0/P1/P2/P3，BUG显示致命/严重/高/中/低并提交原英文枚举
 - **AND** 分级不显示鼠标悬停或键盘聚焦浮层，仅在下方显示当前选中说明；原生键盘与触屏选择仍可更新说明
 
@@ -738,7 +759,8 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **AND** 同 ID 活动 Sprint SHALL 优先于归档，不使用归档补活动缺口
 
 ### Requirement: 独立变更阶段按钮
-系统 SHALL 复用REQ/BUG的阶段按钮、弹窗族、权限与执行能力门禁。
+
+系统 SHALL 复用REQ/BUG的阶段按钮、弹窗族、权限与执行能力门禁。验收中独立 Change 的完成/归档入口 SHALL 检查 Change 内交付验证来源，但 SHALL NOT 固定要求 `acceptance.md` 或 `verification.md`；当存在非空 `trace.md` 验证类章节或有效 `trace.acceptance_refs` 时，系统 SHALL 接受其作为证据入口。
 
 #### Scenario: 阶段匹配
 - **WHEN** 独立Change位于待开发、研发中或验收中
@@ -760,9 +782,245 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **THEN** 系统 SHALL 不添加固定验收核对提示，使用REQ/BUG相同的动作处理器与testProgress/manualAcceptanceCount门禁
 - **AND** 真实模式尚未支持的动作 SHALL 给出相同能力反馈，不执行虚假流转
 
+#### Scenario: 接受 Change 内非固定验证来源
+
+- **WHEN** 独立 Change 处于验收中且没有 `acceptance.md` 或 `verification.md`
+- **THEN** 系统 SHALL 查找 `trace.acceptance_refs` 指向的 Change 内 Markdown
+- **AND** 未声明显式引用时，系统 SHALL 查找 `trace.md` 中非空的验证类章节
+- **AND** 找到有效来源时 SHALL 不展示“未找到交付验证记录”
+- **AND** 未找到任一来源时 SHALL 提示验收来源待核实
+
 #### Scenario: 独立变更从追溯正文读取中文标题
 
 - **WHEN** trace显式标题与proposal/design业务标题均缺失，但trace正文存在有效中文一级业务标题
 - **THEN** 卡片必须使用该业务标题，保留完整Change ID身份行
 - **AND** 追溯、背景与动机、验证记录等通用章节名不得作为业务标题；无有效标题时回退完整Change ID
+
+### Requirement: 需求中心默认当前迭代范围
+系统 MUST 在前台需求中心默认聚焦当前迭代和未纳入 Sprint 的相关卡片，并通过既有 Sprint 多选保留查看非当前范围的入口，不得新增独立范围按钮组或筛选模块下方提示模块。
+
+#### Scenario: 首次进入默认当前迭代
+- **WHEN** 用户首次进入需求中心
+- **THEN** 系统必须默认展示当前迭代和未纳入 Sprint 的 REQ、BUG 和独立 Change 卡片
+- **AND** 既有 Sprint 多选必须直接选中当前 Sprint 和“未纳入 Sprint”
+- **AND** Sprint 候选可用 meta 或状态标识表达“当前迭代”，但不得新增 `当前迭代｜全部｜历史｜未纳入迭代｜归档` 范围筛选模块
+- **AND** 系统不得让用户误以为当前项目只存在这些卡片
+
+#### Scenario: 重置筛选恢复默认范围
+- **GIVEN** 用户已清空 Sprint 多选、选择历史/归档 Sprint 或选择单个 Sprint
+- **WHEN** 用户点击重置筛选或回到默认视图
+- **THEN** 系统必须恢复当前 Sprint 和“未纳入 Sprint”的默认选择
+- **AND** 不得恢复为全量范围，除非用户显式清空 Sprint 多选
+
+#### Scenario: 查看非当前范围
+- **WHEN** 用户清空 Sprint 多选，取消“未纳入 Sprint”，或在 Sprint 多选中选择历史/归档 Sprint
+- **THEN** 看板必须展示用户显式选择范围内的卡片
+- **AND** 搜索、对象类型、负责人、优先级、Sprint、文档阅读和阶段动作必须继续按既有权限与筛选规则工作
+
+#### Scenario: 多个当前迭代
+- **WHEN** 系统存在多个当前迭代候选
+- **THEN** 默认范围必须展示全部当前迭代和未纳入 Sprint 的相关卡片
+- **AND** Sprint 多选必须默认选中全部当前 Sprint 和“未纳入 Sprint”，并提供进一步取消或选择单个 Sprint 的显式操作
+- **AND** 系统不得无证据地只选择编号最大、更新时间最新或读取顺序靠前的 Sprint
+
+#### Scenario: 无当前迭代或当前迭代无卡片
+- **WHEN** 当前项目没有当前迭代或当前迭代范围内没有卡片
+- **THEN** 页面必须展示稳定空态
+- **AND** 页面必须默认保留“未纳入 Sprint”对象，并可通过清空 Sprint 多选或选择历史 Sprint 查看其他非当前对象
+- **AND** 系统不得静默展示全量卡片并伪装为当前迭代结果
+
+#### Scenario: UI 视觉与响应式验收
+- **WHEN** 需求中心默认当前迭代范围在 1440px 桌面、窄屏、深色主题或浅色主题下展示
+- **THEN** Sprint 多选、筛选控件、指标区、看板列头和卡片文本不得重叠或溢出
+- **AND** 看板 sticky 表头、横向滚动和卡片密度必须保持父需求基线
+- **AND** 实现必须提供 1440px 和关键交互视觉证据，以及必要的 computed style 验收摘要
+
+### Requirement: 需求中心 Sprint 数量指标
+需求中心 MUST 在指标区展示项目级 Sprint 数量指标，包含已完成 Sprint 数与总体 Sprint 数，并与既有需求中心视觉、深浅主题和响应式布局保持一致。
+
+#### Scenario: 展示项目级 Sprint 数量
+- **WHEN** 用户进入需求中心且上下文请求成功
+- **THEN** 指标区必须展示 Sprint 已完成数量与总体数量
+- **AND** 卡片标题文案必须为 `Sprint`
+- **AND** 文案必须表达“已完成 / 总体”或等价语义
+- **AND** 该指标必须让用户理解为当前项目级 Sprint 总览
+- **AND** 项目级口径说明必须通过指标名后的统一 tooltip 呈现，不得在卡片底部额外展示辅助说明
+
+#### Scenario: 对象指标展示完成比例
+- **WHEN** 用户查看需求中心指标区
+- **THEN** 需求、Bug 与独立 Change 指标必须展示“已完成 / 总体”或等价比例
+- **AND** 这些对象指标必须继续跟随当前搜索、对象类型、负责人、优先级和 Sprint 筛选条件变化
+- **AND** 每个指标名后必须提供统一信息图标，鼠标悬停或键盘聚焦时展示该指标的统计口径说明
+
+#### Scenario: 无 Sprint 时展示空态数字
+- **WHEN** 当前项目没有任何有效 Sprint
+- **THEN** Sprint 数量指标必须展示 `0 / 0` 或等价空态
+- **AND** 页面不得隐藏该指标卡或留下空白占位
+
+#### Scenario: 筛选不改变 Sprint 总览
+- **WHEN** 用户修改搜索关键字、对象类型、负责人、优先级或 Sprint 筛选
+- **THEN** 看板卡片与既有局部统计可以按筛选条件刷新
+- **AND** Sprint 数量指标必须保持项目级总览数字
+
+#### Scenario: 刷新与空间切换更新指标
+- **WHEN** 用户首次加载需求中心、手动刷新或切换空间
+- **THEN** Sprint 数量指标必须跟随后端上下文聚合结果刷新
+- **AND** 刷新中必须保持指标区布局稳定
+
+#### Scenario: 加载、错误和权限状态安全展示
+- **WHEN** Sprint 指标正在加载、接口失败、权限不足或数据解析失败
+- **THEN** 页面必须展示骨架、上一可用值、`0 / 0` 或轻量错误态之一
+- **AND** 页面必须提供重试或随下一次刷新恢复的路径
+- **AND** 错误文案不得暴露本机绝对路径、系统用户名、内部堆栈、密钥、token、`.env` 内容或未脱敏治理文档全文
+
+#### Scenario: 响应式与主题一致
+- **WHEN** 用户在 1440px、1024px 或 390px 视口查看需求中心
+- **THEN** Sprint 数量指标不得与相邻指标、筛选区或看板列头重叠
+- **AND** 主数字、标题和 tooltip 触发图标不得溢出容器
+- **AND** 深色主题与浅色主题下的背景、边框、字号、间距和圆角必须复用需求中心既有视觉体系
+
+### Requirement: 当前迭代容量展示
+
+系统 MUST 在前台需求中心展示当前迭代容量，支持单当前迭代、两个当前迭代、默认容量、超量、待核实和刷新失败状态，并保持现有看板结构和筛选体验。
+
+#### Scenario: 单当前迭代容量展示
+- **WHEN** 用户打开需求中心
+- **AND** 上下文中包含一个当前迭代容量项
+- **THEN** 页面必须在当前迭代相关统计或筛选区域展示该容量项
+- **AND** 容量项必须展示 Sprint ID 和 `已使用容量 / 总容量`
+- **AND** 容量单位必须沿用 Sprint 容量治理口径
+- **AND** 容量项不得分散到每张治理对象卡片内
+
+#### Scenario: 两个当前迭代容量展示
+- **WHEN** 上下文中包含两个当前迭代容量项
+- **THEN** 页面必须同时展示两个容量项
+- **AND** 两个容量项视觉权重必须一致
+- **AND** 页面不得默认隐藏其中一个容量项
+- **AND** 窄屏下可以换行、折叠或纵向排列，但必须保留 Sprint ID 和容量比例可见
+
+#### Scenario: 容量状态展示
+- **WHEN** 容量项状态为正常、接近上限、已超量或待核实
+- **THEN** 页面必须为不同状态提供可辨识视觉反馈
+- **AND** 已超量状态只能提示规划风险，不得自动阻止用户浏览、筛选或打开文档
+- **AND** 待核实状态必须展示可理解提示，不得显示伪造的 `0/0`
+
+#### Scenario: 默认容量提示
+- **WHEN** 容量项总容量来自默认规则
+- **THEN** 页面必须提供轻量提示说明该值来自默认容量
+- **AND** 显式容量存在时页面必须优先展示显式容量
+
+#### Scenario: 刷新失败保留容量
+- **WHEN** 用户点击刷新或切换筛选后上下文刷新失败
+- **AND** 页面已有上一次成功容量结果
+- **THEN** 页面必须保留上一次成功容量信息
+- **AND** 页面必须展示轻量失败提示
+- **AND** 页面不得清空整个看板或删除 9 阶段列
+
+#### Scenario: 当前迭代容量视觉验收
+- **WHEN** 完成当前迭代容量 UI 实现
+- **THEN** 验收必须覆盖 1440px 桌面视口下的正常、双当前迭代、超量、待核实和刷新失败状态
+- **AND** 验收必须覆盖深色主题和浅色主题
+- **AND** 验收必须覆盖窄屏下文本不遮挡统计区、筛选器、看板列头、卡片 ID 或阶段动作
+- **AND** 验收必须记录截图、computed style 或等价证据
+
+#### Scenario: 容量条局部参考稿一致
+- **WHEN** 用户验收要求当前迭代容量区域参考附件 HTML 的容量模块
+- **THEN** 页面必须将当前迭代容量展示为紧凑横向容量条
+- **AND** 容量条必须保留 Sprint ID、容量来源、容量比例、进度轨和状态提示
+- **AND** 页面不得展示额外可见标题“当前迭代容量”
+- **AND** 页面可以保留 `aria-label` 或等价无障碍语义
+- **AND** 该调整不得改变需求中心其他统计、筛选、看板或卡片模块
+
+### Requirement: 当前迭代归档入口
+
+系统 SHALL 在前台需求中心当前迭代容量区域或当前迭代操作区提供受 Sprint archive readiness 控制的“归档当前迭代”入口，并通过确认流程复用既有 Sprint archive 门禁。
+
+#### Scenario: 展示可进入确认的归档入口
+- **WHEN** 用户打开需求中心
+- **AND** 当前迭代存在
+- **AND** 当前迭代 `used_capacity` 大于 0 人天
+- **AND** Sprint archive readiness 汇总允许进入确认流程
+- **THEN** 页面 SHALL 在当前迭代容量区域或当前迭代操作区展示“归档当前迭代”入口
+- **AND** 入口 SHALL 明确绑定目标 Sprint
+- **AND** 入口 SHALL 靠近容量信息展示，不得分散到每张治理对象卡片内
+
+#### Scenario: 未归档闭环时隐藏或禁用入口
+- **WHEN** 当前迭代 `used_capacity` 大于 0 人天
+- **AND** Sprint 范围内任一 REQ、BUG 或独立 Change 未归档闭环
+- **THEN** 页面 SHALL 隐藏归档入口或展示禁用态
+- **AND** 若展示禁用态，页面 SHALL 展示安全摘要和修复方向
+- **AND** 页面 MUST NOT 允许用户进入可执行归档路径
+- **AND** 安全摘要 MUST NOT 泄露不可见资源细节、内部路径、堆栈、密钥或 `.env` 内容
+
+#### Scenario: 容量或当前迭代不满足时不可执行
+- **WHEN** 无当前迭代、无可见 Sprint、容量待核实、当前迭代解析失败或 `used_capacity` 等于 0
+- **THEN** 页面 MUST NOT 提供可执行归档入口
+- **AND** 页面 MAY 隐藏入口或展示不可用摘要
+
+#### Scenario: 多当前迭代绑定目标 Sprint
+- **WHEN** 需求中心存在多个当前迭代
+- **THEN** 每个归档入口或确认流程 SHALL 明确绑定一个目标 Sprint
+- **AND** 系统 MUST NOT 默认选择编号最大、更新时间最新或容量最高的 Sprint 直接进入归档
+- **AND** 迟到的 readiness 或归档响应 MUST NOT 覆盖用户当前正在确认的其他 Sprint
+
+#### Scenario: 点击入口进入确认流程
+- **WHEN** 用户点击可进入确认的归档入口
+- **THEN** 页面 SHALL 打开归档确认弹窗或等价 action modal
+- **AND** 确认流程 SHALL 展示目标 Sprint ID、当前状态、容量摘要、门禁检查结果和归档影响
+- **AND** 页面 MUST NOT 因入口点击直接执行 Sprint archive
+
+#### Scenario: 取消确认不改变事实源
+- **WHEN** 用户在归档确认流程中点击取消或按约定关闭弹窗
+- **THEN** 系统 MUST NOT 改变 Sprint、REQ、BUG、Change、验收报告或 Workflow Sync 状态
+- **AND** 页面 SHALL 保留当前迭代容量和卡片上下文
+
+#### Scenario: 门禁失败阻断执行
+- **WHEN** Sprint archive readiness 或执行前门禁发现未归档范围、验收报告未 sign-off、权限不足或 Workflow Sync 校验失败
+- **THEN** 页面 SHALL 展示失败项和修复方向
+- **AND** 页面 MUST NOT 展示“强制归档”或等价绕过按钮
+- **AND** 失败项入口 MUST 遵守权限过滤和脱敏规则
+
+#### Scenario: 后端门禁是最终裁判
+- **WHEN** 用户确认执行归档
+- **THEN** 服务端或既有治理命令 MUST 重新校验目标 Sprint、权限、未归档范围、验收 sign-off 和 Workflow Sync
+- **AND** 服务端 MUST NOT 信任客户端传入的 readiness、权限、Sprint ID 或行为链路字段作为最终授权依据
+- **AND** 前端自行判定通过 MUST NOT 直接写入归档结果
+
+#### Scenario: 归档成功刷新需求中心
+- **WHEN** Sprint archive 执行成功
+- **AND** Workflow Sync 刷新成功
+- **THEN** 需求中心 SHALL 刷新当前迭代列表、容量区域、Scope 投影和相关卡片状态
+- **AND** 已归档 Sprint MUST NOT 继续伪装为当前迭代
+
+#### Scenario: 执行或同步失败保留上下文
+- **WHEN** 门禁检查、归档执行请求或 Workflow Sync 刷新失败
+- **THEN** 页面 SHALL 保留当前迭代容量和卡片上下文
+- **AND** 页面 SHALL 展示轻量失败信息或状态可能过期提示
+- **AND** 页面 MUST NOT 清空看板、伪装归档成功或静默移除当前迭代
+
+#### Scenario: 当前迭代归档入口 UI 验收
+- **WHEN** 完成当前迭代归档入口 UI 实现
+- **THEN** 验收 MUST 覆盖 1440px 桌面下的入口、禁用态、确认弹窗、门禁失败列表、权限态和成功/失败反馈
+- **AND** 验收 MUST 覆盖 390px 窄屏、长 Sprint ID、多当前迭代和文本不重叠
+- **AND** 验收 MUST 记录截图、computed style 或等价证据
+- **AND** click outside 关闭若被支持，验收 MUST 覆盖弹窗内 `stopPropagation` 不误关闭、外部点击仍按约定关闭
+
+### Requirement: Capture 弹窗按附件原型呈现单列三阶段工作台
+
+Capture 弹窗 MUST 使用当前 MoonBox 设计系统复刻验收附件的单列三阶段布局，保持确认前不分配正式编号。
+
+#### 场景：Capture 弹窗按附件原型呈现单列三阶段工作台
+
+- **WHEN** 用户打开新建 Capture
+- **THEN** 系统 MUST 展示居中弹窗工作台、topbar crumb、关闭动作和三点式进度，且不得展示独立顶部主标题或副标题
+- **AND** 输入态 MUST 展示来源材料抽屉、紧凑材料 pill chip、唯一 MD 编辑器、草稿状态和删除草稿，并在 card 外展示全宽 `AI 整理候选` 主按钮；下方 Markdown 编辑器 MUST 作为默认输入区隐含存在，不得作为 `MD 文本` 或 `编辑器正文` chip 展示，也不得纳入来源材料计数；来源材料 MUST 仅统计并展示额外上传的图片和文本文件；上传文本文件 MUST 以独立 chip 展示文件名并提供删除入口，删除时同步移除 MD 编辑器中的对应来源文件块
+- **AND** 审阅态 MUST 使用单列候选 board、条目序号栏、候选类型/分级 badge 和卡片内联编辑区域
+- **AND** 结果态 MUST 展示完成状态标题、采集记录结果卡片和幂等重试说明；成功、失败或中断结果态 MUST NOT 展示圆形勾选或其他结果图标，confirming 状态 MAY 保留 loading 图标
+- **AND** 条目序号、候选 badge 或内联编辑状态 MUST NOT 预占或展示正式 REQ/BUG 编号。
+- **AND** 字体 family 和顶部 kicker MUST 与当前产品 Markdown 右侧抽屉保持一致：弹窗全局使用抽屉同源 body/heading/mono 字体族，`新建 CAPTURE` 使用抽屉 crumb 样式与颜色，MD 输入区使用抽屉同款 monospace 12.5px 编辑密度，输入说明应位于 MD 编辑器 placeholder 或内容 card 内轻提示。
+- **AND** 审阅态 MUST NOT 展示 `AI 审阅结果` 标题；系统 MUST 仅在审阅头部展示 `{候选数} 条候选 · {需求数} 条需求 / {缺陷数} 条缺陷` 和 `合并所选` 操作；候选卡片 MUST 展示类型标签与对应分级标签，删除动作 MUST 使用危险色，且不得展示“这些仍是候选……” notice 模块。
+- **AND** 候选卡片 MUST 仅在存在相似匹配时展示项目内可能相关的 REQ/BUG 提示；未发现相关项时 MUST NOT 展示 `可能相关` 模块、无匹配空态或默认 `继续创建新记录` 文案；用户选择合并到已有记录或作为已有记录补充材料时，该候选 MUST 从待创建统计和确认创建批次中排除，恢复创建后才可触发服务端编号分配。
+
+- **AND** 输入态来源材料 MUST 保持轻量文案：不得展示 `确认前仅保存草稿`、字符计数、`图片材料` 副文案或可见 `原始材料` label；输入 card 和来源材料外部边框不得形成额外大卡片层级。
+- **AND** 审阅态候选卡顶部 MUST 将选择复选框与候选标题放在同一行，类型和分级标签位于同一顶栏右侧；来源依据 MUST 在候选卡内以 `来源依据` label 加具体依据文本展示；编辑、拆分和删除相关卡内面板 MUST 在候选卡操作按钮行之后向下展开，不得打开二次弹窗；编辑按钮 MUST 显示为 `编辑` 并带编辑图标，删除按钮 MUST 带删除图标；拆分面板 MUST 使用左右两个完整子条目，每个子条目包含类目、标题和描述，且可独立选择需求或 BUG；确认创建 MUST 直接提交确认流程，不得再次弹窗确认。
 

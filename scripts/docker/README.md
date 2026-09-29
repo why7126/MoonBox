@@ -4,7 +4,7 @@ content: Compose 服务、脚本与目录约定
 source: initialize-project / project.yaml
 update_method: 部署架构变更时同步更新
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-06-27 08:44:18
+updated_at: 2026-09-18 16:07:12
 ---
 
 # Docker 基线
@@ -39,7 +39,11 @@ data/s3
 data/uploads
 data/processed
 data/tmp
+data/runtime/chat-platform
+data/runtime/governance
 ```
+
+`data/sqlite` 是本地 SQLite canonical 持久数据库目录；`data/s3` 是自建 MinIO/S3 对象数据目录。`data/runtime/chat-platform` 与 `data/runtime/governance` 只承载运行控制状态。历史 `data/runtime/backend/sqlite` 或 `data/runtime/backend/media` 仅作为迁移期 legacy 目录处理，切换或清理前必须停服、备份并完成完整性校验。
 
 ## 文档
 

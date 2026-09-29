@@ -59,6 +59,18 @@ def resolve_issue_dir(base_rel: str, issue_id: str) -> Path | None:
     return None
 
 
+def normalize_openspec_changes(raw_changes: list[Any]) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    for item in raw_changes:
+        if isinstance(item, dict):
+            normalized.append(item)
+            continue
+        change_id = str(item).strip()
+        if change_id:
+            normalized.append({"change_id": change_id})
+    return normalized
+
+
 @dataclass
 class TaskProgress:
     done: int = 0
@@ -417,23 +429,26 @@ def load_issue_record(path: Path, kind: str) -> IssueRecord | None:
         trace_status = fm.get("status")
         raw_changes = fm_block.get("openspec_changes") or []
         if isinstance(raw_changes, list):
-            openspec_changes = [c for c in raw_changes if isinstance(c, dict)]
+            openspec_changes = normalize_openspec_changes(raw_changes)
         raw_related_changes = fm_block.get("related_changes") or []
         if isinstance(raw_related_changes, list):
             related_changes = [str(item).strip() for item in raw_related_changes if str(item).strip()]
-        related_requirement = fm_block.get("related_requirement")
-        related_change = fm_block.get("related_change")
+        related_requirement = fm_block.get("related_requirement") or fm.get("related_requirement")
+        related_change = fm_block.get("related_change") or fm.get("related_change")
         block = parse_yaml_block(trace_text)
         if block:
             trace_status = block.get("status") or trace_status
             raw_changes = block.get("openspec_changes") or []
             if isinstance(raw_changes, list):
-                openspec_changes = [c for c in raw_changes if isinstance(c, dict)]
+                openspec_changes = normalize_openspec_changes(raw_changes)
             raw_related_changes = block.get("related_changes") or []
             if isinstance(raw_related_changes, list):
                 related_changes = [str(item).strip() for item in raw_related_changes if str(item).strip()]
-            related_requirement = block.get("related_requirement")
-            related_change = block.get("related_change")
+            related_requirement = block.get("related_requirement") or related_requirement
+            related_change = block.get("related_change") or related_change
+
+        if not openspec_changes and isinstance(related_change, str) and related_change.strip():
+            openspec_changes = [{"change_id": related_change.strip()}]
 
     from .classification import resolve_classification
     priority, classification_error = resolve_classification(path, kind)
@@ -449,7 +464,7 @@ def load_issue_record(path: Path, kind: str) -> IssueRecord | None:
         openspec_changes=openspec_changes,
         related_changes=related_changes if kind == "req" else [],
         related_requirement=related_requirement if kind == "bug" else None,
-        related_change=related_change if kind == "bug" else None,
+        related_change=related_change,
     )
 
 

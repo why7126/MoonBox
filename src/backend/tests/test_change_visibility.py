@@ -35,18 +35,19 @@ def cards(root, visible=lambda _: True):
         return service.build_requirement_center_context(visibility=visible)
 
 def test_bidirectional_dedup_and_multi_current(tmp_path):
-    root = fixture_tree(tmp_path); issue(root, related_change='one'); change(root, 'one', title='中文业务标题')
+    root = fixture_tree(tmp_path); issue(root, related_change='one'); directory = change(root, 'one', title='追溯元数据标题')
+    write(directory / 'proposal.md', '# 中文业务标题\n')
     first = cards(root)
     assert len(first.issues) == 1 and first.stats.standalone_changes == 0
     row = first.issues[0]
-    assert row.id == 'REQ-0099' and row.title == '原需求标题'
+    assert row.id == 'REQ-0099' and row.title == '原需求'
     assert row.current_change.id == 'one' and row.current_change.title == '中文业务标题'
     assert row.stage == 'ready-dev' and row.task_progress == (1, 1)
     change(root, 'two', requirement='REQ-0099')
     row = cards(root).issues[0]
     assert row.current_change is None and len(row.related_changes) == 2
     assert row.change_warning == '多个 Change，当前项待核实'
-    assert row.tasks is None and row.title == '原需求标题' and row.stage == 'ready-dev'
+    assert row.tasks is None and row.title == '原需求' and row.stage == 'ready-dev'
 
 def test_hidden_sources_never_become_independent(tmp_path):
     root = fixture_tree(tmp_path); issue(root)
@@ -270,12 +271,19 @@ def test_standalone_action_uses_actual_document_gates(tmp_path):
     assert cards(root).issues[0].action.disabled_reason is None
 
 
+@pytest.mark.parametrize('heading', ['验证记录', '验收记录', '验收结果', '验证结果', '验证摘要', 'Validation Log', '实施与验证记录'])
+def test_change_delivery_trace_headings_are_evidence_sources(tmp_path, heading):
+    root = fixture_tree(tmp_path); directory = change(root, iteration='sprint-005')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'changes: [sample-change]\n')
+    trace = '---\nstatus: applied\niteration: sprint-005\n---\n'
+    write(directory / 'trace.md', trace + f'# 交付\n## {heading}\n5项容量回归通过。\n')
+    assert cards(root).issues[0].action.disabled_reason is None
+
+
 def test_change_delivery_sources_and_explicit_reference_boundaries(tmp_path):
     root = fixture_tree(tmp_path); directory = change(root, iteration='sprint-005')
     write(root / 'iterations/change/sprint-005/sprint.yaml', 'changes: [sample-change]\n')
     trace = '---\nstatus: applied\niteration: sprint-005\n---\n'
-    write(directory / 'trace.md', trace + '# 交付\n## 验证记录\n5项容量回归通过。\n')
-    assert cards(root).issues[0].action.disabled_reason is None
     write(directory / 'trace.md', trace)
     assert '验收来源待核实' in cards(root).issues[0].action.disabled_reason
     write(directory / 'verification.md', '# 验证结果\n已完成检查')
@@ -291,14 +299,35 @@ def test_change_delivery_sources_and_explicit_reference_boundaries(tmp_path):
 def test_trace_business_heading_is_last_title_fallback(tmp_path):
     from app.governance.change_index import chinese_title
     (tmp_path / 'trace.md').write_text('# Issue 分级元数据统一\n', encoding='utf-8')
-    assert chinese_title(tmp_path, {}) == 'Issue 分级元数据统一'
-    assert chinese_title(tmp_path, {'title': '显式业务标题'}) == '显式业务标题'
+    assert chinese_title(tmp_path, {}) is None
+    assert chinese_title(tmp_path, {'title': '显式业务标题'}) is None
     (tmp_path / 'proposal.md').write_text('# 提案：已有业务标题\n', encoding='utf-8')
-    assert chinese_title(tmp_path, {}) == '已有业务标题'
+    assert chinese_title(tmp_path, {}) == '提案：已有业务标题'
 
 
-@pytest.mark.parametrize('heading', ['追溯', 'Change 追溯', '变更追溯', '验证记录', '验收记录', '验收结果', '验证结果', '背景', '任务清单', '背景与动机', '设计决策'])
+@pytest.mark.parametrize('heading', ['追溯', 'Change 追溯', '变更追溯', '验证记录', '验收记录', '验收结果', '验证结果', '验证摘要', '实施与验证记录', '背景', '任务清单', '背景与动机', '设计决策'])
 def test_trace_generic_heading_is_not_a_business_title(tmp_path, heading):
     from app.governance.change_index import chinese_title
     (tmp_path / 'trace.md').write_text(f'# {heading}\n## 中文内容章节\n', encoding='utf-8')
     assert chinese_title(tmp_path, {}) is None
+
+
+def test_projection_tracks_unique_proposal_and_archive_ambiguity(tmp_path):
+    root = fixture_tree(tmp_path)
+    issue(root, related_change='business-title')
+    directory = change(root, 'business-title')
+    write(directory/'proposal.md', '# 提案独立业务目标\n')
+    row = cards(root).issues[0]
+    assert row.display_title == '提案独立业务目标' and row.title_source == 'proposal.md'
+    assert row.title == '原需求'
+    write(directory/'trace.md', '---\nstatus: applied\ntitle: 错误追溯业务标题\n---\n# 错误追溯业务标题\n')
+    write(directory/'design.md', '# 错误设计业务标题\n')
+    assert cards(root).issues[0].display_title == '提案独立业务目标'
+    archive = root/'openspec/archive/2026-09-15-business-title'
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(directory), archive)
+    row = cards(root).issues[0]
+    assert row.stage == 'done' and row.display_title == '提案独立业务目标'
+    shutil.copytree(archive, root/'openspec/archive/2026-09-14-business-title')
+    row = cards(root).issues[0]
+    assert row.display_title == '原需求' and row.title_warning

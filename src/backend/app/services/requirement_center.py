@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextvars import ContextVar
+from dataclasses import dataclass
 from functools import wraps
 from copy import deepcopy
 from contextlib import contextmanager
@@ -17,10 +18,15 @@ import yaml
 
 from app.schemas.requirement_center import (
     RequirementCenterAction,
+    RequirementCenterArchiveReadinessBlocker,
     RequirementCenterContext,
+    RequirementCenterCurrentIterationArchiveReadiness,
+    RequirementCenterCurrentIterationCapacity,
     RequirementCenterDocument,
     RequirementCenterDocumentCapability,
     RequirementCenterIssue,
+    RequirementCenterSprintOption,
+    RequirementCenterSprintMetrics,
     RequirementCenterStats,
     RequirementCenterTasks,
     RequirementCenterUser,
@@ -44,6 +50,30 @@ GOVERNANCE_ROOT = _resolve_governance_root()
 # Compatibility for offline governance tools/tests. HTTP callers always bind an
 # authorized immutable snapshot; concurrent requests never mutate module state.
 _SCOPED_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_root", default=None)
+_VALID_PRIORITIES = {"P0", "P1", "P2", "P3"}
+_VALID_SEVERITIES = {"blocker", "critical", "high", "medium", "low"}
+_TASK_ITEM_RE = re.compile(r"^\s*[-*]\s+\[([ xX])\]\s+(.+?)\s*$")
+
+
+@dataclass(frozen=True)
+class _TaskProgressBucket:
+    done: int = 0
+    total: int = 0
+
+    @property
+    def progress(self) -> tuple[int, int] | None:
+        return (self.done, self.total) if self.total else None
+
+
+@dataclass(frozen=True)
+class _ClassifiedTaskProgress:
+    development: _TaskProgressBucket = _TaskProgressBucket()
+    test: _TaskProgressBucket = _TaskProgressBucket()
+    manual: _TaskProgressBucket = _TaskProgressBucket()
+
+    @property
+    def has_progress(self) -> bool:
+        return bool(self.development.total or self.test.total or self.manual.total)
 
 def _governance_root() -> Path:
     return _SCOPED_ROOT.get() or GOVERNANCE_ROOT
@@ -114,7 +144,10 @@ def build_requirement_center_context(
         workspaces=workspaces,
         current_user=_context_user(current_user),
         selected_workspace_id=workspaces[0].workspace_id if workspaces else "",
+        current_iteration_capacity=_load_current_iteration_capacity(),
+        sprint_metrics=_load_sprint_metrics(),
         sprint_options=_load_open_sprints(),
+        sprint_option_details=_load_sprint_option_details(),
         stats=stats,
     )
 
@@ -134,6 +167,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
     trace = _frontmatter(issue_dir / "trace.md") if issue_dir else {}
     changes = _linked_changes(entry, trace) if changes_override is None else changes_override
     tasks = _change_tasks(changes)
+    classified_tasks = _classified_change_tasks(changes)
     task_progress = (tasks.done, tasks.total) if tasks and tasks.total else None
     raw_sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
     status = status_override or _issue_status(entry, trace, changes)
@@ -148,8 +182,17 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
     if sprint_document:
         documents.append("sprint.md")
     stage = _map_stage(str(status), documents, changes)
+    test_progress = _test_progress(_document_names(issue_dir), stage)
+    manual_acceptance_progress: tuple[int, int] | None = None
+    if stage == "acceptance" and classified_tasks.has_progress:
+        task_progress = classified_tasks.development.progress
+        test_progress = classified_tasks.test.progress
+        manual_acceptance_progress = classified_tasks.manual.progress
     sprint_id = raw_sprint_id if _should_show_sprint(stage) else None
     warnings = _drift_warnings(entry, trace, issue_dir, raw_sprint_id)
+    priority, severity, level_warning = _classification_fields(issue_type, entry, trace)
+    if level_warning:
+        warnings.append(level_warning)
     validation_documents = sorted((set(_document_names(issue_dir)) - {"sprint.md"}) | set(documents))
     blocked = _blocked_reason(stage, issue_type, validation_documents, warnings, issue_dir)
     if stage == "sprint-planning":
@@ -162,7 +205,8 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
         id=_short_id(issue_id),
         type=issue_type,
         title=str(entry.get("title") or issue_id),
-        priority=str(entry.get("priority") or "P2"),
+        priority=priority,
+        severity=severity,
         owner=_owner_name(entry.get("owner") or entry.get("requester") or entry.get("reporter")),
         source=str(entry.get("lifecycle_stage") or entry.get("status") or "registry"),
         stage=stage,
@@ -176,10 +220,29 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
         blocked=blocked,
         sprint_id=str(sprint_id) if sprint_id else None,
         task_progress=task_progress,
-        test_progress=_test_progress(_document_names(issue_dir), stage),
+        test_progress=test_progress,
+        manual_acceptance_progress=manual_acceptance_progress,
         manual_acceptance_count=0,
         drift_warnings=warnings,
     )
+
+
+def _classification_fields(issue_type: str, entry: dict[str, Any], trace: dict[str, Any]) -> tuple[str, str, str | None]:
+    if issue_type == "bug":
+        raw = entry.get("severity") or trace.get("severity")
+        severity = str(raw or "").strip().lower()
+        if severity in _VALID_SEVERITIES:
+            return "", severity, None
+        issue_id = str(entry.get("id") or trace.get("bug_id") or "BUG").strip()
+        reason = "缺少 severity" if not severity else f"非法 severity: {severity}"
+        return "", "", f"{issue_id} 分级字段异常：{reason}"
+
+    raw = entry.get("priority") or trace.get("priority") or "P2"
+    priority = str(raw or "").strip().upper()
+    if priority in _VALID_PRIORITIES:
+        return priority, "", None
+    issue_id = str(entry.get("id") or trace.get("requirement_id") or "REQ").strip()
+    return "", "", f"{issue_id} 分级字段异常：非法 priority: {priority}"
 
 
 def _should_show_sprint(stage: str) -> bool:
@@ -383,7 +446,10 @@ def _safe_issue_dir(raw_path: Any) -> Path | None:
 def _read_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    data = yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+    try:
+        data = yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+    except (OSError, yaml.YAMLError):
+        return {}
     return data if isinstance(data, dict) else {}
 
 
@@ -542,6 +608,66 @@ def _change_tasks(changes: list[str]) -> RequirementCenterTasks | None:
     return RequirementCenterTasks(done=total_done, total=total, blocked=blocked, source=source) if total else None
 
 
+@_memoized_read
+def _classified_change_tasks(changes: list[str]) -> _ClassifiedTaskProgress:
+    counters = {
+        "development": [0, 0],
+        "test": [0, 0],
+        "manual": [0, 0],
+    }
+    for change in changes:
+        tasks_path = _change_dir(change) / "tasks.md"
+        if not tasks_path.exists():
+            continue
+        current_category = "development"
+        for line in tasks_path.read_text(encoding="utf-8").splitlines():
+            heading = _task_heading_category(line)
+            if heading:
+                current_category = heading
+                continue
+            match = _TASK_ITEM_RE.match(line)
+            if not match:
+                continue
+            category = _task_item_category(match.group(2), current_category)
+            counters[category][1] += 1
+            if match.group(1).lower() == "x":
+                counters[category][0] += 1
+    return _ClassifiedTaskProgress(
+        development=_TaskProgressBucket(counters["development"][0], counters["development"][1]),
+        test=_TaskProgressBucket(counters["test"][0], counters["test"][1]),
+        manual=_TaskProgressBucket(counters["manual"][0], counters["manual"][1]),
+    )
+
+
+def _task_heading_category(line: str) -> str | None:
+    text = line.strip().lstrip("#").strip()
+    if not text or text == line.strip():
+        return None
+    lowered = text.lower()
+    if "验收返修" in lowered or "opsx-modify" in lowered:
+        return "repair"
+    if any(keyword in lowered for keyword in ("人工验收", "人工复验", "人工确认", "sign-off", "manual acceptance")):
+        return "manual"
+    if any(keyword in lowered for keyword in ("回归验证", "自动化测试", "测试任务", "测试", "验证", "视觉证据", "validation")):
+        return "test"
+    if any(keyword in lowered for keyword in ("实施", "研发", "开发", "修复", "文档同步", "准备", "implementation")):
+        return "development"
+    return None
+
+
+def _task_item_category(text: str, current_category: str) -> str:
+    lowered = text.lower()
+    if current_category in {"development", "test", "manual"}:
+        return current_category
+    if "纳入对应分类" in text or "分类解析" in text or "进度字段" in text:
+        return "development"
+    if any(keyword in lowered for keyword in ("人工验收", "人工复验", "人工确认", "人工签收", "sign-off", "manual acceptance")):
+        return "manual"
+    if any(keyword in lowered for keyword in ("回归", "测试", "验证", "校验", "视觉证据", "截图", "validation", "test")):
+        return "test"
+    return "development" if current_category == "repair" else current_category
+
+
 def _change_task_progress(changes: list[str]) -> tuple[int, int] | None:
     tasks = _change_tasks(changes)
     return (tasks.done, tasks.total) if tasks else None
@@ -642,6 +768,325 @@ def _load_open_sprints() -> list[str]:
         if status not in {"closed", "archived", "done"}:
             sprints.append(path.name)
     return sprints
+
+
+def _sprint_status_label(status: str, lifecycle: str) -> tuple[str, str, str | None]:
+    if lifecycle == "archive":
+        return "archived", "已归档", None
+    if status == "planning":
+        return "planning", "规划中", None
+    if status == "in_progress":
+        return "in_progress", "进行中", None
+    if status in {"completed", "done", "closed", "archived"}:
+        return "completed", "已完成", None
+    return "unknown", "状态待核实", "sprint_status_unknown"
+
+
+def _load_sprint_option_details() -> list[RequirementCenterSprintOption]:
+    root = _governance_root()
+    records: dict[str, RequirementCenterSprintOption] = {}
+    conflicts: set[str] = set()
+    for lifecycle, base in (("change", root / "iterations" / "change"), ("archive", root / "iterations" / "archive")):
+        if not base.exists():
+            continue
+        for path in sorted(base.glob("sprint-*")):
+            if not re.fullmatch(r"sprint-\d{3,}", path.name):
+                continue
+            data = _read_yaml(path / "sprint.yaml")
+            raw_status = str(data.get("status") or "").lower()
+            status, label, warning = _sprint_status_label(raw_status, lifecycle)
+            if path.name in records:
+                conflicts.add(path.name)
+                continue
+            records[path.name] = RequirementCenterSprintOption(
+                sprint_id=path.name,
+                label=path.name,
+                lifecycle_stage=lifecycle,  # type: ignore[arg-type]
+                status=status,  # type: ignore[arg-type]
+                status_label=label,
+                warning=warning,
+            )
+    for sprint_id in conflicts:
+        records[sprint_id] = records[sprint_id].model_copy(
+            update={
+                "lifecycle_stage": "unknown",
+                "status": "unknown",
+                "status_label": "状态待核实",
+                "warning": "sprint_lifecycle_conflict",
+            }
+        )
+    return [records[key] for key in sorted(records.keys(), reverse=True)]
+
+
+def _load_sprint_metrics() -> RequirementCenterSprintMetrics:
+    root = _governance_root()
+    seen: set[str] = set()
+    completed: set[str] = set()
+    warning = None
+    for lifecycle, base in (("change", root / "iterations" / "change"), ("archive", root / "iterations" / "archive")):
+        if not base.exists():
+            continue
+        for path in sorted(base.glob("sprint-*")):
+            sprint_id = path.name
+            if not re.fullmatch(r"sprint-\d{3,}", sprint_id):
+                continue
+            seen.add(sprint_id)
+            data: dict[str, Any] = {}
+            if (path / "sprint.yaml").exists():
+                try:
+                    loaded = yaml.load((path / "sprint.yaml").read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+                    data = loaded if isinstance(loaded, dict) else {}
+                except (OSError, yaml.YAMLError):
+                    warning = "sprint_metrics_partial"
+                    data = {}
+            status = str(data.get("status") or "").lower()
+            if lifecycle == "archive" or status in {"completed", "done", "archived", "closed"}:
+                completed.add(sprint_id)
+    return RequirementCenterSprintMetrics(
+        completed_count=len(completed),
+        total_count=len(seen),
+        warning=warning,
+    )
+
+
+def _load_current_iteration_capacity() -> list[RequirementCenterCurrentIterationCapacity]:
+    base = _governance_root() / "iterations" / "change"
+    if not base.exists():
+        return []
+    sprint_paths = [
+        path for path in sorted(base.glob("sprint-*"))
+        if re.fullmatch(r"sprint-\d{3,}", path.name)
+    ]
+    active: list[tuple[str, dict[str, Any]]] = []
+    for path in sprint_paths:
+        sprint = _read_yaml(path / "sprint.yaml")
+        if not isinstance(sprint, dict):
+            continue
+        status = str(sprint.get("status") or "").lower()
+        if status not in {"closed", "archived", "done"}:
+            active.append((path.name, sprint))
+    multiple_warning = len(active) > 2
+    return [_sprint_capacity_summary(sprint_id, sprint, multiple_warning=multiple_warning) for sprint_id, sprint in active]
+
+
+def _sprint_capacity_summary(
+    sprint_id: str,
+    sprint: dict[str, Any],
+    *,
+    multiple_warning: bool = False,
+) -> RequirementCenterCurrentIterationCapacity:
+    source: str = "unknown"
+    total: float | None = None
+    raw_total = sprint.get("capacity_person_days")
+    if isinstance(raw_total, (int, float)) and raw_total > 0:
+        total = float(raw_total)
+        source = "explicit"
+    elif raw_total is None:
+        total = 30.0
+        source = "default"
+
+    used = _sum_scope_estimates(sprint.get("scope_estimates"))
+    status = _capacity_status(used, total)
+    messages: list[str] = []
+    if source == "default":
+        messages.append("使用默认容量")
+    if status == "near_limit":
+        messages.append("接近容量上限")
+    elif status == "over_limit":
+        messages.append("已超出规划容量")
+    elif status == "unknown":
+        messages.append("容量待核实")
+    if multiple_warning:
+        status = "unknown"
+        messages.append("当前迭代超过 2 个，请核实范围")
+
+    return RequirementCenterCurrentIterationCapacity(
+        sprint_id=sprint_id,
+        used_capacity=used,
+        total_capacity=total,
+        capacity_source=source,  # type: ignore[arg-type]
+        status=status,  # type: ignore[arg-type]
+        message="；".join(messages) or None,
+        archive_readiness=_sprint_archive_readiness(sprint_id, sprint, used, status),
+    )
+
+
+def _sprint_archive_readiness(
+    sprint_id: str,
+    sprint: dict[str, Any],
+    used_capacity: float | None,
+    capacity_status: str,
+) -> RequirementCenterCurrentIterationArchiveReadiness:
+    if used_capacity is None or capacity_status == "unknown":
+        return RequirementCenterCurrentIterationArchiveReadiness(
+            display_mode="hidden",
+            reason_code="capacity_unknown",
+            safe_summary="当前迭代容量待核实，归档入口暂不展示。",
+        )
+    if used_capacity <= 0:
+        return RequirementCenterCurrentIterationArchiveReadiness(
+            display_mode="hidden",
+            reason_code="capacity_zero",
+            safe_summary="当前迭代尚未消耗容量，归档入口暂不展示。",
+        )
+
+    blockers = _sprint_archive_blockers(sprint_id, sprint)
+    if blockers:
+        reason = "missing_signoff" if all(blocker.type == "acceptance_report" for blocker in blockers) else "unarchived_scope"
+        return RequirementCenterCurrentIterationArchiveReadiness(
+            display_mode="disabled",
+            reason_code=reason,  # type: ignore[arg-type]
+            safe_summary=_archive_safe_summary(blockers),
+            blockers=blockers,
+        )
+
+    return RequirementCenterCurrentIterationArchiveReadiness(
+        can_enter_confirmation=True,
+        display_mode="enabled",
+        reason_code="ready",
+        safe_summary="范围内 REQ、BUG 与独立 Change 均已归档闭环，验收 sign-off、权限与 Workflow Sync 将在 Sprint archive 确认流程中继续复核。",
+    )
+
+
+def _sprint_archive_blockers(sprint_id: str, sprint: dict[str, Any]) -> list[RequirementCenterArchiveReadinessBlocker]:
+    blockers: list[RequirementCenterArchiveReadinessBlocker] = []
+    for issue_id in _sprint_scope_ids(sprint.get("requirements")):
+        status = _governance_issue_status("requirement", issue_id)
+        if status not in {"archived", "done", "closed"}:
+            blockers.append(
+                RequirementCenterArchiveReadinessBlocker(
+                    type="requirement",
+                    id=issue_id,
+                    status=status or "unknown",
+                    message="范围内需求尚未归档闭环",
+                    action_hint=f"/req-review {issue_id}",
+                )
+            )
+    for issue_id in _sprint_scope_ids(sprint.get("bugs")):
+        status = _governance_issue_status("bug", issue_id)
+        if status not in {"archived", "done", "closed"}:
+            blockers.append(
+                RequirementCenterArchiveReadinessBlocker(
+                    type="bug",
+                    id=issue_id,
+                    status=status or "unknown",
+                    message="范围内 BUG 尚未归档闭环",
+                    action_hint=f"/bug-review {issue_id}",
+                )
+            )
+    for change_id in _sprint_scope_ids(sprint.get("changes")):
+        status = _change_status([change_id]) or "unknown"
+        if status != "archived":
+            blockers.append(
+                RequirementCenterArchiveReadinessBlocker(
+                    type="change",
+                    id=change_id,
+                    status=status,
+                    message="范围内 Change 尚未归档闭环",
+                    action_hint=f"/opsx-archive {change_id}",
+                )
+            )
+    if not _sprint_acceptance_signed_off(sprint_id):
+        blockers.append(
+            RequirementCenterArchiveReadinessBlocker(
+                type="acceptance_report",
+                id=sprint_id,
+                status="missing_signoff",
+                message="验收报告尚未完成 sign-off",
+                action_hint=f"/sprint-archive {sprint_id}",
+            )
+        )
+    return blockers
+
+
+def _sprint_scope_ids(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    ids: list[str] = []
+    for item in value:
+        if isinstance(item, str) and item.strip():
+            ids.append(item.strip())
+        elif isinstance(item, dict):
+            raw = item.get("id") or item.get("change") or item.get("change_id")
+            if raw:
+                ids.append(str(raw).strip())
+    return [item for item in ids if item]
+
+
+def _governance_issue_status(issue_type: str, issue_id: str) -> str | None:
+    folder = "requirements" if issue_type == "requirement" else "bugs"
+    registry = _read_yaml(_governance_root() / "issues" / folder / "_registry.yaml")
+    entries = registry.get("entries", []) if isinstance(registry, dict) else []
+    for entry in entries:
+        if not isinstance(entry, dict) or str(entry.get("id") or "") != issue_id:
+            continue
+        issue_dir = _safe_issue_dir(entry.get("path"))
+        trace = _frontmatter(issue_dir / "trace.md") if issue_dir else {}
+        return str(trace.get("status") or entry.get("status") or "unknown")
+    return None
+
+
+def _sprint_acceptance_signed_off(sprint_id: str) -> bool:
+    report_path = _governance_root() / "iterations" / "change" / sprint_id / "acceptance-report.md"
+    if not report_path.exists():
+        return False
+    frontmatter = _frontmatter(report_path)
+    for key in ("signed_off", "signoff", "sign_off", "acceptance_signed_off"):
+        value = frontmatter.get(key)
+        if value is True or str(value).strip().lower() in {"true", "yes", "passed", "approved", "signed"}:
+            return True
+    try:
+        text = report_path.read_text(encoding="utf-8").lower()
+    except OSError:
+        return False
+    if re.search(r"(signed[_ -]?off|sign[_ -]?off|验收\s*签署|人工\s*sign-off)\s*[:：]\s*(true|yes|passed|approved|signed|已完成|通过)", text):
+        return True
+    return False
+
+
+def _archive_safe_summary(blockers: list[RequirementCenterArchiveReadinessBlocker]) -> str:
+    counts: dict[str, int] = {}
+    for blocker in blockers:
+        counts[blocker.type] = counts.get(blocker.type, 0) + 1
+    parts = []
+    labels = {
+        "requirement": "REQ",
+        "bug": "BUG",
+        "change": "Change",
+        "acceptance_report": "验收 sign-off",
+        "permission": "权限",
+        "workflow_sync": "Workflow Sync",
+        "capacity": "容量",
+    }
+    for kind in ("requirement", "bug", "change", "acceptance_report", "permission", "workflow_sync", "capacity"):
+        if counts.get(kind):
+            parts.append(f"{labels[kind]} {counts[kind]} 项")
+    return "Sprint archive readiness 未通过：" + "、".join(parts) + " 未闭环。"
+
+
+def _sum_scope_estimates(value: Any) -> float | None:
+    if not isinstance(value, list):
+        return None
+    total = 0.0
+    for item in value:
+        if not isinstance(item, dict):
+            return None
+        raw = item.get("estimated_person_days")
+        if not isinstance(raw, (int, float)) or raw < 0:
+            return None
+        total += float(raw)
+    return total
+
+
+def _capacity_status(used: float | None, total: float | None) -> str:
+    if used is None or total is None or total <= 0:
+        return "unknown"
+    ratio = used / total
+    if ratio > 1:
+        return "over_limit"
+    if ratio >= 0.8:
+        return "near_limit"
+    return "normal"
 
 
 def read_requirement_center_document(issue_id: str, document_name: str) -> tuple[str, str]:

@@ -46,12 +46,32 @@ Use this skill when the user asks to run the migrated source command `capture`.
 
 ## Steps
 
-1. 读 `rules/requirement-management.md`、`rules/bug-management.md`、两个 `_registry.yaml`
+1. 读 `rules/requirement-management.md`、`rules/bug-management.md`、两个 `_registry.yaml` 与两个 `CHANGELOG.md`
 2. **解析 → 分类（REQ/BUG）→ 拆分**（见 `.agents/skills/capture/SKILL.md`）
-3. 落盘：REQ 遵循 req-capture 模板与规则；BUG 遵循 bug-capture 模板与规则；frontmatter 加 `captured_via: capture` 与 `classification_rationale`
-4. 输出分类分析表 + Capture 摘要
+3. 对拆分后的 REQ / BUG 条目分别执行创建前重复/相似 Issue 检查（见下节）；疑似重复条目先完成用户决策，非重复条目可继续落盘
+4. 落盘：REQ 遵循 req-capture 模板与规则；BUG 遵循 bug-capture 模板与规则；frontmatter 加 `captured_via: capture` 与 `classification_rationale`
+5. 输出分类分析表 + 重复检查摘要 + Capture 摘要
 
 ---
+
+## 创建前重复/相似 Issue 检查（MUST）
+
+`/capture` 在分类和拆分后，MUST 对每条候选 REQ / BUG 先检查项目中是否已有相同或高度相似 Issue，确认非重复后才分配新 ID 并落盘。
+
+检查顺序：
+
+1. REQ 条目读取 `issues/requirements/CHANGELOG.md` 与 `issues/requirements/_registry.yaml`；BUG 条目读取 `issues/bugs/CHANGELOG.md` 与 `issues/bugs/_registry.yaml`。
+2. 基于用户输入的标题、关键词、业务域、页面/模块、现象、复现要点、期望、验收要点和关联 REQ/BUG，筛选 plan / review / archive 中可能重复或相关的候选 Issue。
+3. 候选不清晰时，只读取候选目录中 `capture.md` 与 `trace.md` 的标题、Frontmatter、摘要段落、当前状态、关联 Sprint/Change 和下一步；不得为判重全量读取无关 Issue 正文或历史归档大目录。
+4. 发现疑似重复时，MUST 输出候选 Issue、相似原因、当前状态、事实源路径和处理选项。
+
+疑似重复时的处理选项：
+
+- 关联/更新原 Issue（推荐）：适用于同一需求补充、同一缺陷补证、同一根因或同一交付闭环。
+- 创建子级或关联项：适用于对已有 REQ 的 refinement，或 BUG 需要 `related_bug` / `related_requirement` 串联。
+- 确认非重复后新建：仅当用户确认目标独立、候选只是弱相关或验收/修复闭环不同，才继续创建新 Issue。
+
+混合输入中，非重复条目 MAY 继续创建；疑似重复条目若缺少用户确认，MUST 暂停该条落盘，并在「待用户决策/处理」列出候选和推荐处理，不得静默新建。
 
 ## 分类要点
 

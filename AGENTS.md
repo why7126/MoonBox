@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-13 23:43:10
+updated_at: 2026-09-16 22:52:00
 owner: MoonBox 产品团队
 ---
 
@@ -66,6 +66,7 @@ rules/agent-context-budget.md
 - 不允许绕过 OpenSpec Change 直接开发正式功能。
 - 所有命令在需要用户选择、确认、补充信息或处理阻塞时，必须优先采用“原生交互卡片 + 结构化选项 + 推荐项 + 可补充说明”的引导式反馈；当客户端或工具层不支持原生交互卡片时，降级为文本结构化选项；每轮只聚焦 1-3 个关键决策，并根据用户答案动态收敛，不得用大段开放式追问替代。
 - 未评审的 REQ/BUG 不得进入 Sprint 规划，不得转 OpenSpec，不得执行开发。
+- `/capture`、`/req-capture`、`/bug-capture` 创建新 Issue 前必须读取对应 `CHANGELOG.md` 与 `_registry.yaml` 做重复/相似 Issue 检查；疑似重复时先输出候选、相似原因和处理选项，默认推荐关联/更新原 Issue，确认非重复后才新建。
 - REQ/BUG 评审通过后必须先执行 `/sprint-propose` 纳入 Sprint 并同步为 `in_sprint`，再执行 `/req-opsx` 或 `/bug-opsx`；不得从 review 直接跳到 opsx。
 - `openspec/specs/` 只保存已生效规格，除归档合并动作外不得直接修改。
 - 新建业务代码必须放在 `src/` 约定边界内。
@@ -77,6 +78,7 @@ rules/agent-context-budget.md
 - 发布升级与回滚计划使用 `/upgrade-plan` 与 `/upgrade-validate`；命令只生成和校验计划，不自动执行生产升级、真实 env 修改、DB restore 或对象存储写入维护。
 - 命令最终输出不得泄漏尖括号占位模板、通用示例或 `MUST/SHOULD` 规范语气；「下一步」与「待用户决策/处理」必须去重。
 - 下一步可执行命令必须保留链路身份：REQ 链路的 `/req-*` 与后续 `/opsx-*` 使用完整 `REQ-xxxx-slug`，BUG 链路的 `/bug-*` 与后续 `/opsx-*` 使用完整 `BUG-xxxx-slug`，非 REQ/BUG Change 才使用 `<change-id>`。
+- `/req-opsx` 与 `/bug-opsx` 新建 Change `trace.md` 时必须写入 `execution.schema_version: 1` schema v1 frontmatter，初始 `started_at` 与 `completed_at` 为 `null`；`/req-opsx` 的 `last_event` 为 `req.opsx`，`/bug-opsx` 的 `last_event` 为 `bug.opsx`；后续执行事实由 Workflow Sync 的 `opsx.start` 与 `opsx.apply` 维护。
 - 所有 workflow 命令完成后必须输出「执行链路复盘」，包含链路状态、问题证据和规范优化建议；发现可优化点时默认只给建议命令或 capture 文案，不自动创建 follow-up Issue/Change，除非用户明确授权。
 - API、DB、UI、部署或安全边界变化必须同步文档、规则和测试。
 - API、DB、日志审计、行为埋点、Task Trace、Web/管理端请求封装、对象存储或 Agent Workflow 链路观测相关变更必须读取 `docs/standards/product-data-collection-observability.md`，并在 REQ、Change、Sprint 或验收材料中声明 `product_data_collection_observability`、`affected_layers`、具体 N/A 原因和 `validation` 摘要。
@@ -86,7 +88,10 @@ rules/agent-context-budget.md
 - UI 型 `/opsx-modify` 若验收反馈包含附件截图、标注图、原型截图或实际截图，必须先建立“附件截图逐项视觉对照表”，逐项确认期望、实际、偏差、检查方式、处置结论和证据入口；对照表证据不足时先补证，不得直接返修。
 - REQ 来源 `/opsx-modify` 完成前必须执行 REQ 子文档一致性扫尾检查，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 判断是否需同步，避免只更新 PRD 而遗漏子文档。
 - 问题排查、BUG 完善、验收返修或效果不如预期时必须遵守证据化根因分析治理：无证据不得确认根因；证据不足时必须输出人工补证操作步骤，等补证后再定根因。
+- `/opsx-modify` 验收返修执行中展示为研发中；返修完成、验证、文档同步和 Workflow Sync 通过后回到验收中 / 待复验。该展示是返修投影语义，不得用普通 `in_progress` 覆盖 Change `applied` 事实或首次 apply 的 `execution.completed_at`。
 - OpenSpec 文档变更后运行中文优先校验；Mintlify 变更后运行产品手册校验。
+- `/req-opsx` 与 `/bug-opsx` 生成 Change 后运行当前 Change 聚焦中文校验和全仓残留分离报告，当前 Change 失败阻断当前链路，无关 active Change 残留只作 warning。
+- `/req-opsx` 与 `/bug-opsx` 使用 OpenSpec CLI 模板生成 proposal、design、tasks 时必须将英文脚手架标题中文化，不得把 `Why`、`What Changes`、`Capabilities`、`Impact`、`Implementation`、`Testing`、`Documentation` 等模板标题原样落盘。
 - 完成前运行相关验证；无法运行时在回复中说明原因。
 
 - 两份 apply 技能共用 [Apply 连续执行契约](docs/08-command-execution-order.md#apply-连续执行契约)：分批仅汇报进度，自检修复在当前 apply 内闭环，按硬阻塞、完成门禁和中断续接规则执行。每次final前执行停止前决策；存在可执行任务不得等待“继续”，局部依赖只阻断相关任务；行为验收区分合成回归与真实观察。

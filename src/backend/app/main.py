@@ -59,3 +59,6 @@ app.include_router(catalog_space_applications_router)
 app.include_router(chat_router)
 from app.governance.api import router as governance_router
 app.include_router(governance_router)
+
+from app.api.v1.capture_drafts import router as capture_drafts_router
+app.include_router(capture_drafts_router)
