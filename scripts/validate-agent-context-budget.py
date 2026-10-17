@@ -10,6 +10,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / ".agents" / "skills"
 REQUIRED_RULE = "rules/agent-context-budget.md"
+BROWSER_EVIDENCE_CONTRACT_TERMS = (
+    "## 浏览器自主取证（MUST）",
+    "Codex 侧边浏览器",
+    "无需人工二次确认",
+    "只有无法访问",
+    "rules/root-cause-evidence.md",
+    "rules/root-cause-evidence.md` §5.0",
+)
+BUG_CAUSE_CONTINUATION_TERMS = {
+    "bug-explore": ("rules/root-cause-evidence.md` §2.1", "在本轮继续自主补证", "不得因已有 capture"),
+    "bug-generate": ("文档生成后的根因补证", "在本命令内", "不得因 `bug.md` 已生成"),
+    "bug-complete": ("rules/root-cause-evidence.md` §2.1", "在同一命令内继续自主补证", "文档已落盘不构成停止条件"),
+}
+EXPLORE_PRODUCT_EVIDENCE_TERMS = {
+    "explore": ("必要时主动查看产品", "在本轮通过浏览器自主取证", "结论的不确定性"),
+    "req-explore": ("需求现状主动取证", "在本轮按 `rules/root-cause-evidence.md` 第 5 节", "不把推测写成产品现状"),
+}
 COMMAND_SKILL_NAMES = {
     "capture",
     "explore",
@@ -319,6 +336,33 @@ def validate_skill(path: Path) -> list[str]:
     return errors
 
 
+def validate_browser_evidence_contract(path: Path) -> list[str]:
+    rel = path.relative_to(ROOT)
+    text = path.read_text(encoding="utf-8")
+    errors = [
+        f"{rel}: 缺少浏览器自主取证契约 `{term}`"
+        for term in BROWSER_EVIDENCE_CONTRACT_TERMS
+        if term not in text
+    ]
+    if "通常优先 Firefox" in text or "通常优先使用 Firefox" in text:
+        errors.append(f"{rel}: 浏览器优先级回退为 Firefox")
+    return errors
+
+
+def validate_bug_cause_continuation_contract(path: Path) -> list[str]:
+    terms = BUG_CAUSE_CONTINUATION_TERMS.get(path.parent.name, ())
+    text = path.read_text(encoding="utf-8")
+    rel = path.relative_to(ROOT)
+    return [f"{rel}: 缺少 BUG 根因连续补证契约 `{term}`" for term in terms if term not in text]
+
+
+def validate_explore_product_evidence_contract(path: Path) -> list[str]:
+    terms = EXPLORE_PRODUCT_EVIDENCE_TERMS.get(path.parent.name, ())
+    text = path.read_text(encoding="utf-8")
+    rel = path.relative_to(ROOT)
+    return [f"{rel}: 缺少探索阶段产品主动取证契约 `{term}`" for term in terms if term not in text]
+
+
 def validate_final_output_contract(path: Path) -> list[str]:
     rel = path.relative_to(ROOT)
     text = path.read_text(encoding="utf-8")
@@ -536,6 +580,9 @@ def main() -> int:
         errors.extend(validate_skill(path))
         errors.extend(validate_command_skill_review_hook_reference(path))
     for path in all_skill_paths:
+        errors.extend(validate_browser_evidence_contract(path))
+        errors.extend(validate_bug_cause_continuation_contract(path))
+        errors.extend(validate_explore_product_evidence_contract(path))
         errors.extend(validate_final_output_contract(path))
         errors.extend(validate_sprint_gate_no_bypass(path))
         errors.extend(validate_issue_target_contract(path))
@@ -555,7 +602,7 @@ def main() -> int:
         f"Agent 上下文预算校验通过：{len(skill_paths)} 个命令技能均已接入预算规则、"
         "摘要复用约束、引导式用户反馈契约与 force-proceed follow-up 门禁；"
         "且均已接入命令执行复盘 Hook 短引用；"
-        f"{len(all_skill_paths)} 个技能均已接入下一步与待用户决策/处理输出契约及去重约束，"
+        f"{len(all_skill_paths)} 个技能均已接入浏览器自主取证及下一步与待用户决策/处理输出契约及去重约束，"
         "未发现最终输出占位模板、通用示例或规范语气泄漏风险，"
         "且未发现非 REQ/BUG / 纯治理 Change 跳过 Sprint 门禁表述、"
         "REQ/BUG 下一步参数回退、explore 链路身份契约缺失、不完整 Issue ID、"

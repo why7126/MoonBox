@@ -1,18 +1,52 @@
-next_id: 40
+next_id: 45
 entries:
-- id: REQ-0039-test
-  title: 待澄清：test 的具体意图
-  status: captured
-  priority: P3
-  owner: user_f694abc671d548b48d9eb897f720ba4d
-  source: capture
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0039-test/
-  created: '2026-09-16 23:39:30'
-  iteration: null
-  related_change: null
+- id: REQ-0044-shared-project-verification-environment
+  title: "平台提供跨空间项目验证环境"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户选择的探索方案
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0044-shared-project-verification-environment/
+  created: '2026-10-08 22:43:10'
+  iteration: sprint-009
+  related_change: add-shared-project-verification-environment
   type: feature
   requester: user
+  related_requirements:
+  - REQ-0042-agent-runtime-version-space-isolation
+  related_changes: []
+- id: REQ-0043-unify-data-mount-and-snapshot-rotation
+  title: "统一 data 目录边界与本地数据挂载及快照轮转"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0043-unify-data-mount-and-snapshot-rotation/
+  created: '2026-10-08 14:09:07'
+  iteration: sprint-009
+  related_change: add-local-data-mount-and-snapshot-rotation
+  type: feature
+  requester: user
+  related_requirements:
+  - REQ-0025-chat-workbench
+  related_changes: []
+- id: REQ-0039-requirement-center-card-chat-session-reuse
+  title: "需求中心卡片动作复用对象会话"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0039-requirement-center-card-chat-session-reuse/
+  created: '2026-09-16 23:39:30'
+  iteration: sprint-008
+  related_change: add-requirement-center-card-chat-session-reuse
+  type: feature
+  requester: user
+  parent_requirement: REQ-0027-requirement-center-command-chain-realization
+  previous_id: REQ-0039-test
   related_changes: []
 - id: REQ-0038-capture-md
   title: Capture 弹窗使用单一 MD 编辑器统一承载图片与文本文件
@@ -176,20 +210,21 @@ entries:
   type: feature
   requester: user
   related_changes: []
-- id: REQ-0027-capture
-  title: Capture 部署验收：需求持久化
-  status: captured
+- id: REQ-0027-requirement-center-command-chain-realization
+  title: "需求中心卡片全命令产品链路真实化"
+  status: done
   priority: P1
   owner: 产品团队
-  source: explore
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0027-capture/
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0027-requirement-center-command-chain-realization/
   created: '2026-09-12 21:11:40'
-  iteration: null
-  related_change: null
+  iteration: sprint-008
+  related_change: add-requirement-center-command-chain-realization
   type: feature
   requester: user
   related_changes: []
+  previous_id: REQ-0027-capture
 - id: REQ-0026-requirement-center-standalone-change-cards
   title: "需求中心 Change 可见性与关联追溯"
   status: done
@@ -206,7 +241,7 @@ entries:
   iteration: null
   related_change: add-requirement-center-change-visibility
 - id: REQ-0025-chat-workbench
-  title: 实现 Chat 工作台功能
+  title: "Chat 工作台与 Codex 持续对话执行"
   status: done
   type: feature
   priority: P1
@@ -218,7 +253,7 @@ entries:
   target_iteration: null
   related_changes: []
   parent_requirement: null
-  iteration: sprint-004
+  iteration: null
   related_change: add-chat-workbench-codex
 - id: REQ-0024-markdown-editor-human-edit-permission-matrix
   title: Markdown 编辑器按治理阶段扩展人工编辑权限矩阵

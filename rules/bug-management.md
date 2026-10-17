@@ -2,7 +2,7 @@
 purpose: 缺陷（BUG）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-09-16 22:42:16
+updated_at: 2026-10-06 00:07:05
 ---
 
 # 缺陷管理规范
@@ -147,7 +147,7 @@ BUG 文档包 MUST 在进入评审、纳入 Sprint、转 OpenSpec、apply、modi
 ### 4.3 其他门禁
 
 - `/bug-opsx`：**仅** 已评审并纳入 Sprint 后的 `in_sprint` 或后续交付态；`approved` 必须先 `/sprint-propose --bug <BUG-full-id>`
-- `/bug-complete` 与 `/bug-review --approve`：MUST 遵守 `rules/root-cause-evidence.md`。`root-cause.md` 中 `status: confirmed` 必须有可复核证据链；证据不足时只允许保持 `unknown`、`hypothesis` 或 `probable`，并输出人工补证操作步骤，不得把 BUG 推进到可评审修复状态。
+- `/bug-explore`、`/bug-generate`、`/bug-complete`：根因尚非 `confirmed` 时按 `rules/root-cause-evidence.md` §2.1 在当前命令内持续自主补证，文档生成不构成停止条件；仍缺关键证据时保留真实状态和已尝试路径，再输出人工补证步骤。`/bug-complete` 与 `/bug-review --approve` 的 `root-cause.md` 必须有可复核证据链，未确认不得推进可评审修复状态。
 - `/bug-opsx` 与 `/opsx-apply <BUG-full-id>`：BUG 来源修复前 MUST 通过 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>` 或等价校验；失败时先补证或重新 `/bug-complete`。
 - Sprint：**P0 BUG** 优先于功能 REQ
 - 旧命令 `/bug-to-change` 已删除 → `/bug-opsx`

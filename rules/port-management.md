@@ -3,7 +3,7 @@ purpose: 端口管理规范
 content: 说明开发端口、Docker 端口、冲突处理、AI 更新规则
 update_method: 服务端口或部署拓扑变化时更新
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-10-08 18:29:53
 note: 推荐“容器内固定、宿主机可变”的端口策略
 ---
 
@@ -14,21 +14,21 @@ note: 推荐“容器内固定、宿主机可变”的端口策略
 项目初始化后必须在 `.env.example` 和 `docs/02-deployment.md` 中明确默认端口。推荐变量：
 
 ```env
-HOST_PORT_BACKEND=18101
-HOST_PORT_WEB=18102
-HOST_PORT_MINIO_API=18103
-HOST_PORT_MINIO_CONSOLE=18104
-HOST_PORT_MINTLIFY_DOCS=18105
-HOST_PORT_MYSQL=18106
+HOST_PORT_BACKEND=39001
+HOST_PORT_WEB=39002
+HOST_PORT_MINIO_API=39003
+HOST_PORT_MINIO_CONSOLE=39004
+HOST_PORT_MINTLIFY_DOCS=39005
+HOST_PORT_MYSQL=39006
 ```
 
-MoonBox 本地宿主机端口必须使用 `18101-18199` 区间。容器内端口保持服务默认值，不通过 `.env` 暴露为可配置变量。
+MoonBox 本地宿主机端口必须使用 `39001-39050` 区间。容器内端口保持服务默认值，不通过 `.env` 暴露为可配置变量。
 
 ## 2. 端口冲突处理
 
 不要为规避本机冲突随意修改应用内部监听端口，优先修改 `.env` 中宿主机映射端口。
 
-Docker Compose 中左侧是宿主机端口，可变且必须落在 `18101-18199`；右侧是容器端口，原则上保持稳定。
+Docker Compose 中左侧是宿主机端口，可变且必须落在 `39001-39050`；右侧是容器端口，原则上保持稳定。
 
 ## 3. AI 禁止行为
 

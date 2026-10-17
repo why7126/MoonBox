@@ -7,7 +7,7 @@ for(const theme of ['dark','light']){
  const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(theme=>{localStorage.setItem('moonbox.session',JSON.stringify({username:'验收账号',access_token:'synthetic-test'}));localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));},theme);
  await page.route('**/api/**',route=>{const u=new URL(route.request().url());return route.fulfill({json:{code:0,data:u.pathname.endsWith('/projects')?{...base,projects:[{space_id:'space',repository_id:'repo',readonly:false,status:'connected'}]}:u.pathname.endsWith('/context')?base:{ready:false}}});});
- await page.goto('http://127.0.0.1:18135/tests/governance-board-preview.html');
+ await page.goto('http://127.0.0.1:39035/tests/governance-board-preview.html');
  const card=page.locator('[data-issue-id="build-api-standard"]');await expect(card).toBeVisible();await card.scrollIntoViewIfNeeded();
  await expect(card.locator('.rc-sprint-tag')).toHaveText('sprint-000');
  const styles=await card.locator('.rc-sprint-tag').evaluate(e=>{const s=getComputedStyle(e);return {text:e.textContent,fontSize:s.fontSize,color:s.color,background:s.backgroundColor,display:s.display};});

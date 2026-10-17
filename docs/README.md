@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-18 16:07:12
+updated_at: 2026-10-12 23:08:16
 owner: MoonBox 产品团队
 ---
 
@@ -21,11 +21,13 @@ owner: MoonBox 产品团队
 | `pending-decisions.md` | 集中未决策事项 |
 | `standards/` | API、认证、测试、上传、安全、产品数据采集、链路观测、原型驱动 UI 验收等专项标准 |
 | `standards/product-data-collection-observability.md` | 行为事件、请求日志、Task Trace、流程节点、脱敏、保留周期和治理门禁 |
+| `standards/opsx-acceptance.md` | OpenSpec 逐 AC 自动验收、环境与证据预检、视觉阶段视口矩阵、产品轮次取证、增量复验与归档就绪 |
 | `standards/task-trace-coverage.md` | MoonBox 任务链路候选场景、接入优先级和流程节点策略 |
 | `../data/ai-usage/README.md` | AI Usage 本地 session JSONL 输入、脱敏派生事实、自动发现与历史回填边界 |
 | `standards/prototype-ui-acceptance.md` | 带 prototype 的 UI Change 的 UI Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单 |
-| `../rules/root-cause-evidence.md` | 问题排查、BUG 完善、验收返修和效果不符场景的证据化根因分析规则 |
+| `../rules/root-cause-evidence.md` | 问题排查、测试、验收和 BUG 补证的浏览器自主取证、失败重试、无法访问判定及证据化根因分析规则 |
 | `../rules/directory-structure.md#data-本地数据目录边界` | `data/sqlite`、`data/s3`、`data/runtime` 的本地持久数据与运行控制状态边界 |
+| `../rules/directory-structure.md` | 全仓自有目录禁止嵌套工具路径的边界、运行态例外和校验入口 |
 | `knowledge-base/` | Sprint 复盘、经验和事故沉淀 |
 | `spec-logs/` | 规范工程日志：`/spec-study` 学习报告使用 `YYYYMMDDhhmmss-study-xxx.md`，`/spec-opt` 治理迭代日志使用 `YYYYMMDDhhmmss-governance-xxx.md` |
 

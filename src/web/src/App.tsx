@@ -7,12 +7,17 @@ import { ADMIN_SESSION_EVENT, AdminSession, canAccessAdmin, readAdminSession } f
 import { RequirementCenterPage } from "./pages/catalog/RequirementCenterPage";
 import { ChatWorkbenchPage } from "./pages/catalog/ChatWorkbenchPage";
 import { DesignSystemPage } from "./pages/dev/DesignSystemPage";
-import { readFrontendSession } from "./pages/home/frontendSession";
+import { readFrontendSession, readValidFrontendSession } from "./pages/home/frontendSession";
 import { Homepage } from "./pages/home/Homepage";
+import { ensureCurrentRuntimeBundle } from "./runtimeBuild";
 
 export function App() {
   const [adminSession, setAdminSession] = useState<AdminSession | null>(() => readAdminSession());
   const [routeKey, setRouteKey] = useState(() => `${window.location.pathname}${window.location.hash}`);
+
+  useEffect(() => {
+    void ensureCurrentRuntimeBundle();
+  }, []);
 
   useEffect(() => {
     const syncRoute = () => {
@@ -44,7 +49,7 @@ export function App() {
   }
   const isChatRoute = routeKey === "/chat";
   if (isRequirementCenterRoute || isChatRoute) {
-    if (!readFrontendSession()) {
+    if (!(isChatRoute ? readValidFrontendSession() : readFrontendSession())) {
       if (window.location.pathname !== "/login") {
         window.history.replaceState(null, "", "/login");
       }

@@ -30,13 +30,13 @@ MoonBox Docker 本地 media-upload 验收 MUST 使用环境解析得到的宿主
 - **GIVEN** Docker Compose 暴露 `HOST_PORT_WEB`
 - **WHEN** 执行头像、Logo、图片或其他 media-upload 横切验收
 - **THEN** 验收脚本或验收说明 MUST 解析实际 Web 宿主机端口
-- **AND** 默认值 SHOULD 为 `18102`
+- **AND** 默认值 SHOULD 为 `39002`
 - **AND** 验收不得要求 Docker Web 固定运行在 `:3000`
 
 #### Scenario: 端口冲突不得误判上传失败
 
 - **GIVEN** 本机 `:3000` 被其他服务占用
-- **WHEN** MoonBox Docker Web 通过 `18102` 或其他 `18101-18199` 范围内端口可访问
+- **WHEN** MoonBox Docker Web 通过 `39002` 或其他 `39001-39050` 范围内端口可访问
 - **THEN** media-upload 验收 MUST 使用 MoonBox 实际端口继续验证
 - **AND** 不得因为 `:3000` 不可用阻塞 `/opsx-apply`
 
@@ -65,7 +65,7 @@ MoonBox Docker Compose 中用户可见、运维脚本会引用或验收步骤会
 
 ### Requirement: 本地数据目录治理
 
-MoonBox 本地部署 MUST 明确区分本地持久数据目录与运行时控制状态目录。SQLite、对象存储、Chat Platform runtime、Governance runtime 和临时文件处理目录的宿主机归属 MUST 在部署文档中可追溯，迁移期间不得静默切换真实数据路径。
+MoonBox 本地部署 MUST 明确区分本地持久数据目录与运行时控制状态目录。SQLite、对象存储、Chat Platform runtime、Governance runtime 和临时文件处理目录的宿主机归属 MUST 在部署文档中可追溯。所有本地 SQLite 启动组合 MUST 将 `/app/data/sqlite/moonbox.db` 解析到同一宿主机 `data/sqlite/moonbox.db`；迁移期间不得静默切换、覆盖或创建另一份业务库。
 
 #### Scenario: SQLite 与对象存储拥有 canonical 宿主机目录
 
@@ -89,4 +89,33 @@ MoonBox 本地部署 MUST 明确区分本地持久数据目录与运行时控制
 - **AND** MUST 备份源库和目标库
 - **AND** MUST 执行 SQLite 完整性检查与关键表行数对比
 - **AND** MUST 在验证 Chat 会话、媒体上传和治理控制器可用后再清理 legacy 目录
+
+#### Scenario: 本地挂载路径分叉
+
+- **WHEN** 根 Compose、本地 Compose、Chat/Governance overlay 或辅助脚本解析的本地 SQLite 实际宿主机路径与 canonical 路径不同
+- **THEN** 启动检查 MUST 阻止静默创建或使用第二份业务库
+- **AND** MUST 输出不含凭据与本机绝对路径的迁移提示
+
+#### Scenario: 两处业务库内容有差异
+
+- **GIVEN** legacy 与 canonical 业务库均存在
+- **WHEN** 完整性、schema 版本或关键表内容比较发现差异或校验失败
+- **THEN** 自动迁移 MUST 暂停并保全两份原文件
+- **AND** MUST 提供差异报告、人工来源确认和回滚入口
+
+#### Scenario: 切换后验证与历史快照清理
+
+- **WHEN** 运维确认来源并切换本地挂载
+- **THEN** 系统 MUST 验证 API、Chat Worker、关键业务数据和重启行为
+- **AND** 历史快照 MUST 先盘点摘要、治理引用及删除状态，保全迁移前恢复点后逐份受控清理
+
+### Requirement: 本地宿主机端口范围
+
+MoonBox 本地部署的宿主机端口 MUST 位于 `39001-39050`；容器内部监听端口保持服务默认值。
+
+#### Scenario: 校验本地部署配置
+
+- **WHEN** 本地部署环境配置宿主机映射端口
+- **THEN** 配置校验 MUST 拒绝范围外端口
+- **AND** Compose 默认值 MUST 使用 390xx 端口段
 

@@ -30,7 +30,7 @@ def sanitize_database_url(database_url: str) -> str:
 class Settings:
     app_env: str = "development"
     app_secret_key: str = "change-me-in-local-env"
-    backend_cors_origins: str = "http://localhost:18102,http://127.0.0.1:18102"
+    backend_cors_origins: str = "http://localhost:39002,http://127.0.0.1:39002"
     jwt_access_token_expire_minutes: int = 120
     jwt_remember_me_expire_days: int = 7
     admin_username: str = "admin"
@@ -69,7 +69,7 @@ class Settings:
             app_env=app_env,
             app_secret_key=_clean(os.getenv("APP_SECRET_KEY")) or "change-me-in-local-env",
             backend_cors_origins=_clean(os.getenv("BACKEND_CORS_ORIGINS"))
-            or "http://localhost:18102,http://127.0.0.1:18102",
+            or "http://localhost:39002,http://127.0.0.1:39002",
             jwt_access_token_expire_minutes=int(_clean(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES")) or "120"),
             jwt_remember_me_expire_days=int(_clean(os.getenv("JWT_REMEMBER_ME_EXPIRE_DAYS")) or "7"),
             admin_username=_clean(os.getenv("ADMIN_USERNAME")) or "admin",
@@ -125,6 +125,9 @@ class Settings:
 
         if db_type == "sqlite" and not url.drivername.startswith("sqlite"):
             raise ConfigurationError("DATABASE_TYPE=sqlite 时连接串必须使用 sqlite scheme。")
+        if db_type == "sqlite" and (url.database or "").startswith("/app/data/"):
+            if url.database != "/app/data/sqlite/moonbox.db":
+                raise ConfigurationError("本地容器 SQLite 必须使用 canonical 业务库路径。")
 
         if db_type == "mysql" and url.drivername not in MYSQL_SCHEMES:
             raise ConfigurationError("DATABASE_TYPE=mysql 时连接串必须使用 MySQL scheme。")

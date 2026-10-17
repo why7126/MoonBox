@@ -62,6 +62,47 @@ afterEach(() => {
 });
 
 describe("CaptureDialog", () => {
+  it("moves initial focus into the dialog and keeps Tab inside it", async () => {
+    const outside = document.createElement("button");
+    outside.textContent = "Outside";
+    document.body.append(outside);
+    try {
+      render(<CaptureDialog project={project} contextFailure={false} onClose={vi.fn()} onCreated={apiState.onCreated} />);
+      const dialog = await screen.findByRole("dialog", { name: "新建 Capture" });
+      const close = within(dialog).getByRole("button", { name: "关闭 Capture" });
+      expect(document.activeElement).toBe(close);
+
+      outside.focus();
+      fireEvent.keyDown(document, { key: "Tab" });
+      expect(document.activeElement).toBe(close);
+
+      fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+      expect(dialog.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement).not.toBe(close);
+    } finally {
+      outside.remove();
+    }
+  });
+
+  it("contains focus in the nested confirmation and restores its trigger on cancel", async () => {
+    render(<CaptureDialog project={project} contextFailure={false} onClose={vi.fn()} onCreated={apiState.onCreated} />);
+    const outer = await screen.findByRole("dialog", { name: "新建 Capture" });
+    await within(outer).findByLabelText("原始材料");
+    const trigger = within(outer).getByRole("button", { name: "删除草稿" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const confirmation = await screen.findByRole("dialog", { name: "删除当前草稿？" });
+    const close = within(confirmation).getByRole("button", { name: "关闭" });
+    expect(document.activeElement).toBe(close);
+
+    trigger.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement).toBe(close);
+    fireEvent.click(within(confirmation).getByRole("button", { name: "取消" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "删除当前草稿？" })).toBeNull());
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
   it("uses one markdown editor for raw text and text file material", async () => {
     render(<CaptureDialog project={project} contextFailure={false} onClose={vi.fn()} onCreated={apiState.onCreated} />);
 

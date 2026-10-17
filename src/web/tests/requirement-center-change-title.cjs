@@ -7,12 +7,12 @@ for(const theme of ['dark','light'])for(const width of [1440,390]){
  const page=await browser.newPage({viewport:{width,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(theme=>{localStorage.setItem('moonbox.session',JSON.stringify({username:'验收账号',access_token:'synthetic-test'}));localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));},theme);
  await page.route('**/api/**',route=>{const u=new URL(route.request().url());return route.fulfill({json:{code:0,data:u.pathname.endsWith('/projects')?{...base,projects:[{space_id:'space',repository_id:'repo',readonly:false,status:'connected'}]}:u.pathname.endsWith('/context')?base:u.pathname.endsWith('/tasks.md')?{content:'# 当前变更进度\n- [ ] 待完成',version:'test'}:{ready:false}}});});
- await page.goto('http://127.0.0.1:18135/tests/governance-board-preview.html');
+ await page.goto('http://127.0.0.1:39035/tests/governance-board-preview.html');
  const card=page.locator('[data-issue-id="sample-ready-dev"]');await expect(card).toBeVisible();await card.scrollIntoViewIfNeeded();
  await expect(card.getByRole('button',{name:'开始开发 →'})).toBeEnabled();
  await expect(page.locator('[data-issue-id="sample-acceptance"]').getByRole('button',{name:'完成 / 归档 →'})).toBeEnabled();
  await expect(page.locator('[data-issue-id="sample-done"] footer button')).toHaveCount(0);
- await card.getByRole('button',{name:'开始开发 →'}).click();await expect(page.getByText('当前仅支持采集需求的生成动作',{exact:true})).toBeVisible();
+ await card.getByRole('button',{name:'开始开发 →'}).click();await expect(page.getByText(/产品内尚未接入该治理写入链路/)).toBeVisible();
  await expect(card.locator('.rc-card-title')).toHaveText('Issue 分级元数据统一');
  const styles=await card.locator('.rc-card-title').evaluate(e=>{const s=getComputedStyle(e);return {fontSize:s.fontSize,color:s.color,padding:s.padding,disabled:e.disabled};});
  await page.screenshot({path:path.join(out,`final-${theme}-${width}.png`)});

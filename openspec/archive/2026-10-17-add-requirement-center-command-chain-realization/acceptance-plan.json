@@ -1,0 +1,1489 @@
+{
+  "schema_version": 1,
+  "change_id": "add-requirement-center-command-chain-realization",
+  "issue_id": "REQ-0027-requirement-center-command-chain-realization",
+  "environment": "isolated-moonbox-39028-source",
+  "plan_status": "awaiting-product-samples",
+  "preflight": [
+    [
+      "lsof",
+      "-nP",
+      "-iTCP:39028",
+      "-sTCP:LISTEN"
+    ],
+    [
+      "src/web/node_modules/.bin/playwright",
+      "--version"
+    ],
+    [
+      "python",
+      "-c",
+      "from pathlib import Path; assert Path(\"src/web/tests/requirement-center-command-chain-realization.cjs\").is_file()"
+    ]
+  ],
+  "sample_policy": "仅隔离验证项目中执行有副作用动作；每个产品轮次填写真实 turn_id，保留脱敏摘要，不上传 prompt、原始事件或本地数据库。归档正向样本须另行核对授权与完整链路。",
+  "checks": [
+    {
+      "id": "AC-001",
+      "objective": "需求分析：captured/exploring 的可读 REQ 打开标识“只读分析”的 Chat，携带完整 ID、项目和引用版本；缺主动作材料仍可分析。比较前后治理文件哈希及生命周期，包括聊天中要求生成/归档的反例，均无治理写入。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-001.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-14 独立隔离产品 captured/exploring 与缺 trace 的分析轮次、生成/归档反例均完成；只读权限已确认，完整 ID/项目/引用版本和脱敏 UI 已核对；各轮全治理树前后 SHA-256 零差异、生命周期不变。详见 samples/AC-001.md。 自动验收器的 commandExecution 探针沿用旧隔离命令轮次 98a99536，仅证明命令退出；当前构建整项只读事实由 samples/AC-001.md 所列新轮次、浏览器与治理树哈希独立证明，二者不混称同轮。",
+      "kind": "product_turn",
+      "turn_id": "98a99536-4a30-4a86-abe3-ea8f089acecb",
+      "command_contains": "req-explore",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "captured 可读对象",
+        "exploring 可读对象",
+        "缺主动作材料仍可分析",
+        "要求生成或归档时治理文件哈希与生命周期不变"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "objective": "生成需求：准备非空 capture/trace，从 captured 和 exploring 分别执行；只生成 requirement.md 业务产物，req.generate 同步 draft、generated 时间及索引，文档可重读。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-002.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-14 独立隔离产品 captured 与 exploring 两轮 candidate applied：各仅新增 requirement.md，更新 trace、需求 registry 和 CHANGELOG；capture 哈希不变，draft/generated/index 同步且文档抽屉可重读。样本详见 samples/AC-002.md。",
+      "kind": "product_turn",
+      "turn_id": "5dca5018-e6d1-49ee-9204-1f8ad480f037",
+      "command_contains": "req-generate",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "captured → draft",
+        "exploring → draft",
+        "非空 capture/trace",
+        "requirement.md 可重读且索引同步"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "objective": "完善需求：从 draft/enriching 分别执行；六件套、适用原型与中文标题校验通过，req.complete 后 pending_review；缺文件、空文件或无效标题不推进。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-003.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "39028 独立隔离项目：draft 与 enriching 均有 applied/verified 产品轮次，六件套、原型和中文标题通过；缺文件、空文件、无效标题各有 rejected 且状态未推进轮次。逐场景见 AC-003.md。",
+      "kind": "product_turn",
+      "turn_id": "029fa163-9694-47c5-af88-460f6bfe93d4",
+      "command_contains": "req-complete",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "draft → pending_review",
+        "enriching → pending_review",
+        "六件套与原型校验",
+        "缺失、空文件、无效中文标题不推进"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "objective": "发起评审：确认通过、拒绝、延后三条路径分别产生 review.md 结论并同步对应状态；拒绝/延后有理由；取消无写入，通过才按治理迁入 review 阶段。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-004.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "当前隔离项目通过、拒绝、延后均有独立已完成产品轮次、候选 applied 和应用 verified；review.md、主文档、trace、注册表、索引与目录迁移一致；取消未发送且 10 个文件哈希不变、无轮次。详见 samples/AC-004.md。",
+      "kind": "product_turn",
+      "turn_id": "0129b0db-470d-4752-a858-7dbd858d9a24",
+      "command_contains": "req-review",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "通过并迁移 review",
+        "拒绝并记录理由",
+        "延后并记录理由",
+        "取消不写入"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "objective": "加入迭代：仅 approved 且评审通过时执行；0/1/多个 active 分别验证默认下一个连续编号/当前/显式选择；扫描 active 和 archive 最大编号；默认30人天且不覆盖有效容量；关闭 Sprint 被拒绝；四件套与 REQ 双向一致。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-005.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "隔离项目 0/1/2 active 与归档 Sprint 矩阵均完成；非 approved 后端 409，默认30人天及既有容量保持，sprint-010 四件套与三 REQ 双向一致。详见 samples/AC-005.md。",
+      "kind": "product_turn",
+      "turn_id": "3e761993-ab9e-4c87-a757-035a37f17c41",
+      "command_contains": "sprint-propose",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "无 active Sprint 时递增创建",
+        "一个 active 时选当前",
+        "多个 active 时显式选择",
+        "关闭 Sprint 拒绝",
+        "30 人天默认与有效显式容量保留",
+        "Sprint 四件套与 REQ 双向一致"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "objective": "生成 OpenSpec：仅 in_sprint 且正式范围含该 REQ；创建 proposal/design/tasks/增量 specs/trace，检查活动与归档身份唯一、中文校验、同 Sprint Change 关联及 execution.schema_version=1、两个执行时间均 null。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-006.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-14 独立产品 req-opsx 恢复轮次 completed，Change 五类文档、Sprint/REQ 双向关系与 execution v1/null 双时间均核对；阶段、正式范围和活动/归档身份拒绝复验通过，详见 samples/AC-006.md 与 AF-045。 自动验收器的 same-turn 命令探针使用完成的恢复轮次中的 Change 身份校验；req-opsx 创建命令位于已标明 stopped 的首轮，成功事实由恢复轮次和最终文件共同证明。",
+      "kind": "product_turn",
+      "turn_id": "a4ee48d7-ccf2-41f9-a528-1aa4bf9ee600",
+      "command_contains": "validate-change-identity.py",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "仅 in_sprint 且已纳入范围",
+        "Change 身份在活动与归档中唯一",
+        "生成中文 proposal/design/tasks/spec/trace",
+        "execution v1 时间初始为 null"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "objective": "开始开发：请求受理不等于启动；真实 opsx.start 后0/N也显示研发中，REQ 保持 in_sprint；任务全勾选但门禁未过不报告 applied；完成验证和文档后 opsx.apply 显示验收中，不自动归档。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-007.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/requirements-acceptance-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/requirements-acceptance-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/computed-style.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-14 当前隔离产品 opsx.start 成功、0/12 研发中卡片与 REQ in_sprint；12/12 合成任务前置下真实 Chat 完成轮次拒绝 opsx.apply 且 completed_at null，随后恢复任务。正向 11/11、验证文档、applied 与验收中卡片沿用前期独立产品证据。自动验收器 same-turn 探针核对完成的负向轮次中 tasks/trace 读取命令，完整场景见 samples/AC-007.md。",
+      "kind": "product_turn",
+      "turn_id": "a7b8320e-81eb-48fb-a8d7-80cf36fd9413",
+      "command_contains": "tasks.md",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "请求受理与真实启动区分",
+        "0/N 显示研发中且 REQ 保持 in_sprint",
+        "任务已勾完但门禁失败不得 applied",
+        "完成后验收中且不自动归档"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "objective": "完成归档：缺人工验收证据拒绝；门禁通过才合并规格、归档 Change、同步并迁移 Issue；多 Change 仅部分归档时 REQ 不 done；全部完成后 done 且详情与迁移后索引可读，不要求整个 Sprint 先完成。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-008.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "命令回归只证明合成路径；产品轮次、真实界面与文件状态须在逐项样本中分别签认。",
+      "kind": "product_turn",
+      "turn_id": "6cc626c6-8a23-4f83-ab37-7fca627c4b4d",
+      "command_contains": "archive-change.sh add-isolated-archive-second-ac008",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "expected_exit_code": 0,
+      "effects": [
+        {
+          "kind": "exists",
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+        }
+      ],
+      "scenarios": [
+        "缺人工验收证据负向归档门禁",
+        "通过门禁后隔离样本正向归档",
+        "多 Change 只归一项不 done",
+        "全部完成后 done 且索引可读"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "objective": "身份与权限：八动作逐一检查完整 ID、授权项目、白名单和后端阶段门禁；短编号、任意客户端路径、跨项目 ID、篡改状态/角色/快照不能扩大权限；只读账号不能写，直接调用 API 也不能越级。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-009.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-14 39028 独立服务双项目、查看者、短 ID、伪造路径/状态/角色/快照版本、未知动作及八动作各合法/非法阶段直接 API 矩阵通过；AF-044/045/046/047 返修后复验，62 项候选与 scope 联合回归通过。命令探针仅证明自动测试，真实直接 API 结果见 samples/AC-009.md。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "八动作完整 ID 与项目授权",
+        "短 ID 和任意客户端路径拒绝",
+        "跨项目、篡改状态角色快照拒绝",
+        "只读账号与直接 API 不越权"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "objective": "幂等并发：七写动作分别重复点击、相同请求重试、断线重连，返回同一操作结果且无重复产物；同对象冲突写串行；过期版本/外部编辑返回冲突并保留已有文件。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-010.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "七写动作成功产品轮次并发同请求、重连、文件哈希，以及共享冲突和外部编辑矩阵均已逐项签认。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_writer.py",
+        "src/backend/tests/test_ac011_writer_fault_matrix.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "七写动作重复点击和相同请求重试",
+        "断线重连复用操作结果",
+        "同对象冲突写串行",
+        "版本过期和外部编辑保留原文件"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "objective": "故障注入：七写动作逐一在写前、部分文件完成、同步前后注入故障；准确区分未执行/部分写入/同步失败/完成。重启后核对落盘步骤再恢复，不伪造回滚，不盲目重放已完成步骤。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-011.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-011-apply-partial-recovery-20261017.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-011-product-recovery-20261017.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-011-matrix-audit-20261017.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "七动作四窗口 28 格均映射脱敏真实产品轮次；新 req-opsx 写前和部分落盘重启轮次、无效 Sprint YAML 失败完成门禁均通过。旧不可读取外部轮次保持 unknown 安全阻断，不作为通过证据。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_writer.py",
+        "src/backend/tests/test_ac011_writer_fault_matrix.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py::test_terminal_candidate_recovery_collects_once_without_restarting_turn",
+        "src/backend/tests/test_governance_candidates.py::test_stopped_source_candidate_restores_partial_file_after_restart"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "七写动作写前失败",
+        "部分文件写后失败",
+        "同步前后故障",
+        "重启后按实际步骤恢复且不盲重放"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "objective": "归档恢复：分别在规格合并、Change 迁移、同步、Issue 迁移后中断；重试不得重复合并、丢失目录或提前 done；未知外部修改时阻塞并保留安全证据。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-012.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-012-product-four-windows-and-completion-gate-20261016.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "四个独立隔离产品对象均在指定归档停点中断、确认 stopped 后从同对象恢复；唯一归档与规格指纹逐轮核对，Issue 迁移和未知外部修改阻断、归档后规格完成门禁均有脱敏证据。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "规格合并后中断",
+        "Change 迁移后中断",
+        "同步后中断",
+        "Issue 迁移后中断",
+        "外部未知修改时阻断且保留证据"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "objective": "结果反馈：关闭窗口不取消任务；再次进入能按操作身份查询。七写动作完成后刷新页面及重启服务，卡片、最新文档、registry、CHANGELOG、trace、适用 Sprint/Change 均与文件事实一致。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-013.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "真实 Chrome 关窗重进同一轮次；修复缺失归档日志的恢复门禁后按外部 completed 终态落账，隔离 API 与 Worker 重启后复核七动作当前投影。",
+      "kind": "product_turn",
+      "turn_id": "6b2fa52a-a0de-4c00-b155-5045cfcdc025",
+      "command_contains": "sync-workflow-status.py --event req.generate",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "关闭窗口不取消",
+        "按操作身份恢复查询",
+        "七动作刷新与重启后事实源、索引和卡片一致"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "objective": "观测：八动作界面行为来自稳定字典，可信 request_id 由服务端生成；写任务关联 operation/workflow/run/节点；直接 API 不伪造界面行为；纯读取无额外写任务 Trace，Chat 模型观测沿用现有机制。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014-observability-matrix.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "八动作真实界面事件、服务端请求与七写动作运行节点矩阵及真实归档轮次已核对；直接 API、纯读取、模型用量负向与沿用机制见 AC-014 样本。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "八动作稳定行为字典",
+        "服务端 request_id",
+        "写任务 operation/workflow/run/节点关联",
+        "直接 API 不伪造 UI 行为",
+        "纯读取无额外写 Trace"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "objective": "脱敏降级：日志和行为/任务节点不保存 Prompt、文件正文、请求响应正文、密钥或本机路径；非法链路字段受控处理；采集失败不阻断业务，Workflow Sync 失败阻断完成；请求/终态任务90天、行为180天，未终态恢复证据不因观测清理丢失。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-015.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-16 隔离产品四层观测表只读全量负向扫描无敏感命中；非法字段过滤、采集降级、Workflow Sync 失败门禁、90/180 天保留与未终态恢复链路的聚焦回归 7 passed。详见 samples/AC-015.md。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "敏感内容脱敏",
+        "非法链路字段受控",
+        "采集故障不阻断业务",
+        "Workflow Sync 故障阻断完成",
+        "90/180 天保留策略与未终态恢复证据"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "objective": "完整主链：使用隔离项目，从 captured 经 draft、pending_review、approved、in_sprint、真实启动、applied、archive 到 done；每步断言下一动作重算，不自动推进下一命令。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-016.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "命令回归只证明合成路径；产品轮次、真实界面与文件状态须在逐项样本中分别签认。",
+      "kind": "product_turn",
+      "turn_id": "f862bf86-ed51-4155-a95b-f8ea23b8b5b8",
+      "command_contains": "archive-change.sh",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "隔离项目 captured 到 done 完整主链",
+        "每步动作重新计算",
+        "不自动推进下一命令"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "objective": "错误文案：缺材料、阶段不符、无权限、版本冲突、同步失败分别采用 PRD 指定文案；无内部路径/堆栈/他项目数据泄漏，认证失效走既有登录流程。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-017.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-16 前端 148/148、后端 18/18；五类 PRD 文案、路径/堆栈/他项目 ID 抑制、401 回登录和隔离 API 负向对照见 AC-017.md。",
+      "kind": "command",
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "缺材料",
+        "阶段不符",
+        "无权限",
+        "版本冲突",
+        "同步失败",
+        "认证失效回登录且不泄漏内部资料"
+      ],
+      "safe_retries": 1
+    },
+    {
+      "id": "AC-018",
+      "objective": "边界同步：Change 明确实际 API/OpenAPI/客户端和产品说明更新；持久化结构变化补 DB 设计与迁移及兼容验证，未变化写明依据；不新增生产部署、对象存储维护或认证体系。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-018.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "API/OpenAPI/生成客户端入口 3/3、产品与部署说明、SQLite 与隔离 MySQL 8.2 当前代码矩阵 86 passed；生产 MySQL 8.4/发布单列门禁。",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_writer.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "API/OpenAPI 与客户端同步",
+        "产品说明同步",
+        "SQLite/MySQL 结构变化与迁移兼容或 N/A 依据",
+        "部署、存储与认证边界 N/A 依据"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "objective": "事实源唯一完成门禁：Chat 工作台执行工作区、assistant 输出和 candidate 只能作为候选或执行证据；写操作完成前必须校验 manifest、revision、binding revision，完成 Workflow Sync，重读治理事实源并刷新卡片投影。若候选或工作区基于的事实源已变化，必须进入 conflict/stale 或待恢复状态，不得展示成功或更新卡片阶段。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-019.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "2026-10-17 新 source 产品轮次 applied/verified、正式同步成功、锁内重读与卡片一致；错误 manifest/revision 产品 API 409、准备后事实源变化 409；binding 与待恢复遮蔽由聚焦集成回归补齐。见 AC-019.md。",
+      "kind": "product_turn",
+      "turn_id": "f8afc333-16a7-4ecd-a821-df6d14469371",
+      "command_contains": "sync-workflow-status.py",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "manifest/revision/binding revision 校验",
+        "Workflow Sync 后重读事实源才显示成功",
+        "事实源变化进入 conflict/stale 或待恢复"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "objective": "本地部署真实仓库默认策略：本地常驻部署生成的仓库绑定默认包含 `workspace_mode: source`，执行器直接使用 `source_root` 当前工作树并直接写入治理事实源；`copy` 仅作为共享、多人或强隔离场景的显式模式保留，且不得再让本地默认会话副本产生事实源漂移或空间放大。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-020.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "当前隔离项目REQ-9316 source绑定真实生成轮次，候选与应用applied/verified，Workflow Sync后文件和卡片同为draft；历史REQ-9098轮次保留于样本。",
+      "kind": "product_turn",
+      "turn_id": "f8afc333-16a7-4ecd-a821-df6d14469371",
+      "command_contains": "sync-workflow-status.py",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "本地默认 source 绑定",
+        "直接 source_root 写入事实源",
+        "copy 仅显式隔离",
+        "无默认副本漂移和空间放大"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "objective": "来源 docs/knowledge-base/incidents/20260912-capture-persistence.md：202仅受理，未知超时复用操作身份；刷新及重启后读取真实文件；外部变更阻断恢复而非强制覆盖。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-XCUT-001.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "横切组合：REQ-9300 真实 req-generate unknown 同身份续接及重启重读；REQ-9317 外部编辑 409 阻断；隔离请求日志中 Capture 202 仅受理。各对象分别标注，未冒充单轮。",
+      "kind": "product_turn",
+      "turn_id": "6b2fa52a-a0de-4c00-b155-5045cfcdc025",
+      "command_contains": "req-generate",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "202 仅受理",
+        "未知超时复用操作身份",
+        "刷新重启后读取真实文件",
+        "外部变化阻断恢复"
+      ]
+    },
+    {
+      "id": "AC-XCUT-002",
+      "objective": "来源 docs/knowledge-base/incidents/20260912-apply-start-stage.md：启动、任务进度、完成分离；0/N已启动显示研发中；保留旧终态，不编造历史启动时间。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-XCUT-002.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "命令回归只证明合成路径；产品轮次、真实界面与文件状态须在逐项样本中分别签认。",
+      "kind": "product_turn",
+      "turn_id": "903b6ef7-5940-4c15-b024-a73e8a3d085f",
+      "command_contains": "opsx-apply",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "启动、进度、完成分离",
+        "0/N 已启动显示研发中",
+        "旧终态与历史时间不伪造"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "objective": "来源 docs/knowledge-base/retrospectives/sprint-007-retrospective.md：归档入口复用后端治理门禁；标题、进度、文档入口可回溯事实源；合成与真实验收分别记载。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-XCUT-003.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "命令回归只证明合成路径；产品轮次、真实界面与文件状态须在逐项样本中分别签认。",
+      "kind": "product_turn",
+      "turn_id": "afa916b4-0011-44c0-8f67-3ad8e14d7326",
+      "command_contains": "opsx-archive",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "scenarios": [
+        "归档复用后端门禁",
+        "标题、进度、文档追溯事实源",
+        "合成与真实证据分别记录"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "objective": "复核 prototype/web/context.md 拆解与八动作矩阵，Change design 承接 UI Contract 和 selector 映射；本轮拆解已记录，不表示实现已验收。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-001.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "原型拆解、八动作矩阵、Change UI Contract 与当前渲染 DOM 的完整 selector 映射已复核；组件回归 130/130 通过。运行态视觉由 AC-PROTOTYPE-003/005 单独判定。",
+      "kind": "command",
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "原型拆解与八动作矩阵",
+        "UI Contract 与 selector 映射核对"
+      ],
+      "safe_retries": 1
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "objective": "先完成 UI Skeleton，并对1440px首轮证据确认后再进行细节实现。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-002.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440-computed-style.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "首轮视觉与用户确认是主证据；命令门禁使用 TypeScript + Vite 构建。122 项聚焦 Vitest 已独立通过，但在验收 runner 中两次因资源相关超时/失败未作为本项主门禁。",
+      "kind": "command",
+      "argv": [
+        "npm",
+        "--prefix",
+        "src/web",
+        "run",
+        "build"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "coverage": {
+        "stages": [
+          "skeleton"
+        ],
+        "viewports": [
+          "light-1440"
+        ],
+        "samples": [
+          {
+            "stage": "skeleton",
+            "viewport": "light-1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440-computed-style.json"
+            ]
+          }
+        ],
+        "viewport_dimensions": {
+          "1440": "1440x1000",
+          "390": "390x844",
+          "short": "1440x600"
+        }
+      },
+      "baseline_artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/computed-styles.json"
+      ],
+      "visual_note": "首轮 1440px 浅色页面由真实 Firefox 页面组件及合成只读 HTTP 采集；用户已确认结构与状态布局。此项只验 UI Skeleton，不代表细节或真实业务 API 通过。",
+      "scenarios": [
+        "UI Skeleton 首轮 1440px 证据",
+        "确认时间早于细节实现"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "objective": "在1440px、窄屏390px和矮视口验证深浅主题、弹窗/抽屉、焦点、取消、加载、错误、权限和溢出，记录截图与 computed style；返修使旧证据失效。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-003.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/focus-cancel-interaction.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "当前构建真实产品八阶段×三视口截图及配对 computed style 已目视复核；权限和长内容隔离样本已恢复；Capture 打开焦点、Escape 取消及焦点返回已复核，整项签认。 2026-10-14 完整验收运行中 Vitest 命令曾偶发退出 1；同一安全只读测试命令独立连跑两次均 125 passed，允许自动重试一次，仍以最终退出码为准。",
+      "kind": "command",
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "coverage": {
+        "stages": [
+          "board-dark",
+          "board-light",
+          "dialog-dark",
+          "drawer-light",
+          "loading",
+          "error",
+          "permission",
+          "overflow"
+        ],
+        "viewports": [
+          "1440",
+          "390",
+          "short"
+        ],
+        "samples": [
+          {
+            "stage": "board-dark",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "board-dark",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "board-dark",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "board-light",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "board-light",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "board-light",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "dialog-dark",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "dialog-dark",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "dialog-dark",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "drawer-light",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "drawer-light",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "drawer-light",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "loading",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "loading",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "loading",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "permission",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "permission",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "permission",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short-computed-style.json"
+            ]
+          },
+          {
+            "stage": "overflow",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "overflow",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "overflow",
+            "viewport": "short",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short-computed-style.json"
+            ]
+          }
+        ],
+        "viewport_dimensions": {
+          "1440": "1440x1000",
+          "390": "390x844",
+          "short": "1440x600"
+        }
+      },
+      "baseline_artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/computed-styles.json"
+      ],
+      "visual_note": "既有截图为 synthetic-http 旧样本，只作对照；本轮矩阵需当前真实浏览器截图、computed style 与人工目视签认。",
+      "scenarios": [
+        "深浅主题与三类视口",
+        "弹窗/抽屉",
+        "焦点/取消",
+        "加载/错误/权限/溢出",
+        "截图与 computed style",
+        "返修后证据新鲜度"
+      ],
+      "safe_retries": 1
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "objective": "归档前核对 PRD、用户故事、业务流程、验收、trace、prototype 与实现一致，明确 Mock/API 边界并回填全部证据。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-004.md"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "PRD、用户故事、业务流程、验收、trace、prototype 与实现一致性扫尾；Mock/API 边界与全部视觉及横切证据回填。",
+      "kind": "command",
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "scenarios": [
+        "PRD、故事、流程、验收、trace、prototype 一致",
+        "Mock/API 边界",
+        "证据回填"
+      ],
+      "safe_retries": 1
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "objective": "支持外部关闭的浮层验证内部 stopPropagation 不误关闭、外部点击仍关闭；显式取消不写入，提交后关闭只隐藏反馈；Tab焦点约束、Esc关闭、关闭后焦点回到触发器。",
+      "inputs": [
+        "issues/requirements/review/REQ-0027-requirement-center-command-chain-realization/acceptance.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/design.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/tasks.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/trace.md"
+      ],
+      "artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-005.md",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440-computed-style.json",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390-computed-style.json"
+      ],
+      "timeout_seconds": 180,
+      "required_sample": {
+        "scope": "隔离验证项目与完整对象 ID；记录前置状态、操作身份、终态、事实源差异和脱敏证据入口",
+        "status": "passed"
+      },
+      "evidence_note": "12 组真实隔离视觉状态×视口图片与 computed style 目视复核；当前 Chrome 复查 Capture/嵌套取消和焦点；文档抽屉、Agent 助手及 AC-013 关窗续接分别核验。",
+      "kind": "command",
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "coverage": {
+        "stages": [
+          "modal-open",
+          "inside-click",
+          "outside-click",
+          "cancel",
+          "submitted-close",
+          "focus-return"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "modal-open",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "modal-open",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "inside-click",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "inside-click",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "outside-click",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "outside-click",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "cancel",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "cancel",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "submitted-close",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "submitted-close",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390-computed-style.json"
+            ]
+          },
+          {
+            "stage": "focus-return",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440-computed-style.json"
+            ]
+          },
+          {
+            "stage": "focus-return",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390.png",
+              "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390-computed-style.json"
+            ]
+          }
+        ],
+        "viewport_dimensions": {
+          "1440": "1440x1000",
+          "390": "390x844",
+          "short": "1440x600"
+        }
+      },
+      "baseline_artifacts": [
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-light-1440.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/command-chain-dark-390.png",
+        "openspec/changes/add-requirement-center-command-chain-realization/evidence/ui/computed-styles.json"
+      ],
+      "visual_note": "既有截图为 synthetic-http 旧样本，只作对照；本轮矩阵需当前真实浏览器截图、computed style 与人工目视签认。",
+      "scenarios": [
+        "内部点击不误关闭",
+        "外部点击关闭",
+        "显式取消不写",
+        "提交后关闭只隐藏反馈",
+        "Tab、Esc 与焦点回归"
+      ]
+    }
+  ],
+  "preflight_note": "Firefox 已验证隔离页面与登录；lsof 预检本机 39028 监听，Playwright 预检浏览器依赖。终端网络在沙箱内受限，不能以 socket 失败判定服务不可达。"
+}

@@ -23,6 +23,8 @@ def inspect_deletion(db,actor,cid):
         return {'allowed':False,'reason':'执行使用量尚未结算','workspace_hash':None}
     if not parent['workspace_id']:return {'allowed':True,'reason':None,'workspace_hash':None}
     binding=repository_binding(parent['repository_id'],parent['space_id'])
+    if binding and binding.get('workspace_mode') == 'source' and parent['workspace_id'] == 'source':
+        return {'allowed':True,'reason':None,'workspace_hash':'source'}
     try:
         root=trusted_directory(binding['workspace_root']) if binding and isinstance(binding.get('workspace_root'),str) and Path(binding['workspace_root']).is_absolute() else None
         if root is None or parent['workspace_id']!=cid:raise ValueError()

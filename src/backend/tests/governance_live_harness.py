@@ -47,13 +47,13 @@ def main():
         with get_session_factory()() as db:scope=authorize(db,'alice','space',binding['id'])
         permit={'scope_key':scope.key,'binding_revision':scope.binding_revision,'registered_writers':['governance-controller'],'external_writers_paused':True,'expires_at':time.time()+3500}
         path=root/'private/maintenance.json';path.write_text(json.dumps(permit));path.chmod(0o600)
-        (root/'browser.json').write_text(json.dumps({'password':password,'url':'http://127.0.0.1:18128','object_id':OID}));(root/'browser.json').chmod(0o600)
+        (root/'browser.json').write_text(json.dumps({'password':password,'url':'http://127.0.0.1:39028','object_id':OID}));(root/'browser.json').chmod(0o600)
         # Environment retained privately only for operator recovery in this disposable deployment.
         (root/'environment.json').write_text(json.dumps({k:v for k,v in os.environ.items() if k.startswith(('MOONBOX_','DATABASE','SQLITE','APP_','ADMIN_INITIAL'))}));(root/'environment.json').chmod(0o600)
         for module in ('app.chat.platform_worker','app.governance.controller'):
             children.append(subprocess.Popen([sys.executable,'-m',module],stdout=(root/(module+'.log')).open('w'),stderr=subprocess.STDOUT))
         children.append(subprocess.Popen([sys.executable,__file__,'serve'],stdout=(root/'api.log').open('w'),stderr=subprocess.STDOUT))
-        print(json.dumps({'root':str(root),'url':'http://127.0.0.1:18128','object_id':OID}),flush=True)
+        print(json.dumps({'root':str(root),'url':'http://127.0.0.1:39028','object_id':OID}),flush=True)
         for line in sys.stdin:
             if line.strip()=='cleanup':break
             if line.strip()=='status':print(json.dumps({'alive':[p.poll() is None for p in children],'ready':(root/'state/worker-ready.json').exists()}),flush=True)

@@ -2,18 +2,27 @@
 # 按模式启动常规服务；--chat-test显式增加独立Chat验证环境。
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/docker-common.sh" "$@"
+if [[ -z "${MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT+x}" && -f "$ENV_FILE" ]] &&
+   grep -q '^MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT=' "$ENV_FILE"; then
+  export MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT="$(awk -F= '$1 == "MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT" {print substr($0,index($0,"=")+1);exit}' "$ENV_FILE")"
+fi
+PYTHONPATH=src/backend "$PYTHON_BIN" -c 'from app.chat.settings import local_snapshot_limit; local_snapshot_limit()'
 validate_database_mode
+if [[ "$MODE" == *-sqlite ]]; then
+  PYTHONPATH=src/backend "$PYTHON_BIN" -m app.db.local_data_migration preflight \
+    --root "$ROOT_DIR" --database-url "$(config_value DATABASE_URL 'sqlite:////app/data/sqlite/moonbox.db')"
+fi
 if [[ "$CHAT_PLATFORM" = true ]]; then
   PYTHONPATH=src/backend "$PYTHON_BIN" -m app.chat.platform_deployment check
   PYTHONPATH=src/backend "$PYTHON_BIN" -m app.governance.deployment check
 fi
-RESOLVED_HOST_PORT_WEB="$(config_value HOST_PORT_WEB 18102)"
-RESOLVED_HOST_PORT_BACKEND="$(config_value HOST_PORT_BACKEND 18101)"
-RESOLVED_HOST_PORT_MINIO_CONSOLE="$(config_value HOST_PORT_MINIO_CONSOLE 18104)"
+RESOLVED_HOST_PORT_WEB="$(config_value HOST_PORT_WEB 39002)"
+RESOLVED_HOST_PORT_BACKEND="$(config_value HOST_PORT_BACKEND 39001)"
+RESOLVED_HOST_PORT_MINIO_CONSOLE="$(config_value HOST_PORT_MINIO_CONSOLE 39004)"
 if [[ "$CHECK_ONLY" = true ]]; then
   "${COMPOSE[@]}" config --quiet
   if [[ "$CHAT_TEST" = true ]]; then
-    export HOST_PORT_CHAT_TEST="$(config_value HOST_PORT_CHAT_TEST 18121)"
+    export HOST_PORT_CHAT_TEST="$(config_value HOST_PORT_CHAT_TEST 39021)"
     chat_control check
   fi
   echo '部署校验通过；未构建、启动或停止服务。'; exit 0
@@ -26,7 +35,7 @@ if [[ "$CHAT_PLATFORM" = true ]]; then
   "${COMPOSE[@]}" build chat-worker
   "${COMPOSE[@]}" up -d --wait --wait-timeout 180 "${SERVICES[@]}"
 elif [[ "$CHAT_TEST" = true ]]; then
-  export HOST_PORT_CHAT_TEST="$(config_value HOST_PORT_CHAT_TEST 18121)"
+  export HOST_PORT_CHAT_TEST="$(config_value HOST_PORT_CHAT_TEST 39021)"
   chat_control check
   "${COMPOSE[@]}" build backend web
   docker build -f src/backend/Dockerfile.chat-executor -t moonbox-chat-executor:0.153.4-test src/backend

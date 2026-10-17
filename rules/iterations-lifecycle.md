@@ -4,7 +4,7 @@ content: change / archive 两阶段目录职责、准入条件、迁移时机与
 source: 项目团队确认
 update_method: Sprint 流程或目录边界变化时同步更新
 created_at: 2026-06-27 23:45:00
-updated_at: '2026-09-12 23:15:07'
+updated_at: '2026-10-17 16:40:21'
 note: 与 issues plan/review/archive 互补；机器索引仍为 sprint.yaml
 ---
 
@@ -112,6 +112,8 @@ Sprint 纳入、执行或归档涉及 API、DB、日志审计、行为埋点、T
 Sprint 文档只记录 `product_data_collection_observability` 适用性、`affected_layers` 适用层级、N/A 原因、`validation` 验证摘要或缺失项，不得复制完整规范正文。`/sprint-archive` 前若相关范围缺少声明或验收结果，MUST 返回对应 REQ / Change 修复。
 
 ## 4. 目录迁移时机（MUST）
+
+关闭扫描复核 Issue 子文档时，当前态以主文档、trace 和验收文档的结构化状态字段为准；历史验收轮次、排障样本和阶段性记录保留原始事实。已归档 Change 的证据链接应指向 `openspec/archive/` 中的真实目标。状态字段残留与失效链接仍阻断关闭。
 
 AI 在执行下列命令并成功后 **MUST** 移动目录（`git mv` 或等价），并更新 `sprint.yaml` 的 `lifecycle_stage`：
 

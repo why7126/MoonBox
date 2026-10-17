@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timedelta, timezone
 import pytest
 from fastapi.testclient import TestClient
@@ -257,7 +258,7 @@ def test_material_api_validation_and_skill_candidates(chat,tmp_path,monkeypatch)
     cid = create(client)
     cap = client.get('/api/v1/chat/capabilities', params={'space_id': 'space'}).json()['data']
     assert cap['materials']['max_images'] >= 1
-    assert cap['execution']['defaults'] == {'agent': 'codex', 'model': 'gpt-6-astra', 'reasoning': 'high'}
+    assert cap['execution']['defaults'] == {'agent': 'codex', 'model': 'gpt-6-astra', 'reasoning': 'low'}
     assert [item['value'] for item in cap['execution']['agents']] == ['codex']
     assert [item['value'] for item in cap['execution']['models']] == ['gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna', 'gpt-5.5']
     assert [item['display_name'] for item in cap['execution']['models']] == ['GPT-6 Astra', 'GPT-5.6 Sol', 'GPT-5.6 Terra', 'GPT-5.6 Luna', 'GPT-5.5']
@@ -426,7 +427,7 @@ def test_diff_marks_workspace_snapshot_status(chat,governance,tmp_path,monkeypat
     assert all('current_sha256' not in item for item in data['files'])
 
 
-def test_execution_disconnect_keeps_unknown_lock_and_reservation(chat,tmp_path):
+def test_execution_setup_failure_is_failed_and_releases_reservation(chat,tmp_path):
     from app.chat.admission import enqueue
     from app.chat.execution import run_claim
     from app.chat.app_server import ExecutorError
@@ -439,9 +440,145 @@ def test_execution_disconnect_keeps_unknown_lock_and_reservation(chat,tmp_path):
         def start_turn(self,*_):raise ExecutorError('executor_disconnected')
         def close(self):pass
     with factory() as db:turn=enqueue(db,'alice',cid,'request','synthetic',limits);token=worker.claim(db,'executor')
+    assert run_claim(factory,token,path,lambda _:Peer())=='failed'
+    with factory() as db:
+        assert db.scalar(select(conversations.c.active_turn_id)) is None
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='failed'
+        assert db.scalar(select(turns.c.error_code).where(turns.c.id==turn['id']))=='executor_disconnected'
+        assert db.scalar(select(reservations.c.status))=='settled'
+
+
+def test_run_claim_accepts_source_workspace_identity(chat,tmp_path,monkeypatch):
+    import json
+    from app.chat.admission import enqueue
+    from app.chat.execution import run_claim
+    from app.chat.schema import reservations, workspace_baselines
+    client,factory=chat;cid=create(client);source=tmp_path.resolve()/'real-repository';source.mkdir()
+    (source/'tracked.txt').write_text('baseline')
+    monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
+        'id':'repo','space_id':'space','source_root':str(source),
+        'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
+    }]))
+    limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
+        user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
+    class Peer:
+        def connect(self,previous):return 'thread'
+        def start_turn(self,*_):return 'run'
+        def event(self,timeout):
+            if not hasattr(self,'items'):
+                self.items=[
+                    {'method':'thread/tokenUsage/updated','params':{'threadId':'thread','turnId':'run','tokenUsage':{'total':{'totalTokens':10}}}},
+                    {'method':'turn/completed','params':{'threadId':'thread','turn':{'id':'run','status':'completed'}}},
+                ]
+            return self.items.pop(0) if self.items else None
+        def close(self):pass
+    with factory() as db:
+        turn=enqueue(db,'alice',cid,'source-workspace','synthetic',limits);token=worker.claim(db,'executor')
+    assert run_claim(factory,token,source,lambda _:Peer())=='completed'
+    with factory() as db:
+        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))=='source'
+        assert db.scalar(select(workspace_baselines.c.workspace_id).where(workspace_baselines.c.conversation_id==cid))==cid
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='completed'
+        assert db.scalar(select(reservations.c.status))=='settled'
+
+
+def test_run_claim_allows_multiple_source_conversation_baselines(chat,tmp_path,monkeypatch):
+    import json
+    from app.chat.admission import enqueue
+    from app.chat.execution import run_claim
+    from app.chat.schema import reservations, workspace_baselines
+    client,factory=chat;source=tmp_path.resolve()/'real-repository';source.mkdir()
+    (source/'tracked.txt').write_text('baseline')
+    monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
+        'id':'repo','space_id':'space','source_root':str(source),
+        'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
+    }]))
+    limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
+        user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
+    class Peer:
+        def connect(self,previous):return 'thread'
+        def start_turn(self,*_):return 'run'
+        def event(self,timeout):
+            if not hasattr(self,'items'):
+                self.items=[
+                    {'method':'thread/tokenUsage/updated','params':{'threadId':'thread','turnId':'run','tokenUsage':{'total':{'totalTokens':10}}}},
+                    {'method':'turn/completed','params':{'threadId':'thread','turn':{'id':'run','status':'completed'}}},
+                ]
+            return self.items.pop(0) if self.items else None
+        def close(self):pass
+    cids=[create(client),create(client)]
+    turn_ids=[]
+    for index,cid in enumerate(cids):
+        with factory() as db:
+            turn=enqueue(db,'alice',cid,f'source-workspace-{index}','synthetic',limits)
+            token=worker.claim(db,'executor')
+        assert run_claim(factory,token,source,lambda _:Peer())=='completed'
+        turn_ids.append(turn['id'])
+    with factory() as db:
+        stored=dict(db.execute(select(workspace_baselines.c.conversation_id,workspace_baselines.c.workspace_id)).all())
+        assert {stored[cid] for cid in cids}==set(cids)
+        assert [db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid)) for cid in cids]==['source','source']
+        assert [db.scalar(select(turns.c.status).where(turns.c.id==tid)) for tid in turn_ids]==['completed','completed']
+        assert db.scalar(select(reservations.c.status))=='settled'
+
+
+def test_run_claim_migrates_legacy_copy_workspace_to_source(chat,tmp_path,monkeypatch):
+    import json
+    from app.chat.admission import enqueue
+    from app.chat.execution import run_claim
+    from app.chat.schema import reservations, workspace_baselines
+    from app.chat.workspace import snapshot
+    client,factory=chat;cid=create(client);source=tmp_path.resolve()/'real-repository';source.mkdir()
+    (source/'tracked.txt').write_text('baseline')
+    initial=snapshot(source)
+    monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
+        'id':'repo','space_id':'space','source_root':str(source),
+        'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
+    }]))
+    limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
+        user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
+    class Peer:
+        def connect(self,previous):return 'thread'
+        def start_turn(self,*_):return 'run'
+        def event(self,timeout):
+            if not hasattr(self,'items'):
+                self.items=[
+                    {'method':'thread/tokenUsage/updated','params':{'threadId':'thread','turnId':'run','tokenUsage':{'total':{'totalTokens':10}}}},
+                    {'method':'turn/completed','params':{'threadId':'thread','turn':{'id':'run','status':'completed'}}},
+                ]
+            return self.items.pop(0) if self.items else None
+        def close(self):pass
+    with factory() as db:
+        db.execute(update(conversations).where(conversations.c.id==cid).values(workspace_id=cid))
+        db.execute(insert(workspace_baselines).values(conversation_id=cid,workspace_id=cid,
+            content_hash=initial['hash'],payload=json.dumps(initial,ensure_ascii=False),token_total=0))
+        turn=enqueue(db,'alice',cid,'source-workspace-migration','synthetic',limits);token=worker.claim(db,'executor')
+    assert run_claim(factory,token,source,lambda _:Peer())=='completed'
+    with factory() as db:
+        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))=='source'
+        assert db.scalar(select(workspace_baselines.c.workspace_id).where(workspace_baselines.c.conversation_id==cid))==cid
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='completed'
+        assert db.scalar(select(reservations.c.status))=='settled'
+
+
+def test_execution_disconnect_after_external_turn_keeps_unknown_lock_and_reservation(chat,tmp_path):
+    from app.chat.admission import enqueue
+    from app.chat.execution import run_claim
+    from app.chat.app_server import ExecutorError
+    from app.chat.schema import reservations
+    client,factory=chat;cid=create(client);path=tmp_path.resolve()/cid;path.mkdir()
+    limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
+        user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
+    class Peer:
+        def connect(self,previous):return 'thread'
+        def start_turn(self,*_):return 'run'
+        def event(self,timeout):raise ExecutorError('executor_disconnected')
+        def close(self):pass
+    with factory() as db:turn=enqueue(db,'alice',cid,'request','synthetic',limits);token=worker.claim(db,'executor')
     assert run_claim(factory,token,path,lambda _:Peer())=='unknown'
     with factory() as db:
         assert db.scalar(select(conversations.c.active_turn_id))==turn['id']
+        assert db.scalar(select(turns.c.error_code).where(turns.c.id==turn['id']))=='executor_disconnected'
         assert db.scalar(select(reservations.c.status))=='reserved'
 
 
@@ -618,6 +755,174 @@ def test_write_policy_requires_current_role_and_sprint_change(chat,governance):
     with factory() as db:assert write_policy(db,'alice',parent)=={'write_scope':'governance_write','reason_code':'governance_object_writable'}
 
 
+@pytest.mark.parametrize('source_field',['requirement','requirement_id'])
+def test_write_policy_grants_archive_scope_only_for_opsx_archive_turn(chat,governance,source_field):
+    from app.chat.admission import enqueue
+    from app.chat.policy import write_policy
+    from test_chat_accounting import LIMITS
+    client,factory=chat;root,entries=governance;cid=create(client)
+    oid=entries[0]['id'];change='synthetic-archive-change'
+    entries[0].update(status='in_sprint',related_change=change,iteration='sprint-999')
+    (root/'issues/requirements/_registry.yaml').write_text(__import__('json').dumps({'entries':entries}))
+    folder=root/'openspec/changes'/change;folder.mkdir(parents=True,exist_ok=True)
+    (folder/'trace.md').write_text(f'---\nstatus: applied\n{source_field}: {oid}\nsprint: sprint-999\n---\n')
+    sprint=root/'iterations/change/sprint-999';sprint.mkdir(parents=True,exist_ok=True)
+    (sprint/'sprint.yaml').write_text(__import__('json').dumps({'changes':[change],'requirements':[oid]}))
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':oid}).status_code==200
+    with factory() as db:
+        turn=enqueue(db,'alice',cid,'archive',f'/opsx-archive {oid}',LIMITS)
+        parent=service.conversation(db,'alice',cid)
+        assert write_policy(db,'alice',parent)=={'write_scope':'archive_write','reason_code':'archive_change_applied'}
+        archived=root/'openspec/archive'/f'2026-10-05-{change}'
+        archived.parent.mkdir(parents=True,exist_ok=True)
+        __import__('shutil').move(str(folder),str(archived))
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        (archived/'trace.md').write_text(f'---\nstatus: archived\n{source_field}: {oid}\nsprint: sprint-999\n---\n')
+        entries[0]['status']='done'
+        (root/'issues/requirements/_registry.yaml').write_text(__import__('json').dumps({'entries':entries}))
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        # Directory promotion precedes the registry update: history and scope
+        # must remain readable without bypassing the existing object ACL.
+        issue=root/entries[0]['path']
+        if issue.parent.name != 'review':
+            review=root/'issues/requirements/review'/oid
+            review.parent.mkdir(parents=True,exist_ok=True)
+            __import__('shutil').move(str(issue),str(review))
+            entries[0]['path']=str(review.relative_to(root))
+            (root/'issues/requirements/_registry.yaml').write_text(__import__('json').dumps({'entries':entries}))
+            issue=review
+        destination=root/'issues/requirements/archive'/oid
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        __import__('shutil').move(str(issue),str(destination))
+        from app.chat.relations import authorize_history
+        authorize_history(db,'alice',parent)
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        entries[0]['path']=str(destination.relative_to(root))
+        (root/'issues/requirements/_registry.yaml').write_text(__import__('json').dumps({'entries':entries}))
+        db.execute(update(turns).where(turns.c.id==turn['id']).values(prompt=f'/opsx-apply {oid}'));db.commit()
+        parent=service.conversation(db,'alice',cid)
+        assert write_policy(db,'alice',parent)['write_scope']=='read_only'
+
+
+def test_write_policy_grants_archive_scope_for_legacy_source_bug_trace(chat,governance):
+    import json
+    import shutil
+    from app.chat.admission import enqueue
+    from app.chat.policy import write_policy
+    from test_chat_accounting import LIMITS
+    client,factory=chat;root,_=governance;cid=create(client)
+    oid='BUG-9001-legacy-source-bug';change='synthetic-source-bug-archive-change'
+    relative=f'issues/bugs/review/{oid}'
+    bug_dir=root/relative;bug_dir.mkdir(parents=True)
+    (bug_dir/'bug.md').write_text('synthetic legacy source bug')
+    (root/'issues/bugs/_registry.yaml').parent.mkdir(parents=True,exist_ok=True)
+    (root/'issues/bugs/_registry.yaml').write_text(json.dumps({'entries':[{
+        'id':oid,'title':'Synthetic legacy source bug','path':relative,
+        'status':'in_sprint','related_change':change,'iteration':'sprint-999'
+    }]}))
+    folder=root/'openspec/changes'/change;folder.mkdir(parents=True,exist_ok=True)
+    (folder/'trace.md').write_text(f'---\nstatus: applied\nsource_bug: {oid}\nsprint: sprint-999\n---\n')
+    sprint=root/'iterations/change/sprint-999';sprint.mkdir(parents=True,exist_ok=True)
+    (sprint/'sprint.yaml').write_text(json.dumps({'changes':[change],'bugs':[oid]}))
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':oid}).status_code==200
+    with factory() as db:
+        enqueue(db,'alice',cid,'legacy-source-bug-archive',f'/opsx-archive {oid}',LIMITS)
+        parent=service.conversation(db,'alice',cid)
+        assert write_policy(db,'alice',parent)=={'write_scope':'archive_write','reason_code':'archive_change_applied'}
+        legacy=root/'openspec/changes/archive'/f'2026-10-12-{change}'
+        legacy.parent.mkdir(parents=True,exist_ok=True)
+        shutil.move(str(folder),str(legacy))
+        assert write_policy(db,'alice',parent)=={'write_scope':'archive_write','reason_code':'archive_change_transition'}
+        from app.chat.relations import authorize_history
+        authorize_history(db,'alice',parent)
+        canonical=root/'openspec/archive'/legacy.name
+        canonical.parent.mkdir(parents=True,exist_ok=True)
+        canonical.mkdir()
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        canonical.rmdir()
+        (legacy/'trace.md').write_text(f'---\nstatus: applied\nsource_bug: BUG-9999\nsprint: sprint-999\n---\n')
+        assert write_policy(db,'alice',parent)['write_scope']=='read_only'
+
+
+def test_write_policy_archives_standalone_change_with_sprint_and_continuation(chat,governance):
+    import json
+    import shutil
+    from app.chat.admission import enqueue
+    from app.chat.policy import write_policy
+    from app.chat.relations import authorize_history
+    from test_chat_accounting import LIMITS
+    client,factory=chat;root,_=governance;cid=create(client)
+    change='standalone-archive-change'
+    folder=root/'openspec/changes'/change;folder.mkdir(parents=True)
+    (folder/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\n---\n')
+    sprint=root/'iterations/change/sprint-999';sprint.mkdir(parents=True,exist_ok=True)
+    plan=sprint/'sprint.yaml';plan.write_text(json.dumps({'changes':[change]}))
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':change}).status_code==200
+    with factory() as db:
+        turn=enqueue(db,'alice',cid,'archive-standalone',f'/opsx-archive {change}',LIMITS)
+        parent=service.conversation(db,'alice',cid)
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        plan.write_text(json.dumps({'changes':[]}))
+        assert write_policy(db,'alice',parent)['write_scope']!='archive_write'
+        plan.write_text(json.dumps({'changes':[change]}))
+        (folder/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\nrelated_bug: BUG-9999\n---\n')
+        assert write_policy(db,'alice',parent)['write_scope']!='archive_write'
+        (folder/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\n---\n')
+        archived=root/'openspec/archive'/f'2026-10-09-{change}'
+        archived.parent.mkdir(parents=True,exist_ok=True)
+        shutil.move(str(folder),str(archived))
+        (archived/'trace.md').write_text('---\nstatus: archived\nsprint: sprint-999\n---\n')
+        authorize_history(db,'alice',parent)
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        db.execute(update(turns).where(turns.c.id==turn['id']).values(prompt='/opsx-apply other-change'));db.commit()
+        assert write_policy(db,'alice',service.conversation(db,'alice',cid))['write_scope']!='archive_write'
+
+
+def test_archive_scope_survives_cli_legacy_directory_transition(chat,governance):
+    import json
+    import shutil
+    from app.chat.admission import enqueue
+    from app.chat.policy import write_policy
+    from app.chat.relations import authorize_history
+    from test_chat_accounting import LIMITS
+    client,factory=chat;root,_=governance;cid=create(client)
+    change='standalone-transition-change'
+    active=root/'openspec/changes'/change;active.mkdir(parents=True)
+    (active/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\n---\n')
+    sprint=root/'iterations/change/sprint-999';sprint.mkdir(parents=True,exist_ok=True)
+    (sprint/'sprint.yaml').write_text(json.dumps({'changes':[change]}))
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':change}).status_code==200
+    with factory() as db:
+        turn=enqueue(db,'alice',cid,'archive-transition',f'/opsx-archive {change}',LIMITS)
+        parent=service.conversation(db,'alice',cid)
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        legacy=root/'openspec/changes/archive'/f'2026-10-11-{change}'
+        legacy.parent.mkdir(parents=True)
+        shutil.move(str(active),str(legacy))
+        assert write_policy(db,'alice',parent)=={'write_scope':'archive_write','reason_code':'archive_change_transition'}
+        authorize_history(db,'alice',parent)
+        (legacy/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\nrelated_bug: BUG-9999\n---\n')
+        assert write_policy(db,'alice',parent)['write_scope']=='read_only'
+        (legacy/'trace.md').write_text('---\nstatus: applied\nsprint: sprint-999\n---\n')
+        canonical=root/'openspec/archive'/legacy.name;canonical.parent.mkdir(parents=True)
+        # A cross-mount copy exposes the destination directory before trace.md
+        # is copied, while the complete legacy source still exists.
+        canonical.mkdir()
+        assert write_policy(db,'alice',parent)=={'write_scope':'archive_write','reason_code':'archive_change_transition'}
+        authorize_history(db,'alice',parent)
+        conflicting=canonical.parent/f'2026-10-12-{change}'
+        conflicting.mkdir()
+        assert write_policy(db,'alice',parent)['write_scope']=='read_only'
+        with pytest.raises(service.ChatError):
+            authorize_history(db,'alice',parent)
+        conflicting.rmdir()
+        canonical.rmdir()
+        shutil.move(str(legacy),str(canonical))
+        assert write_policy(db,'alice',parent)['write_scope']=='archive_write'
+        db.execute(update(turns).where(turns.c.id==turn['id']).values(prompt='/opsx-apply other-change'));db.commit()
+        assert write_policy(db,'alice',service.conversation(db,'alice',cid))['write_scope']=='read_only'
+
+
 def test_conversation_read_includes_write_scope(chat,governance):
     client,factory=chat;root,entries=governance;cid=create(client)
     data=client.get(f'/api/v1/chat/conversations/{cid}').json()['data']
@@ -625,6 +930,26 @@ def test_conversation_read_includes_write_scope(chat,governance):
     assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':entries[0]['id']}).status_code==200
     data=client.get(f'/api/v1/chat/conversations/{cid}').json()['data']
     assert data['write_scope']=='governance_write' and data['write_reason_code']=='governance_object_writable'
+
+
+@pytest.mark.parametrize('status', ['captured', 'exploring'])
+def test_analysis_object_is_read_only_even_for_space_writer(chat, governance, status):
+    from app.chat.policy import write_policy
+    client, factory = chat
+    root, entries = governance
+    entries[0]['status'] = status
+    (root/'issues/requirements/_registry.yaml').write_text(json.dumps({'entries': entries}))
+    cid = create(client)
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations', json={'primary': entries[0]['id']}).status_code == 200
+    with factory() as db:
+        parent = service.conversation(db, 'alice', cid)
+        assert write_policy(db, 'alice', parent) == {'write_scope': 'read_only', 'reason_code': 'analysis_object_read_only'}
+    tid = queued(factory, cid)
+    with factory() as db:
+        db.execute(update(turns).where(turns.c.id == tid).values(prompt=f"/opsx-archive {entries[0]['id']}"))
+        db.commit()
+        parent = service.conversation(db, 'alice', cid)
+        assert write_policy(db, 'alice', parent) == {'write_scope': 'read_only', 'reason_code': 'analysis_object_read_only'}
 
 
 def test_observability_trusted_ids_and_retention(chat):
@@ -661,6 +986,34 @@ def test_trace_failure_does_not_rollback_business(chat,monkeypatch):
         monkeypatch.setattr(db,'execute',execute)
         trace(db,'synthetic-turn','queued');db.commit()
     with factory() as db:assert service.conversation(db,'alice',cid)['title']=='kept'
+
+
+def test_observability_retention_keeps_100_day_behavior_and_unfinished_trace(chat):
+    from app.chat.schema import usage_events, task_traces, task_trace_spans, audit
+    from app.chat.observability import behavior, trace, prune
+    client, factory = chat
+    create(client)
+    now = datetime.now(timezone.utc)
+    age_100 = (now - timedelta(days=100)).isoformat(timespec='seconds')
+    age_181 = (now - timedelta(days=181)).isoformat(timespec='seconds')
+    with factory() as db:
+        behavior(db, 'chat.send', 'alice', 'request-100', 'success', 'web')
+        behavior(db, 'chat.send', 'alice', 'request-181', 'success', 'web')
+        trace(db, 'unfinished-200', 'running')
+        trace(db, 'finished-100', 'completed')
+        db.execute(update(usage_events).where(usage_events.c.parent_request_id == 'request-100').values(created_at=age_100))
+        db.execute(update(usage_events).where(usage_events.c.parent_request_id == 'request-181').values(created_at=age_181))
+        db.execute(update(task_traces).where(task_traces.c.turn_id == 'unfinished-200').values(created_at=age_181))
+        db.execute(update(task_traces).where(task_traces.c.turn_id == 'finished-100').values(finished_at=age_100))
+        db.execute(update(audit).values(created_at=age_100))
+        db.commit()
+        prune(db)
+        assert db.scalar(select(audit.c.id)) is None
+        assert db.scalar(select(usage_events.c.id).where(usage_events.c.parent_request_id == 'request-100')) is not None
+        assert db.scalar(select(usage_events.c.id).where(usage_events.c.parent_request_id == 'request-181')) is None
+        assert db.scalar(select(task_traces.c.id).where(task_traces.c.turn_id == 'unfinished-200')) is not None
+        assert db.scalar(select(task_traces.c.id).where(task_traces.c.turn_id == 'finished-100')) is None
+        assert db.scalar(select(task_trace_spans.c.id).where(task_trace_spans.c.span_name == 'chat.running')) is not None
 
 
 def test_history_deletion_checks_current_code_and_preserves_audit(chat,governance,tmp_path,monkeypatch):
@@ -865,3 +1218,53 @@ def test_concurrent_create_returns_one_conversation(chat):
     assert len(set(ids)) == 1
     with factory() as db:
         assert len(db.execute(select(conversations)).all()) == 1
+
+
+def test_archive_workspace_preflight_detects_empty_and_hidden_tool_dirs(tmp_path):
+    from app.chat.execution import _check_workspace_tool_dirs_outside_sandbox
+    from app.chat.app_server import ExecutorError
+
+    work = tmp_path / 'work'
+    work.mkdir()
+    _check_workspace_tool_dirs_outside_sandbox(work)
+    hidden = work / 'issues/.agents'
+    hidden.mkdir(parents=True)
+    _check_workspace_tool_dirs_outside_sandbox(work)
+    assert not hidden.exists()
+    hidden.mkdir()
+    (hidden / 'content').write_text('keep')
+    with pytest.raises(ExecutorError, match='workspace_forbidden_tool_dir'):
+        _check_workspace_tool_dirs_outside_sandbox(work)
+    (hidden / 'content').unlink()
+    hidden.rmdir()
+    target = tmp_path / 'target'
+    target.mkdir()
+    hidden.symlink_to(target, target_is_directory=True)
+    with pytest.raises(ExecutorError, match='workspace_forbidden_tool_dir'):
+        _check_workspace_tool_dirs_outside_sandbox(work)
+
+
+def test_archive_workspace_preflight_scans_all_project_trees(tmp_path):
+    from app.chat.execution import _check_workspace_tool_dirs_outside_sandbox
+    from app.chat.app_server import ExecutorError
+
+    work = tmp_path / 'work'
+    (work / '.agents/skills').mkdir(parents=True)
+    (work / 'src/backend/.venv/pkg/.agents').mkdir(parents=True)
+    for parent in ('openspec/archive', 'openspec/changes', 'openspec/specs', 'docs/spec-logs'):
+        for name in ('.agents', '.codex'):
+            (work / parent / name).mkdir(parents=True)
+    _check_workspace_tool_dirs_outside_sandbox(work)
+    assert (work / '.agents/skills').is_dir()
+    assert (work / 'src/backend/.venv/pkg/.agents').is_dir()
+    assert not (work / 'openspec/specs/.agents').exists()
+    sample = work / 'data/samples/.codex'
+    sample.mkdir(parents=True)
+    _check_workspace_tool_dirs_outside_sandbox(work)
+    assert not sample.exists()
+    forbidden = work / 'docs/spec-logs/nested/.codex'
+    forbidden.mkdir(parents=True)
+    (forbidden / 'keep').write_text('content')
+    with pytest.raises(ExecutorError, match='workspace_forbidden_tool_dir'):
+        _check_workspace_tool_dirs_outside_sandbox(work)
+    assert (forbidden / 'keep').exists()

@@ -1,5 +1,7 @@
 """Only opaque operation IDs and fixed stages; never record candidate/document bodies."""
+import json
 import logging
+import re
 from datetime import datetime,timedelta,timezone
 from uuid import uuid4
 from sqlalchemy import insert,select,update,delete
@@ -8,9 +10,18 @@ from app.chat.schema import task_traces,task_trace_spans
 STAGES={'prepared','running','pending','rejected','queued','applying','recovering','applied','conflict','failed','recovery_blocked'}
 
 
-def trace(db,oid,stage,*,actor=None,request_id=None):
+def _metadata(value):
+    result={}
+    for key,item in (value or {}).items():
+        if key in ('object_type','object_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item,str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+            result[key]=item
+    return json.dumps(result,ensure_ascii=False)
+
+
+def trace(db,oid,stage,*,actor=None,request_id=None,metadata=None):
     if stage not in STAGES:return
     try:
+        meta=_metadata(metadata)
         with db.begin_nested():
             # Existing trace table's turn_id is a generic unique correlation slot.
             # Prefix prevents collisions with Chat UUIDs; task_type keeps consumers separate.
@@ -23,8 +34,8 @@ def trace(db,oid,stage,*,actor=None,request_id=None):
             else:
                 tid=str(uuid4())
                 db.execute(insert(task_traces).values(**service.identity(),task_trace_id=tid,turn_id=identity,parent_request_id=request_id,
-                    task_type='governance_application',task_name='governance.operation',actor_user_id=actor,status=stage,metadata='{}'))
-            db.execute(insert(task_trace_spans).values(**service.identity(),task_trace_id=tid,span_name='governance.'+stage,status=stage,metadata='{}'))
+                    task_type='governance_application',task_name='governance.operation',actor_user_id=actor,status=stage,metadata=meta))
+            db.execute(insert(task_trace_spans).values(**service.identity(),task_trace_id=tid,span_name='governance.'+stage,status=stage,metadata=meta))
     except Exception:logging.getLogger('moonbox.governance').warning('governance.trace_unavailable')
 
 

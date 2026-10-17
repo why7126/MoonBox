@@ -1,0 +1,22 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "req-complete",
+  "object_id": "REQ-9206-ac011-before-sync",
+  "turn_id": "c13b4b11-acac-4d8a-b940-f9b31c2afe6c",
+  "window": "formal req.complete Workflow Sync completed with exit code zero while the Chat turn was still running",
+  "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+  "source_revision_before_kill": "86dd5a04bf51082425fd3c62b8dceee1f230aa1cbd3814e451f499ee0e5e4fa7",
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "candidate": "rejected",
+    "candidate_error_code": "executor_unavailable",
+    "application_count": 0,
+    "new_business_outputs_exist": false,
+    "full_governance_equals_baseline": true
+  },
+  "interpretation": "A successful standalone Sync command within an unfinished candidate turn did not promote the interrupted candidate or retain partial business files. The action was not reported as completed.",
+  "limit": "One post-sync candidate window; other actions and missing fault phases remain.",
+  "overall": "partial; AC-011 remains unsigned"
+}

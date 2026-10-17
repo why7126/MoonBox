@@ -11,7 +11,7 @@ for(const theme of ['dark','light'])for(const width of [1440,390]){
  const page=await browser.newPage({viewport:{width,height:1000}});const errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error(e.message);});
  await page.addInitScript(theme=>{localStorage.setItem('moonbox.session',JSON.stringify({username:'验收账号',access_token:'synthetic-test'}));localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));},theme);
  await page.route('**/api/**',route=>{const u=new URL(route.request().url());const data=u.pathname.endsWith('/projects')?{...base,projects:[{space_id:'space',repository_id:'repo',readonly:false,status:'connected'}]}:u.pathname.endsWith('/context')?base:{ready:false};return route.fulfill({json:{code:0,data}});});
- await page.goto('http://127.0.0.1:18135/tests/governance-board-preview.html');await expect(page.locator('.rc-card')).toHaveCount(3).catch(async e=>{console.error((await page.locator('body').innerText()).slice(0,1500));throw e;});
+ await page.goto('http://127.0.0.1:39035/tests/governance-board-preview.html');await expect(page.locator('.rc-card')).toHaveCount(3).catch(async e=>{console.error((await page.locator('body').innerText()).slice(0,1500));throw e;});
  await expect(page.locator('.rc-column')).toHaveCount(9);await expect(page.locator('.rc-unknown-changes')).toHaveCount(0);
  await expect(page.getByLabel('需求中心统计')).toContainText('全部对象3');
  const header=await page.locator('.rc-page-header').boundingBox(),stats=await page.locator('.rc-stats').boundingBox();if(header.y+header.height>stats.y+1)throw Error('header overlaps stats');

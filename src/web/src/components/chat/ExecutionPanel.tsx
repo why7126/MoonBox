@@ -2,11 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { DiffView, type DiffData } from "./DiffView";
 import { ChatDialog } from "./ChatDialog";
 import { ChevronDown, Square } from "lucide-react";
-import { chatRequest, type ConversationRead, type TurnRead } from "./chatApi";
+import { ChatApiError, normalizeChatError, chatRequest, type ConversationRead, type TurnRead } from "./chatApi";
 import { readChatEvents, type ChatEvent } from "./chatEvents";
 import { TrajectoryView } from "./TrajectoryView";
 type ContextItem = { object_id: string; version: string; title: string; content: string; truncated: boolean };
 const labels: Record<string, string> = { queued: "排队中", connecting: "连接中", running: "执行中", stopping: "停止中", unknown: "状态未知", completed: "已完成", failed: "失败", stopped: "已停止" };
+const traceMessage = (error: unknown, fallback = "执行轨迹暂不可读，可稍后重试") => {
+  const normalized = normalizeChatError(error, fallback);
+  if (normalized instanceof ChatApiError && normalized.status === 0) return fallback;
+  return normalized instanceof Error ? normalized.message : fallback;
+};
 export function ExecutionPanel({ conversation, executionReady = false, focusTurn, focusVersion }: { conversation: ConversationRead | null; executionReady?: boolean; focusTurn?: string; focusVersion?: number }) {
   const [turns, setTurns] = useState<TurnRead[]>([]), [selected, setSelected] = useState("");
   const [eventAfter, setEventAfter] = useState(0), [moreEvents, setMoreEvents] = useState(false);
@@ -28,7 +33,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
         if (controller.signal.aborted) return;
         setTurns(data.items); setSelected(current => data.items.some(t => t.id === current) ? current : data.items[0]?.id || "");
         timer = setTimeout(poll, 3000);
-      } catch (e) { if (!controller.signal.aborted) { setTurns([]); setSelected(""); setEvents([]); setDiff(null); setContext([]); setError(e instanceof Error ? e.message : "读取失败"); } }
+      } catch (e) { if (!controller.signal.aborted) { setTurns([]); setSelected(""); setEvents([]); setDiff(null); setContext([]); setError(traceMessage(e)); } }
     };
     void poll(); return () => { controller.abort(); clearTimeout(timer); };
   }, [conversation?.id, retry]);
@@ -45,7 +50,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
         setContext(Array.isArray(references) ? references : []);
         if (batch.length) { cursor = batch[batch.length - 1].sequence; loaded += batch.length; setEvents(current => [...current, ...batch]); }
         setDiff(snapshot); if (loaded >= 1000) { setMoreEvents(true); return; } timer = setTimeout(poll, batch.length === 200 ? 0 : 3000);
-      } catch (e) { if (!controller.signal.aborted) { setEvents([]); setDiff(null); setContext([]); setError(e instanceof Error ? e.message : "事件读取失败"); } }
+      } catch (e) { if (!controller.signal.aborted) { setEvents([]); setDiff(null); setContext([]); setError(traceMessage(e)); } }
     };
     void poll(); return () => { controller.abort(); clearTimeout(timer); };
   }, [selected, retry, eventAfter]);
@@ -55,7 +60,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
     try {
       const result = await chatRequest<TurnRead>(`/turns/${active.id}/interrupt`, { method: "POST" });
       setTurns(current => current.map(t => t.id === result.id ? result : t)); setConfirmStop(null);
-    } catch (e) { setError(e instanceof Error ? e.message : "停止请求失败"); }
+    } catch (e) { setError(traceMessage(e, "停止请求失败")); }
     finally { stopping.current = false; setBusy(false); }
   };
   const selectedTurn = turns.find(turn => turn.id === selected);
@@ -66,7 +71,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
     try {
       const row = await chatRequest<TurnRead>(`/turns/${selected}/retries`, { method: "POST", body: JSON.stringify({ client_request_id: retryRequest.current.id }) });
       setTurns(current => [row, ...current.filter(turn => turn.id !== row.id)]); setSelected(row.id); retryRequest.current = null;
-    } catch (e) { setError(e instanceof Error ? e.message : "重试失败"); }
+    } catch (e) { setError(traceMessage(e, "重试失败")); }
     finally { retrying.current = false; setBusy(false); }
   }
   return <>

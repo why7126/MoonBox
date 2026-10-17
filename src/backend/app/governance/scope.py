@@ -18,6 +18,8 @@ class ProjectScope:
     root: Path
     binding_revision: str
     readonly: bool
+    source_root: Path | None = None
+    source_root_unavailable: bool = False
 
     @property
     def key(self):
@@ -50,8 +52,16 @@ def authorize(db, actor, space_id, repository_id, *, write=False):
         root = trusted_directory(binding['governance_root'])
     except (WorkspaceError, KeyError):
         raise ChatError(2602, '项目治理目录不可用', 503)
+    source_root = None
+    source_root_unavailable = False
+    if isinstance(binding.get('source_root'), str) and binding.get('source_root'):
+        try:
+            source_root = trusted_directory(binding['source_root'])
+        except WorkspaceError:
+            source_root_unavailable = True
     revision = hashlib.sha256(json.dumps(binding, sort_keys=True).encode()).hexdigest()
-    return ProjectScope(space_id, repository_id, root, revision, row.status != 'ACTIVE' or not writable)
+    return ProjectScope(space_id, repository_id, root, revision, row.status != 'ACTIVE' or not writable,
+                        source_root, source_root_unavailable)
 
 
 def visible(db, actor, scope, full_id):

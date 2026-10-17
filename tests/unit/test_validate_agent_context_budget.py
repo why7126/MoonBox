@@ -85,6 +85,42 @@ class ApplyContractTests(unittest.TestCase):
         path = self.root / '.agents/skills/explore/SKILL.md'
         self.assertEqual(validator.validate_apply_execution_contract(path), [])
 
+    def test_browser_evidence_contract_covers_skills_and_rejects_missing_entry(self):
+        paths = sorted((ROOT / '.agents/skills').glob('*/SKILL.md'))
+        self.assertTrue(paths)
+        with patch.object(validator, 'ROOT', ROOT):
+            for path in paths:
+                self.assertEqual(validator.validate_browser_evidence_contract(path), [])
+        target = self.root / '.agents/skills/opsx-apply/SKILL.md'
+        target.write_text(target.read_text().replace('## 浏览器自主取证（MUST）', '## 取证说明', 1))
+        self.assertTrue(validator.validate_browser_evidence_contract(target))
+
+    def test_browser_evidence_contract_rejects_missing_access_verdict_gate(self):
+        target = self.root / '.agents/skills/opsx-apply/SKILL.md'
+        target.write_text(target.read_text().replace('rules/root-cause-evidence.md` §5.0', 'rules/root-cause-evidence.md` 第 5 节', 1))
+        errors = validator.validate_browser_evidence_contract(target)
+        self.assertTrue(any('§5.0' in error for error in errors))
+
+    def test_bug_root_cause_continuation_rejects_early_stop(self):
+        for name, terms in validator.BUG_CAUSE_CONTINUATION_TERMS.items():
+            source = ROOT / '.agents/skills' / name / 'SKILL.md'
+            target = self.root / '.agents/skills' / name / 'SKILL.md'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(source.read_text())
+            self.assertEqual(validator.validate_bug_cause_continuation_contract(target), [])
+            target.write_text(target.read_text().replace(terms[-1], '文档生成后停止', 1))
+            self.assertTrue(validator.validate_bug_cause_continuation_contract(target))
+
+    def test_explore_product_evidence_rejects_omission(self):
+        for name, terms in validator.EXPLORE_PRODUCT_EVIDENCE_TERMS.items():
+            source = ROOT / '.agents/skills' / name / 'SKILL.md'
+            target = self.root / '.agents/skills' / name / 'SKILL.md'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(source.read_text())
+            self.assertEqual(validator.validate_explore_product_evidence_contract(target), [])
+            target.write_text(target.read_text().replace(terms[-1], '待用户确认', 1))
+            self.assertTrue(validator.validate_explore_product_evidence_contract(target))
+
 
 if __name__ == '__main__':
     unittest.main()

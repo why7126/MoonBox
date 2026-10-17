@@ -1,4 +1,5 @@
 import type { AdminSession } from "../admin/adminAuth";
+import { ADMIN_SESSION_EVENT } from "../admin/adminAuth";
 
 export type FrontendSession = {
   username: string;
@@ -10,6 +11,12 @@ export type FrontendSession = {
 
 const STORAGE_KEY = "moonbox.session";
 
+function isExpired(expiresAt?: string) {
+  if (!expiresAt) return false;
+  const expires = Date.parse(expiresAt);
+  return Number.isFinite(expires) && expires <= Date.now();
+}
+
 export function readFrontendSession(): FrontendSession | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -17,6 +24,15 @@ export function readFrontendSession(): FrontendSession | null {
   } catch {
     return null;
   }
+}
+
+export function readValidFrontendSession(): FrontendSession | null {
+  const session = readFrontendSession();
+  if (isExpired(session?.expires_at)) {
+    clearFrontendSession();
+    return null;
+  }
+  return session;
 }
 
 export function saveFrontendSession(sessionOrUsername: AdminSession | string) {
@@ -36,4 +52,13 @@ export function saveFrontendSession(sessionOrUsername: AdminSession | string) {
 
 export function clearFrontendSession() {
   window.localStorage.removeItem(STORAGE_KEY);
+  window.dispatchEvent(new CustomEvent(ADMIN_SESSION_EVENT, { detail: null }));
+}
+
+export function redirectToFrontendLogin() {
+  clearFrontendSession();
+  if (window.location.pathname !== "/login") {
+    window.history.replaceState(null, "", "/login");
+  }
+  window.dispatchEvent(new PopStateEvent("popstate"));
 }

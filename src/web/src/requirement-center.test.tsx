@@ -296,9 +296,153 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
+  document.documentElement.removeAttribute("style");
+  document.body.removeAttribute("style");
+  document.getElementById("root")?.remove();
 });
 
 describe("RequirementCenterPage", () => {
+  it("shows Issue acceptance progress when a card has no test task denominator", async () => {
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-0033",
+      stage: "acceptance",
+      documents: ["bug.md", "acceptance.md", "trace.md"],
+      task_progress: [11, 11],
+      test_progress: undefined,
+      manual_acceptance_progress: [0, 11],
+      acceptance_pending_count: 11,
+      acceptance_blocked_reason: "验收未完成：11 项待验证，请查看 acceptance.md",
+      blocked: "验收未完成：11 项待验证，请查看 acceptance.md",
+      action: { command: "/opsx-archive BUG-0033", label: "完成 / 归档", disabled_reason: "验收未完成：11 项待验证，请查看 acceptance.md" },
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: String(input).includes("/context") ? { ...contextFixture, issues: [issue] } : { content: "# BUG-0033 验收\n- [ ] AC-001" } }) }));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-0033").then(() => document.querySelector('[data-issue-id="BUG-0033"]') as HTMLElement);
+    expect(within(card).getByRole("button", { name: "研发 11/11" })).toBeTruthy();
+    expect(within(card).queryByRole("button", { name: /^测试 / })).toBeNull();
+    const acceptanceButton = within(card).getByRole("button", { name: "验收 0/11" });
+    expect(within(card).queryByTestId("acceptance-readiness")).toBeNull();
+    expect(within(card).queryByRole("button", { name: "完成 / 归档 →" })).toBeNull();
+    fireEvent.click(acceptanceButton);
+    expect(await screen.findByText("BUG-0033 验收")).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/issues/BUG-0033/documents/acceptance.md"))).toBe(true);
+  });
+
+  it("shows acceptance evidence separately from completed development and test tasks", async () => {
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-0025",
+      stage: "acceptance",
+      documents: ["bug.md", "acceptance.md", "trace.md"],
+      task_progress: [41, 41],
+      test_progress: [37, 37],
+      manual_acceptance_progress: [0, 2],
+      manual_acceptance_count: 0,
+      acceptance_pending_count: 2,
+      acceptance_blocked_reason: "验收未完成：2 项待验证，请查看 acceptance.md",
+      blocked: "验收未完成：2 项待验证，请查看 acceptance.md",
+      action: { command: "/opsx-archive BUG-0025", label: "完成 / 归档", disabled_reason: "验收未完成：2 项待验证，请查看 acceptance.md" },
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: String(input).includes("/context") ? { ...contextFixture, issues: [issue] } : { content: "# Issue acceptance\n- [ ] AC-001\n- [ ] AC-002" } }) }));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-0025").then(() => document.querySelector('[data-issue-id="BUG-0025"]') as HTMLElement);
+    expect(within(card).getByRole("button", { name: "研发 41/41" })).toBeTruthy();
+    expect(within(card).getByRole("button", { name: "测试 37/37" })).toBeTruthy();
+    const acceptanceButton = within(card).getByRole("button", { name: "验收 0/2" });
+    expect(acceptanceButton.title).toContain("自动验收结果尚未计入");
+    expect(within(card).queryByTestId("acceptance-readiness")).toBeNull();
+    expect(within(card).queryByText(/验收未完成：2 项待验证/)).toBeNull();
+    expect(within(card).getByRole("button", { name: "acceptance.md" })).toBeTruthy();
+    expect(within(card).queryByRole("button", { name: "完成 / 归档 →" })).toBeNull();
+    fireEvent.click(acceptanceButton);
+    expect(await screen.findByText("Issue acceptance")).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/issues/BUG-0025/documents/acceptance.md"))).toBe(true);
+  });
+
+  it("uses related Change documents for the development card hint", async () => {
+    const change = "fix-validation";
+    const names = ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"];
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-0035",
+      stage: "development",
+      documents: ["bug.md", "trace.md", "acceptance.md"],
+      blocked: undefined,
+      action: { command: "/opsx-apply BUG-0035", label: "查看进度" },
+      related_changes: [{ id: change, stage: "development", source_kind: "active", document_entries: names.map((name) => ({ name, type: "markdown", url: `/api/v1/requirement-center/changes/${change}/documents/${name}` })) }],
+    };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [issue] } }) })));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-0035").then(() => document.querySelector('[data-issue-id="BUG-0035"]') as HTMLElement);
+    expect(within(card).queryByText(/缺少 proposal\.md/)).toBeNull();
+    expect((within(card).getByRole("button", { name: "查看进度 →" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("does not report visible Change documents as missing on an acceptance card", async () => {
+    const change = "fix-validation";
+    const names = ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"];
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-0035",
+      stage: "acceptance",
+      documents: ["bug.md", "trace.md", "acceptance.md"],
+      blocked: undefined,
+      action: { command: "/opsx-archive BUG-0035", label: "完成 / 归档" },
+      related_changes: [{ id: change, stage: "acceptance", source_kind: "active", document_entries: names.map((name) => ({ name, type: "markdown", url: `/api/v1/requirement-center/changes/${change}/documents/${name}` })) }],
+    };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [issue] } }) })));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-0035").then(() => document.querySelector('[data-issue-id="BUG-0035"]') as HTMLElement);
+    for (const name of ["proposal.md", "spec.md", "design.md", "tasks.md"]) {
+      expect(within(card).getByRole("button", { name })).toBeTruthy();
+    }
+    expect(within(card).queryByText(/缺少 proposal\.md/)).toBeNull();
+  });
+
+  it("still reports a truly absent Change document on an acceptance card", async () => {
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-0035",
+      stage: "acceptance",
+      documents: ["bug.md", "trace.md", "acceptance.md"],
+      blocked: undefined,
+      action: { command: "/opsx-archive BUG-0035", label: "完成 / 归档" },
+      related_changes: [{ id: "fix-validation", stage: "acceptance", source_kind: "active", document_entries: ["proposal.md", "spec.md", "design.md", "trace.md"].map((name) => ({ name, type: "markdown", url: `/api/v1/requirement-center/changes/fix-validation/documents/${name}` })) }],
+    };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [issue] } }) })));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-0035").then(() => document.querySelector('[data-issue-id="BUG-0035"]') as HTMLElement);
+    expect(within(card).getByText("缺少 tasks.md")).toBeTruthy();
+  });
+
+  it("distinguishes enriching cards without promoting or blocking continued completion", async () => {
+    const fixture = {...contextFixture, issues: [
+      {...contextFixture.issues[4], id:"BUG-0099", stage:"planning", status:"enriching", blocked:undefined, owner:"user_0123456789abcdef0123456789abcdef0123456789abcdef",
+        completion_hint:"根因尚未确认，请按根因分析文档补充可复核证据。",
+        documents:["capture.md", "bug.md", "trace.md", "root-cause.md", "workaround.md", "acceptance.md"]},
+      {...contextFixture.issues[0], id:"REQ-0099", stage:"planning", status:"draft", documents:["requirement.md", "trace.md"]},
+    ]};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:fixture})})));
+    render(<RequirementCenterPage />);
+    await screen.findByText("BUG-0099");
+    const card = within(document.querySelector('[data-issue-id="BUG-0099"]') as HTMLElement);
+    expect(card.queryByText("完善中")).toBeNull();
+    expect(card.getByTitle("user_0123456789abcdef0123456789abcdef0123456789abcdef")).toBeTruthy();
+    expect(card.getByText("根因尚未确认，请按根因分析文档补充可复核证据。")).toBeTruthy();
+    for (const name of ["root-cause.md", "workaround.md", "acceptance.md"]) expect(card.getByRole("button", {name})).toBeTruthy();
+    expect((card.getByRole("button", {name:"继续完善 →"}) as HTMLButtonElement).disabled).toBe(false);
+    const draftCard = within(document.querySelector('[data-issue-id="REQ-0099"]') as HTMLElement);
+    expect(draftCard.queryByText("草稿")).toBeNull();
+    expect(draftCard.getByRole("button", {name:"requirement.md"})).toBeTruthy();
+  });
   it("keeps related Change documents reachable outside the markdown drawer without rendering Change attributes", async () => {
     const related = ["first-change", "second-change"].map((id,index) => ({
       id,
@@ -331,18 +475,55 @@ describe("RequirementCenterPage", () => {
     expect(primaryCard).toBeTruthy();
     expect(within(primaryCard).queryByText("Change 文档")).toBeNull();
     expect(within(primaryCard).queryByText("first-change / Change trace.md")).toBeNull();
-    expect(within(primaryCard).getByRole("button", {name:"Change 1 Change trace.md"})).toBeTruthy();
-    expect(within(primaryCard).getByRole("button", {name:"Change 2 Change trace.md"})).toBeTruthy();
-    ["proposal.md", "spec.md", "design.md", "tasks.md", "sprint.md"].forEach((name) => {
-      expect(within(primaryCard).getAllByRole("button", {name})).toHaveLength(1);
-      expect(within(primaryCard).queryByRole("button", {name:`Change 1 ${name}`})).toBeNull();
-      expect(within(primaryCard).queryByRole("button", {name:`Change 2 ${name}`})).toBeNull();
+    const firstChange = within(primaryCard).getByRole("group", {name:"Change 1 文档"});
+    const secondChange = within(primaryCard).getByRole("group", {name:"Change 2 文档"});
+    expect(within(firstChange).getByRole("button", {name:"trace.md"})).toBeTruthy();
+    expect(within(secondChange).getByRole("button", {name:"trace.md"})).toBeTruthy();
+    ["proposal.md", "spec.md", "design.md", "tasks.md"].forEach((name) => {
+      expect(within(firstChange).getByRole("button", {name})).toBeTruthy();
+      expect(within(secondChange).getByRole("button", {name})).toBeTruthy();
     });
-    fireEvent.click(within(primaryCard).getByRole("button", {name:"Change 2 Change trace.md"}));
+    expect(within(primaryCard).getByRole("group", {name:"Sprint 文档"}).textContent).toContain("sprint.md");
+    expect(within(firstChange).queryByRole("button", {name:"sprint.md"})).toBeNull();
+    fireEvent.click(within(secondChange).getByRole("button", {name:"trace.md"}));
     await screen.findByRole("heading", {name:"追溯内容"});
     expect(screen.queryByLabelText("Change 追溯属性")).toBeNull();
     expect(screen.queryByText("first-change · 待开发 · 任务 0/2")).toBeNull();
     await waitFor(()=>expect(fetchMock.mock.calls.some(([url])=>String(url).includes("/changes/second-change/documents/trace.md"))).toBe(true));
+  });
+
+  it("groups generated Sprint documents apart from Issue and Change for linked and standalone cards", async () => {
+    const names = ["sprint.md", "release-note.md", "acceptance-report.md"];
+    const sprintEntries = (owner: string) => names.map(name => ({name, type:"markdown", url:`/api/v1/requirement-center/${owner}/documents/${name}`, capability:{human_editable:false}}));
+    const linked = {...contextFixture.issues[0], document_entries:[
+      {name:"requirement.md",type:"markdown",url:"/api/v1/requirement-center/issues/REQ-0012/documents/requirement.md",capability:{human_editable:false}},
+      {name:"trace.md",type:"markdown",url:"/api/v1/requirement-center/issues/REQ-0012/documents/trace.md",capability:{human_editable:false}},
+      ...sprintEntries("issues/REQ-0012"),
+    ], related_changes:[{id:"linked-change",title:null,stage:"acceptance",source_kind:"active",document_entries:[
+      {name:"trace.md",type:"markdown",url:"/api/v1/requirement-center/changes/linked-change/documents/trace.md",capability:{human_editable:false}},
+      ...sprintEntries("changes/linked-change"),
+    ]}]};
+    const standalone = {id:"standalone-change",type:"change",title:"独立变更",stage:"ready-dev",owner:"产品",priority:"",documents:["trace.md",...names],document_entries:[
+      {name:"trace.md",type:"markdown",url:"/api/v1/requirement-center/changes/standalone-change/documents/trace.md",capability:{human_editable:false}},
+      ...sprintEntries("changes/standalone-change"),
+    ]};
+    const fixture = {...contextFixture,issues:[linked,standalone]};
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:fixture})})));
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    for (const [id, ownerGroup] of [["REQ-0012", "Issue 文档"], ["standalone-change", "Change 文档"]]) {
+      const card = document.querySelector(`[data-issue-id="${id}"]`) as HTMLElement;
+      const own = within(card).getByRole("group", {name:ownerGroup});
+      const sprint = within(card).getByRole("group", {name:"Sprint 文档"});
+      expect(within(own).getByRole("button", {name:"trace.md"})).toBeTruthy();
+      for (const name of names) {
+        expect(within(own).queryByRole("button", {name})).toBeNull();
+        expect(within(sprint).getByRole("button", {name})).toBeTruthy();
+      }
+    }
+    const issueCard = document.querySelector('[data-issue-id="REQ-0012"]') as HTMLElement;
+    expect(within(issueCard).getByRole("group", {name:"Change 文档"})).toBeTruthy();
+    expect(within(within(issueCard).getByRole("group", {name:"Sprint 文档"})).getAllByRole("button")).toHaveLength(3);
   });
 
   it("renders Change identity and title without replacing Issue identity or actions", async () => {
@@ -590,15 +771,109 @@ describe("RequirementCenterPage", () => {
     expect(screen.queryByRole("button",{name:"编辑"})).toBeNull();
   });
 
-  it("does not invent standalone acceptance blockers and uses the shared real action entry", async () => {
+  it("does not invent standalone acceptance blockers and opens archive prompt in chat", async () => {
     const row = {id:"valid-change",type:"change",title:"验收条件齐备",stage:"acceptance",owner:"产品",priority:"",documents:[],test_progress:[3,3],manual_acceptance_count:0,action:{command:"/opsx-archive valid-change",label:"完成 / 归档",disabled_reason:null}};
-    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})})));
+    const calls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith("/object-sessions")) {
+        calls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ok:true,status:200,json:async()=>({data:{conversation_id:"chat-valid-change",object_id:"valid-change",action:"opsx-archive",reused_conversation:true}})});
+      }
+      return Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})});
+    }));
     render(<RequirementCenterPage />);
     const button = await screen.findByRole("button",{name:"完成 / 归档 →"});
     expect((button as HTMLButtonElement).disabled).toBe(false);
     expect(screen.queryByText(/需核对测试与人工验收证据/)).toBeNull();
     fireEvent.click(button);
-    expect(await screen.findByText("当前仅支持采集需求的生成动作")).toBeTruthy();
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({object_id:"valid-change",action:"opsx-archive"});
+    expect(sessionStorage.getItem("moonbox.governance.prompt:chat-valid-change")).toBe("/opsx-archive valid-change");
+    expect(window.location.pathname + window.location.search).toBe("/chat?space_id=moonbox-platform&conversation_id=chat-valid-change");
+  });
+
+  it.each([
+    [409, 2604, "缺少 requirement.md /private/tmp/private-file", "缺少必备文档，请先补齐"],
+    [409, 2604, "对象状态需为 draft，当前为 captured /private/tmp/private-file", "当前阶段不支持此操作"],
+    [403, 2601, "对象不可访问 /private/tmp/private-file", "你没有执行此操作的权限"],
+    [409, 2606, "源文件版本已变化 /private/tmp/private-file", "对象已更新，请刷新后重试"],
+  ])("shows safe PRD feedback for write action status %s code %s", async (status, code, unsafeMessage, expected) => {
+    const leakedBackendMessage = `${unsafeMessage}\nTraceback: private implementation detail\nREQ-9199-other-project`;
+    const row={id:"REQ-9517",type:"requirement",title:"错误反馈样本",priority:"P2",owner:"产品团队",source:"review",stage:"review-ready",documents:["capture.md","trace.md","requirement.md","acceptance.md","business-flow.md","user-stories.md"],action:{command:"/req-review REQ-9517 --approve",label:"发起评审"},updated_at:"now"};
+    stubFetch("fetch",vi.fn((input)=>String(input).endsWith("/object-sessions")
+      ? Promise.resolve({ok:false,status,json:async()=>({code,message:leakedBackendMessage,data:{kind:"governance_validation_failed"}})})
+      : Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})})));
+    render(<RequirementCenterPage/>);
+    await showAllSprintCards();
+    fireEvent.click(within((await screen.findByText("REQ-9517")).closest('[data-issue-id]') as HTMLElement).getByRole("button",{name:"发起评审 →"}));
+    await waitFor(()=>expect(document.querySelector(".rc-toast")?.textContent).toContain(expected));
+    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("/private/tmp/");
+    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("Traceback");
+    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("REQ-9199-other-project");
+  });
+
+  it.each(["local_governance_dirty", "manifest_mismatch", "git_snapshot_unreadable"])("shows categorized workspace stale guidance for write action toasts: %s", async (reason) => {
+    const calls: unknown[] = [];
+    const row = {
+      id: "REQ-9500",
+      type: "requirement",
+      title: "事实源提示分层",
+      priority: "P1",
+      owner: "产品团队",
+      source: "review",
+      stage: "review-ready",
+      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"],
+      action: { command: "/req-review REQ-9500 --approve", label: "发起评审" },
+      updated_at: "12:50",
+    };
+    stubFetch("fetch", vi.fn((input) => {
+      if (String(input).endsWith("/object-sessions")) {
+        calls.push(String(input));
+        return Promise.resolve({ ok: false, status: 409, json: async () => ({
+          code: 2606,
+          message: "需求/缺陷事实源存在未提交或未同步变更，执行器工作区暂不能看到最新事实源。",
+          data: { kind: "workspace_fact_source_stale", request_id: "request", reason, categories: ["需求/缺陷事实源", "OpenSpec 事实源"], roots: ["issues", "openspec"] },
+        }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [row] } }) });
+    }));
+
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("REQ-9500").then(() => document.querySelector('[data-issue-id="REQ-9500"]') as HTMLElement);
+    fireEvent.click(within(card).getByRole("button", { name: "发起评审 →" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await waitFor(() => expect(document.querySelector(".rc-toast")?.textContent).toContain("阻断范围：需求/缺陷事实源、OpenSpec 事实源"));
+    if (reason === "git_snapshot_unreadable") {
+      expect(document.querySelector(".rc-toast")?.textContent).toContain("Git 快照不可读");
+      expect(document.querySelector(".rc-toast")?.textContent).toContain("检查仓库 Git 状态和服务日志");
+    } else if (reason === "manifest_mismatch") {
+      expect(document.querySelector(".rc-toast")?.textContent).toContain("治理目录与源工作区内容不一致");
+      expect(document.querySelector(".rc-toast")?.textContent).toContain("无需提交 Git");
+    } else {
+      expect(document.querySelector(".rc-toast")?.textContent).toContain("请先提交或同步对应事实源");
+    }
+    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("确认标准部署已更新");
+  });
+
+  it("treats workspace stale without reason as an outdated deployment hint", async () => {
+    const calls: unknown[] = [];
+    const row = { id: "REQ-9501", type: "requirement", title: "旧部署提示", priority: "P1", owner: "产品团队", source: "review", stage: "review-ready", documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"], action: { command: "/req-review REQ-9501 --approve", label: "发起评审" }, updated_at: "12:51" };
+    stubFetch("fetch", vi.fn((input) => {
+      if (String(input).endsWith("/object-sessions")) {
+        calls.push(String(input));
+        return Promise.resolve({ ok: false, status: 409, json: async () => ({ code: 2606, message: "执行器工作区快照不可校验，请确认标准部署已更新后重试", data: { kind: "workspace_fact_source_stale", request_id: "request" } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [row] } }) });
+    }));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("REQ-9501").then(() => document.querySelector('[data-issue-id="REQ-9501"]') as HTMLElement);
+    fireEvent.click(within(card).getByRole("button", { name: "发起评审 →" }));
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await waitFor(() => expect(document.querySelector(".rc-toast")?.textContent).toContain("运行服务未更新到最新治理门禁"));
+    expect(document.querySelector(".rc-toast")?.textContent).toContain("标准部署脚本");
   });
 
   it("does not infer manual acceptance progress when no explicit manual task exists", async () => {
@@ -617,7 +892,7 @@ describe("RequirementCenterPage", () => {
     render(<RequirementCenterPage />);
     await screen.findByText("valid-change");
     expect(screen.getByRole("button", { name: /^测试 3\/3$/ })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /^人工验收 1\/1$/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^验收 1\/1$/ })).toBeNull();
   });
 
   it("keeps the original title when current Change is ambiguous or has no Chinese title", async () => {
@@ -643,13 +918,11 @@ describe("RequirementCenterPage", () => {
       const card = document.querySelector(`[data-issue-id="${id}"]`)!;
       expect(card.querySelector(".rc-docs button")?.textContent).toBe(name);
       expect(card.querySelector(".rc-updated")?.textContent).toBe(id.startsWith("REQ") ? "更新 26/09/12 07:03" : "更新时间未知");
-      expect(Array.from(card.querySelectorAll('[aria-label="常驻文档"] button')).map(node => node.textContent)).toEqual([name, ...(id.startsWith("REQ") ? ["prototype/web/prototype.html"] : []), "sprint.md", "trace.md"]);
-      expect(card.querySelectorAll('.rc-doc-group').length).toBe(["ready-dev", "development", "acceptance", "done"].includes(stage) ? 2 : 1);
-      expect(within(card as HTMLElement).getByRole("button", {name: "sprint.md"})).toBeTruthy();
+      expect(Array.from(card.querySelectorAll('[aria-label="Issue 文档"] button')).map(node => node.textContent)).toEqual([name, "trace.md", "design.md", "proposal.md", "archive.md", "spec.md", "tasks.md", ...(id.startsWith("REQ") ? ["prototype/web/prototype.html"] : [])]);
+      expect(card.querySelectorAll('.rc-doc-group').length).toBe(2);
+      expect(within(within(card as HTMLElement).getByRole("group", {name:"Sprint 文档"})).getByRole("button", {name: "sprint.md"})).toBeTruthy();
       expect(card.querySelectorAll(".rc-docs button").length).toBeGreaterThan(1);
-      const expectedStageDocs = stage === "done" ? ["archive.md", "tasks.md", "spec.md", "design.md", "proposal.md"] : ["development", "acceptance"].includes(stage) ? ["tasks.md", "spec.md", "design.md", "proposal.md"] : stage === "ready-dev" ? ["proposal.md", "spec.md", "design.md", "tasks.md"] : [];
-      expect(Array.from(card.querySelectorAll('[aria-label="阶段文档"] button')).map(node => node.textContent)).toEqual(expectedStageDocs);
-      expect(within(card as HTMLElement).getByRole("button", {name: "sprint.md"})).toBeTruthy();
+      expect(within(within(card as HTMLElement).getByRole("group", {name:"Issue 文档"})).queryByRole("button", {name:"sprint.md"})).toBeNull();
     }
   });
 
@@ -882,7 +1155,7 @@ describe("RequirementCenterPage", () => {
       expect(within(readyDevCard).getByRole("button", { name: doc })).toBeTruthy();
       expect(within(acceptanceReady).getByRole("button", { name: doc })).toBeTruthy();
     });
-    expect(within(acceptanceReady).queryByRole("button", { name: "acceptance.md" })).toBeNull();
+    expect(within(acceptanceReady).getByRole("button", { name: "acceptance.md" })).toBeTruthy();
     expect(within(acceptanceReady).queryByRole("button", { name: "test-plan.md" })).toBeNull();
     expect(within(readyDevCard).getByRole("button", { name: "研发 0/10" })).toBeTruthy();
     expect(within(acceptanceReady).getByRole("button", { name: "完成 / 归档 →" })).toBeTruthy();
@@ -1102,6 +1375,7 @@ describe("RequirementCenterPage", () => {
     expect(progressLabel).toContain("color: color-mix(in srgb, var(--rc-quiet) 80%, var(--rc-bg));");
     expect(progressValue).toContain("color: var(--rc-muted);");
     expect(progressValue).toContain("font-weight: var(--rc-weight-semibold);");
+    expect(source).toContain('.rc-card .rc-progress-value[data-progress-state="incomplete"] {\n  color: var(--rc-danger);');
     expect(source).not.toContain(".rc-card .rc-progress-action + .rc-progress-action::before");
     expect(source).not.toContain('content: "·";');
     expect(source).not.toContain('content: "\\00B7";');
@@ -1111,9 +1385,9 @@ describe("RequirementCenterPage", () => {
     expect(pageSource).toContain('className="rc-progress-value"');
     expect(pageSource).toContain("aria-label={`研发 ${taskProgress[0]}/${taskProgress[1]}`}");
     expect(pageSource).toContain("aria-label={`测试 ${issue.testProgress[0]}/${issue.testProgress[1]}`}");
-    expect(pageSource).toContain("aria-label={`人工验收 ${manualProgress[0]}/${manualProgress[1]}`}");
+    expect(pageSource).toContain("aria-label={`验收 ${manualProgress[0]}/${manualProgress[1]}`}");
     expect(pageSource).toContain('openTasksAt(issue, "test")');
-    expect(pageSource).toContain('openTasksAt(issue, "manual")');
+    expect(pageSource).toContain('openIssueAcceptance(issue)');
     expect(source).not.toContain(".rc-column-body:empty");
     expect(agentFab).toContain("right: 32px;");
     expect(agentFab).toContain("bottom: 28px;");
@@ -1561,7 +1835,40 @@ describe("RequirementCenterPage", () => {
     expect(screen.queryByText("REQ-0006")).toBeNull();
   });
 
-  it("filters card documents by stage and keeps capture exploration actions lightweight", async () => {
+  it.each([
+    ["requirement", "REQ-9301-approved", "--req"],
+    ["bug", "BUG-9301-approved", "--bug"],
+  ])("opens Chat with the typed Sprint prompt for %s", async (type, id, flag) => {
+    const fixture = {
+      ...contextFixture,
+      issues: [{
+        id, type, title: "已评审对象", owner: "产品团队", source: "review",
+        stage: "approved", documents: type === "requirement"
+          ? ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md", "review.md"]
+          : ["capture.md", "trace.md", "bug.md", "root-cause.md", "workaround.md", "acceptance.md", "review.md"], updated_at: "10:45",
+        action: { command: `/sprint-propose ${flag} ${id}`, label: "加入迭代", requires_choice: "sprint" },
+      }],
+    };
+    const objectSessionCalls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith("/object-sessions")) {
+        objectSessionCalls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { conversation_id: `conv-${id}`, object_id: id, action: "sprint-propose" } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
+    }));
+
+    render(<RequirementCenterPage />);
+    await screen.findByText(id);
+    const card = document.querySelector(`[data-issue-id="${id}"]`) as HTMLElement;
+    fireEvent.click(within(card).getByRole("button", { name: "加入迭代 →" }));
+    await waitFor(() => expect(objectSessionCalls).toHaveLength(1));
+    expect(objectSessionCalls[0]).toMatchObject({ object_id: id, action: "sprint-propose" });
+    expect(sessionStorage.getItem(`moonbox.governance.prompt:conv-${id}`)).toBe(`/sprint-propose ${flag} ${id}`);
+    expect(window.location.pathname).toBe("/chat");
+  });
+
+  it("keeps generated documents visible from capture and keeps exploration actions lightweight", async () => {
     const fixture = {
       ...contextFixture,
       issues: [
@@ -1583,7 +1890,7 @@ describe("RequirementCenterPage", () => {
             { name: "trace.md", type: "markdown", open_mode: "drawer", label: "trace.md" },
             { name: "user-stories.md", type: "markdown", open_mode: "drawer", label: "user-stories.md" },
           ],
-          action: { command: "/req-generate REQ-0199", label: "生成需求", requires_choice: "generation", disabled_reason: "文档内容为空：capture.md" },
+          action: { command: "/req-generate REQ-0199-capture-analysis", label: "生成需求", requires_choice: "generation", disabled_reason: "文档内容为空：capture.md" },
           task_progress: [18, 18],
           updated_at: "20:14",
         },
@@ -1600,7 +1907,15 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
-    stubFetch("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) }));
+    const objectSessionCalls: unknown[] = [];
+    const fetchMock = vi.fn((input, init) => {
+      if (String(input).endsWith("/object-sessions")) {
+        objectSessionCalls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { conversation_id: "conv-req-explore", object_id: "REQ-0199", action: "req-explore", reused_conversation: true } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
+    });
+    stubFetch("fetch", fetchMock);
 
     render(<RequirementCenterPage />);
     await showAllSprintCards();
@@ -1609,12 +1924,12 @@ describe("RequirementCenterPage", () => {
     const reqCard = document.querySelector('[data-issue-id="REQ-0199"]') as HTMLElement;
     expect(within(reqCard).getByRole("button", { name: /capture.md/ })).toBeTruthy();
     expect(within(reqCard).getByRole("button", { name: /trace.md/ })).toBeTruthy();
-    expect(within(reqCard).queryByRole("button", { name: /acceptance.md/ })).toBeNull();
+    expect(within(reqCard).getByRole("button", { name: /acceptance.md/ })).toBeTruthy();
     expect(within(reqCard).getByRole("button", { name: /requirement.md/ })).toBeTruthy();
     expect(within(reqCard).queryByRole("button", { name: /研发 18\/18/ })).toBeNull();
-    expect(within(reqCard).getByRole("button", { name: "需求分析" }).getAttribute("title")).toBe("/req-explore REQ-0199");
-    expect(Array.from(reqCard.querySelectorAll(".rc-docs button")).map(node => node.textContent)).toEqual(["requirement.md", "trace.md", "capture.md"]);
-    expect(reqCard.querySelectorAll(".rc-doc-group")).toHaveLength(2);
+    expect(within(reqCard).getByRole("button", { name: "需求分析" }).getAttribute("title")).toBe("/req-explore REQ-0199-capture-analysis");
+    expect(Array.from(reqCard.querySelectorAll(".rc-docs button")).map(node => node.textContent)).toEqual(["requirement.md", "trace.md", "acceptance.md", "business-flow.md", "capture.md", "review.md", "user-stories.md"]);
+    expect(reqCard.querySelectorAll(".rc-doc-group")).toHaveLength(1);
     const reqCardActionsText = reqCard.querySelector("footer .rc-card-actions")?.textContent || "";
     expect(reqCardActionsText).toContain("生成需求");
     expect(reqCardActionsText).toContain("需求分析");
@@ -1627,8 +1942,100 @@ describe("RequirementCenterPage", () => {
     const bugCard = document.querySelector('[data-issue-id="BUG-0199"]') as HTMLElement;
     expect(within(bugCard).getByRole("button", { name: "Bug 分析" }).getAttribute("title")).toBe("/bug-explore BUG-0199");
     fireEvent.click(within(reqCard).getByRole("button", { name: "需求分析" }));
-    expect(document.querySelector(".rc-toast")?.textContent).toContain("当前仅支持采集需求的生成动作");
+    await waitFor(() => expect(objectSessionCalls).toHaveLength(1));
+    expect(objectSessionCalls[0]).toMatchObject({ object_id: "REQ-0199", action: "req-explore" });
+    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-req-explore")).toBe("/req-explore REQ-0199-capture-analysis");
     expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
+  });
+
+  it("starts real bug-generate governance preparation for captured bugs", async () => {
+    const fixture = {
+      ...contextFixture,
+      issues: [{
+        id: "BUG-0200",
+        type: "bug",
+        title: "采集池 Bug 真实生成",
+        priority: "medium",
+        owner: "平台工程",
+        source: "capture",
+        stage: "capture",
+        documents: ["capture.md", "trace.md"],
+        action: { command: "/bug-generate BUG-0200", label: "生成 Bug", requires_choice: "generation" },
+        updated_at: "20:16",
+      }],
+    };
+    const calls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith("/governance-preparations")) {
+        calls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { conversation_id: "conv-bug", prompt: "/bug-generate BUG-0200\n内部治理约束：只写 BUG 文档事实源。" } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: fixture }) });
+    }));
+
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const bugCard = await screen.findByText("BUG-0200").then(() => document.querySelector('[data-issue-id="BUG-0200"]') as HTMLElement);
+    fireEvent.click(within(bugCard).getByRole("button", { name: "生成 Bug →" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({ object_id: "BUG-0200", action: "bug-generate" });
+    expect((calls[0] as { idempotency_key?: string }).idempotency_key).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-bug")).toBe("/bug-generate BUG-0200");
+    expect(sessionStorage.getItem("moonbox.governance.executionPrompt:conv-bug")).toBeNull();
+  });
+
+  it("preserves real req-generate governance preparation for captured requirements", async () => {
+    const fixture = {
+      ...contextFixture,
+      issues: [{
+        id: "REQ-0200", type: "requirement", title: "采集池需求真实生成", priority: "P2",
+        owner: "产品团队", source: "capture", stage: "capture", documents: ["capture.md", "trace.md"],
+        action: { command: "/req-generate REQ-0200", label: "生成需求", requires_choice: "generation" }, updated_at: "20:16",
+      }],
+    };
+    const calls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith("/governance-preparations")) {
+        calls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { conversation_id: "conv-req", prompt: "/req-generate REQ-0200-full-id" } }) });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: fixture }) });
+    }));
+
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const reqCard = await screen.findByText("REQ-0200").then(() => document.querySelector('[data-issue-id="REQ-0200"]') as HTMLElement);
+    fireEvent.click(within(reqCard).getByRole("button", { name: "生成需求 →" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({ object_id: "REQ-0200", action: "req-generate" });
+    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-req")).toBe("/req-generate REQ-0200-full-id");
+  });
+
+  it("keeps unknown governance commands in Codex without opening a product object session", async () => {
+    const fixture = {
+      ...contextFixture,
+      issues: [{
+        id: "BUG-0201", type: "bug", title: "未接入动作", priority: "medium", owner: "平台工程",
+        source: "capture", stage: "capture", documents: ["capture.md", "trace.md"],
+        action: { command: "/unconnected-op BUG-0201", label: "未接入动作" }, updated_at: "20:16",
+      }],
+    };
+    const objectSessionCalls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith("/object-sessions")) objectSessionCalls.push(JSON.parse(String(init?.body)));
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: fixture }) });
+    }));
+
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const bugCard = await screen.findByText("BUG-0201").then(() => document.querySelector('[data-issue-id="BUG-0201"]') as HTMLElement);
+    fireEvent.click(within(bugCard).getByRole("button", { name: "未接入动作 →" }));
+
+    expect(await screen.findByText("产品内尚未接入该治理写入链路，请在 Codex 执行 /unconnected-op BUG-0201")).toBeTruthy();
+    expect(objectSessionCalls).toHaveLength(0);
+    expect(document.querySelector('[data-issue-id="BUG-0201"]')).toBe(bugCard);
   });
 
   it("keeps action gates for missing documents and acceptance archive entry", async () => {
@@ -1652,8 +2059,11 @@ describe("RequirementCenterPage", () => {
     const progressActions = Array.from(progress.querySelectorAll(".rc-progress-action"));
     expect(progressActions.length).toBeGreaterThan(0);
     progressActions.forEach((action) => {
-      expect(action.querySelector(".rc-progress-label")?.textContent).toMatch(/^(研发|测试|人工验收)$/);
-      expect(action.querySelector(".rc-progress-value")?.textContent).toMatch(/^\d+\/\d+$/);
+      expect(action.querySelector(".rc-progress-label")?.textContent).toMatch(/^(研发|测试|验收)$/);
+      const value = action.querySelector(".rc-progress-value");
+      expect(value?.textContent).toMatch(/^\d+\/\d+$/);
+      const [done, total] = (value?.textContent ?? "0/0").split("/").map(Number);
+      expect(value?.getAttribute("data-progress-state")).toBe(total > 0 && done < total ? "incomplete" : "complete");
     });
   });
 
@@ -1709,9 +2119,16 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
+    const calls: unknown[] = [];
     stubFetch(
       "fetch",
-      vi.fn(() => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })),
+      vi.fn((input, init) => {
+        if (String(input).endsWith("/object-sessions")) {
+          calls.push(JSON.parse(String(init?.body)));
+          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { conversation_id: "conv-review", object_id: "REQ-9400", action: "req-review", reused_conversation: false } }) });
+        }
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
+      }),
     );
 
     render(<RequirementCenterPage />);
@@ -1758,9 +2175,16 @@ describe("RequirementCenterPage", () => {
         },
       ],
     };
+    const calls: unknown[] = [];
     stubFetch(
       "fetch",
-      vi.fn(() => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) })),
+      vi.fn((input, init) => {
+        if (String(input).endsWith("/object-sessions")) {
+          calls.push(JSON.parse(String(init?.body)));
+          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: { conversation_id: "conv-review", object_id: "REQ-9400", action: "req-review", reused_conversation: false } }) });
+        }
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: fixture }) });
+      }),
     );
 
     render(<RequirementCenterPage />);
@@ -1769,7 +2193,9 @@ describe("RequirementCenterPage", () => {
 
     const reqCard = document.querySelector('[data-issue-id="REQ-9400"]') as HTMLElement;
     fireEvent.click(within(reqCard).getByRole("button", { name: "发起评审 →" }));
-    expect(document.querySelector(".rc-toast")?.textContent).toContain("当前仅支持采集需求的生成动作");
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({ object_id: "REQ-9400", action: "req-review" });
+    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-review")).toBe("/req-review REQ-9400 --approve");
     expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
@@ -1788,6 +2214,24 @@ describe("RequirementCenterPage", () => {
     expect(within(dialog).queryByRole("button", { name: "＋ 创建 Capture" })).toBeNull();
     fireEvent.change(editor, { target: { value: "1. xxx问题\n2. xxx需求" } });
     expect(within(dialog).getByRole("button", { name: "AI 整理候选" })).toBeTruthy();
+  });
+
+  it("restores focus to the Capture trigger after backdrop and Escape close", async () => {
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-0012");
+    const trigger = screen.getByRole("button", { name: "新建 Capture" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    await screen.findByRole("dialog", { name: "新建 Capture" });
+    fireEvent.mouseDown(document.querySelector(".rc-capture-mask") as HTMLElement);
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "新建 Capture" })).toBeNull());
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    fireEvent.click(trigger);
+    await screen.findByRole("dialog", { name: "新建 Capture" });
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "新建 Capture" })).toBeNull());
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 
   it("opens markdown in a right drawer, previews html through an authenticated Blob URL and routes the floating agent assistant through its action modal", async () => {
@@ -1823,11 +2267,14 @@ describe("RequirementCenterPage", () => {
     try {
       render(<RequirementCenterPage />);
       await screen.findByText("REQ-0012");
-      fireEvent.click(screen.getByRole("button", { name: /requirement.md/ }));
+      const requirementTrigger = screen.getByRole("button", { name: /requirement.md/ });
+      requirementTrigger.focus();
+      fireEvent.click(requirementTrigger);
       expect(await screen.findByTestId("markdown-drawer")).toBeTruthy();
       expect(screen.getByRole("heading", { name: "PRD" })).toBeTruthy();
 
       fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+      await waitFor(() => expect(document.activeElement).toBe(requirementTrigger));
       fireEvent.click(screen.getByRole("button", { name: /prototype.html/ }));
       await waitFor(() => expect(openSpy).toHaveBeenCalledWith("blob:authenticated-prototype", "_blank", "noopener,noreferrer"));
       expect(openSpy).not.toHaveBeenCalledWith("/api/v1/requirement-center/issues/REQ-0012/documents/prototype.html/preview", "_blank", "noopener,noreferrer");
@@ -2385,7 +2832,7 @@ describe("RequirementCenterPage", () => {
     stubFetch("fetch", vi.fn((input) => Promise.resolve({ ok: true, status: 200, json: async () => ({data: String(input).includes("/context") ? contextFixture : {content: "# Tasks\n\n## 研发任务\n- [ ] 实现界面\n## 自动化测试\n- [ ] 回归测试\n## 人工验收\n- [ ] 人工签收"}}) })));
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
-    for (const [label, target] of [[/研发 0\/36/, "研发任务"], [/^测试 1\/3$/, "自动化测试"], [/^人工验收 0\/1$/, "人工验收"]] as const) {
+    for (const [label, target] of [[/研发 0\/36/, "研发任务"], [/^测试 1\/3$/, "自动化测试"]] as const) {
       fireEvent.click(screen.getAllByRole("button", {name: label})[0]);
       await screen.findByText(`已定位${target}：${target}`);
       expect(screen.getByTestId("markdown-drawer")).toBeTruthy();
@@ -2401,15 +2848,89 @@ describe("RequirementCenterPage", () => {
     expect(screen.queryByText("导入校验 Bug")).toBeNull();
   });
 
-  it("opens full task documents for both Requirement and Bug without inventing a missing target", async () => {
+  it("opens the linked Change tasks for Issue development and test progress", async () => {
+    const tasksUrl = "/api/v1/requirement-center/changes/fix-board-progress/documents/tasks.md";
+    const change = {
+      id: "fix-board-progress",
+      title: "修复进度入口",
+      stage: "acceptance",
+      source_kind: "bug",
+      document_entries: [{ name: "tasks.md", type: "markdown", label: "tasks.md", url: tasksUrl }],
+    };
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-9305",
+      documents: ["bug.md", "acceptance.md", "trace.md"],
+      document_entries: [
+        { name: "bug.md", type: "markdown", url: "/api/v1/requirement-center/issues/BUG-9305/documents/bug.md" },
+        { name: "acceptance.md", type: "markdown", url: "/api/v1/requirement-center/issues/BUG-9305/documents/acceptance.md" },
+      ],
+      current_change: change,
+      related_changes: [change],
+      task_progress: [2, 2],
+      test_progress: [1, 2],
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: String(input).includes("/context")
+        ? { ...contextFixture, issues: [issue] }
+        : { content: "# Tasks\n\n## 研发任务\n- [x] 实现界面\n\n## 自动化测试\n- [ ] 回归测试" } }),
+    }));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-9305").then(() => document.querySelector('[data-issue-id="BUG-9305"]') as HTMLElement);
+    for (const [label, heading] of [["研发 2/2", "研发任务"], ["测试 1/2", "自动化测试"]] as const) {
+      fireEvent.click(within(card).getByRole("button", { name: label }));
+      expect(await screen.findByText(`已定位${heading}：${heading}`)).toBeTruthy();
+      expect(document.querySelector(".rc-task-navigation-target")?.textContent).toBe(heading);
+      expect(fetchMock.mock.calls.some(([url]) => String(url).includes(tasksUrl))).toBe(true);
+      fireEvent.click(screen.getByRole("button", { name: "关闭右侧抽屉" }));
+    }
+  });
+
+  it("does not guess a tasks document when multiple Changes are linked", async () => {
+    const changes = ["first-fix", "second-fix"].map(id => ({
+      id,
+      title: id,
+      stage: "acceptance",
+      source_kind: "bug",
+      document_entries: [{ name: "tasks.md", type: "markdown", url: `/api/v1/requirement-center/changes/${id}/documents/tasks.md` }],
+    }));
+    const issue = {
+      ...contextFixture.issues[3],
+      id: "BUG-9306",
+      documents: ["bug.md", "acceptance.md"],
+      current_change: null,
+      related_changes: changes,
+      task_progress: [1, 2],
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: String(input).includes("/context") ? { ...contextFixture, issues: [issue] } : { content: "# Unexpected tasks" } }),
+    }));
+    stubFetch("fetch", fetchMock);
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = await screen.findByText("BUG-9306").then(() => document.querySelector('[data-issue-id="BUG-9306"]') as HTMLElement);
+    fireEvent.click(within(card).getByRole("button", { name: "研发 1/2" }));
+    expect(await screen.findByText("BUG-9306 关联多个 Change，无法确定 tasks.md 来源，无法打开研发任务。" )).toBeTruthy();
+    expect(screen.queryByTestId("markdown-drawer")).toBeNull();
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/documents/tasks.md"))).toBe(false);
+  });
+
+  it("opens Issue acceptance for both Requirement and Bug manual progress", async () => {
     window.history.replaceState(null, "", "/requirements?mock=workflow");
     render(<RequirementCenterPage />);
     await screen.findByText("DEMO-REQ-ACCEPTANCE-READY");
     for (const id of ["DEMO-REQ-ACCEPTANCE-READY", "DEMO-BUG-ACCEPTANCE-BLOCKED"]) {
       const card = document.querySelector(`[data-issue-id="${id}"]`) as HTMLElement;
-      fireEvent.click(within(card).getByRole("button", {name: /^人工验收/}));
+      fireEvent.click(within(card).getByRole("button", {name: /^验收 \d+\/\d+$/}));
       expect(await screen.findByTestId("markdown-rendered-preview")).toBeTruthy();
-      expect(document.querySelector("[data-task-navigation]")?.textContent).toMatch(/已定位人工验收|未找到人工验收/);
+      expect(within(screen.getByTestId("markdown-drawer")).getByText(/Acceptance/)).toBeTruthy();
+      expect(document.querySelector("[data-task-navigation]")).toBeNull();
       expect(screen.queryByTestId("tasks-drawer")).toBeNull();
       fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
     }
@@ -2427,13 +2948,16 @@ describe("RequirementCenterPage", () => {
     expect(fetchMock.mock.calls).toHaveLength(1);
   });
 
-  it("does not navigate to historical tasks and reports document read failures", async () => {
+  it("opens Issue acceptance without task navigation and reports document read failures", async () => {
     let missing = false;
-    stubFetch("fetch", vi.fn((input) => Promise.resolve({ok: !missing, status: missing ? 404 : 200, json: async () => ({data: String(input).includes("/context") ? contextFixture : {content: "# Tasks\n\n- [ ] 实现界面\n\n## 验收返修记录\n- [x] 人工验收旧记录"}})})));
+    const fixture = { ...contextFixture, issues: contextFixture.issues.map(issue => issue.id === "BUG-0001" ? { ...issue, documents: [...issue.documents, "acceptance.md"] } : issue) };
+    const fetchMock = vi.fn((input) => Promise.resolve({ok: !missing, status: missing ? 404 : 200, json: async () => ({data: String(input).includes("/context") ? fixture : {content: "# Acceptance\n\n- [ ] AC-001"}})}));
+    stubFetch("fetch", fetchMock);
     render(<RequirementCenterPage />);
     await screen.findByText("REQ-0012");
-    fireEvent.click(screen.getByRole("button", {name: "人工验收 0/1"}));
-    expect(await screen.findByText("tasks.md 中未找到人工验收章节或任务，已展示完整文档。")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", {name: "验收 0/1"}));
+    expect(await screen.findByText("Acceptance")).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/issues/BUG-0001/documents/acceptance.md"))).toBe(true);
     expect(document.querySelector(".rc-task-navigation-target")).toBeNull();
     fireEvent.click(screen.getByRole("button", {name: "关闭右侧抽屉"}));
     missing = true;
@@ -2478,6 +3002,31 @@ describe("RequirementCenterPage", () => {
     expect(container.querySelector(".requirement-center.theme-light")).toBeTruthy();
     expect(window.localStorage.getItem("moonbox.ui.preferences")).toContain("\"theme\":\"light\"");
     expect(screen.queryByText("Sidebar 底部主题")).toBeNull();
+  });
+
+  it("syncs requirement center root background across theme changes and clears it on unmount", async () => {
+    const root = document.createElement("div");
+    root.id = "root";
+    document.body.appendChild(root);
+    render(<RequirementCenterPage />);
+    await screen.findByText("需求研发流转看板");
+
+    expect(document.documentElement.style.backgroundColor).toBe("rgb(10, 13, 20)");
+    expect(document.body.style.backgroundColor).toBe("rgb(10, 13, 20)");
+    expect(root.style.backgroundColor).toBe("rgb(10, 13, 20)");
+
+    fireEvent.click(screen.getByRole("button", { name: /许同学/ }));
+    fireEvent.click(screen.getByRole("switch", { name: "切换明暗主题" }));
+
+    expect(document.documentElement.style.backgroundColor).toBe("rgb(244, 246, 250)");
+    expect(document.body.style.backgroundColor).toBe("rgb(244, 246, 250)");
+    expect(root.style.backgroundColor).toBe("rgb(244, 246, 250)");
+
+    cleanup();
+
+    expect(document.documentElement.style.backgroundColor).toBe("");
+    expect(document.body.style.backgroundColor).toBe("");
+    expect(root.style.backgroundColor).toBe("");
   });
 
   it("keeps the frontend profile nickname input readable in rc themes", () => {

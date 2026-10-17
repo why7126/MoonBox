@@ -1,0 +1,40 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "source_mode": "source",
+  "database": "fresh pre-acceptance isolated backup; zero prior chat conversations",
+  "isolation": "separate governance project copy, SQLite, private journal, runtime, backup ledger, worker and API",
+  "fault": "SIGKILL only the second isolated worker after the exact turn reached running with an external executor turn and while the full governance digest still equaled its send-time baseline",
+  "rounds": [
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9108-sprint-single",
+      "turn_id": "cb101321-1a5c-4167-896d-7156dbeedbd3",
+      "baseline_revision": "9607cd80d825e7b005bd45b20cf58dc97d1365c0d479d89edb25ab2d9cc196b0",
+      "after_restart": {"turn": "stopped", "error_code": "worker_heartbeat_lost", "full_governance_equals_baseline": true}
+    },
+    {
+      "action": "opsx-apply",
+      "object_id": "add-isolated-apply-ac011",
+      "turn_id": "2d1ea982-8d98-4b1e-8b4a-da70f2065607",
+      "baseline_revision": "9607cd80d825e7b005bd45b20cf58dc97d1365c0d479d89edb25ab2d9cc196b0",
+      "after_restart": {"turn": "stopped", "error_code": "worker_heartbeat_lost", "full_governance_equals_baseline": true}
+    },
+    {
+      "action": "sprint-propose",
+      "object_id": "REQ-9210-ac011-before-sprint",
+      "turn_id": "59041a96-c974-414a-8461-a17863f8921c",
+      "baseline_revision": "d5d829918a170da0417facd661ac565ff1013b8fb39a8b8e557a694b87e474b9",
+      "after_restart": {"turn": "stopped", "error_code": "worker_heartbeat_lost", "full_governance_equals_baseline": true}
+    },
+    {
+      "action": "opsx-archive",
+      "object_id": "add-isolated-archive-ac011-bw",
+      "turn_id": "e143d948-17b7-4ef7-9c50-20ae6a3a7897",
+      "baseline_revision": "fe3611e97ae4fdbd54325a8600f0dea6f9eaa29cf57bfab7187bda122fd4c3ae",
+      "after_restart": {"turn": "stopped", "error_code": "worker_heartbeat_lost", "full_governance_equals_baseline": true}
+    }
+  ],
+  "limit": "This verifies four direct-command before-write cells. It does not cover their remaining write, sync and post-sync cells or the three candidate actions' missing cells.",
+  "overall": "partial; AC-011 remains unsigned"
+}

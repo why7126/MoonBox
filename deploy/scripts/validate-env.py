@@ -56,8 +56,8 @@ def validate_local_ports(env_id: str, values: dict[str, str]) -> list[str]:
         except ValueError:
             errors.append(f"{env_id}: {key} 必须是数字端口")
             continue
-        if port < 18101 or port > 18199:
-            errors.append(f"{env_id}: {key} 必须位于 18101-18199")
+        if port < 39001 or port > 39050:
+            errors.append(f"{env_id}: {key} 必须位于 39001-39050")
         if port in seen:
             errors.append(f"{env_id}: {key} 与 {seen[port]} 端口重复")
         seen[port] = key
@@ -74,6 +74,9 @@ def validate(domain: str, environment: str, env_path: Path, profile: str | None)
     database_mode = values.get("DATABASE_DEPLOYMENT_MODE", "")
     database_type = values.get("DATABASE_TYPE", "")
     database_url = values.get("DATABASE_URL", "")
+
+    if "MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT" in values and not re.fullmatch(r"[0-9]+", values["MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT"]):
+        errors.append(f"{env_id}: MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT 必须是非负十进制整数")
 
     if values.get("MOONBOX_DEPLOY_ENV_ID") not in {"", env_id}:
         errors.append(f"{env_id}: MOONBOX_DEPLOY_ENV_ID 必须匹配当前环境")

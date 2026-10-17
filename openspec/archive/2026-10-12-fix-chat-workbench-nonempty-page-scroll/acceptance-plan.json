@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-workbench-nonempty-page-scroll",
+  "issue_id": "BUG-0029-chat-workbench-nonempty-page-scroll",
+  "environment": "local-moonbox-web-20261012",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-scroll-boundary.cjs",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/chat-scroll-boundary.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "长对话滚动前",
+          "长对话滚动后"
+        ],
+        "viewports": [
+          "1419x832",
+          "1440x900"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-visual-matrix.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-bottom-redacted.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1440x900-bottom-redacted.png"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-scroll-boundary.cjs",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/chat-scroll-boundary.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "长对话首部",
+          "长对话底部"
+        ],
+        "viewports": [
+          "1419x832",
+          "1440x900"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-visual-matrix.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-top-redacted.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-bottom-redacted.png"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-scroll-boundary.cjs",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/chat-scroll-boundary.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "滚动后输入编辑"
+        ],
+        "viewports": [
+          "1419x832",
+          "1440x900"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-visual-matrix.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-bottom-redacted.png"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-scroll-boundary.cjs",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/chat-scroll-boundary.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "底部背景与悬浮元素"
+        ],
+        "viewports": [
+          "1419x832",
+          "1440x900"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-visual-matrix.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-bottom-redacted.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1440x900-bottom-redacted.png"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-scroll-boundary.cjs",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/chat-scroll-boundary.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "空白",
+          "短消息",
+          "长对话",
+          "切换后"
+        ],
+        "viewports": [
+          "1419x832",
+          "1440x900"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-visual-matrix.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-blank-1419x832.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-top-redacted.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-1419x832-bottom-redacted.png"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/styles/chat-workbench.css",
+        "issues/bugs/review/BUG-0029-chat-workbench-nonempty-page-scroll/bug.md"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import sqlite3; c=sqlite3.connect('file:data/sqlite/moonbox.db?mode=ro',uri=True); t='96ee7030-3085-4950-8e84-4cb352ed9bdf'; r=c.execute('select status,error_code from chat_turns where id=?',(t,)).fetchone(); m=dict(c.execute('select role,count(*) from chat_messages where turn_id=? group by role',(t,)).fetchall()); assert r==('completed',None) and m.get('user')==1 and m.get('assistant')==1; print('same-turn completed; user=1 assistant=1')"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "coverage": {
+        "stages": [
+          "发送前",
+          "发送后"
+        ],
+        "viewports": [
+          "1419x832"
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/current-product-send.md",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-blank-1419x832.png",
+        "openspec/changes/fix-chat-workbench-nonempty-page-scroll/evidence/acceptance/product-send-after-1419x832-redacted.png"
+      ],
+      "timeout_seconds": 120,
+      "product_turn_id": "96ee7030-3085-4950-8e84-4cb352ed9bdf",
+      "product_turn_required": true
+    }
+  ]
+}

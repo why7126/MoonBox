@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-opsx-apply-governance-scope-source-readonly",
+  "run_id": "20261012231705079742-e736da50",
+  "created_at": "2026-10-12 23:17:05",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-moonbox-original-deployment-pending-verification",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "81fa411516f6b9055e7477d06cf082d502660f7f0b722b311ca91500bc4856bc",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "81bb73f20f4326137553670069269b6dc8b54aef30ccfbf3ae322dbbcd7f275c",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "6a820566991229b8adb62058005231237aca84cb0c8f852b540f1d29b29ef94f",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "a64a4d9346b790663d15031c73f5770677eaaa0c663f4d5511aacb3e988634af",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "99c5b259997912471595f0659eb99ec72d7093c326974c2bd0f9413abd291043",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "38d66b5a2cbfe5de7cbb83889c3d8d024fe4a7601f67da1d564832e64626f68c",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "f732b863dd981f24b5666b10c416e53aaf24de9d61614d581665cca07f90921c",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "eecbc83cfccc2c0b3cd85f4d7bdacdc9ed6a371b610e90c4e8f9c806757a34c4",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "42d2e0ca755b3bae42822aa6c927ab6d6120fca4bf51b690c2ba788a0adc2378",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "d489f710cb44d27b88cb8de304689944685a09fa0d14bb470237674a96676200",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "74a1245a66c6e0ff8c81639797aa8030f98e6e9f7c4d1dda197d5b6d3e985f37",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    }
+  ]
+}

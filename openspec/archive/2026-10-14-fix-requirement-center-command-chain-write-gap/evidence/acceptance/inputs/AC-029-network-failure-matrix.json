@@ -1,0 +1,59 @@
+{
+  "mode": "served-app-with-synthetic-api-and-browser-network-fault-injection",
+  "base": "http://localhost:39002",
+  "results": [
+    {
+      "scenario": "startup",
+      "failedRequestCount": 1,
+      "expectedVisible": "工作台连接暂时中断",
+      "messageBox": null,
+      "nativeErrorVisible": false,
+      "savedMessageVisible": false
+    },
+    {
+      "scenario": "binding",
+      "failedRequestCount": 1,
+      "expectedVisible": "工作台连接暂时中断",
+      "messageBox": null,
+      "nativeErrorVisible": false,
+      "savedMessageVisible": true
+    },
+    {
+      "scenario": "messages",
+      "failedRequestCount": 1,
+      "expectedVisible": "消息暂不可读，请稍后重试",
+      "messageBox": {
+        "tag": "div",
+        "width": 1168,
+        "display": "block",
+        "visibility": "visible"
+      },
+      "nativeErrorVisible": false,
+      "savedMessageVisible": false
+    },
+    {
+      "scenario": "governance",
+      "failedRequestCount": 1,
+      "expectedVisible": "已生成",
+      "messageBox": null,
+      "nativeErrorVisible": false,
+      "savedMessageVisible": true
+    },
+    {
+      "scenario": "turns",
+      "failedRequestCount": 2,
+      "expectedVisible": "已生成",
+      "messageBox": null,
+      "nativeErrorVisible": false,
+      "savedMessageVisible": true
+    },
+    {
+      "scenario": "events",
+      "failedRequestCount": 3,
+      "expectedVisible": "已生成",
+      "messageBox": null,
+      "nativeErrorVisible": false,
+      "savedMessageVisible": true
+    }
+  ]
+}

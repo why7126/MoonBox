@@ -4,7 +4,7 @@ purpose: 管理后台媒体上传链路治理，预防上传状态、即时回�
 source: REQ-0004-admin-user-management
 status: active
 created_at: 2026-08-07 22:21:34
-updated_at: 2026-08-07 22:21:34
+updated_at: 2026-10-08 15:19:34
 ---
 
 # 管理后台媒体上传链路
@@ -19,7 +19,7 @@ updated_at: 2026-08-07 22:21:34
 - 上传中必须禁用重复提交和重复选择触发，失败后必须允许重试。
 - 上传成功后必须在同一会话立即回显到当前表单或列表，不依赖刷新页面。
 - 上传成功后的 URL 或对象引用不得写入日志中的敏感上下文，且不得泄露临时凭据。
-- Docker 本地环境必须从 `.env`、Docker Compose 或启动脚本解析实际 `HOST_PORT_WEB`，默认使用 `18102` 完成文件上传、读取和回显验收；不得硬编码 `:3000`。
+- Docker 本地环境必须从 `.env`、Docker Compose 或启动脚本解析实际 `HOST_PORT_WEB`，默认使用 `39002` 完成文件上传、读取和回显验收；不得硬编码 `:3000`。
 - Docker media-upload 验收脚本必须自行准备一次性测试用户、测试会话或可回收 fixture，不得依赖 `data/runtime/backend` 持久库中的管理员密码等于 `ADMIN_INITIAL_PASSWORD`。
 - 后端上传接口和静态/对象访问路径必须在容器网络、浏览器访问和反向代理路径下保持一致。
 

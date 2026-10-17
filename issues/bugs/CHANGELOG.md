@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-09-29 14:18:37
+updated_at: 2026-10-14 17:43:06
 owner: MoonBox 产品团队
 ---
 
@@ -28,8 +28,18 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| BUG-0025-test | 待澄清：test 的具体意图 | medium | captured | plan | 无 | 无 | 2026-09-16 23:49:40 | `/bug-generate BUG-0025-test` | `issues/bugs/plan/BUG-0025-test/trace.md` |
-| BUG-0024-capture | 列表刷新后滚动位置回到顶部 | medium | captured | plan | 无 | 无 | 2026-09-16 20:00:07 | `/bug-generate BUG-0024-capture` | `issues/bugs/plan/BUG-0024-capture/trace.md` |
+| BUG-0042-chat-archive-issue-promote-retest-2 | Chat 关联 Issue 首次归档复验夹具 | low | done | archive | sprint-009 | fix-chat-archive-issue-promote-retest-2 | 2026-10-12 14:14:21 | 无 | `issues/bugs/archive/BUG-0042-chat-archive-issue-promote-retest-2/trace.md` |
+| BUG-0041-chat-archive-issue-promote-retest | Chat 关联 Issue 首次归档复验夹具 | low | done | archive | sprint-009 | fix-chat-archive-issue-promote-retest | 2026-10-12 13:36:44 | 无 | `issues/bugs/archive/BUG-0041-chat-archive-issue-promote-retest/trace.md` |
+| BUG-0040-chat-archive-issue-promote-fixture | Chat 首次归档关联 Issue 迁移验收夹具 | low | done | archive | sprint-009 | fix-chat-archive-issue-promote-fixture | 2026-10-12 12:00:01 | 无 | `issues/bugs/archive/BUG-0040-chat-archive-issue-promote-fixture/trace.md` |
+| BUG-0035-requirement-center-acceptance-readiness-projection | 需求中心卡片验收进度与归档门禁不一致且验收文档入口消失 | medium | done | archive | sprint-009 | fix-requirement-center-acceptance-readiness-projection | 2026-10-13 08:26:13 | 无 | `issues/bugs/archive/BUG-0035-requirement-center-acceptance-readiness-projection/trace.md` |
+| BUG-0034-chat-standalone-archive-scope-tool-path | 产品内纯治理 Change 归档因权限与命令路径缺失失败 | high | done | archive | sprint-009 | fix-chat-standalone-archive-scope-tool-path | 2026-10-13 18:51:48 | 无 | `issues/bugs/archive/BUG-0034-chat-standalone-archive-scope-tool-path/trace.md` |
+| BUG-0033-opsx-apply-governance-scope-source-readonly | 产品内执行 opsx-apply 误授治理写权限导致源码只读 | high | done | archive | sprint-008 | fix-opsx-apply-governance-scope-source-readonly | 2026-10-12 23:44:14 | 无 | `issues/bugs/archive/BUG-0033-opsx-apply-governance-scope-source-readonly/trace.md` |
+| BUG-0030-chat-assistant-output-missing-from-conversation | Chat 工作台已有助手输出事件但对话正文为空 | high | done | archive | sprint-009 | fix-chat-assistant-output-missing-from-conversation | 2026-10-09 10:34:57 | 无 | `issues/bugs/archive/BUG-0030-chat-assistant-output-missing-from-conversation/trace.md` |
+| BUG-0029-chat-workbench-nonempty-page-scroll | Chat 工作台非空白对话出现页面级滚动条及底部布局异常 | medium | done | archive | sprint-008 | fix-chat-workbench-nonempty-page-scroll | 2026-10-12 23:01:39 | 无 | `issues/bugs/archive/BUG-0029-chat-workbench-nonempty-page-scroll/trace.md` |
+| BUG-0027-page-scroll-bottom-light-background-exposed | 页面向上滑动时底部露出浅色背景 | medium | done | archive | sprint-008 | fix-page-scroll-root-background-exposed | 2026-10-05 21:16:26 | 无 | `issues/bugs/archive/BUG-0027-page-scroll-bottom-light-background-exposed/trace.md` |
+| BUG-0026-chat-platform-opsx-archive-source-permission | Chat 平台无法归档 source 工作区 Change 且状态未知 | high | done | archive | sprint-008 | fix-chat-platform-opsx-archive-source-permission | 2026-10-12 14:27:28 | 无 | `issues/bugs/archive/BUG-0026-chat-platform-opsx-archive-source-permission/trace.md` |
+| BUG-0025-requirement-center-command-chain-write-gap | 需求中心看板展示完整治理命令链但多数命令未接入真实写入 | medium | done | archive | sprint-008 | fix-requirement-center-command-chain-write-gap | 2026-10-14 17:43:06 | 无 | `issues/bugs/archive/BUG-0025-requirement-center-command-chain-write-gap/trace.md` |
+| BUG-0024-login-expired-refresh-not-redirect-login | 登录失效时，页面刷新也没有重新定位到登录页 | medium | done | archive | sprint-008 | fix-chat-auth-expired-redirect-login | 2026-10-04 23:50:45 | 无 | `issues/bugs/archive/BUG-0024-login-expired-refresh-not-redirect-login/trace.md` |
 | BUG-0023-requirement-center-acceptance-progress-task-classification | 需求中心验收中卡片进度未按 tasks.md 分类统计返修任务 | medium | done | archive | sprint-007 | fix-requirement-center-acceptance-progress-task-classification | 2026-09-17 10:24:39 | 无 | `issues/bugs/archive/BUG-0023-requirement-center-acceptance-progress-task-classification/trace.md` |
 | BUG-0022-requirement-center-html-preview-auth-lost | 需求中心卡片 HTML 预览直开受保护接口导致认证失败 | medium | done | archive | sprint-006 | fix-requirement-center-html-preview-auth-lost | 2026-09-14 18:20:45 | 无 | `issues/bugs/archive/BUG-0022-requirement-center-html-preview-auth-lost/trace.md` |
 | BUG-0021-requirement-center-bug-card-severity-display | 需求中心 BUG 卡片显示优先级 P 值而非严重性 | medium | done | archive | sprint-006 | fix-requirement-center-bug-card-severity-display | 2026-09-14 14:44:39 | 无 | `issues/bugs/archive/BUG-0021-requirement-center-bug-card-severity-display/trace.md` |
@@ -53,3 +63,5 @@ owner: MoonBox 产品团队
 | BUG-0003-homepage-start-moonbox-should-open-login-route | 官网开启 MoonBox 应进入 /login 独立登录页 | medium | done | archive | sprint-002 | fix-homepage-login-route | 2026-08-13 22:49:27 | 无 | `issues/bugs/archive/BUG-0003-homepage-start-moonbox-should-open-login-route/trace.md` |
 | BUG-0002-homepage-frontend-login-entry-routes-to-admin | 首页前台登录入口误跳后台登录页 | high | done | archive | sprint-002 | fix-homepage-frontend-login-entry-routes-to-admin | 2026-08-13 23:04:21 | 无 | `issues/bugs/archive/BUG-0002-homepage-frontend-login-entry-routes-to-admin/trace.md` |
 | BUG-0001-admin-web-login-api-proxy-and-spa-fallback | Docker Web 管理后台登录 API 误路由且缺少 SPA fallback | high | done | archive | sprint-002 | fix-admin-web-login-api-proxy-and-spa-fallback | 2026-08-13 22:45:09 | 无 | `issues/bugs/archive/BUG-0001-admin-web-login-api-proxy-and-spa-fallback/trace.md` |
+
+- 2026-10-12：BUG-0042-chat-archive-issue-promote-retest-2，用户授权的 BUG-0026 AC-001 第三份独立虚拟复验样本；与 BUG-0041-chat-archive-issue-promote-retest 相似但首次归档需新 Change，当前在 sprint-009 验收中。

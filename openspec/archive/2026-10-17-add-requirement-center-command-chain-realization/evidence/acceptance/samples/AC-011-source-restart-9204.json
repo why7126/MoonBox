@@ -1,0 +1,34 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "workspace_mode": "source",
+  "action": "req-generate",
+  "object_id": "REQ-9204-ac011-write-window-c",
+  "turn_id": "dea734a8-4334-4a98-b34d-eda5966c39cd",
+  "candidate_id": "d46d798c-a64e-5f7a-b944-980e95bf731c",
+  "injection": {
+    "window": "first-nonempty-requirement-file-while-turn-running",
+    "worker": "isolated-project-worker-only",
+    "method": "SIGKILL",
+    "requirement_bytes_before_restart": 4682,
+    "requirement_sha256_before_restart": "31f0a3ce9ac9ae4049972086df9741621cdd9d9ab5523a28356f3f023df4e6c8"
+  },
+  "after_restart": {
+    "turn_status": "stopped",
+    "turn_error_code": "worker_heartbeat_lost",
+    "candidate_state": "rejected",
+    "candidate_error_code": "executor_unavailable",
+    "application_count": 0,
+    "requirement_exists": false,
+    "trace_status": "captured",
+    "generated_at_absent": true,
+    "baseline_file_count": 2212,
+    "current_file_count": 2212,
+    "full_governance_equals_immutable_baseline": true,
+    "baseline_revision": "f5203a635ae626d7ca97a4baa4b6b12bed2329afb2442c1db0c391d217baafc0",
+    "current_revision": "f5203a635ae626d7ca97a4baa4b6b12bed2329afb2442c1db0c391d217baafc0",
+    "repeat_observation_stable": true
+  },
+  "scope": "one-real-product-turn; remaining-action-and-window-matrix-not-covered",
+  "result": "pass-for-this-window-only"
+}

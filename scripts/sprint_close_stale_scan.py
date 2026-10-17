@@ -148,27 +148,40 @@ def _line_has_stale_state_word(line: str) -> bool:
     return re.search(r"(?<![A-Za-z0-9_-])(?:proposed|applied)(?![A-Za-z0-9_-])", line) is not None
 
 
-def _line_has_pending_state_context(line: str) -> bool:
-    if re.search(
-        r"(?i)\b(?:status|state|acceptance_status|review_status|workflow_status)\b\s*[:=|]\s*`?pending`?\b",
-        line,
-    ):
-        return True
-    if re.search(r"(?:状态|验收|评审|流程|结果|结论).*?\bpending\b", line, re.IGNORECASE):
-        return True
-    if "|" in line and re.search(r"(?<![A-Za-z0-9_-])pending(?![A-Za-z0-9_-])", line, re.IGNORECASE):
-        return True
-    return False
+def current_issue_state_lines(path: Path, lines: list[str]) -> set[int]:
+    """Find lifecycle fields in the document's current metadata, not its history."""
+    if path.name in {"trace.md", "requirement.md", "bug.md"}:
+        field = "status"
+    elif path.name == "acceptance.md":
+        field = "acceptance_status"
+    else:
+        return set()
 
-
-def _line_has_issue_intermediate_word(line: str) -> bool:
-    if re.search(
-        r"(?<![A-Za-z0-9_-])(?:planned|proposed|applied|in_sprint|待验收|待实现|待归档)(?![A-Za-z0-9_-])",
-        line,
-        re.IGNORECASE,
-    ):
-        return True
-    return _line_has_pending_state_context(line)
+    current: set[int] = set()
+    in_frontmatter = bool(lines and lines[0].strip() == "---")
+    in_yaml = False
+    before_heading = True
+    for line_no, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if line_no > 1 and in_frontmatter and stripped == "---":
+            in_frontmatter = False
+            continue
+        if not in_frontmatter and stripped.startswith("#"):
+            before_heading = False
+        if not in_frontmatter and before_heading and stripped == "```yaml":
+            in_yaml = True
+            continue
+        if in_yaml and stripped == "```":
+            in_yaml = False
+            continue
+        if not (in_frontmatter or in_yaml):
+            continue
+        match = re.match(rf"^{field}:\s*['\"`]?([\w-]+)", line, re.IGNORECASE)
+        if match:
+            value = match.group(1).lower()
+            if value in {"planned", "proposed", "applied", "in_sprint", "pending", "pending_review", "todo", "open", "draft", "enriching", "captured", "exploring", "approved", "blocked", "failed", "not_started"}:
+                current.add(line_no)
+    return current
 
 
 def _manual_fix_suggestion(sprint_id: str) -> str:
@@ -282,6 +295,7 @@ def scan_issue_line(
     root: Path,
     derived_issues: dict[str, Any],
     derived_changes: dict[str, Any],
+    current_state_lines: set[int],
 ) -> list[StaleHit]:
     hits: list[StaleHit] = []
     derived = derived_issues.get(issue_id)
@@ -294,7 +308,7 @@ def scan_issue_line(
 
     context = line.strip()
     file_rel = rel(file_path, root)
-    if _line_has_issue_intermediate_word(line):
+    if line_no in current_state_lines:
         hits.append(
             StaleHit(
                 severity="blocker",
@@ -372,7 +386,9 @@ def build_report(sprint_id: str, *, root: Path = ROOT) -> SprintCloseStaleReport
                 )
             )
     for issue_id, path in scoped_issue_files:
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        state_lines = current_issue_state_lines(path, lines)
+        for line_no, line in enumerate(lines, start=1):
             hits.extend(
                 scan_issue_line(
                     issue_id=issue_id,
@@ -382,6 +398,7 @@ def build_report(sprint_id: str, *, root: Path = ROOT) -> SprintCloseStaleReport
                     root=root,
                     derived_issues=derived_issues,
                     derived_changes=derived_changes,
+                    current_state_lines=state_lines,
                 )
             )
 

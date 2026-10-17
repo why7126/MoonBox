@@ -13,7 +13,7 @@ await page.route('**/api/**',async route=>{const url=new URL(route.request().url
  else if(!url.pathname.endsWith('/context'))throw Error('unexpected request '+url.pathname);
  await route.fulfill({json:{code:0,data:result}});
 });
-await page.goto('http://127.0.0.1:18122/tests/governance-board-preview.html');
+await page.goto('http://127.0.0.1:39022/tests/governance-board-preview.html');
 for(const id of ['REQ-0022','BUG-0001']){
  const card=page.locator(`[data-issue-id="${id}"]`);await expect(card).toHaveCount(1);
  await expect(card.getByRole('button',{name:'trace.md',exact:true})).toHaveCount(1);

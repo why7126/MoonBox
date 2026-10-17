@@ -11,6 +11,19 @@ def backup_root():
     return os.environ.get('MOONBOX_CHAT_BACKUP_ROOT', '').strip() or None
 
 
+def local_snapshot_limit():
+    """自动快照数量上限；缺失与显式空值不同。"""
+    raw = os.environ.get('MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT')
+    if raw is None:
+        return 2
+    if not re.fullmatch(r'[0-9]+', raw):
+        raise ValueError('MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT 必须是非负十进制整数')
+    try:
+        return int(raw)
+    except ValueError as exc:
+        raise ValueError('MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT 必须是非负十进制整数') from exc
+
+
 def repository_catalog():
     try:
         entries = json.loads(os.environ.get('MOONBOX_CHAT_REPOSITORIES', '[]'))
@@ -70,7 +83,7 @@ def execution_config():
             {'value': 'high', 'display_name': 'High', 'available': True, 'disabled_reason': None},
             {'value': 'xhigh', 'display_name': 'XHigh', 'available': True, 'disabled_reason': None},
         ],
-        'defaults': {'agent': 'codex', 'model': 'gpt-6-astra', 'reasoning': 'high'},
+        'defaults': {'agent': 'codex', 'model': 'gpt-6-astra', 'reasoning': 'low'},
     }
     try:
         configured = json.loads(os.environ.get('MOONBOX_CHAT_EXECUTION_CONFIG', '{}'))

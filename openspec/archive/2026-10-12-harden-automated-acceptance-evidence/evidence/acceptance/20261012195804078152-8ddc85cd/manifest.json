@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "change_id": "harden-automated-acceptance-evidence",
+  "run_id": "20261012195804078152-8ddc85cd",
+  "created_at": "2026-10-12 19:58:05",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-governance-20261012",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "b82bffb6b6217ebbfdb5f43142d95edc5819ed29ac48faf2833bd519376d7f96",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 971
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "38e069e1ca5e021d733c9399b7ba4a17e86d4081eb3bdacc1ce0f784c60d0f0a",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 58
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "75e28bff161f9f6fc2e2eed34d1ac52e8b59b06cf86db2503b73584692c21fad",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 130
+    }
+  ]
+}

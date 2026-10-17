@@ -1,12 +1,18 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-09-15 09:38:43
+updated_at: 2026-10-13 16:27:44
 ---
 
 # opsx-archive
 
 Use when the user asks `/opsx-archive <REQ-full-id|BUG-full-id|change-id>` or wants to archive one OpenSpec change.
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -84,6 +90,7 @@ openspec status --change "<change-id>" --json
 | MODIFIED title | matching `openspec/specs/<capability>/spec.md` requirement title MUST exist |
 | Documentation sync | before archive, affected long-lived docs / README / `.env.example` / API index / DB design / Orval notes / release or deployment docs MUST be checked and updated or explicitly marked not applicable |
 | Delivery evidence source | every applied Change MUST keep a Requirement Center-readable evidence source inside the Change; pure governance Changes do not require `acceptance.md` or `verification.md`, but must have a non-empty trace verification heading, valid `trace.acceptance_refs`, or another accepted Markdown evidence entry |
+| 自动验收证据 | 若 Change 有 `acceptance-plan.json`，MUST 在目录迁移前运行 `python scripts/opsx_acceptance.py --change <change-id> --readiness`，仅 ready 可继续；历史 Change 无新计划时沿用原门禁，不伪造通过 |
 | Acceptance-fix ledger | if `/opsx-modify` ran after apply, `acceptance-fixes.md` SHOULD contain the full ledger; legacy `tasks.md` ledgers are accepted, but new Changes MUST keep full ledger in `acceptance-fixes.md` and `tasks.md` as summary/link only |
 | Product data observability | API / DB / audit log / usage event / Task Trace / Web/admin request wrapper / object storage / Agent Workflow observability changes MUST have `product_data_collection_observability` status, `affected_layers`, N/A reason and validation evidence; read `docs/standards/product-data-collection-observability.md` |
 | Prototype final consistency | if linked REQ or Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton, linked REQ `requirement.md` / `acceptance.md` / `trace.md` MUST match final Change design, implementation evidence and 1440px visual acceptance |
@@ -101,7 +108,7 @@ openspec status --change "<change-id>" --json
 3. Assess delta specs:
    - no delta specs => archive as metadata-only change;
    - delta exists => summarize capability, operation type, and affected Requirement titles;
-   - prefer `scripts/archive-change.sh "<change-id>"` so OpenSpec CLI output is normalized to canonical `openspec/archive/` and legacy `openspec/changes/archive/` is migrated/blocked.
+   - prefer `bash scripts/archive-change.sh "<change-id>" --finalize` so OpenSpec CLI output is normalized and validation, Workflow Sync, Issue promote and usage hook run serially. Wait for the command completion event and inspect its exit code.
 4. Before moving or merging the Change, complete documentation sync:
    - inspect `tasks.md`, `acceptance-fixes.md` when present, `trace.md`, delta spec headings, and implementation notes to identify affected docs;
    - verify the applied Change has a readable delivery evidence source inside the Change. Do not require `acceptance.md` or `verification.md` for pure governance Changes; accept non-empty trace verification headings or valid `trace.acceptance_refs`;
@@ -117,8 +124,11 @@ openspec status --change "<change-id>" --json
    - for reference-backed UI replication Changes, compare linked REQ reference facts, Change `UI Reference Replication Contract`, selector mapping, action button to modal matrix, computed style evidence, batch screenshots and final implementation notes; BLOCK archive if a required component family lacks evidence or if element-level返修 changed the contract without updating docs.
 5. If the wrapper fails because OpenSpec CLI is unavailable, manual fallback is allowed only after delta self-check:
    - merge delta into `openspec/specs/` according to OpenSpec semantics;
-   - move to `openspec/archive/YYYY-MM-DD-<change-id>/`.
+   - move to `openspec/archive/YYYY-MM-DD-<change-id>/` using `shutil.move` or verified copy+remove; never use `Path.rename` for directory migration across sandbox mounts.
+   - run `bash scripts/archive-change.sh "<change-id>" --finalize` to validate and finish the same serial closure.
+   - if the active directory is already absent and exactly one canonical archive exists, inspect its delta merge and evidence, then rerun the wrapper to resume validation/sync/promote without merging specs again. Active/archive duplication or multiple archive dates block recovery; preserve both sides for diagnosis.
 6. Update related issue/change trace only through workflow sync/promote scripts where possible.
+7. After `archive-change.sh --finalize` succeeds, treat its merged `openspec/specs/` result as final for this turn. Do not directly edit formal specs, archived Change files, or Issue status to polish wording. If a post-command check finds an unexpected difference, stop and preserve the archive recovery journal and files; report a blocked recovery instead of presenting Chat completion as a verified archive.
 
 ## Command Execution Review Hook（MUST）
 

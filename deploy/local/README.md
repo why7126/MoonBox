@@ -2,7 +2,7 @@
 purpose: 本地部署矩阵
 content: MoonBox 六种本地 docker-compose 部署环境、前置条件和启动方式
 created_at: 2026-08-04 00:00:00
-updated_at: 2026-08-04 00:00:00
+updated_at: 2026-10-08 15:19:34
 owner: MoonBox 产品团队
 ---
 
@@ -19,7 +19,7 @@ owner: MoonBox 产品团队
 | `external-storage-self-mysql` | 自建 MySQL | 外部 S3/MinIO 兼容服务 | `self-hosted-db` | `deploy/local/external-storage-self-mysql.env.example` |
 | `external-storage-external-mysql` | 外部 MySQL | 外部 S3/MinIO 兼容服务 | 无 | `deploy/local/external-storage-external-mysql.env.example` |
 
-所有 local 启动环境默认同时启用 `docs-site` profile，并启动 MoonBox 产品手册预览。文档站默认访问 `http://localhost:18105`，可通过 `HOST_PORT_MINTLIFY_DOCS` 覆盖。`docs-site` 只读挂载 `mintlify/` 和静态预览脚本，不挂载真实 env、运行时数据、数据库卷、对象存储数据或密钥文件。
+所有 local 启动环境默认同时启用 `docs-site` profile，并启动 MoonBox 产品手册预览。文档站默认访问 `http://localhost:39005`，可通过 `HOST_PORT_MINTLIFY_DOCS` 覆盖。`docs-site` 只读挂载 `mintlify/` 和静态预览脚本，不挂载真实 env、运行时数据、数据库卷、对象存储数据或密钥文件。
 
 真实本地 env 可复制到 `deploy/local/<environment>.env`。真实 env 文件已被 `.gitignore` 阻断，禁止提交。
 

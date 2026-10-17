@@ -1,0 +1,22 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "req-generate",
+  "object_id": "REQ-9205-ac011-before-write",
+  "turn_id": "88bcd2d8-13f4-44b6-a69d-b05277f5e35f",
+  "window": "business requirement file written; formal req.generate Workflow Sync started before tool completion",
+  "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+  "source_revision_before_kill": "9489d5d5c30d71a71751813f0e53876f1afa124832d33af885ec58bd0f1a8d50",
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "candidate": "rejected",
+    "candidate_error_code": "executor_unavailable",
+    "application_count": 0,
+    "requirement_exists": false,
+    "trace_status": "captured",
+    "full_governance_equals_baseline": true
+  },
+  "limit": "One real candidate sync-start cell passed; other candidate actions and post-sync windows remain missing.",
+  "overall": "partial; AC-011 remains unsigned"
+}

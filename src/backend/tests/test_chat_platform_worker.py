@@ -42,7 +42,7 @@ def test_real_container_worker_restart_and_unlimited_accounting(chat,tmp_path,mo
     command=['docker','run','-d','--name',name,'--user',f'{os.getuid()}:{os.getgid()}','--group-add','0',
              '--mount',f'type=bind,src={root},dst={root}', '--mount','type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock']
     for key,value in values.items():command+=['--env',key+'='+value]
-    command+=['moonbox-chat-worker:verify']
+    command+=[os.environ.get('CHAT_LIVE_PLATFORM_PROBE_IMAGE','moonbox-chat-worker:verify')]
     report={'real_worker_container':True,'quota_mode':'unlimited','rounds':[]}
     try:
         subprocess.run(command,check=True,capture_output=True)
@@ -58,7 +58,9 @@ def test_real_container_worker_restart_and_unlimited_accounting(chat,tmp_path,mo
             # Worker logs have only a stable redacted failure message.
             pytest.fail('worker did not become ready: '+result.stdout[-200:]+result.stderr[-200:])
         wait_ready();cid=create(client)
-        for round_id in range(2):
+        probe_rounds=int(os.environ.get('CHAT_LIVE_PLATFORM_PROBE_ROUNDS','2'))
+        if probe_rounds not in (1,2): pytest.fail('invalid probe round count')
+        for round_id in range(probe_rounds):
             if round_id:
                 subprocess.run(['docker','restart','--time','90',name],check=True,capture_output=True);wait_ready()
             result=client.post(f'/api/v1/chat/conversations/{cid}/turns',json={'client_request_id':str(round_id),'prompt':'Reply with OK only. Do not modify files.'})
@@ -73,8 +75,8 @@ def test_real_container_worker_restart_and_unlimited_accounting(chat,tmp_path,mo
                 receipt=db.execute(select(reservations).where(reservations.c.turn_id==tid)).mappings().one()
                 assert receipt['status']=='settled' and receipt['tokens']==0 and receipt['actual_tokens']>0
                 report['rounds'].append({'status':row['status'],'tokens':receipt['actual_tokens'],'settled':True})
-        with factory() as db:assert len(list(db.scalars(select(turns.c.id))))==2
-        report['restart_without_replay']=True
+        with factory() as db:assert len(list(db.scalars(select(turns.c.id))))==probe_rounds
+        report['restart_without_replay']=probe_rounds==2
         assert (source/'counter.txt').read_text()=='0\n'
         report['source_unchanged']=True
         store=LocalBackupStore(root/'backups')

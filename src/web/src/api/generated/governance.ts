@@ -110,6 +110,8 @@ export interface RequirementCenterIssue {
   owner: string;
   source: string;
   stage: string;
+  status?: string | null;
+  completion_hint?: string | null;
   documents?: string[];
   document_entries?: RequirementCenterDocument[];
   detail_url: string;
@@ -123,6 +125,8 @@ export interface RequirementCenterIssue {
   test_progress?: [number, number] | null;
   manual_acceptance_progress?: [number, number] | null;
   manual_acceptance_count?: number;
+  acceptance_pending_count?: number;
+  acceptance_blocked_reason?: string | null;
   drift_warnings?: string[];
 }
 
@@ -399,6 +403,14 @@ export interface RequirementCenterCaptureCreate {
   idempotency_key: string;
 }
 
+export type PreparationRequestAction = typeof PreparationRequestAction[keyof typeof PreparationRequestAction];
+
+
+export const PreparationRequestAction = {
+  'req-generate': 'req-generate',
+  'bug-generate': 'bug-generate',
+} as const;
+
 export interface PreparationRequest {
   /**
      * @minLength 1
@@ -410,9 +422,32 @@ export interface PreparationRequest {
      * @maxLength 64
      */
   repository_id: string;
-  /** @pattern ^REQ-\d{4}(?:-[a-z0-9-]+)?$ */
+  /** @pattern ^(?:REQ|BUG)-\d{4}(?:-[a-z0-9-]+)?$ */
   object_id: string;
-  action?: 'req-generate';
+  action?: PreparationRequestAction;
+  idempotency_key?: string | null;
+}
+
+export interface ObjectSessionRequest {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @pattern ^(?:(?:REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?|[a-z0-9][a-z0-9-]{0,100})$ */
+  object_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  action?: string;
+  idempotency_key?: string | null;
 }
 
 export interface ApplicationRequest {
@@ -1263,6 +1298,62 @@ const res = await fetch(getCreatePreparationApiV1ChatGovernancePreparationsPostU
 
   const data: createPreparationApiV1ChatGovernancePreparationsPostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as createPreparationApiV1ChatGovernancePreparationsPostResponse
+}
+
+
+
+export type createObjectSessionApiV1ChatObjectSessionsPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type createObjectSessionApiV1ChatObjectSessionsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type createObjectSessionApiV1ChatObjectSessionsPostResponseSuccess = (createObjectSessionApiV1ChatObjectSessionsPostResponse200) & {
+  headers: Headers;
+};
+export type createObjectSessionApiV1ChatObjectSessionsPostResponseError = (createObjectSessionApiV1ChatObjectSessionsPostResponse422) & {
+  headers: Headers;
+};
+
+export type createObjectSessionApiV1ChatObjectSessionsPostResponse = (createObjectSessionApiV1ChatObjectSessionsPostResponseSuccess | createObjectSessionApiV1ChatObjectSessionsPostResponseError)
+
+export const getCreateObjectSessionApiV1ChatObjectSessionsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/object-sessions`
+}
+
+/**
+ * @summary 准备对象个人会话
+ */
+export const createObjectSessionApiV1ChatObjectSessionsPost = async (objectSessionRequest: ObjectSessionRequest, options?: RequestInit): Promise<createObjectSessionApiV1ChatObjectSessionsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getCreateObjectSessionApiV1ChatObjectSessionsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(objectSessionRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: createObjectSessionApiV1ChatObjectSessionsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createObjectSessionApiV1ChatObjectSessionsPostResponse
 }
 
 

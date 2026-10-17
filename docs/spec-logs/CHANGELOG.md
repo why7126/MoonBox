@@ -2,7 +2,7 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-09-18 16:07:12
+updated_at: 2026-10-13 16:27:44
 owner: MoonBox 产品团队
 ---
 
@@ -32,6 +32,28 @@ owner: MoonBox 产品团队
 如需说明隐私或安全风险，只能使用脱敏占位符或聚合描述。
 
 ## 变更历史
+
+- 2026-10-13 16:27:44：产品取证优先复用 Codex 侧边浏览器，Firefox 作为后备；关联[治理日志](20261013162744-governance-codex-browser-evidence.md)与 `prefer-codex-browser-for-evidence`，技能契约、中文及目录校验通过。影响 `AGENTS.md`、取证与上下文预算规则、技能短契约和校验脚本；跨项目落地提示：`将产品取证浏览器优先级调整为先复用 Codex 侧边浏览器，按证据能力选择后备入口，并同步规则、技能和校验`。后续建议：无。
+
+- 2026-10-12 19:53:00：强化自动验收负向门禁、诊断清单、证据预检和报告原子发布，关联[治理日志](20261012195300-governance-acceptance-evidence-hardening.md)与 `harden-automated-acceptance-evidence`；聚焦测试 15 项通过，其他校验见 Change trace。
+
+- 2026-10-12 14:59:30：新增自动验收阶段与证据包治理，关联[治理日志](20261012145930-governance-automated-opsx-acceptance.md)和 `add-automated-opsx-acceptance`；覆盖逐 AC 检查、增量复验、脱敏产品轮次、Workflow Sync 状态保护与归档前就绪门禁，验证结论见 Change trace。
+
+- 2026-10-10 07:21:24：全仓自有目录工具路径边界返修，关联[治理日志](20261010072124-governance-project-tool-dir-boundary.md)与 BUG-0026 AF-011；扩展目录校验和 Chat 写入轮次宿主清理，聚焦验证与产品复验结果见返修台账。
+
+- 2026-10-08 17:45:18：Chat 归档目录校验 AF-010，更新[治理日志](20261008171354-governance-chat-archive-mounts.md)；改用私有命令标记并清理宿主空残留，REQ-0043 标准归档脚本续跑成功。
+
+- 2026-10-08 18:29:53：本地端口上限收紧，关联[治理日志](20261008182953-governance-local-port-upper-bound.md)；允许范围调整为 39001～39050，复核结论见当前 OpenSpec Change。
+
+- 2026-10-08 17:13:54：Chat 归档执行沙箱挂载与目录校验返修，关联[治理日志](20261008171354-governance-chat-archive-mounts.md)；精确识别临时空挂载点并增加归档前校验，BUG-0026 AF-009 合成回归通过；真实产品待复验。
+
+- 2026-10-08 15:19:34：本地宿主机端口段迁移，关联[治理日志](20261008151934-governance-local-host-ports.md)；端口规范、部署配置与验证入口统一为 39001～39099；OpenSpec、语言、目录、上下文预算与 Compose 校验通过，聚焦 pytest 缺依赖。
+
+- 2026-10-08 15:03:16：本地数据与快照归属边界，关联[治理日志](20261008150316-governance-local-data-boundary.md)；更新数据规则、目录说明和部署文档；目录结构、中文优先及 OpenSpec 严格校验通过。跨项目落地提示词：`将业务库、运行状态、备份和媒体按用途分目录，切换挂载前盘点并保全旧数据。` 后续建议：隔离回归历史媒体迁移与重启读取。
+
+- 2026-10-05 22:50:08：Agent 浏览器自主取证，关联 [治理日志](20261005225008-governance-agent-browser-evidence.md)；验收返修覆盖全部 46 份技能、BUG 三命令连续补证及通用/需求探索主动取证；验证见 Change trace；未自动创建 follow-up Issue/Change。
+
+- 2026-10-05 21:00:36：产品 Agent 归档跨挂载恢复与串行闭环，关联 [归档恢复治理日志](20261005210036-governance-archive-recovery.md)；归档技能、标准脚本、产品执行 prompt 和权限连续性同步；回归 72 passed、1 skipped，真实产品待复验；未自动创建 follow-up Issue/Change。
 
 - 2026-09-18 16:07:12：data 目录持久存储与运行时边界治理，关联 [20260918160712-governance-data-runtime-storage-layout](20260918160712-governance-data-runtime-storage-layout.md)；目录结构规则、部署/数据库/Docker 文档、目录校验脚本、OpenSpec Change 和 sprint-007 scope 同步；后续建议：另起迁移 Change 切换 Compose 挂载并迁移 legacy 运行库。
 

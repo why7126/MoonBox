@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-09-29 14:35:08
+updated_at: 2026-10-17 16:21:02
 owner: MoonBox 产品团队
 ---
 
@@ -28,7 +28,9 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| REQ-0039-test | 待澄清：test 的具体意图 | P3 | captured | plan | 无 | 无 | 2026-09-16 23:39:30 | `/req-generate REQ-0039-test` | `issues/requirements/plan/REQ-0039-test/trace.md` |
+| REQ-0044-shared-project-verification-environment | 平台提供跨空间项目验证环境 | done | archive | P1 | sprint-009 | add-shared-project-verification-environment | 2026-10-09 10:25:09 | 无 | `issues/requirements/archive/REQ-0044-shared-project-verification-environment/trace.md` |
+| REQ-0043-unify-data-mount-and-snapshot-rotation | 统一 data 目录边界与本地数据挂载及快照轮转 | done | archive | P1 | sprint-009 | add-local-data-mount-and-snapshot-rotation | 2026-10-08 17:44:19 | 无 | `issues/requirements/archive/REQ-0043-unify-data-mount-and-snapshot-rotation/trace.md` |
+| REQ-0039-requirement-center-card-chat-session-reuse | 需求中心卡片动作复用对象会话 | done | archive | P1 | sprint-008 | add-requirement-center-card-chat-session-reuse | 2026-10-06 00:21:08 | 无 | `issues/requirements/archive/REQ-0039-requirement-center-card-chat-session-reuse/trace.md` |
 | REQ-0038-capture-md | Capture 弹窗使用单一 MD 编辑器统一承载图片与文本文件 | P2 | captured | plan | 无 | 无 | 2026-09-16 20:00:07 | `/req-generate REQ-0038-capture-md` | `issues/requirements/plan/REQ-0038-capture-md/trace.md` |
 | REQ-0037-current-iteration-archive-entry | 当前迭代容量区域新增归档当前迭代入口 | done | archive | P1 | sprint-007 | add-current-iteration-archive-entry | 2026-09-17 10:24:50 | 无 | `issues/requirements/archive/REQ-0037-current-iteration-archive-entry/trace.md` |
 | REQ-0036-requirement-center-document-drawer-simplification | 需求中心文档抽屉简化与 Change 属性模块移除 | done | archive | P2 | sprint-007 | remove-requirement-center-document-drawer-change-attributes | 2026-09-17 08:35:51 | 无 | `issues/requirements/archive/REQ-0036-requirement-center-document-drawer-simplification/trace.md` |
@@ -40,7 +42,7 @@ owner: MoonBox 产品团队
 | REQ-0030-requirement-center-sprint-completion-metrics | 需求中心指标卡新增 Sprint 已完成与累计数量 | done | archive | P1 | sprint-006 | add-requirement-center-sprint-completion-metrics | 2026-09-17 08:30:53 | 无 | `issues/requirements/archive/REQ-0030-requirement-center-sprint-completion-metrics/trace.md` |
 | REQ-0029-capture-multimodal-candidate-review | 新建 Capture 支持图文 AI 整理、候选审阅与确认后幂等批量采集 | done | archive | P1 | sprint-007 | add-capture-multimodal-candidate-review | 2026-09-29 14:35:08 | 无 | `issues/requirements/archive/REQ-0029-capture-multimodal-candidate-review/trace.md` |
 | REQ-0028-chat-skill-codex | Chat 工作台支持多图片输入、仓库 Skill 快速引用与 Codex 截图基线体验增强 | done | archive | P1 | sprint-006 | add-chat-workbench-image-skill-context | 2026-09-29 14:31:29 | 无 | `issues/requirements/archive/REQ-0028-chat-skill-codex/trace.md` |
-| REQ-0027-capture | Capture 部署验收：需求持久化 | P1 | captured | plan | 无 | 无 | 2026-09-12 21:11:40 | `/req-generate REQ-0027-capture` | `issues/requirements/plan/REQ-0027-capture/trace.md` |
+| REQ-0027-requirement-center-command-chain-realization | 需求中心卡片全命令产品链路真实化 | done | archive | P1 | sprint-008 | add-requirement-center-command-chain-realization | 2026-10-17 16:21:02 | 无 | `issues/requirements/archive/REQ-0027-requirement-center-command-chain-realization/trace.md` |
 | REQ-0026-requirement-center-standalone-change-cards | 需求中心 Change 可见性与关联追溯 | done | archive | P1 | sprint-005 | add-requirement-center-change-visibility | 2026-09-14 08:45:04 | 无 | `issues/requirements/archive/REQ-0026-requirement-center-standalone-change-cards/trace.md` |
 | REQ-0025-chat-workbench | Chat 工作台与 Codex 持续对话执行 | done | archive | P1 | sprint-004 | add-chat-workbench-codex | 2026-09-14 00:07:19 | 无 | `issues/requirements/archive/REQ-0025-chat-workbench/trace.md` |
 | REQ-0024-markdown-editor-human-edit-permission-matrix | Markdown 编辑器按治理阶段扩展人工编辑权限矩阵 | done | archive | P1 | sprint-004 | update-markdown-editor-human-edit-permission-matrix | 2026-09-14 00:07:19 | 无 | `issues/requirements/archive/REQ-0024-markdown-editor-human-edit-permission-matrix/trace.md` |

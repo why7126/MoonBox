@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "change_id": "harden-opsx-acceptance-preflight-evidence-coverage",
+  "environment": "local-governance",
+  "preflight": [
+    ["python", "-c", "import pytest, sys; assert sys.version_info >= (3, 11)"],
+    ["openspec", "validate", "harden-opsx-acceptance-preflight-evidence-coverage"]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "evidence_kinds": ["command", "file_state"],
+      "inputs": ["scripts/opsx_acceptance.py", "tests/unit/test_opsx_acceptance.py", "openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"],
+      "argv": ["python", "-m", "pytest", "tests/unit/test_opsx_acceptance.py", "-q", "-k", "missing_artifact_is_diagnostic_block_before_command or preflight_failure_blocks_without_running_ac"],
+      "timeout_seconds": 120,
+      "artifacts": ["openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "evidence_kinds": ["command", "file_state"],
+      "inputs": ["scripts/opsx_acceptance.py", "tests/unit/test_opsx_acceptance.py", "openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"],
+      "argv": ["python", "-m", "pytest", "tests/unit/test_opsx_acceptance.py", "-q", "-k", "visual_matrix_requires_each_stage_viewport_pair or summary_must_include_declared_evidence_path"],
+      "timeout_seconds": 120,
+      "artifacts": ["openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "evidence_kinds": ["command", "file_state"],
+      "inputs": [".agents/skills/opsx-accept/SKILL.md", "docs/standards/opsx-acceptance.md", "AGENTS.md", "rules/agent-context-budget.md", "openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/specs/automated-opsx-acceptance/spec.md", "openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"],
+      "argv": ["python", "scripts/validate-agent-context-budget.py"],
+      "timeout_seconds": 120,
+      "artifacts": ["openspec/changes/harden-opsx-acceptance-preflight-evidence-coverage/evidence/acceptance/validation-matrix.md"],
+      "effects": [
+        {"kind": "contains", "path": "docs/standards/opsx-acceptance.md", "text": "coverage.samples"},
+        {"kind": "contains", "path": ".agents/skills/opsx-accept/SKILL.md", "text": "blocked / diagnostic"}
+      ]
+    }
+  ]
+}

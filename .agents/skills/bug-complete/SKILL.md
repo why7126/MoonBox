@@ -1,7 +1,14 @@
 ---
 name: "bug-complete"
+updated_at: 2026-10-13 16:27:44
 description: "缺陷完善 - 补齐 root-cause、workaround、acceptance、trace"
 ---
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -63,8 +70,9 @@ Ready：bug + root-cause + acceptance + trace + root-cause evidence gate 通过
 - MUST 读取并遵守 `rules/root-cause-evidence.md`。
 - `root-cause.md` 的根因状态必须是 `unknown`、`hypothesis`、`probable` 或 `confirmed`。
 - 只有 `status: confirmed` 且 `## 证据链` 至少包含一条可复核证据时，才允许将 `trace.md` 推进到 `pending_review` 并输出 `/bug-review <BUG-full-id> --approve`。
-- 证据不足时，MUST 保持 `exploring` 或 `enriching`，输出人工补证清单、操作步骤、返回字段、脱敏要求和返回格式；不得把推测写成已确认根因。
-- 成功补齐后 SHOULD 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；失败时先修正文档或补证，不得进入 review。
+- 生成或更新 `root-cause.md` 后若状态仍非 `confirmed`，MUST 按 `rules/root-cause-evidence.md` §2.1 在同一命令内继续自主补证并回填证据链、排除假设、状态与缺口；文档已落盘不构成停止条件。证据足够时更新为 `confirmed` 并运行根因证据校验；仍不足时明确已尝试路径和阻碍，保持非确认状态。
+- 证据不足时，MUST 保持 `exploring` 或 `enriching`，先在已有权限内通过浏览器自主取证；仍缺关键证据时再输出人工补证清单、已尝试路径、操作步骤、返回字段、脱敏要求和返回格式；不得把推测写成已确认根因。
+- 成功补齐后 MUST 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；失败时先修正文档或继续补证，不得进入 review。
 
 ## Next
 

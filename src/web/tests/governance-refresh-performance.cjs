@@ -13,7 +13,7 @@ await page.route('**/api/**',async route=>{const url=new URL(route.request().url
  else if(!url.pathname.endsWith('/context'))throw Error('unexpected request '+url.pathname);
  await route.fulfill({json:{code:0,data:result}});
 });
-await page.goto('http://127.0.0.1:18122/tests/governance-board-preview.html');await expect.poll(()=>contextRequests).toBe(1);await page.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});await page.waitForTimeout(3300);if(contextRequests!==1)throw Error('duplicate initial context');
+await page.goto('http://127.0.0.1:39022/tests/governance-board-preview.html');await expect.poll(()=>contextRequests).toBe(1);await page.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});await page.waitForTimeout(3300);if(contextRequests!==1)throw Error('duplicate initial context');
 for(const id of ['REQ-0022','BUG-0014','REQ-0001','BUG-0001']){
  const name='sprint.md';
  const card=page.locator(`[data-issue-id="${id}"]`);await expect(card).toHaveCount(1);

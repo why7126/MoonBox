@@ -1,0 +1,136 @@
+{
+  "environment": "独立本地隔离项目 39028；SQLite mode=ro",
+  "object_id": "REQ-9314-ac014-observability",
+  "matrix": [
+    {
+      "action": "req-explore",
+      "observed_web_event": true,
+      "turn_id": "d8d84b35-3541-491d-a325-0688de17dbe9",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 4,
+      "model_usage_event_count": 4,
+      "run_request_link": true
+    },
+    {
+      "action": "req-generate",
+      "observed_web_event": true,
+      "turn_id": "93e6b1f3-65f2-4184-9f29-9f1301b220ea",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 20,
+      "model_usage_event_count": 12,
+      "run_request_link": true
+    },
+    {
+      "action": "req-complete",
+      "observed_web_event": true,
+      "turn_id": "061b73dc-5279-4a92-bfaa-ea208a02c0ce",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 6,
+      "model_usage_event_count": 5,
+      "run_request_link": true
+    },
+    {
+      "action": "req-review",
+      "observed_web_event": true,
+      "turn_id": "8864e6e2-667c-4143-9408-ff203a35ec45",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 44,
+      "model_usage_event_count": 19,
+      "run_request_link": true
+    },
+    {
+      "action": "sprint-propose",
+      "observed_web_event": true,
+      "turn_id": "f559950e-7d74-4228-80fb-56ccf892a470",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 8,
+      "model_usage_event_count": 6,
+      "run_request_link": true
+    },
+    {
+      "action": "req-opsx",
+      "observed_web_event": true,
+      "turn_id": "a4ee48d7-ccf2-41f9-a528-1aa4bf9ee600",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 8,
+      "model_usage_event_count": 5,
+      "run_request_link": true
+    },
+    {
+      "action": "opsx-apply",
+      "observed_web_event": true,
+      "turn_id": "a7b8320e-81eb-48fb-a8d7-80cf36fd9413",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 2,
+      "model_usage_event_count": 3,
+      "run_request_link": true
+    },
+    {
+      "action": "opsx-archive",
+      "observed_web_event": true,
+      "turn_id": "afa916b4-0011-44c0-8f67-3ad8e14d7326",
+      "turn_status": "completed",
+      "server_request_link": true,
+      "operation_trace_status": "prepared",
+      "run_trace_status": "completed",
+      "node_span_count": 4,
+      "workflow_tool_node_count": 10,
+      "model_usage_event_count": 9,
+      "run_request_link": true
+    }
+  ],
+  "direct_api_negative": {
+    "action": "opsx-archive",
+    "server_request_logged": true,
+    "fabricated_ui_event_count": 0
+  },
+  "pure_read_negative": {
+    "browser_action": "需求中心 GET 与刷新",
+    "task_trace_before": 173,
+    "task_trace_after": 173,
+    "write_task_trace_before": 69,
+    "write_task_trace_after": 69
+  },
+  "archive_effect": {
+    "turn_status": "completed",
+    "error_code": null,
+    "issue_stage": "archive",
+    "issue_status": "done",
+    "change_archive_count": 1,
+    "effective_spec_count": 1
+  },
+  "chat_model_observation": {
+    "usage_event_count": 9,
+    "reservation_status": "settled",
+    "actual_tokens_recorded": true
+  },
+  "boundary": "X-Chat-Client 是客户端归因标记，不作为认证、授权或服务端可信 request_id。"
+}

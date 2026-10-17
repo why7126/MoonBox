@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { ChatApiError, chatRequest, type TurnRead } from "./chatApi";
+import { ChatApiError, normalizeChatError, chatRequest, type TurnRead } from "./chatApi";
 import { readChatEvents, type ChatEvent } from "./chatEvents";
 import { traceNodes } from "./TrajectoryView";
 import { executionConfigLabel } from "./executionLabels";
 const labels: Record<string,string> = {queued:"排队中",connecting:"连接中",running:"执行中",stopping:"停止中",unknown:"状态未知",completed:"已完成",failed:"本轮运行失败",stopped:"已停止"};
+const preparationErrors: Record<string,string> = {
+ container_toolchain_unavailable:"执行镜像工具链不完整或版本不匹配，本轮尚未启动。请按标准部署脚本更新执行镜像后重试。",
+ workspace_unapplied_changes:"工作区有尚未应用的成果，已保留，不能覆盖。请先核对上一轮成果再重试。",
+ workspace_fact_source_stale:"治理文件版本已变化，本轮尚未启动。请刷新后重新发送。",
+ governance_validation_failed:"治理前置校验未通过，本轮尚未启动。请核对对象状态和必需文档。",
+ workspace_prepare_failed:"工作区准备失败，本轮尚未启动，已有成果保留。请检查服务日志后重试。",
+};
 type UsagePayload = { reasoning_duration_ms?: number; thinking_duration_ms?: number };
 function durationLabel(ms?: number) {
  if (typeof ms !== "number" || !Number.isFinite(ms) || ms < 0) return "";
@@ -13,19 +20,20 @@ function durationLabel(ms?: number) {
  if (seconds < 60) return `${seconds}秒`;
  return `${Math.floor(seconds / 60)}分钟${seconds % 60}秒`;
 }
-export function TurnActivity({turnId,onTrace}:{turnId:string;onTrace:(id:string)=>void}) {
+export function TurnActivity({turnId,onTrace,hasBody=false}:{turnId:string;onTrace:(id:string)=>void;hasBody?:boolean}) {
  const [events,setEvents]=useState<ChatEvent[]>([]),[turn,setTurn]=useState<TurnRead|null>(null),[error,setError]=useState("");
  useEffect(()=>{const controller=new AbortController();let timer:ReturnType<typeof setTimeout>,cursor=0;
  const poll=async()=>{try{const batch=await readChatEvents(turnId,cursor,controller.signal);const state=await chatRequest<TurnRead>(`/turns/${turnId}`,{signal:controller.signal});if(controller.signal.aborted)return;
  if(batch.length){cursor=batch[batch.length-1].sequence;setEvents(old=>[...old,...batch].slice(-1000));}setTurn(state);setError("");
  if(batch.length===200||!["completed","failed","stopped"].includes(state.status))timer=setTimeout(poll,batch.length===200?0:3000);
- }catch(e){if(!controller.signal.aborted){setError(e instanceof Error?e.message:"读取过程失败");if(e instanceof ChatApiError&&[401,403,404].includes(e.status)){setEvents([]);setTurn(null);}else timer=setTimeout(poll,3000);}}};void poll();return()=>{controller.abort();clearTimeout(timer);};},[turnId]);
+ }catch(e){if(!controller.signal.aborted){const normalized=normalizeChatError(e,"执行状态暂不可读，正在重试");setError(normalized instanceof ChatApiError&&normalized.status===0?"执行状态暂不可读，正在重试":normalized instanceof Error?normalized.message:"执行状态暂不可读，正在重试");if(normalized instanceof ChatApiError&&[401,403,404].includes(normalized.status)){setEvents([]);setTurn(null);}else timer=setTimeout(poll,3000);}}};void poll();return()=>{controller.abort();clearTimeout(timer);};},[turnId]);
  const nodes=traceNodes(events),tools=nodes.filter(n=>n.type==="execution.tool");
- const active=turn&&!["completed","failed","stopped"].includes(turn.status);
+ const active=turn&&["queued","connecting","running","stopping"].includes(turn.status);
+ const preparationError=turn?.status==="failed" ? preparationErrors[turn.error_code||""] : undefined;
  const config=turn?.effective_config;
  const usage = events.filter(event => event.type === "execution.usage").map(event => event.payload as UsagePayload).filter(Boolean).slice(-1)[0];
  const reasoningDuration = durationLabel(usage?.reasoning_duration_ms ?? usage?.thinking_duration_ms);
- const statusLabel = turn ? labels[turn.status] || turn.status : "查看执行过程";
+ const statusLabel = preparationError ? "执行前阻断" : turn ? labels[turn.status] || turn.status : "查看执行过程";
  const statusText = turn?.status === "completed" && reasoningDuration ? `${statusLabel}（思考 ${reasoningDuration}）` : statusLabel;
- return <div className="chat-turn-activity"><button className="chat-tool-summary" onClick={()=>onTrace(turnId)}><span className="status-dot"/>{tools.length?<>已读 <b>{tools.length} 次</b>工具调用 · </>:null}{statusText}<ChevronRight size={13}/>{config&&<span className="chat-effective-config" data-testid="chat-effective-config">{executionConfigLabel(config)}{turn?.config_fallback_reason?` · ${turn.config_fallback_reason}`:""}</span>}</button>{error&&<p role="alert">{error}</p>}{turn?.status==="failed"&&<p role="alert">本轮执行失败，已产生的内容保留。请在轨迹中查看详情或重试。</p>}{active&&<p role="status">{String(nodes.filter(n=>n.type==="execution.output").slice(-1)[0]?.payload.text||"正在等待执行结果…")}</p>}</div>;
+ return <div className="chat-turn-activity"><button className="chat-tool-summary" onClick={()=>onTrace(turnId)}><span className="status-dot"/>{tools.length?<>已读 <b>{tools.length} 次</b>工具调用 · </>:null}{statusText}<ChevronRight size={13}/>{config&&<span className="chat-effective-config" data-testid="chat-effective-config">{executionConfigLabel(config)}{turn?.config_fallback_reason?` · ${turn.config_fallback_reason}`:""}</span>}</button>{error&&<p role="alert">{error}</p>}{turn?.status==="failed"&&<p role="alert">{preparationError||"本轮执行失败，已产生的内容保留。请在轨迹中查看详情或重试。"}</p>}{turn?.status==="unknown"&&<p role="alert">暂无法确认执行状态，请查看轨迹核实；不要重复发送命令。</p>}{active&&!hasBody&&<p role="status">{String(nodes.filter(n=>n.type==="execution.output").slice(-1)[0]?.payload.text||"正在等待执行结果…")}</p>}</div>;
 }

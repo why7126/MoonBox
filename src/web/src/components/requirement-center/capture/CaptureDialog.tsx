@@ -134,6 +134,7 @@ export function CaptureDialog({ project, contextFailure, existingIssues = [], on
   const [modal, setModal] = useState<CaptureModal>({ type: "none" });
   const [task, setTask] = useState<ConfirmationResult | null>(null);
   const [organizeTask, setOrganizeTask] = useState<OrganizeResult | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const saveTimer = useRef<number | null>(null);
   const maxSaveTimer = useRef<number | null>(null);
   const saving = useRef(false);
@@ -144,6 +145,28 @@ export function CaptureDialog({ project, contextFailure, existingIssues = [], on
   const latestDraft = useRef(draft);
   latestContent.current = content;
   latestDraft.current = draft;
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = () => Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+    focusable()[0]?.focus();
+    const containTab = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      if (dialogs[dialogs.length - 1] !== dialog) return;
+      const controls = focusable();
+      if (!controls.length) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!dialog.contains(document.activeElement) || (event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
+    };
+    document.addEventListener("keydown", containTab, true);
+    return () => document.removeEventListener("keydown", containTab, true);
+  }, []);
 
   const canWrite = Boolean(project && !project.readonly && project.status === "connected" && !contextFailure);
   const candidates = content.candidates || [];
@@ -638,7 +661,7 @@ export function CaptureDialog({ project, contextFailure, existingIssues = [], on
   </>;
 
   return <div className="rc-settings-mask rc-capture-mask" role="presentation" onMouseDown={onClose}>
-    <div className="capture-dialog-shell" role="dialog" aria-modal="true" aria-label="新建 Capture" onMouseDown={event => event.stopPropagation()}>
+    <div ref={dialogRef} className="capture-dialog-shell" role="dialog" aria-modal="true" aria-label="新建 Capture" onMouseDown={event => event.stopPropagation()}>
       <CaptureWorkspace step={step} materials={null} saveState={saveState} onClose={onClose} actions={actions}>
         {state === "loading" ? <div className="capture-empty"><Loader2 className="capture-spin" aria-hidden="true" /> 正在恢复 Capture 草稿…</div>
           : state === "organizing" ? <div className="capture-empty"><Loader2 className="capture-spin" aria-hidden="true" /> AI 正在整理候选…<p className="capture-muted">{organizeTask?.state || capabilities?.organize_reason}</p></div>
@@ -663,6 +686,34 @@ function CaptureModalView({ modal, text, onClose, onDeleteDraft, onDelete, onSpl
   const [draft, setDraft] = useState<Candidate | null>(null);
   const [splitA, setSplitA] = useState("");
   const [splitB, setSplitB] = useState("");
+  const modalRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (modal.type === "none") return;
+    const dialog = modalRef.current;
+    if (!dialog) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusable = () => Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+    focusable()[0]?.focus();
+    const containTab = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      if (dialogs[dialogs.length - 1] !== dialog) return;
+      const controls = focusable();
+      if (!controls.length) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!dialog.contains(document.activeElement) || (event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
+    };
+    document.addEventListener("keydown", containTab, true);
+    return () => {
+      document.removeEventListener("keydown", containTab, true);
+      requestAnimationFrame(() => { if (!document.querySelector('.capture-modal') && previous?.isConnected) previous.focus(); });
+    };
+  }, [modal.type]);
 
   useEffect(() => {
     if (modal.type === "edit") setDraft(modal.candidate);
@@ -675,7 +726,7 @@ function CaptureModalView({ modal, text, onClose, onDeleteDraft, onDelete, onSpl
   if (modal.type === "none") return null;
   const title = modal.type === "edit" ? "编辑候选" : modal.type === "split" ? "拆分候选" : modal.type === "source" ? "来源依据" : modal.type === "confirm" ? "确认创建这批记录" : modal.type === "delete-draft" ? "删除当前草稿？" : "删除这条候选？";
   return <div className="capture-modal-backdrop" role="presentation" onMouseDown={onClose}>
-    <section className="capture-modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={event => event.stopPropagation()}>
+    <section ref={modalRef} className="capture-modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={event => event.stopPropagation()}>
       <header><h2>{title}</h2><button type="button" aria-label="关闭" onClick={onClose}><X size={16} /></button></header>
       {modal.type === "edit" && draft && <div className="capture-modal-body">
         <div className="capture-edit-grid">

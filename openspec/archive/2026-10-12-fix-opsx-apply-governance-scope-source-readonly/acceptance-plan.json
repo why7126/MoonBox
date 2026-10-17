@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-opsx-apply-governance-scope-source-readonly",
+  "issue_id": "BUG-0033-opsx-apply-governance-scope-source-readonly",
+  "environment": "local-moonbox-original-deployment-pending-verification",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_real_bug_alias_shape_and_version_hashes"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 120,
+      "note": "合成回归仅证明策略/事件局部行为；真实产品观察另由 AC-009 覆盖。"
+    },
+    {
+      "id": "AC-002",
+      "kind": "product_turn",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "timeout_seconds": 120,
+      "note": "原部署真实产品 turn；事件语义由验收者结合脱敏证据文件核对。",
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "command_contains": "bug0033_acceptance_counter.txt",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "text": "result: counter 0→1"
+        }
+      ],
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "product_turn",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "timeout_seconds": 120,
+      "note": "原部署真实 REQ 产品轮次。",
+      "turn_id": "9a67d449-acff-4f0e-9c07-4fa55ce4a8b8",
+      "command_contains": "req9999_acceptance_counter.txt",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md",
+          "text": "result: req counter 0→1"
+        }
+      ],
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_missing_field_stage_and_member_do_not_grant_implementation"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 120,
+      "note": "合成回归仅证明策略/事件局部行为；真实产品观察另由 AC-009 覆盖。"
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_missing_field_stage_and_member_do_not_grant_implementation"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 120,
+      "note": "合成回归仅证明策略/事件局部行为；真实产品观察另由 AC-009 覆盖。"
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_all_source_aliases_and_sprint_aliases"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 120,
+      "note": "合成回归仅证明策略/事件局部行为；真实产品观察另由 AC-009 覆盖。"
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 120,
+      "note": "负向产品轮次：预期 stopped/write_permission_revoked、未发生目标写入。",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md",
+          "text": "result: revoked before write"
+        }
+      ],
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import sqlite3,json,sys; x=sqlite3.connect('file:data/sqlite/moonbox.db?mode=ro',uri=True); t='f9ec9bb4-2722-43fc-97bd-2ae81e605bbc'; r=x.execute('select status,error_code from chat_turns where id=?',(t,)).fetchone(); e=[json.loads(v[0]) for v in x.execute('select payload from chat_events where turn_id=? and event_type=\"execution.tool\"',(t,))]; assert r==('stopped','write_permission_revoked') and not any('bug0033_revocation_counter.txt' in str((v.get('arguments') or {}).get('command','')) and v.get('phase')=='completed' for v in e); print('revocation-verified')"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 120,
+      "note": "治理候选完整策略测试结合既有实际容器只读边界探针；未执行原部署治理文档修改。",
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_governance_candidate_does_not_gain_implementation"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "product_turn",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "command_contains": "bug0033_acceptance_counter.txt",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "text": "result: counter 0→1"
+        }
+      ],
+      "timeout_seconds": 120,
+      "note": "原部署真实产品 turn；事件语义由验收者结合脱敏证据文件核对。",
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src/backend",
+        "DATABASE_URL=sqlite:///:memory:",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "unittest",
+        "src.backend.tests.test_permission_governance_contract.GovernancePermissionTests.test_permission_event_persistence_deduplication_and_redaction"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 120,
+      "note": "合成回归仅证明策略/事件局部行为；真实产品观察另由 AC-009 覆盖。"
+    },
+    {
+      "id": "AC-011",
+      "kind": "product_turn",
+      "inputs": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/design.md",
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/tests/test_permission_governance_contract.py"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "timeout_seconds": 120,
+      "note": "原部署真实产品 turn；事件语义由验收者结合脱敏证据文件核对。",
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "command_contains": "bug0033_acceptance_counter.txt",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "text": "result: counter 0→1"
+        }
+      ],
+      "artifacts": [
+        "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md"
+      ]
+    }
+  ]
+}

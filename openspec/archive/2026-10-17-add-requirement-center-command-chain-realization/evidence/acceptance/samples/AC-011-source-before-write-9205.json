@@ -1,0 +1,27 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "action": "req-generate",
+  "object_id": "REQ-9205-ac011-before-write",
+  "turn_id": "51b9914b-323f-436d-aa83-db85487386d1",
+  "candidate_id": "965d171b-055e-53c4-9832-b26bb4f249e5",
+  "injection": {
+    "window": "external-turn-running-before-any-business-file",
+    "executor_turn_id_present": true,
+    "requirement_exists_before_restart": false,
+    "worker": "isolated-project-worker-only",
+    "method": "SIGKILL"
+  },
+  "after_restart": {
+    "turn_status": "stopped",
+    "turn_error_code": "worker_heartbeat_lost",
+    "candidate_state": "rejected",
+    "candidate_error_code": "executor_unavailable",
+    "application_count": 0,
+    "requirement_exists": false,
+    "full_governance_equals_immutable_baseline": true,
+    "file_count": 2214,
+    "revision": "7054f2f5c4920d1e3bc9ace7e5c95638b6c8878a039e2bb83bbc87fc5c7b2479"
+  },
+  "result": "pass-for-this-window-only"
+}

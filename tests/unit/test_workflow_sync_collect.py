@@ -44,3 +44,48 @@ bug_id: BUG-0014-sync
     )
 
     assert collect.infer_change_links("fix-sync", {}) == (None, "BUG-0014-sync")
+
+
+def test_sprint_scope_accepts_yaml_indentless_lists(tmp_path, monkeypatch):
+    import scripts.workflow_sync.collect as collect
+
+    monkeypatch.setattr(collect, "ROOT", tmp_path)
+    sprint = tmp_path / "iterations/change/sprint-010"
+    sprint.mkdir(parents=True)
+    (sprint / "sprint.yaml").write_text(
+        """id: sprint-010
+status: planning
+requirements:
+- REQ-9108-isolated
+changes:
+- add-isolated-apply-ac010
+scope_estimates:
+- id: REQ-9108-isolated
+  change: add-isolated-apply-ac010
+""", encoding="utf-8",
+    )
+
+    assert collect.find_sprints_for_change("add-isolated-apply-ac010") == ["sprint-010"]
+
+
+def test_load_sprint_rejects_malformed_yaml(tmp_path, monkeypatch):
+    import pytest
+    import scripts.workflow_sync.collect as collect
+
+    monkeypatch.setattr(collect, "ROOT", tmp_path)
+    sprint = tmp_path / "iterations/change/sprint-010"
+    sprint.mkdir(parents=True)
+    (sprint / "sprint.yaml").write_text(
+        """sprint_id: sprint-010
+requirements:
+- REQ-9108-isolated
+scope_estimates:
+- id: REQ-9108-isolated
+  size: M
+  - id: REQ-9208-malformed
+    size: S
+""", encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="invalid Sprint YAML"):
+        collect.load_sprint("sprint-010")

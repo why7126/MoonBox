@@ -1,0 +1,22 @@
+{
+  "criterion": "AC-012",
+  "environment": "independent isolated product project",
+  "action": "opsx-archive",
+  "object_id": "add-isolated-archive-ac012",
+  "first_attempt_turn": "9c443699-0c37-45b0-adec-3c85f26c8855",
+  "first_attempt_fact": "archive script blocked before merge because sandbox denied /work/logs journal write",
+  "repair": "journal moved to archive sandbox writable path and Git ignored",
+  "second_attempt_turn": "aaca9bbd-3a65-4fdb-a15b-83472f554c24",
+  "second_turn_status": "completed",
+  "second_turn_error_code": null,
+  "archive_tool_exit_code": 0,
+  "active_change_exists": false,
+  "archive_directory_count": 1,
+  "journal_expected_spec_tree_sha256": "448fb73ae1a9cf822258633749504b7ab0581a817321ff5709160772b20f1056",
+  "post_turn_spec_tree_differs_from_journal": true,
+  "retry_guard_exit_code": 1,
+  "retry_guard_marker": "ARCHIVE_RECOVERY_BLOCKED",
+  "classification": "successful archive command followed by unapproved spec edit; safe retry blocked; do not count AC-012 passed",
+  "limits": "No injected interruption in this product turn; linked Issue migration not exercised.",
+  "post_archive_spec_write_observed": true
+}

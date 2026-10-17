@@ -1,0 +1,36 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "action": "req-generate",
+  "object_id": "REQ-9206-ac011-before-sync",
+  "turn_id": "16bffada-66c2-4fe5-aa7d-26ff1d4491d6",
+  "candidate_id": "279d7aa8-8285-5f92-99f2-0f04e082ae80",
+  "injection": {
+    "observed_window": "non-dry-run-workflow-sync-completed-before-chat-terminal",
+    "requirement_bytes": 4423,
+    "requirement_sha256": "e1fc78282b87e4a8f24642c4e9fff4901e4ecf8494541fb0fdc8b51b5e28a9fb",
+    "trace_status": "draft",
+    "registry_status": "draft",
+    "successful_non_dry_run_sync_tool_count_before_interrupt": 4,
+    "turn_status_before_interrupt": "running",
+    "worker": "isolated-project-worker-only",
+    "method": "SIGKILL"
+  },
+  "after_restart": {
+    "turn_status": "completed",
+    "turn_error_code": "worker_heartbeat_lost",
+    "candidate_state": "applied",
+    "application_count": 1,
+    "application_state": "applied",
+    "application_phase": "verified",
+    "requirement_exists": true,
+    "registry_status": "draft",
+    "baseline_revision": "1ee7a62c51e8654164715006215aa9f9432e01b021ac6082cbab9ac79c5cd850",
+    "current_revision": "aab3c970225aeeb93f868c28cb6e7681b347aadfb507f4463262f6035a5bb309",
+    "file_count": 2217,
+    "tool_event_count_after_recovery": 26,
+    "repeat_observation_stable": true
+  },
+  "interpretation": "Recovered exact completed external turn and applied one candidate; the observed model turn itself invoked Sync multiple times, so this does not prove each Sync invocation was deduplicated.",
+  "result": "pass-for-this-window-only"
+}

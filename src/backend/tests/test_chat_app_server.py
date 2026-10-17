@@ -1,7 +1,51 @@
 from pathlib import Path
 import sys
+import io
+import json
+import queue
+import threading
+import time
+from types import SimpleNamespace
 import pytest
 from app.chat.app_server import AppServer,ExecutorError
+
+def test_stream_burst_backpressures_without_losing_terminal_or_usage():
+    frames = [{'method': 'item/agentMessage/delta', 'params': {'delta': 'a'}} for _ in range(140)]
+    frames += [{'method': 'turn/completed'}, {'method': 'thread/tokenUsage/updated'}]
+    server = object.__new__(AppServer)
+    server.incoming = queue.Queue(maxsize=128)
+    server.failure = None
+    server.closed = False
+    server.process = SimpleNamespace(stdout=io.BytesIO(b''.join(json.dumps(frame).encode() + b'\n' for frame in frames)))
+    reader = threading.Thread(target=server._read, daemon=True)
+    reader.start()
+    deadline = time.monotonic() + 2
+    while not server.incoming.full() and time.monotonic() < deadline:
+        time.sleep(.01)
+    assert server.incoming.full()
+    time.sleep(1.2)
+    assert reader.is_alive()
+    assert server.failure is None
+    received = [server.incoming.get(timeout=2) for _ in frames]
+    reader.join(timeout=2)
+    assert received == frames
+    assert not reader.is_alive()
+    assert server.failure == 'executor_disconnected'
+
+
+def test_closing_full_stream_queue_unblocks_reader():
+    server = object.__new__(AppServer)
+    server.incoming = queue.Queue(maxsize=1)
+    server.incoming.put({})
+    server.failure = None
+    server.closed = False
+    server.process = SimpleNamespace(stdout=io.BytesIO(b'{"method":"turn/completed"}\n'))
+    reader = threading.Thread(target=server._read, daemon=True)
+    reader.start()
+    server.closed = True
+    reader.join(timeout=2)
+    assert not reader.is_alive()
+    assert server.failure is None
 
 @pytest.fixture
 def server_config(tmp_path):

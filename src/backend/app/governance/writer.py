@@ -1,7 +1,9 @@
 """Durable single-host writer. API queues; only this controller mutates source files.
 
-The OS lock coordinates registered writers, not arbitrary external editors. A
-server-side maintenance window is required in addition to the user's confirmation.
+The OS lock coordinates registered writers, not arbitrary external editors.
+Generate candidates are low-risk allowlisted writes and are admitted by the live
+controller heartbeat; document edits and other operations still require a
+server-side maintenance window.
 """
 from contextlib import contextmanager
 import fcntl
@@ -10,6 +12,8 @@ import json
 import os
 from pathlib import PurePosixPath
 import stat
+import subprocess
+import sys
 import time
 from uuid import uuid4
 from sqlalchemy import insert, select, update
@@ -23,6 +27,14 @@ from app.governance.reader import ProjectReader,version
 from app.services import requirement_center as legacy
 
 TERMINAL=('applied','conflict','failed')
+WORKFLOW_EVENTS={
+    'req-generate':'req.generate',
+    'bug-generate':'bug.generate',
+    'req-complete':'req.complete',
+    'bug-complete':'bug.complete',
+    'req-review':'req.review',
+    'bug-review':'bug.review',
+}
 
 
 def hash_request(value):
@@ -49,6 +61,9 @@ def write_permission(project, kind):
     if kind in ('capture', 'capture_batch'):
         from app.governance.readiness import require_capture
         require_capture(project)
+    elif kind in ('req-generate', 'bug-generate', 'req-complete', 'bug-complete', 'req-review', 'bug-review'):
+        from app.governance.readiness import require_controller
+        require_controller(project)
     else:
         maintenance(project)
 
@@ -82,6 +97,9 @@ def epoch(db,project):
 def assert_readable(db,project):
     blocked=db.scalar(select(applications.c.id).where(applications.c.scope_key==project.key,
         applications.c.state.in_(('applying','recovering','recovery_blocked'))).limit(1))
+    if not blocked:
+        blocked=db.scalar(select(candidates.c.id).where(candidates.c.scope_key==project.key,
+            candidates.c.state=='rejected',candidates.c.error_code=='source_recovery_blocked').limit(1))
     if blocked: raise service.ChatError(2603,'项目正在应用或恢复，保留上次完整快照',503)
 
 
@@ -124,7 +142,7 @@ def apply_candidate(db,actor,candidate_id,expected_manifest_hash,candidate_revis
         raise service.ChatError(2606,'成果或项目绑定版本已变化',409)
     baseline=store.read(row['id'],'baseline');result=store.read(row['id'],'result')
     request={'candidate_id':candidate_id,'manifest_hash':expected_manifest_hash,'revision':candidate_revision}
-    record={'before':baseline['files'],'after':result['after'],'base_path':baseline['base_path'],'object_id':row['object_id'],'kind':'req-generate'}
+    record={'before':baseline['files'],'after':result['after'],'base_path':baseline['base_path'],'object_id':row['object_id'],'kind':row['action']}
     return enqueue(db,actor,project,idempotency_key,request,record,candidate_id,request_id)
 
 
@@ -199,6 +217,11 @@ def replace_file(root,relative,before,after,oid,*,create_parents=False):
             handles.append(os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=handles[-1]))
         parent=handles[-1];name=parts[-1]
         if read_target(parent,name)!=before: raise ValueError('external_change')
+        if after is None:
+            os.unlink(name,dir_fd=parent)
+            os.fsync(parent)
+            if read_target(parent,name) is not None: raise ValueError('external_change')
+            return
         # Retain ordinary read/write permissions; never propagate executable bits.
         mode=(os.stat(name,dir_fd=parent,follow_symlinks=False).st_mode&0o666) if before is not None else 0o644
         try:
@@ -240,6 +263,70 @@ def refresh_capture_authorization(db,row,record):
     return project
 
 
+def merged_files(before, changes):
+    result = dict(before)
+    for path, body in changes.items():
+        if body is None:
+            result.pop(path, None)
+        else:
+            result[path] = body
+    return result
+
+
+def prune_migrated_directories(root, base, changes):
+    """Remove only empty source directories, using no-follow directory handles."""
+    base = PurePosixPath(base)
+    directories = set()
+    for path, body in changes.items():
+        source = PurePosixPath(path)
+        if body is not None or base not in source.parents:
+            continue
+        for parent in source.parents:
+            directories.add(parent)
+            if parent == base:
+                break
+    for directory in sorted(directories, key=lambda p: (-len(p.parts), str(p))):
+        if directory.is_absolute() or '..' in directory.parts:
+            raise ValueError('invalid_path')
+        handles = [os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)]
+        try:
+            for part in directory.parts[:-1]:
+                handles.append(os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=handles[-1]))
+            os.rmdir(directory.name, dir_fd=handles[-1])
+            os.fsync(handles[-1])
+        except FileNotFoundError:
+            pass
+        finally:
+            for fd in reversed(handles):
+                os.close(fd)
+
+
+def run_workflow_sync(project, record):
+    event=WORKFLOW_EVENTS.get(record.get('kind'))
+    if not event:
+        return None
+    script=project.root/'scripts'/'sync-workflow-status.py'
+    if not script.is_file():
+        return None
+    object_id=str(record.get('object_id') or '')
+    flag='--req' if object_id.startswith('REQ-') else '--bug' if object_id.startswith('BUG-') else None
+    if not flag:
+        return None
+    result=subprocess.run([sys.executable,str(script),'--event',event,flag,object_id,'--sprint','auto'],
+        cwd=project.root,capture_output=True,text=True,timeout=120)
+    if result.returncode:
+        raise ValueError('workflow_sync_failed')
+    return {'event':event,'object_id':object_id,'source_hash':digest(read_once(project.root))}
+
+
+def finish_verified(db, row, fence):
+    """Commit candidate, fence release and terminal application state together."""
+    if row['candidate_id']:
+        db.execute(update(candidates).where(candidates.c.id==row['candidate_id']).values(state='applied',updated_at=service.now()))
+    db.execute(update(locks).where(locks.c.scope_key==row['scope_key'],locks.c.fencing_token==fence).values(operation_id=None,worker_id=None))
+    set_state(db,row['id'],'applied','verified')
+
+
 def process(db,oid,*,after_write=None):
     db.commit()
     row=db.execute(select(applications).where(applications.c.id==oid)).mappings().one()
@@ -258,7 +345,7 @@ def process(db,oid,*,after_write=None):
             applications.c.id!=oid,applications.c.state.in_(('applying','recovering','recovery_blocked'))).limit(1))
         if other: raise service.ChatError(2605,'项目存在待恢复操作',503)
         try:
-            record=store.read(oid,'operation');before={p:b.encode() for p,b in record['before'].items()};after={p:b.encode() for p,b in record['after'].items()}
+            record=store.read(oid,'operation');before={p:b.encode() for p,b in record['before'].items()};after={p:b.encode() if b is not None else None for p,b in record['after'].items()}
         except (OSError,ValueError,KeyError,AttributeError,TypeError):
             set_state(db,oid,'recovery_blocked','record_unavailable','recovery_record_invalid')
             return public(db.execute(select(applications).where(applications.c.id==oid)).mappings().one())
@@ -278,6 +365,17 @@ def process(db,oid,*,after_write=None):
             if lock:db.execute(update(locks).where(locks.c.scope_key==project.key).values(**values))
             else:db.execute(insert(locks).values(scope_key=project.key,**values))
             db.execute(update(applications).where(applications.c.id==oid).values(fencing_token=fence,worker_id=worker_id,state='recovering' if recovering else 'applying',phase='validating'));db.commit()
+            current_hash=digest(read_once(project.root))
+            completed_sync=record.get('workflow_sync')
+            if recovering and isinstance(completed_sync,dict):
+                if (completed_sync.get('event')!=WORKFLOW_EVENTS.get(record.get('kind'))
+                    or completed_sync.get('object_id')!=record.get('object_id')
+                    or completed_sync.get('source_hash')!=current_hash):
+                    raise ValueError('sync_result_changed')
+                finish_verified(db,row,fence)
+                return public(db.execute(select(applications).where(applications.c.id==oid)).mappings().one())
+            if recovering and record.get('phase')=='syncing' and record.get('sync_input_hash')!=current_hash:
+                raise ValueError('sync_result_unknown')
             if record['kind'] in ('capture', 'capture_batch') and not record.get('planned'):
                 from app.governance.capture import plan, batch_plan
                 planner = batch_plan if record['kind'] == 'capture_batch' else plan
@@ -290,7 +388,7 @@ def process(db,oid,*,after_write=None):
             if recovering:
                 for path,body in after.items():
                     actual=current.get(path)
-                    if actual==body: expected[path]=body
+                    if actual==body: expected=merged_files(expected,{path:body})
                     elif actual!=before.get(path):raise ValueError('external_change')
             if current!=expected: raise ValueError('source_conflict')
             reader=ProjectReader(db,row['actor_id'],project)
@@ -298,11 +396,11 @@ def process(db,oid,*,after_write=None):
                 authorized = reader.authorize_object(Snapshot(before,digest(before)),record['object_id'],change=record.get('function')=='update_requirement_center_change_document',write=True)
                 if record.get('function') == 'update_requirement_center_change_document' and not authorized:
                     raise ValueError('standalone_change_readonly')
-            if record['kind']=='req-generate':
+            if record['kind'] in ('req-generate','bug-generate','req-complete','bug-complete','req-review','bug-review'):
                 if row['candidate_id'] is None: raise ValueError('candidate_missing')
                 candidate=db.execute(select(candidates).where(candidates.c.id==row['candidate_id'])).mappings().one()
                 service.conversation(db,row['actor_id'],candidate['conversation_id'])
-                result=validate(before,{**before,**after},record['object_id'],record['base_path'])
+                result=validate(before,merged_files(before,after),record['object_id'],record['base_path'],record['kind'])
                 if result['manifest_hash']!=candidate['manifest_hash']: raise ValueError('candidate_changed')
             elif record['kind'] in ('capture', 'capture_batch'):
                 if not record.get('planned') or not record.get('object_id'): raise ValueError('invalid_capture_plan')
@@ -314,32 +412,41 @@ def process(db,oid,*,after_write=None):
                     if read_once(root)!={**before,**after}:raise ValueError('write_set_changed')
             record['phase']='prepared';store.write(oid,'operation',record)
             set_state(db,oid,'recovering' if recovering else 'applying','prepared')
-            for index,(path,body) in enumerate(sorted(after.items())):
+            # Persist destinations before removing old paths; journal replay is idempotent.
+            for index,(path,body) in enumerate(sorted(after.items(),key=lambda item:(item[1] is None,item[0]))):
                 if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
                 write_permission(project, record.get('kind'))
                 actual=read_once(project.root)
                 if actual!=expected: raise ValueError('external_change')
                 if actual.get(path)!=body:
                     wrote=True
-                    replace_file(project.root,path,before.get(path),body,oid,create_parents=record['kind'] in ('capture','capture_batch'))
-                expected[path]=body
+                    replace_file(project.root,path,before.get(path),body,oid,create_parents=record['kind'] in ('capture','capture_batch','req-complete','bug-complete','req-review','bug-review'))
+                expected=merged_files(expected,{path:body})
                 if after_write: after_write(index,path)
                 record['phase']=f'file-{index+1}';store.write(oid,'operation',record)
                 set_state(db,oid,'applying',record['phase'])
             if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
-            if stable(project.root).files!={**before,**after}:raise ValueError('final_conflict')
+            if stable(project.root).files!=merged_files(before,after):raise ValueError('final_conflict')
+            if record['kind'] in ('req-review','bug-review'):
+                prune_migrated_directories(project.root,record['base_path'],after)
             if record['kind'] == 'capture_batch':
                 from app.governance.capture_confirmations import complete
                 complete(db, project, record['payload']['task_id'], record['issue_links'])
-            set_state(db,oid,'applied','verified')
-            if row['candidate_id']:
-                db.execute(update(candidates).where(candidates.c.id==row['candidate_id']).values(state='applied',updated_at=service.now()))
-            db.execute(update(locks).where(locks.c.scope_key==project.key,locks.c.fencing_token==fence).values(operation_id=None,worker_id=None));db.commit()
-        except (ValueError,OSError,service.ChatError,PermissionError):
+            record['phase']='syncing'
+            record['sync_input_hash']=digest(read_once(project.root))
+            store.write(oid,'operation',record)
+            set_state(db,oid,'applying','syncing')
+            sync_result=run_workflow_sync(project,record)
+            if sync_result:
+                record['workflow_sync']=sync_result
+                store.write(oid,'operation',record)
+            finish_verified(db,row,fence)
+        except (ValueError,OSError,service.ChatError,PermissionError) as error:
             # If any file may have changed, preserve all recovery evidence and block further writes.
             latest=db.execute(select(applications.c.state).where(applications.c.id==oid)).scalar_one()
             state='recovery_blocked' if recovering or wrote else 'conflict'
-            set_state(db,oid,state,'verification_failed','source_or_permission_conflict')
+            error_code = 'workflow_sync_failed' if isinstance(error, ValueError) and str(error) == 'workflow_sync_failed' else 'source_or_permission_conflict'
+            set_state(db,oid,state,'verification_failed',error_code)
             if state=='conflict':
                 db.execute(update(locks).where(locks.c.scope_key==project.key,locks.c.operation_id==oid).values(operation_id=None,worker_id=None));db.commit()
         return public(db.execute(select(applications).where(applications.c.id==oid)).mappings().one())

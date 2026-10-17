@@ -1,0 +1,25 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "sprint-propose",
+  "object_id": "REQ-9211-ac011-after-sprint",
+  "turn_id": "8e8053a0-66a5-476e-a14c-34fe191d4e0c",
+  "window": "formal sprint.propose Workflow Sync succeeded before Chat terminal",
+  "baseline_revision": "c45bfd6976f1b568c5504bc2005851dd8f23c9f4544fb2114ff4c374d3161440",
+  "source_revision_before_kill": "844b93f07489b4632fbc6548aecc3b20e270ee8eeb6cb937493772a6810619c1",
+  "before_restart": {"journal_steps": 14, "formal_sync_started_steps": 1, "formal_sync_succeeded_steps": 1},
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "sync_completed_unverified",
+    "sprint_requirement_count": 1,
+    "issue_trace_status": "in_sprint",
+    "issue_trace_iteration": "sprint-010",
+    "registry_entry_count": 1,
+    "registry_status": "in_sprint",
+    "registry_iteration": "sprint-010"
+  },
+  "read_only_reconciliation": "Repeat sprint.propose Workflow Sync dry-run had zero core updates; no scope item or Chat turn was replayed. The isolated cloned requirement.md has a nested approved status scanner finding and is not claimed fully reconciled.",
+  "limit": "One after-sync direct-command cell; other actions and remaining phases still require evidence.",
+  "overall": "partial; AC-011 remains unsigned"
+}

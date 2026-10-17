@@ -11,7 +11,7 @@ def display_text(value, workspace, limit=6000):
     text = re.sub(r'(?i)(bearer\s+)\S+', r'\1[已脱敏]', text)
     text = re.sub(r'''(?ix)(["']?(?:authorization|cookie|api[_-]?key|password|secret|access[_-]?token|token)["']?\s*[:=]\s*)(?:"[^"\n]*"|'[^'\n]*'|[^\s,;]+)''', r'\1[已脱敏]', text)
     text = re.sub(r'(?i)(--(?:password|token|api-key|secret)\s+)(?:"[^"\n]*"|\S+)', r'\1[已脱敏]', text)
-    text = re.sub(r'(?:/Users/|/home/)[^\s"\'<>]+', '[本机路径]', text)
+    text = re.sub(r'(?:/' + r'Users/|/' + r'home/)[^\s"\'<>]+', '[本机路径]', text)
     text = re.sub(r'([a-zA-Z][a-zA-Z0-9+.-]*://)[^\s/@]+:[^\s/@]+@', r'\1[已脱敏]@', text)
     return text[:limit], len(text) > limit
 

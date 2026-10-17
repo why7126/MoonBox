@@ -1343,6 +1343,9 @@ def append_workflow_event_record(
     elif event == "opsx.modify" and change_status_map.get(change_id) in {"applied", "in_progress"}:
         command = "/opsx-modify"
         description = f"Change `{change_id}` 验收返修已同步，待复验或 archive。"
+    elif event == "opsx.accept" and change_status_map.get(change_id) in {"applied", "in_progress"}:
+        command = "/opsx-accept"
+        description = f"Change `{change_id}` 自动验收结论已同步，按证据清单判断归档就绪。"
     elif event == "opsx.archive" and change_status_map.get(change_id) == "archived":
         command = "/opsx-archive"
         description = f"Change `{change_id}` 已归档，状态同步完成。"
@@ -1578,12 +1581,13 @@ def patch_registry_entry(
     if not match:
         return PatchResult(str(registry_path.relative_to(ROOT)), False, "entry not found")
     entry = match.group(1)
+    entry_indent = re.search(r"^([ \t]*)- id:", entry, re.MULTILINE).group(1) + "  "
 
     def replace_entry_scalar(entry_text: str, key: str, value: str) -> str:
-        scalar_pattern = re.compile(rf"^(\s+{re.escape(key)}:\s*).*$", re.MULTILINE)
+        scalar_pattern = re.compile(rf"^({re.escape(entry_indent)}{re.escape(key)}:[ \t]*).*$", re.MULTILINE)
         if scalar_pattern.search(entry_text):
             return scalar_pattern.sub(lambda match: match.group(1) + value, entry_text, count=1)
-        return entry_text.rstrip() + f"\n    {key}: {value}\n"
+        return entry_text.rstrip() + f"\n{entry_indent}{key}: {value}\n"
 
     stage = _issue_stage(issue)
     sprint_id = _issue_sprint(issue, sprint)

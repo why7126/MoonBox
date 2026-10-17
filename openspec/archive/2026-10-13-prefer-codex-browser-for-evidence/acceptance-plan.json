@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "change_id": "prefer-codex-browser-for-evidence",
+  "environment": "local-governance",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "AGENTS.md",
+        "rules/root-cause-evidence.md",
+        "rules/agent-context-budget.md"
+      ],
+      "argv": [
+        "python",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "rules/root-cause-evidence.md",
+          "text": "优先复用 Codex 侧边浏览器中的目标产品标签页"
+        },
+        {
+          "kind": "contains",
+          "path": "rules/root-cause-evidence.md",
+          "text": "Firefox 作为后备"
+        }
+      ],
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        ".agents/skills/explore/SKILL.md",
+        ".agents/skills/opsx-accept/SKILL.md",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "argv": [
+        "python",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "scripts/validate-agent-context-budget.py",
+          "text": "浏览器优先级回退为 Firefox"
+        },
+        {
+          "kind": "contains",
+          "path": ".agents/skills/explore/SKILL.md",
+          "text": "优先复用 Codex 侧边浏览器"
+        }
+      ],
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/prefer-codex-browser-for-evidence/proposal.md",
+        "openspec/changes/prefer-codex-browser-for-evidence/design.md",
+        "openspec/changes/prefer-codex-browser-for-evidence/specs/agent-workflow-tooling/spec.md",
+        "openspec/changes/prefer-codex-browser-for-evidence/tasks.md"
+      ],
+      "argv": [
+        "python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "prefer-codex-browser-for-evidence"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/prefer-codex-browser-for-evidence/tasks.md",
+          "text": "- [x] 2.2"
+        }
+      ],
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "docs/spec-logs/20261013162744-governance-codex-browser-evidence.md",
+        "docs/spec-logs/CHANGELOG.md"
+      ],
+      "argv": [
+        "python",
+        "scripts/validate-directory-structure.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "docs/spec-logs/CHANGELOG.md",
+          "text": "20261013162744-governance-codex-browser-evidence.md"
+        }
+      ],
+      "timeout_seconds": 60
+    }
+  ]
+}

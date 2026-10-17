@@ -1,0 +1,15 @@
+{
+  "environment": "isolated-current-product",
+  "entry": "requirements > 新建 Capture",
+  "before": {
+    "active_element": "关闭 Capture",
+    "dialog_open": true
+  },
+  "action": "Escape",
+  "after": {
+    "active_element": "新建 Capture",
+    "dialog_open": false
+  },
+  "result": "取消关闭浮层，焦点回到触发按钮；未提交治理命令",
+  "source": "real-browser-accessibility-and-dom"
+}

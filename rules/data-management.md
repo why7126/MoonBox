@@ -47,7 +47,9 @@ AI 如果新增以下能力，必须同步检查：
 
 ## 5. 运行时数据
 
-运行时数据 SHOULD 放入：
+本地业务 SQLite 的 canonical 位置为 `data/sqlite/moonbox.db`。`data/runtime/` 承载 Chat/Codex 执行状态、治理状态、私有备份及离线迁移保全副本；不得仅因 `.sqlite` 扩展名把这些独立状态库并入业务库。自动快照上限仅针对未受保护的自动副本，手动副本、治理引用和独立删除日志须维持原用途边界。目录细节见 `data/README.md`，受控迁移与回滚步骤见 `docs/02-deployment.md`。
+
+其他运行时数据 SHOULD 放入：
 
 ```text
 data/runtime/

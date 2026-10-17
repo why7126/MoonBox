@@ -19,6 +19,8 @@ def validate(root: Path, new_id: str | None = None) -> list[str]:
         for directory in sorted(parent.iterdir()):
             if not directory.is_dir():
                 continue
+            if directory.name.startswith('.'):
+                continue
             relative = directory.relative_to(root).as_posix()
             if directory.is_symlink():
                 errors.append(f'Change 目录不能为符号链接: {relative}')

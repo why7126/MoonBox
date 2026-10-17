@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-09-15 09:46:43
+updated_at: 2026-10-12 14:59:30
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -25,6 +25,8 @@ note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通
 当事实确需在入口文档和细则文档同时出现时，入口文档只保留 1-3 行执行约束和链接；细则文档承载完整条件、例外、校验命令和失败处理。若发现多个文档存在同一规则的完整副本，后续治理变更 SHOULD 选择一个事实源保留，其他位置改为引用。
 
 本地视觉验收或调试过程中产生的临时截图、computed style JSON 和中间证据 MAY 写入被 `.gitignore` 覆盖的 `tmp/visual-evidence/`。需要作为 Change、Sprint 或归档验收事实源长期保留的证据 MUST 转存到 `openspec/changes/<change-id>/evidence/`，或写入脱敏后的证据摘要；不得让 `tmp/` 成为归档闭环唯一证据来源。
+
+自动验收的逐 AC 计划、运行清单与归档就绪语义以 `docs/standards/opsx-acceptance.md` 为事实源。长期证据包放在 Change `evidence/acceptance/<run-id>/`；Issue `acceptance.md` 与 Sprint 报告只引用结论和相对路径，不复制完整会话或原始事件。
 
 触达治理资产的 Change MUST 同步 `docs/spec-logs/`：无论来源是 `/spec-opt`、REQ 还是 BUG，只要变更 `.agents/skills/**`、`AGENTS.md`、`rules/**`、`docs/spec-logs/**`、`docs/standards/**`、治理脚本、校验脚本、Workflow Sync、OpenSpec/Sprint/REQ/BUG 流程规则或 `project.yaml` 命令索引，就必须生成或更新 `YYYYMMDDhhmmss-governance-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 追加倒序索引；纯错别字、链接或格式修复可在 Change trace 中记录豁免原因。`/spec-study apply` 触发的治理资产应用结果 MUST 汇总到同一次学习流程的一份 `YYYYMMDDhhmmss-study-xxx.md`，并在 `docs/spec-logs/CHANGELOG.md` 以 `study` 类型登记，不得再额外生成内容重复的 governance 日志。
 

@@ -1,0 +1,34 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "source_mode": "source",
+  "fault": "SIGKILL only the second isolated worker after a real candidate action emitted the started event for a formal Workflow Sync command",
+  "rounds": [
+    {
+      "action": "req-generate",
+      "object_id": "REQ-9205-ac011-before-write",
+      "turn_id": "88bcd2d8-13f4-44b6-a69d-b05277f5e35f",
+      "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+      "source_revision_before_kill": "9489d5d5c30d71a71751813f0e53876f1afa124832d33af885ec58bd0f1a8d50",
+      "after_restart": {"turn": "stopped", "candidate": "rejected", "candidate_error_code": "executor_unavailable", "application_count": 0, "business_output_exists": false, "full_governance_equals_baseline": true}
+    },
+    {
+      "action": "req-complete",
+      "object_id": "REQ-9206-ac011-before-sync",
+      "turn_id": "7282c524-0d3f-404c-ac6f-af6357bb25e4",
+      "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+      "source_revision_before_kill": "2869131dd64bd3661efe4a2ee49f17fcf6b2cbe45c38f8a11de8084d5d1ae627",
+      "after_restart": {"turn": "stopped", "candidate": "rejected", "candidate_error_code": "executor_unavailable", "application_count": 0, "new_business_outputs_exist": false, "full_governance_equals_baseline": true}
+    },
+    {
+      "action": "req-review",
+      "object_id": "REQ-9207-ac011-review-fault",
+      "turn_id": "429962ae-6285-447a-b8f1-5f598e706503",
+      "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+      "source_revision_before_kill": "d8281b98e5722226c925b617317a4aad721703b47c0df2bbaa08b4db96dcf1eb",
+      "after_restart": {"turn": "stopped", "candidate": "rejected", "candidate_error_code": "executor_unavailable", "application_count": 0, "review_document_exists": false, "full_governance_equals_baseline": true}
+    }
+  ],
+  "limit": "Three real candidate sync-start cells passed. Post-sync recovery and remaining direct-action cells still require evidence.",
+  "overall": "partial; AC-011 remains unsigned"
+}

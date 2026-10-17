@@ -1,0 +1,38 @@
+{
+  "criterion": "AC-012",
+  "status": "partial",
+  "environment": "independent disposable isolated project copies; no production data",
+  "windows": {
+    "spec_merge_before_change_move": {
+      "method": "actual OpenSpec CLI merge in a temporary copy; retain active Change and copy merged spec to simulate cut; guard selects move-only; actual CLI --skip-specs migrates",
+      "spec_requirement_instances": 1,
+      "archived_change_directories": 1,
+      "spec_sha256": "565a9085b5a6d829b13309608aa680ed5d810f71148a837c7d0efe5f580c754c"
+    },
+    "change_move_before_finalize": {
+      "evidence": "AC-011-archive-partial-resume-20261014.json",
+      "result": "unique canonical archive, unchanged merged spec SHA-256, validation and sync resumed without remerge"
+    },
+    "workflow_sync_after_issue_trace_write": {
+      "method": "SIGKILL isolated sync process after actual issue trace atomic replace; rerun same opsx.archive sync",
+      "resume_exit_code": 0,
+      "repeat_dry_run_core_updates": 0,
+      "issue_archive_directory": true
+    },
+    "issue_move_after_directory_move": {
+      "method": "SIGKILL isolated promotion process immediately after actual review-to-archive move; rerun same promoter",
+      "resume_exit_code": 0,
+      "archive_directory_count": 1,
+      "review_directory_exists": false
+    },
+    "unknown_external_spec_edit": {
+      "method": "edit isolated spec after journal preparation",
+      "retry_exit_code": 1,
+      "blocked_marker": "ARCHIVE_RECOVERY_BLOCKED",
+      "journal_retained": true,
+      "active_change_retained": true,
+      "spec_sha256": "c2233b25ac2658a74f06999f91f59596b9365ec35a35e20b7fdd976c4c6e9e2f"
+    }
+  },
+  "limit": "Spec merge cut is staged with real CLI output; Sync and Issue move are actual local script SIGKILL windows. They are not end-to-end product Chat turns for all four stages; AC-012 is not signed."
+}

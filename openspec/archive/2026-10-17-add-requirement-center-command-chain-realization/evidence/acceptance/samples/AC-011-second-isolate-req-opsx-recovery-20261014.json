@@ -1,0 +1,38 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "req-opsx",
+  "object_id": "REQ-9109-sprint-explicit",
+  "turn_id": "e2c25980-b5d3-477d-a834-786bd4f6e74c",
+  "window": "formal-workflow-sync-started-after-change-documents-were-written",
+  "before_restart": {
+    "journal_steps": 27,
+    "formal_sync_started_steps": 1,
+    "formal_sync_succeeded_steps": 0,
+    "source_revision": "566727103b18bd54bb49a13f3f75417a12737826085ac5830b59f9756b70d220"
+  },
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "sync_incomplete",
+    "change_status": "proposed",
+    "execution_started_at": null,
+    "execution_completed_at": null,
+    "change_file_count": 7,
+    "sprint_contains_change": false,
+    "partial_source_preserved": true
+  },
+  "safe_continuation": {
+    "preflight": "OpenSpec strict validation, Chinese-first validation and Change identity validation all passed against the existing single Change directory.",
+    "dry_run": "req.opsx Workflow Sync proposed only derived Sprint, Issue, registry and CHANGELOG updates; no Change was regenerated.",
+    "formal_sync": "explicit req.opsx Workflow Sync succeeded with six updates and zero errors",
+    "repeat_dry_run": "zero updates after recovery",
+    "sprint_change_count": 1,
+    "issue_trace_change_count": 1,
+    "registry_entry_count": 1,
+    "registry_change_count": 1,
+    "active_change_directory_count": 1
+  },
+  "limit": "This is one sync-start fault and guarded manual continuation. Other actions and remaining windows are still missing; the stopped model turn was not replayed.",
+  "overall": "partial; AC-011 remains unsigned"
+}

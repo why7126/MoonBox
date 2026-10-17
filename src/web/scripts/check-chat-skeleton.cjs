@@ -1,6 +1,6 @@
 const {chromium}=require(process.cwd()+'/node_modules/@playwright/test');
 const fs=require('node:fs');
-const origin=process.argv[2] || 'http://127.0.0.1:18112';
+const origin=process.argv[2] || 'http://127.0.0.1:39012';
 const evidenceDir=process.argv[3] || '../../openspec/changes/add-chat-workbench-codex/evidence/ui';
 (async()=>{
  const browser=await chromium.launch({headless:true});

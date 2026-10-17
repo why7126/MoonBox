@@ -2,7 +2,7 @@ import { cleanup,fireEvent,render,screen,waitFor } from '@testing-library/react'
 import { afterEach,expect,it,vi } from 'vitest';
 import { Composer } from './components/chat/Composer';
 import type { Capabilities, ConversationRead } from './components/chat/chatApi';
-afterEach(()=>{cleanup();vi.unstubAllGlobals();localStorage.clear();});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();localStorage.clear();sessionStorage.clear();});
 function typePrompt(value:string){
  const input=screen.getByTestId('chat-prompt');
  input.textContent=value;
@@ -20,6 +20,29 @@ it('keeps the draft and request identity after an uncertain failure',async()=>{
  fireEvent.click(screen.getByTestId('chat-send'));await waitFor(()=>expect(submit).toHaveBeenCalledOnce());
  const calls=vi.mocked(fetch).mock.calls;expect(calls[0][1]?.body).toBe(calls[1][1]?.body);
  expect(screen.getByTestId('chat-prompt').textContent).toBe('');
+});
+it('shows concise governance prompts and only stores the display prompt in chat history',async()=>{
+ localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
+ const calls:{path:string;body:any}[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(url,options)=>{calls.push({path:String(url),body:JSON.parse(String(options?.body))});return new Response(JSON.stringify({code:0,data:{id:'turn'}}));}));
+ const draftState={text:'/bug-generate BUG-0200',hiddenPrompt:'/bug-generate BUG-0200\n内部治理约束：只写 bug.md 与 trace.md。'};
+ render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={{execution_ready:true,reason:'',repositories:[],materials:{max_images:5,max_image_bytes:1000000,max_total_image_bytes:5000000,allowed_image_mime_types:['image/png'],max_skills:5,max_skill_summary_chars:1200,max_prompt_chars:32000}}} initialDraft={draftState.text} draftState={draftState} onDraft={()=>{}} onSubmitted={()=>{}}/>);
+ expect(screen.getByTestId('chat-prompt').textContent).toBe('/bug-generate BUG-0200');
+ expect(screen.getByTestId('chat-prompt').textContent).not.toContain('内部治理约束');
+ fireEvent.click(screen.getByTestId('chat-send'));
+ await waitFor(()=>expect(calls.some(call=>call.path.endsWith('/turns'))).toBe(true));
+ expect(calls.find(call=>call.path.endsWith('/turns'))!.body.prompt).toBe('/bug-generate BUG-0200');
+});
+it('drops hidden governance context after the user edits the visible draft',async()=>{
+ localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
+ const calls:{path:string;body:any}[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(url,options)=>{calls.push({path:String(url),body:JSON.parse(String(options?.body))});return new Response(JSON.stringify({code:0,data:{id:'turn'}}));}));
+ const draftState={text:'/bug-generate BUG-0200',hiddenPrompt:'/bug-generate BUG-0200\n内部治理约束：只写 bug.md 与 trace.md。'};
+ render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={{execution_ready:true,reason:'',repositories:[],materials:{max_images:5,max_image_bytes:1000000,max_total_image_bytes:5000000,allowed_image_mime_types:['image/png'],max_skills:5,max_skill_summary_chars:1200,max_prompt_chars:32000}}} initialDraft={draftState.text} draftState={draftState} onDraft={()=>{}} onSubmitted={()=>{}}/>);
+ typePrompt('/bug-generate BUG-0200 请只先分析');
+ fireEvent.click(screen.getByTestId('chat-send'));
+ await waitFor(()=>expect(calls.some(call=>call.path.endsWith('/turns'))).toBe(true));
+ expect(calls.find(call=>call.path.endsWith('/turns'))!.body.prompt).toBe('/bug-generate BUG-0200 请只先分析');
 });
 it('sends Enter once and leaves Shift Enter and IME composition to the editor',async()=>{
  localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
@@ -80,6 +103,12 @@ it('shows conversation write scope separately from actionable composer hints',()
 	 expect(screen.getByTestId('chat-write-scope').textContent).toBe('治理可写');
 	 expect(screen.getByTestId('chat-write-scope').getAttribute('title')).toContain('治理文档写入');
 	 expect(document.getElementById('chat-composer-hint')).toBeNull();
+	 view.rerender(<Composer {...props} conversation={{id:'c',write_scope:'archive_write',write_reason_code:'archive_change_applied'} as ConversationRead} capabilities={ready}/>);
+	 expect(screen.getByTestId('chat-write-scope').textContent).toBe('归档可写');
+	 expect(screen.getByTestId('chat-write-scope').getAttribute('title')).toContain('归档写入');
+	 view.rerender(<Composer {...props} conversation={{id:'c',write_scope:'read_only',write_reason_code:'analysis_object_read_only'} as ConversationRead} capabilities={ready}/>);
+	 expect(screen.getByTestId('chat-write-scope').textContent).toBe('只读分析');
+	 expect(screen.getByTestId('chat-write-scope').getAttribute('title')).toContain('不能写入治理文件');
 	 view.rerender(<Composer {...props} conversation={{id:'c',write_scope:'read_only',write_reason_code:'primary_object_required'} as ConversationRead} capabilities={ready}/>);
 	 expect(screen.getByTestId('chat-write-scope').textContent).toBe('完全只读');
 	 expect(screen.getByTestId('chat-write-scope').getAttribute('title')).toContain('管理关联');
@@ -176,7 +205,14 @@ it('closes only slash-triggered skill menus when the slash query is removed',asy
  typePrompt('普通输入');
  expect(screen.getByTestId('chat-skill-menu')).toBeTruthy();
  fireEvent.keyDown(input,{key:'Escape'});
- expect(screen.queryByTestId('chat-skill-menu')).toBeNull();
+  expect(screen.queryByTestId('chat-skill-menu')).toBeNull();
+});
+
+it('defaults fallback execution reasoning to Low before capabilities arrive',async()=>{
+ localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
+ vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({code:0,data:{id:'turn'}}))));
+ render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={null} initialDraft="" onDraft={()=>{}} onSubmitted={()=>{}}/>);
+ expect(screen.getByTestId('chat-execution-config-bar').textContent).toContain('Low');
 });
 
 it('uses one popover behavior for skill model and reasoning menus',async()=>{
@@ -186,7 +222,7 @@ it('uses one popover behavior for skill model and reasoning menus',async()=>{
  ]}}));return new Response(JSON.stringify({code:0,data:{id:'turn'}}));}));
  const capabilities={
   execution_ready:true,reason:'',repositories:[],materials:{max_images:5,max_image_bytes:1000000,max_total_image_bytes:5000000,allowed_image_mime_types:['image/png'],max_skills:5,max_skill_summary_chars:1200,max_prompt_chars:32000},
-  execution:{policy_version:'chat-execution-config-v1',agents:[{value:'codex',display_name:'Codex',available:true}],models:[{value:'gpt-6-astra',display_name:'GPT-6 Astra',available:true},{value:'gpt-5.6-sol',display_name:'GPT-5.6 Sol',available:true}],reasoning:[{value:'high',display_name:'High',available:true},{value:'medium',display_name:'Medium',available:true}],defaults:{agent:'codex',model:'gpt-6-astra',reasoning:'high'}}
+  execution:{policy_version:'chat-execution-config-v1',agents:[{value:'codex',display_name:'Codex',available:true}],models:[{value:'gpt-6-astra',display_name:'GPT-6 Astra',available:true},{value:'gpt-5.6-sol',display_name:'GPT-5.6 Sol',available:true}],reasoning:[{value:'low',display_name:'Low',available:true},{value:'high',display_name:'High',available:true},{value:'medium',display_name:'Medium',available:true}],defaults:{agent:'codex',model:'gpt-6-astra',reasoning:'low'}}
  } satisfies Capabilities;
  render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={capabilities} initialDraft="" onDraft={()=>{}} onSubmitted={()=>{}}/>);
  fireEvent.click(screen.getByTestId('chat-skill-button'));
@@ -211,7 +247,7 @@ it('uses one popover behavior for skill model and reasoning menus',async()=>{
  fireEvent.click(screen.getByTestId('chat-model-selector'));
  fireEvent.click(screen.getByTestId('chat-reasoning-selector'));
  const reasoningMenu=screen.getByTestId('chat-execution-config-menu');
- expect(screen.getByRole('menuitemradio',{name:'High'}).className).toContain('chat-composer-option');
+ expect(screen.getByRole('menuitemradio',{name:'Low'}).className).toContain('chat-composer-option');
  expect(reasoningMenu.textContent).not.toContain('GPT-6 Astra');
  fireEvent.mouseDown(screen.getByTestId('chat-input-row'));
  expect(screen.queryByTestId('chat-execution-config-menu')).toBeNull();
@@ -249,7 +285,7 @@ it('selects model and reasoning and sends the stable execution config',async()=>
  vi.stubGlobal('fetch',vi.fn(async(url,options)=>{calls.push({path:String(url),body:options?.body?JSON.parse(String(options.body)):undefined});return new Response(JSON.stringify({code:0,data:{id:'turn',effective_config:{agent:'codex',model:'gpt-5.6-sol',reasoning:'medium'}}}));}));
  const capabilities={
   execution_ready:true,reason:'',repositories:[],materials:{max_images:5,max_image_bytes:1000000,max_total_image_bytes:5000000,allowed_image_mime_types:['image/png'],max_skills:5,max_skill_summary_chars:1200,max_prompt_chars:32000},
-  execution:{policy_version:'chat-execution-config-v1',agents:[{value:'codex',display_name:'Codex',available:true}],models:[{value:'gpt-6-astra',display_name:'GPT-6 Astra',available:true},{value:'gpt-5.6-sol',display_name:'GPT-5.6 Sol',available:true},{value:'gpt-5.6-terra',display_name:'GPT-5.6 Terra',available:true},{value:'gpt-5.6-luna',display_name:'GPT-5.6 Luna',available:true},{value:'gpt-5.5',display_name:'GPT-5.5',available:true},{value:'legacy',display_name:'legacy',available:false,disabled_reason:'已停用'}],reasoning:[{value:'high',display_name:'High',available:true},{value:'medium',display_name:'Medium',available:true}],defaults:{agent:'codex',model:'gpt-6-astra',reasoning:'high'}}
+  execution:{policy_version:'chat-execution-config-v1',agents:[{value:'codex',display_name:'Codex',available:true}],models:[{value:'gpt-6-astra',display_name:'GPT-6 Astra',available:true},{value:'gpt-5.6-sol',display_name:'GPT-5.6 Sol',available:true},{value:'gpt-5.6-terra',display_name:'GPT-5.6 Terra',available:true},{value:'gpt-5.6-luna',display_name:'GPT-5.6 Luna',available:true},{value:'gpt-5.5',display_name:'GPT-5.5',available:true},{value:'legacy',display_name:'legacy',available:false,disabled_reason:'已停用'}],reasoning:[{value:'low',display_name:'Low',available:true},{value:'high',display_name:'High',available:true},{value:'medium',display_name:'Medium',available:true}],defaults:{agent:'codex',model:'gpt-6-astra',reasoning:'low'}}
  };
  render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={capabilities} initialDraft="选择配置" onDraft={()=>{}} onSubmitted={()=>{}}/>);
  expect(screen.getByTestId('chat-execution-config-bar').textContent).toContain('GPT-6 Astra');

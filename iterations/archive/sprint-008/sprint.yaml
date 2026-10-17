@@ -1,0 +1,151 @@
+sprint_id: sprint-008
+status: completed
+lifecycle_stage: archive
+created_at: '2026-09-29 16:03:21'
+updated_at: '2026-10-17 16:43:00'
+start_date: '2026-09-29 16:03:21'
+end_date: '2026-10-13 16:03:21'
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0039-requirement-center-card-chat-session-reuse
+  - REQ-0027-requirement-center-command-chain-realization
+capacity_person_days: 30
+estimated_story_points: 36
+estimated_person_days: 34.8
+capacity_usage: 1.16
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+capacity_gate:
+  status: warning
+  capacity_person_days: 30
+  estimated_person_days: 34.8
+  capacity_usage: 1.16
+  note: 按当前容量重新计算；低于30%的剩余缓冲需提示风险。
+knowledge_intake:
+  latest_retrospective: docs/knowledge-base/retrospectives/sprint-007-retrospective.md
+  carried_actions:
+    - S7-A002
+    - S7-A004
+    - S7-A005
+  note: 承接 sprint-007 中与 AI Usage、需求中心事实源和高风险操作入口相关的 open 行动项；不自动创建额外 Issue/Change。
+product_data_collection_observability:
+  status: applicable
+  affected_layers:
+    - usage_events
+    - request_logs
+    - task_traces
+    - task_trace_spans
+  reason: BUG-0025 与 REQ-0039 均涉及需求中心治理动作入口、Chat 会话准备与复用 API、治理候选/应用数据库记录、Agent Workflow 写入链路和前端行为触发，四层观测均适用。
+  validation: 13/13 Change 已归档；BUG-0025 完整验收 52/52 passed，REQ-0027 等范围 Issue 验收投影均为 passed。治理候选/应用、会话复用、turn 与 task trace/spans 证据见各 Change 验收包；原始 Prompt、完整 candidate、密钥、Cookie 和本机路径未纳入长期证据。
+capacity_override_reason: "纳入已评审 BUG-0025，修复需求中心命令链展示与真实治理写入链路不一致"
+bugs:
+  - BUG-0025-requirement-center-command-chain-write-gap
+  - BUG-0024-login-expired-refresh-not-redirect-login
+  - BUG-0026-chat-platform-opsx-archive-source-permission
+  - BUG-0027-page-scroll-bottom-light-background-exposed
+  - BUG-0029-chat-workbench-nonempty-page-scroll
+  - BUG-0033-opsx-apply-governance-scope-source-readonly
+scope_estimates:
+  - id: BUG-0025-requirement-center-command-chain-write-gap
+    change: fix-requirement-center-command-chain-write-gap
+    bug: BUG-0025-requirement-center-command-chain-write-gap
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 纳入已评审 BUG-0025，修复需求中心命令链展示与真实治理写入链路不一致
+
+  - id: REQ-0039-requirement-center-card-chat-session-reuse
+    change: add-requirement-center-card-chat-session-reuse
+    requirement: REQ-0039-requirement-center-card-chat-session-reuse
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 纳入已评审 REQ-0039，补齐需求中心卡片动作按对象复用 Chat 会话，并确保生成类治理动作在同一会话中新建 candidate 与 turn
+  - id: REQ-0027-requirement-center-command-chain-realization
+    change: add-requirement-center-command-chain-realization
+    requirement: REQ-0027-requirement-center-command-chain-realization
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 纳入已评审 REQ-0027，补齐需求中心卡片八类命令从入口到真实写入、Workflow Sync、幂等恢复、UI 原型门禁与链路观测的产品闭环
+  - id: BUG-0024-login-expired-refresh-not-redirect-login
+    change: fix-chat-auth-expired-redirect-login
+    bug: BUG-0024-login-expired-refresh-not-redirect-login
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 纳入已评审 BUG-0024，修复登录失效后刷新受保护页面未重新定位到登录页的问题；当前根因 confirmed，先进入 sprint-008 后续通过 bug-opsx 创建修复 Change
+  - id: BUG-0026-chat-platform-opsx-archive-source-permission
+    change: fix-chat-platform-opsx-archive-source-permission
+    bug: BUG-0026-chat-platform-opsx-archive-source-permission
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: Chat 平台 source 工作区 archive 闭环阻断，需修复 opsx-archive 写权限、Change 身份校验和 setup 失败状态诊断。
+  - id: BUG-0027-page-scroll-bottom-light-background-exposed
+    change: fix-page-scroll-root-background-exposed
+    bug: BUG-0027-page-scroll-bottom-light-background-exposed
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 纳入已评审 BUG-0027，修复 Chat/需求中心深色工作台根层背景与 body 浅色背景不一致导致 overscroll 露底的问题
+  - id: enable-agent-browser-product-evidence
+    change: enable-agent-browser-product-evidence
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 允许 Agent 在测试、验收和 BUG 补证中直接访问产品完成浏览器取证，减少可自行完成的人工补证等待
+  - id: BUG-0029-chat-workbench-nonempty-page-scroll
+    change: fix-chat-workbench-nonempty-page-scroll
+    bug: BUG-0029-chat-workbench-nonempty-page-scroll
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 根因已确认的消息角色标签定位溢出：局部样式修复及 Firefox/Chromium、空白/短/长对话回归，估算1人天；仅UI布局，不涉及API、DB、请求封装或链路采集变更
+  - id: BUG-0033-opsx-apply-governance-scope-source-readonly
+    change: fix-opsx-apply-governance-scope-source-readonly
+    bug: BUG-0033-opsx-apply-governance-scope-source-readonly
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 已评审 high 缺陷，修复 Change 来源与 Sprint 字段兼容导致 apply 回退治理权限；覆盖成员和阶段负向边界、BUG-0029 场景及 AC-011 脱敏决策留痕，估算3人天；纳入后30/30人天、剩余缓冲为0，优先解除既有实现阻塞
+  - id: prevent-issue-iteration-tool-dirs
+    change: prevent-issue-iteration-tool-dirs
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 治理 issues 与 iterations 工具残留目录并新增目录边界校验
+  - id: add-automated-opsx-acceptance
+    change: add-automated-opsx-acceptance
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 自动验收独立阶段、证据包、增量复验、状态同步和归档就绪门禁；当前两条 active Sprint，sprint-009 容量硬阻断
+  - id: prefer-codex-browser-for-evidence
+    change: prefer-codex-browser-for-evidence
+    size: S
+    story_points: 1
+    estimated_person_days: 0.3
+    rationale: 治理取证浏览器优先级，复用现有技能短契约并更新校验
+  - id: verify-archived-acceptance-artifact-supplement
+    change: verify-archived-acceptance-artifact-supplement
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 补齐 sprint-008 归档后 AC 附件复证与验收状态投影，解除当前关闭阻断
+changes:
+  - fix-requirement-center-command-chain-write-gap
+  - add-requirement-center-card-chat-session-reuse
+  - add-requirement-center-command-chain-realization
+  - fix-chat-platform-opsx-archive-source-permission
+  - fix-chat-auth-expired-redirect-login
+  - fix-page-scroll-root-background-exposed
+  - enable-agent-browser-product-evidence
+  - fix-chat-workbench-nonempty-page-scroll
+  - fix-opsx-apply-governance-scope-source-readonly
+  - prevent-issue-iteration-tool-dirs
+  - add-automated-opsx-acceptance
+  - prefer-codex-browser-for-evidence
+  - verify-archived-acceptance-artifact-supplement

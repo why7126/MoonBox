@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "environment": "independent_local_isolated_product",
+  "source_mode": "product_object_chat_with_test_only_stage_hooks",
+  "windows": [
+    {
+      "point": "merge",
+      "object_id": "add-isolated-archive-ac012-merge",
+      "interrupted_turn_id": "03e640af-fa56-48f3-9b1c-3cfb28b42fb2",
+      "interrupted_status": "stopped",
+      "interrupted_error_code": "executor_disconnected",
+      "recovery_turn_id": "78a6bd93-3b1e-49f5-b213-1b4a261faa0d",
+      "recovery_status": "completed",
+      "recovery_archive_command_exit_zero": true,
+      "canonical_archive_count": 1,
+      "active_change_exists": false,
+      "private_journal_retained": true,
+      "spec_tree_matches_prepared_result_at_recovery": true,
+      "spec_observation": "isolated_read_immediately_after_recovery_before_later_samples"
+    },
+    {
+      "point": "move",
+      "object_id": "add-isolated-archive-ac012-move",
+      "interrupted_turn_id": "61d780a1-efc7-458a-89a6-b821f786b0b8",
+      "interrupted_status": "stopped",
+      "interrupted_error_code": "executor_disconnected",
+      "recovery_turn_id": "84044656-28f2-4fd8-9fd4-335ae383e975",
+      "recovery_status": "completed",
+      "recovery_archive_command_exit_zero": true,
+      "canonical_archive_count": 1,
+      "active_change_exists": false,
+      "private_journal_retained": true,
+      "spec_tree_matches_prepared_result_at_recovery": true,
+      "spec_observation": "isolated_read_immediately_after_recovery_before_later_samples"
+    },
+    {
+      "point": "sync",
+      "object_id": "add-isolated-archive-ac012-sync",
+      "interrupted_turn_id": "ad81faad-a494-4b98-8e1d-a9a2576e59c1",
+      "interrupted_status": "stopped",
+      "interrupted_error_code": "executor_disconnected",
+      "recovery_turn_id": "ccb962b6-78b2-41ac-ac0a-4db396b0a80a",
+      "recovery_status": "completed",
+      "recovery_archive_command_exit_zero": true,
+      "canonical_archive_count": 1,
+      "active_change_exists": false,
+      "private_journal_retained": true,
+      "spec_tree_matches_prepared_result_at_recovery": true,
+      "spec_observation": "isolated_read_immediately_after_recovery_before_later_samples"
+    },
+    {
+      "point": "issue",
+      "object_id": "REQ-9312-ac012-issue-window",
+      "interrupted_turn_id": "9dc2e474-6cdb-4822-86c7-93f4ab7e9249",
+      "interrupted_status": "stopped",
+      "interrupted_error_code": "executor_disconnected",
+      "recovery_turn_id": "d5b95439-b74f-40d9-ae96-35ab4d1dd133",
+      "recovery_status": "completed",
+      "recovery_archive_command_exit_zero": true,
+      "canonical_archive_count": 1,
+      "active_change_exists": false,
+      "private_journal_retained": true,
+      "spec_tree_matches_prepared_result_at_recovery": true,
+      "spec_observation": "isolated_read_immediately_after_recovery_before_later_samples"
+    }
+  ],
+  "issue_migration": {
+    "issue_id": "REQ-9312-ac012-issue-window",
+    "review_directory_exists": false,
+    "archive_directory_count": 1
+  },
+  "post_archive_spec_gate": {
+    "object_id": "add-isolated-archive-ac012-drift",
+    "turn_id": "776674a9-28d0-442a-92b1-58f65bfe7455",
+    "archive_command_exit_zero": true,
+    "spec_tree_differs_from_prepared_result": true,
+    "turn_status": "failed",
+    "error_code": "archive_recovery_blocked",
+    "private_journal_retained": true,
+    "archive_directory_count": 1
+  },
+  "external_unknown_edit_evidence": "AC-012-product-archive-retry-blocked-20261016.json",
+  "partial_multi_change_no_early_done_evidence": "AC-008.md",
+  "observation_boundary": "Each recovery spec hash was checked before preparing the next object. The later drift sample intentionally changed the global spec tree; current global hash cannot be compared with earlier per-window journals."
+}

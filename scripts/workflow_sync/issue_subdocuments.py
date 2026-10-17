@@ -32,6 +32,14 @@ BUG_PRIMARY_DOC = "bug.md"
 ACCEPTANCE_DOC = "acceptance.md"
 
 
+def acceptance_plan_for(root: Path, change_id: str) -> Path | None:
+    active = root / "openspec" / "changes" / change_id / "acceptance-plan.json"
+    if active.is_file():
+        return active
+    archived = list((root / "openspec" / "archive").glob(f"????-??-??-{change_id}/acceptance-plan.json"))
+    return archived[0] if len(archived) == 1 else None
+
+
 @dataclass(frozen=True)
 class SubdocumentFinding:
     issue_id: str
@@ -121,7 +129,26 @@ def primary_doc_name(issue: collect.IssueRecord) -> str:
     return REQ_PRIMARY_DOC if issue.kind == "req" else BUG_PRIMARY_DOC
 
 
-def acceptance_status_for(derived: DerivedIssue, event: str | None) -> str:
+def acceptance_status_for(derived: DerivedIssue, event: str | None, *, issue_path: Path | None = None, source_change: str | None = None) -> str:
+    if source_change:
+        from .constants import ROOT
+        plan = acceptance_plan_for(ROOT, source_change)
+        if plan:
+            try:
+                import json
+                linked_issue = json.loads(plan.read_text(encoding="utf-8")).get("issue_id")
+                if linked_issue and issue_path is not None and linked_issue != issue_path.name:
+                    return "pending"
+                if plan.parent.parent.name == "archive":
+                    from opsx_acceptance import archived_manifest_artifacts_match, latest_manifest
+                    manifest = latest_manifest(plan.parent)
+                    return "passed" if manifest and manifest.get("status") == "passed" and archived_manifest_artifacts_match(ROOT, plan.parent, manifest) else "pending"
+                from opsx_acceptance import readiness
+                if readiness(ROOT, source_change)["status"] == "ready":
+                    return "passed"
+            except (OSError, ValueError, KeyError):
+                pass
+            return "pending"
     if derived.display_status in CLOSED_STATUSES or event in {"opsx.archive", "sprint.archive"}:
         return "passed"
     if event in {"opsx.apply", "opsx.modify"}:
@@ -129,6 +156,15 @@ def acceptance_status_for(derived: DerivedIssue, event: str | None) -> str:
     if derived.display_status == "in_sprint":
         return "not_started"
     return "not_started"
+
+
+def acceptance_checkmark(current: str, sample_status: str | None, probe_passed: bool) -> str:
+    """A command probe cannot sign a partial sample or revoke an existing full signoff."""
+    if sample_status in {"passed", "completed-source-archive"}:
+        return "x" if probe_passed else current
+    if sample_status in {"pending", "partial", "blocked", "failed"}:
+        return " "
+    return current
 
 
 def source_sprint_for(issue: collect.IssueRecord) -> str | None:
@@ -153,6 +189,7 @@ def render_acceptance_block(
     source_change: str | None,
     source_sprint: str | None,
     event: str | None,
+    evidence: str | None = None,
 ) -> str:
     accepted_at = now_shanghai() if status in {"passed", "failed", "partial", "waived"} else "null"
     accepted_by = "workflow-sync" if accepted_at != "null" else "null"
@@ -167,7 +204,7 @@ def render_acceptance_block(
             f"accepted_by: {accepted_by}",
             f"source_change: {source_change or 'null'}",
             f"source_sprint: {source_sprint or 'null'}",
-            "evidence: []",
+            f"evidence: [{evidence}]" if evidence else "evidence: []",
             "failed_items: []",
             f"source_event: {event or 'workflow-sync'}",
             f"notes: {notes}",
@@ -184,12 +221,14 @@ def upsert_acceptance_block(
     source_change: str | None,
     source_sprint: str | None,
     event: str | None,
+    evidence: str | None = None,
 ) -> tuple[str, bool]:
     block = render_acceptance_block(
         status=status,
         source_change=source_change,
         source_sprint=source_sprint,
         event=event,
+        evidence=evidence,
     ).rstrip()
     pattern = re.compile(r"^## 验收结果回填\s*\n.*?(?=^## |\Z)", re.MULTILINE | re.DOTALL)
     if pattern.search(text):
@@ -297,8 +336,42 @@ def sync_issue_subdocuments(
         if path.name == primary_doc_name(issue):
             text, _ = replace_frontmatter_key(text, "status", target_status)
         elif path.name == ACCEPTANCE_DOC:
-            acceptance_status = acceptance_status_for(derived, event)
+            linked_change = source_change or derived.linked_change
+            acceptance_status = acceptance_status_for(derived, event, issue_path=issue.path, source_change=linked_change)
             result.acceptance_status = acceptance_status
+            evidence = None
+            if linked_change and acceptance_status == "passed":
+                from .constants import ROOT
+                plan = acceptance_plan_for(ROOT, linked_change)
+                if plan:
+                    from opsx_acceptance import latest_manifest
+                    manifest = latest_manifest(plan.parent)
+                    if manifest and manifest.get("run_id"):
+                        evidence = f"{plan.parent.relative_to(ROOT)}/evidence/acceptance/{manifest['run_id']}/summary.md"
+            if linked_change:
+                from .constants import ROOT
+                plan_path = acceptance_plan_for(ROOT, linked_change)
+                if plan_path:
+                    import json
+                    linked_issue = json.loads(plan_path.read_text(encoding="utf-8")).get("issue_id")
+                    if not linked_issue or linked_issue == issue.path.name:
+                        from opsx_acceptance import artifacts_match, effects, fingerprint, latest_manifest, read_plan
+                        manifest = latest_manifest(plan_path.parent)
+                        if manifest:
+                            archived = plan_path.parent.parent.name == "archive"
+                            current_checks = {item["id"]: item for item in read_plan(plan_path.parent)["checks"]}
+                            verdicts = {}
+                            for item in manifest.get("checks", []):
+                                check = current_checks.get(item.get("id"))
+                                if not check:
+                                    continue
+                                probe_passed = (item.get("status") == "passed"
+                                    and artifacts_match(ROOT, item, archive_dir=plan_path.parent if archived else None)
+                                    and (archived or (item.get("fingerprint") == fingerprint(ROOT, check) and not effects(ROOT, check))))
+                                verdicts[item.get("id")] = (check.get("required_sample") or {}).get("status"), probe_passed
+                            text = re.sub(r"^(- \[)([ xX])(\] (AC-[A-Za-z0-9-]+))",
+                                lambda match: f"{match.group(1)}{acceptance_checkmark(match.group(2), *(verdicts.get(match.group(4)) or (None, False)))}{match.group(3)}",
+                                text, flags=re.MULTILINE)
             text, _ = rename_frontmatter_key(text, "status", "acceptance_status")
             text, _ = replace_frontmatter_key(text, "acceptance_status", acceptance_status)
             text, _ = upsert_acceptance_block(
@@ -307,6 +380,7 @@ def sync_issue_subdocuments(
                 source_change=source_change or derived.linked_change,
                 source_sprint=source_sprint_for(issue),
                 event=event,
+                evidence=evidence,
             )
         if text != original:
             result.updated_fields += 1

@@ -1,0 +1,958 @@
+{
+  "schema_version": 1,
+  "change_id": "add-requirement-center-command-chain-realization",
+  "run_id": "20261017073141761125-82a5f55a",
+  "created_at": "2026-10-17 07:31:43",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "isolated-moonbox-39028-source",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "cf7b5b6e77e7eeb871d512c9e559d48b9eced16a70bd8a9cd9086370fb0ab0c9",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "98a99536-4a30-4a86-abe3-ea8f089acecb",
+      "conversation_id": "26443d49-0de2-4c85-9f67-43cf36e55d6f",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 39,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-001.md",
+          "sha256": "0c4e399c77fc2c0b746202384597bf3369f58be7f1f63e46b1ff94283e58c2f8"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "699471d4a03251a705e6092594cc951da6138b8b89cb1b7da18b2718162e4918",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "5dca5018-e6d1-49ee-9204-1f8ad480f037",
+      "conversation_id": "46bad009-8044-456b-a069-22d2bb717e38",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 233,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-002.md",
+          "sha256": "c0d5eb1e2fcc3a39d293edf054c99ecc8c9bec2829e7e22bd8268a81aeda5bb3"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "64cef5089dbd89fe9997a55a887ba61f4e6429171103ee9a507a387e9e3dad0f",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "029fa163-9694-47c5-af88-460f6bfe93d4",
+      "conversation_id": "36a212b0-da70-5f19-b7e2-9338c9264982",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 57,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-003.md",
+          "sha256": "38479e4da3b0ab59cd4c39fe0f0cda52e18b9e6920cd0221cd576b7b9ace9441"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "8b83ff691160549ab410a6be324f8964a35db4fe6545613808c3f13cceeca8da",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "0129b0db-470d-4752-a858-7dbd858d9a24",
+      "conversation_id": "c16bbb76-a74a-50db-a7c0-a6a5dae50e2a",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 128,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-004.md",
+          "sha256": "dcbfe37ca49e4a0f6377d94cf20bbccc60d7b03f5df67a5c7c1d02dbbdbe951b"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "37279116c9aa0b7affe6173e0a9ef3e5302a18b44bbf123657bdd830ec564481",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "3e761993-ab9e-4c87-a757-035a37f17c41",
+      "conversation_id": "e027b918-5cd2-528e-8190-15d0f6c84314",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 220,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-005.md",
+          "sha256": "19772f77ca70b561a43c6119f9b354a7546202669a505562a9d7f1a1d92138a5"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "d62916a7adfef6cd3c693ee957817173c7c0a12c18070d365d6d3294248775d7",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "a4ee48d7-ccf2-41f9-a528-1aa4bf9ee600",
+      "conversation_id": "484a1c75-bda5-5e43-bbf3-81e5e86da848",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 36,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-006.md",
+          "sha256": "22b5b75538fb9778d4ed8d27c25f97f69bead66be5dd92bd9d997e5fefd4d5a0"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "6b5c7b3554c7e81dfbf645f44417c413abf9f2c2d3e0552a9369418812e3539f",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "a7b8320e-81eb-48fb-a8d7-80cf36fd9413",
+      "conversation_id": "484a1c75-bda5-5e43-bbf3-81e5e86da848",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 46,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-007.md",
+          "sha256": "9a7933b2429e26039ebded90260e56480511f8d64aa8a8e31272a104c37649b6"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/requirements-acceptance-1440.png",
+          "sha256": "b8aee189e4bbef9ce326de0861a9e0f9cf5a04a04196981324b5cb1437e572c3"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/requirements-acceptance-390.png",
+          "sha256": "8f74682ceaf15b73db3495f2f42a8289cf07d0694ba0bbcdcdba8b7360b02cec"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-007-real-product/computed-style.json",
+          "sha256": "169beefc0870b332e415f685c4f153f6c7050bb44cfc2d89634c833750a328e1"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "8abf7538958fc4da9647436f2dc991ce5f11f41f823bb3e6373330209b1c7921",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "6cc626c6-8a23-4f83-ab37-7fca627c4b4d",
+      "conversation_id": "4e49a2ca-f6cd-5d97-86d1-e21b2cb12212",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 74,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-008.md",
+          "sha256": "fa344eec14efcd246f23209edbb35d4f82250ac6cf10abd1002355203f094171"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "e5cdaaed8085130e1fc593c5a8a2bb09a096d3197c5d44f6b12bcf540a0b5ef3",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-009.md",
+          "sha256": "c8c258d84c5accdb9631125e0f0b8eeda302bc15262be4b632a526a10bf9cb49"
+        }
+      ],
+      "duration_ms": 16259,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "f3b62b67bc16c08ec9a619495c1264238396c95076bcf2ef855f8d695ea2ed94",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-010.md",
+          "sha256": "eae4275a6fcd1c8a4c36f41f193c911ed6de0cac7e83b084f20afce3ffe85045"
+        }
+      ],
+      "duration_ms": 5999,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "f507fd5ecc2efc005d8feae23b7acd0dbdd748f6f90565a7de652b5109db3fbd",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-011.md",
+          "sha256": "0e7c71f45f33e421bf0c10b6cb715026c6834d7438b3ba31b23dcfde91882b10"
+        }
+      ],
+      "duration_ms": 10746,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "6fdc8a73695260aa77f4aa3e7841199006d891c02549a87c06401bd09d87f7e0",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-012.md",
+          "sha256": "25f6e5b2cc7a939d007e42b04ab2aa73532af21e684384020bced8d206a72d86"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-012-product-four-windows-and-completion-gate-20261016.json",
+          "sha256": "988cbb31482b2f7f0e52198185497625276bb7b108c003ec39e753ba33f9b45e"
+        }
+      ],
+      "duration_ms": 9058,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "fingerprint": "7c366224b3b45fe1eaf98708fe0ce91840afa564b4534a25c9f8fa05caacc745",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "6b2fa52a-a0de-4c00-b155-5045cfcdc025",
+      "conversation_id": "27dda40e-dafb-4040-a753-5c8a4cecb3b5",
+      "turn_status": "completed",
+      "error_code": "execution_access_or_workspace_error",
+      "command_sequence": 202,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-013.md",
+          "sha256": "fd9be6fd515db674d04f609049c5f1bc9ff36d2fc723711d8633efa9ce4f0717"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "fingerprint": "db57dcb3be3030a4e123c07b487b14be71229c5ca24f3d94da9b7cba3c2cae83",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014.md",
+          "sha256": "dd3f47b92e90ce34eabec102d1fb4d151aaa2f1436170b3e18dfe09af78f1f82"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014-observability-matrix.json",
+          "sha256": "d5e7fb97773287799d60ebd1474308d2976b782506798830931c6cf721d3ee7e"
+        }
+      ],
+      "duration_ms": 14372,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "fingerprint": "8d21186c037e54c2e7e4c6a5dd7c7cb73cfc9267487458c09925d09f5c82c5c7",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-015.md",
+          "sha256": "73f5f0b480ddbe9ff764d92e478984c80dd2af4b316275bd175a7b7d5dbb1255"
+        }
+      ],
+      "duration_ms": 14494,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "fingerprint": "8e4669844a7f42f1f7719f713f3fc79c494f0373e6205ded178ae1fa252f234f",
+      "reused": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "f862bf86-ed51-4155-a95b-f8ea23b8b5b8",
+      "conversation_id": "f8adb773-77d3-51f0-b363-662a5ab16f21",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 156,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-016.md",
+          "sha256": "4b4d4c20a4bacf9fedd5282bbe4db0281308f58e36cedae5029d5435d0a17918"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "fingerprint": "f43b8658d8237bd13bf239df65a692e959500a314957e9c3ce0175e1b7eb2551",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-017.md",
+          "sha256": "7e7dfa37809a64d2ee9a146f39b81917e6c1227087f2430e40d0c0cd9279802a"
+        }
+      ],
+      "duration_ms": 19323,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "fingerprint": "bc8f1b30c292eee865a6beed78996937f7e2a480dedf8fee0f9dcc6bb96db4f5",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-018.md",
+          "sha256": "75ceb8a77b0d561f32714cfd4159c98c709e3472c81b093858da4a899c1c0733"
+        }
+      ],
+      "duration_ms": 3337,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "fingerprint": "521f2d93669fa7e5d03467dbdf518a14c5462d3f0f950e704d273a3cd93654a9",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "f8afc333-16a7-4ecd-a821-df6d14469371",
+      "conversation_id": "be3419e9-1232-5d09-9352-6b64528052a8",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 119,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-019.md",
+          "sha256": "830573fdca7177ff786793f6a7ceb57d8c07e016233554986d0c4824f93c1cf6"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "fingerprint": "2345e5ac3c17230ee618f3026b40a81547b4e41126515e62fd4fef1fac3e8f8d",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "f8afc333-16a7-4ecd-a821-df6d14469371",
+      "conversation_id": "be3419e9-1232-5d09-9352-6b64528052a8",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 119,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-020.md",
+          "sha256": "6f5bde6f495ac8ef146e82fd15808ee0930f3331b64eac846b3f0f1cdd6f86d1"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c64f67ec93dbb9e646e81bf4016601880e1628bac16083c5b7366f99b387afaa",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "75b9a6d3097c08844830b89b06edf04cfbed08d9efd833d37ddaa6c3594e2016",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "ad3d1a20f39cbf8378d24c3f6f2652cce951d4c5b8be5f815a755461e6585f67",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "1b5d221c9633facc8f83949dd5a632789f62d16cae714c333b4f3bdb233fbe01",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-001.md",
+          "sha256": "f5e4d1f57446d16f5eddb874e930c45c4344787a9d1075590929b6a9affbe025"
+        }
+      ],
+      "duration_ms": 18728,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "ce3db675386ee2134d62176d0108b8c214e221ef12e67876a6d562cfa2465732",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-002.md",
+          "sha256": "06b6f67af88b62f1e7b1d568f1909820fbc3cddecb4006ea1e0902f0c9e41dd3"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440.png",
+          "sha256": "8888af4903852a4548ff402ba7e65fc3319783f27e0c02a56a6669b26de4b84f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440-computed-style.json",
+          "sha256": "d102769e2fa1808acce58bb05466a66c8c17e3bef19dfafd9320851b59953337"
+        }
+      ],
+      "duration_ms": 6335,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "94174ede111fa49e1c2447bf651536b24b3cba705644aff1614016878dd83146",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-003.md",
+          "sha256": "547915f843f6aa42ae2d2a6ce2d7ef00081dbf2cbd09f4d2feeda01222533e1a"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440.png",
+          "sha256": "1dbf36f7bb09b8e8c57460d7e2c2cda9e9622a4d3a6a212fbc8f15960e024cd0"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390.png",
+          "sha256": "2bfc5e14361fc25876d3823ffef6d965bdf8d301a51701f888983ac9cd906b1a"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short.png",
+          "sha256": "47b97394b0e7b64efada325fbe97d9d863500f3f55f1a88d8fe76ded5fae4f90"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440.png",
+          "sha256": "0586ce244dfd014c462968ba43bc958b7e875c52c54cbd1fd4c5d285aa0d3492"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390.png",
+          "sha256": "e12b5f98e8d5fbb3946ded642efe0da2668d0ee2179b50b659e00b408b73ad90"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short.png",
+          "sha256": "fbe42b46b8b1b6c5d5ea72cc33b183bbfb353f57d57be668d918c6f124a2010f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440.png",
+          "sha256": "ffefe1c1d8a8ccf10e09fd0e238a9b83c16049280414a54768e25cf2f1da93d4"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390.png",
+          "sha256": "eab64ecf23f53f17337c9f160112392c66086d9cf5f99f73c88bfec5d4586f3f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short.png",
+          "sha256": "48a33b7ed2d416a33c927cefaa16fc0af5375c01dd4fa1616150cc2bbc420fad"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440.png",
+          "sha256": "fc9069d745326dc28e2c384ff70835d6c80866e9959963ae1634f058d21378e2"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390.png",
+          "sha256": "bb79af508bd7afdcdef576f49c466c0ecb5fd48e19387bfb9dd086b501d1e477"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short.png",
+          "sha256": "bf226ee01ca1ad761ce84cafd17cae6868d3c7bc09f7aadd1730f4985ed0b11d"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440.png",
+          "sha256": "2b68ac18085be0b8cadb8de659e1abc67b6cb77da837903f58a0961f97421b03"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390.png",
+          "sha256": "47fbd676116ef4d259db038a74459ea4190136458186e15714b451ee8e566e99"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short.png",
+          "sha256": "035ecf74be43042310ab04e1dfaf87eda3ac36f281c19ca69c390a2e11b24db4"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440.png",
+          "sha256": "e83339efc752fbc59474bd691f50adf2060b869af62deeb47c6800609e5ea79c"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390.png",
+          "sha256": "2679575d1d767cf0b0eef4f09aa2e9960422e260e484c87358ef55e4716e1efb"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short.png",
+          "sha256": "17295455a0c8a602af3808f37e955effebe9ce929b0368e24a36d1546c912c1d"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440.png",
+          "sha256": "d6966ad8d492e3db741222ccf9bc3613ad924c3d93ec833390266a7264dc1de8"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390.png",
+          "sha256": "f1480cfc832a33919f61ac1406b8d4c652a1d819711857c743ff94a9738dea60"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short.png",
+          "sha256": "7cfe9aa1406f291b191d05dac983d1c93aeb8385eaf8bb1a9240bfbfe4b04af3"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440.png",
+          "sha256": "60dd59ebf74ffde19054592fb63404707ce31dda57abe0629d99310efd6e1048"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390.png",
+          "sha256": "1f03c32317f43cfeaf2f5cfafa8c59f68da92bb2645801005b729366702f6b4d"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short.png",
+          "sha256": "d004ce70b15a4917b9774cdb4d6126ab844f3cac438a95780f6cf0bdb289cceb"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-1440-computed-style.json",
+          "sha256": "3b6c4315d12a91fc3071c0db38d562041bce4dbd047b5dc9904a9075208c177a"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-390-computed-style.json",
+          "sha256": "d1b73c1a49f4cb755e0a3e58848d882d08b019e4b2e6d806791d9ce77f1fc2fa"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-dark-short-computed-style.json",
+          "sha256": "dd9eb3d6229ddfbe3d8ae13534d9b8629eff704e40628eab93de4a33c529fde6"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-1440-computed-style.json",
+          "sha256": "07c45b0b857f6be3bd89207f14f94395c311174c652a12cea0b4957cd4e071d7"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-390-computed-style.json",
+          "sha256": "fec517e79b5d17d9d0007a2d4eaaa3b14ef7ef7dd8977eda7fc527ac913fdfc6"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/board-light-short-computed-style.json",
+          "sha256": "ad018ec84cf31bcacaae8e93c7a346219e2c64a20ea6d0b6bdb87bb9f83ee8ec"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-1440-computed-style.json",
+          "sha256": "cfbf817d029920afb6cf4b25e85fa1854f0a9818ca9c99c3e766fd34f76715e6"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-390-computed-style.json",
+          "sha256": "c9405942352d6e07bc85daffdc458994b6cecf6cfb3d58e4d946ffe8249a9470"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/dialog-dark-short-computed-style.json",
+          "sha256": "9b1a60d5241c39644c0c56e053e101f0acc0410cc44c340eb1e7239be60bc9c2"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-1440-computed-style.json",
+          "sha256": "d9e9e8485260851027678e22fd6d1e9c660a99e04f4b6cd0babaca7f244a0648"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-390-computed-style.json",
+          "sha256": "4b61a3ee9f8af17769647f730fb085d69d59ab87c4b56960adcf9245ade71151"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/drawer-light-short-computed-style.json",
+          "sha256": "74cc8a90160387c911fb5eb7ed28c7c7d6eb75e3c8771646e56690f76d643376"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-1440-computed-style.json",
+          "sha256": "e744dad9b22a01f7a732538219b6e59bf43ce68102d9dde04ef18da32ca98f39"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-390-computed-style.json",
+          "sha256": "c1b11e639693c6fa457559f13d407a003cdb9d8f8e22e9ff27262f4ff22f64c3"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/loading-short-computed-style.json",
+          "sha256": "883b000df2f98dac89b8dfd2e6677c1b8046ba8557d839670f3391ab3bd35307"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-1440-computed-style.json",
+          "sha256": "76f534974c5a9da37de36e4cbf25d74d43cf61f60900587d8e76ee723abbdafe"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-390-computed-style.json",
+          "sha256": "0300437f4cdceab7beb8838266a691334c9e3eecf313f2267af7557fef973cca"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/error-short-computed-style.json",
+          "sha256": "91f84fa5a98be0d71432476f21eecfa53b7a88c33c5087b10dfe4e11050c01e5"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-1440-computed-style.json",
+          "sha256": "be3dba47ad617daeef887d809724fc93ad824f5a237e915847fcfe408be7d307"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-390-computed-style.json",
+          "sha256": "243b0f9648bb4efaf409b0984d3ffa1c044051136935c960796ecc26c8dd5af9"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/permission-short-computed-style.json",
+          "sha256": "2b3561c975a88d35acb441b4c63d354d79e453f83c847bf74873a2b3620d424f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-1440-computed-style.json",
+          "sha256": "702fa1a13633c66c9bf43c27e27393fd456c092b3745b1f8d6971a365e9aa088"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-390-computed-style.json",
+          "sha256": "1a59ddc56cea96dfd5a131740cc16e9296bb6b8cf4ca1fe89ecbc2851d9fbd0e"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/overflow-short-computed-style.json",
+          "sha256": "1bbb8ad4f451981af5ae81c5a0183ce564f302a5d9bf92d0e81a443c3b934db0"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-003/focus-cancel-interaction.json",
+          "sha256": "91b28638caa4c4ae96e4ebcb56a5ddbd10776bfe26bae05bf4a6e8acbf969d6d"
+        }
+      ],
+      "duration_ms": 19144,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "fingerprint": "c3d4601988e2b5436dec9aeffc4e3f23f86d739e2a3f4ee93c7dde80517c74fa",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-004.md",
+          "sha256": "be380dbf534cf52230c3376e55377f04e453231fb5da41c744891f2bc2ac58e4"
+        }
+      ],
+      "duration_ms": 18922,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "fingerprint": "9e5a895f0d2da37c8a6a698d6545a0be86eecb3816a09f3c0a9153b428936a66",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-005.md",
+          "sha256": "bb5cc768f63ed9351312f7307edf008d61c746f68d11161421725c488613779c"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440.png",
+          "sha256": "ffefe1c1d8a8ccf10e09fd0e238a9b83c16049280414a54768e25cf2f1da93d4"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390.png",
+          "sha256": "eab64ecf23f53f17337c9f160112392c66086d9cf5f99f73c88bfec5d4586f3f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440.png",
+          "sha256": "4c98e5d40fc1fd2b80eee35be044350f2f09a9afa130627ecc7efab764437503"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390.png",
+          "sha256": "40996ea8a6993ce100eb9e5632c67843a1e8bac8a3b9b3b8a19d2eebccf19425"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440.png",
+          "sha256": "9d2215d331870565dfa694de706b2bbf9555e85fb54ac929edb671b8ae6973bb"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390.png",
+          "sha256": "970633e4f072653313ebf855dfc7daedfea1b9c239269b08aa2b453f316e0dfc"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440.png",
+          "sha256": "aeb67f1a9264975d9b9c8eee3b99dde15fd4e19b9cc58feaef771efbd4a9ac14"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390.png",
+          "sha256": "0bc88b45a24bf913de2970d4bbb8203571f2b59f3fd45947af71a79cf95527e3"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440.png",
+          "sha256": "10c336d782ddf5627a3928272be9cf9aecab63263a63d6073d0b8775dfcbe32f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390.png",
+          "sha256": "201e6d7121e3099b0b70a1aaa4cd84b0b241f0049aab51384f6c396fff409930"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440.png",
+          "sha256": "35319c3f9d385adb46593dcf6cbeccfa76c532b38d1c391ef9d082ccd1567c8e"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390.png",
+          "sha256": "970633e4f072653313ebf855dfc7daedfea1b9c239269b08aa2b453f316e0dfc"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-1440-computed-style.json",
+          "sha256": "cfbf817d029920afb6cf4b25e85fa1854f0a9818ca9c99c3e766fd34f76715e6"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/modal-open-390-computed-style.json",
+          "sha256": "c9405942352d6e07bc85daffdc458994b6cecf6cfb3d58e4d946ffe8249a9470"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-1440-computed-style.json",
+          "sha256": "c40d516484a73d8dfc08766cc3ec91de0ef55a26c69c93de6acdbdd370332fd1"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/inside-click-390-computed-style.json",
+          "sha256": "e0bfcdcbcd1e6c1f8c2edad9f09cde0e99d53055b5ac9f5cdce8cf1e66f6f061"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-1440-computed-style.json",
+          "sha256": "37a4e4f7cb02c2a6cf6d12e7d059f1ee74c543f1c17721a494467b06a61fea8a"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/outside-click-390-computed-style.json",
+          "sha256": "0cb438fa212b35263e554e254bfdfbec59194503a7a5afcca534524dc029416b"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-1440-computed-style.json",
+          "sha256": "157afde9e64196aac0d97484f6aba3d3b05a23e41154ad5753cb999c5c0c4c2a"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/cancel-390-computed-style.json",
+          "sha256": "7ceb489cb6ee0cab512310b190648f924fa861f49204330c43738e8545bcf541"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-1440-computed-style.json",
+          "sha256": "59ac3c15951e54aa2ad011dd99403a63e128515c6a42e448cbd318da3bc72a9b"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/submitted-close-390-computed-style.json",
+          "sha256": "8d024c9ae4ad71a4cee42775c235de0d55d3451eeb438f2f6f7f2be8593a0656"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-1440-computed-style.json",
+          "sha256": "b623b001b7100816e8fa79d7da9f60a1fa2c3adf265a74f4b8e4b50724716f1e"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-005/focus-return-390-computed-style.json",
+          "sha256": "37a2d9350ae53b620040b5d31f94c31728b92106251e0f247aa8f4120b9fdb05"
+        }
+      ],
+      "duration_ms": 19176,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    }
+  ]
+}

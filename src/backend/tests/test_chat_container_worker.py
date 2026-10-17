@@ -14,6 +14,53 @@ from app.chat.container_server import persistent_container_server
 from app.chat.schema import reservations
 
 
+@pytest.mark.skipif(os.environ.get('CHAT_CONTAINER_PROBE') != '1', reason='Explicit offline Docker toolchain probe')
+def test_governance_openspec_commands_in_real_sandbox(tmp_path):
+    work = tmp_path.resolve() / 'work'; work.mkdir()
+    for directory in ('.git', 'issues', 'iterations', 'docs/spec-logs',
+                      'openspec/changes', 'openspec/specs', 'openspec/archive'):
+        (work / directory).mkdir(parents=True, exist_ok=True)
+    (work / 'openspec/config.yaml').write_text('schema: spec-driven\n')
+    runtime = tmp_path.resolve() / 'runtime'; runtime.mkdir(mode=0o700)
+    auth = tmp_path / 'auth.json'; auth.write_text('{"OPENAI_API_KEY":"synthetic-invalid-key"}'); auth.chmod(0o600)
+    # Use the same factory, profiles and non-root container as product claims, without a model call.
+    with persistent_container_server(work, runtime, auth) as server:
+        def cli(*args, profile='moonbox-governance'):
+            result = subprocess.run([server.docker, 'exec', server.container_name,
+                'codex', 'sandbox', '-P', profile, '-C', '/work', '/usr/bin/env',
+                'HOME=/tmp', 'OPENSPEC_TELEMETRY=0', 'DO_NOT_TRACK=1', 'openspec', *args],
+                capture_output=True, text=True, timeout=30)
+            assert result.returncode == 0, result.stderr
+            return result.stdout
+        cli('new', 'change', 'verify-toolchain')
+        status = json.loads(cli('status', '--change', 'verify-toolchain', '--json'))
+        assert status['changeName'] == 'verify-toolchain'
+        assert json.loads(cli('instructions', 'proposal', '--change', 'verify-toolchain', '--json'))['artifactId'] == 'proposal'
+        change = work / 'openspec/changes/verify-toolchain'
+        (change / 'specs/executor').mkdir(parents=True)
+        (change / 'proposal.md').write_text('## Why\nTools are required.\n## What Changes\nInclude tools.\n## Capabilities\n### New Capabilities\n- executor: toolchain\n### Modified Capabilities\nNone.\n## Impact\nExecutor image.\n')
+        (change / 'specs/executor/spec.md').write_text('## ADDED Requirements\n### Requirement: Tool availability\nThe executor SHALL provide OpenSpec.\n#### Scenario: Offline execution\n- **WHEN** a command starts\n- **THEN** tools are available\n')
+        cli('validate', 'verify-toolchain', '--strict')
+        assert 'verify-toolchain' in cli('list', '--json', profile='moonbox-read')
+        probe = subprocess.run([server.docker, 'exec', server.container_name,
+            'codex', 'sandbox', '-P', 'moonbox-archive', '-C', '/work',
+            'python', '-c',
+            "import json; from pathlib import Path; "
+            "parents=('issues','iterations','openspec/changes','openspec/specs','openspec/archive','docs/spec-logs'); "
+            "print(json.dumps({f'{parent}/{name}': (Path('/work')/parent/name).is_dir() "
+            "and not any((Path('/work')/parent/name).iterdir()) "
+            "for parent in parents for name in ('.agents','.codex')}))"],
+            capture_output=True, text=True, timeout=30)
+        assert probe.returncode == 0, probe.stderr
+        assert all(json.loads(probe.stdout).values())
+    assert (change / 'proposal.md').is_file()
+    from app.chat.execution import _check_workspace_tool_dirs_outside_sandbox
+    _check_workspace_tool_dirs_outside_sandbox(work)
+    assert not any((work / parent / name).exists() for parent in
+                   ('issues', 'iterations', 'openspec/changes', 'openspec/specs',
+                    'openspec/archive', 'docs/spec-logs') for name in ('.agents', '.codex'))
+
+
 @pytest.mark.skipif(os.environ.get('CHAT_CONTAINER_PROBE')!='1',reason='Explicit synthetic Docker probe')
 def test_container_factory_preflight_two_private_sessions(tmp_path):
     runtime=tmp_path.resolve()/'runtime';runtime.mkdir(mode=0o700)
@@ -56,6 +103,46 @@ def test_container_worker_claim_diff_and_accounting(chat,tmp_path,governance):
         shutil.rmtree(work)
     report['temporary_runtime_removed']=not runtime.exists()
     Path('/tmp/moonbox-container-worker.json').write_text(json.dumps(report,indent=2)+'\n')
+
+
+@pytest.mark.skipif(os.environ.get('CHAT_LIVE_ISOLATED_PROBE')!='1', reason='Explicit disposable real BUG apply execution only')
+def test_bug_alias_apply_writes_source_with_same_turn_permission_event(chat,tmp_path,governance):
+    from app.chat.schema import events
+    client,factory=chat
+    root,_=governance
+    oid='BUG-0029-synthetic'; change='fix-chat-workbench-nonempty-page-scroll'; sprint='sprint-999'
+    folder=root/f'issues/bugs/review/{oid}';folder.mkdir(parents=True)
+    (folder/'bug.md').write_text('受控 BUG：仅修改 counter.txt。')
+    registry=root/'issues/bugs/_registry.yaml';registry.parent.mkdir(parents=True,exist_ok=True)
+    registry.write_text(json.dumps({'entries':[{'id':oid,'title':'受控源码写入','path':f'issues/bugs/review/{oid}',
+        'status':'in_sprint','related_change':change,'iteration':sprint}]}))
+    trace=root/'openspec/changes'/change/'trace.md';trace.parent.mkdir(parents=True)
+    trace.write_text(f'---\nstatus: in_progress\nbug_id: {oid}\niteration: {sprint}\n---\n')
+    plan=root/'iterations/change'/sprint/'sprint.yaml';plan.parent.mkdir(parents=True)
+    plan.write_text(json.dumps({'changes':[change],'bugs':[oid]}))
+    cid=create(client)
+    assert client.put(f'/api/v1/chat/conversations/{cid}/relations',json={'primary':oid}).status_code==200
+    work=tmp_path.resolve()/cid;work.mkdir(mode=0o700)
+    runtime=tmp_path.resolve()/'runtime';runtime.mkdir(mode=0o700)
+    subprocess.run(['git','init','-q',str(work)],check=True)
+    (work/'counter.txt').write_text('0\n')
+    with factory() as db:
+        row=enqueue(db,'alice',cid,'bug-apply','Set counter.txt to exactly 1 followed by newline. Modify no other files. Do not commit. Reply done.',LIMITS)
+        token=worker.claim(db,'bug-apply-test')
+    def server(path):return persistent_container_server(path,runtime,Path.home()/'.codex/auth.json')
+    try:
+        assert run_claim(factory,token,work,server,max_seconds=180)=='completed'
+        assert (work/'counter.txt').read_text()=='1\n'
+        with factory() as db:
+            payloads=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.turn_id==row['id']))]
+        decisions=[item['permission_decision'] for item in payloads if 'permission_decision' in item]
+        assert any(item['write_scope']=='implementation_write' and item['selected_profile']=='moonbox-write' for item in decisions)
+        assert any(item['phase']=='acknowledged' and item['acknowledged_profile']=='moonbox-write' for item in decisions)
+        assert all(item['turn_id']==row['id'] for item in decisions)
+    finally:
+        import shutil
+        shutil.rmtree(runtime)
+        shutil.rmtree(work)
 
 
 @pytest.mark.skipif(os.environ.get('CHAT_LIVE_ISOLATED_PROBE')!='1',reason='Explicit real usage scope probe')

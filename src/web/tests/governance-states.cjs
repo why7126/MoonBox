@@ -2,7 +2,7 @@ const {chromium}=require('@playwright/test');const fs=require('node:fs'),path=re
 (async()=>{const browser=await chromium.launch();try{
  const page=await browser.newPage(),dir=path.resolve('../../openspec/changes/add-local-project-governance-loop/evidence/ui'),samples=[];
  for(const state of ['pending','conflict','failed','recovery_blocked','applied'])for(const [theme,width,height] of [['dark',1440,1000],['light',1440,600],['light',390,844]]){
-  await page.setViewportSize({width,height});await page.goto(`http://127.0.0.1:18122/tests/governance-preview.html?state=${state}`);
+  await page.setViewportSize({width,height});await page.goto(`http://127.0.0.1:39022/tests/governance-preview.html?state=${state}`);
   await page.evaluate(theme=>{localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));dispatchEvent(new Event('moonbox.ui.preferences.changed'))},theme);
   await page.getByTestId('governance-result-preview').click();
   await page.screenshot({path:path.join(dir,`state-${state}-${theme}-${width}.png`)});

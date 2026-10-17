@@ -7,9 +7,15 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.3.1"
-updated_at: 2026-09-12 21:30:04
+updated_at: 2026-10-13 16:27:44
 ---
 
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -33,7 +39,7 @@ Implement tasks from an OpenSpec change.
 
 MUST 读取并遵守 [Apply 连续执行契约](../../../docs/08-command-execution-order.md#apply-连续执行契约)，共用「连续推进」「硬阻塞与停止」「完成门禁」「中断续接」四项规则。每次final前执行中央「停止前决策」，CLI暂停提示不构成独立停止依据；按「行为验收」区分合成与真实证据。阶段进度不结束任务；自检修复留在当前 apply，完成判定和恢复入口均以该事实源为准。
 
-MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、BUG 根因、Sprint、横切、原型/参考稿、观测与收尾门禁；本入口不构成项目门禁的替代路径。
+MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、BUG 根因、Sprint、横切、原型/参考稿、观测与收尾门禁；完成后按 `/opsx-accept` 自动续接逐 AC 验收。本入口不构成项目门禁的替代路径。
 
 **Steps**
 

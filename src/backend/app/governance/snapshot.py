@@ -61,7 +61,11 @@ def read_once(root):
         nonlocal total
         if depth > 24: raise ValueError('depth')
         for name in sorted(os.listdir(fd)):
-            if name.startswith('.') or name in ('node_modules','__pycache__'): continue
+            change_control = (name == '.openspec.yaml' and
+                              len(prefix.split('/')) == 3 and
+                              prefix.startswith('openspec/changes/'))
+            if (name.startswith('.') and not change_control) or name in ('node_modules','__pycache__'):
+                continue
             relative = f'{prefix}/{name}' if prefix else name
             info = os.stat(name, dir_fd=fd, follow_symlinks=False)
             if stat.S_ISLNK(info.st_mode): raise ValueError('link')

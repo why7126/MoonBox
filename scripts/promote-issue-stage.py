@@ -11,8 +11,12 @@ import argparse
 import difflib
 import re
 import shutil
+import subprocess
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+import yaml
 
 
 ISSUE_TYPES = {
@@ -152,6 +156,7 @@ def change_refs_from_trace(text: str) -> list[str]:
     lines = text.splitlines()
     refs: list[str] = []
     patterns = [
+        r"(?m)^related_change:\s*['\"]?([A-Za-z0-9_.-]+)",
         r"(?m)^\s*change_id:\s*['\"]?([A-Za-z0-9_.-]+)",
         r"(?m)^\s*-\s*change_id:\s*['\"]?([A-Za-z0-9_.-]+)",
         r"openspec/changes/(?:archive/[^/`|)\s]+/)?([^/`|)\s]+)/",
@@ -376,6 +381,44 @@ def print_report(args: argparse.Namespace, report: Report) -> None:
             print(f"- {item}")
 
 
+def review_projection_matches(root: Path, issue: IssueCandidate, target: Path) -> bool:
+    try:
+        registry = yaml.safe_load(read_text(root / ISSUE_TYPES[issue.kind][0] / "_registry.yaml"))
+        trace = yaml.safe_load(read_text(target / "trace.md").split("---", 2)[1])
+        entries = [row for row in registry["entries"] if row.get("id") == issue.issue_id]
+        return (len(entries) == 1 and entries[0].get("status") == trace.get("status")
+                and entries[0].get("lifecycle_stage") == "review"
+                and entries[0].get("path", "").rstrip("/") == target.relative_to(root).as_posix())
+    except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, yaml.YAMLError):
+        return False
+
+
+def sync_review_projections(root: Path, candidates: list[IssueCandidate], args: argparse.Namespace, report: Report) -> int:
+    """Retryable second phase: never report a moved review as fully synchronized."""
+    if args.to != "review" or args.dry_run:
+        return 0
+    failed = False
+    for issue in candidates:
+        target = root / ISSUE_TYPES[issue.kind][0] / "review" / issue.issue_id
+        # A conflicting destination must not turn a blocked migration into a sync.
+        if not target.is_dir() or (issue.path != target and issue.path.exists()):
+            continue
+        command = [sys.executable, str(root / "scripts/sync-workflow-status.py"),
+                   "--event", f"{issue.kind}.review", f"--{issue.kind}", issue.issue_id,
+                   "--output", "summary"]
+        if args.check:
+            command.append("--check")
+        try:
+            result = subprocess.run(command, cwd=root, check=False)
+            success = result.returncode == 0 and review_projection_matches(root, issue, target)
+        except OSError:
+            success = False
+        if not success:
+            failed = True
+            report.blocked.append(f"{issue.issue_id}: review projection sync failed; documents retained, retry promotion")
+    return 1 if failed else 0
+
+
 def main() -> int:
     args = parse_args()
     root = find_root(Path.cwd())
@@ -387,8 +430,10 @@ def main() -> int:
         return 0
     promotions = build_promotions(root, candidates, args, report)
     exit_code = apply_promotions(root, promotions, args, report)
+    if exit_code == 0:
+        exit_code = sync_review_projections(root, candidates, args, report)
     print_report(args, report)
-    return exit_code
+    return exit_code or (1 if report.blocked else 0)
 
 
 if __name__ == "__main__":

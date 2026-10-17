@@ -6,6 +6,20 @@ import pytest
 from sqlalchemy import text
 
 from app.db.session import get_session_factory
+from app.services.requirement_center import _stage_action
+
+
+@pytest.mark.parametrize(
+    ("issue_type", "issue_id", "flag"),
+    [
+        ("requirement", "REQ-9301-approved", "--req"),
+        ("bug", "BUG-9301-approved", "--bug"),
+    ],
+)
+def test_approved_action_uses_typed_sprint_command(issue_type: str, issue_id: str, flag: str) -> None:
+    action = _stage_action(issue_id, issue_type, "approved", None)
+    assert action.command == f"/sprint-propose {flag} {issue_id}"
+    assert action.label == "加入迭代"
 
 
 def _auth_headers(api_client: TestClient) -> dict[str, str]:
@@ -865,7 +879,8 @@ openspec_changes:
         doc["name"]: doc
         for issue in context.json()["data"]["issues"]
         if issue["id"] == "REQ-9302"
-        for doc in issue["document_entries"]
+        for change in issue["related_changes"]
+        for doc in change["document_entries"]
     }
     assert docs["proposal.md"]["capability"]["human_editable"] is True
     assert docs["spec.md"]["capability"]["human_editable"] is True
@@ -927,7 +942,8 @@ entries:
         doc["name"]: doc
         for issue in context.json()["data"]["issues"]
         if issue["id"] == "REQ-9303"
-        for doc in issue["document_entries"]
+        for change in issue["related_changes"]
+        for doc in change["document_entries"]
     }
     assert docs["tasks.md"]["capability"]["task_toggle_only"] is True
     assert docs["tasks.md"]["capability"]["human_editable"] is False

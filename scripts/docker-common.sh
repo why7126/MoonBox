@@ -77,13 +77,27 @@ if [[ -f "$ENV_FILE" ]]; then
   export MOONBOX_ENV_FILE="$ENV_FILE"
 fi
 if [[ ${#PROFILES[@]} -gt 0 ]]; then COMPOSE+=("${PROFILES[@]}"); fi
-PYTHON_BIN="${PYTHON_BIN:-python}"
+if [[ -z "${PYTHON_BIN:-}" && -x "$ROOT_DIR/src/backend/.venv/bin/python" ]]; then
+  PYTHON_BIN="$ROOT_DIR/src/backend/.venv/bin/python"
+else
+  PYTHON_BIN="${PYTHON_BIN:-python}"
+fi
 chat_control() {
   PYTHONPATH="$ROOT_DIR/src/backend${PYTHONPATH:+:$PYTHONPATH}" "$PYTHON_BIN" -m app.chat.deployment --scope "$ENV_FILE" "$@"
 }
 if [[ "$CHAT_PLATFORM" = true ]]; then
   export MOONBOX_CHAT_HOST_ROOT="$(config_value MOONBOX_CHAT_HOST_ROOT "$ROOT_DIR/data/runtime/chat-platform")"
   export MOONBOX_CHAT_SOURCE_ROOT="$(config_value MOONBOX_CHAT_SOURCE_ROOT '')"
+  if [[ -n "$MOONBOX_CHAT_SOURCE_ROOT" ]]; then
+    case "$MOONBOX_CHAT_HOST_ROOT/" in
+      "$MOONBOX_CHAT_SOURCE_ROOT"/*)
+        source_parent="$(dirname "$MOONBOX_CHAT_SOURCE_ROOT")"
+        source_name="$(basename "$MOONBOX_CHAT_SOURCE_ROOT")"
+        export MOONBOX_CHAT_HOST_ROOT="${source_parent}/.moonbox-chat-platform-${source_name}"
+        echo 'Chat私有运行目录不能位于源仓库内；已使用源仓库同级私有目录。' >&2
+        ;;
+    esac
+  fi
   export MOONBOX_CHAT_SPACE_ID="$(config_value MOONBOX_CHAT_SPACE_ID '')"
   export MOONBOX_CHAT_REPOSITORY_ID="$(config_value MOONBOX_CHAT_REPOSITORY_ID '')"
   export MOONBOX_CHAT_AUTH_SOURCE="$(config_value MOONBOX_CHAT_AUTH_SOURCE "$HOME/.codex/auth.json")"

@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-16 22:52:00
+updated_at: 2026-10-13 16:27:44
 owner: MoonBox 产品团队
 ---
 
@@ -49,14 +49,17 @@ rules/agent-context-budget.md
 
 本项目只保留 `.agents/skills/`。不得新增或恢复 `.claude/`、`.codex/`、`.cursor/`、`.kiro/`、`.opencode/`。
 
+仓库自有目录除根目录 `.agents/` 外，不得出现 `.agents/`、`.codex/` 工具路径；即使为空也须清理。目录校验覆盖全仓自有目录；非空残留、文件和符号链接先核对内容归属，不自动删除。
+
 常用命令族：
 
 | 域 | 命令 |
 |---|---|
 | 开发执行 | `/opsx-apply`（`openspec-apply-change` 共用连续执行契约） |
+| 自动验收 | `/opsx-accept`（逐 AC 证据包与归档就绪） |
 | 通用探索 | `/explore` |
 | 治理优化 | `/spec-opt`、`/spec-study` |
-| Git 安全 | `/git-check` |
+| Git 安全与同步 | `/git-check`、`/git-sync` |
 | 产品手册 | `/usage-docs-generate`、`/usage-docs-update`、`/usage-docs-validate` |
 | 发布镜像 | `/release-propose`、`/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` |
 | 部署升级 | `/upgrade-plan --from <fresh\|version> --to <version>`、`/upgrade-validate --plan <path>` |
@@ -71,6 +74,7 @@ rules/agent-context-budget.md
 - `openspec/specs/` 只保存已生效规格，除归档合并动作外不得直接修改。
 - 新建业务代码必须放在 `src/` 约定边界内。
 - `.env`、真实密钥、真实客户数据、运行时数据库文件和临时大文件不得提交。
+- `/git-sync` 默认按明确交付范围选择性暂存，提交前运行 `/git-check`；正式版本标签必须基于发布事实，远程分叉先整合验证，禁止强制推送或覆盖远端标签。
 - 跨项目学习使用 `/spec-study`；学习对象必须全程只读，学习报告统一放入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，本地学习对象持久化时必须脱敏为项目名或占位符。
 - 规范优化使用 `/spec-opt`；规范、技能、脚本、目录边界或校验规则迭代日志统一放入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md`，不得写入隐私、密钥、未脱敏日志、学习对象源码、本机绝对路径、系统用户名或用户主目录。
 - Sprint ID 必须使用 `sprint-xxx` 三位数字递增格式；自动创建 Sprint 时扫描 `iterations/change/` 与 `iterations/archive/` 后取最大编号加一。
@@ -87,8 +91,12 @@ rules/agent-context-budget.md
 - UI 参考稿复刻若包含动作按钮、FAB、卡片 footer、工具栏动作或阶段动作，必须先建立“动作按钮 → modal 类型 → selector → 状态 → 验收证据”矩阵，并按动作族一次性实现按钮与 modal 组件族；不得继续逐按钮问答返修。
 - UI 型 `/opsx-modify` 若验收反馈包含附件截图、标注图、原型截图或实际截图，必须先建立“附件截图逐项视觉对照表”，逐项确认期望、实际、偏差、检查方式、处置结论和证据入口；对照表证据不足时先补证，不得直接返修。
 - REQ 来源 `/opsx-modify` 完成前必须执行 REQ 子文档一致性扫尾检查，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 判断是否需同步，避免只更新 PRD 而遗漏子文档。
-- 问题排查、BUG 完善、验收返修或效果不如预期时必须遵守证据化根因分析治理：无证据不得确认根因；证据不足时必须输出人工补证操作步骤，等补证后再定根因。
+- 问题排查、测试、BUG 完善、验收返修或效果不如预期时遵守 `rules/root-cause-evidence.md`：需要产品运行态证据时可直接通过浏览器自主取证，优先复用 Codex 侧边浏览器，无需人工二次确认；自主取证仍不足时才给出人工补证步骤，无证据不得确认根因。
+- 浏览器取证失败时遵守 `rules/root-cause-evidence.md` §5.0：先查现有标签页，清单失败后直接连接浏览器窗口并尝试可行替代入口；终端连接失败或一次工具超时不能单独证明产品无法访问，旧页面展示与当前服务连通性须分别标注。
+- `/bug-explore`、`/bug-generate`、`/bug-complete` 遇到尚未确认的根因时，按 `rules/root-cause-evidence.md` §2.1 在当前命令内继续自主补证；文档生成不构成停止条件，证据不足不得伪造 `confirmed`。
+- `/explore` 与 `/req-explore` 的结论依赖当前产品表现且材料不足时，按 `rules/root-cause-evidence.md` 第 5 节主动浏览产品取证；只读探索默认不写仓库或持久业务数据。
 - `/opsx-modify` 验收返修执行中展示为研发中；返修完成、验证、文档同步和 Workflow Sync 通过后回到验收中 / 待复验。该展示是返修投影语义，不得用普通 `in_progress` 覆盖 Change `applied` 事实或首次 apply 的 `execution.completed_at`。
+- `/opsx-apply` 完成后进入 `/opsx-accept`；已有验收结果按输入指纹增量复验，证据归属 Change `evidence/acceptance/`。运行前先检查环境与证据，视觉 AC 明确映射阶段×视口组合及证据入口；预检未就绪只生成阻塞诊断，逐 AC 摘要须区分命令、视觉与产品轮次证据。有验收计划的 Change 归档前必须取得当前 ready 结论；验收不自动扩大归档授权。
 - OpenSpec 文档变更后运行中文优先校验；Mintlify 变更后运行产品手册校验。
 - `/req-opsx` 与 `/bug-opsx` 生成 Change 后运行当前 Change 聚焦中文校验和全仓残留分离报告，当前 Change 失败阻断当前链路，无关 active Change 残留只作 warning。
 - `/req-opsx` 与 `/bug-opsx` 使用 OpenSpec CLI 模板生成 proposal、design、tasks 时必须将英文脚手架标题中文化，不得把 `Why`、`What Changes`、`Capabilities`、`Impact`、`Implementation`、`Testing`、`Documentation` 等模板标题原样落盘。

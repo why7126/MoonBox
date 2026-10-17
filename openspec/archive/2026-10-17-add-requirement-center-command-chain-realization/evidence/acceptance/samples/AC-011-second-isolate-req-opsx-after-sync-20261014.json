@@ -1,0 +1,26 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "req-opsx",
+  "object_id": "REQ-9108-sprint-single",
+  "turn_id": "a207e448-db46-44cd-a4cc-58391647343e",
+  "window": "formal req.opsx Workflow Sync succeeded before Chat terminal",
+  "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+  "source_revision_before_kill": "0e371d8cb3fda267ca48dfd8feb2510eb756d6f31cbddf12cd1790f7b3301813",
+  "before_restart": {"journal_steps": 24, "formal_sync_started_steps": 1, "formal_sync_succeeded_steps": 1},
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "sync_completed_unverified",
+    "change_status": "proposed",
+    "execution_started_at": null,
+    "execution_completed_at": null,
+    "active_change_file_count": 7,
+    "sprint_change_count": 1,
+    "issue_trace_change_count": 1,
+    "registry_change_count": 1
+  },
+  "read_only_reconciliation": "OpenSpec strict and Chinese-first validation passed; repeat req.opsx Workflow Sync dry-run had zero updates. The stopped model turn was not replayed.",
+  "limit": "One after-sync direct-command cell; remaining direct actions and fault phases still require evidence.",
+  "overall": "partial; AC-011 remains unsigned"
+}

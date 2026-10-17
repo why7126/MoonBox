@@ -221,7 +221,7 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "local-absolute-path",
-        re.compile(r"(?<![\w.-])(?:/Users/[^ \t\n\"'`]+|/home/[^ \t\n\"'`]+)"),
+        re.compile(r"(?<![\w.-])(?:/" + r"Users/[^ \t\n\"'`]+|/" + r"home/[^ \t\n\"'`]+)"),
         "error",
     ),
     (

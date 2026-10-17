@@ -7,6 +7,7 @@ from test_chat import chat, create, queued
 from app.chat import service
 from app.chat.backup import LocalBackupStore
 from app.chat.schema import messages, audit
+from app.chat.schema import task_traces, task_trace_spans
 
 
 def setup_store(chat, tmp_path):
@@ -93,3 +94,92 @@ def test_empty_conversation_deletion_also_survives_restore(chat,tmp_path,monkeyp
     output=tmp_path/'empty-restored.sqlite';store.restore(backup_id,output)
     with sqlite3.connect(output) as db:
         assert db.execute('SELECT deleted_at FROM chat_conversations WHERE id=?',(cid,)).fetchone()[0]
+
+
+def test_automatic_rotation_preserves_manual_and_protected_backups(chat, tmp_path):
+    store, source = setup_store(chat, tmp_path)
+    manual = store.create(source)
+    protected = store.create(source, origin='automatic')
+    store.protect(protected, 'governance-bundle')
+    old = store.create(source, origin='automatic')
+    result = store.create_automatic(source, 1)
+    assert result == {'created': True, 'expired': 1, 'protected': 1}
+    inventory = store.inventory()
+    assert {row['id'] for row in inventory} >= {manual, protected}
+    assert old not in {row['id'] for row in inventory}
+    assert len([row for row in inventory if row['origin'] == 'automatic' and not row['protected']]) == 1
+    with pytest.raises(ValueError, match='protected'):
+        store.expire(protected)
+    assert store.create_automatic(source, 0)['created'] is False
+    assert store.ledger.exists()
+
+
+def test_old_unclassified_snapshots_are_not_rotated(chat, tmp_path):
+    store, source = setup_store(chat, tmp_path)
+    old = store.create(source)
+    with sqlite3.connect(store.ledger) as db:
+        db.execute('DELETE FROM backup_metadata WHERE id=?', (old,))
+    store.create_automatic(source, 1)
+    assert next(row for row in store.inventory() if row['id'] == old)['origin'] == 'unknown'
+    assert (store.root / (old + '.sqlite')).exists()
+
+
+def test_rotation_failure_keeps_previous_recovery_point_and_trace(chat, tmp_path, monkeypatch):
+    _, factory = chat
+    store, source = setup_store(chat, tmp_path)
+    old = store.create(source, origin='automatic')
+    def failed_expire(*_args, **_kwargs):
+        raise OSError('synthetic expire failure')
+    monkeypatch.setattr(store, 'expire', failed_expire)
+    from app.chat.platform_worker import automatic_snapshot
+    with pytest.raises(OSError, match='synthetic'):
+        automatic_snapshot(factory, store, source, 1)
+    assert (store.root / (old + '.sqlite')).is_file()
+    assert next(row for row in store.inventory() if row['id'] == old)['valid']
+    with factory() as db:
+        row = db.execute(select(task_traces).where(task_traces.c.task_type == 'local_snapshot')).mappings().one()
+        assert row['status'] == 'failed' and row['task_type'] == 'local_snapshot'
+        assert len(list(db.scalars(select(task_trace_spans.c.id).where(task_trace_spans.c.task_trace_id == row['task_trace_id'])))) == 2
+
+
+def test_worker_snapshot_start_and_periodic_limit_zero(chat, tmp_path):
+    _, factory = chat
+    store, source = setup_store(chat, tmp_path)
+    from app.chat.platform_worker import automatic_snapshot
+    assert automatic_snapshot(factory, store, source, 2)['created']
+    assert automatic_snapshot(factory, store, source, 2)['created']
+    assert automatic_snapshot(factory, store, source, 2)['expired'] == 1
+    assert len(store.inventory()) == 2
+    assert automatic_snapshot(factory, store, source, 0)['created'] is False
+    assert len(store.inventory()) == 2
+    with factory() as db:
+        assert db.scalar(select(task_traces.c.id).where(task_traces.c.status == 'skipped'))
+
+
+def test_snapshot_registration_failure_preserves_old_backup(chat, tmp_path, monkeypatch):
+    store, source = setup_store(chat, tmp_path)
+    old = store.create(source, origin='automatic')
+    from app.chat import backup as backup_module
+    def failed_digest(*_args):
+        raise OSError('synthetic registration failure')
+    monkeypatch.setattr(backup_module, 'digest', failed_digest)
+    with pytest.raises(OSError, match='registration'):
+        store.create_automatic(source, 1)
+    assert (store.root / (old + '.sqlite')).is_file()
+    with sqlite3.connect(store.ledger) as db:
+        assert db.execute('SELECT count(*) FROM backups').fetchone()[0] == 1
+
+
+def test_interrupted_expiry_reconciles_file_and_ledger(chat, tmp_path):
+    store, source = setup_store(chat, tmp_path)
+    bid = store.create(source, origin='automatic')
+    backup = store.root / (bid + '.sqlite')
+    stage = store.root / ('.expiring-' + bid + '.sqlite')
+    backup.replace(stage)
+    assert next(row for row in store.inventory() if row['id'] == bid)['valid']
+    assert backup.is_file() and not stage.exists()
+    backup.replace(stage)
+    with sqlite3.connect(store.ledger) as db:
+        db.execute('DELETE FROM backups WHERE id=?', (bid,))
+    assert store.inventory() == []
+    assert not stage.exists()

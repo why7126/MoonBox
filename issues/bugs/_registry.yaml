@@ -1,35 +1,175 @@
-next_id: 26
+next_id: 43
 entries:
-- id: BUG-0025-test
-  title: 待澄清：test 的具体意图
-  status: captured
+- id: BUG-0042-chat-archive-issue-promote-retest-2
+  title: "Chat 关联 Issue 首次归档复验夹具"
+  status: done
+  severity: low
+  owner: MoonBox 产品团队
+  source: 用户授权的 BUG-0026 AC-001 专用复验夹具；BUG-0041 轮次 stopped
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0042-chat-archive-issue-promote-retest-2/
+  created: '2026-10-12 13:13:36'
+  iteration: sprint-009
+  related_change: fix-chat-archive-issue-promote-retest-2
+  reporter: user
+  related_requirement: null
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0041-chat-archive-issue-promote-retest
+  title: "Chat 关联 Issue 首次归档复验夹具"
+  status: done
+  severity: low
+  owner: MoonBox 产品团队
+  source: 用户授权的 BUG-0026 AC-001 专用复验夹具
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0041-chat-archive-issue-promote-retest/
+  created: '2026-10-12 13:13:36'
+  iteration: sprint-009
+  related_change: fix-chat-archive-issue-promote-retest
+  reporter: user
+  related_requirement: null
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0040-chat-archive-issue-promote-fixture
+  title: "Chat 首次归档关联 Issue 迁移验收夹具"
+  status: done
+  severity: low
+  owner: MoonBox 产品团队
+  source: 用户授权的 BUG-0026 AC-001 专用验收夹具
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0040-chat-archive-issue-promote-fixture/
+  created: '2026-10-12 11:02:15'
+  iteration: sprint-009
+  related_change: fix-chat-archive-issue-promote-fixture
+  reporter: user
+  related_requirement: null
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0035-requirement-center-acceptance-readiness-projection
+  title: "需求中心卡片验收进度与归档门禁不一致且验收文档入口消失"
+  status: done
   severity: medium
-  owner: user_f694abc671d548b48d9eb897f720ba4d
-  source: capture
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0025-test/
-  created: '2026-09-16 23:49:40'
-  iteration: null
-  related_change: null
+  owner: 产品团队
+  source: 用户截图反馈与只读代码定位
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0035-requirement-center-acceptance-readiness-projection/
+  created: '2026-10-09 22:32:00'
+  iteration: sprint-009
+  related_change: fix-requirement-center-acceptance-readiness-projection
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: BUG-0023-requirement-center-acceptance-progress-task-classification
+- id: BUG-0034-chat-standalone-archive-scope-tool-path
+  title: "产品内纯治理 Change 归档因权限与命令路径缺失失败"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户截图与本地执行轮次只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0034-chat-standalone-archive-scope-tool-path/
+  created: '2026-10-09 10:50:49'
+  iteration: sprint-009
+  related_change: fix-chat-standalone-archive-scope-tool-path
+  reporter: user
+  related_requirement: null
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0033-opsx-apply-governance-scope-source-readonly
+  title: "产品内执行 opsx-apply 误授治理写权限导致源码只读"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户反馈与只读代码定位
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0033-opsx-apply-governance-scope-source-readonly/
+  created: '2026-10-06 22:22:15'
+  iteration: sprint-008
+  related_change: fix-opsx-apply-governance-scope-source-readonly
+  reporter: user
+  related_requirement: null
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0030-chat-assistant-output-missing-from-conversation
+  title: "Chat 工作台已有助手输出事件但对话正文为空"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户截图反馈与产品只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0030-chat-assistant-output-missing-from-conversation/
+  created: '2026-10-05 22:50:29'
+  iteration: sprint-009
+  related_change: fix-chat-assistant-output-missing-from-conversation
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0029-chat-workbench-nonempty-page-scroll
+  title: "Chat 工作台非空白对话出现页面级滚动条及底部布局异常"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户截图反馈
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0029-chat-workbench-nonempty-page-scroll/
+  created: '2026-10-05 22:31:19'
+  iteration: sprint-008
+  related_change: fix-chat-workbench-nonempty-page-scroll
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: BUG-0027-page-scroll-bottom-light-background-exposed
+- id: BUG-0027-page-scroll-bottom-light-background-exposed
+  title: "页面向上滑动时底部露出浅色背景"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: /bug-capture
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0027-page-scroll-bottom-light-background-exposed/
+  created: '2026-10-04 23:23:29'
+  iteration: sprint-008
+  related_change: fix-page-scroll-root-background-exposed
   reporter: user
   related_requirement: null
   related_bug: null
-- id: BUG-0024-capture
-  title: 列表刷新后滚动位置回到顶部
-  status: captured
+- id: BUG-0026-chat-platform-opsx-archive-source-permission
+  title: "Chat 平台无法归档 source 工作区 Change 且状态未知"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户授权修复实现流程
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0026-chat-platform-opsx-archive-source-permission/
+  created: '2026-10-04 11:11:31'
+  iteration: sprint-008
+  related_change: fix-chat-platform-opsx-archive-source-permission
+  reporter: user
+  related_requirement: REQ-0039-requirement-center-card-chat-session-reuse
+  related_bug: BUG-0025-requirement-center-command-chain-write-gap
+- id: BUG-0025-requirement-center-command-chain-write-gap
+  title: "需求中心看板展示完整治理命令链但多数命令未接入真实写入"
+  status: done
   severity: medium
   owner: user_f694abc671d548b48d9eb897f720ba4d
   source: capture
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0024-capture/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0025-requirement-center-command-chain-write-gap/
+  created: '2026-09-16 23:49:40'
+  iteration: sprint-008
+  related_change: fix-requirement-center-command-chain-write-gap
+  reporter: user
+  related_requirement: null
+  related_bug: null
+- id: BUG-0024-login-expired-refresh-not-redirect-login
+  title: "登录失效时，页面刷新也没有重新定位到登录页"
+  status: done
+  severity: medium
+  owner: user_f694abc671d548b48d9eb897f720ba4d
+  source: capture
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0024-login-expired-refresh-not-redirect-login/
   created: '2026-09-16 20:00:07'
-  iteration: null
-  related_change: null
+  iteration: sprint-008
+  related_change: fix-chat-auth-expired-redirect-login
   reporter: user
   related_requirement: null
   related_bug: null
 - id: BUG-0023-requirement-center-acceptance-progress-task-classification
-  title: "需求中心验收中卡片进度未按 tasks.md 分类统计返修任务"
+  title: 需求中心验收中卡片进度未按 tasks.md 分类统计返修任务
   status: done
   owner: 产品团队
   source: /bug-capture
@@ -43,7 +183,7 @@ entries:
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: null
 - id: BUG-0022-requirement-center-html-preview-auth-lost
-  title: "需求中心卡片 HTML 预览直开受保护接口导致认证失败"
+  title: 需求中心卡片 HTML 预览直开受保护接口导致认证失败
   status: done
   owner: 产品团队
   source: explore
@@ -57,7 +197,7 @@ entries:
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: null
 - id: BUG-0021-requirement-center-bug-card-severity-display
-  title: "需求中心 BUG 卡片显示优先级 P 值而非严重性"
+  title: 需求中心 BUG 卡片显示优先级 P 值而非严重性
   status: done
   owner: 产品团队
   source: /explore 截图反馈
@@ -71,7 +211,7 @@ entries:
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: BUG-0020-req-complete-status-projection-drift
 - id: BUG-0020-req-complete-status-projection-drift
-  title: "req.complete 后 REQ 状态投影残留 draft/enriching 导致数据漂移"
+  title: req.complete 后 REQ 状态投影残留 draft/enriching 导致数据漂移
   status: done
   owner: 产品团队
   source: 用户反馈
@@ -85,7 +225,7 @@ entries:
   related_requirement: REQ-0029-capture-multimodal-candidate-review
   related_bug: null
 - id: BUG-0019-requirement-center-issue-title-overridden
-  title: "需求中心阶段业务标题来源与文档中文标题校验"
+  title: 需求中心阶段业务标题来源与文档中文标题校验
   status: done
   owner: 产品团队
   source: explore
@@ -99,7 +239,7 @@ entries:
   related_requirement: null
   related_bug: null
 - id: BUG-0018-standalone-change-acceptance-source-unverified
-  title: "独立 Change 卡片误报验收来源待核实"
+  title: 独立 Change 卡片误报验收来源待核实
   status: done
   owner: 产品团队
   source: 用户反馈
@@ -113,7 +253,7 @@ entries:
   related_requirement: REQ-0026-requirement-center-standalone-change-cards
   related_bug: null
 - id: BUG-0017-compose-container-name-suffix-one
-  title: "容器名不应自动追加 -1 后缀"
+  title: 容器名不应自动追加 -1 后缀
   status: done
   owner: 产品团队
   source: 用户反馈

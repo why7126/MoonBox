@@ -7,7 +7,7 @@ for(const theme of ['dark','light'])for(const width of [1440,390]){
  const page=await browser.newPage({viewport:{width,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(theme=>{localStorage.setItem('moonbox.session',JSON.stringify({username:'验收账号',access_token:'synthetic-test'}));localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));},theme);
  await page.route('**/api/**',route=>{const u=new URL(route.request().url());return route.fulfill({json:{code:0,data:u.pathname.endsWith('/projects')?{...base,projects:[{space_id:'space',repository_id:'repo',readonly:false,status:'connected'}]}:u.pathname.endsWith('/context')?base:u.pathname.endsWith('/tasks.md')?{content:'# 当前变更进度\n- [ ] 待完成',version:'test'}:{ready:false}}});});
- await page.goto('http://127.0.0.1:18135/tests/governance-board-preview.html');
+ await page.goto('http://127.0.0.1:39035/tests/governance-board-preview.html');
  const card=page.locator('[data-issue-id="sample-ready-dev"]');await expect(card).toBeVisible();await card.scrollIntoViewIfNeeded();
  await expect(card.getByRole('button',{name:'开始开发 →'})).toBeDisabled();
  await expect(page.locator('[data-issue-id="sample-acceptance"]').getByRole('button',{name:'完成 / 归档 →'})).toBeDisabled();

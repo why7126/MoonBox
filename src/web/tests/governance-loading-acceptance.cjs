@@ -16,7 +16,7 @@ for(const [theme,width,height] of [['dark',1440,1000],['light',1440,1000],['dark
   else throw Error('unexpected request '+url.pathname);
   await route.fulfill({json:{code:0,data:response}});
  });
- await page.goto('http://127.0.0.1:18122/tests/governance-board-preview.html');
+ await page.goto('http://127.0.0.1:39022/tests/governance-board-preview.html');
  await expect(page.locator('.rc-loading-card')).toHaveCount(9);
  await expect(page.locator('.rc-state-panel')).toHaveCount(0);
  await expect(page.locator('.rc-empty-stage')).toHaveCount(0);

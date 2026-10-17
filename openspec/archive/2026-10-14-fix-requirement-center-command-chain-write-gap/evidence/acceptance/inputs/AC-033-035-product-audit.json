@@ -1,0 +1,91 @@
+{
+  "source": "read-only SQLite and isolated source-file audit",
+  "shared_chain": {
+    "conversation_workspace_id": "source",
+    "turns": [
+      {
+        "id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+        "status": "completed",
+        "error_code": null
+      },
+      {
+        "id": "f946c910-5c33-4f19-89ee-aa0beb41223f",
+        "status": "completed",
+        "error_code": null
+      },
+      {
+        "id": "096f832d-1fd7-41b5-910e-1eb890e6121a",
+        "status": "completed",
+        "error_code": null
+      },
+      {
+        "id": "20f68b24-c2b4-42d9-a79c-b6ff3908d873",
+        "status": "completed",
+        "error_code": null
+      }
+    ],
+    "candidates": [
+      {
+        "action": "bug-generate",
+        "state": "applied",
+        "error_code": null
+      },
+      {
+        "action": "bug-complete",
+        "state": "applied",
+        "error_code": null
+      },
+      {
+        "action": "bug-complete",
+        "state": "applied",
+        "error_code": null
+      },
+      {
+        "action": "bug-complete",
+        "state": "unchanged",
+        "error_code": null
+      }
+    ],
+    "applications": [
+      {
+        "action": "bug-generate",
+        "state": "applied",
+        "phase": "verified"
+      },
+      {
+        "action": "bug-complete",
+        "state": "applied",
+        "phase": "verified"
+      },
+      {
+        "action": "bug-complete",
+        "state": "applied",
+        "phase": "verified"
+      }
+    ]
+  },
+  "isolated_source_mode": {
+    "turn_id": "6a66a033-9e73-425b-9458-0f36f8318091",
+    "turn_status": "completed",
+    "conversation_workspace_id": "source",
+    "candidate": [
+      {
+        "action": "bug-generate",
+        "state": "applied",
+        "error_code": null
+      }
+    ],
+    "application": [
+      {
+        "state": "applied",
+        "phase": "verified"
+      }
+    ],
+    "relative_fact_path": "issues/bugs/plan/BUG-1001-bug-0025/bug.md",
+    "fact_exists": true,
+    "fact_sha256": "5b7a5ce9e348704f5aaf4ce4c202909b7e6323d4c2c1ee1fcc42384bdf01b8f8",
+    "conversation_copy_exists": false,
+    "task_trace_count": 1,
+    "execution_tool_event_count": 24
+  }
+}

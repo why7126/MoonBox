@@ -6,7 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-09-29 14:47:32
+updated_at: 2026-10-17 17:20:00
 ---
 
 # 知识库使用说明
@@ -56,6 +56,8 @@ updated_at: 2026-09-29 14:47:32
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-009 | [Sprint-009 经验复盘](retrospectives/sprint-009-retrospective.md) | active | 5 |
+| sprint-008 | [Sprint-008 经验复盘](retrospectives/sprint-008-retrospective.md) | active | 5 |
 | sprint-007 | [Sprint-007 经验复盘](retrospectives/sprint-007-retrospective.md) | active | 6 |
 | sprint-006 | [Sprint-006 经验复盘](retrospectives/sprint-006-retrospective.md) | active | 6 |
 | sprint-005 | [Sprint-005 经验复盘](retrospectives/sprint-005-retrospective.md) | active | 6 |

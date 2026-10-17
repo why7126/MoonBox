@@ -43,7 +43,7 @@ def _run_script(tmp_path: Path, env_file_content: str, extra_env: dict[str, str]
 
 
 def test_docker_up_does_not_require_vite_api_base_url(tmp_path: Path) -> None:
-    result = _run_script(tmp_path, "HOST_PORT_BACKEND=18101\n")
+    result = _run_script(tmp_path, "HOST_PORT_BACKEND=39001\n")
 
     assert result.returncode == 0, result.stderr
     capture = (tmp_path / "capture.txt").read_text()
@@ -53,7 +53,7 @@ def test_docker_up_does_not_require_vite_api_base_url(tmp_path: Path) -> None:
 
 
 def test_docker_up_ignores_runtime_vite_api_base_url_for_docker_web(tmp_path: Path) -> None:
-    result = _run_script(tmp_path, "HOST_PORT_BACKEND=18101\nVITE_API_BASE_URL=http://localhost:8000\n")
+    result = _run_script(tmp_path, "HOST_PORT_BACKEND=39001\nVITE_API_BASE_URL=http://localhost:8000\n")
 
     assert result.returncode == 0, result.stderr
     capture = (tmp_path / "capture.txt").read_text()

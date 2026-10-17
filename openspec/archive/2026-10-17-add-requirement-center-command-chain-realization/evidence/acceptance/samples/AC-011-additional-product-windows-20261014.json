@@ -1,0 +1,79 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "evidence_kind": "real-product-turns-with-isolated-worker-faults",
+  "rounds": [
+    {
+      "action": "req-generate",
+      "object_id": "REQ-9205-ac011-before-write",
+      "turn_id": "ae0be6e4-c8b4-456c-b463-3e76a11ec16e",
+      "window": "external-executor-running-before-business-file",
+      "after_restart": {
+        "turn": "stopped",
+        "error_code": "worker_heartbeat_lost",
+        "candidate": "rejected",
+        "application_count": 0,
+        "requirement_exists": false
+      }
+    },
+    {
+      "action": "req-complete",
+      "object_id": "REQ-9206-ac011-before-sync",
+      "turn_id": "67fd9db5-cc47-42f7-b38e-b8354acddfb7",
+      "window": "external-executor-running-before-any-governance-file-change",
+      "baseline_revision": "0d397406101374998d7a47ae533ec7412377760391e3839b93e6086bc92e9a2d",
+      "after_restart": {
+        "turn": "stopped",
+        "error_code": "worker_heartbeat_lost",
+        "full_governance_equals_baseline": true
+      }
+    },
+    {
+      "action": "req-review",
+      "object_id": "REQ-9207-ac011-review-fault",
+      "turn_id": "5a3dcec5-ddd2-4c67-8085-74920ff53e2d",
+      "window": "external-executor-running-before-any-governance-file-change",
+      "baseline_revision": "0d397406101374998d7a47ae533ec7412377760391e3839b93e6086bc92e9a2d",
+      "after_restart": {
+        "turn": "stopped",
+        "error_code": "worker_heartbeat_lost",
+        "full_governance_equals_baseline": true
+      }
+    },
+    {
+      "action": "sprint-propose",
+      "object_id": "REQ-9208-ac011-sprint-fault",
+      "turn_id": "8aa39956-c4ea-4428-a807-a315298eb193",
+      "window": "workflow-sync-completed-before-chat-terminal; initial before-write monitor failed to match worker process",
+      "after_restart": {
+        "turn": "stopped",
+        "journal_classification": "sync_completed_unverified",
+        "journal_steps": 6,
+        "successful_sync_steps": 2,
+        "sprint_yaml_valid_before_fixture_repair": false,
+        "issue_trace_status": "in_sprint"
+      },
+      "finding": "Model inserted two Sprint YAML list items at inconsistent indentation. Workflow Sync reported success despite malformed YAML; this is a product failure, not a passing fault window.",
+      "fixture_repair": "Only the two isolated Sprint YAML list entries were deindented and PyYAML-validated after preserving the failure facts."
+    },
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9108-sprint-single",
+      "turn_id": "2cfbb353-0c05-4814-a5db-f77d843852c9",
+      "window": "external-executor-running-before-any-governance-file-change",
+      "baseline_revision": "9607cd80d825e7b005bd45b20cf58dc97d1365c0d479d89edb25ab2d9cc196b0",
+      "after_restart": {
+        "turn": "unknown",
+        "error_code": "worker_heartbeat_lost",
+        "journal_phase": "prepared",
+        "journal_steps": 0,
+        "full_governance_equals_baseline": true,
+        "product_interrupt_http": 409,
+        "product_interrupt_code": 2506,
+        "exact_external_turn_read": "not_found"
+      },
+      "limit": "Read-only external thread inspection did not find the exact turn, but the product turn remains unknown; absence is not a trusted terminal event. The journal must not classify it as complete or automatically replay it. Additional writes in this isolated source were paused."
+    }
+  ],
+  "overall": "partial; AC-011 remains unsigned"
+}

@@ -1,0 +1,22 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "req-review",
+  "object_id": "REQ-9207-ac011-review-fault",
+  "turn_id": "e66b18b4-9ddb-4cb3-ac2f-eba4fa0fde5e",
+  "window": "formal req.review Workflow Sync completed with exit code zero while the Chat turn was still running",
+  "baseline_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445",
+  "source_revision_before_kill": "a9210321a81e20ed00c844a8c828078064d0a729ab935caa4d829c2728f0d98a",
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "candidate": "rejected",
+    "candidate_error_code": "executor_unavailable",
+    "application_count": 0,
+    "review_document_exists": false,
+    "full_governance_equals_baseline": true
+  },
+  "interpretation": "A successful Sync subprocess within an unfinished candidate turn did not apply the interrupted review candidate or retain its review document.",
+  "limit": "One post-sync candidate window; the full seven-action matrix remains incomplete.",
+  "overall": "partial; AC-011 remains unsigned"
+}

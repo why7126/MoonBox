@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "change_id": "add-automated-opsx-acceptance",
+  "run_id": "20261012152430201924-66c67d5e",
+  "created_at": "2026-10-12 15:24:32",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-source",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "d9ce595ff7b782b4f34dced8de9ab595e117e1a1c99e0a900bdcc9b2e0ccf361",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1414
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "a42345ba5f28c77f68e34d3b6420a9ad5ceeeea07ce29c8e638e354b24a9e2ca",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 119
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "3ce40088daae16b853291397ed0c3ae634cbe86deab5664b411ea48710153a2d",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "duration_ms": 771
+    }
+  ]
+}

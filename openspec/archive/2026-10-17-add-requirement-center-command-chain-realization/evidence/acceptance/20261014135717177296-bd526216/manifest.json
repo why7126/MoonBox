@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "change_id": "add-requirement-center-command-chain-realization",
+  "run_id": "20261014135717177296-bd526216",
+  "created_at": "2026-10-14 13:57:33",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "isolated-moonbox-39028-source",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "ec8f712e9744244243b29362b8c5e9e223e0b0097d7800c5dc023965e10408c9",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "9f64e9b5e2185eb3c80c627caab18de471590186628c922c4f2e9cb4a097865f",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "5139e9809a63ffdaebffa205b17d8610646911ca4212e74d388f0b825267db71",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "b8178796d4b15461a3a5163e0ee905a8110edee665de66e10741fde25eedb574",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "b733100e3cd6f29d3a04b11fe0d13cb7f003329154c8af04a17e4fe3d848bfdc",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "972dbe28b5dcd2003bcf78508b2a88d378bda2353ecddea28489f2808cea4ddc",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "29587229c6a6f4e755eb5c739c7864ac013a03fcbcdc08fbe72382492d424834",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "ebfc9e20a3eb4e83765a89e644f2042e8afc167fd982933cbae91c01306d658c",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "883c218f83381317e55d8b037e25cc6f468a580345eff52c349fd6b3c4f77836",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-009.md",
+          "sha256": "c8c258d84c5accdb9631125e0f0b8eeda302bc15262be4b632a526a10bf9cb49"
+        }
+      ],
+      "duration_ms": 15942,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "e594d5ac84243dd05e51a9849de2e0da684dfc11e869a8354893863fdeffe4f7",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "74e90e197b65eedd095e15d8188ec8aac17cc2314fe39943efc3f47404c16f56",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "ac790c4e722f1fae3fc88e22b6ccd2ba2e98f8689a198c44667b0cb7bcea7cd5",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "f2577eab6c0172f2b0fc28b57dcaa9603cda6075d914efa2ade8185ea454c9eb",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "8546d9921f22c79ff0ea24538a98b03e508d37525b39e09b5c1482ed5d4b5ea7",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "6f71e4b7f5e23fa6c8a2f7894feef36c2d7be832aabfbdbc3f49633d891d523e",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "6028aa2185523895c2e49a71f65b6e4a81b580c1a5100624286aa43d01e13fc0",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "bca7a5c98587a3eb2a42d3543adbb0fb84caf55e9f6a9ab7a3716ad36b1f2575",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c8475c3ec44e8b8e30716a9f6468b5c07038eaff8c00cddf96d9179d2d5a50da",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c95896087af2933c3155a99b1c234af973819404a6da02ab6a6522f67fb0eba7",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "4c5c47307787874c4436515795a258f3bcd9764d363bfaf8db0ffcb2daae7d63",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "01dac9b0277364db776cd6aea0fececa499eaf8e15de7d165d1b0746fdc917a2",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "6e27f30ea03b8b7c5162b32db17f40bcce2bb2967bb0432b524d616ec8ca3d07",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "4e565a85a894eabdf555b99647d494da0e6c6d7776641c24f0eeb7ecd1dec02e",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "454d5c0c60f06bc05137214c7885c71f60874907495a5cf0812bbcce7c882e7a",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "5a63200c779fa1e34cba83898905eaaea85d022efcf1f642d60d994e28829ab2",
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "34d3b254c2ae397b5a1574a0f9dce8a191c50ed05c99a65461117cc412f66b2b",
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c4cbd53bda70a783975280d13141e2e8233de1fa8f839287619ef6836d95e8cb",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "d75bd7c49fca563486b80f7b88a065f9062e191bfb061d3da722d8d102f0d5e3",
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    }
+  ]
+}

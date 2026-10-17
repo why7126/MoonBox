@@ -198,3 +198,19 @@ governance_project_locks = Table('governance_project_locks',metadata,
     Column('fencing_token',BigInteger,nullable=False,default=0),Column('worker_id',String(64)),
     Column('updated_at',String(32),nullable=False))
 CHAT_TABLES.extend([governance_candidates,governance_applications,governance_project_locks])
+
+# REQ-0044: verification metadata only; screenshots remain in protected runtime storage.
+verification_tasks = Table('verification_tasks', metadata, *identity(),
+    Column('actor_id', String(64), ForeignKey('admin_users.id'), nullable=False),
+    Column('space_id', String(64), ForeignKey('admin_spaces.id'), nullable=False),
+    Column('repository_id', String(64), nullable=False),
+    Column('client_request_id', String(64), nullable=False),
+    Column('browser', String(16), nullable=False),
+    Column('environment_key', String(64)), Column('image_digest', String(71)),
+    Column('status', String(24), nullable=False), Column('error_code', String(64)),
+    Column('result', Text, nullable=False, default='{}'),
+    Column('started_at', String(32)), Column('completed_at', String(32)),
+    UniqueConstraint('actor_id','space_id','repository_id','client_request_id',name='uq_verification_request'))
+Index('ix_verification_queue', verification_tasks.c.status, verification_tasks.c.created_at)
+Index('ix_verification_scope', verification_tasks.c.space_id, verification_tasks.c.repository_id, verification_tasks.c.created_at)
+CHAT_TABLES.append(verification_tasks)

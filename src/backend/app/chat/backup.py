@@ -41,6 +41,8 @@ class LocalBackupStore:
                     CREATE TABLE identity (id TEXT PRIMARY KEY, source_hash TEXT);
                     CREATE TABLE deletions (conversation_id TEXT PRIMARY KEY, deleted_at TEXT NOT NULL);
                     CREATE TABLE backups (id TEXT PRIMARY KEY, sha256 TEXT NOT NULL, created_at TEXT NOT NULL);
+                    CREATE TABLE backup_metadata (id TEXT PRIMARY KEY, origin TEXT NOT NULL);
+                    CREATE TABLE backup_protection (id TEXT NOT NULL, reference_id TEXT NOT NULL, PRIMARY KEY (id, reference_id));
                 ''')
                 db.execute('INSERT INTO identity(id) VALUES (?)', (uuid.uuid4().hex,))
         self._validate()
@@ -62,6 +64,17 @@ class LocalBackupStore:
         fd = os.open(self.root / 'store.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         with os.fdopen(fd, 'w') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
+            with sqlite3.connect(self.ledger) as ledger:
+                for stage in self.root.glob('.expiring-*.sqlite'):
+                    backup_id = stage.name[len('.expiring-'):-len('.sqlite')]
+                    identifier(backup_id)
+                    source = self.root / (backup_id + '.sqlite')
+                    if stage.is_symlink() or source.is_symlink() or source.exists():
+                        raise ValueError('backup expiry recovery conflict')
+                    if ledger.execute('SELECT 1 FROM backups WHERE id=?', (backup_id,)).fetchone():
+                        stage.replace(source)
+                    else:
+                        stage.unlink()
             yield
 
     def record_deletion(self, cid, *, source=None):
@@ -75,7 +88,15 @@ class LocalBackupStore:
             db.execute('PRAGMA synchronous=FULL')
             db.execute('INSERT OR IGNORE INTO deletions VALUES (?,?)', (cid, service.now()))
 
-    def create(self, source):
+    @staticmethod
+    def _ensure_rotation_schema(db):
+        # Older backup ledgers remain readable. Missing provenance stays unknown.
+        db.execute('CREATE TABLE IF NOT EXISTS backup_metadata (id TEXT PRIMARY KEY, origin TEXT NOT NULL)')
+        db.execute('CREATE TABLE IF NOT EXISTS backup_protection (id TEXT NOT NULL, reference_id TEXT NOT NULL, PRIMARY KEY (id, reference_id))')
+
+    def create(self, source, *, origin='manual'):
+        if origin not in ('manual', 'automatic'):
+            raise ValueError('invalid backup origin')
         source = Path(source)
         if not source.is_absolute() or source.is_symlink() or not source.is_file():
             raise ValueError('source must be an existing trusted SQLite file')
@@ -85,6 +106,7 @@ class LocalBackupStore:
         backup_id = uuid.uuid4().hex
         output = self.root / (backup_id + '.sqlite')
         with self.locked(), sqlite3.connect(self.ledger) as ledger:
+            self._ensure_rotation_schema(ledger)
             source_hash = hashlib.sha256(str(source).encode()).hexdigest()
             old = ledger.execute('SELECT source_hash FROM identity').fetchone()[0]
             if old is not None and old != source_hash:
@@ -100,10 +122,72 @@ class LocalBackupStore:
                     os.fsync(stream.fileno())
                 ledger.execute('UPDATE identity SET source_hash=?', (source_hash,))
                 ledger.execute('INSERT INTO backups VALUES (?,?,?)', (backup_id, digest(output), service.now()))
+                ledger.execute('INSERT INTO backup_metadata VALUES (?,?)', (backup_id, origin))
             except Exception:
                 output.unlink(missing_ok=True)
                 raise
         return backup_id
+
+    def protect(self, backup_id, reference_id):
+        """在治理 manifest 落盘前登记引用；失败时宁可保守保留副本。"""
+        backup_id = identifier(backup_id)
+        reference_id = identifier(reference_id)
+        with self.locked(), sqlite3.connect(self.ledger) as ledger:
+            self._ensure_rotation_schema(ledger)
+            if not ledger.execute('SELECT 1 FROM backups WHERE id=?', (backup_id,)).fetchone():
+                raise ValueError('backup inventory missing')
+            ledger.execute('INSERT OR IGNORE INTO backup_protection VALUES (?,?)', (backup_id, reference_id))
+
+    def release_protection(self, backup_id, reference_id):
+        """仅在对应治理成套备份显式退役后由运维调用。"""
+        backup_id = identifier(backup_id)
+        reference_id = identifier(reference_id)
+        with self.locked(), sqlite3.connect(self.ledger) as ledger:
+            self._ensure_rotation_schema(ledger)
+            cursor = ledger.execute('DELETE FROM backup_protection WHERE id=? AND reference_id=?',
+                                    (backup_id, reference_id))
+            return cursor.rowcount == 1
+
+    def inventory(self):
+        """只返回不透明 ID、来源、引用状态与大小，不读取会话正文。"""
+        with self.locked(), sqlite3.connect(self.ledger) as ledger:
+            tables = {row[0] for row in ledger.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            if {'backup_metadata', 'backup_protection'} <= tables:
+                rows = ledger.execute('''SELECT b.id, b.sha256, b.created_at,
+                    COALESCE(m.origin, 'unknown'), EXISTS(SELECT 1 FROM backup_protection p WHERE p.id=b.id)
+                    FROM backups b LEFT JOIN backup_metadata m ON m.id=b.id
+                    ORDER BY b.rowid''').fetchall()
+            else:
+                rows = [(bid, expected, created, 'unknown', 0) for bid, expected, created
+                        in ledger.execute('SELECT id, sha256, created_at FROM backups ORDER BY rowid')]
+            result = []
+            for bid, expected, created, origin, protected in rows:
+                path = self.root / (identifier(bid) + '.sqlite')
+                valid = path.is_file() and not path.is_symlink() and digest(path) == expected
+                result.append({'id': bid, 'created_at': created, 'origin': origin,
+                               'protected': bool(protected), 'valid': valid,
+                               'bytes': path.stat().st_size if valid else 0})
+            return result
+
+    def create_automatic(self, source, limit):
+        """新副本登记成功后轮转；过期失败向上报告但不损坏旧恢复点。"""
+        if type(limit) is not int or limit < 0:
+            raise ValueError('invalid automatic snapshot limit')
+        if limit == 0:
+            return {'created': False, 'expired': 0, 'protected': 0}
+        backup_id = self.create(source, origin='automatic')
+        inventory = self.inventory()
+        candidate = [row for row in inventory if row['origin'] == 'automatic' and not row['protected']]
+        if any(not row['valid'] for row in inventory):
+            raise ValueError('backup inventory/hash mismatch')
+        if not next(row for row in inventory if row['id'] == backup_id)['valid']:
+            raise ValueError('automatic backup validation failed')
+        expired = 0
+        for row in candidate[:-limit]:
+            if self.expire(row['id'], automatic_only=True):
+                expired += 1
+        return {'created': True, 'expired': expired,
+                'protected': sum(row['origin'] == 'automatic' and row['protected'] for row in inventory)}
 
     def restore(self, backup_id, destination):
         backup_id = identifier(backup_id)
@@ -170,16 +254,43 @@ class LocalBackupStore:
         return {'deleted_conversations_replayed': len(ids), 'execution_quarantined': True,
                 'offline_only': True, 'quota_reconciliation_required': True}
 
-    def expire(self, backup_id):
+    def expire(self, backup_id, *, automatic_only=False):
         """调用方选择明确副本；无默认到期天数，不删除独立删除日志。"""
         backup_id = identifier(backup_id)
-        with self.locked(), sqlite3.connect(self.ledger) as ledger:
-            if not ledger.execute('SELECT id FROM backups WHERE id=?', (backup_id,)).fetchone():
-                return False
-            source = self.root / (backup_id + '.sqlite')
-            if source.is_symlink():raise ValueError('backup path changed')
-            source.unlink(missing_ok=True)
-            ledger.execute('DELETE FROM backups WHERE id=?', (backup_id,))
+        source = self.root / (backup_id + '.sqlite')
+        stage = self.root / ('.expiring-' + backup_id + '.sqlite')
+        with self.locked():
+            committed = False
+            moved = False
+            try:
+                with sqlite3.connect(self.ledger) as ledger:
+                    self._ensure_rotation_schema(ledger)
+                    if not ledger.execute('SELECT id FROM backups WHERE id=?', (backup_id,)).fetchone():
+                        return False
+                    if ledger.execute('SELECT 1 FROM backup_protection WHERE id=?', (backup_id,)).fetchone():
+                        raise ValueError('backup is protected by governance manifest')
+                    if automatic_only and ledger.execute('SELECT origin FROM backup_metadata WHERE id=?', (backup_id,)).fetchone() != ('automatic',):
+                        raise ValueError('backup is not an automatic snapshot')
+                    if source.is_symlink() or stage.exists():
+                        raise ValueError('backup path changed')
+                    if source.exists():
+                        source.replace(stage)
+                        moved = True
+                    ledger.execute('DELETE FROM backups WHERE id=?', (backup_id,))
+                    ledger.execute('DELETE FROM backup_metadata WHERE id=?', (backup_id,))
+                committed = True
+            except Exception:
+                if moved and not committed and stage.exists() and not source.exists():
+                    stage.replace(source)
+                raise
+            if moved:
+                try:
+                    stage.unlink()
+                except OSError:
+                    # The ledger is already committed; an orphan is safer than
+                    # recreating a registered backup after the fact.
+                    import logging
+                    logging.getLogger('moonbox.chat').warning('backup.expire_orphan_file')
         return True
 
     def copies_cleared(self, cid):
@@ -207,12 +318,16 @@ def main():
     create=sub.add_parser('create');create.add_argument('--source',required=True)
     restore=sub.add_parser('restore');restore.add_argument('--backup',required=True);restore.add_argument('--destination',required=True)
     expire=sub.add_parser('expire');expire.add_argument('--backup',required=True)
+    release=sub.add_parser('release-protection');release.add_argument('--backup',required=True);release.add_argument('--reference',required=True)
+    sub.add_parser('inventory')
     args=parser.parse_args()
     try:
         store=LocalBackupStore(args.root,initialize=args.command=='init')
         if args.command=='init':result={'initialized':True}
         elif args.command=='create':result={'backup_id':store.create(Path(args.source))}
         elif args.command=='restore':result=store.restore(args.backup,Path(args.destination))
+        elif args.command=='inventory':result={'backups':store.inventory()}
+        elif args.command=='release-protection':result={'released':store.release_protection(args.backup,args.reference)}
         else:result={'physically_removed':store.expire(args.backup)}
         print(json.dumps(result))
     except Exception:

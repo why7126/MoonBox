@@ -1,6 +1,6 @@
 const {chromium,expect}=require('@playwright/test');
 const fs=require('node:fs');const path=require('node:path');
-const base=process.env.BUG_UI_URL||'http://127.0.0.1:18135/tests/governance-board-preview.html';
+const base=process.env.BUG_UI_URL||'http://127.0.0.1:39035/tests/governance-board-preview.html';
 const output=path.resolve('../../logs/bug0016');fs.mkdirSync(output,{recursive:true});
 const fixture={current_user:{name:'验收账号'},workspaces:[{workspace_id:'space',name:'本地验证项目'}],selected_workspace_id:'space',snapshot_revision:'same',stats:{total:1,requirements:1,bugs:0,blocked:0,drift:0},issues:[{id:'REQ-0099',type:'requirement',title:'加载失败后的恢复验证',stage:'capture',priority:'P2',owner:'产品',documents:['capture.md'],document_entries:[{name:'capture.md',type:'markdown',editable:true,url:'/api/v1/requirement-center/issues/REQ-0099-test/documents/capture.md'}],updated_at:'now'}]};
 (async()=>{const browser=await chromium.launch({headless:true});const evidence=[];

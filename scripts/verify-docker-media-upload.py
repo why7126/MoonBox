@@ -20,7 +20,7 @@ from pathlib import Path
 from uuid import uuid4
 
 HASH_ITERATIONS = 120_000
-DEFAULT_WEB_PORT = "18102"
+DEFAULT_WEB_PORT = "39002"
 DEFAULT_BACKEND_DB = Path("data/runtime/backend/sqlite/moonbox.db")
 USERNAME_PREFIX = "media_probe_"
 

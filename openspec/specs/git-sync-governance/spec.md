@@ -1,0 +1,36 @@
+# git-sync-governance Specification
+
+## Purpose
+TBD - created by archiving change add-git-sync-skill. Update Purpose after archive.
+## Requirements
+### Requirement: 按交付范围安全提交
+
+Git 同步命令 SHALL 先识别目标分支、上游和工作区状态，按明确交付范围选择文件，并在提交前检查暂存清单、差异和安全扫描结果。
+
+#### Scenario: 工作区混合多条交付链路
+
+- **WHEN** 工作区同时包含多个 REQ、BUG 或治理 Change
+- **THEN** 命令仅暂存已明确归属本次交付的内容，无法归属的改动留在工作区
+
+#### Scenario: 发现不应入库的文件
+
+- **WHEN** 文件属于真实环境、运行时数据、敏感信息或其他禁止提交范围
+- **THEN** 命令停止其入库路径，区分未跟踪和已跟踪情况，保留本地文件并重新运行安全检查
+
+### Requirement: 基于发布事实创建标签
+
+Git 同步命令 SHALL 仅在正式发布证据确认版本时创建对应版本标签，并阻断同名标签指向不同提交的情况。
+
+#### Scenario: 普通开发提交
+
+- **WHEN** 本次提交没有正式发布记录
+- **THEN** 命令不创建版本标签
+
+### Requirement: 安全同步远程
+
+Git 同步命令 SHALL 在推送前获取远程状态，处理非快进和冲突，并禁止强制覆盖远端分支或标签。
+
+#### Scenario: 远端存在新增提交
+
+- **WHEN** 上游领先或分叉
+- **THEN** 命令先整合远端改动并重新验证；无法确定冲突解决方式时停止推送并报告冲突文件

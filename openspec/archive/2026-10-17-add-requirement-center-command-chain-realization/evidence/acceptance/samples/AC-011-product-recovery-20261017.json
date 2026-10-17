@@ -1,0 +1,81 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "evidence_kind": "real-product-turns-with-worker-faults-and-invalid-source",
+  "rounds": [
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9109-sprint-explicit",
+      "turn_id": "f623dfdc-1742-49b8-915a-70eea82f5d6f",
+      "window": "partial_source_before_sync",
+      "after_restart": {
+        "status": "stopped",
+        "error_code": "worker_heartbeat_lost"
+      },
+      "journal": {
+        "phase": "terminal",
+        "classification": "partial_write",
+        "steps": 14,
+        "workflow_sync_steps": 0,
+        "successful_sync_steps": 0,
+        "baseline_revision": "b96929374749cb02c1db76cd6397fadcdd78b713189b7f0d059c9cf6c53fe58e",
+        "final_revision": "f24398d6f620a7467eef82b980afa73941f385d35cb57c9f2170d262f29626cf"
+      }
+    },
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9318-ac011-before-write",
+      "turn_id": "9b249258-944e-4708-a264-543b64c4cb57",
+      "window": "external_running_before_governance_write",
+      "after_restart": {
+        "status": "stopped",
+        "error_code": "worker_heartbeat_lost"
+      },
+      "journal": {
+        "phase": "terminal",
+        "classification": "no_governance_write",
+        "steps": 0,
+        "workflow_sync_steps": 0,
+        "successful_sync_steps": 0,
+        "baseline_revision": "ab80bbdab8324450ca634021e3835022b7e0c921a2518e3d3a10dd6e8fd2fc64",
+        "final_revision": "ab80bbdab8324450ca634021e3835022b7e0c921a2518e3d3a10dd6e8fd2fc64"
+      },
+      "source_equals_baseline_after_restart": true
+    },
+    {
+      "action": "sprint-propose",
+      "object_id": "REQ-9319-ac011-invalid-sprint",
+      "turn_id": "a2593400-4dce-4f8c-8f36-053fa3f880f2",
+      "window": "malformed_sprint_source_after_formal_sync",
+      "after_restart": {
+        "status": "failed",
+        "error_code": "sprint_source_invalid"
+      },
+      "journal": {
+        "phase": "terminal",
+        "classification": "blocked_invalid_sprint_source",
+        "steps": 28,
+        "workflow_sync_steps": 2,
+        "successful_sync_steps": 1,
+        "baseline_revision": "4303fed10d82e403d85e912ee9fe5a2ca7058a7cbf485f69c9c05d73c69b226e",
+        "final_revision": "79c8d4a1bb9fdddfd69140a4cfa75aeae69c7e889b2f4f0fe1c567ab83201d0e"
+      },
+      "invalid_sprint_yaml_before_fixture_repair": {
+        "sha256": "b71508c8842cbe9094478fa142c2540f835c895440e8f5c838528ae36b27096b",
+        "syntax_error": "ParserError line 81; two newly inserted list items had inconsistent indentation"
+      },
+      "isolated_fixture_repair": {
+        "scope": "only two list item indentations",
+        "after_sha256": "5e39469b32f3bad40de9b1b31cbe18e11e7796b70989f9ab07b1d697d59d9fb8",
+        "product_turn_result_unchanged": true
+      }
+    }
+  ],
+  "historical_unknown": {
+    "turn_id": "2cfbb353-0c05-4814-a5db-f77d843852c9",
+    "status": "unknown",
+    "error_code": "worker_heartbeat_lost",
+    "handling": "preserved; no inferred terminal or replay"
+  },
+  "disclosure": "No prompts, file bodies, credentials, local paths, or raw request/response data retained."
+}

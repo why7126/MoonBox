@@ -48,6 +48,8 @@ class RequirementCenterIssue(BaseModel):
     owner: str
     source: str
     stage: str
+    status: str | None = None
+    completion_hint: str | None = None
     documents: list[str] = Field(default_factory=list)
     document_entries: list[RequirementCenterDocument] = Field(default_factory=list)
     detail_url: str
@@ -61,6 +63,8 @@ class RequirementCenterIssue(BaseModel):
     test_progress: tuple[int, int] | None = None
     manual_acceptance_progress: tuple[int, int] | None = None
     manual_acceptance_count: int = 0
+    acceptance_pending_count: int = 0
+    acceptance_blocked_reason: str | None = None
     drift_warnings: list[str] = Field(default_factory=list)
 
 

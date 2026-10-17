@@ -9,6 +9,19 @@ services:
       MOONBOX_CHAT_RETENTION: ${MOONBOX_CHAT_RETENTION}
       MOONBOX_CHAT_STATE_ROOT: /app/chat-state
       MOONBOX_CHAT_BACKUP_ROOT: /app/chat-backups
+      MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT: ${MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT-2}
+      MOONBOX_VERIFICATION_IMAGE_ID: ${MOONBOX_VERIFICATION_IMAGE_ID:-}
+      MOONBOX_VERIFICATION_NODE_VERSION: ${MOONBOX_VERIFICATION_NODE_VERSION:-}
+      MOONBOX_VERIFICATION_PNPM_VERSION: ${MOONBOX_VERIFICATION_PNPM_VERSION:-}
+      MOONBOX_VERIFICATION_OS: ${MOONBOX_VERIFICATION_OS:-linux}
+      MOONBOX_VERIFICATION_ARCH: ${MOONBOX_VERIFICATION_ARCH:-}
+      MOONBOX_VERIFICATION_REGISTRY_URL: ${MOONBOX_VERIFICATION_REGISTRY_URL:-}
+      MOONBOX_VERIFICATION_PREPARE_NETWORK: ${MOONBOX_VERIFICATION_PREPARE_NETWORK:-}
+      MOONBOX_VERIFICATION_BROWSER_NETWORK: ${MOONBOX_VERIFICATION_BROWSER_NETWORK:-moonbox-network}
+      MOONBOX_VERIFICATION_STATE_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/verification/state
+      MOONBOX_VERIFICATION_WORKSPACE_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/verification/workspaces
+      MOONBOX_VERIFICATION_ARTIFACT_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/verification/artifacts
+      MOONBOX_VERIFICATION_EVIDENCE_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/verification/evidence
       DATABASE_TYPE: sqlite
       DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
       SQLITE_DATABASE_URL: sqlite:////app/data/sqlite/moonbox.db
@@ -16,7 +29,11 @@ services:
       - ${MOONBOX_CHAT_HOST_ROOT}/state:/app/chat-state:ro
       - ${MOONBOX_CHAT_HOST_ROOT}/backups:/app/chat-backups
       - ${MOONBOX_CHAT_HOST_ROOT}/workspaces:${MOONBOX_CHAT_HOST_ROOT}/workspaces:ro
+      - ${MOONBOX_CHAT_SOURCE_ROOT}:${MOONBOX_CHAT_SOURCE_ROOT}:ro
       - ./.agents:/app/governance/.agents:ro
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/state:${MOONBOX_CHAT_HOST_ROOT}/verification/state:ro
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/artifacts:${MOONBOX_CHAT_HOST_ROOT}/verification/artifacts:ro
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/evidence:${MOONBOX_CHAT_HOST_ROOT}/verification/evidence:ro
   chat-worker:
     container_name: ${CHAT_WORKER_CONTAINER_NAME:-moonbox-chat-worker}
     restart: unless-stopped
@@ -43,12 +60,12 @@ services:
       MOONBOX_CHAT_RUNTIME_ROOT: ${MOONBOX_CHAT_HOST_ROOT}/runtime
       MOONBOX_CHAT_AUTH_FILE: /run/secrets/codex-auth.json
     volumes:
-      - ./data/runtime/backend:/app/data
+      - ./data:/app/data
       - ${MOONBOX_CHAT_HOST_ROOT}/state:/app/chat-state
       - ${MOONBOX_CHAT_HOST_ROOT}/backups:/app/chat-backups
       - ${MOONBOX_CHAT_HOST_ROOT}/workspaces:${MOONBOX_CHAT_HOST_ROOT}/workspaces
       - ${MOONBOX_CHAT_HOST_ROOT}/runtime:${MOONBOX_CHAT_HOST_ROOT}/runtime
-      - ${MOONBOX_CHAT_SOURCE_ROOT}:${MOONBOX_CHAT_SOURCE_ROOT}:ro
+      - ${MOONBOX_CHAT_SOURCE_ROOT}:${MOONBOX_CHAT_SOURCE_ROOT}
       - ${MOONBOX_CHAT_AUTH_SOURCE}:/run/secrets/codex-auth.json:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./issues:/app/governance/issues:ro
@@ -61,7 +78,35 @@ services:
     healthcheck:
       test: [CMD, python, -c, "import json,time; from pathlib import Path; v=json.loads(Path('/app/chat-state/worker-ready.json').read_text()); assert 0 <= time.time()-v['time'] < 5"]
       interval: 5s
-      timeout: 3s
+      timeout: 10s
       retries: 12
       start_period: 60s
     stop_grace_period: 90s
+  verification-worker:
+    profiles: [verification]
+    container_name: ${VERIFICATION_WORKER_CONTAINER_NAME:-moonbox-verification-worker}
+    restart: unless-stopped
+    init: true
+    image: moonbox-chat-worker:local
+    command: [python, -m, app.verification.worker]
+    networks:
+      - app-network
+    user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
+    group_add:
+      - ${MOONBOX_CHAT_DOCKER_GID:-0}
+    environment:
+      <<: *chat-platform-env
+      APP_ENV: local
+    volumes:
+      - ./data:/app/data
+      - ${MOONBOX_CHAT_SOURCE_ROOT}:${MOONBOX_CHAT_SOURCE_ROOT}:ro
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/state:${MOONBOX_CHAT_HOST_ROOT}/verification/state
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/workspaces:${MOONBOX_CHAT_HOST_ROOT}/verification/workspaces
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/artifacts:${MOONBOX_CHAT_HOST_ROOT}/verification/artifacts
+      - ${MOONBOX_CHAT_HOST_ROOT}/verification/evidence:${MOONBOX_CHAT_HOST_ROOT}/verification/evidence
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.agents:/app/governance/.agents:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    stop_grace_period: 150s

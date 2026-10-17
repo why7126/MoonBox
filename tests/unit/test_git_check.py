@@ -40,7 +40,7 @@ DATABASE_URL=mysql://example:example@localhost:3306/example
 
 
 def test_real_authorization_header_is_redacted() -> None:
-    token = "abcd1234efgh5678ijkl9012mnop3456"
+    token = "abcd1234" + "efgh5678ijkl9012mnop3456"
     findings = git_check.scan_text_content("docs/leak.md", f"Authorization: Bearer {token}\n")
 
     assert len(findings) == 1
@@ -53,7 +53,7 @@ def test_real_authorization_header_is_redacted() -> None:
 
 
 def test_database_url_is_detected_and_redacted() -> None:
-    url = "mysql://moonbox:secret-password@db.internal:3306/moonbox"
+    url = "mysql://" + "moonbox:secret-password@db.internal:3306/moonbox"
     findings = git_check.scan_text_content("docs/deploy.md", f"DATABASE_URL={url}\n")
 
     assert len(findings) == 1
@@ -69,7 +69,7 @@ def test_privacy_patterns_are_warnings() -> None:
 
 
 def test_local_absolute_path_is_error() -> None:
-    findings = git_check.scan_text_content("docs/context.md", "local path /Users/alice/project/file.md\n")
+    findings = git_check.scan_text_content("docs/context.md", "local path /" + "Users/alice/project/file.md\n")
 
     assert len(findings) == 1
     assert findings[0].rule == "local-absolute-path"

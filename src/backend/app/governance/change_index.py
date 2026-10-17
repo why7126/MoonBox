@@ -178,23 +178,26 @@ class ChangeIndex:
             return explicit if isinstance(explicit, str) and explicit in members else None
         return next(iter(members)) if len(members) == 1 else None
 
-    def sprint_document(self, record: ChangeRecord) -> Path | None:
+    def sprint_document(self, record: ChangeRecord, document_name: str = 'sprint.md') -> Path | None:
+        if document_name not in legacy.SPRINT_DOCUMENT_NAMES:
+            return None
         sprint_id = self.sprint_id(record)
         if sprint_id is None:
             return None
-        target = self.sprint_directories[sprint_id] / 'sprint.md'
-        return target if target.is_file() else None
+        directory = self.sprint_directories[sprint_id].resolve()
+        target = (directory / document_name).resolve()
+        return target if target.is_file() and target.is_relative_to(directory) else None
 
     def documents(self, record: ChangeRecord) -> list[RequirementCenterDocument]:
         if not record.directory:
             return []
         existing = legacy._change_document_names(record.id)
-        names = [name for name in ('proposal.md', 'spec.md', 'design.md', 'tasks.md', 'trace.md') if name in existing]
-        if self.sprint_document(record):
-            names.append('sprint.md')
+        names = existing
+        names.extend(name for name in legacy.SPRINT_DOCUMENT_NAMES if self.sprint_document(record, name))
         return [RequirementCenterDocument(name=name, type='markdown', open_mode='drawer', label=name,
             url=f'/api/v1/requirement-center/changes/{record.id}/documents/{name}',
-            capability=RequirementCenterDocumentCapability(reason='Change 追溯入口只读')) for name in names]
+            capability=legacy.compute_document_capability(issue_type='change', stage=record.stage,
+                document_name=name, path_category='change', exists=True)) for name in names]
 
     def acceptance_source_reason(self, record: ChangeRecord) -> str | None:
         """Locate delivery evidence; never infer test success from file presence."""

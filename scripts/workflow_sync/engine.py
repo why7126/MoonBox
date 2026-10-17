@@ -243,13 +243,17 @@ class SyncEngine:
             focus_issue=req_id or bug_id,
             focus_change=change_id,
         )
-        resolved, skip_reason = resolve_sprint_id(
-            sprint_id,
-            event=event,
-            req_id=req_id,
-            bug_id=bug_id,
-            change_id=change_id,
-        )
+        try:
+            resolved, skip_reason = resolve_sprint_id(
+                sprint_id,
+                event=event,
+                req_id=req_id,
+                bug_id=bug_id,
+                change_id=change_id,
+            )
+        except ValueError as exc:
+            report.errors.append(str(exc))
+            return report
         report.sprint_id = resolved
         report.sprint_skip_reason = skip_reason
 
@@ -262,7 +266,11 @@ class SyncEngine:
         issues = load_all_issues()
         openspec_data = run_openspec_list()
 
-        sprint = load_sprint(resolved) if resolved else None
+        try:
+            sprint = load_sprint(resolved) if resolved else None
+        except ValueError as exc:
+            report.errors.append(str(exc))
+            return report
         if not sprint and not any([change_id, req_id, bug_id]):
             report.errors.append("No sprint found to sync")
             return report
@@ -467,7 +475,7 @@ class SyncEngine:
                 should_sync_subdocuments = iid == bug_id
             elif event == "sprint.propose":
                 should_sync_subdocuments = iid in {req_id, bug_id}
-            elif event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.archive"}:
+            elif event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.accept", "opsx.archive"}:
                 should_sync_subdocuments = bool(change_id and derived.linked_change == change_id)
             elif event == "sprint.archive":
                 should_sync_subdocuments = bool(sprint and iid in {*sprint.requirements, *sprint.bugs})
@@ -503,7 +511,7 @@ class SyncEngine:
             if (
                 (event and event.startswith("req.") and iid == req_id)
                 or (event and event.startswith("bug.") and iid == bug_id)
-                or (event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.archive"} and change_id and derived.linked_change == change_id)
+                or (event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.accept", "opsx.archive"} and change_id and derived.linked_change == change_id)
                 or (event == "sprint.propose" and iid in {req_id, bug_id})
             ):
                 planned.append(

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-standalone-archive-scope-tool-path",
+  "run_id": "20261013171644490479-c488e1fb",
+  "created_at": "2026-10-13 17:16:44",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-isolated-product",
+  "scope": "complete",
+  "status": "failed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "44d465a0cead33678adba8051b252c297fd8b2b8a0e253d30efe8394d55482fa",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 33141,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "27406ad95ab5fecf45ea1c4f51678ea1b6febec29a34bd59faf0fea052ebd3e5",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 64563,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "ed93b6a9774745fb344826d2aeea656c4fcb9439aa6f27fa7ef9203131214481",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9148,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "37f9c1c33fe2b11fc671b9146fee1c917002d046425e7584e2b6f2910586610c",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 791,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "9d8b7712630937a247fcaba863b8f4c2d943d823d1c7014e754a6fd73542536c",
+      "reused": false,
+      "status": "failed",
+      "reason": "turn-or-command-incomplete",
+      "turn_id": "5e764061-7b85-44bd-b5f4-3cba9462a4a9",
+      "conversation_id": "8fa1a3af-2a02-5caa-aee7-c7f8babcc5bf",
+      "turn_status": "stopped",
+      "error_code": "result_or_token_limit",
+      "command_sequence": 35,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-standalone-archive-scope-tool-path/evidence/acceptance/samples/AC-005.md",
+          "sha256": "efc9f26ee33bf0e37cf461df05557ca28c260ff8b69e26957304b8972a2c01a0"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    }
+  ]
+}

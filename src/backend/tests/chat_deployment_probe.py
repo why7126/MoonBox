@@ -15,8 +15,8 @@ def docker(*args):
 
 def main():
     image = os.environ.get('CHAT_TEST_IMAGE', 'moonbox-backend:chat-verification')
-    port = int(os.environ.get('HOST_PORT_CHAT_DEPLOY_TEST', '18127'))
-    if not 18101 <= port <= 18199:
+    port = int(os.environ.get('HOST_PORT_CHAT_DEPLOY_TEST', '39027'))
+    if not 39001 <= port <= 39050:
         raise ValueError('test port outside project range')
     name = 'moonbox-chat-deploy-' + secrets.token_hex(4)
     volume = name + '-data'

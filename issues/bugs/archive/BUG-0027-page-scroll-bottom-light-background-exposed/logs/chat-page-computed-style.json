@@ -1,0 +1,180 @@
+{
+  "url": "http://127.0.0.1:5173/login",
+  "viewport": {
+    "width": 1440,
+    "height": 920
+  },
+  "document": {
+    "scrollHeight": 920,
+    "bodyScrollHeight": 920,
+    "scrollingElement": "BODY"
+  },
+  "samples": [
+    {
+      "selector": "html",
+      "tag": "HTML",
+      "className": "",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgb(0, 0, 0)",
+      "height": "920px",
+      "minHeight": "0px",
+      "overflow": "visible",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "position": "static",
+      "display": "block",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "bottom": 920
+      },
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "selector": "body",
+      "tag": "BODY",
+      "className": "",
+      "backgroundColor": "rgb(244, 246, 250)",
+      "color": "rgb(32, 38, 54)",
+      "height": "920px",
+      "minHeight": "0px",
+      "overflow": "visible",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "position": "static",
+      "display": "block",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "bottom": 920
+      },
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "selector": "#root",
+      "tag": "DIV",
+      "className": "",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgb(32, 38, 54)",
+      "height": "920px",
+      "minHeight": "0px",
+      "overflow": "visible",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "position": "static",
+      "display": "block",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "bottom": 920
+      },
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "selector": "[data-testid=chat-shell]",
+      "tag": "MAIN",
+      "className": "requirement-center theme-dark chat-shell ",
+      "backgroundColor": "rgb(10, 13, 20)",
+      "color": "rgb(236, 234, 228)",
+      "height": "920px",
+      "minHeight": "0px",
+      "overflow": "hidden",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "position": "static",
+      "display": "grid",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "bottom": 920
+      },
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "selector": ".chat-main",
+      "tag": "SECTION",
+      "className": "chat-main",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgb(236, 234, 228)",
+      "height": "920px",
+      "minHeight": "0px",
+      "overflow": "visible",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "position": "static",
+      "display": "flex",
+      "rect": {
+        "x": 224,
+        "y": 0,
+        "width": 1216,
+        "height": 920,
+        "bottom": 920
+      },
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "selector": ".chat-conversation",
+      "tag": "SECTION",
+      "className": "chat-conversation",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgb(236, 234, 228)",
+      "height": "587px",
+      "minHeight": "0px",
+      "overflow": "auto",
+      "overflowX": "auto",
+      "overflowY": "auto",
+      "position": "static",
+      "display": "flex",
+      "rect": {
+        "x": 224,
+        "y": 117,
+        "width": 1216,
+        "height": 587,
+        "bottom": 704
+      },
+      "scrollHeight": 587,
+      "clientHeight": 587
+    },
+    {
+      "selector": ".chat-composer",
+      "tag": "DIV",
+      "className": "chat-composer",
+      "backgroundColor": "color(srgb 0.049098 0.0630588 0.0981961)",
+      "color": "rgb(236, 234, 228)",
+      "height": "180px",
+      "minHeight": "auto",
+      "overflow": "visible",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "position": "relative",
+      "display": "block",
+      "rect": {
+        "x": 272,
+        "y": 718,
+        "width": 1120,
+        "height": 180,
+        "bottom": 898
+      },
+      "scrollHeight": 178,
+      "clientHeight": 178
+    }
+  ],
+  "colors": {
+    "body": "rgb(244, 246, 250)",
+    "chat": "rgb(10, 13, 20)"
+  },
+  "notes": "Dark theme is scoped to the chat root. The body background remains light and is the layer exposed if the host/browser overscrolls outside the chat root."
+}

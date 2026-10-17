@@ -39,6 +39,10 @@ def sync_classification(issue, *, write: bool):
         body = match.group(1) if match else ""
         lines = body.splitlines()
         fields = {"priority", "severity", "priority_hint", "severity_hint"}
+        existing = [line for line in lines if any(line.startswith(f + ":") for f in fields)]
+        if existing == [f"{key}: {issue.priority}"]:
+            results.append(PatchResult(str(file.relative_to(ROOT)), False, "classification metadata already aligned"))
+            continue
         lines = [line for line in lines if not any(line.startswith(f + ":") for f in fields)]
         lines.append(f"{key}: {issue.priority}")
         text = "---\n" + "\n".join(lines) + "\n---\n" + (original[match.end():] if match else original)

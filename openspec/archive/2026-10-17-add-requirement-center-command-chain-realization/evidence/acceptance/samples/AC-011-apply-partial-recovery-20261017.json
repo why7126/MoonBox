@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "environment": "独立隔离产品 moonbox-validation；默认 source 模式",
+  "action": "opsx-apply",
+  "object_id": "add-isolated-apply-ac011",
+  "injection": {
+    "point": "首份业务说明文件落盘后、Workflow Sync 前",
+    "turn_id": "12265532-05f5-4a2f-b0a0-f3f33932af22",
+    "file_bytes": 1208,
+    "private_step_count": 2,
+    "worker_fault": "SIGKILL 仅隔离 Worker"
+  },
+  "after_restart": {
+    "turn_status": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "partial_write",
+    "partial_file_retained": true,
+    "change_status": "proposed",
+    "started_at": null,
+    "completed_at": null,
+    "tasks_checked": 0
+  },
+  "safe_continuation": {
+    "turn_id": "80dae314-5c81-4d98-b6b5-8d94fa298aef",
+    "turn_status": "completed",
+    "initial_partial_file_sha256": "6e7a4bcc89e1479b23cba93ea5de10da7e36bcc478662b126b462438235ecd80",
+    "final_file_sha256": "6e7a4bcc89e1479b23cba93ea5de10da7e36bcc478662b126b462438235ecd80",
+    "file_reused_without_rewrite": true,
+    "opsx_start_confirmed": true,
+    "opsx_apply_confirmed": true,
+    "change_status": "applied",
+    "tasks_checked": 2,
+    "tasks_total": 2
+  },
+  "interpretation": "原轮次准确标为部分写入并保留文件；新轮次先核对现场和原文件，再执行缺失的启动、验证和完成步骤。原轮次没有成功同步，不把恢复称为自动回滚或重放。",
+  "redaction": "仅标识、状态、计数、SHA-256 与分类；无 Prompt、文件正文或凭据"
+}

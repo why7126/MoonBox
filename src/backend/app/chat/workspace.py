@@ -87,9 +87,81 @@ def workspace_path(root, workspace_id):
     return trusted_directory(base / identifier)
 
 
+def _git_snapshot_names(root):
+    if not (root / '.git').exists():
+        return None
+    result = subprocess.run(['git', '-C', str(root), 'ls-files', '-co', '--exclude-standard', '-z'],
+        env=git_env(), capture_output=True, timeout=30)
+    if result.returncode:
+        raise WorkspaceError('仓库操作失败')
+    names = []
+    for raw in result.stdout.split(b'\0'):
+        if not raw:
+            continue
+        try:
+            name = raw.decode('utf-8')
+        except UnicodeDecodeError:
+            raise WorkspaceError('仓库路径非UTF-8')
+        path = PurePosixPath(name)
+        if path.is_absolute() or '..' in path.parts or '.git' in path.parts:
+            raise WorkspaceError('仓库包含越界路径')
+        names.append(name)
+    return sorted(set(names))
+
+
 def snapshot(path, *, max_files=10000, max_total_bytes=512*1024*1024, text_bytes=65536, max_text_bytes=4*1024*1024):
     """Use dir-fd/O_NOFOLLOW reads. Links are metadata only, and are never traversed."""
     root = trusted_directory(path); files = {}; total = 0; text_total = 0
+    def record(fd, name, relative):
+        nonlocal total, text_total
+        if len(files) >= max_files: raise WorkspaceError('工作区文件数量超过快照边界')
+        try:
+            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
+        except FileNotFoundError:
+            return
+        if stat.S_ISLNK(info.st_mode):
+            # Hash target spelling without returning it (it may contain a private absolute path).
+            value = os.readlink(name, dir_fd=fd).encode()
+            files[relative] = {'kind': 'symlink', 'sha256': hashlib.sha256(value).hexdigest(), 'size': len(value), 'text': None, 'reason': '符号链接仅记录元数据'}
+            return
+        if not stat.S_ISREG(info.st_mode): raise WorkspaceError('工作区包含特殊文件')
+        item = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+        try:
+            before = os.fstat(item)
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1: raise WorkspaceError('文件类型或硬链接不安全')
+            total += before.st_size
+            if total > max_total_bytes: raise WorkspaceError('工作区超过快照容量边界')
+            digest = hashlib.sha256(); chunks = []; read = 0
+            while block := os.read(item, 65536):
+                read += len(block)
+                if read > before.st_size: raise WorkspaceError('文件在快照期间变化')
+                digest.update(block)
+                if before.st_size <= text_bytes and text_total + before.st_size <= max_text_bytes: chunks.append(block)
+            after = os.fstat(item)
+            if (before.st_size, before.st_mtime_ns, before.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or read != before.st_size:
+                raise WorkspaceError('文件在快照期间变化')
+            content = b''.join(chunks); text = None; reason = None
+            if before.st_size > text_bytes or text_total + before.st_size > max_text_bytes: reason = '内容超过文本展示边界'
+            elif b'\0' in content: reason = '二进制文件'
+            else:
+                try: text = content.decode('utf-8'); text_total += before.st_size
+                except UnicodeDecodeError: reason = '非UTF-8文本'
+            files[relative] = {'kind': 'file', 'sha256': digest.hexdigest(), 'size': read, 'executable': bool(before.st_mode & 0o111), 'text': text, 'reason': reason}
+        finally: os.close(item)
+    def record_relative(root_fd, relative):
+        parts = PurePosixPath(relative).parts
+        fd = os.dup(root_fd)
+        try:
+            for part in parts[:-1]:
+                try:
+                    info = os.stat(part, dir_fd=fd, follow_symlinks=False)
+                except FileNotFoundError:
+                    return
+                if not stat.S_ISDIR(info.st_mode): raise WorkspaceError('工作区路径包含非目录')
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                os.close(fd); fd = child
+            record(fd, parts[-1], relative)
+        finally: os.close(fd)
     def walk(fd, prefix=''):
         nonlocal total, text_total
         for name in sorted(os.listdir(fd)):
@@ -101,38 +173,15 @@ def snapshot(path, *, max_files=10000, max_total_bytes=512*1024*1024, text_bytes
                 try: walk(child, relative+'/')
                 finally: os.close(child)
                 continue
-            if len(files) >= max_files: raise WorkspaceError('工作区文件数量超过快照边界')
-            if stat.S_ISLNK(info.st_mode):
-                # Hash target spelling without returning it (it may contain a private absolute path).
-                value = os.readlink(name, dir_fd=fd).encode()
-                files[relative] = {'kind': 'symlink', 'sha256': hashlib.sha256(value).hexdigest(), 'size': len(value), 'text': None, 'reason': '符号链接仅记录元数据'}
-                continue
-            if not stat.S_ISREG(info.st_mode): raise WorkspaceError('工作区包含特殊文件')
-            item = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
-            try:
-                before = os.fstat(item)
-                if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1: raise WorkspaceError('文件类型或硬链接不安全')
-                total += before.st_size
-                if total > max_total_bytes: raise WorkspaceError('工作区超过快照容量边界')
-                digest = hashlib.sha256(); chunks = []; read = 0
-                while block := os.read(item, 65536):
-                    read += len(block)
-                    if read > before.st_size: raise WorkspaceError('文件在快照期间变化')
-                    digest.update(block)
-                    if before.st_size <= text_bytes and text_total + before.st_size <= max_text_bytes: chunks.append(block)
-                after = os.fstat(item)
-                if (before.st_size, before.st_mtime_ns, before.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or read != before.st_size:
-                    raise WorkspaceError('文件在快照期间变化')
-                content = b''.join(chunks); text = None; reason = None
-                if before.st_size > text_bytes or text_total + before.st_size > max_text_bytes: reason = '内容超过文本展示边界'
-                elif b'\0' in content: reason = '二进制文件'
-                else:
-                    try: text = content.decode('utf-8'); text_total += before.st_size
-                    except UnicodeDecodeError: reason = '非UTF-8文本'
-                files[relative] = {'kind': 'file', 'sha256': digest.hexdigest(), 'size': read, 'executable': bool(before.st_mode & 0o111), 'text': text, 'reason': reason}
-            finally: os.close(item)
+            record(fd, name, relative)
+    names = _git_snapshot_names(root)
     fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-    try: walk(fd)
+    try:
+        if names is None:
+            walk(fd)
+        else:
+            for name in names:
+                record_relative(fd, name)
     finally: os.close(fd)
     manifest = {name: {k: v for k, v in item.items() if k not in ('text', 'reason')} for name, item in files.items()}
     return {'hash': hashlib.sha256(json.dumps(manifest,sort_keys=True).encode()).hexdigest(), 'files': files}

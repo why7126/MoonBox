@@ -50,6 +50,10 @@ def main():
                 for tid,cid in unknown:
                     path=root/'workspaces'/cid
                     if path.is_dir():reconcile_unknown(factory,tid,path,server)
+                from app.governance.candidate_recovery import reconcile_terminal_candidates
+                reconcile_terminal_candidates(factory, lambda cid: (None, root/'workspaces'/cid))
+                from app.governance.direct_command_journal import reconcile_terminal_commands
+                reconcile_terminal_commands(factory, lambda cid: (None, root/'workspaces'/cid))
                 if time.monotonic()>=maintenance_at:
                     from app.chat.cleanup import process_copies
                     def purge(job):

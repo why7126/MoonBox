@@ -1,0 +1,1794 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-requirement-center-command-chain-write-gap",
+  "issue_id": "BUG-0025-requirement-center-command-chain-write-gap",
+  "environment": "local-moonbox-shared-source-20261012",
+  "preflight": [
+    [
+      "node",
+      "-e",
+      "require.resolve('@playwright/test',{paths:['src/web']})"
+    ],
+    [
+      "python",
+      "scripts/validate-document-titles.py",
+      "--change",
+      "fix-requirement-center-command-chain-write-gap"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-052",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-052-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "`bug-generate` 候选准备后事实源版本变化时，执行前以 `workspace_fact_source_stale` 终止并展示可重试提示；旧候选与文件保留，新 idempotency key 可从当前基准续接。隔离产品 BUG-0038 旧基准被拒绝、新 key 成功续接；BUG-0039 部署后再次显示版本变化提示，后端 2606 kind 聚焦回归通过。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-052-review.md"
+      ],
+      "turn_id": "96786af1-c09c-4c51-abb8-15ca975e600d",
+      "command_contains": "--event bug.generate --bug BUG-0038-acceptance-stale-retry"
+    },
+    {
+      "id": "AC-050",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "scripts/promote-issue-stage.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "评审迁移后 registry path/status/lifecycle_stage 与 trace 和目标目录一致；BUG-0033 半完成迁移可重试恢复，卡片进入已评审且 review.md 可读；同步失败、伪成功和目录冲突不报告完整成功且保留成果，dry-run/check 不写入。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/af037-review-projection.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/test_review_promotion_sync.py"
+      ]
+    },
+    {
+      "id": "AC-051",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_review.py",
+        "src/backend/app/governance/review.py",
+        "src/backend/app/governance/review_finalization.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "REQ/BUG 产品评审遗漏注册表和索引同步时，后端仅在完整评审门禁通过后定向补齐并回读；隔离工作区带当前迁移工具，失败原轮次可重验，应用后 checkpoint 可用；结论冲突、越权、缺文件和根因未确认仍阻断。AF-038 合成回归通过，部署后真实评审待复验。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-051-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-051-req-reviewed-board-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-051-bug-reviewed-board-1440x900.png"
+      ],
+      "turn_id": "367a7617-3706-43e2-8665-7d4c36c5a82e",
+      "command_contains": "/bug-review",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-049",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "新建 Change 仅有 .openspec.yaml 时原会话历史、主对象关联及候选列表正常读取；准备态成果保留。目标文档缺失返回尚未就绪，真实空间/对象权限撤销仍阻断，符号链接不得通过 capture/proposal fallback 绕过。 该条件发生于 `.openspec.yaml` 暂存且目标 Change 尚未建成的瞬间，不应要求 `/opsx-propose` 的 completed 治理产品轮次；以同一 Chat HTTP 路由集成回归核对历史/关联及 ACL/符号链接门禁。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-049-review.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_chat_incomplete_objects.py"
+      ]
+    },
+    {
+      "id": "AC-048",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/chat/toolchain.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "执行镜像内 Node/npm/pnpm/OpenSpec/uv 与通用工具可用；实际产品沙箱可离线创建、读取并校验临时 Change。缺工具或固定版本不匹配时明确执行前阻断、释放并发并提示部署更新，不调用模型，不破坏已有文件与权限边界。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/af035-toolchain.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_chat_toolchain.py"
+      ]
+    },
+    {
+      "id": "AC-047",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "评审轮次 stopped 且旧候选仍为 running 时，原会话新发送的 Sprint 命令不得复用旧候选；当前轮次准备、既有成果保护与执行状态独立，服务更新后可继续执行。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-047-review.md"
+      ],
+      "turn_id": "d5833d7f-d6e3-41fe-8411-d2bfaabcdb97",
+      "command_contains": "validate-sprint-selection.py --sprint sprint-009",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-045",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "同会话 complete→review 创建当前轮候选，评审结论和目录迁移经后端校验并自动回写；冲突保留成果，重启不丢删除记录；真实事实源应用成功后卡片进入已评审并可打开review.md，模型执行完成不可替代application成功。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-045-review.md"
+      ],
+      "turn_id": "b8feea49-a38f-4663-91dd-25b3b3daaadc",
+      "command_contains": "--event req.review",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-046",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_review.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-046-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "评审兼容 status/result 单字段，冲突结论拒绝且轻量提示具体原因；原 rejected 候选仅在无冲突、无后续轮次且无已有应用时可重验恢复，同会话重复恢复幂等，不清空工作区或重跑模型。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-046-review.md"
+      ],
+      "turn_id": "367a7617-3706-43e2-8665-7d4c36c5a82e",
+      "command_contains": "/bug-review",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-044",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "规划中卡片不显示草稿或完善中独立状态标签；长负责人省略并可查看全文，不挤压 severity；子文档、补证提示、继续完善及内部门禁不变。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "规划中-draft",
+          "规划中-enriching"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x900"
+        ],
+        "samples": [
+          {
+            "stage": "规划中-draft",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-draft",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-enriching",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-enriching",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-043",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "规划中卡片区分 draft/enriching，完善中展示已生成子文档、具体补证提示及可用的继续完善动作；根因 confirmed 与证据门禁不变；桌面及移动端无提示溢出，子文档可打开。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "规划中-draft",
+          "规划中-enriching"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x900"
+        ],
+        "samples": [
+          {
+            "stage": "规划中-draft",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-draft",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-enriching",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "规划中-enriching",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-043-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-043-root-cause-current-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-043-continue-current-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-draft-390x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-044-enriching-390x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-039",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "工作区准备失败但执行器未启动时显示执行前阻断及安全原因，释放会话占用，保留未应用文件；历史入口不得显示无限等待。旧 unknown 仅凭准备阶段错误码、无执行器 ID 和围栏匹配恢复。 准备失败发生在执行器启动前，不存在可要求 completed execution.tool 的真实产品轮次；后端锁释放/围栏聚焦回归与部署 Web 组件的失败/历史 DOM 共同验收，界面接口为受控故障夹具。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-039-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-039-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-039-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-039-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-039-当前产品场景-1440x1000-style.json"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_chat_preparation_failure.py"
+      ]
+    },
+    {
+      "id": "AC-042",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-042-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "重复 complete 无新增差异时仍校验完整事实源，一致后返回无需更新；不新增 application、不改文档或状态，不复活历史失败提示；源版本变化、缺文档与状态错误仍阻断。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-042-review.md"
+      ],
+      "turn_id": "20f68b24-c2b4-42d9-a79c-b6ff3908d873",
+      "command_contains": "BUG-0037-acceptance-isolated-generate"
+    },
+    {
+      "id": "AC-041",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-041-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "隔离 BUG-1001 在同一 Chat 会话完成 bug-generate→bug-complete；当前轮次候选应用 verified，五件套回写隔离事实源。根因 unknown 时 trace/registry 保持 enriching 且 lifecycle.completed 为空；确认根因与有效证据才允许 pending_review，历史已应用候选不得导致只读回退。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-041-review.md"
+      ],
+      "turn_id": "8c72dadc-cb2c-4585-a69e-f075a9474609",
+      "command_contains": "scripts/validate-document-titles.py --bug BUG-1001-bug-0025",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-040",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-040-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "专用隔离 REQ-0996 对照 REQ-0027 的 generate 后续接场景：原 requirement/capture 保留；同会话多轮修复临时锁、只读 capture 越界及 registry 路径阻断后，req-complete 生成完整文档，经后端门禁自动应用并回读。正式 REQ-0027 成果保持未改；无来源、冲突、越界或文档缺失拒绝应用。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-040-review.md"
+      ],
+      "turn_id": "2c8896dd-8a2d-4871-b95c-3b67f7b8074a",
+      "command_contains": "--event req.complete --req REQ-0996-ac045-chain-test",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-038",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "持续执行跨越 300 秒不因默认墙钟上限中断；手动停止、权限及额度门禁保留。恢复依据原执行器权威状态，长历史在受控上限内可核对，部分成果不得被误报为完成。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-038-review.md"
+      ],
+      "turn_id": "67825fa2-122c-4204-99ca-9a194f55885a",
+      "command_contains": "from app.governance.review_finalization import finalize",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-037",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "仅有用户消息的运行态，AI 输出独立占满 assistant 内容列；落库及历史重开不重复显示，用户气泡保持限宽。由真实组件与接口夹具验证 DOM/computed width，不以手工拼接 DOM 替代。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-037-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-037-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-037-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-037-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-037-当前产品场景-1440x1000-style.json"
+      ]
+    },
+    {
+      "id": "AC-036",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Worker 维护阻塞不导致心跳过期；短暂不可用后 Chat 自动探测恢复，保留编辑后的草稿与已完成消息，发送重新可用；配置、版本、心跳与网络原因区分展示，不绕过后端发送门禁。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-036-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-036-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-036-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-036-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-036-当前产品场景-1440x1000-style.json"
+      ]
+    },
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-001-review.md"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "src/requirement-center.test.tsx",
+        "-t",
+        "uses controlled workflow demo data only when mock query is explicit"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "产品内维护命令能力矩阵，明确每个命令当前属于仅展示、demo 模拟、真实候选写入或真实应用写入。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-001-review.md"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py::test_prepare_bug_generate_uses_bug_action_and_prompt"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "采集池 BUG 卡片触发 Bug Generate 时，后端支持 `BUG-*` 和 `bug-generate` 的 governance preparation。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-002-review.md"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py::test_bug_generate_write_set_and_next_step_rejection"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "`bug-generate` 候选校验只允许写入目标 BUG 的 `bug.md`、`trace.md`、BUG registry 和 BUG CHANGELOG，不允许越界改动。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/verification.md"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-004-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "应用 `bug-generate` 候选后，目标 BUG 状态同步为 `draft`，CHANGELOG 下一步变为 `/bug-complete <BUG-full-id>`。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-004-review.md"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "--event bug.generate --bug BUG-0037-acceptance-isolated-generate"
+    },
+    {
+      "id": "AC-005",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "产品内 Bug Generate 成功后，数据库存在对应 governance candidate 和 application 记录，不能只产生普通 Chat turn。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-005-review.md"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "--event bug.generate"
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "未接入真实写入链路的 complete、review、sprint-propose、opsx 系列命令，不得显示为可成功执行的动作。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-006-review.md"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "若未实现命令被用户触发，产品应给出明确提示，说明该动作尚未接入产品写入链路，并提供应使用的 Codex 命令。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-007-review.md"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "前端非 demo 路径不再把未实现动作模拟成“执行成功，卡片已流转”。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-008-review.md"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "前端测试覆盖 BUG 生成入口、未实现命令提示和 req-generate 既有链路不回退。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-009-review.md"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_unsupported_action.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_unsupported_action.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "后端测试覆盖 REQ generate、BUG generate、不支持命令和越界写入拒绝。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-010-review.md"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "如果新增 API 字段、OpenAPI 或客户端类型，必须同步 API 文档和前端生成物。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-011-review.md"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-012-review.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "需求中心看板刷新后，阶段投影必须来自真实 trace / registry / CHANGELOG，而不是仅来自前端临时 state。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-012-review.md"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "--event bug.generate --bug BUG-0037-acceptance-isolated-generate"
+    },
+    {
+      "id": "AC-013",
+      "kind": "product_turn",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "产品内 Bug Generate 准备态的 Chat 输入框只展示简洁 `/bug-generate <BUG-full-id>` 命令，内部治理约束不得裸露在输入框正文；发送执行时由后端根据 governance candidate 恢复治理约束，用户手动编辑后不得追加旧治理约束。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900-style.json"
+      ],
+      "turn_id": "6a66a033-9e73-425b-9458-0f36f8318091",
+      "command_contains": "/bug-generate",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-014",
+      "kind": "product_turn",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "产品内 Bug Generate 发送后的 Chat 历史消息和复制内容只展示简洁 `/bug-generate <BUG-full-id>` 命令，不裸露内部治理约束；`prepared` 且 0 文件时不得显示大型治理成果面板或“查看成果 0 个文件”的空状态。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-014-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-013-当前产品场景-1440x900-style.json"
+      ],
+      "turn_id": "6a66a033-9e73-425b-9458-0f36f8318091",
+      "command_contains": "--event bug.generate --bug BUG-1001-bug-0025",
+      "product_db": "isolated"
+    },
+    {
+      "id": "AC-015",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "所有已接入真实治理候选链路的 generate 命令通过 allowlist、manifest、revision、dry-run 和冲突校验后自动应用到项目事实源；自动应用失败、版本冲突、越界、恢复阻塞或校验 warning 时仅展示轻量错误或轨迹提示，不进入人工“待应用成果”确认流程，未接入真实候选链路的命令不得模拟自动应用。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-015-review.md"
+      ],
+      "turn_id": "4770287b-fbbb-4b3d-ba66-29b39550c89a",
+      "command_contains": "/req-generate"
+    },
+    {
+      "id": "AC-016",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat 主对话区所有命令均不得渲染治理成果大面板、`查看成果`、`待应用成果` 或 `审阅治理成果` 弹窗；generate 命令继续后台自动应用，失败、冲突、越界、恢复阻塞或校验 warning 仅通过轻量错误或轨迹提示处理。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-016-当前产品场景-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-016-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-016-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-016-当前产品场景-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-016-当前产品场景-1440x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat 对话区 assistant 消息应占满消息历史可用宽度，不再受共享 `.chat-message` 的 `720px/72%` 限制；用户消息仍保持右侧气泡宽度限制。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-017-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-017-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-017-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-017-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-017-当前产品场景-1440x1000-style.json"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat assistant 外层消息历史轨道也应占满对话区可用宽度；历史打开会话时仅轮询后端已创建 application operation，prepared 空候选不得申请 application，且不得恢复或渲染治理成果大面板。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-018-当前产品场景-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-018-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-018-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-018-当前产品场景-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-018-当前产品场景-1440x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat assistant 正文 bubble 与 markdown 容器在运行态 computed style 中必须铺满消息历史可用宽度，布局回归不得只校验 CSS 源码规则。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-019-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-019-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-019-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-019-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-019-当前产品场景-1440x1000-style.json"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "-C",
+        "src/web",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "产品运行态必须使用最新 Web 构建；`localhost:39002` 的 dist/bundle 与运行态 bundle 均不得包含 `待应用成果`、`查看成果`、`审阅治理成果` 或 `确认应用`，历史入口 DOM 不得恢复治理面板；`bug-generate`/`req-generate` 完成后应自动创建 governance application 并写入事实源。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-020-当前产品场景-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-020-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-020-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-020-当前产品场景-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-020-当前产品场景-1440x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-021",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "`req-generate`/`bug-generate` 的低风险候选自动应用必须由后端 `collect`/controller 创建 application；前端历史入口只允许轮询后端已有 operation，不得发起 application POST 或恢复人工应用 UI。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-021-review.md"
+      ],
+      "turn_id": "4770287b-fbbb-4b3d-ba66-29b39550c89a",
+      "command_contains": "--event req.generate"
+    },
+    {
+      "id": "AC-022",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat turn 与 `chat_messages` 必须只保存用户可见 `display_prompt`；执行器所需内部治理约束只能由后端根据 governance candidate 恢复，不能落入用户消息历史。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-022-review.md"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "--event bug.generate"
+    },
+    {
+      "id": "AC-023",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "发送前必须完成执行器 sandbox/dry-run preflight；执行器不可用时返回 `executor_unavailable`，合法执行但候选不符合治理边界时返回 `governance_validation_failed`，两者不得混淆为同一类“无法生成文档”。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-023-review.md"
+      ],
+      "turn_id": "9c06a865-0e53-4fde-910c-45dd953041c4",
+      "command_contains": "/bug-generate"
+    },
+    {
+      "id": "AC-024",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/runtimeBuild.ts",
+        "src/web/src/runtimeBuild.test.ts",
+        "src/web/src/governance.test.tsx",
+        "src/web/src/App.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/runtimeBuild.test.ts",
+        "src/governance.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "产品运行态必须具备 Web 构建版本校验和旧 bundle 一次性自动刷新能力；从历史入口打开 Chat 时必须清理旧治理面板 DOM，运行态 DOM/Network 证据不得出现治理成果大面板、查看成果按钮、待应用面板或审阅弹窗。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-024-当前产品场景-1440x900.jpg",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-024-当前产品场景-1440x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-024-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-024-当前产品场景-1440x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-024-当前产品场景-1440x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-025",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/backend/tests/test_chat.py"
+      ],
+      "argv": [
+        "/usr/bin/env",
+        "NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db",
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "src/chat-composer.test.tsx",
+        "-t",
+        "defaults fallback execution reasoning to Low before capabilities arrive"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "Chat 新会话默认推理程度必须为 Low；后端 capabilities 默认值、前端 Composer fallback 和相关回归测试必须一致，避免默认显示 High。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-025-review.md"
+      ]
+    },
+    {
+      "id": "AC-026",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "BUG-0025 的 Chat + governance 产品运行态验收必须使用 `bash scripts/docker-down.sh self-storage-sqlite` 与 `bash scripts/docker-up.sh self-storage-sqlite` 配对重启；若未通过 `.env` 启用 local-codex，则使用显式 `--chat-platform` 入口。裸 `docker compose ... backend web` 只允许作为局部调试证据，不得作为产品链路已更新的最终验收依据。",
+      "prior_manual_acceptance": true,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-026-review.md"
+      ]
+    },
+    {
+      "id": "AC-027",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/components/chat/TurnActivity.tsx",
+        "src/web/src/chat-messages.test.tsx",
+        "src/web/tests/chat-assistant-width.cjs",
+        "src/web/tests/chat-live-output-width.cjs"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "src/chat-messages.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat 对话区所有 role=assistant / AI 输出，包括 req-generate、bug-generate、普通 Chat、执行中、完成后和历史恢复状态，外层消息 block、article、正文 bubble、markdown、TurnActivity 和执行中 status/alert 文案均应在运行态 computed width 中占满消息历史可用宽度；用户消息继续保持右侧气泡宽度限制，并保留 Playwright DOM/computed style 回归证据。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-1440x900.jpg",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "当前产品场景",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-390x900.jpg",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-390x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-1440x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-390x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-当前产品场景-390x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-req-generate-history-1440x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-playwright-matrix.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-running-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-027-running-1440x900-style.json"
+      ]
+    },
+    {
+      "id": "AC-028",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/requirement-center.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--localstorage-file=/private/tmp/bug0025-localstorage.db npm test -- src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat assistant 的工具调用/完成状态摘要应作为轻量 meta 左对齐到 assistant 内容列，和头像、正文左边界保持一致；该摘要不得被拉成满宽输出块，正文 bubble、markdown 与执行中 status/alert 文案仍必须保持满宽。",
+      "prior_manual_acceptance": true,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-028-当前产品场景-1440x1000.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-028-当前产品场景-1440x1000-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-028-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-028-当前产品场景-1440x1000.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-028-当前产品场景-1440x1000-style.json"
+      ]
+    },
+    {
+      "id": "AC-029",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/chat-messages.test.tsx",
+        "src/web/src/chat-events.test.ts",
+        "src/web/src/chat-workbench.test.tsx",
+        "src/web/src/chat-capabilities-recovery.test.tsx",
+        "src/web/tests/chat-network-failure.cjs"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "src/chat-messages.test.tsx",
+        "src/chat-events.test.ts",
+        "src/chat-workbench.test.tsx",
+        "src/chat-capabilities-recovery.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat 工作台发送后发生 chat/governance/events fetch 网络异常时，不得向用户显示浏览器原生 `NetworkError when attempting to fetch resource.` 或 `Failed to fetch`；工作台启动、项目绑定、消息读取和执行轨迹读取应分层显示中文局部提示，导航/历史恢复 AbortError 不渲染错误，已生成成功消息不得被后续轮询失败覆盖为全局错误。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-events-1440x900.png",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-network-failure-matrix.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-events-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-messages-1440x900.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-029-network-failure-matrix.json"
+      ]
+    },
+    {
+      "id": "AC-030",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/chat-messages.test.tsx",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/tests/chat-assistant-width.cjs",
+        "src/web/tests/chat-live-output-width.cjs"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "src/chat-messages.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "Chat 对话区所有 role=assistant 的运行中输出不按命令名或 action 白名单生效；`req-generate`、`req-complete`、`bug-generate`、`bug-complete`、review、sprint、opsx 和普通 Chat 的 TurnActivity、status/alert、正文 bubble、markdown 和 assistant 内容列 computed width 均应等于消息历史可用宽度；用户消息继续保持右侧气泡宽度限制，并保留 req-complete 截图场景与通用命令矩阵 Playwright DOM/computed style 回归证据。",
+      "prior_manual_acceptance": false,
+      "coverage": {
+        "stages": [
+          "当前产品场景"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x900"
+        ],
+        "samples": [
+          {
+            "stage": "当前产品场景",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-1440x900.jpg",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-1440x900-style.json"
+            ]
+          },
+          {
+            "stage": "当前产品场景",
+            "viewport": "390x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-390x900.jpg",
+              "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-390x900-style.json"
+            ]
+          }
+        ]
+      },
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-1440x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-1440x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-390x900.jpg",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-assistant-running-390x900-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-req-complete-running-1440x920.png",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-req-complete-running-1440x920-style.json",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-030-playwright-matrix.json"
+      ]
+    },
+    {
+      "id": "AC-031",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_governance_candidates.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "需求中心所有写入型产品命令在创建或复用 Chat 会话前，必须以后端/执行器同一 `/work` 快照校验完整对象 ID、registry path、trace status 和关键文档存在；若治理事实源存在执行器 committed `/work` 不可见的未提交或未跟踪改动，应阻断发送并返回 `workspace_fact_source_stale`，不得进入执行；只读分析命令可继续打开 Chat。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-031-review.md"
+      ],
+      "negative_gate": "写入命令在会话和 turn 创建前被拒绝，因此以 API 响应及数据库无记录为证据"
+    },
+    {
+      "id": "AC-032",
+      "kind": "command",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "src/requirement-center.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": false,
+      "expected_effect": "`workspace_fact_source_stale` 提示必须区分本地治理事实源未提交/未同步、标准部署未更新、Git 快照不可读三类原因；需求中心写入型命令按钮阻断时，Toast 必须展示阻断文件类别和处理建议，不得统一提示“确认标准部署已更新”。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-032-review.md"
+      ]
+    },
+    {
+      "id": "AC-033",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "所有写入型命令使用 source_root 与治理投影当前文件 manifest/revision，未提交和无关文档修改不阻断；自动同步授权治理文件到隔离工作区。generate 应用后同会话可继续 complete，版本变化和未应用工作区修改仍阻断，不要求治理投影包含 .git。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-033-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-033-035-product-audit.json"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "/bug-generate"
+    },
+    {
+      "id": "AC-034",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/execution.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "当仓库绑定显式配置 `workspace_mode: source` 时，Chat 执行器必须以本地真实 `source_root` 作为工作区，所有命令读取当前工作树并直接写入真实仓库；该模式不得创建会话副本、不得覆盖隔离工作区、不得在 generate 成果后再要求候选二次应用。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-034-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-033-035-product-audit.json"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "/bug-generate"
+    },
+    {
+      "id": "AC-035",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/cleanup.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "product_turn"
+      ],
+      "timeout_seconds": 180,
+      "required_product_turn": true,
+      "expected_effect": "本地真实仓库模式仍必须保留项目级串行写入协调、成员写权限校验、治理对象状态和产物 allowlist 校验、Task Trace/请求日志脱敏记录、看板刷新事实源投影；会话删除、diff 状态与未知任务恢复不得误认为存在 `<workspace_root>/<conversation_id>` 副本。",
+      "prior_manual_acceptance": false,
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-035-review.md",
+        "openspec/changes/fix-requirement-center-command-chain-write-gap/evidence/acceptance/inputs/AC-033-035-product-audit.json"
+      ],
+      "turn_id": "bfaba014-622d-4099-8fe4-0aebeb4524e6",
+      "command_contains": "/bug-generate"
+    }
+  ]
+}

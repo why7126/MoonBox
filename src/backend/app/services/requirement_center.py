@@ -53,6 +53,7 @@ _SCOPED_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_root", de
 _VALID_PRIORITIES = {"P0", "P1", "P2", "P3"}
 _VALID_SEVERITIES = {"blocker", "critical", "high", "medium", "low"}
 _TASK_ITEM_RE = re.compile(r"^\s*[-*]\s+\[([ xX])\]\s+(.+?)\s*$")
+SPRINT_DOCUMENT_NAMES = ("sprint.md", "release-note.md", "acceptance-report.md")
 
 
 @dataclass(frozen=True)
@@ -171,7 +172,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
     task_progress = (tasks.done, tasks.total) if tasks and tasks.total else None
     raw_sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
     status = status_override or _issue_status(entry, trace, changes)
-    documents = [name for name in _display_document_names(issue_dir, changes, status) if name != "sprint.md"]
+    documents = [name for name in _display_document_names(issue_dir, changes, status) if name not in SPRINT_DOCUMENT_NAMES]
     main_document = "requirement.md" if issue_type == "requirement" else "bug.md"
     documents = [name for name in documents if name not in {"requirement.md", "bug.md"}]
     if issue_dir and (issue_dir / main_document).is_file():
@@ -179,8 +180,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
     if issue_type == "requirement":
         documents.extend(name for name in _prototype_documents(issue_dir) if name not in documents)
     sprint_document = _sprint_document(entry, trace)
-    if sprint_document:
-        documents.append("sprint.md")
+    documents.extend(name for name in SPRINT_DOCUMENT_NAMES if _sprint_document(entry, trace, name))
     stage = _map_stage(str(status), documents, changes)
     test_progress = _test_progress(_document_names(issue_dir), stage)
     manual_acceptance_progress: tuple[int, int] | None = None
@@ -193,8 +193,16 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
     priority, severity, level_warning = _classification_fields(issue_type, entry, trace)
     if level_warning:
         warnings.append(level_warning)
-    validation_documents = sorted((set(_document_names(issue_dir)) - {"sprint.md"}) | set(documents))
-    blocked = _blocked_reason(stage, issue_type, validation_documents, warnings, issue_dir)
+    validation_documents = set(_document_names(issue_dir)) - set(SPRINT_DOCUMENT_NAMES)
+    validation_documents.update(documents)
+    if stage in {"ready-dev", "development"} and changes:
+        validation_documents.update(_change_document_names(changes[0]))
+    blocked = _blocked_reason(stage, issue_type, sorted(validation_documents), warnings, issue_dir)
+    acceptance_pending_count, acceptance_total_count, acceptance_blocked_reason = _acceptance_readiness(issue_dir) if stage == "acceptance" else (0, 0, None)
+    if stage == "acceptance" and acceptance_total_count:
+        manual_acceptance_progress = (acceptance_total_count - acceptance_pending_count, acceptance_total_count)
+    if stage == "acceptance" and acceptance_blocked_reason and not blocked:
+        blocked = acceptance_blocked_reason
     if stage == "sprint-planning":
         if not sprint_document:
             blocked = "缺少关联 Sprint 的 sprint.md"
@@ -210,6 +218,8 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
         owner=_owner_name(entry.get("owner") or entry.get("requester") or entry.get("reporter")),
         source=str(entry.get("lifecycle_stage") or entry.get("status") or "registry"),
         stage=stage,
+        status=str(status),
+        completion_hint=_completion_hint(issue_type, str(status), issue_dir),
         documents=documents,
         document_entries=_document_entries(issue_id, documents, stage, issue_type, changes),
         detail_url=detail_url,
@@ -222,9 +232,22 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
         task_progress=task_progress,
         test_progress=test_progress,
         manual_acceptance_progress=manual_acceptance_progress,
-        manual_acceptance_count=0,
+        manual_acceptance_count=max(0, (classified_tasks.manual.total - classified_tasks.manual.done)) if stage == "acceptance" else 0,
+        acceptance_pending_count=acceptance_pending_count,
+        acceptance_blocked_reason=acceptance_blocked_reason,
         drift_warnings=warnings,
     )
+
+
+def _completion_hint(issue_type: str, status: str, issue_dir: Path | None) -> str | None:
+    if status != "enriching":
+        return None
+    if issue_type == "bug":
+        root_status = _frontmatter(issue_dir / "root-cause.md").get("status") if issue_dir else None
+        if root_status != "confirmed":
+            return "根因尚未确认，请按根因分析文档补充可复核证据。"
+        return "根因已确认，仍需完成完善校验后进入待评审。"
+    return "完善尚未完成，请继续补齐文档并通过完整性校验。"
 
 
 def _classification_fields(issue_type: str, entry: dict[str, Any], trace: dict[str, Any]) -> tuple[str, str, str | None]:
@@ -269,20 +292,35 @@ def _prototype_documents(issue_dir: Path | None) -> list[str]:
 def _document_names(issue_dir: Path | None) -> list[str]:
     if not issue_dir or not issue_dir.exists():
         return []
-    names = [path.name for path in issue_dir.iterdir() if path.is_file() and path.suffix.lower() in {".md", ".html"}]
+    names = [path.name for path in issue_dir.iterdir()
+             if path.is_file() and not path.is_symlink() and path.suffix.lower() in {".md", ".html"}]
     return sorted(names)
 
 
+def _acceptance_readiness(issue_dir: Path | None) -> tuple[int, int, str | None]:
+    """Project an Issue's explicit acceptance result; never infer sign-off from tasks."""
+    if issue_dir is None:
+        return 0, 0, "验收来源待核实：Issue 目录不可用"
+    target = issue_dir / "acceptance.md"
+    if not target.is_file() or target.is_symlink():
+        return 0, 0, "验收来源待核实：acceptance.md 不存在或不可读"
+    try:
+        content = target.read_text(encoding="utf-8")
+        metadata = _frontmatter(target)
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return 0, 0, "验收来源待核实：acceptance.md 无法解析"
+    ac_lines = [re.match(r"^\s*[-*]\s+\[([ xX])\]\s+AC[-－]\d+", line) for line in content.splitlines()]
+    total = sum(match is not None for match in ac_lines)
+    pending = sum(match is not None and match.group(1) == " " for match in ac_lines)
+    state = str(metadata.get("acceptance_status") or "").strip().lower()
+    if pending:
+        return pending, total, f"验收未完成：{pending} 项待验证，请查看 acceptance.md"
+    if state not in {"accepted", "passed", "approved", "done", "complete", "completed"}:
+        return 0, total, "验收结论待核实，请查看 acceptance.md 与交付证据"
+    return 0, total, None
+
+
 def _display_document_names(issue_dir: Path | None, changes: list[str], status: Any) -> list[str]:
-    stage = STAGES.get(str(status), "capture")
-    if changes and stage in SPRINT_VISIBLE_STAGES:
-        change_documents = _change_document_names(changes[0])
-        if change_documents:
-            # A Change trace never supplies the card's Issue trace existence.
-            names = [name for name in change_documents if name != "trace.md"]
-            if issue_dir and (issue_dir / "trace.md").is_file():
-                names.append("trace.md")
-            return names
     return _document_names(issue_dir)
 
 
@@ -292,38 +330,31 @@ def _change_document_names(change_id: str) -> list[str]:
         change_dir = _change_dir(change_id)
     except PermissionError:
         return []
-    existing: set[str] = set()
-    for name in ("proposal.md", "design.md", "trace.md", "tasks.md"):
-        if (change_dir / name).exists():
-            existing.add(name)
+    existing = {path.name for path in change_dir.iterdir()
+                if path.is_file() and not path.is_symlink() and path.suffix.lower() == ".md"}
     if any((change_dir / "specs").glob("*/spec.md")):
         existing.add("spec.md")
-    return [name for name in CHANGE_DOCS if name in existing]
+    return [name for name in CHANGE_DOCS if name in existing] + sorted(existing - set(CHANGE_DOCS))
 
 
 def _document_entries(issue_id: str, documents: list[str], stage: str, issue_type: str, changes: list[str]) -> list[RequirementCenterDocument]:
     entries: list[RequirementCenterDocument] = []
-    change_id = changes[0] if changes and stage in SPRINT_VISIBLE_STAGES else None
     trace_dir = _find_issue_dir(issue_id)
     for name in dict.fromkeys([*documents, "trace.md", *(["sprint.md"] if stage == "sprint-planning" else [])]):
         suffix = Path(name).suffix.lower()
         if suffix == ".md":
-            path_category = "change" if change_id and name in CHANGE_DOCS and name != "trace.md" else "issue"
+            path_category = "issue"
             capability = compute_document_capability(
                 issue_type=issue_type,
                 stage=stage,
                 document_name=name,
                 path_category=path_category,
-                exists=bool(trace_dir and (trace_dir / name).is_file()) if name == "trace.md" else True,
+                exists=bool(trace_dir and (trace_dir / name).is_file()) if name not in SPRINT_DOCUMENT_NAMES else name in documents,
             )
-            if name == "sprint.md":
+            if name in SPRINT_DOCUMENT_NAMES:
                 capability = RequirementCenterDocumentCapability(
-                    readable="sprint.md" in documents, reason="关联 Sprint 文档只读" if "sprint.md" in documents else "关联 Sprint 文档不存在或已移动")
-            url = (
-                f"/api/v1/requirement-center/changes/{change_id}/documents/{name}"
-                if path_category == "change"
-                else f"/api/v1/requirement-center/issues/{issue_id}/documents/{name}"
-            )
+                    readable=name in documents, reason="关联 Sprint 文档只读" if name in documents else "关联 Sprint 文档不存在或已移动")
+            url = f"/api/v1/requirement-center/issues/{issue_id}/documents/{name}"
             entries.append(
                 RequirementCenterDocument(
                     name=name,
@@ -358,7 +389,7 @@ def compute_document_capability(
 ) -> RequirementCenterDocumentCapability:
     if not exists:
         return RequirementCenterDocumentCapability(readable=False, reason="文档不存在或已移动")
-    if document_name == "sprint.md":
+    if document_name in SPRINT_DOCUMENT_NAMES:
         return RequirementCenterDocumentCapability(reason="关联 Sprint 文档只读")
     if document_name == "trace.md":
         return RequirementCenterDocumentCapability(ai_mutable=True, reason="trace.md 仅允许系统治理链路更新，人工始终只读")
@@ -423,8 +454,11 @@ def _stage_action(issue_id: str, issue_type: str, stage: str, blocked: str | Non
         choice = "completion"
     elif stage == "approved":
         choice = "sprint"
+    command = commands.get(stage, {}).get(issue_type, "只读")
+    if stage == "approved":
+        command = f"{command} {'--req' if issue_type == 'requirement' else '--bug'}"
     return RequirementCenterAction(
-        command=f"{commands.get(stage, {}).get(issue_type, '只读')} {issue_id}".strip(),
+        command=f"{command} {issue_id}".strip(),
         label=labels.get(stage, {}).get(issue_type, "只读"),
         requires_choice=choice,
         disabled_reason=blocked,
@@ -717,8 +751,10 @@ def _drift_warnings(entry: dict[str, Any], trace: dict[str, Any], issue_dir: Pat
     return warnings
 
 
-def _sprint_document(entry: dict[str, Any], trace: dict[str, Any]) -> Path | None:
+def _sprint_document(entry: dict[str, Any], trace: dict[str, Any], document_name: str = "sprint.md") -> Path | None:
     """Resolve exactly the associated Sprint; never use an Issue or stale copy."""
+    if document_name not in SPRINT_DOCUMENT_NAMES:
+        return None
     sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
     if not isinstance(sprint_id, str) or not re.fullmatch(r"sprint-\d{3,}", sprint_id):
         return None
@@ -729,7 +765,7 @@ def _sprint_document(entry: dict[str, Any], trace: dict[str, Any]) -> Path | Non
     directory = directory.resolve()
     try:
         directory.relative_to(root / "iterations")
-        target = (directory / "sprint.md").resolve()
+        target = (directory / document_name).resolve()
         target.relative_to(directory)
     except ValueError:
         return None
@@ -740,11 +776,11 @@ def _sprint_document(entry: dict[str, Any], trace: dict[str, Any]) -> Path | Non
     return target if target.is_file() else None
 
 
-def _issue_sprint_document(issue_id: str, issue_dir: Path) -> Path | None:
+def _issue_sprint_document(issue_id: str, issue_dir: Path, document_name: str = "sprint.md") -> Path | None:
     folder = "requirements" if issue_id.startswith("REQ-") else "bugs"
     registry = _read_yaml(_governance_root() / "issues" / folder / "_registry.yaml")
     entry = next((item for item in registry.get("entries", []) if item.get("id") == issue_id), {})
-    return _sprint_document(entry, _frontmatter(issue_dir / "trace.md"))
+    return _sprint_document(entry, _frontmatter(issue_dir / "trace.md"), document_name)
 
 
 def _sprint_contains(sprint_id: str, issue_id: str) -> bool:
@@ -1101,8 +1137,8 @@ def read_requirement_center_document(issue_id: str, document_name: str) -> tuple
         raise FileNotFoundError("issue not found")
     if nested_prototype and (not issue_id.startswith("REQ-") or document_name not in _prototype_documents(issue_dir)):
         raise FileNotFoundError("prototype not found")
-    if document_name == "sprint.md":
-        target = _issue_sprint_document(issue_id, issue_dir)
+    if document_name in SPRINT_DOCUMENT_NAMES:
+        target = _issue_sprint_document(issue_id, issue_dir, document_name)
         if target is None:
             raise FileNotFoundError("associated sprint document not found")
         return target.read_text(encoding="utf-8"), suffix
@@ -1121,11 +1157,11 @@ def read_requirement_center_change_document(change_id: str, document_name: str) 
         raise PermissionError("invalid document name")
     if Path(document_name).suffix.lower() != ".md":
         raise ValueError("unsupported document type")
-    if document_name == "sprint.md":
+    if document_name in SPRINT_DOCUMENT_NAMES:
         from app.governance.change_index import ChangeIndex
         index = ChangeIndex(_governance_root())
         record = index.records.get(change_id)
-        target = index.sprint_document(record) if record else None
+        target = index.sprint_document(record, document_name) if record else None
         if target is None:
             raise FileNotFoundError("associated sprint document not found")
         return target.read_text(encoding="utf-8"), ".md"

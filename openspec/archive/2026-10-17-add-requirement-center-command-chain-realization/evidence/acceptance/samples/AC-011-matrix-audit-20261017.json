@@ -1,0 +1,297 @@
+{
+  "criterion": "AC-011",
+  "cells": [
+    {
+      "action": "req-generate",
+      "window": "before_write",
+      "turn_prefixes": [
+        "51b9914b"
+      ],
+      "evidence_files": [
+        "AC-011-real-window-rounds-20261014.json",
+        "AC-011-source-before-write-9205.json"
+      ]
+    },
+    {
+      "action": "req-generate",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "dea734a8"
+      ],
+      "evidence_files": [
+        "AC-011-source-restart-9204.json"
+      ]
+    },
+    {
+      "action": "req-generate",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "88bcd2d8"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-candidate-sync-20261014.json",
+        "AC-011-second-isolate-generate-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "req-generate",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "16bffada"
+      ],
+      "evidence_files": [
+        "AC-011-real-window-rounds-20261014.json",
+        "AC-011-source-after-sync-9206.json"
+      ]
+    },
+    {
+      "action": "req-complete",
+      "window": "before_write",
+      "turn_prefixes": [
+        "67fd9db5"
+      ],
+      "evidence_files": [
+        "AC-011-additional-product-windows-20261014.json"
+      ]
+    },
+    {
+      "action": "req-complete",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "d5b21911"
+      ],
+      "evidence_files": [
+        "AC-011-real-window-rounds-20261014.json"
+      ]
+    },
+    {
+      "action": "req-complete",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "7282c524"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-candidate-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "req-complete",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "c13b4b11"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-complete-after-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "req-review",
+      "window": "before_write",
+      "turn_prefixes": [
+        "5a3dcec5"
+      ],
+      "evidence_files": [
+        "AC-011-additional-product-windows-20261014.json"
+      ]
+    },
+    {
+      "action": "req-review",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "8d55fb42"
+      ],
+      "evidence_files": [
+        "AC-011-real-window-rounds-20261014.json"
+      ]
+    },
+    {
+      "action": "req-review",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "429962ae"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-candidate-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "req-review",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "e66b18b4"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-review-after-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "sprint-propose",
+      "window": "before_write",
+      "turn_prefixes": [
+        "59041a96"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-before-write-20261014.json"
+      ]
+    },
+    {
+      "action": "sprint-propose",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "30aab92f"
+      ],
+      "evidence_files": [
+        "AC-011-direct-product-rounds-20261014.json",
+        "AC-011-real-window-rounds-20261014.json"
+      ]
+    },
+    {
+      "action": "sprint-propose",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "671b0baa"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-sprint-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "sprint-propose",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "8e8053a0"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-sprint-after-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "req-opsx",
+      "window": "before_write",
+      "turn_prefixes": [
+        "cb101321"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-before-write-20261014.json"
+      ]
+    },
+    {
+      "action": "req-opsx",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "813ca19f"
+      ],
+      "evidence_files": [
+        "AC-011-direct-product-rounds-20261014.json",
+        "AC-011-real-window-rounds-20261014.json"
+      ]
+    },
+    {
+      "action": "req-opsx",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "e2c25980"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-req-opsx-recovery-20261014.json"
+      ]
+    },
+    {
+      "action": "req-opsx",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "a207e448"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-req-opsx-after-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "opsx-apply",
+      "window": "before_write",
+      "turn_prefixes": [
+        "2d1ea982"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-before-write-20261014.json"
+      ]
+    },
+    {
+      "action": "opsx-apply",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "12265532",
+        "80dae314"
+      ],
+      "evidence_files": [
+        "AC-011-apply-partial-recovery-20261017.json"
+      ]
+    },
+    {
+      "action": "opsx-apply",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "54dbe198"
+      ],
+      "evidence_files": [
+        "AC-011-direct-product-rounds-20261014.json"
+      ]
+    },
+    {
+      "action": "opsx-apply",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "3a21b1e9"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-apply-after-sync-20261014.json"
+      ]
+    },
+    {
+      "action": "opsx-archive",
+      "window": "before_write",
+      "turn_prefixes": [
+        "e143d948"
+      ],
+      "evidence_files": [
+        "AC-011-second-isolate-before-write-20261014.json"
+      ]
+    },
+    {
+      "action": "opsx-archive",
+      "window": "partial_file_before_sync",
+      "turn_prefixes": [
+        "03e640af",
+        "61d780a1"
+      ],
+      "evidence_files": [
+        "AC-012-product-four-windows-and-completion-gate-20261016.json"
+      ]
+    },
+    {
+      "action": "opsx-archive",
+      "window": "sync_incomplete",
+      "turn_prefixes": [
+        "ad81faad"
+      ],
+      "evidence_files": [
+        "AC-012-product-four-windows-and-completion-gate-20261016.json"
+      ]
+    },
+    {
+      "action": "opsx-archive",
+      "window": "sync_succeeded_before_terminal",
+      "turn_prefixes": [
+        "9dc2e474"
+      ],
+      "evidence_files": [
+        "AC-012-product-four-windows-and-completion-gate-20261016.json"
+      ]
+    }
+  ],
+  "covered_cells": 28,
+  "actions": 7,
+  "windows_per_action": 4,
+  "new_product_rounds": "AC-011-product-recovery-20261017.json",
+  "historical_unknown_disposition": "preserved as unknown; not used as passing evidence"
+}

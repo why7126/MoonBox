@@ -43,15 +43,27 @@ def _read_file(root, relative):
         after=os.fstat(fd)
         if not remaining or (before.st_size,before.st_mtime_ns,before.st_ctime_ns) != (after.st_size,after.st_mtime_ns,after.st_ctime_ns): raise ValueError()
         return b''.join(chunks).decode('utf-8')
+    except FileNotFoundError:
+        raise service.ChatError(2509, '关联对象文档尚未就绪，请稍后重试', 503)
     except (OSError, ValueError, UnicodeError):
         raise service.ChatError(2509, '对象不可访问', 403)
     finally:
         for fd in reversed(handles): os.close(fd)
 
 
-def _entries(root):
+def _document(root, base, names):
+    for name in names:
+        try: return _read_file(root, f'{base.rstrip("/")}/{name}')
+        except service.ChatError as error:
+            if error.status != 503: raise
+    raise service.ChatError(2509, '关联对象文档尚未就绪，请稍后重试', 503)
+
+
+def _entries(root, object_id=None):
     result = []
     for folder in ('requirements', 'bugs'):
+        if object_id is not None and not object_id.startswith('REQ-' if folder == 'requirements' else 'BUG-'):
+            continue
         try:
             content = _read_file(root, f'issues/{folder}/_registry.yaml')
             data = yaml.safe_load(content) or {}
@@ -60,25 +72,95 @@ def _entries(root):
                 if isinstance(entry, dict) and re.fullmatch(r'(REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?', str(entry.get('id',''))): result.append(entry)
         except service.ChatError: continue
         except (OSError, ValueError, yaml.YAMLError): raise service.ChatError(2509, '对象目录不可用', 503)
+    if object_id is not None and object_id.startswith(('REQ-', 'BUG-')):
+        return result
+    changes = root / 'openspec' / 'changes'
+    try:
+        for folder in sorted(changes.iterdir()) if changes.exists() else []:
+            if not folder.is_dir() or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,100}', folder.name):
+                continue
+            if object_id is not None and folder.name != object_id:
+                continue
+            try:
+                trace = _document(root, f'openspec/changes/{folder.name}', ('trace.md', 'proposal.md'))
+            except service.ChatError:
+                if object_id is not None: raise
+                # An incomplete or unreadable entry must not poison the whole catalog.
+                continue
+            title = folder.name
+            if trace.startswith('---\n'):
+                try:
+                    metadata = yaml.safe_load(trace.split('---', 2)[1]) or {}
+                    title = str(metadata.get('title') or metadata.get('change_id') or folder.name)
+                except yaml.YAMLError:
+                    title = folder.name
+            result.append({'id': folder.name, 'title': title, 'status': 'change', 'path': f'openspec/changes/{folder.name}'})
+    except OSError:
+        raise service.ChatError(2509, '对象目录不可用', 503)
+    # An existing conversation must remain resolvable while its Change is
+    # moved out of the active catalog during an archive turn.
+    if object_id is not None and not object_id.startswith(('REQ-', 'BUG-')) and not any(
+        entry['id'] == object_id for entry in result
+    ):
+        archive = root / 'openspec' / 'archive'
+        matches = list(archive.glob(f'????-??-??-{object_id}')) if archive.exists() else []
+        if len(matches) == 1 and matches[0].is_dir():
+            base = f'openspec/archive/{matches[0].name}'
+            _read_file(root, f'{base}/trace.md')
+            result.append({'id': object_id, 'title': object_id, 'status': 'archived', 'path': base})
+        elif not matches:
+            # OpenSpec first moves the Change into this legacy directory. A
+            # stopped archive turn must be able to reopen that exact object.
+            legacy = root / 'openspec' / 'changes' / 'archive'
+            pending = list(legacy.glob(f'????-??-??-{object_id}')) if legacy.exists() else []
+            journal = root / 'openspec' / 'archive' / '.archive-recovery' / f'{object_id}.json'
+            if len(pending) == 1 and pending[0].is_dir() and journal.is_file():
+                from app.governance.direct_command_journal import archive_spec_drift
+                if not archive_spec_drift(object_id, root):
+                    base = f'openspec/changes/archive/{pending[0].name}'
+                    _read_file(root, f'{base}/trace.md')
+                    result.append({'id': object_id, 'title': object_id,
+                                   'status': 'archive_pending', 'path': base})
     return result
+
+
+def _authorize_object(db, actor, space_id, repository_id, object_id):
+    grants = list(db.execute(select(object_access).where(object_access.c.space_id == space_id,
+        object_access.c.repository_id == repository_id, object_access.c.object_id == object_id)).mappings())
+    if grants and not any(row['user_id'] == actor and row['can_read'] for row in grants):
+        raise service.ChatError(2509, '对象不存在或无权访问', 403)
 
 
 def resolve_object(db, actor, space_id, repository_id, object_id):
     service.authorize_space(db, actor, space_id)
-    if not isinstance(object_id,str) or not re.fullmatch(r'(REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?',object_id): raise service.ChatError(2509, '对象不存在或无权访问', 403)
+    if not isinstance(object_id,str) or not re.fullmatch(r'(?:REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?|[a-z0-9][a-z0-9-]{0,100}',object_id): raise service.ChatError(2509, '对象不存在或无权访问', 403)
     root = _root(repository_id, space_id)
-    entries = [entry for entry in _entries(root) if entry['id'] == object_id or entry['id'].split('-',2)[:2] == object_id.split('-',2)]
+    is_issue = object_id.startswith(('REQ-', 'BUG-'))
+    if not is_issue:
+        _authorize_object(db, actor, space_id, repository_id, object_id)
+    entries = [entry for entry in _entries(root, object_id) if entry['id'] == object_id or (str(entry['id']).startswith(('REQ-','BUG-')) and str(entry['id']).split('-',2)[:2] == object_id.split('-',2))]
     if len(entries) != 1: raise service.ChatError(2509, '对象不存在或无权访问', 403)
     entry = entries[0]; full_id = entry['id']
-    grants = list(db.execute(select(object_access).where(object_access.c.space_id == space_id,
-        object_access.c.repository_id == repository_id, object_access.c.object_id == full_id)).mappings())
-    if grants and not any(row['user_id'] == actor and row['can_read'] for row in grants): raise service.ChatError(2509, '对象不存在或无权访问', 403)
+    if is_issue:
+        _authorize_object(db, actor, space_id, repository_id, full_id)
     # An absent ACL inherits the already-checked repository/space membership; explicit ACL narrows it.
     base = entry.get('path', '')
-    if not isinstance(base,str) or not base.startswith('issues/'): raise service.ChatError(2509, '对象不存在或无权访问', 403)
-    document = 'requirement.md' if full_id.startswith('REQ-') else 'bug.md'
-    try: content = _read_file(root, f'{base.rstrip("/")}/{document}')
-    except service.ChatError: content = _read_file(root, f'{base.rstrip("/")}/capture.md')
+    if not isinstance(base,str) or not (base.startswith('issues/') or base.startswith('openspec/changes/') or base.startswith('openspec/archive/')): raise service.ChatError(2509, '对象不存在或无权访问', 403)
+    if base.startswith(('openspec/changes/', 'openspec/archive/')):
+        content = _document(root, base, ('trace.md', 'proposal.md'))
+    else:
+        document = 'requirement.md' if full_id.startswith('REQ-') else 'bug.md'
+        # Promotion moves the directory before refreshing its registry row.
+        # Keep the already-authorized identity readable across that narrow gap.
+        folder = 'requirements' if full_id.startswith('REQ-') else 'bugs'
+        plan_base = f'issues/{folder}/plan/{full_id}'
+        old_base = f'issues/{folder}/review/{full_id}'
+        archive_base = f'issues/{folder}/archive/{full_id}'
+        if base.rstrip('/') == plan_base and not (root / plan_base).exists() and (root / old_base).is_dir():
+            base = old_base
+        if base.rstrip('/') == old_base and not (root / old_base).exists() and (root / archive_base).is_dir():
+            base = archive_base
+        content = _document(root, base, (document, 'capture.md'))
     return {'id': full_id, 'title': str(entry.get('title') or full_id)[:200],
             'version': hashlib.sha256(content.encode()).hexdigest(), 'content': content,
             'status': str(entry.get('status') or ''), 'path': base, 'root': root}
@@ -102,7 +184,15 @@ def authorize_history(db, actor, parent):
         .where(turns.c.conversation_id == parent['id'])))
     for object_id in ids:
         try: resolve_object(db,actor,parent['space_id'],parent['repository_id'],object_id)
-        except service.ChatError: raise service.ChatError(2509, '会话引用的对象已不可访问，请新建干净会话', 403)
+        except service.ChatError as error:
+            # The CLI temporarily moves the primary Change into its legacy
+            # archive directory. Reuse the exact active-turn archive gate so
+            # immutable snapshots remain authorized during that move.
+            from app.chat.policy import _legacy_archive_transition_ready
+            if _legacy_archive_transition_ready(db, parent, object_id, actor):
+                continue
+            if error.status != 403: raise
+            raise service.ChatError(2509, '会话引用的对象已不可访问，请检查对象状态或权限', 403)
 
 
 def read_relations(db, actor, cid):

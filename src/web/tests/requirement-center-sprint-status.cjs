@@ -47,7 +47,7 @@ const base = {
             : { ready: false };
         return route.fulfill({ json: { code: 0, data } });
       });
-      await page.goto("http://127.0.0.1:18135/tests/governance-board-preview.html?page=requirements");
+      await page.goto("http://127.0.0.1:39035/tests/governance-board-preview.html?page=requirements");
       await expect(page.locator("main.requirement-center")).toHaveAttribute("data-theme", sample.theme);
       await expect(page.locator('[data-issue-id="REQ-0101"]')).toBeVisible();
 

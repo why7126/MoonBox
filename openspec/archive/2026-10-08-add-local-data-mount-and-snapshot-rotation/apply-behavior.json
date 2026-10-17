@@ -1,0 +1,35 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "work",
+      "evidence": ["trace.md:验证记录-聚焦回归与隔离运行观察"],
+      "tasks": [
+        {"id": "chat_turn", "state": "pending", "external": "model_call_choice", "blocker_evidence": ["trace.md:中断续接检查点"]},
+        {"id": "independent_checks", "state": "pending"}
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": ["trace.md:验证记录-静态配置与合成回归"],
+      "tasks": [
+        {"id": "chat_turn", "state": "pending", "external": "model_call_choice", "blocker_evidence": ["trace.md:中断续接检查点"]},
+        {"id": "final_trace", "state": "pending", "deps": ["chat_turn"]}
+      ],
+      "gates_passed": false,
+      "action": "wait"
+    },
+    {
+      "trigger": "work",
+      "evidence": ["trace.md:验证记录-真实Chat执行", "trace.md:execution.completed_at"],
+      "tasks": [
+        {"id": "chat_turn", "state": "done"},
+        {"id": "final_trace", "state": "done", "deps": ["chat_turn"]}
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

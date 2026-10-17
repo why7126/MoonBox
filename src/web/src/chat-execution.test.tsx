@@ -73,3 +73,24 @@ it("renders the v3 trace tab shell with snapshots and file changes", async () =>
   expect(screen.getByTestId("chat-diff").className).toContain("section-block");
   expect(await screen.findByText("src/components/UserCard.tsx")).toBeTruthy();
 });
+
+it("keeps a running turn when the panel closes and finds the same turn after reopening", async () => {
+  localStorage.setItem("moonbox.session", JSON.stringify({ access_token: "synthetic" }));
+  const turn = { id: "persisted-turn", conversation_id: "c", client_request_id: "persisted-request", status: "running", created_at: "2026-10-16T09:00:00Z" };
+  const requests: string[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+    requests.push(String(url));
+    if (url.includes("/events")) return new Response(": empty\n\n", { headers: { "Content-Type": "text/event-stream" } });
+    const data = url.endsWith("/turns") ? { items: [turn] } : url.endsWith("/context") ? [] : { available: false, files: [] };
+    return new Response(JSON.stringify({ code: 0, data }), { headers: { "Content-Type": "application/json" } });
+  }));
+  const first = render(<ExecutionPanel conversation={{ id: "c" } as ConversationRead} />);
+  await waitFor(() => expect((screen.getByTestId("chat-turn-select") as HTMLSelectElement).value).toBe(turn.id));
+  first.unmount();
+  expect(requests.some(url => url.endsWith("/interrupt"))).toBe(false);
+  render(<ExecutionPanel conversation={{ id: "c" } as ConversationRead} focusTurn={turn.id} />);
+  await waitFor(() => expect((screen.getByTestId("chat-turn-select") as HTMLSelectElement).value).toBe(turn.id));
+  expect(screen.getByTestId("chat-turn-status").textContent).toBe("所选轮次当前状态：执行中");
+  expect(requests.filter(url => url.endsWith("/conversations/c/turns")).length).toBeGreaterThanOrEqual(2);
+  expect(requests.some(url => url.endsWith("/interrupt"))).toBe(false);
+});

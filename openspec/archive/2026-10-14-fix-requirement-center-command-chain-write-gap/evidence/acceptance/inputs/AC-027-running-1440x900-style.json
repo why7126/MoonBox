@@ -1,0 +1,12 @@
+{
+  "scenario": "isolated BUG-0036 bug-complete running",
+  "viewport": [1440, 900],
+  "observed_at": "2026-10-13 20:43:00",
+  "selectors": {
+    "article.chat-message:not(.chat-message-user)": {"width": 1168, "left": 248, "maxWidth": "none"},
+    ".chat-message-block.turn-assistant": {"width": 1168, "left": 248, "maxWidth": "none"},
+    ".chat-turn-activity": {"width": 1126, "left": 290, "maxWidth": "none"},
+    ".chat-message-bubble": {"width": 1126, "left": 290, "maxWidth": "none"},
+    ".chat-markdown": {"width": 1126, "left": 290, "maxWidth": "none"}
+  }
+}

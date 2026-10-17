@@ -27,8 +27,8 @@ SENSITIVE_PATTERNS = (
     re.compile(r"\bCookie\s*:", re.I),
     re.compile(r"\bDATABASE_URL\s*=\s*(?!<)", re.I),
     re.compile(r"mysql(?:\+\w+)?://", re.I),
-    re.compile(r"/Users/[^\\s\"']+", re.I),
-    re.compile(r"/home/[^\\s\"']+", re.I),
+    re.compile(r"/" + r"Users/[^\\s\"']+", re.I),
+    re.compile(r"/" + r"home/[^\\s\"']+", re.I),
 )
 ENV_EXAMPLE_PATTERNS = (
     ".env.example",

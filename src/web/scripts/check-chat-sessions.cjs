@@ -1,6 +1,6 @@
 const {chromium}=require(process.cwd()+'/node_modules/@playwright/test');
 const fs=require('node:fs');
-const origin=process.argv[2]||'http://localhost:18102';
+const origin=process.argv[2]||'http://localhost:39002';
 const dir='../../openspec/changes/add-chat-workbench-codex/evidence/session-ui';
 (async()=>{
  const browser=await chromium.launch({headless:true});

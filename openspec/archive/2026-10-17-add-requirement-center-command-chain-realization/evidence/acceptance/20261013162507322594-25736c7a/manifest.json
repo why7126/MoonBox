@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "change_id": "add-requirement-center-command-chain-realization",
+  "run_id": "20261013162507322594-25736c7a",
+  "created_at": "2026-10-13 16:27:07",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "isolated-moonbox-39032-39036-39037",
+  "scope": "diagnostic",
+  "status": "failed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    },
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "254384b43f2158a36829fd31427eea5d6ca4e6791e000be18f625d68e4c1132a",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "dc48c7b9fa0ed1898f58110662671469f3085d89d472c217f206953bae3b78d0",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "1d39cbfe6d23a62f7f64e9ad1cfd2b9c60add77bd707387392194936938ec433",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "728b8b3f3e46f7ce39577008fea2a799b6e22e4c606ba9f48f9be841bd174915",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "e6a83a74d7445bde95715a68a9a3c0a5e99aa91f138cd939b2b687d0b32ccc7a",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "db471d62adf6e62b660db94bc2f0eee173d294dad977cbb155895638fcfbc94f",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "e59de16232f16fd7f8a66fd666f1dc2e10b0060cb8ec1120059907c13e2483de",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "0f216f8523a33dfc2546520ce4bd1513f46107670a425e36725b9a161a538671",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "d8ecb1e4ad9ff89de66f3b6cda0f619bce6e3e500e8874dbd3a9d039da61e506",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "234c18015e7e5b6e1bd24fbe6683a0f3a11cef78161be3fcf4521bfe71a264bf",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "dcec818a5f962d92ba01125e1ba894ee1581be1d26115df89740185bf5f72929",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "6c9afb3e3dac8f7918c88f67a3f652754fbda6189a3a327ca2537c036b23e7dd",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "9c59d6aa71ff3abb74cdc1ebafc368393c63cb51346c172d35bb1e36f32353c9",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c396915c48cf65e8e2c6253c32c005a7f76cfc59ba6c2e8e1fec04072ed9bee5",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "6c6da6a16ac976ebaf7320f0e187cecbdad78c810cd32063f0647d836a1c760b",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "5e7c64f81c2a3769d66a2ab30f6f00c7cfc5ad60f86dfbc5ec46d9f7d0f964bc",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "0b6312e5bf094cfd8d37ec5ca442de6ffff40a493cc86bf3ab4e36dfeadce8e0",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "79771adaa4f9c762cdf8ba4c820814cff682ce1ba11970d85522a05a90cb4e64",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "8ce32688949c744a7e42c8e56f91927cc62c5fccc64d576767623323a164747a",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "583ed4dd7877793a7e536d63543b251f04f3e6f9483ac6f7341f86523bf3261b",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "c7420ef9124e5c8006b826f2a99a66fbf236910c03b85dc5f4db55a564d4324b",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "8079450cfc58641eed3f660fcd2cd3bd0dcc976166a4b7b757bf9acb8e0568c3",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "35874b0cedfbdf398ae41de1bbdce3f07dc9006771ddb438d0c3993730d77e87",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "aebcd527c60b4e4fef13e665bc94f3766db6edef3ba880599cea805be536239f",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "bca58c4fb981e0d4b481088e2ab88a3fa38956e87a9c1adb1ee1553d53156055",
+      "reused": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-PROTOTYPE-002.md",
+          "sha256": "f458027bba8a81cc8082a9faac25f3ab9cde416ae9b5cbcb3c292412ad5e5ebc"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440.png",
+          "sha256": "8888af4903852a4548ff402ba7e65fc3319783f27e0c02a56a6669b26de4b84f"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/visual/AC-PROTOTYPE-002/skeleton-light-1440-computed-style.json",
+          "sha256": "d102769e2fa1808acce58bb05466a66c8c17e3bef19dfafd9320851b59953337"
+        }
+      ],
+      "duration_ms": 118126,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "bbc1ce60f120efea815a8d2373f8a8713839d7ee6619d848e6129e91e30395be",
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "33c2520a23a25f7e8d118f1663fcf8a98f985ab86834d67754e7af060bcefea4",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "69b06e3b171edb519758d8b22f60cd173e31a4b820030dd68298ef2daa23684b",
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    }
+  ]
+}

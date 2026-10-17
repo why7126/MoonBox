@@ -37,6 +37,21 @@ def test_limits_preserve_metadata_without_fake_text(tmp_path):
     with pytest.raises(WorkspaceError): snapshot(root,max_total_bytes=10)
 
 
+def test_git_snapshot_skips_ignored_runtime_data(tmp_path):
+    root=tmp_path.resolve()
+    subprocess.run(['git','init','-q',str(root)],check=True)
+    (root/'.gitignore').write_text('data/runtime/**\n')
+    (root/'tracked.txt').write_text('tracked\n')
+    subprocess.run(['git','-C',str(root),'add','.gitignore','tracked.txt'],check=True)
+    subprocess.run(['git','-C',str(root),'-c','user.name=Test','-c','user.email=test@example.invalid','commit','-qm','fixture'],check=True)
+    (root/'data/runtime/chat-platform').mkdir(parents=True)
+    (root/'data/runtime/chat-platform/huge.sqlite').write_bytes(b'x'*128)
+    (root/'untracked.txt').write_text('allowed\n')
+    data=snapshot(root,max_total_bytes=64)
+    assert set(data['files'])=={'.gitignore','tracked.txt','untracked.txt'}
+    assert data['files']['untracked.txt']['text']=='allowed\n'
+
+
 def test_workspace_copies_only_committed_tree_and_preserves_source(tmp_path):
     root=tmp_path.resolve();source=root/'source';source.mkdir();workspaces=root/'workspaces';workspaces.mkdir()
     subprocess.run(['git','init','-q',str(source)],check=True)

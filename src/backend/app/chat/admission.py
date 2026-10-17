@@ -17,7 +17,7 @@ def _account(db, key):
             pass
 
 
-def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None):
+def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None, budget_prompt=None, governance_candidate_id=None):
     """Caller must first verify the isolated executor. This function never starts a process."""
     materials = materials or []
     execution_config = execution_config or service.normalize_execution_config()
@@ -75,13 +75,17 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
             requested_config=json.dumps(execution_config['requested'], ensure_ascii=False, sort_keys=True),
             effective_config=json.dumps(execution_config['effective'], ensure_ascii=False, sort_keys=True),
             config_fallback_reason=execution_config.get('fallback_reason')))
+        if governance_candidate_id:
+            from app.governance.preparation import bind_candidate_turn
+            bind_candidate_turn(db, governance_candidate_id, tid)
         service.save_materials(db, tid, materials)
         db.execute(insert(reservations).values(**service.identity(), turn_id=tid, owner_id=actor,
             space_id=row['space_id'], period=period, tokens=reserve_tokens, bytes=reserve_bytes, status='reserved'))
         from app.chat.relations import capture_for_turn, copy_for_retry
         context = copy_for_retry(db, actor, retry_of, tid) if retry_of else capture_for_turn(db, actor, row, tid)
         material_bytes = len(json.dumps(materials,ensure_ascii=False).encode())
-        if len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt.encode()) + material_bytes >= reserve_bytes:
+        prompt_for_budget = budget_prompt if budget_prompt is not None else prompt
+        if len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt_for_budget.encode()) + material_bytes >= reserve_bytes:
             raise service.ChatError(2508, '引用快照超过本轮存储预留')
         db.execute(insert(messages).values(**service.identity(), turn_id=tid, role='user', content=service.material_message(prompt, materials)))
         from app.chat.observability import trace

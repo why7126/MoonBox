@@ -1,0 +1,195 @@
+sprint_id: sprint-009
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-08 14:40:30'
+updated_at: '2026-10-17 17:00:07'
+start_date: '2026-10-08 14:40:30'
+end_date: '2026-10-22 14:40:30'
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0043-unify-data-mount-and-snapshot-rotation
+  - REQ-0044-shared-project-verification-environment
+bugs:
+  - BUG-0030-chat-assistant-output-missing-from-conversation
+  - BUG-0034-chat-standalone-archive-scope-tool-path
+  - BUG-0035-requirement-center-acceptance-readiness-projection
+  - BUG-0040-chat-archive-issue-promote-fixture
+  - BUG-0041-chat-archive-issue-promote-retest
+  - BUG-0042-chat-archive-issue-promote-retest-2
+capacity_person_days: 30
+estimated_story_points: 46
+estimated_person_days: 35.99
+scope_estimates:
+  - id: REQ-0043-unify-data-mount-and-snapshot-rotation
+    change: add-local-data-mount-and-snapshot-rotation
+    requirement: REQ-0043-unify-data-mount-and-snapshot-rotation
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 已评审P1需求；涵盖SQLite路径与挂载、旧数据迁移、快照轮转与恢复验证，估算8人天
+  - id: migrate-local-host-ports-to-39000-range
+    change: migrate-local-host-ports-to-39000-range
+    size: S
+    story_points: 2
+    estimated_person_days: 2
+    rationale: 统一 MoonBox 本地宿主机端口至 39001-39050
+  - id: BUG-0030-chat-assistant-output-missing-from-conversation
+    change: fix-chat-assistant-output-missing-from-conversation
+    bug: BUG-0030-chat-assistant-output-missing-from-conversation
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 已评审 high 缺陷，根因仍为 hypothesis；预留5人天覆盖隔离合成轮次定位、正文持久化或展示修复，以及停止、未知、恢复、幂等、分页、正常对照和权限脱敏回归。历史数据已删除，不将替代证据写成历史根因；后续根因门禁仍需满足。
+  - id: REQ-0044-shared-project-verification-environment
+    change: add-shared-project-verification-environment
+    requirement: REQ-0044-shared-project-verification-environment
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 已评审P1平台能力；首期覆盖Node锁文件制品、Firefox与Chromium预检、跨空间隔离和双项目真实浏览器验收，估算8人天；容量由15增至23，剩余7人天低于30%缓冲，交付时按验证服务和制品准备分批
+  - id: add-git-sync-skill
+    change: add-git-sync-skill
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 新增选择性暂存、Git 安全扫描、提交摘要、正式版本标签与远程同步治理技能
+  - id: BUG-0034-chat-standalone-archive-scope-tool-path
+    change: fix-chat-standalone-archive-scope-tool-path
+    bug: BUG-0034-chat-standalone-archive-scope-tool-path
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 已评审 high 缺陷；修复纯治理 Change 归档授权与执行命令 PATH，并验证真实沙箱与负向权限边界
+  - id: BUG-0035-requirement-center-acceptance-readiness-projection
+    change: fix-requirement-center-acceptance-readiness-projection
+    bug: BUG-0035-requirement-center-acceptance-readiness-projection
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 已评审 medium 缺陷；覆盖验收事实与归档提示对齐、Issue/Change/Sprint 已生成治理 MD 持续可达及权限分组、双视口视觉和后端/前端/真实产品回归；估算5人天。纳入后32/30人天、缓冲为0，需在迭代内明确延后建议并避免新增未评审范围。
+  - id: harden-browser-evidence-access-verdict
+    change: harden-browser-evidence-access-verdict
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 补齐浏览器取证失败重试、结果分层与无法访问判定门禁，预估1人天
+  - id: verify-chat-source-archive-e2e
+    change: verify-chat-source-archive-e2e
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权 BUG-0026 专用首次产品归档验收样本
+  - id: verify-chat-archive-transition-window
+    change: verify-chat-archive-transition-window
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: BUG-0026 AF-013 用户已授权专用验收替代样本，用于真实产品首次归档迁移窗口复验
+  - id: verify-chat-cross-mount-copy-archive
+    change: verify-chat-cross-mount-copy-archive
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权 BUG-0026 AF-014 专用产品首次归档验收样本
+  - id: verify-chat-archive-finalize-window
+    change: verify-chat-archive-finalize-window
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权 BUG-0026 AF-015 专用产品归档收尾验收样本
+  - id: verify-chat-archive-history-transition
+    change: verify-chat-archive-history-transition
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权 BUG-0026 AF-015 历史引用过渡产品归档验收样本
+  - id: BUG-0040-chat-archive-issue-promote-fixture
+    change: fix-chat-archive-issue-promote-fixture
+    bug: BUG-0040-chat-archive-issue-promote-fixture
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权的 BUG-0026 关联 Issue 首次归档产品验收虚拟样本；仅用于治理链路取证
+  - id: BUG-0041-chat-archive-issue-promote-retest
+    change: fix-chat-archive-issue-promote-retest
+    bug: BUG-0041-chat-archive-issue-promote-retest
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 用户授权的 BUG-0026 AC-001 独立复验夹具；BUG-0040 产品轮次 stopped，需全新关联 Issue 首次归档样本。
+  - id: BUG-0042-chat-archive-issue-promote-retest-2
+    change: fix-chat-archive-issue-promote-retest-2
+    bug: BUG-0042-chat-archive-issue-promote-retest-2
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: BUG-0026 AC-001 第三份独立首次归档验收样本；前两次产品轮次 stopped。
+  - id: harden-automated-acceptance-evidence
+    change: harden-automated-acceptance-evidence
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: BUG-0035 自动验收复盘：强化负向门禁、单项诊断清单、证据预检和报告原子发布
+  - id: harden-opsx-acceptance-preflight-evidence-coverage
+    change: harden-opsx-acceptance-preflight-evidence-coverage
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: BUG-0029 自动验收复盘：预检阻塞、逐 AC 证据摘要与阶段视口矩阵校验治理优化
+  - id: fix-sprint-close-stale-history-scan
+    change: fix-sprint-close-stale-history-scan
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.1
+    rationale: 修正 sprint-008 关闭扫描将历史验收证据误判为当前状态的治理门禁
+  - id: accept-legacy-archive-sample-status
+    change: accept-legacy-archive-sample-status
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.09
+    rationale: 历史归档验收样本状态兼容，限定读取器与聚焦回归；Sprint 容量接近120%上限
+knowledge_intake:
+  latest_retrospective: docs/knowledge-base/retrospectives/sprint-007-retrospective.md
+  carried_actions:
+    - S7-A003
+  note: 承接复盘中的证据分层与旧 runtime 迁移经验；归档路径残留检查仅作为验收门禁，不自动创建治理 Change。
+product_data_collection_observability:
+  status: applicable
+  affected_layers:
+    - db
+    - chat_messages
+    - execution_events
+    - request_logs
+    - task_traces
+    - task_trace_spans
+    - web
+    - governance_context_api
+    - document_read_api
+  reason: 本地数据挂载和快照轮转涉及 DB 与后台维护任务；BUG-0030 追加 Chat 消息、输出事件、执行终态、消息 API 与 Web 展示关联核查；BUG-0035 涉及 Web 看板、治理上下文和授权文档读取。request_logs 与既有任务链路适用。新增 usage_events 采集、DB schema、客户端请求封装及请求协议暂为 N/A；修复定案时按实际边界重新评估。
+  validation: 保留 SQLite/MySQL 数据边界、迁移轮转及恢复验证；BUG-0030 按既有 AC 核对消息、事件、终态、API 分页、页面一致性和权限脱敏；BUG-0035 按 AC-001至AC-011 核对验收投影、归档阻断、文档来源与权限、双视口和真实产品观察。仅记录脱敏状态、计数和请求关联，不保存文档正文或凭证；后续 Change 明确 OpenAPI/客户端生成是否适用。
+capacity_usage: 1.1997
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+changes:
+  - add-local-data-mount-and-snapshot-rotation
+  - migrate-local-host-ports-to-39000-range
+  - fix-chat-assistant-output-missing-from-conversation
+  - add-shared-project-verification-environment
+  - add-git-sync-skill
+  - fix-chat-standalone-archive-scope-tool-path
+  - harden-browser-evidence-access-verdict
+  - fix-requirement-center-acceptance-readiness-projection
+  - verify-chat-source-archive-e2e
+  - verify-chat-archive-transition-window
+  - verify-chat-cross-mount-copy-archive
+  - verify-chat-archive-finalize-window
+  - verify-chat-archive-history-transition
+  - fix-chat-archive-issue-promote-fixture
+  - fix-chat-archive-issue-promote-retest
+  - fix-chat-archive-issue-promote-retest-2
+  - harden-automated-acceptance-evidence
+  - harden-opsx-acceptance-preflight-evidence-coverage
+  - fix-sprint-close-stale-history-scan
+  - accept-legacy-archive-sample-status

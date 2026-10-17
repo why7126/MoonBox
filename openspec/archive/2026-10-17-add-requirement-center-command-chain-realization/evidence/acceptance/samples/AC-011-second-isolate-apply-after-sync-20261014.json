@@ -1,0 +1,26 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "opsx-apply",
+  "object_id": "add-isolated-apply-ac011",
+  "turn_id": "3a21b1e9-eeec-426a-ba83-adbe392e391b",
+  "window": "formal final opsx.apply Workflow Sync succeeded before Chat terminal",
+  "baseline_revision": "844b93f07489b4632fbc6548aecc3b20e270ee8eeb6cb937493772a6810619c1",
+  "source_revision_before_kill": "a0c2b069a42f65fa9da23d54e37da7f0c43b8fc83ec6b8e810a6c5ede1ecbb3f",
+  "before_restart": {"journal_steps": 6, "formal_sync_started_steps": 1, "formal_sync_succeeded_steps": 1},
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "sync_completed_unverified",
+    "change_status": "applied",
+    "started_at_present": true,
+    "completed_at_present": true,
+    "last_event": "opsx.apply",
+    "tasks_checked": 2,
+    "tasks_total": 2,
+    "archive_exists": false
+  },
+  "read_only_reconciliation": "OpenSpec strict validation passed; delivery evidence status pass with one checked item and zero missing; repeat opsx.apply Workflow Sync dry-run had zero updates. The stopped Chat turn was not replayed.",
+  "limit": "One final after-sync window; remaining direct-action fault cells and full AC-011 matrix still require evidence.",
+  "overall": "partial; AC-011 remains unsigned"
+}

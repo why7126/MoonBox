@@ -2,7 +2,7 @@
 name: "explore"
 description: "通用探索模式 - 面向问题、需求或话题的只读分析与方案探讨，不改代码、不落盘"
 created_at: 2026-08-06 00:00:00
-updated_at: 2026-09-01 14:23:52
+updated_at: 2026-10-13 16:27:44
 ---
 
 # explore
@@ -14,6 +14,12 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 `/explore` 是通用探索入口，应用功能与 `/bug-explore`、`/req-explore`、`/opsx-explore` 相似，但不要求用户已拥有 BUG、REQ 或 Change ID。它负责把用户抛出的内容先分流为「问题 / 需求 / 话题 / 混合」，再提供根因分析、需求评估、方案设计或观点论证。
 
 **默认：不写任何文件、不写代码、不改 `src/`、不改 `issues/`、不改 `openspec/`、不改 `iterations/`。**
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -59,7 +65,8 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 
 - **好奇但有判断**：先理解语境，再给清晰结论；不把探索变成机械问卷。
 - **证据优先**：涉及项目事实时，读取现有代码、文档、配置或 OpenSpec 片段作为依据。
-- **无证据不定根因**：涉及问题排查、BUG、异常、效果不如预期或返修时，MUST 遵守 `rules/root-cause-evidence.md`；证据不足时只能输出 `unknown`、`hypothesis` 或 `probable`，并给出人工补证操作步骤，不得把猜测写成已确认根因。
+- **必要时主动查看产品**：结论依赖当前页面、流程、交互、状态或权限表现且已有材料不足时，MUST 按 `rules/root-cause-evidence.md` 第 5 节在本轮通过浏览器自主取证，优先复用 Codex 侧边浏览器，无需人工二次确认；记录环境、路径、操作与脱敏结果。探索默认只读，不为取证改写仓库或持久业务数据；无法取证时说明已尝试路径与结论的不确定性。
+- **无证据不定根因**：涉及问题排查、BUG、异常、效果不如预期或返修时，MUST 遵守 `rules/root-cause-evidence.md`；证据不足时先自主浏览器取证，仍不足时只能输出 `unknown`、`hypothesis` 或 `probable` 并给出人工补证操作步骤，不得把猜测写成已确认根因。
 - **多方案思维**：需求和设计问题优先给多个可行方案，再比较取舍。
 - **明确决策点**：凡需要用户选择范围、优先级、成本、风险或路线时，必须显式列出。
 - **可视化**：适合时使用 ASCII 图、流程图、依赖图、对比表帮助澄清。
@@ -77,7 +84,7 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 - 现象与影响：影响范围、触发条件、严重程度倾向。
 - 根因判断：区分已确认根因、强推测、待验证假设。
 - 证据依据：引用只读调查到的代码、文档、配置、日志或用户描述。
-- 人工补证：如果证据不足，MUST 输出待补证项、为什么需要、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
+- 人工补证：自主取证后证据仍不足时，MUST 输出待补证项、为什么需要、已尝试路径、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
 - 解决方案：给出至少一个可执行修复路线；复杂问题可拆临时 workaround 与正式 fix。
 - 验证建议：建议如何复现、如何验证修复、是否需要回归测试。
 - 后续流程：若确认是 BUG，建议 `/bug-capture` 或 `/capture`；不得自动创建，除非用户明确授权。
@@ -86,7 +93,7 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 
 - `confirmed`：必须有日志、复现、测试失败、截图、Network、Console、数据库样本、配置差异、代码路径或运行时观测等可复核证据。
 - `probable`：只有间接证据，必须标注仍需补证。
-- `hypothesis` / `unknown`：不得给修复定论；优先输出人工补证步骤，等待用户补证后再继续。
+- `hypothesis` / `unknown`：不得给修复定论；先尝试浏览器自主取证，确实无法取得关键证据时再输出人工补证步骤。
 
 ### 2. 需求 / 产品想法 / 改进建议
 
@@ -97,6 +104,7 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 - 需求理解：目标用户、场景、要解决的问题。
 - 合理性评估：价值、频率、边界、与现有产品定位的一致性。
 - 评估依据：用户价值、业务价值、实现成本、维护成本、风险、现有系统约束。
+- 现状证据：若建议依赖现有产品能力或交互，先自主查看相关页面或流程并标明观察结果；不可访问时将该判断标为待验证。
 - 范围建议：In / Out、MVP 与后续增强。
 - 设计方案：给出一个或多个方案；多个方案 MUST 提供对比表。
 - 推荐方案：说明推荐理由、适用前提和放弃其他方案的原因。

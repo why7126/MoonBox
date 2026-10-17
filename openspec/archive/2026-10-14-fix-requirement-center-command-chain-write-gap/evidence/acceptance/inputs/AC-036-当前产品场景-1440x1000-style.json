@@ -1,0 +1,30 @@
+{
+  "mode": "deployed-web-synthetic-api",
+  "probes": 3,
+  "requests": [
+    {
+      "endpoint": "/api/v1/chat/capabilities",
+      "probe": 1
+    },
+    {
+      "endpoint": "/api/v1/chat/capabilities",
+      "probe": 2
+    },
+    {
+      "endpoint": "/api/v1/chat/capabilities",
+      "probe": 3
+    },
+    {
+      "endpoint": "/api/v1/chat/conversations/recovery/turns",
+      "method": "POST",
+      "prompt": "/req-complete REQ-0027-requirement-center-command-chain-realization"
+    }
+  ],
+  "dom": {
+    "disabled": false,
+    "width": "40px"
+  },
+  "draftPreserved": true,
+  "historyPreserved": true,
+  "errors": []
+}

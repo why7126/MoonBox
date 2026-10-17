@@ -25,6 +25,7 @@ X
 } from "lucide-react";
 import { CSSProperties,FormEvent,KeyboardEvent,MouseEvent,RefObject,useCallback,useEffect,useMemo,useRef,useState } from "react";
 import { WorkbenchSidebar } from "../../components/workbench/WorkbenchSidebar";
+import { useWorkbenchRootBackground } from "../../components/workbench/useWorkbenchRootBackground";
 import { useWorkbenchTheme } from "../../components/workbench/useWorkbenchTheme";
 import { avatarInitial,emptyUser,emptyWorkspace,fallbackUserFromSession,getStoredWorkspace,readAccessToken,type FrontendUser,type Workspace } from "../../components/workbench/workbenchAccount";
 import { CaptureDialog, type CaptureExistingIssue } from "../../components/requirement-center/capture/CaptureDialog";
@@ -93,6 +94,8 @@ type IssueCard = {
   owner: string;
   source: string;
   stage: string;
+  status?: string;
+  completion_hint?: string | null;
   documents: string[];
   documentEntries?: IssueDocument[];
   detailUrl?: string;
@@ -106,6 +109,8 @@ type IssueCard = {
   testProgress?: [number, number];
   manualAcceptanceProgress?: [number, number];
   manualAcceptanceCount?: number;
+  acceptancePendingCount?: number;
+  acceptanceBlockedReason?: string | null;
 };
 
 type IssueDocument = {
@@ -635,18 +640,6 @@ function VditorEditorShell({ value, sourceContent, documentName, mode, uploadSta
 
 const stageTitleById = new Map(stages.map((stage) => [stage.id, stage.title]));
 
-const stageVisibleDocs: Record<string, string[]> = {
-  capture: ["capture.md", "trace.md"],
-  planning: ["requirement.md", "bug.md", "prototype.html", "trace.md"],
-  "review-ready": ["requirement.md", "bug.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md", "trace.md"],
-  approved: ["requirement.md", "bug.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md", "review.md", "trace.md"],
-  "sprint-planning": ["sprint.md", "trace.md"],
-  "ready-dev": ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
-  development: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
-  acceptance: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
-  done: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md", "archive.md"],
-};
-
 const stageAction: Record<string, Partial<Record<CardType, string>>> = {
   capture: { requirement: "/req-generate", bug: "/bug-generate" },
   planning: { requirement: "/req-complete", bug: "/bug-complete" },
@@ -761,24 +754,14 @@ const issueDocumentEntries = (issue: IssueCard): IssueDocument[] =>
       });
 
 
-const documentSemanticKey = (document: IssueDocument, source: "issue" | "change", changeId?: string) => {
-  const name = (document.name || document.label || "").trim().toLowerCase();
-  if (source === "change" && name === "trace.md") return `change:${changeId || "current"}:trace.md`;
-  return name;
-};
+const sprintDocumentNames = new Set(["sprint.md", "release-note.md", "acceptance-report.md"]);
 
-const relatedChangeDocumentGroups = (issue: IssueCard, issueDocuments: IssueDocument[] = []): { change: ChangeSummary; documents: IssueDocument[] }[] => {
+const relatedChangeDocumentGroups = (issue: IssueCard): { change: ChangeSummary; documents: IssueDocument[] }[] => {
   if (issue.type === "change") return [];
-  const seenDocumentKeys = new Set(issueDocuments.map((document) => documentSemanticKey(document, "issue")));
   const changes = issue.related_changes?.length ? issue.related_changes : issue.current_change ? [issue.current_change] : [];
   return changes
     .map((change) => {
-      const documents = (change.document_entries || []).filter((document) => {
-        const key = documentSemanticKey(document, "change", change.id);
-        if (seenDocumentKeys.has(key)) return false;
-        seenDocumentKeys.add(key);
-        return true;
-      });
+      const documents = change.document_entries || [];
       return { change, documents };
     })
     .filter((group) => group.documents.length > 0);
@@ -786,29 +769,14 @@ const relatedChangeDocumentGroups = (issue: IssueCard, issueDocuments: IssueDocu
 
 const changeDocumentShortLabel = (index: number, total: number) => (total > 1 ? `Change ${index + 1}` : "Change");
 
-const changeDocumentButtonLabel = (document: IssueDocument, index: number, total: number) => {
-  const name = document.label || document.name;
-  const documentName = document.name === "trace.md" ? "Change trace.md" : name;
-  return total > 1 ? `${changeDocumentShortLabel(index, total)} ${documentName}` : documentName;
-};
+const changeDocumentButtonLabel = (document: IssueDocument) => document.label || document.name;
 
 const visibleIssueDocuments = (stage: Stage, issue: IssueCard) => {
   if (issue.type === "change" || stage.id === "unknown") return issueDocumentEntries(issue);
-  const allowed = new Set(stageVisibleDocs[stage.id] || stage.requiredDocs);
   const mainDocument = issue.type === "requirement" ? "requirement.md" : "bug.md";
-  allowed.add(mainDocument);
-  allowed.add("sprint.md");
-  const stageOrder = stage.id === "done" ? ["archive.md", "tasks.md", "spec.md", "design.md", "proposal.md"]
-    : ["development", "acceptance"].includes(stage.id) ? ["tasks.md", "spec.md", "design.md", "proposal.md"]
-    : stage.id === "approved" ? ["review.md", "acceptance.md", "business-flow.md", "user-stories.md", "root-cause.md", "workaround.md"]
-    : (stageVisibleDocs[stage.id] || stage.requiredDocs);
-  const order = [...new Set([mainDocument, "sprint.md", "trace.md", ...stageOrder])];
-  const prototypes = issue.type === "requirement" ? issueDocumentEntries(issue).filter(doc => doc.name === "prototype.html" || (doc.name.startsWith("prototype/") && doc.name.endsWith(".html"))).map(doc => doc.name).sort() : [];
-  prototypes.forEach(name => allowed.add(name));
-  order.splice(1, 0, ...prototypes);
   return issueDocumentEntries(issue)
-    .filter((document) => allowed.has(document.name) && (!["requirement.md", "bug.md"].includes(document.name) || document.name === mainDocument))
-    .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+    .filter((document) => !["requirement.md", "bug.md"].includes(document.name) || document.name === mainDocument)
+    .sort((a, b) => Number(b.name === mainDocument) - Number(a.name === mainDocument));
 };
 
 const issueDetailUrl = (issue: IssueCard) => issue.detailUrl || `/requirements/${issue.id}`;
@@ -977,6 +945,42 @@ const actionModalCopy = (issue: IssueCard, type: ActionDialogKind) => {
   };
 };
 
+const generationActionForIssue = (issue: IssueCard) => issue.type === "bug" ? "bug-generate" : "req-generate";
+
+type ProductGovernanceCapability = "real_candidate_write" | "real_object_session_write" | "codex_command_only" | "demo_simulation" | "display_only";
+
+const productGovernanceCommandCapabilities: Record<string, ProductGovernanceCapability> = {
+  "req-generate": "real_candidate_write",
+  "bug-generate": "real_candidate_write",
+  "req-complete": "real_object_session_write",
+  "bug-complete": "real_object_session_write",
+  "req-review": "real_object_session_write",
+  "bug-review": "real_object_session_write",
+  "sprint-propose": "real_object_session_write",
+  "req-opsx": "real_object_session_write",
+  "bug-opsx": "real_object_session_write",
+  "opsx-apply": "real_object_session_write",
+  "opsx-archive": "real_object_session_write",
+  "req-explore": "display_only",
+  "bug-explore": "display_only",
+};
+
+const commandName = (command: string | undefined) => (command || "").trim().replace(/^\//, "").split(/\s+/)[0] || "";
+
+const productGovernanceCapability = (issue: IssueCard, action?: IssueAction | AuxiliaryAction): ProductGovernanceCapability => {
+  if (isWorkflowDemoMode()) return "demo_simulation";
+  const name = commandName(action?.command || issueAction(issue)?.command || `${generationActionForIssue(issue)} ${issue.id}`);
+  return productGovernanceCommandCapabilities[name] || "codex_command_only";
+};
+
+const unsupportedProductActionMessage = (issue: IssueCard, action?: IssueAction | AuxiliaryAction) => {
+  const command = action?.command || issueAction(issue)?.command || `${generationActionForIssue(issue)} ${issue.id}`;
+  return `产品内尚未接入该治理写入链路，请在 Codex 执行 ${command}`;
+};
+
+const actionDraftCommand = (issue: IssueCard, action?: IssueAction | AuxiliaryAction) =>
+  action?.command || issueAction(issue)?.command || `/${generationActionForIssue(issue)} ${issue.id}`;
+
 const transitionDocumentsForStage = (issue: IssueCard, stageId: string) => {
   if (stageId === "planning") return [issue.type === "requirement" ? "requirement.md" : "bug.md"];
   if (stageId === "review-ready") {
@@ -1029,7 +1033,7 @@ const visibleSprintId = (issue: IssueCard) => (sprintVisibleStages.has(issue.sta
 const visibleTaskProgress = (issue: IssueCard) => (["ready-dev", "development", "acceptance"].includes(issue.stage) ? issue.taskProgress : undefined);
 
 const visibleManualAcceptanceProgress = (issue: IssueCard): [number, number] | undefined => {
-  if (issue.stage !== "acceptance" || !issue.testProgress) return undefined;
+  if (issue.stage !== "acceptance") return undefined;
   if (issue.manualAcceptanceProgress) return issue.manualAcceptanceProgress;
   const pendingCount = issue.manualAcceptanceCount ?? 0;
   return pendingCount > 0 ? [0, pendingCount] : undefined;
@@ -1046,8 +1050,9 @@ const progressFocusLabel: Record<ProgressFocus, string> = {
 const auxiliaryActions = (issue: IssueCard): AuxiliaryAction[] => {
   if (issue.type === "change" || issue.stage === "unknown") return [];
   if (issue.stage !== "capture") return [];
-  if (issue.type === "bug") return [{ command: `/bug-explore ${issue.id}`, label: "Bug 分析" }];
-  return [{ command: `/req-explore ${issue.id}`, label: "需求分析" }];
+  const fullId = issue.action?.command.match(/\b(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+\b/)?.[0] || issue.id;
+  if (issue.type === "bug") return [{ command: `/bug-explore ${fullId}`, label: "Bug 分析" }];
+  return [{ command: `/req-explore ${fullId}`, label: "需求分析" }];
 };
 
 const workflowDemoIssue = (issue: IssueCard): IssueCard => issue;
@@ -1561,8 +1566,8 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       owner: "测试团队",
       source: "demo",
       stage: "acceptance",
-      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
-      documentEntries: workflowDemoDocuments("DEMO-REQ-ACCEPTANCE-READY", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      documents: ["acceptance.md", "proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-REQ-ACCEPTANCE-READY", ["acceptance.md", "proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
       detailUrl: "/requirements/DEMO-REQ-ACCEPTANCE-READY",
       action: { command: "/opsx-archive DEMO-REQ-ACCEPTANCE-READY", label: "完成 / 归档" },
       sprintId: "sprint-004",
@@ -1581,8 +1586,8 @@ function buildWorkflowDemoContext(frontendUsername?: string): RequirementCenterC
       owner: "测试团队",
       source: "demo",
       stage: "acceptance",
-      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
-      documentEntries: workflowDemoDocuments("DEMO-BUG-ACCEPTANCE-BLOCKED", ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
+      documents: ["acceptance.md", "proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      documentEntries: workflowDemoDocuments("DEMO-BUG-ACCEPTANCE-BLOCKED", ["acceptance.md", "proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"]),
       detailUrl: "/requirements/DEMO-BUG-ACCEPTANCE-BLOCKED",
       action: { command: "/opsx-archive DEMO-BUG-ACCEPTANCE-BLOCKED", label: "完成 / 归档" },
       sprintId: "sprint-004",
@@ -1754,6 +1759,10 @@ function normalizeContext(payload: RequirementCenterContext, frontendUsername?: 
         issue.manualAcceptanceProgress,
       manualAcceptanceCount:
         (issue as IssueCard & { manual_acceptance_count?: number }).manual_acceptance_count ?? issue.manualAcceptanceCount,
+      acceptancePendingCount:
+        (issue as IssueCard & { acceptance_pending_count?: number }).acceptance_pending_count ?? issue.acceptancePendingCount,
+      acceptanceBlockedReason:
+        (issue as IssueCard & { acceptance_blocked_reason?: string | null }).acceptance_blocked_reason ?? issue.acceptanceBlockedReason,
     })),
     workspaces: payload.workspaces.map((workspace) => ({
       ...workspace,
@@ -1947,7 +1956,15 @@ function requiredDocsForIssue(stageId: string, issueType: CardType) {
 }
 
 function missingDocs(stageId: string, issue: IssueCard) {
-  return requiredDocsForIssue(stageId, issue.type).filter((doc) => !issue.documents.includes(doc));
+  const changeDocuments = new Set(
+    relatedChangeDocumentGroups(issue).flatMap((group) => group.documents.map((document) => document.name)),
+  );
+  return requiredDocsForIssue(stageId, issue.type).filter((doc) => {
+    if (["ready-dev", "development", "acceptance"].includes(stageId) && doc !== "trace.md") {
+      return !(changeDocuments.size ? changeDocuments.has(doc) : issue.documents.includes(doc));
+    }
+    return !issue.documents.includes(doc);
+  });
 }
 
 function blockedTip(stageId: string, issue: IssueCard, action: IssueAction | undefined) {
@@ -1963,7 +1980,7 @@ function blockedTip(stageId: string, issue: IssueCard, action: IssueAction | und
 function canArchive(issue: IssueCard) {
   if (issue.stage !== "acceptance") return true;
   const testsDone = !issue.testProgress || issue.testProgress[0] >= issue.testProgress[1];
-  return testsDone && (issue.manualAcceptanceCount || 0) === 0;
+  return testsDone && (issue.manualAcceptanceCount || 0) === 0 && (issue.acceptancePendingCount || 0) === 0 && !issue.acceptanceBlockedReason && !issue.blocked && !actionDisabledReason(issue.action);
 }
 
 export function RequirementCenterPage() {
@@ -1976,6 +1993,7 @@ export function RequirementCenterPage() {
   const [lastSuccess, setLastSuccess] = useState("");
   const documentFlight = useRef<string | null>(null);
   const [theme] = useWorkbenchTheme();
+  useWorkbenchRootBackground(theme);
   const [typeFilter, setTypeFilter] = useState<"all" | CardType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStages, setSelectedStages] = useState<string[]>([]);
@@ -2015,13 +2033,18 @@ export function RequirementCenterPage() {
   const [captureCheck, setCaptureCheck] = useState(0);
   const captureController = useRef<AbortController | null>(null);
   const captureAttempt = useRef<{ fingerprint: string; key: string } | null>(null);
-  const closeCapture = () => {
+  const captureTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeCapture = useCallback(() => {
     captureController.current?.abort(); captureController.current = null;
     setCaptureBusy(false); setCaptureOpen(false);
-  };
+    const trigger = captureTriggerRef.current;
+    captureTriggerRef.current = null;
+    requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus(); });
+  }, []);
   useEffect(() => () => captureController.current?.abort(), []);
   const [drawer, setDrawer] = useState<DrawerState>({ type: "none" });
   const drawerRef = useRef(drawer); drawerRef.current = drawer;
+  const drawerTriggerRef = useRef<HTMLElement | null>(null);
   const [drawerWidth, setDrawerWidth] = useState(760);
   const [isDrawerFullscreen, setIsDrawerFullscreen] = useState(false);
   const [markdownUploadState, setMarkdownUploadState] = useState<MarkdownUploadState>("idle");
@@ -2086,6 +2109,9 @@ export function RequirementCenterPage() {
     setIsDrawerFullscreen(false);
     documentEpoch.current++; documentFlight.current = null;
     setDrawer({ type: "none" });
+    const trigger = drawerTriggerRef.current;
+    drawerTriggerRef.current = null;
+    requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus(); });
   }, [drawer, isDirtyMarkdownDrawer]);
 
   const beginDrawerResize = (event: MouseEvent<HTMLButtonElement>) => {
@@ -2203,6 +2229,7 @@ export function RequirementCenterPage() {
         filterDetailsRef.current?.removeAttribute("open");
         return;
       }
+      if (captureOpen) { closeCapture(); return; }
       captureController.current?.abort(); captureController.current = null;
       setCaptureBusy(false); setCaptureOpen(false);
       setAgentOpen(false);
@@ -2213,7 +2240,7 @@ export function RequirementCenterPage() {
     };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [closeDrawer, openFilter]);
+  }, [captureOpen, closeCapture, closeDrawer, openFilter]);
 
   useEffect(() => {
     if (!openFilter) return;
@@ -2629,7 +2656,7 @@ export function RequirementCenterPage() {
       if (document.htmlContent) {
         const demoUrl = URL.createObjectURL(new Blob([document.htmlContent], { type: "text/html" }));
         window.open(demoUrl, "_blank", "noopener,noreferrer");
-        window.setTimeout(() => URL.revokeObjectURL(demoUrl), 30_000);
+        window.setTimeout(() => URL.revokeObjectURL?.(demoUrl), 30_000);
         return;
       }
       try {
@@ -2641,11 +2668,11 @@ export function RequirementCenterPage() {
         const previewUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
         const opened = window.open(previewUrl, "_blank", "noopener,noreferrer");
         if (!opened) {
-          URL.revokeObjectURL(previewUrl);
+          URL.revokeObjectURL?.(previewUrl);
           setToast("浏览器拦截了 HTML 预览窗口，请允许弹出窗口后重试");
           return;
         }
-        window.setTimeout(() => URL.revokeObjectURL(previewUrl), 30_000);
+        window.setTimeout(() => URL.revokeObjectURL?.(previewUrl), 30_000);
       } catch (error) {
         if (epoch !== documentEpoch.current) return;
         setToast(error instanceof GovernanceError ? `HTML 预览失败：${error.message}` : error instanceof Error ? `HTML 预览失败：${error.message}` : "HTML 预览失败");
@@ -2654,6 +2681,8 @@ export function RequirementCenterPage() {
       }
       return;
     }
+    const active = globalThis.document.activeElement;
+    if (active instanceof HTMLElement && active !== globalThis.document.body && !active.closest(".rc-drawer")) drawerTriggerRef.current = active;
     setMarkdownUploadState("idle");
     setMarkdownUploadError("");
     setMarkdownMetadataOpen(false);
@@ -2690,9 +2719,28 @@ export function RequirementCenterPage() {
   };
 
   const openTasksAt = (issue: IssueCard, focus: ProgressFocus) => {
-    const document = issueDocumentEntries(issue).find(entry => entry.name === "tasks.md");
-    if (!document) { setToast(`${issue.id} 未关联 tasks.md，无法打开${progressFocusLabel[focus]}。`); return; }
+    const changeGroups = relatedChangeDocumentGroups(issue);
+    const changeGroup = issue.current_change
+      ? changeGroups.find(group => group.change.id === issue.current_change?.id)
+      : changeGroups.length === 1 ? changeGroups[0] : undefined;
+    const document = issue.type === "change"
+      ? issueDocumentEntries(issue).find(entry => entry.name === "tasks.md")
+      : changeGroup?.documents.find(entry => entry.name === "tasks.md")
+        ?? (changeGroups.length === 0 ? issueDocumentEntries(issue).find(entry => entry.name === "tasks.md") : undefined);
+    if (!document) {
+      const reason = issue.type !== "change" && !issue.current_change && changeGroups.length > 1
+        ? "关联多个 Change，无法确定 tasks.md 来源"
+        : "未关联 tasks.md";
+      setToast(`${issue.id} ${reason}，无法打开${progressFocusLabel[focus]}。`);
+      return;
+    }
     void openDocument(issue, document, focus);
+  };
+
+  const openIssueAcceptance = (issue: IssueCard) => {
+    const document = issueDocumentEntries(issue).find(entry => entry.name === "acceptance.md" && (!entry.url || entry.url.includes("/issues/")));
+    if (!document) { setToast(`${issue.id} 未关联 Issue acceptance.md，无法打开验收。`); return; }
+    void openDocument(issue, document);
   };
 
   const saveMarkdownDocument = async () => {
@@ -2921,6 +2969,37 @@ export function RequirementCenterPage() {
     return "";
   };
 
+  const actionErrorMessage = (error: unknown) => {
+    if (error instanceof GovernanceError && error.status === 401) {
+      clearFrontendSession(); clearAdminSession(); setSessionFallbackUser(emptyUser);
+      window.history.replaceState(null, "", "/login"); window.dispatchEvent(new PopStateEvent("popstate"));
+      return "登录已失效，请重新登录";
+    }
+    if (error instanceof GovernanceError && (error.status === 403 || error.code === 2601)) return "你没有执行此操作的权限";
+    if (error instanceof GovernanceError && error.code === 2606 && error.kind !== "workspace_fact_source_stale") return "对象已更新，请刷新后重试";
+    if (error instanceof GovernanceError && error.code === 2604) {
+      return /缺少|缺失|空文件/.test(error.message) ? "缺少必备文档，请先补齐" : "当前阶段不支持此操作";
+    }
+    if (error instanceof GovernanceError && error.kind === "workspace_fact_source_stale") {
+      const categories = (error.details?.categories?.length ? error.details.categories : error.details?.roots || []).join("、");
+      const scopeText = categories ? `阻断范围：${categories}。` : "";
+      if (error.details?.reason === "manifest_mismatch") {
+        return `${scopeText}治理目录与源工作区内容不一致，请同步对应事实源后重试；无需提交 Git。`;
+      }
+      if (error.details?.reason === "local_governance_dirty") {
+        return `${scopeText}本地治理事实源有未提交或未同步变更，执行器暂看不到这些文件。请先提交或同步对应事实源，再按标准部署脚本重启后重试。`;
+      }
+      if (error.details?.reason === "git_snapshot_unreadable") {
+        return `${scopeText}Git 快照不可读，系统无法确认执行器 /work 是否为最新事实源。请先检查仓库 Git 状态和服务日志，恢复后再重试。`;
+      }
+      if (error.details?.reason === "standard_deployment_outdated" || !error.details?.reason) {
+        return `${scopeText}运行服务未更新到最新治理门禁。请使用项目标准部署脚本重启 Web、backend、chat-worker 与 governance-controller 后重试。`;
+      }
+      return `${scopeText}执行器工作区与当前事实源可能不是同一快照。请确认事实源已提交/同步，并使用项目标准部署脚本重启后重试。`;
+    }
+    return "项目请求失败，请稍后重试";
+  };
+
   const openIssueActionDialog = (issue: IssueCard, auxAction?: AuxiliaryAction) => {
     if (contextFailure) { setToast("请先重新加载项目数据"); return; }
     if (issue.stage === "unknown") return;
@@ -2928,15 +3007,35 @@ export function RequirementCenterPage() {
     if (!auxAction && blocked) { setToast(blocked); return; }
     if (issue.stage === "development" && !auxAction) { openTasksAt(issue, "development"); return; }
     if (!isWorkflowDemoMode()) {
-      if (issue.type !== "requirement" || issue.stage !== "capture" || auxAction) { setToast("当前仅支持采集需求的生成动作"); return; }
       const target = projectRef.current;
       if (!target || target.readonly || lockedActionId) { setToast("项目不可写或正在准备会话"); return; }
+      const selectedAction = auxAction || issueAction(issue);
+      const capability = productGovernanceCapability(issue, selectedAction);
+      if (capability === "codex_command_only") {
+        setToast(unsupportedProductActionMessage(issue, selectedAction));
+        return;
+      }
+      const governanceAction = generationActionForIssue(issue);
+      const command = actionDraftCommand(issue, selectedAction);
       setLockedActionId(issue.id);
-      void governanceRequest<{ conversation_id: string; prompt: string }>("/api/v1/chat/governance-preparations", { method: "POST", body: JSON.stringify({ space_id: target.space_id, repository_id: target.repository_id, object_id: issue.id, action: "req-generate" }) }).then(result => {
-        sessionStorage.setItem(`moonbox.governance.prompt:${result.conversation_id}`, result.prompt);
+      const idempotencyKey = crypto.randomUUID();
+      const request = capability === "real_candidate_write" && issue.stage === "capture" && !auxAction
+        ? governanceRequest<{ conversation_id: string; prompt: string; preparation_id: string; reused_conversation?: boolean }>("/api/v1/chat/governance-preparations", {
+          method: "POST",
+          body: JSON.stringify({ space_id: target.space_id, repository_id: target.repository_id, object_id: issue.id, action: governanceAction, idempotency_key: idempotencyKey }),
+        })
+        : governanceRequest<{ conversation_id: string; object_id: string; action: string; reused_conversation?: boolean }>("/api/v1/chat/object-sessions", {
+          method: "POST",
+          body: JSON.stringify({ space_id: target.space_id, repository_id: target.repository_id, object_id: issue.id, action: commandName(command) || "open-chat", idempotency_key: idempotencyKey }),
+        });
+      void request.then(result => {
+        const visiblePrompt = capability === "real_candidate_write" && issue.stage === "capture" && !auxAction && 'prompt' in result
+          ? result.prompt.split("\n", 1)[0].trim() : command;
+        sessionStorage.setItem(`moonbox.governance.prompt:${result.conversation_id}`, visiblePrompt);
+        sessionStorage.removeItem(`moonbox.governance.executionPrompt:${result.conversation_id}`);
         window.history.pushState(null, "", `/chat?space_id=${encodeURIComponent(target.space_id)}&conversation_id=${encodeURIComponent(result.conversation_id)}`);
         window.dispatchEvent(new PopStateEvent("popstate"));
-      }).catch(error => setToast(error.message)).finally(() => setLockedActionId(""));
+      }).catch(error => setToast(actionErrorMessage(error))).finally(() => setLockedActionId(""));
       return;
     }
     const action = auxAction || issueAction(issue);
@@ -2986,6 +3085,10 @@ export function RequirementCenterPage() {
     }
     if (issue.stage === "development") {
       openTasksAt(issue, "development");
+      return;
+    }
+    if (!isWorkflowDemoMode()) {
+      setToast(unsupportedProductActionMessage(issue, action));
       return;
     }
     setLockedActionId(issue.id);
@@ -3101,17 +3204,28 @@ export function RequirementCenterPage() {
   const renderIssueCard = (stage: Stage, issue: IssueCard) => {
     const action = issueAction(issue);
     const tip = blockedTip(stage.id, issue, action);
-    const actionLabel = action.label || stageActionLabel[stage.id]?.[issue.type];
+    const isEnriching = stage.id === "planning" && issue.status === "enriching";
+    const actionLabel = isEnriching ? "继续完善" : action.label || stageActionLabel[stage.id]?.[issue.type];
     const isDoneStage = stage.id === "done";
     const showArchive = issue.type === "change"
-      ? ["ready-dev", "development", "acceptance"].includes(stage.id) && (stage.id !== "acceptance" || canArchive(issue))
+      ? ["ready-dev", "development", "acceptance"].includes(stage.id) && (stage.id !== "acceptance" || !issue.testProgress || issue.testProgress[0] >= issue.testProgress[1])
       : stage.id !== "unknown" && !isDoneStage && (stage.id !== "acceptance" || canArchive(issue));
     const isLocked = lockedActionId === issue.id;
     const documents = visibleIssueDocuments(stage, issue);
-    const persistentNames = ["requirement.md", "bug.md", "sprint.md", "trace.md"];
-    if (issue.type === "requirement") persistentNames.push(...documents.filter(doc => doc.name === "prototype.html" || doc.name.startsWith("prototype/") && doc.name.endsWith(".html")).map(doc => doc.name));
-    const documentGroups = [documents.filter(doc => persistentNames.includes(doc.name)), documents.filter(doc => !persistentNames.includes(doc.name))];
-    const relatedChangeDocuments = relatedChangeDocumentGroups(issue, documentGroups.flat());
+    const relatedChangeDocuments = relatedChangeDocumentGroups(issue);
+    const visibleChangeGroups = relatedChangeDocuments.filter(group => group.documents.some(document => !sprintDocumentNames.has(document.name)));
+    const ownDocuments = documents.filter(doc => !sprintDocumentNames.has(doc.name)).sort((a, b) => Number(b.name === "trace.md") - Number(a.name === "trace.md"));
+    if (issue.type === "requirement" || issue.type === "bug") {
+      const mainName = issue.type === "requirement" ? "requirement.md" : "bug.md";
+      ownDocuments.sort((a, b) => Number(b.name === mainName) - Number(a.name === mainName));
+    }
+    const sprintDocuments = new Map<string, IssueDocument>();
+    for (const document of documents) if (sprintDocumentNames.has(document.name)) sprintDocuments.set(document.name, document);
+    for (const group of relatedChangeDocuments) {
+      for (const document of group.documents) {
+        if (sprintDocumentNames.has(document.name) && !sprintDocuments.has(document.name)) sprintDocuments.set(document.name, document);
+      }
+    }
     const taskProgress = visibleTaskProgress(issue);
     const manualProgress = visibleManualAcceptanceProgress(issue);
     const auxActions = auxiliaryActions(issue);
@@ -3126,12 +3240,13 @@ export function RequirementCenterPage() {
         <button className="rc-card-title" title={issue.title_warning || undefined} type="button" onClick={() => openIssueDetail(issue)}>{issue.display_title || issue.title}</button>
         <div className="rc-card-meta rc-card-tags">
           {levelTag && <span className={`${levelTag.className} rc-tag ${levelTag.value.toLowerCase()}`}>{levelTag.value}</span>}
-          <span className="rc-owner-tag rc-tag">{issue.owner}</span>
+          <span className="rc-owner-tag rc-tag" title={issue.owner}>{issue.owner}</span>
         </div>
         <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
-          {documentGroups.map((group, groupIndex) => group.length > 0 && (
-            <div className="rc-doc-group" role="group" aria-label={groupIndex === 0 ? "常驻文档" : "阶段文档"} key={groupIndex}>
-              {group.map(document => (
+          {ownDocuments.length > 0 && (
+            <div className="rc-doc-group" role="group" aria-label={issue.type === "change" ? "Change 文档" : "Issue 文档"}>
+              <span className="rc-doc-source">{issue.type === "change" ? "Change" : "Issue"}</span>
+              {ownDocuments.map(document => (
                 <span className="rc-doc-item" key={document.url || document.name}>
                   <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
                     {document.label || document.name}
@@ -3139,11 +3254,12 @@ export function RequirementCenterPage() {
                 </span>
               ))}
             </div>
-          ))}
-          {relatedChangeDocuments.map(({ change, documents }, changeIndex, groups) => (
-            <div className="rc-doc-group" role="group" aria-label={`${changeDocumentShortLabel(changeIndex, groups.length)} Change 文档`} key={change.id}>
-              {documents.map(document => {
-                const label = changeDocumentButtonLabel(document, changeIndex, groups.length);
+          )}
+          {visibleChangeGroups.map(({ change, documents }, changeIndex, groups) => (
+            <div className="rc-doc-group" role="group" aria-label={`${changeDocumentShortLabel(changeIndex, groups.length)} 文档`} key={change.id}>
+              <span className="rc-doc-source" title={change.id}>{changeDocumentShortLabel(changeIndex, groups.length)}</span>
+              {documents.filter(document => !sprintDocumentNames.has(document.name)).map(document => {
+                const label = changeDocumentButtonLabel(document);
                 return (
                   <span className="rc-doc-item" key={`${change.id}:${document.url || document.name}`}>
                     <button
@@ -3158,12 +3274,28 @@ export function RequirementCenterPage() {
               })}
             </div>
           ))}
+          {sprintDocuments.size > 0 && (
+            <div className="rc-doc-group" role="group" aria-label="Sprint 文档">
+              <span className="rc-doc-source">Sprint</span>
+              {[...sprintDocuments.values()].map(document => (
+                <span className="rc-doc-item" key={document.url || document.name}>
+                  <button type="button" onClick={(event) => { event.stopPropagation(); void openDocument(issue, document); }}>
+                    {document.label || document.name}
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
+        {isEnriching && issue.completion_hint && <p className="rc-blocked" data-testid="issue-completion-hint">{issue.completion_hint}</p>}
+        {stage.id === "acceptance" && (!issue.acceptancePendingCount || !manualProgress) && issue.acceptanceBlockedReason && (
+          <p className="rc-blocked" data-testid="acceptance-readiness">{issue.acceptanceBlockedReason}</p>
+        )}
         {issue.type === "change" && !issue.taskProgress && <p className="rc-progress">任务进度未知</p>}
-        {tip ? (
+        {tip && !(stage.id === "acceptance" && tip === issue.acceptanceBlockedReason) ? (
           <p className="rc-blocked"><CircleDot size={12} /> {tip}</p>
         ) : null}
-        {!isDoneStage && (taskProgress || issue.testProgress) && (
+        {!isDoneStage && (taskProgress || issue.testProgress || manualProgress) && (
           <div className="rc-progress" aria-label={`${issue.id} 进度`}>
             {taskProgress && (
               <button
@@ -3173,7 +3305,7 @@ export function RequirementCenterPage() {
                 onClick={() => openTasksAt(issue, "development")}
               >
                 <span className="rc-progress-label">研发</span>
-                <b className="rc-progress-value">{taskProgress[0]}/{taskProgress[1]}</b>
+                <b className="rc-progress-value" data-progress-state={taskProgress[1] > 0 && taskProgress[0] < taskProgress[1] ? "incomplete" : "complete"}>{taskProgress[0]}/{taskProgress[1]}</b>
               </button>
             )}
             {issue.testProgress && (
@@ -3184,18 +3316,19 @@ export function RequirementCenterPage() {
                 onClick={() => openTasksAt(issue, "test")}
               >
                 <span className="rc-progress-label">测试</span>
-                <b className="rc-progress-value">{issue.testProgress[0]}/{issue.testProgress[1]}</b>
+                <b className="rc-progress-value" data-progress-state={issue.testProgress[1] > 0 && issue.testProgress[0] < issue.testProgress[1] ? "incomplete" : "complete"}>{issue.testProgress[0]}/{issue.testProgress[1]}</b>
               </button>
             )}
             {manualProgress && (
               <button
-                aria-label={`人工验收 ${manualProgress[0]}/${manualProgress[1]}`}
+                aria-label={`验收 ${manualProgress[0]}/${manualProgress[1]}`}
+                title="已勾选的 Issue 验收项 / 总验收项；当前依据 acceptance.md，自动验收结果尚未计入"
                 className="rc-progress-action"
                 type="button"
-                onClick={() => openTasksAt(issue, "manual")}
+                onClick={() => openIssueAcceptance(issue)}
               >
-                <span className="rc-progress-label">人工验收</span>
-                <b className="rc-progress-value">{manualProgress[0]}/{manualProgress[1]}</b>
+                <span className="rc-progress-label">验收</span>
+                <b className="rc-progress-value" data-progress-state={manualProgress[1] > 0 && manualProgress[0] < manualProgress[1] ? "incomplete" : "complete"}>{manualProgress[0]}/{manualProgress[1]}</b>
               </button>
             )}
           </div>
@@ -3486,7 +3619,7 @@ export function RequirementCenterPage() {
             <p>Requirement Operations</p>
             <h1>需求研发流转看板</h1>
           </div>
-          <button className="rc-header-action" type="button" onClick={() => setCaptureOpen(true)}>
+          <button className="rc-header-action" type="button" onClick={(event) => { captureTriggerRef.current = event.currentTarget; setCaptureOpen(true); }}>
             <Command size={16} aria-hidden="true" /> 新建 Capture
           </button>
         </header>

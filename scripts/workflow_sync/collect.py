@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import yaml
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -166,7 +167,12 @@ def parse_simple_yaml(raw: str) -> dict[str, Any]:
         indent = len(line) - len(line.lstrip(" "))
         content = line.strip()
 
-        while stack and indent <= stack[-1][0]:
+        # YAML permits a block list at the same indentation as its key.
+        # Keep that list on the stack, while still closing a preceding list item.
+        while stack and indent <= stack[-1][0] and not (
+            indent == stack[-1][0] and content.startswith("- ")
+            and isinstance(stack[-1][1], list)
+        ):
             stack.pop()
             list_item = None
 
@@ -699,7 +705,12 @@ def load_sprint(sprint_id: str) -> SprintRecord | None:
     if sprint_path is None:
         return None
     yaml_path = sprint_path / "sprint.yaml"
-    block = parse_simple_yaml(read_text(yaml_path))
+    try:
+        block = yaml.safe_load(read_text(yaml_path))
+    except yaml.YAMLError as exc:
+        raise ValueError(f"invalid Sprint YAML: {yaml_path}") from exc
+    if not isinstance(block, dict):
+        raise ValueError(f"invalid Sprint YAML: {yaml_path}")
     return SprintRecord(
         sprint_id=sprint_id,
         path=sprint_path,

@@ -1,0 +1,25 @@
+{
+  "environment": "isolated temporary governance repositories for command injection; separate read-only audit of isolated product turns",
+  "target_change": "add-requirement-center-command-chain-realization",
+  "tested_mode": "copy-mode durable candidate writer",
+  "focused_regression": {"result": "passed", "tests": 91},
+  "focused_acceptance_diagnostic": {"run_id": "20261014171038417344-b9cbedfb", "ac_011_command_probe": "passed", "overall_scope": "diagnostic", "overall_status": "blocked"},
+  "matrix": [
+    {"action": "req-generate", "before_write": "passed", "after_first_file": "passed", "before_sync": "passed", "after_sync_before_terminal": "passed", "partial_sync_changed_file": "recovery_blocked"},
+    {"action": "req-complete", "before_write": "passed", "after_first_file": "passed", "before_sync": "passed", "after_sync_before_terminal": "passed", "partial_sync_changed_file": "recovery_blocked"},
+    {"action": "req-review", "before_write": "passed", "after_first_file": "passed", "before_sync": "passed", "after_sync_before_terminal": "passed", "partial_sync_changed_file": "recovery_blocked"},
+    {"action": "sprint-propose", "before_write": "uncollected", "after_first_file": "uncollected", "before_sync": "uncollected", "after_sync_before_terminal": "uncollected"},
+    {"action": "req-opsx", "before_write": "uncollected", "after_first_file": "uncollected", "before_sync": "uncollected", "after_sync_before_terminal": "uncollected"},
+    {"action": "opsx-apply", "before_write": "uncollected", "after_first_file": "uncollected", "before_sync": "uncollected", "after_sync_before_terminal": "uncollected"},
+    {"action": "opsx-archive", "before_write": "uncollected", "after_first_file": "uncollected", "before_sync": "uncollected", "after_sync_before_terminal": "uncollected"}
+  ],
+  "product_path_observation": {
+    "workspace_mode": "source",
+    "candidate_actions": ["req-generate", "req-complete", "req-review"],
+    "sampled_candidate_actions_have_durable_writer_operation_record": false,
+    "direct_command_actions": ["sprint-propose", "req-opsx", "opsx-apply", "opsx-archive"],
+    "sampled_direct_command_actions_have_candidate_application": false,
+    "meaning": "the copy-mode writer matrix cannot be promoted to full product AC-011 coverage"
+  },
+  "signoff": "partial"
+}

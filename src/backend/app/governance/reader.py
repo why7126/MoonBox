@@ -53,7 +53,7 @@ class ProjectReader:
                 # New read-only source associations do not expand legacy writes.
                 linked = [entry for entry in linked if object_id in legacy._linked_changes(entry,
                     legacy._frontmatter(root / entry['path'] / 'trace.md'))]
-                if not linked:
+                if record.issue_ids and not linked:
                     raise ChatError(2601, '该 Change 入口仅支持读取', 403)
             return linked
         else:

@@ -14,8 +14,8 @@ import socket
 from contextlib import contextmanager
 
 PROJECT=Path(__file__).resolve().parents[3]
-PORT=int(os.environ.get('HOST_PORT_CHAT_TEST','18121'))
-if not 18101<=PORT<=18199:raise ValueError('test port must be in 18101-18199')
+PORT=int(os.environ.get('HOST_PORT_CHAT_TEST','39021'))
+if not 39001<=PORT<=39050:raise ValueError('test port must be in 39001-39050')
 LIMITS=dict(user_concurrency=1,space_concurrency=1,user_monthly_tokens=400000,space_monthly_tokens=400000,
  user_storage_bytes=40000000,space_storage_bytes=40000000,turn_reserved_tokens=60000,turn_reserved_bytes=4000000)
 
@@ -51,8 +51,11 @@ def seed(root,password):
     governance=root/'governance';oid='REQ-9001-synthetic';relative=f'issues/requirements/review/{oid}'
     folder=governance/relative;folder.mkdir(parents=True)
     (folder/'requirement.md').write_text('受控测试：仅修改counter.txt。')
+    (folder/'trace.md').write_text('---\nrequirement_id: REQ-9001-synthetic\nstatus: in_sprint\niteration: sprint-999\nopenspec_changes:\n  - change_id: synthetic-change\n    status: in_progress\n---\n# 隔离测试追溯\n')
     entry=dict(id=oid,title='受控计数器测试',path=relative,status='in_sprint',related_change='synthetic-change',iteration='sprint-999')
     (governance/'issues/requirements/_registry.yaml').write_text(json.dumps({'entries':[entry]}))
+    (governance/'issues/bugs').mkdir(parents=True)
+    (governance/'issues/bugs/_registry.yaml').write_text('entries: []\n')
     folder=governance/'openspec/changes/synthetic-change';folder.mkdir(parents=True)
     (folder/'trace.md').write_text(f'---\nstatus: in_progress\nrequirement: {oid}\nsprint: sprint-999\n---\n')
     folder=governance/'iterations/change/sprint-999';folder.mkdir(parents=True)
@@ -104,7 +107,7 @@ def main():
     with control_channel() as listener, tempfile.TemporaryDirectory(prefix='moonbox-chat-e2e-',dir='/private/tmp') as directory:
         root=Path(directory);password=secrets.token_urlsafe(24)+'9A!';worker=None;api=None
         try:
-            for folder in ('runtime','workspaces'):(root/folder).mkdir(mode=0o700)
+            for folder in ('runtime','workspaces','governance-state'):(root/folder).mkdir(mode=0o700)
             with (Path.home()/'.codex/auth.json').open('rb') as reader,(root/'auth.json').open('xb') as writer:
                 os.chmod(root/'auth.json',0o600);shutil.copyfileobj(reader,writer)
             executor=os.environ.get('MOONBOX_CHAT_TEST_EXECUTOR','native')
@@ -116,6 +119,7 @@ def main():
                 ADMIN_INITIAL_PASSWORD=secrets.token_urlsafe(24)+'9A!',MOONBOX_CHAT_LOCAL_CONFIG=str(root/'config.json'),
                 MOONBOX_CHAT_RETENTION=json.dumps({'executor_delete_seconds':60,'backup_expiry_seconds':120}),
                 MOONBOX_CHAT_LIMITS=json.dumps(LIMITS),MOONBOX_CHAT_REPOSITORIES=json.dumps([{'id':'repo','space_id':'space'}]),
+                MOONBOX_GOVERNANCE_STATE_ROOT=str(root/'governance-state'),
                 MOONBOX_CHAT_REPOSITORY_BINDINGS=json.dumps([{'id':'repo','space_id':'space','governance_root':str(root/'governance'),'workspace_root':str(root/'workspaces')}]))
             seed(root,password)
             from app.chat.backup import LocalBackupStore

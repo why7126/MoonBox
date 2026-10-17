@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const base = process.env.CAPTURE_BROWSER_BASE || "http://127.0.0.1:5190";
-const apiBase = process.env.CAPTURE_BROWSER_API || "http://127.0.0.1:18101";
+const apiBase = process.env.CAPTURE_BROWSER_API || "http://127.0.0.1:39001";
 const username = process.env.CAPTURE_BROWSER_USER;
 const password = process.env.CAPTURE_BROWSER_PASSWORD;
 const evidenceDir = path.resolve(__dirname, "../../../openspec/changes/add-capture-multimodal-candidate-review/evidence");

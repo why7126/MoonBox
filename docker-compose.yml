@@ -79,10 +79,10 @@ services:
       MOONBOX_GOVERNANCE_ROOT: ${MOONBOX_GOVERNANCE_ROOT:-/app/governance}
     ports:
       # 左侧为宿主机端口，可通过 HOST_PORT_BACKEND 调整；右侧容器端口固定为 8000。
-      - "${HOST_PORT_BACKEND:-18101}:8000"
+      - "${HOST_PORT_BACKEND:-39001}:8000"
     volumes:
-      # 后端运行时数据，包含 SQLite、上传文件等本地开发数据。
-      - ./data/runtime/backend:/app/data
+      # 本地业务库、运行状态与临时文件按 data 下用途目录持久化。
+      - ./data:/app/data
       # 后端临时文件目录。
       - ./data/tmp:/app/tmp
       # 需求中心 BFF 读取治理事实源；开发环境允许后端对采集池 capture.md 做受控写入。
@@ -113,7 +113,7 @@ services:
       # Docker Web 默认通过 nginx 同源 /api 反向代理访问后端；VITE_API_BASE_URL 仅用于构建期分域部署。
     ports:
       # 左侧为宿主机端口，可通过 HOST_PORT_WEB 调整；右侧容器端口固定为 80。
-      - "${HOST_PORT_WEB:-18102}:80"
+      - "${HOST_PORT_WEB:-39002}:80"
     depends_on:
       # Web 启动前等待后端容器启动；健康状态由前端调用时自行处理。
       backend:
@@ -133,9 +133,9 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-change-me}
     ports:
       # MinIO API 端口映射。
-      - "${HOST_PORT_MINIO_API:-18103}:9000"
+      - "${HOST_PORT_MINIO_API:-39003}:9000"
       # MinIO Console 端口映射。
-      - "${HOST_PORT_MINIO_CONSOLE:-18104}:9001"
+      - "${HOST_PORT_MINIO_CONSOLE:-39004}:9001"
     volumes:
       # MinIO 对象数据目录；默认落在项目根目录 data/s3，不得提交真实对象数据。
       - ./data/s3:/data
@@ -163,7 +163,7 @@ services:
       MYSQL_COLLATION: ${MYSQL_COLLATION:-utf8mb4_0900_ai_ci}
       TZ: ${TZ:-Asia/Shanghai}
     ports:
-      - "${HOST_PORT_MYSQL:-18106}:3306"
+      - "${HOST_PORT_MYSQL:-39006}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:

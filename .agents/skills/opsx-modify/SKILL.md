@@ -1,12 +1,18 @@
 ---
 name: "opsx-modify"
 description: "验收返修：在 OpenSpec Change 已 opsx-apply、未 archive 前，根据验收反馈调整实现并同步文档、验证和 AI Usage"
-updated_at: 2026-09-15 09:46:43
+updated_at: 2026-10-13 16:27:44
 ---
 
 # opsx-modify
 
 Use this skill when the user asks `/opsx-modify <REQ-full-id|BUG-full-id|change-id> <修改内容>` or wants to adjust implementation after `/opsx-apply` during acceptance, before `/opsx-archive`.
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -57,7 +63,7 @@ Examples:
 - REQ 参数 MUST 是完整 `REQ-xxxx-slug`；BUG 参数 MUST 是完整 `BUG-xxxx-slug`。
 - 返修执行中用户可见阶段展示为“研发中”；该展示是返修投影语义，不得把 Change canonical `applied` 状态或首次 apply 的 `execution.completed_at` 回退为普通 `in_progress`。
 - 返修完成后 MUST 先更新 Change 文档、返修任务、完整返修台账和验证证据，再串行执行 Workflow Sync 与 AI Usage Post-command Hook。
-- 返修完成且 Workflow Sync 通过后，用户可见阶段回到“验收中”，linked Issue 验收入口保持待复验语义，下一步为人工复验或 `/opsx-archive`。
+- 返修完成且 Workflow Sync 通过后，用户可见阶段回到“验收中”；若有 `acceptance-plan.json`，立即续接 `/opsx-accept`，按输入指纹重跑过期 AC。仍有效的通过项保留，未 ready 不推荐 archive。
 - 若反馈扩大 API、DB、权限、部署、对象存储或产品边界，停止本命令并引导创建新的 REQ/BUG 或 OpenSpec Change。
 
 适用：
@@ -125,7 +131,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 
 - MUST 遵守 `rules/root-cause-evidence.md`。
 - 当验收反馈属于“效果不如预期”、UI 视觉偏差、交互异常、API/数据结果不符、测试失败或疑似 BUG 时，MUST 先记录偏差证据：期望、实际、复现条件、影响范围和证据来源。
-- 证据不足时，MUST 输出人工补证操作步骤，包括证据名称、为什么需要、操作步骤、需要返回字段、脱敏要求和返回格式；不得直接猜测根因或修复方向。
+- 证据不足时，先按 `rules/root-cause-evidence.md` 第 5 节通过浏览器自主取证（优先复用 Codex 侧边浏览器，无需用户二次确认）；仍不足时 MUST 输出人工补证操作步骤，包括证据名称、为什么需要、已尝试的自主取证路径、操作步骤、需要返回字段、脱敏要求和返回格式；不得直接猜测根因或修复方向。
 - BUG 来源 Change 返修前 SHOULD 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；如果返修反馈改变或推翻原根因，MUST 先更新 linked BUG `root-cause.md` 或输出补证阻塞。
 
 ## Workflow
@@ -135,7 +141,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    - Identify whether it is in-scope for the current Change.
    - Treat the current work as a repair projection: while the command is actively modifying or validating the fix, report the user-visible phase as 研发中, but keep the Change canonical apply facts intact.
    - Identify affected files and tests.
-   - Identify evidence status: `confirmed`、`probable`、`hypothesis` 或 `unknown`; if not `confirmed`, request human evidence before fixing unless there is an explicit P0 workaround reason.
+   - Identify evidence status: `confirmed`、`probable`、`hypothesis` 或 `unknown`; if not `confirmed`, first collect product evidence through the browser within existing permissions; request human evidence only when the gap remains, unless there is an explicit P0 workaround reason.
    - UI/visual feedback preflight: if the feedback mentions UI、visual、prototype、截图、标注图、附件、页面状态或关键交互状态, MUST first identify all attached/reference screenshots and build an “附件截图逐项视觉对照表” before implementation.
    - If the target Change is reference-backed UI replication and `design.md` lacks `UI Reference Replication Contract`, selector mapping, action button to modal matrix, computed style sampling list, or batch gates for the feedback area, first patch the Change contract and evidence plan before modifying implementation. Do not continue element-by-element trial fixes without a contract.
    - If feedback points to one button or modal inside a larger action family, expand the preflight to the whole action button matrix for that family, then modify the shared component family once; do not answer each button as a separate isolated返修 unless the matrix marks it as an explicit exception.
@@ -154,7 +160,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    | 处置结论 | 本次修复、无需修改并说明理由、超出范围、证据不足 |
    | 证据入口 | 截图、trace、style JSON、测试输出或脱敏摘要 |
 
-   If route, viewport, theme, expected screenshot, actual screenshot, key interaction state, selector, or computed style evidence is missing and the deviation cannot be confirmed, BLOCK modification and output focused human evidence steps. Do not mark the root cause as `confirmed` before the table is complete enough to support the conclusion.
+   If route, viewport, theme, expected screenshot, actual screenshot, key interaction state, selector, or computed style evidence is missing, first collect available product evidence through the browser. If the deviation still cannot be confirmed, BLOCK modification and output focused human evidence steps with the attempted path. Do not mark the root cause as `confirmed` before the table is complete enough to support the conclusion.
 
 2. **Modify Implementation**
    - Make minimal scoped code changes.
@@ -189,7 +195,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
    Prototype-driven UI Gate:
 
    - If the Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, UI Contract, or UI Skeleton in `design.md`, every UI/visual acceptance feedback MUST be checked against the original prototype decomposition, current UI Contract, current UI Skeleton and `docs/standards/prototype-ui-acceptance.md`.
-   - If UI/visual acceptance feedback includes user attachments, marked screenshots, prototype screenshots, or actual-page screenshots, the “附件截图逐项视觉对照表” is a MUST preflight gate before code changes; incomplete attachment evidence blocks UI返修 until the user supplies focused evidence.
+   - If UI/visual acceptance feedback includes user attachments, marked screenshots, prototype screenshots, or actual-page screenshots, the “附件截图逐项视觉对照表” is a MUST preflight gate before code changes; first gather missing actual-page evidence through the browser, and block UI返修 only when necessary reference evidence remains unavailable.
    - If feedback changes layout, component hierarchy, state behavior, visual priority, responsive breakpoint, copy, icon, permission display, Mock/API boundary, computed style, or interaction implied by prototype, update Change `design.md`, linked REQ `acceptance.md` when criteria changed, and Change `trace.md`.
    - After any UI 返修, rerun 1440px desktop and affected key interaction visual acceptance; record fresh screenshot/evidence, computed style checks for risky points, updated attachment comparison results, and updated Mock/API boundary when impacted. Previous visual evidence is invalid once the relevant UI changed.
    - If feedback reveals the prototype itself is obsolete, record Conflict Resolution in Change `design.md` and update linked REQ docs before validation.

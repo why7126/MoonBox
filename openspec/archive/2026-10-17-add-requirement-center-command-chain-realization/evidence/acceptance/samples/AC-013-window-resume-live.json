@@ -1,0 +1,33 @@
+{
+  "scenario": "isolated-real-browser-close-and-reenter",
+  "object_id": "REQ-9300-ac013-window-resume",
+  "action": "req-generate",
+  "turn_id": "6b2fa52a-a0de-4c00-b155-5045cfcdc025",
+  "client_request_id": "352c4c85-c09b-4656-8252-419058062e82",
+  "observations": [
+    "Chrome Chat tab closed while product turn was connecting",
+    "After closing, product turn API reported running",
+    "New Chrome tab reopened the same authenticated conversation; UI reported executing",
+    "Execution panel selected the same complete turn ID",
+    "Turn later reported unknown with execution_access_or_workspace_error",
+    "After page refresh, requirement card was in planning with requirement.md and trace.md"
+  ],
+  "intermediate_turn_status": "unknown",
+  "intermediate_error_code": "execution_access_or_workspace_error",
+  "recovery": {
+    "external_turn_status": "completed",
+    "method": "reconcile_unknown; exact external thread and turn ID; no command replay",
+    "cause_of_stalled_recovery": "missing direct-command record raised WorkspaceError in archive_completion_blocked",
+    "reconciled": true,
+    "final_product_turn_status": "completed",
+    "active_turn_cleared": true,
+    "after_api_worker_restart": "same turn completed in product UI and API"
+  },
+  "file_facts": {
+    "requirement_md_sha256": "33c50262a8b8e2009558aac9c2ff187fba2fe6a32c334ce9083498f8b8ec1880",
+    "trace_md_sha256": "8e7e1c4af199d380f25a9a1530b869a61ac337271a19dde523c1eabf402d1c75",
+    "trace_status": "draft",
+    "registry_status": "draft"
+  },
+  "acceptance_conclusion": "passed with seven-action current-state matrix in AC-013-projection-matrix-readonly.json"
+}

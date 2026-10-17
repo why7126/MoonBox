@@ -1,0 +1,33 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "action": "sprint-propose",
+  "object_id": "REQ-9210-ac011-before-sprint",
+  "turn_id": "671b0baa-7b66-412d-9275-73b94e96afc7",
+  "window": "formal-sprint-propose-workflow-sync-started-before-tool-completion",
+  "before_restart": {
+    "journal_steps": 15,
+    "formal_sync_started_steps": 1,
+    "formal_sync_succeeded_steps": 0,
+    "source_revision": "227d794cd6338b28eae5cab005916a0250fd24c0f0b41be2f70d9d1b43b0c445"
+  },
+  "after_restart": {
+    "turn": "stopped",
+    "error_code": "worker_heartbeat_lost",
+    "journal_classification": "sync_incomplete",
+    "sprint_yaml_valid": true,
+    "sprint_requirement_count": 1,
+    "issue_trace_status": "in_sprint",
+    "issue_trace_iteration": "sprint-010",
+    "registry_entry_count": 1,
+    "registry_status": "in_sprint",
+    "registry_iteration": "sprint-010"
+  },
+  "safe_reconciliation": {
+    "read_only_dry_run": "zero core updates after restart; the child Sync had completed its file writes although the worker had no completed tool event",
+    "action": "Preserved the existing Sprint and Issue files; no second scope insertion or command replay",
+    "subdocument_note": "The cloned isolated requirement.md retained an approved status in a nested YAML block. The subdocument scanner flagged it as safe_sync; automatic apply reported zero updates, so this residual was not claimed as fully reconciled."
+  },
+  "limit": "This is one during-sync window. Other actions and remaining fault phases are still missing.",
+  "overall": "partial; AC-011 remains unsigned"
+}

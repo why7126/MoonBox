@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "change_id": "harden-automated-acceptance-evidence",
+  "environment": "local-governance-20261012",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "evidence_kinds": ["command"],
+      "inputs": ["scripts/opsx_acceptance.py", "tests/unit/test_opsx_acceptance.py"],
+      "argv": ["src/backend/.venv/bin/python", "-m", "pytest", "-q", "tests/unit/test_opsx_acceptance.py"]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "evidence_kinds": ["command"],
+      "inputs": ["docs/standards/opsx-acceptance.md", ".agents/skills/opsx-accept/SKILL.md"],
+      "argv": ["python", "scripts/validate-agent-context-budget.py"]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "evidence_kinds": ["command"],
+      "inputs": ["openspec/changes/harden-automated-acceptance-evidence/specs/automated-opsx-acceptance/spec.md", "openspec/changes/harden-automated-acceptance-evidence/tasks.md"],
+      "argv": ["openspec", "validate", "harden-automated-acceptance-evidence", "--strict"]
+    }
+  ]
+}

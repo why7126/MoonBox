@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: '2026-09-15 09:46:43'
+updated_at: 2026-10-12 15:27:04
 owner: MoonBox 产品团队
 ---
 
@@ -20,7 +20,9 @@ owner: MoonBox 产品团队
 → /sprint-propose
 → /req-opsx 或 /bug-opsx
 → /opsx-apply
+→ /opsx-accept
 → /opsx-modify（可选）
+→ /opsx-accept（返修后重验受影响项）
 → /opsx-archive
 → /sprint-archive
 → /sprint-exps
@@ -35,19 +37,24 @@ owner: MoonBox 产品团队
 ## REQ / BUG 到 OpenSpec
 
 - 未评审的 REQ/BUG 不得进入 Sprint、不得转 OpenSpec、不得执行开发。
+- 评审目录迁移使用 `promote-issue-stage.py --to review`；该入口在移动后定向运行评审 Workflow Sync 并核验注册表。已在 review 的对象仍执行同步，失败返回非零并保留文档，可原命令重试。手工迁移不能代替这一收尾；迁移完成不等于注册表同步完成。
+- 产品评审收集会在完整评审结论、目录迁移及权限校验后补齐仍为旧值的目标注册表/索引，再回读确认；不自动批准、不修复未知冲突或缺失文档。隔离评审工作区同步当前迁移与 Workflow Sync 工具；失败保留原成果，原轮次恢复须确认候选归属和绑定，不能以模型回复替代应用状态。
 - 已评审 REQ/BUG MUST 先通过 `/sprint-propose` 纳入 Sprint 正式范围，并由 Workflow Sync 同步为 `in_sprint`，再通过 `/req-opsx` 或 `/bug-opsx` 创建 Change。
 - `/req-review <REQ-full-id>` 无 flag 时默认评审通过，下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/bug-review <BUG-full-id>` 同理，下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`。`--approve` 仅作为兼容别名，拒绝或延后必须显式使用反向 flag。
 - `/req-opsx` 和 `/bug-opsx` 遇到 `status: approved` 但尚未 `in_sprint` 时 MUST 停止，并提示先运行对应 `/sprint-propose`。
 - `/req-opsx` / `/bug-opsx` 完成后 MUST 运行 Workflow Sync，把新 Change 回填到同一个 Sprint 的 `changes[]` 与 `scope_estimates[].change`。
 - `/req-opsx` / `/bug-opsx` 生成 Change 后 MUST 运行 `python scripts/validate-openspec-language.py --change <change-id> --residual-report`；当前 Change 中文优先问题阻断当前链路，其他 active Change 残留只进入分离报告和复盘 warning。
 - 如果 REQ/BUG 已经纳入 Sprint，但 `/opsx-apply --dry-run` 仍解析不到 Sprint，优先修复 `sprint.yaml` 机器事实源，不要求用户重复口头确认。
+- Workflow Sync 读取 Sprint 范围时接受合法的同级无缩进 YAML 列表；`sprint.yaml` 语法无效时返回错误，不得以部分解析结果报告同步成功。修正文件后重新运行原事件并核对 REQ/Change 与 Sprint 双向范围。
 
 ## Apply / Modify / Archive
 
 - `/opsx-apply` 前 MUST 通过 `python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` 确认目标 Change 位于 Sprint scope。
 - `/opsx-modify` 只用于 `/opsx-apply` 之后、`/opsx-archive` 之前的验收返修；超出原 Change 范围时应创建新 REQ/BUG 或新 Change。
+- `/opsx-accept` 在 apply 完成后自动续接，按 `docs/standards/opsx-acceptance.md` 生成逐 AC 证据包与归档就绪结论；返修后只重跑过期项。用户没有授权归档时停在可归档状态。
 - `/opsx-modify` 执行返修期间用户可见阶段展示为“研发中”；返修完成、验证和 Workflow Sync 通过后自动回到“验收中 / 待复验”。该展示属于返修投影语义，不得用普通 `in_progress` 覆盖 Change 的 `applied` 事实或首次 apply 的 `execution.completed_at`。
 - `/opsx-archive` 只能归档已完成 tasks 且 artifact 完整的 Change。
+- 有 `acceptance-plan.json` 的 Change 在归档前必须通过 `python scripts/opsx_acceptance.py --change <change-id> --readiness`；历史 Change 不因缺新计划而倒填通过结论。
 - 归档步骤必须严格串行：归档脚本或 OpenSpec archive → 目录校验 → env ignore 校验 → archive evidence → Workflow Sync → Issue promote → AI Usage。
 
 ## Apply 连续执行契约
@@ -73,7 +80,7 @@ owner: MoonBox 产品团队
 - 每项任务 MUST 在实现及相关验证通过、证据可定位后才勾选；检查失败时保留未完成，已有勾选被新证据推翻时撤回相关勾选。`all_done` 只是任务状态，不能直接作为完成或可归档结论。
 - 宣布 apply 完成前 MUST 确认：全部范围内任务完成；必要测试和验收通过；受影响文档与 REQ/BUG 子文档已同步或给出具体不适用原因；无未解决的必需证据缺口；Workflow Sync 串行完成且目标状态正确。任何必要验证无法运行时报告未完成/阻塞及补证路径，不得报已通过。
 - 收尾顺序为实现与验证 → 文档和任务回填 → Workflow Sync → AI Usage Hook → 最终报告。收尾任务可以在其他工作通过后进入同步阶段，但同步失败时不得保留虚假的完成勾选或宣布完成，必须修复后重跑；若无法修复则回退该收尾任务为未完成。AI Usage 是最佳努力，用量不可归因只记 warning，不要求用户再次授权继续。
-- 部分实现、暂停或中断不得执行会把当前 Change 提升为 `applied` 的完成同步；允许只读 dry-run 诊断。完成后可建议 archive，未经授权不自动归档、发布或创建 follow-up Issue/Change。
+- 部分实现、暂停或中断不得执行会把当前 Change 提升为 `applied` 的完成同步；允许只读 dry-run 诊断。完成后自动续接 `/opsx-accept`，仅在验收 ready 后建议 archive；未经授权不自动归档、发布或创建 follow-up Issue/Change。
 
 ### 中断续接
 
@@ -185,6 +192,7 @@ OpenSpec CLI 的动态提示（包括 Pause if you hit blockers or need clarific
 - 多次运行 `scripts/add-sprint-scope-item.py` 写同一个 `sprint.yaml`。
 - Workflow Sync 写 Sprint 派生表、Issue trace、registry 或验收回填。
 - `promote-issues-for-archive.py` 迁移 Issue 阶段。
+- `archive-change.sh` 先用私有规格指纹核对归档预期；规格已合并而活动 Change 尚未迁移时只执行 `--skip-specs` 迁移，未知外部编辑阻断并保留现场，再串行执行 Workflow Sync 与 Issue 迁移。
 - AI Usage hook 刷新同一 Sprint 或 release snapshot。
 - AI Usage hook 普通执行先尝试本地 session 自动发现：显式 `--session-jsonl`、session 环境变量、`AI_USAGE_SESSIONS_DIR`、默认本地 Codex sessions 目录 `~/.codex/sessions`；失败后再输出 `usage_mode: unavailable` 或 `estimated_fallback`。历史回填或审计仍需显式 session 和必要的 `--manual-map`。
 

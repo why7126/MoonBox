@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "change_id": "add-automated-opsx-acceptance",
+  "environment": "local-source",
+  "preflight": [
+    ["src/backend/.venv/bin/python", "-c", "import pytest, fastapi"]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": ["scripts/opsx_acceptance.py", "tests/unit/test_opsx_acceptance.py", "scripts/workflow_sync/issue_subdocuments.py", "scripts/archive-change.sh", "scripts/ai_usage.py"],
+      "argv": ["src/backend/.venv/bin/python", "-m", "pytest", "-q", "tests/unit/test_opsx_acceptance.py", "tests/unit/test_workflow_sync_engine.py", "tests/unit/test_workflow_sync_patch.py"],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [".agents/skills/opsx-accept/SKILL.md", ".agents/skills/opsx-apply/SKILL.md", ".agents/skills/openspec-apply-change/SKILL.md", ".agents/skills/opsx-modify/SKILL.md", ".agents/skills/opsx-archive/SKILL.md", "docs/08-command-execution-order.md"],
+      "argv": ["python", "scripts/validate-agent-context-budget.py"],
+      "parallel_safe": true,
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": ["openspec/changes/add-automated-opsx-acceptance/proposal.md", "openspec/changes/add-automated-opsx-acceptance/design.md", "openspec/changes/add-automated-opsx-acceptance/tasks.md", "openspec/changes/add-automated-opsx-acceptance/specs/automated-opsx-acceptance/spec.md", "openspec/changes/add-automated-opsx-acceptance/specs/harness-runtime/spec.md"],
+      "argv": ["openspec", "validate", "add-automated-opsx-acceptance", "--strict"],
+      "parallel_safe": true,
+      "timeout_seconds": 60
+    }
+  ]
+}

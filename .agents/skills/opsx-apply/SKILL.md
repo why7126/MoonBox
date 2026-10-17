@@ -1,12 +1,20 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
-updated_at: 2026-09-15 09:13:30
+updated_at: 2026-10-13 16:27:44
 ---
 
 # opsx-apply
 
+完成 apply 收尾后，若 Change 存在或可从 AC 生成 `acceptance-plan.json`，在当前授权内自动续接 `/opsx-accept` 并按 `docs/standards/opsx-acceptance.md` 取得证据包；受硬阻塞的产品观察须如实保留，不把合成测试当成真实产品签认。未经授权不自动 archive。
+
 Use this skill when the user asks to run `/opsx-apply <REQ-full-id|BUG-full-id|change-id>` or implement an OpenSpec change.
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -50,12 +58,12 @@ Use this skill when the user asks to run `/opsx-apply <REQ-full-id|BUG-full-id|c
 - `/opsx-apply <REQ-full-id>`：先解析该 REQ 关联的当前 Change，并校验 Sprint scope；用户可执行命令 MUST 保留完整 `REQ-xxxx-slug`。
 - `/opsx-apply <BUG-full-id>`：先解析该 BUG 关联的当前 Change，并校验 Sprint scope；用户可执行命令 MUST 保留完整 `BUG-xxxx-slug`。
 - `/opsx-apply <change-id>`：仅在用户明确给出 Change ID，或处理无 REQ/BUG 关联的治理 Change 时使用。
-- 完成后输出下一步时，REQ 来源使用 `/opsx-archive <REQ-full-id>`，BUG 来源使用 `/opsx-archive <BUG-full-id>`；不要把下一步退回成裸 `<change-id>`，除非 Change 没有关联 Issue。
+- 完成后自动续接验收时，REQ 来源使用 `/opsx-accept <REQ-full-id>`，BUG 来源使用 `/opsx-accept <BUG-full-id>`；验收 ready 后才建议 `/opsx-archive <REQ-full-id>` 或 `/opsx-archive <BUG-full-id>`。不要把下一步退回成裸 `<change-id>`，除非 Change 没有关联 Issue。
 
 ## Command Order（MUST）
 
 - `/opsx-apply` MUST 位于 `/req-opsx` 或 `/bug-opsx` 之后，并且目标 Change 已纳入 Sprint scope；纯治理 Change 也 MUST 先纳入 Sprint。
-- 验收发现返修时，下一步使用 `/opsx-modify <REQ-full-id|BUG-full-id|change-id> <修改内容>`；返修完成并验证后再进入 `/opsx-archive`。
+- 验收发现返修时，使用 `/opsx-modify <REQ-full-id|BUG-full-id|change-id> <修改内容>`；返修完成后续接 `/opsx-accept`，取得 ready 结论才进入 `/opsx-archive`。
 - 后续命令参数 MUST 延续来源：REQ 用完整 `REQ-xxxx-slug`，BUG 用完整 `BUG-xxxx-slug`，纯治理 Change 才用 `<change-id>`。
 - 完成态 Workflow Sync 和 AI Usage Post-command Hook MUST 在实现、任务勾选和验证之后串行执行；不得与写同一事实源的步骤并行。
 
@@ -102,7 +110,7 @@ For every BUG-sourced Change, before editing `src/`, running implementation chec
 1. Read `rules/root-cause-evidence.md` and the linked BUG `root-cause.md`.
 2. Run `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`.
 3. BLOCKED if root cause status is not `confirmed`, evidence chain is missing, or the script exits non-zero.
-4. If BLOCKED, output the missing evidence and 人工补证操作步骤; tell the user to补证 or rerun `/bug-complete <BUG-full-id>` before `/opsx-apply`.
+4. If BLOCKED, first use the browser within existing permissions to gather available product evidence. If the gap remains, output the missing evidence, attempted path, and 人工补证操作步骤; then rerun `/bug-complete <BUG-full-id>` before `/opsx-apply`.
 
 REQ-sourced and pure governance Changes MAY report this gate as `n/a` unless the acceptance feedback itself is a defect or effect mismatch.
 

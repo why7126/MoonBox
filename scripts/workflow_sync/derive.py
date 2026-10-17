@@ -88,16 +88,38 @@ def derive_issue(
     changes: dict[str, DerivedChange],
     sprint: SprintRecord | None,
 ) -> DerivedIssue:
-    linked_change = None
+    linked_ids: list[str] = []
     for oc in issue.openspec_changes:
         cid = oc.get("change_id")
-        if isinstance(cid, str):
-            linked_change = cid
-            break
-    if not linked_change and issue.related_changes:
-        linked_change = issue.related_changes[0]
-    if not linked_change and issue.kind == "bug" and issue.related_change:
-        linked_change = issue.related_change
+        if isinstance(cid, str) and cid and cid not in linked_ids:
+            linked_ids.append(cid)
+    for cid in issue.related_changes:
+        if cid and cid not in linked_ids:
+            linked_ids.append(cid)
+    if issue.related_change and issue.related_change not in linked_ids:
+        linked_ids.append(issue.related_change)
+
+    linked_change = next(
+        (cid for cid in linked_ids if changes.get(cid) and changes[cid].state != "archived"),
+        linked_ids[0] if linked_ids else None,
+    )
+
+    if len(linked_ids) > 1:
+        linked_states = [changes.get(cid) for cid in linked_ids]
+        archived_count = sum(change is not None and change.state == "archived" for change in linked_states)
+        if archived_count == len(linked_ids):
+            display = "done"
+            note = f"全部 {len(linked_ids)} 个 Change 已归档"
+        else:
+            display = "in_sprint"
+            note = f"{archived_count}/{len(linked_ids)} 个 Change 已归档；其余待完成"
+        return DerivedIssue(
+            issue_id=issue.issue_id,
+            kind=issue.kind,
+            display_status=display,
+            linked_change=linked_change,
+            note=note,
+        )
 
     change = changes.get(linked_change) if linked_change else None
     display = issue_status_from_change(change, issue.trace_status)

@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import type { MessageRead as GeneratedMessageRead } from "../../api/generated/chat";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Box, Check, CircleAlert, Copy, Sparkles } from "lucide-react";
 import { TurnActivity } from "./TurnActivity";
 import { SafeMarkdown } from "./SafeMarkdown";
-import { ChatApiError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef, type TurnRead } from "./chatApi";
+import { ChatApiError, normalizeChatError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef, type TurnRead } from "./chatApi";
 import { readChatEvents, type ChatEvent } from "./chatEvents";
 import { executionConfigLabel } from "./executionLabels";
-type Message = { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
+type Message = Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
 type UsagePayload = {
   total_tokens?: number;
   input_tokens?: number;
@@ -24,11 +25,21 @@ function skillDisplayName(value: string) {
 }
 function messageContentForDisplay(row: Message, skills: MaterialRef[]) {
   if (row.role !== "user") return row.content;
-  return row.content
+  const content = visibleGovernancePrompt(row.content);
+  return content
     .split(/\r?\n/)
     .filter(line => !/^\s*(?:[-*]\s*)?(?:Skill|图片|文件)\s*引用\s*[：:]/i.test(line))
     .join("\n")
     .trim();
+}
+function visibleGovernancePrompt(content: string) {
+  const trimmed = content.trim();
+  const [firstLine = "", ...restLines] = trimmed.split(/\r?\n/);
+  const rest = restLines.join("\n");
+  if (/^\/(?:bug|req)-generate\s+\S+/.test(firstLine.trim()) && /(所有生成Markdown|本次仅生成目标|治理成果以实际差异校验|同步前先检查 dry-run)/.test(rest)) {
+    return firstLine.trim();
+  }
+  return content;
 }
 function splitFirstMessageBlock(content: string) {
   const trimmed = content.trim();
@@ -196,7 +207,7 @@ function UserMessageBody({ content, skills }: { content: string; skills: Materia
     {!!rest && <SafeMarkdown content={rest}/>}
   </>;
 }
-export function ConversationMessages({ conversationId, onTrace }: { conversationId: string; onTrace?: (id: string) => void }) {
+export function ConversationMessages({ conversationId, onTrace, rejectedGovernanceTurnIds = [] }: { conversationId: string; onTrace?: (id: string) => void; rejectedGovernanceTurnIds?: string[] }) {
   const [rows, setRows] = useState<Message[]>([]), [page,setPage] = useState(1), [more,setMore] = useState(true), [loading,setLoading] = useState(true), [error,setError] = useState("");
   const [preview, setPreview] = useState<PreviewMaterial | null>(null);
   const root = useRef<HTMLDivElement>(null), follow = useRef(true), [atBottom,setAtBottom] = useState(true);
@@ -208,7 +219,7 @@ export function ConversationMessages({ conversationId, onTrace }: { conversation
   useEffect(()=>{ if(follow.current) root.current?.lastElementChild?.scrollIntoView?.({block:"end"}); },[rows]);
   useEffect(() => {
     const controller=new AbortController();let timer:ReturnType<typeof setTimeout>;
-    const merge=(items:Message[])=>setRows(old=>[...new Map([...old,...items].map(r=>[r.id,r])).values()].sort((a,b)=>a.created_at.localeCompare(b.created_at)||a.id.localeCompare(b.id)));
+    const merge=(items:Message[])=>setRows(old=>[...new Map([...old,...items].map(r=>[r.id,r])).values()].sort((a,b)=>a.created_at.localeCompare(b.created_at)||(a.turn_id === b.turn_id && a.role !== b.role ? (a.role === "user" ? -1 : 1) : a.id.localeCompare(b.id))));
     const read=async (older=false)=>{
       try {
         const data=await chatRequest<{items:Message[]}>(`/conversations/${conversationId}/messages?page=${older?page:1}`,{signal:controller.signal});
@@ -217,7 +228,7 @@ export function ConversationMessages({ conversationId, onTrace }: { conversation
         merge(data.items);setError("");setLoading(false);
         if(older||page===1)setMore(data.items.length===20);
         if(older && scroller)requestAnimationFrame(()=>{if(!controller.signal.aborted)scroller.scrollTop+=scroller.scrollHeight-height;});
-      } catch(e){if(!controller.signal.aborted){setError(e instanceof Error?e.message:"读取失败");setLoading(false);if(e instanceof ChatApiError&&[401,403,404].includes(e.status))setRows([]);}}
+      } catch(e){if(!controller.signal.aborted){const normalized=normalizeChatError(e,"消息暂不可读，请稍后重试");setError(normalized instanceof ChatApiError&&normalized.status===0?"消息暂不可读，请稍后重试":normalized instanceof Error?normalized.message:"消息暂不可读，请稍后重试");setLoading(false);if(normalized instanceof ChatApiError&&[401,403,404].includes(normalized.status))setRows([]);}}
     };
     const poll=async()=>{await read();if(!controller.signal.aborted)timer=setTimeout(poll,3000);};
     if(page>1)void read(true);void poll();return()=>{controller.abort();clearTimeout(timer);};
@@ -232,7 +243,7 @@ export function ConversationMessages({ conversationId, onTrace }: { conversation
       const attachments=row.role==="user"?(row.materials||[]).filter(item=>item.kind!=="skill"):[];
       const displayContent=messageContentForDisplay(row, skills);
       const effectiveConfig=executionConfigLabel(row.effective_config);
-      return <div className={`chat-message-block ${row.role === "user" ? "turn-user" : "turn-assistant"}`} key={row.id}>
+      return <Fragment key={row.id}><div className={`chat-message-block ${row.role === "user" ? "turn-user" : "turn-assistant"}`}>
         <article className={`chat-message ${row.role==="user"?"chat-message-user":""}`} key={row.id}>
           <strong>{row.role==="user"?"你":"助手"}</strong>
           {row.role!=="user"&&<span className="chat-assistant-avatar" aria-hidden="true"><Box size={15}/></span>}
@@ -240,11 +251,14 @@ export function ConversationMessages({ conversationId, onTrace }: { conversation
             {!!attachments.length && <div className="chat-message-attachments" data-testid="chat-message-attachments">
               {attachments.map((item,index)=><button type="button" key={`${item.kind}-${item.ref_id || item.name}-${index}`} className={`chat-message-attachment ${item.kind==="image"?"is-image":"is-file"}`} title={`${item.name} · ${item.size_bytes || 0} bytes`} aria-label={`查看附件 ${item.name}`} onClick={()=>setPreview({...item, preview_url: materialPreviewUrl(item)})}><MaterialThumbnail item={item}/></button>)}
             </div>}
-            {row.role!=="user"&&row.turn_id&&onTrace&&<TurnActivity turnId={row.turn_id} onTrace={onTrace}/>}
+            {row.role!=="user"&&row.turn_id&&onTrace&&<TurnActivity turnId={row.turn_id} onTrace={onTrace} hasBody={!!displayContent}/>}
+            {row.role !== "user" && row.output_partial && <p role="note" data-testid="chat-partial-output">部分输出 · 不代表执行完成{row.output_truncated ? " · 内容有缺口或已截断，请查看轨迹" : ""}</p>}
             <div className="chat-message-bubble">
               {row.role==="user"
                 ? <UserMessageBody content={displayContent} skills={skills}/>
-                : !!displayContent&&<SafeMarkdown content={displayContent}/>}
+                : !!row.turn_id && rejectedGovernanceTurnIds.includes(row.turn_id)
+                  ? <details data-testid="chat-rejected-governance-output"><summary>治理结果未通过校验；助手输出未经事实源确认，展开查看原文</summary>{!!displayContent && <SafeMarkdown content={displayContent}/>}</details>
+                  : !!displayContent&&<SafeMarkdown content={displayContent}/>}
             </div>
             {row.role==="user"?<div className="chat-message-meta">
               {row.role==="user"&&effectiveConfig&&<><span className="chat-message-model" data-testid="chat-message-model">{effectiveConfig}{row.config_fallback_reason?` · ${row.config_fallback_reason}`:""}</span><span className="chat-message-sep">·</span></>}
@@ -253,8 +267,15 @@ export function ConversationMessages({ conversationId, onTrace }: { conversation
               <CopyMessageButton text={displayContent || row.content}/>
             </div>:<AssistantMeta row={row} skills={skills} displayContent={displayContent}/>}
           </div>
-        </article>{row.role==="user"&&row.turn_id&&onTrace&&!assistantTurnIds.has(row.turn_id)&&<TurnActivity turnId={row.turn_id} onTrace={onTrace}/>}
-      </div>;
+        </article>
+      </div>{row.role==="user"&&row.turn_id&&onTrace&&!assistantTurnIds.has(row.turn_id)&&
+        <div className="chat-message-block turn-assistant" data-testid="chat-pending-assistant">
+          <article className="chat-message">
+            <span className="chat-assistant-avatar" aria-hidden="true"><Box size={15}/></span>
+            <div className="chat-assistant-col"><TurnActivity turnId={row.turn_id} onTrace={onTrace}/></div>
+          </article>
+        </div>}
+      </Fragment>;
     })}
     {preview&&<MaterialPreviewDialog item={preview} onClose={()=>setPreview(null)}/>}
     {!atBottom && <button className="chat-jump-bottom" onClick={()=>{follow.current=true;root.current?.lastElementChild?.scrollIntoView?.({block:"end"});}}>回到最新消息</button>}

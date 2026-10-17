@@ -1,0 +1,24 @@
+{
+  "scenario": "39002 当前产品，BUG-0036 Generate 历史恢复并展开助手正文",
+  "viewport": { "width": 390, "height": 900 },
+  "computed_width_px": {
+    "history": 294,
+    "assistant_block": 294,
+    "assistant_article": 294,
+    "assistant_content_column": 252,
+    "turn_activity": 252,
+    "assistant_bubble": 252,
+    "assistant_markdown": 252,
+    "user_article": 294,
+    "user_bubble": 190.88
+  },
+  "computed_max_width": {
+    "assistant_article": "none",
+    "assistant_content_column": "none",
+    "turn_activity": "none",
+    "assistant_bubble": "none",
+    "assistant_markdown": "none",
+    "user_bubble": "100%"
+  },
+  "note": "移动视口下用户 article 可占满历史轨道，但实际右侧气泡仍按内容收窄；判定用户气泡边界以 bubble 为准。"
+}

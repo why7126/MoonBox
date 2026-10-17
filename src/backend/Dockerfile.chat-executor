@@ -2,16 +2,30 @@ FROM python:3.12-slim AS codex-package
 COPY container/install_codex.py /install_codex.py
 RUN python /install_codex.py
 
+FROM node:22.22.0-bookworm-slim AS toolchain
+WORKDIR /opt/moonbox-toolchain
+COPY container/toolchain/package*.json ./
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+
 FROM python:3.12-slim
 WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    OPENSPEC_TELEMETRY=0 DO_NOT_TRACK=1 \
+    PATH="/opt/moonbox-toolchain/node_modules/.bin:${PATH}"
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates libstdc++6 curl jq patch unzip zip && rm -rf /var/lib/apt/lists/*
+COPY --from=toolchain /usr/local/bin/node /usr/local/bin/node
+COPY --from=toolchain /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
+COPY --from=toolchain /opt/moonbox-toolchain /opt/moonbox-toolchain
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+RUN ln -s /opt/moonbox-toolchain/node_modules/.bin/openspec /usr/local/bin/openspec && ln -s /opt/moonbox-toolchain/node_modules/.bin/pnpm /usr/local/bin/pnpm
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir . uv==0.8.15
+COPY container/check_toolchain.py /app/container/check_toolchain.py
 COPY app ./app
 COPY container/seccomp-codex.json ./container/seccomp-codex.json
 COPY container/LICENSE.moby ./container/LICENSE.moby
 COPY --from=codex-package /out/ /opt/codex/
 RUN ln -s /opt/codex/bin/codex /usr/local/bin/codex && ln -s /opt/codex/codex-path/rg /usr/local/bin/rg && codex --version && mkdir /work /runtime && chown 10001:10001 /work /runtime
 USER 10001:10001
+RUN python /app/container/check_toolchain.py
 CMD ["codex", "--version"]

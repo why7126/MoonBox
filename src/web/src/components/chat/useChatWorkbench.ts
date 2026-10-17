@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { chatRequest, listSessions, patchSession, type Capabilities, type ConversationRead, type Space, type TurnRead } from "./chatApi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { normalizeChatError, chatRequest, listSessions, patchSession, type Capabilities, type ConversationRead, type Space, type TurnRead } from "./chatApi";
+
+const messageOf = (error: unknown, fallback?: string) => {
+  const normalized = normalizeChatError(error, fallback);
+  return normalized instanceof Error ? normalized.message : fallback || "操作失败";
+};
 
 export function useChatWorkbench() {
   const [spaces, setSpaces] = useState<Space[]>([]), [space, setSpace] = useState("");
@@ -20,16 +25,30 @@ export function useChatWorkbench() {
       let storedId = "";
       try { storedId = JSON.parse(window.localStorage.getItem("moonbox.workspace") || "null")?.workspaceId || ""; } catch { /* 忽略无效偏好，使用授权目录。 */ }
       setSpaces(rows); setSpace(rows.find(row => row.id === hint)?.id || rows.find(row => row.id === storedId)?.id || rows[0]?.id || ""); setLoading(false);
-    }).catch(e => { if (!controller.signal.aborted) { setError(e.message); setLoading(false); } });
+    }).catch(e => { if (!controller.signal.aborted) { setError(messageOf(e)); setLoading(false); } });
     return () => controller.abort();
   }, [boot]);
   useEffect(() => {
     if (!space) return;
     const controller = new AbortController(); setCapabilities(null); setSelected(null); setSessions([]); setTurns([]); setError("");
-    chatRequest<Capabilities>(`/capabilities?space_id=${encodeURIComponent(space)}`, { signal: controller.signal }).then(data => {
-      if (!controller.signal.aborted) { setCapabilities(data); setCapabilitySpace(space); }
-    }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
-    return () => controller.abort();
+    let timer: ReturnType<typeof setTimeout>;
+    const probe = async () => {
+      let delay = 3000;
+      try {
+        const data = await chatRequest<Capabilities>(`/capabilities?space_id=${encodeURIComponent(space)}`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        setCapabilities(data); setCapabilitySpace(space);
+        delay = data.execution_ready ? 15000 : 3000;
+      } catch (e) {
+        if (controller.signal.aborted) return;
+        setCapabilitySpace(space);
+        setCapabilities(previous => ({ ...previous, repositories: previous?.repositories || [], execution_ready: false,
+          reason_code: "capabilities_unreachable", reason: messageOf(e, "执行服务连接暂时中断，正在自动重试；草稿已保留") }));
+      }
+      if (!controller.signal.aborted) timer = setTimeout(probe, delay);
+    };
+    void probe();
+    return () => { controller.abort(); clearTimeout(timer); };
   }, [space, boot]);
   useEffect(() => {
     if (!space) { setSessions([]); return; }
@@ -38,7 +57,7 @@ export function useChatWorkbench() {
       listSessions(space, query, archived, page, controller.signal).then(data => {
         if (controller.signal.aborted) return;
         setSessions(data.items); setTotal(data.total); setLoading(false);
-      }).catch(e => { if (!controller.signal.aborted) { setError(e.message); setLoading(false); setSessions([]); } });
+      }).catch(e => { if (!controller.signal.aborted) { setError(messageOf(e)); setLoading(false); setSessions([]); } });
     }, 150);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [space, query, archived, page, refresh, boot]);
@@ -79,7 +98,7 @@ export function useChatWorkbench() {
     const controller = new AbortController();
     chatRequest<{ items: TurnRead[] }>(`/conversations/${selected.id}/turns`, { signal: controller.signal }).then(data => {
       if (!controller.signal.aborted) setTurns(data.items);
-    }).catch(e => { if (!controller.signal.aborted) { setTurns([]); setError(e.message); } });
+    }).catch(() => { if (!controller.signal.aborted) setTurns([]); });
     return () => controller.abort();
   }, [selected?.id, refresh]);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(""), 3500); return () => clearTimeout(timer); }, [toast]);
@@ -87,7 +106,7 @@ export function useChatWorkbench() {
     if (mutation.current) return false;
     mutation.current = true; setBusy(true); setError("");
     try { await action(); setRefresh(x => x + 1); setToast(success); return true; }
-    catch (e) { setError(e instanceof Error ? e.message : "操作失败"); return false; }
+    catch (e) { setError(messageOf(e, "操作失败")); return false; }
     finally { mutation.current = false; setBusy(false); }
   }
   const create = (repository: string) => mutate(async () => {
@@ -103,9 +122,9 @@ export function useChatWorkbench() {
     await chatRequest(`/conversations/${row.id}${workspaceHash ? `?expected_hash=${encodeURIComponent(workspaceHash)}` : ""}`, { method: "DELETE" });
     setSelected(current => current?.id === row.id ? null : current);
   }, "会话已删除");
-  const refreshSelected = () => {
+  const refreshSelected = useCallback(() => {
     setRefresh(value => value + 1);
-    if (selected) chatRequest<ConversationRead>(`/conversations/${selected.id}`).then(row => setSelected(current => current?.id === row.id ? row : current)).catch(e => setError(e.message));
-  };
+    if (selected) chatRequest<ConversationRead>(`/conversations/${selected.id}`).then(row => setSelected(current => current?.id === row.id ? row : current)).catch(() => {});
+  }, [selected?.id]);
   return { notify: setToast, refreshSelected, spaces, space, setSpace, capabilities: capabilitySpace === space ? capabilities : null, sessions, selected: selected?.space_id === space ? selected : null, setSelected, turns, query, setQuery, archived, setArchived, page, setPage, total, loading, busy: busy || sending, setSending, error, setError, toast, create, patch, remove, retry: () => setBoot(x => x + 1) };
 }

@@ -1,0 +1,27 @@
+{
+  "scenario": "39002 已登录产品，从历史列表重新打开 BUG-0036 Generate 会话",
+  "viewport": { "width": 1440, "height": 900 },
+  "runtime_build_id": "mv7pwl7p-exvnom",
+  "runtime_script": "/assets/index-evpnFHfi.js",
+  "served_html_script": "/assets/index-evpnFHfi.js",
+  "computed_style": {
+    ".chat-main": { "width": "1216px" },
+    ".chat-message-history": { "width": "1168px" }
+  },
+  "dom": {
+    "legacy_panel_count": 0,
+    "dialog_count": 0,
+    "forbidden_button_count": 0
+  },
+  "browser_resource_paths_observed": [
+    "/assets/index-evpnFHfi.js",
+    "/assets/index-DJodAnfS.css",
+    "/chat",
+    "/api/v1/chat/conversations",
+    "/api/v1/chat/conversations/{conversation_id}/messages",
+    "/api/v1/chat/conversations/{conversation_id}/turns",
+    "/api/v1/chat/conversations/{conversation_id}/governance-candidates",
+    "/api/v1/chat/turns/{turn_id}/events"
+  ],
+  "browser_resource_note": "资源清单仅记录 URL 路径与资源来源；会话和轮次 ID 已脱敏，不保存请求头、响应体或原始消息。未观察到 governance application 创建请求路径。"
+}

@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import subprocess
 from change_identity import validate as validate_change_identity
+from runtime_tool_mounts import is_ephemeral_tool_mount, repository_tool_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -223,6 +224,13 @@ for item in REQUIRED_DIRS:
 for item in FORBIDDEN_PATHS:
     if (ROOT / item).exists():
         errors.append(f"禁止使用旧 OpenSpec 归档路径: {item}，请改用 openspec/archive")
+
+for path in repository_tool_paths(ROOT):
+    relative = path.relative_to(ROOT).as_posix()
+    if is_ephemeral_tool_mount(ROOT, path):
+        warnings.append(f"{relative}: 执行沙箱空挂载点，非仓库工具目录")
+    else:
+        errors.append(f"禁止在仓库自有目录创建工具路径: {relative}；Agent 技能只使用仓库根目录 .agents/skills/")
 
 for item, message in LEGACY_DATA_PATH_WARNINGS.items():
     if (ROOT / item).exists():

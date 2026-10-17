@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-requirement-center-acceptance-readiness-projection",
+  "run_id": "20261012174427492064-88e75c0b",
+  "created_at": "2026-10-12 17:44:27",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-moonbox-web-20261012",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "bdf9a0816be8c64705dc85fd5e1ce57c384fac533ba59309ae9e21c109a39cce"
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "d2dcf8d82c03865f91bf79fef50a7ef79ff3c53d55cc010b24cfb65d269016ee"
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "5e0b0ec464106023966fe3266fbf4154c7b67e72d7a199b18e8274f9f84e0dc4"
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "80bee985c43a47c8d8f8bb142297c9da1266511579e430c624db535fd97afb5f"
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "3ed1c45add9434d0dddb2d72b992231a6193c21194675b036f30dadf3772b84e"
+    },
+    {
+      "id": "AC-006",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "d2c765863c507cadef493ad452f14493e6160688b2b722e1c2f3956d3e370026"
+    },
+    {
+      "id": "AC-007",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "69ffc040b5a9f9962be2bbd57a25a7c496d357711b934db523c73a5c97225a1f"
+    },
+    {
+      "id": "AC-008",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "7bb6baf7520d023fc1349fe475b65802b0a6076790da08980ec3a425604c9596"
+    },
+    {
+      "id": "AC-009",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "0cac0f6967ab5f99b1acf6d4d086e11de6c301d43e13d082b1a1d0b136928ae3"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "3f09d30b3d94c29f6156918d85673416075ce32360dc525c4fdca507a6337e35",
+      "reused": true,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "9bffe2e8-bb23-4559-b132-b4feb6856ef6",
+      "conversation_id": "2ea77f62-7e06-5d62-b938-82ce3b2957b9",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 38,
+      "command_exit_code": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-acceptance-readiness-projection/evidence/acceptance/current-product-observation.md",
+          "sha256": "dc2324cdcee9b7407a34a9c33ed3f287db4399f172ceb4e0825f4113ada7f3d5"
+        }
+      ],
+      "duration_ms": 5
+    },
+    {
+      "id": "AC-011",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "91c3a311be580c9a1f7236ad3b2f44de26e267e4ba02c574a4390e8a68be0c5e"
+    }
+  ]
+}

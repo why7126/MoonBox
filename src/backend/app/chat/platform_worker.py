@@ -8,18 +8,41 @@ import signal
 import subprocess
 import threading
 import time
+from uuid import uuid4
 from sqlalchemy import select, update, or_
 from app.chat import worker, service
 from app.chat.accounting import pending, reconcile_usage
 from app.chat.backup import LocalBackupStore
+from app.chat.snapshot_observability import record as record_snapshot
 from app.chat.cleanup import process_copies
 from app.chat.container_server import persistent_container_server, ContainerAppServer
 from app.chat.execution import run_claim, mark_unknown, reconcile_unknown
-from app.chat.platform import configured, fingerprint
+from app.chat.platform import configured
+from app.chat.heartbeat import worker_heartbeat
+from app.chat.preparation_failure import fail_preparation, recover_preparation_failures
 from app.chat.schema import turns, conversations, cleanup_jobs
-from app.chat.settings import backup_root, repository_catalog, repository_binding
+from app.chat.settings import backup_root, local_snapshot_limit, repository_catalog, repository_binding
 from app.chat.workspace import trusted_directory, prepare_workspace, git
 from app.db.session import get_session_factory
+
+
+def automatic_snapshot(factory, store, database, snapshot_limit):
+    operation_id=uuid4().hex
+    record_snapshot(factory,operation_id,'started')
+    try:
+        result=store.create_automatic(database,snapshot_limit)
+    except Exception:
+        record_snapshot(factory,operation_id,'failed',error_code='snapshot_operation_failed')
+        raise
+    record_snapshot(factory,operation_id,'rotated' if result['created'] else 'skipped',
+                    expired=result['expired'],protected=result['protected'])
+    return result
+
+
+def selected_workspace_mode(binding):
+    mode = binding.get('workspace_mode')
+    if mode not in ('copy', 'source'): raise RuntimeError('workspace_mode_invalid')
+    return mode
 
 
 def main():
@@ -43,11 +66,15 @@ def main():
         binding=repository_binding(row['id'],row['space_id'])
         source=trusted_directory(binding['source_root']);git(source,'rev-parse','--verify','HEAD')
         root=trusted_directory(binding['workspace_root'])
-        if source==root or root in source.parents: raise RuntimeError('source_workspace_overlap')
-        if source in root.parents: git(source,'check-ignore','-q',str(root))
-        roots[(row['space_id'],row['id'])]=(source,root)
-    subprocess.run(['docker','image','inspect',ContainerAppServer.IMAGE],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=20)
-    store=LocalBackupStore(backup_root());store.create(database)
+        mode=selected_workspace_mode(binding)
+        if mode=='copy':
+            if source==root or root in source.parents: raise RuntimeError('source_workspace_overlap')
+            if source in root.parents: git(source,'check-ignore','-q',str(root))
+        roots[(row['space_id'],row['id'])]=(source,root,mode)
+    subprocess.run(['docker','image','inspect',ContainerAppServer.IMAGE],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=120)
+    store=LocalBackupStore(backup_root())
+    snapshot_limit=local_snapshot_limit()
+    automatic_snapshot(factory,store,database,snapshot_limit)
     # Verify nested sandbox with a disposable workspace before publishing readiness.
     import tempfile
     with tempfile.TemporaryDirectory(prefix='preflight-',dir=runtime) as folder:
@@ -59,6 +86,7 @@ def main():
     from app.governance.capture_executor import STOP as capture_stop, recover_copies
     recover_copies()
     recover_interrupted(factory)
+    recover_preparation_failures(factory)
     running=True;job=None;token=None;maintenance_at=0;backup_at=time.monotonic()+86400
     capture_job=None
     def stop(*_):
@@ -72,15 +100,15 @@ def main():
         except Exception: mark_unknown(factory,claim,'platform_execution_setup_failed')
     def workspace(cid):
         with factory() as db: parent=db.execute(select(conversations).where(conversations.c.id==cid)).mappings().one()
-        source,root=roots[(parent['space_id'],parent['repository_id'])]
-        return source,root/cid
+        source,root,mode=roots[(parent['space_id'],parent['repository_id'])]
+        return source,source if mode=='source' else root/cid
+    heartbeat=worker_heartbeat(state)
+    heartbeat.__enter__()
     try:
         while running:
             if capture_job is None or not capture_job.is_alive():
                 capture_job=threading.Thread(target=capture_tick,args=(factory,),daemon=True)
                 capture_job.start()
-            stamp=state/'worker-ready.tmp'
-            stamp.write_text(json.dumps({'time':time.time(),'configuration':fingerprint()}));stamp.chmod(0o600);stamp.replace(state/'worker-ready.json')
             if job is None or not job.is_alive():
                 job=None
                 with factory() as db:
@@ -92,7 +120,13 @@ def main():
                         _,path=workspace(cid)
                         if path.is_dir(): reconcile_unknown(factory,tid,path,server)
                     except (KeyError,ValueError): continue
+                from app.governance.candidate_recovery import reconcile_terminal_candidates
+                reconcile_terminal_candidates(factory, workspace)
+                from app.governance.direct_command_journal import reconcile_terminal_commands
+                reconcile_terminal_commands(factory, workspace)
                 if time.monotonic()>=maintenance_at:
+                    from app.governance.completion_recovery import checkpoint_applied_completions
+                    checkpoint_applied_completions(factory,workspace)
                     def purge(job):
                         _,path=workspace(job['conversation_id'])
                         with server(path) as adapter: return adapter.delete_thread(job['executor_thread_id'])
@@ -101,7 +135,14 @@ def main():
                         for cid in copies: process_copies(db,cid,purge,lambda job:store.copies_cleared(job['conversation_id']))
                     maintenance_at=time.monotonic()+30
                 if time.monotonic()>=backup_at:
-                    store.create(database);backup_at=time.monotonic()+86400
+                    try:
+                        automatic_snapshot(factory,store,database,snapshot_limit)
+                    except Exception:
+                        import logging
+                        logging.getLogger('moonbox.chat').warning('local_snapshot.operation_failed')
+                        backup_at=time.monotonic()+300
+                    else:
+                        backup_at=time.monotonic()+86400
                 with factory() as db: token=worker.claim(db,'platform-'+str(os.getpid()))
                 if token:
                     try:
@@ -109,15 +150,15 @@ def main():
                         with factory() as db:
                             parent=db.execute(select(conversations).where(conversations.c.id==token['conversation_id'])).mappings().one()
                             service.conversation(db,parent['owner_id'],parent['id'])
-                        if not path.exists(): prepare_workspace(source,path.parent,token['conversation_id'])
+                        if path != source and not path.exists(): prepare_workspace(source,path.parent,token['conversation_id'])
                         from app.governance.preparation import initialize_workspace
                         with factory() as db: initialize_workspace(db, parent, source, path)
                         trusted_directory(path)
                         job=threading.Thread(target=execute,args=(token,path));job.start()
-                    except Exception: mark_unknown(factory,token,'platform_workspace_unavailable')
+                    except Exception as error: fail_preparation(factory,token,error)
             time.sleep(.25)
     finally:
-        (state/'worker-ready.json').unlink(missing_ok=True)
+        heartbeat.__exit__(None,None,None)
         capture_stop.set()
         if capture_job and capture_job.is_alive():capture_job.join(timeout=25)
         if job and job.is_alive():

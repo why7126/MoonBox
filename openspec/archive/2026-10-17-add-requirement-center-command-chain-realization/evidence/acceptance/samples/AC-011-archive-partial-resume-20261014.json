@@ -1,0 +1,33 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "action": "opsx-archive",
+  "object_id": "add-isolated-apply-ac010",
+  "interrupted_turn_id": "2cb84d2c-b78a-4021-a6f8-3f55c724a1e8",
+  "initial_observation": {
+    "journal_classification": "blocked_unobserved_source_change",
+    "active_change_exists": false,
+    "archive_directory_count": 1,
+    "merged_spec_sha256": "66c07ef5d028019d2f0a5e30a049193291da49b71c16659236aa681182eb70ff",
+    "archive_trace_sha256": "ba697164513a3baab7a7dc3a5859e2afab99c3ead5a20c3204a69dd6177fbba4",
+    "archive_trace_status": "applied"
+  },
+  "recovery": {
+    "command": "archive-change.sh add-isolated-apply-ac010 2026-10-14 --finalize",
+    "route": "existing canonical archive; skip OpenSpec archive and specification merge",
+    "preflight": "identity and archive evidence passed; four empty forbidden tool directories removed from isolated fixture before directory gate",
+    "archive_evidence": "passed",
+    "issue_promotion": "no linked issue eligible",
+    "workflow_sync_first_attempt": "auto sprint scope lookup skipped because indentless YAML lists were not parsed",
+    "workflow_sync_recovery": "explicit sprint-010 succeeded with zero errors; parser was repaired to read the original valid indentless YAML list, then auto Sprint lookup selected sprint-010 in a focused dry run",
+    "merged_spec_sha256_after": "66c07ef5d028019d2f0a5e30a049193291da49b71c16659236aa681182eb70ff",
+    "archive_trace_sha256_after_script": "ba697164513a3baab7a7dc3a5859e2afab99c3ead5a20c3204a69dd6177fbba4",
+    "archive_directory_count_after": 1,
+    "active_change_exists_after": false
+  },
+  "parser_repair": {
+    "finding": "The lightweight Workflow Sync YAML parser missed valid indentless block lists and skipped auto Sprint discovery.",
+    "regression": "20 focused workflow sync tests passed, including red-then-green indentless list and invalid Sprint YAML cases; isolated auto Sprint lookup succeeded with the original YAML list style."
+  },
+  "verdict": "Safe post-archive continuation observed for this isolated standalone Change without duplicate merge or directory migration; the complete seven-action fault matrix remains incomplete."
+}

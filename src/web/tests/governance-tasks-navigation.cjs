@@ -13,7 +13,7 @@ else if(url.pathname.endsWith('/documents/tasks.md')){reads.push(url.pathname);a
 let content=real;if(mode==='headings')content='# Tasks\n\n- [ ] 实现前置\n\n## 研发任务\n- [ ] 实现界面\n\n## 自动化测试\n- [ ] 回归验证\n\n## 人工验收\n- [ ] 人工签收';if(mode==='fallback')content='# Tasks\n\n- [ ] 人工验收当前任务\n\n## 验收返修记录\n## 人工验收旧章节';result={content,version:'a'.repeat(64)};}
 else if(!url.pathname.endsWith('/context'))throw Error('unexpected request');await route.fulfill({json:{code:0,data:result}});
 });
-await page.goto('http://127.0.0.1:18122/tests/governance-board-preview.html');const card=page.locator('[data-issue-id="REQ-0022"]');await expect(card).toHaveCount(1);
+await page.goto('http://127.0.0.1:39022/tests/governance-board-preview.html');const card=page.locator('[data-issue-id="REQ-0022"]');await expect(card).toHaveCount(1);
 for(const [m,label,found] of [['real','研发',true],['real','测试',true],['real','人工验收',false],['headings','研发',true],['headings','测试',true],['headings','人工验收',true],['fallback','人工验收',true],['404','测试',false]]){
 mode=m;await card.getByRole('button',{name:new RegExp('^'+label+' ')}).click();const dialog=page.getByRole('dialog');await expect(dialog).toContainText('Markdown 加载中');await expect(page.getByTestId('tasks-drawer')).toHaveCount(0);
 if(m==='404'){await expect(dialog).toContainText('tasks.md 不存在或已移动');await expect(dialog.getByTestId('markdown-rendered-preview')).toHaveCount(0);}

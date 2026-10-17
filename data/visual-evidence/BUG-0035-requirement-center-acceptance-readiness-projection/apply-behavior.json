@@ -1,0 +1,35 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "compaction",
+      "evidence": ["Change tasks.md 2.4 pending", "card-1440.png", "card-390.png", "acceptance-drawer-1440.png"],
+      "tasks": [
+        {"id": "visual_evidence", "state": "pending", "deps": []},
+        {"id": "workflow_sync", "state": "pending", "deps": ["visual_evidence"]}
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "test_failure",
+      "evidence": ["390px Firefox viewport measured innerWidth 980 before viewport metadata fix", "src/web/index.html viewport metadata", "card-390.png"],
+      "tasks": [
+        {"id": "mobile_viewport_repair", "state": "pending", "deps": []},
+        {"id": "visual_evidence", "state": "pending", "deps": ["mobile_viewport_repair"]}
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": ["Change tasks.md 12/12 checked", "OpenSpec strict validation passed", "Workflow Sync opsx.apply updated 5 errors 0"],
+      "tasks": [
+        {"id": "visual_evidence", "state": "done", "deps": []},
+        {"id": "workflow_sync", "state": "done", "deps": ["visual_evidence"]}
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

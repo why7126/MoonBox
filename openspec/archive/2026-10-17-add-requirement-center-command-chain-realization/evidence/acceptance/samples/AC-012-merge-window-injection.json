@@ -1,0 +1,16 @@
+{
+  "environment": "disposable isolated archive script fixture",
+  "case": "spec merge completed before Change migration; first CLI invocation exits abnormally",
+  "first_attempt": {
+    "archive_script_exit": 1,
+    "active_change_exists": true,
+    "spec_lines": ["base", "merged"]
+  },
+  "retry": {
+    "archive_script_exit": 0,
+    "archive_change_exists": true,
+    "openspec_cli_invocations": 2,
+    "spec_lines": ["base", "merged", "merged"]
+  },
+  "conclusion": "retry re-invoked OpenSpec and duplicated the injected spec merge; this is a script-level fault-injection counterexample, not a production data modification"
+}

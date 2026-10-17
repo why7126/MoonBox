@@ -4,13 +4,15 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-09-16 22:42:16
+updated_at: 2026-10-13 16:27:44
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
 # Agent 上下文预算治理
 
 ## 1. 目标
+
+浏览器运行态取证按 `rules/root-cause-evidence.md` §5.0 执行最小失败重试；本规则的输出预算不构成一次工具超时后停止取证的理由。
 
 降低 AI 在需求、BUG、Sprint、OpenSpec 与 Harness 相关任务中的无效 token 消耗，避免重复读取大规则、大目录、历史归档、生成物和模板工程资产。
 
@@ -38,7 +40,7 @@ AI 执行任务时 MUST NOT：
 
 - `AGENTS.md`、`openspec/project.md`。
 - 当前任务相关的 `rules/*.md`。
-- 当前命令 Skill、共用 Skill（如 `.agents/skills/workflow-sync/SKILL.md`）以及 `.agents/skills/{req,bug,opsx,sprint,release,image,build}-*`、`.agents/skills/capture`、`.agents/skills/explore`、`.agents/skills/spec-opt`、`.agents/skills/spec-study`、`.agents/skills/initialize-project`。
+- 当前命令 Skill、共用 Skill（如 `.agents/skills/workflow-sync/SKILL.md`）以及 `.agents/skills/{req,bug,opsx,sprint,release,image,build}-*`、`.agents/skills/capture`、`.agents/skills/explore`、`.agents/skills/spec-opt`、`.agents/skills/spec-study`、`.agents/skills/initialize-project`、`.agents/skills/git-check`、`.agents/skills/git-sync`。
 
 可复用摘要 SHOULD 至少表达以下信息，字段名可等价：
 
@@ -105,12 +107,14 @@ refresh_reason: <本次继续复用或需要补读的原因>
 
 Agent 命令技能 SHOULD：
 
+- 全部 `.agents/skills/*/SKILL.md` MUST 保留浏览器自主取证短契约，引用 `rules/root-cause-evidence.md` 第 5 节；需要产品运行态证据时先在已有权限内自行通过浏览器取证，优先复用 Codex 侧边浏览器，无需人工二次确认，只有自主取证不可行或关键证据仍不足时才请用户补证。`scripts/validate-agent-context-budget.py` 检查覆盖。
+
 - 引用本文件或内置等价上下文预算章节。
 - 包含引导式用户反馈契约：当命令需要用户选择、确认、补充信息或处理阻塞时，MUST 优先使用原生交互卡片组织问题；当客户端或工具层不支持原生交互卡片时，MUST 先声明降级原因，再降级为文本结构化选项；两种形态都 MUST 包含「结构化选项 + 推荐项 + 可补充说明」；交互卡片顶部说明 MUST 只保留一处主说明，避免副标题、hint、description 或说明正文重复承载同一流程信息；每轮只聚焦 1-3 个关键决策；每个决策点 SHOULD 给出 2-4 个互斥选项；至少一个选项 MUST 标注「推荐」并说明理由；用户已回答的决策 MUST 被后续输出承接，只追问剩余阻塞点或新增风险点；无需用户反馈的成功路径 SHOULD 保持紧凑。
 - 包含 `force-proceed` follow-up 门禁：不得默认自动创建 follow-up REQ/BUG，除非用户明确授权；未授权时只输出可复制的 capture 文案并说明未自动创建 Issue。
 - 明确区分「下一步」与「待用户决策/处理」，同一事项不得重复出现在两处。
 - 在最终输出契约中区分真实用户结果与规则说明：技能文件不得提供可被原样输出的尖括号占位模板、与当前命令无关的通用示例，或包含 `MUST` / `SHOULD` / `Final Output Contract` 等规范语气的用户可见示例；已在「下一步」中给出的命令或动作不得重复写入「待用户决策/处理」。
-- 包含 Command Execution Review Hook：所有 `/req-*`、`/bug-*`、`/sprint-*`、`/opsx-*`、`/release-*`、`/image-*`、`/usage-docs-*`、`/spec-opt`、`/spec-study`、`/initialize-project` 等 workflow 命令完成后，MUST 输出「执行链路复盘」，并至少包含「链路状态」「问题证据」「规范优化建议」。问题证据可为脚本输出、失败摘要、文件路径、校验报告、日志摘要或用户补充证据；无异常时写「无」。规范优化建议无明确证据支撑时写「无明显优化点」。
+- 包含 Command Execution Review Hook：所有 `/req-*`、`/bug-*`、`/sprint-*`、`/opsx-*`、`/release-*`、`/image-*`、`/usage-docs-*`、`/spec-opt`、`/spec-study`、`/initialize-project`、`/git-sync` 等 workflow 命令完成后，MUST 输出「执行链路复盘」，并至少包含「链路状态」「问题证据」「规范优化建议」。问题证据可为脚本输出、失败摘要、文件路径、校验报告、日志摘要或用户补充证据；无异常时写「无」。规范优化建议无明确证据支撑时写「无明显优化点」。
 - Command Execution Review Hook MUST 明确 follow-up 边界：发现可优化规范点时只输出建议命令或建议 capture 文案；默认未自动创建 Issue/Change。只有用户明确授权后，才可继续执行 `/req-capture`、`/bug-capture`、`/capture` 或创建新的 OpenSpec Change。
 - 每个命令 Skill MUST 保留 Command Execution Review Hook 短引用，指向 `.agents/skills/workflow-sync/SKILL.md` 中央契约，并显式包含「执行链路复盘」「链路状态」「问题证据」「规范优化建议」和「未自动创建 Issue/Change」。
 - 保留命令特定的 Must Read 与业务门禁，但不得要求默认宽泛读取整目录。
@@ -122,8 +126,11 @@ Agent 命令技能 SHOULD：
 - 对 `/req-opsx` 与 `/bug-opsx` 生成后的 OpenSpec 中文优先校验，MUST 使用当前 Change 聚焦口径：`python scripts/validate-openspec-language.py --change <change-id> --residual-report`。当前 Change 失败阻断当前链路；其他 active Change 的残留只进入全仓残留分离报告和复盘 warning，不得作为当前 REQ/BUG 链路失败结论。
 - 对 `/req-opsx` 与 `/bug-opsx` 生成的 Change trace frontmatter，MUST 固化 `execution.schema_version: 1`，并带 `started_at: null`、`completed_at: null` 和来源命令 `last_event` 初始字段；`/req-opsx` 使用 `last_event: req.opsx`，`/bug-opsx` 使用 `last_event: bug.opsx`；后续 `opsx.start` 与 `opsx.apply` 由 Workflow Sync 维护真实启动和完成事实，不得在创建阶段伪造实施时间。
 - 对 `/req-opsx` 与 `/bug-opsx` 使用 OpenSpec CLI `instructions` 生成 Change 文档时，MUST 将 CLI template 的英文脚手架标题改写为项目中文标题，例如 `Why` → `背景`、`What Changes` → `变更内容`、`Capabilities` → `能力影响`、`Impact` → `影响范围`、`Implementation` / `Testing` / `Documentation` → `实施任务` / `验证任务` / `文档同步`；不得把 HTML 注释、尖括号占位符或英文说明原样落盘。
-- 对下一步可执行命令，MUST 保留完整链路身份：REQ 链路使用完整 `REQ-xxxx-slug`，BUG 链路使用完整 `BUG-xxxx-slug`；即使命令进入 `/opsx-apply`、`/opsx-modify` 或 `/opsx-archive`，也不得把来源于 REQ/BUG 的下一步参数降级为 `<change-id>`。只有非 REQ/BUG 的纯治理 Change 才使用 `<change-id>`。
-- 对问题排查、BUG 完善、验收返修或效果不如预期，MUST 遵守 `rules/root-cause-evidence.md`：证据不足时只读取必要片段并输出人工补证操作步骤；不得为猜测根因宽泛读取整仓、历史归档或生成物；人工补证返回后再按证据链确认根因。
+- 对下一步可执行命令，MUST 保留完整链路身份：REQ 链路使用完整 `REQ-xxxx-slug`，BUG 链路使用完整 `BUG-xxxx-slug`；即使命令进入 `/opsx-apply`、`/opsx-accept`、`/opsx-modify` 或 `/opsx-archive`，也不得把来源于 REQ/BUG 的下一步参数降级为 `<change-id>`。只有非 REQ/BUG 的纯治理 Change 才使用 `<change-id>`。
+- `/opsx-accept` 读取当前 Change AC 计划、最新证据清单和需要的产品轮次摘要；不得为验收默认全量读取原始 Chat、所有历史运行包或无关 Issue。预检缺口只输出按 AC 汇总的环境、矩阵和证据路径，逐 AC 摘要列脱敏入口，不输出原始文件内容。返修后按输入指纹聚焦过期 AC，归档前只读核对就绪状态。
+- 对问题排查、测试、BUG 完善、验收返修或效果不如预期，MUST 遵守 `rules/root-cause-evidence.md`：需要运行态证据时先在任务范围内通过浏览器自主取证（优先复用 Codex 侧边浏览器，无需二次确认），仍不足时才输出人工补证操作步骤；不得为猜测根因宽泛读取整仓、历史归档或生成物。
+- 对 `/bug-explore`、`/bug-generate`、`/bug-complete`，根因未确认时 MUST 继续聚焦自主补证，不因文档生成结束；只围绕当前 BUG 的证据缺口读取和复现，证据仍不足时保留真实状态与具体阻碍。
+- 对 `/explore`、`/req-explore`，结论依赖产品运行态且材料不足时 MUST 在本轮主动浏览取证；只定位当前问题或需求的最小页面与状态，默认不落盘、不产生持久业务写入。
 - 对 `/opsx-modify` 验收返修，执行中的用户可见阶段展示为“研发中”，完成返修、验证、文档同步和 Workflow Sync 后回到“验收中 / 待复验”；该展示只属于返修投影语义，MUST 保留 Change canonical `applied` 事实和首次 apply 的 `execution.completed_at`，不得用普通 `in_progress` 覆盖已完成 apply。
 - 对 REQ 来源 `/opsx-modify`，完成前 MUST 做 REQ 子文档一致性扫尾检查：只定位当前 linked REQ 目录，按实际存在的 `requirement.md`、业务流程、用户故事、`acceptance.md`、`trace.md` 和 `prototype/**` 片段判断是否需同步；不得为了扫尾全量读取无关 REQ、历史归档或 generated 文件。
 - 对 `/spec-study` 跨项目 Harness 学习应用命令，MUST 明确先学习并输出候选内容、等待用户确认后再应用；学习对象存在 `docs/spec-logs/CHANGELOG.md` 时，MUST 优先采用“日志索引 -> 单次 study/governance 日志 -> 真实治理资产 -> 必要代码/脚本补证”的学习顺序，先理解治理演进和设计意图，再按 Learning Matrix 横向校验项目入口、`rules/`、`docs/`、Agent 目录、`scripts/`、部署与环境示例；日志只作为入口地图和历史背景，MUST NOT 替代当前资产、OpenSpec Change、Sprint 四件套或正式规格事实源；学习对象 MUST 全程只读且绝不允许被改动；应用阶段 MUST 遵守 active OpenSpec Change 与 Sprint Inclusion Gate，并禁止修改业务 `src/`；同一次学习应用流程只生成一份正式学习报告，学习报告 MUST 统一写入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，并承载本次学习触发的治理资产应用结果；不得额外生成内容重复的 `YYYYMMDDhhmmss-governance-xxx.md`，且不得包含用户隐私数据、真实客户数据、密钥、访问令牌、未脱敏日志、订单原文、聊天原文、工单原文、截图中的个人信息、学习对象源码、本机绝对路径、系统用户名或用户主目录；本地学习对象在持久化文档中 MUST 使用项目名或脱敏占位符描述。若学习成果涉及命令输出契约、Sprint 选择、发布升级或 AI Usage 语义，应用时 SHOULD 同步对应校验脚本，避免只写规则不落地门禁。

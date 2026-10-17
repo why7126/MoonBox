@@ -2,7 +2,7 @@
 purpose: 需求（REQ）生命周期、状态机、目录与评审门禁
 source: 项目团队 + AI v2 定稿
 update_method: 命令族变更时同步更新
-updated_at: 2026-09-16 22:42:16
+updated_at: 2026-10-06 00:56:35
 ---
 
 # 需求管理规范
@@ -74,7 +74,7 @@ SHOULD 在以下事件后更新对应 REQ 当前态行：`capture`、`generate`�
 |------|---------------------|------|
 | `/capture` | — | 类型未决时自动分类；REQ 部分同 `/req-capture`（见 §3.2） |
 | `/req-capture` | — | capture.md、trace 壳（可一次输入多条，按 §3.1 评估拆分） |
-| `/req-explore` | captured, exploring | 默认无文件 |
+| `/req-explore` | captured, exploring | 默认无文件；现状判断依赖产品运行态时按 `rules/root-cause-evidence.md` 第 5 节主动浏览取证 |
 | `/req-generate` | captured, exploring | requirement.md → draft |
 | `/req-complete` | draft, enriching | 六件套 → pending_review |
 | `/req-review` | pending_review | review.md → approved/rejected/deferred；无 flag 默认 approved |

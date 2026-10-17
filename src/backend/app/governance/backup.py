@@ -69,6 +69,10 @@ def create(factory,destination):
             target=destination/'database.sqlite'
             history_store=LocalBackupStore(backup_root())
             history_id=history_store.create(database)
+            # Protection is recorded before manifest publication. Orphaned protection
+            # after a failed bundle is safe; dropping a referenced snapshot is not.
+            protection_id=hashlib.sha256(str(destination).encode()).hexdigest()
+            history_store.protect(history_id, protection_id)
             shutil.copyfile(history_store.root/(history_id+'.sqlite'),target)
             target.chmod(0o600)
             for name,body in blobs.items():
@@ -78,7 +82,7 @@ def create(factory,destination):
             if before!=facts(db) or blobs!=records(private):raise ValueError('backup_inputs_changed')
             hashes={name:hashlib.sha256(body).hexdigest() for name,body in blobs.items()}
             hashes['database.sqlite']=hashlib.sha256(target.read_bytes()).hexdigest()
-            manifest=destination/'manifest.json';manifest.write_text(json.dumps({'version':1,'files':hashes,'history_backup_id':history_id}));manifest.chmod(0o600)
+            manifest=destination/'manifest.json';manifest.write_text(json.dumps({'version':1,'files':hashes,'history_backup_id':history_id,'protection_id':protection_id}));manifest.chmod(0o600)
             for path in destination.rglob('*'):
                 if path.is_file():
                     with path.open('rb') as handle:os.fsync(handle.fileno())

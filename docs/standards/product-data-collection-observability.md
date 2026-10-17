@@ -4,7 +4,7 @@ content: 行为事件、请求日志、任务链路、流程节点、脱敏、�
 source: apply-tilesfst-data-collection-governance
 update_method: 数据采集、链路观测、日志审计、Task Trace、请求封装或保留周期规则变化时同步更新
 created_at: 2026-09-12 17:20:59
-updated_at: 2026-08-27 00:27:55
+updated_at: 2026-10-07 16:55:05
 owner: MoonBox 产品团队
 ---
 
@@ -275,3 +275,9 @@ Capture沿用ChatRoute：请求层物理表为chat_request_logs；Web标记X-Cha
 product_data_collection_observability：applicable。affected_layers：API、DB、request_logs、usage_events、task_traces、Web请求封装、对象存储。validation：已覆盖显式Web事件、直接API无伪造行为、纯GET/草稿请求无Task Trace、观测到期不删业务来源；真实浏览器跨层关联仍待联调。
 
 行为事件为capture.upload、capture.organize、capture.review_save、capture.confirm、capture.retry；仅识别有效Web行为ID和链路ID。服务端可信request_id通过请求审计关联，properties不保存正文或图片。Task Trace类型为capture_organize/capture_confirmation，记录排队、运行、计划、逐文件、恢复和结果阶段；只存不透明标识与受限阶段名称，不复制用户材料。终态Trace保留90天、行为保留180天；来源快照和正式图片独立长期保存。简单读取和同步草稿保存没有异步任务，不新增Task Trace。观测写入失败只记固定错误摘要，不替换业务结果。
+
+## Chat 实现权限决策事件
+
+Chat 在既有 execution.state payload 的 permission_decision 中记录 scope、reason_code、turn_id、时间和治理输入的 SHA-256 摘要。entry_sha256 为本次读取注册表条目的规范 JSON 摘要；change_sha256/sprint_sha256 为该次读取文本摘要，不代表事后重新读取的版本。未走实现判定路径时输入摘要可能不齐，不补造。
+
+phase 区分 selected、acknowledged、unknown。selected_profile 仅表示选用配置；acknowledged_profile 表示 turn/start 请求获得执行器响应，不代表操作系统隔离已完成独立验收。实际源码写入和边界拒绝仍需运行态验证。缺少 adapter 确认时保持 unknown。profile 不匹配阻断执行；观测写入失败只输出固定 permission_observation_unavailable 警告，不记录原始异常，不扩权。事件沿用原 turn 的租约校验、source_id 去重、会话访问控制与保留清理链路；不新增数据表、公开 API 字段或 usage_events。

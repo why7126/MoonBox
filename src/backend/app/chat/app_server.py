@@ -28,7 +28,7 @@ class AppServer:
         self.home = trusted_directory(home)
         if self.codex_home == self.workspace or self.workspace in self.codex_home.parents:
             raise ExecutorError('credential_directory_inside_workspace')
-        if permission_profile is not None and not re.fullmatch(r'moonbox-(read|write|governance)', permission_profile):
+        if permission_profile is not None and not re.fullmatch(r'moonbox-(read|write|governance|archive)', permission_profile):
             raise ExecutorError('invalid_permission_profile')
         if effort not in (None,'low','medium','high'):raise ExecutorError('invalid_executor_effort')
         self.effort = effort
@@ -37,7 +37,8 @@ class AppServer:
         self.timeout = timeout; self.write = write; self.seq = 0
         self.incoming = queue.Queue(maxsize=128); self.pending = deque(); self.failure = None; self.closed = False
         self.env = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': str(self.home), 'CODEX_HOME': str(self.codex_home)}
-        version = subprocess.run(self.version_command(executable), capture_output=True, env=self.env, timeout=30)
+        version = subprocess.run(self.version_command(executable), capture_output=True, env=self.env,
+                                 timeout=self.version_timeout())
         if version.returncode or version.stdout.decode().strip() != self.VERSION:
             raise ExecutorError('unsupported_executor_version')
         self.process = subprocess.Popen([sys.executable, str(Path(__file__).with_name('process_guard.py')), *self.launch_command(executable)],
@@ -52,16 +53,21 @@ class AppServer:
     def version_command(self, executable):
         return [str(executable), '--version']
 
+    def version_timeout(self):
+        return 30
+
     def launch_command(self, executable):
         return [str(executable), 'app-server', '--stdio', '-c', 'shell_environment_policy.inherit="none"']
 
     def _normalize_write_scope(self, scope):
         if scope in ('implementation_write', 'write', True): return 'implementation_write'
         if scope in ('governance_write', 'governance'): return 'governance_write'
+        if scope in ('archive_write', 'archive'): return 'archive_write'
         return 'read_only'
 
     def permission_profile_for_scope(self, scope):
-        return {'implementation_write': 'moonbox-write', 'governance_write': 'moonbox-governance'}.get(self._normalize_write_scope(scope), 'moonbox-read')
+        return {'implementation_write': 'moonbox-write', 'governance_write': 'moonbox-governance',
+                'archive_write': 'moonbox-archive'}.get(self._normalize_write_scope(scope), 'moonbox-read')
 
     def set_write_scope(self, scope):
         self.write_scope = self._normalize_write_scope(scope)
@@ -71,14 +77,26 @@ class AppServer:
     def _read(self):
         try:
             while True:
-                line = self.process.stdout.readline(262145)
+                # Thread recovery responses include history; streamed events keep the smaller bound.
+                line = self.process.stdout.readline(4 * 1024 * 1024 + 1)
                 if not line: self.failure = 'executor_disconnected'; return
-                if len(line) > 262144: self.failure = 'executor_frame_limit'; return
+                if len(line) > 4 * 1024 * 1024: self.failure = 'executor_frame_limit'; return
                 try: value = json.loads(line)
-                except (ValueError, UnicodeDecodeError): self.failure = 'executor_invalid_frame'; return
+                except (ValueError, UnicodeDecodeError):
+                    self.failure = 'executor_frame_limit' if len(line) > 262144 else 'executor_invalid_frame'
+                    return
                 if not isinstance(value, dict): self.failure = 'executor_invalid_frame'; return
-                try: self.incoming.put(value, timeout=1)
-                except queue.Full: self.failure = 'executor_buffer_limit'; return
+                if len(line) > 262144 and not ('id' in value and ('result' in value or 'error' in value)):
+                    self.failure = 'executor_frame_limit'; return
+                # Bound memory while allowing the durable consumer to lag behind a burst.
+                while not self.closed:
+                    try:
+                        self.incoming.put(value, timeout=.2)
+                        break
+                    except queue.Full:
+                        continue
+                if self.closed:
+                    return
         except (OSError, ValueError):
             self.failure = 'executor_disconnected'
 
@@ -141,10 +159,13 @@ class AppServer:
             # Resolve read/write for every turn, so a governance downgrade cannot retain write rights.
             scope = 'read_only' if self.write_scope == 'implementation_write' and not self.write else self.write_scope
             policy = {'permissions': self.permission_profile_for_scope(scope)}
+        self.last_turn_permission_profile = None
         result = self.rpc('turn/start', {'threadId': thread_id, 'input': [{'type': 'text', 'text': prompt}],
             'cwd': str(self.workspace), 'approvalPolicy': 'never', **({'effort':self.effort} if self.effort else {}), **policy})
         turn = result.get('turn', {})
         if not isinstance(turn.get('id'), str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,96}', turn['id']): raise ExecutorError('executor_missing_turn')
+        # Acknowledged request profile, not a claim about OS enforcement.
+        self.last_turn_permission_profile = policy.get('permissions')
         return turn['id']
 
     def interrupt(self, thread_id, turn_id):

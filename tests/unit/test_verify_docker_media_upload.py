@@ -16,10 +16,10 @@ def _load_module():
 def test_resolves_web_port_from_env_file(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
     env_file = tmp_path / ".env"
-    env_file.write_text("HOST_PORT_WEB=18122\nADMIN_INITIAL_PASSWORD=secret-example\n", encoding="utf-8")
+    env_file.write_text("HOST_PORT_WEB=39022\nADMIN_INITIAL_PASSWORD=secret-example\n", encoding="utf-8")
     monkeypatch.delenv("HOST_PORT_WEB", raising=False)
 
-    assert module.web_base_url(env_file) == "http://localhost:18122"
+    assert module.web_base_url(env_file) == "http://localhost:39022"
 
 
 def test_password_hash_roundtrip_without_default_admin_dependency() -> None:
@@ -34,7 +34,7 @@ def test_password_hash_roundtrip_without_default_admin_dependency() -> None:
 def test_verification_summary_excludes_secrets_and_paths() -> None:
     summary = {
         "status": "passed",
-        "web_port": 18102,
+        "web_port": 39002,
         "test_identity": "script-prepared-front-user",
         "username_prefix": "media_probe_",
         "login": "passed",

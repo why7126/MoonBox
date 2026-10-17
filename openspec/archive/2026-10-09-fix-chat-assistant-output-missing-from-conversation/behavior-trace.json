@@ -1,0 +1,62 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#测试环境适配"
+      ],
+      "tasks": [
+        {
+          "id": "backend",
+          "state": "pending",
+          "deps": []
+        },
+        {
+          "id": "browser",
+          "state": "pending",
+          "deps": [],
+          "external": "matching browser dependencies",
+          "blocker_evidence": [
+            "verification.md#未完成的必要验证"
+          ]
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#未完成的必要验证"
+      ],
+      "tasks": [
+        {
+          "id": "implementation",
+          "state": "done",
+          "deps": []
+        },
+        {
+          "id": "browser",
+          "state": "pending",
+          "deps": [
+            "implementation"
+          ],
+          "external": "matching browser dependencies",
+          "blocker_evidence": [
+            "verification.md#未完成的必要验证"
+          ]
+        },
+        {
+          "id": "completion",
+          "state": "pending",
+          "deps": [
+            "browser"
+          ]
+        }
+      ],
+      "gates_passed": false,
+      "action": "wait"
+    }
+  ]
+}

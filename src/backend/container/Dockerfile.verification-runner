@@ -1,0 +1,16 @@
+# Build one immutable runner per project Playwright version, then address it by digest.
+ARG PLAYWRIGHT_BASE=mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
+FROM ${PLAYWRIGHT_BASE}
+ARG PLAYWRIGHT_VERSION=1.62.1
+ARG PNPM_VERSION=11.2.2
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npm install --prefix /opt/moonbox-verification --no-audit --no-fund --ignore-scripts "playwright@${PLAYWRIGHT_VERSION}" && \
+    npm install --global --no-audit --no-fund "pnpm@${PNPM_VERSION}"
+COPY container/verification_probe.cjs /opt/moonbox-verification/probe.cjs
+COPY container/verification_acceptance.cjs /opt/moonbox-verification/acceptance.cjs
+# The build fails if browser executables or their shared libraries cannot start.
+RUN node /opt/moonbox-verification/probe.cjs
+RUN groupadd -g 10001 verifier && useradd -m -u 10001 -g 10001 verifier && mkdir -p /work /evidence && chown verifier:verifier /evidence
+USER 10001:10001
+WORKDIR /work
+CMD ["node", "/opt/moonbox-verification/probe.cjs"]

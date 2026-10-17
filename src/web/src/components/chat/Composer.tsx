@@ -6,9 +6,9 @@ import { agentDisplayName, modelDisplayName, reasoningDisplayName } from "./exec
 
 /** 内存草稿同时保留不确定请求的标识，切换历史后重试仍复用原请求。 */
 type MaterialDraft = { id: string; ref_id?: string; kind: "image" | "file"; name: string; mime_type: string; size_bytes: number; status: "uploading" | "done" | "failed"; error?: string };
-export type DraftState = { text: string; repository?: string; branch?: string; creationId?: string; conversation?: ConversationRead; images?: MaterialDraft[]; skills?: SkillCandidate[]; executionConfig?: ExecutionConfig; request?: { prompt: string; id: string; signature: string } };
+export type DraftState = { text: string; hiddenPrompt?: string; repository?: string; branch?: string; creationId?: string; conversation?: ConversationRead; images?: MaterialDraft[]; skills?: SkillCandidate[]; executionConfig?: ExecutionConfig; request?: { prompt: string; id: string; signature: string } };
 
-const fallbackExecution: ExecutionConfig = { agent: "codex", model: "gpt-6-astra", reasoning: "high" };
+const fallbackExecution: ExecutionConfig = { agent: "codex", model: "gpt-6-astra", reasoning: "low" };
 const emptyOptions: ExecutionOption[] = [];
 function executionDefaults(capabilities: Capabilities | null): ExecutionConfig {
   return capabilities?.execution?.defaults || fallbackExecution;
@@ -30,7 +30,9 @@ function skillSearchText(item: SkillCandidate) {
 }
 function writeScopeLabel(conversation: ConversationRead | null) {
   if (!conversation) return "";
+  if (conversation.write_reason_code === "analysis_object_read_only") return "只读分析";
   if (conversation.write_scope === "implementation_write") return "实现可写";
+  if (conversation.write_scope === "archive_write") return "归档可写";
   if (conversation.write_scope === "governance_write") return "治理可写";
   return "完全只读";
 }
@@ -43,9 +45,11 @@ function writeScopeReason(conversation: ConversationRead | null) {
     governance_candidate_invalid: "治理候选对象已失效，无法写入。",
     governance_candidate_running: "治理候选对象生成中，仅允许受控治理写入。",
     governance_facts_invalid: "主对象治理事实读取失败，无法确认可写范围。",
+    analysis_object_read_only: "采集或探索阶段的分析会话不能写入治理文件；生成与归档须走独立受控动作。",
     governance_object_read_only: "主对象已归档、关闭或完成，无法继续写入。",
     governance_object_writable: "当前主对象允许治理文档写入；产品实现文件仍受 Sprint 和 Change 门禁限制。",
     implementation_change_in_sprint: "当前主对象已纳入 Sprint 与活动 Change，允许实现写入。",
+    archive_change_applied: "当前主对象关联的 Change 已完成实现，允许执行归档写入。",
     primary_object_required: "请先在管理关联中设置主对象；保存后刷新为下一轮可用的写权限。",
     space_forbidden: "当前账号无权访问该空间。",
   };
@@ -111,8 +115,11 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
   function logMaterialEvent(event_name: "chat.image_add" | "chat.image_remove" | "chat.file_add" | "chat.file_remove" | "chat.skill_select" | "chat.skill_remove", nextMaterials = materials, nextSkills = skills) {
     void chatRequest("/behavior-events", { method: "POST", body: JSON.stringify({ event_name, ...counts(nextMaterials, nextSkills) }) }).catch(() => {});
   }
+  function effectivePrompt() {
+    return draft;
+  }
   function requestSignature() {
-    return JSON.stringify({ prompt: draft, attachments: readyMaterials.map(({ ref_id, kind, name, mime_type, size_bytes }) => ({ ref_id, kind, name, mime_type, size_bytes })), skills: skills.map(({ id, digest }) => ({ id, digest })), execution_config: executionConfig });
+    return JSON.stringify({ prompt: effectivePrompt(), attachments: readyMaterials.map(({ ref_id, kind, name, mime_type, size_bytes }) => ({ ref_id, kind, name, mime_type, size_bytes })), skills: skills.map(({ id, digest }) => ({ id, digest })), execution_config: executionConfig });
   }
   function setMaterialDraft(next: MaterialDraft[]) { setMaterials(next); remember(next, skills); }
   function setSkillDraft(next: SkillCandidate[]) { setSkills(next); remember(materials, next); }
@@ -222,7 +229,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
   async function send() {
     if (pending.current || disabled || hasUploading || !hasContent) return;
     const signature = requestSignature();
-    if (!attempt.request || attempt.request.signature !== signature) attempt.request = { prompt: draft, id: crypto.randomUUID(), signature };
+    if (!attempt.request || attempt.request.signature !== signature) attempt.request = { prompt: effectivePrompt(), id: crypto.randomUUID(), signature };
     pending.current = true; setBusy(true); onBusyChange?.(true); setError("");
     try {
       let target = conversation || attempt.conversation;
@@ -235,7 +242,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
         attachments: readyMaterials.map(item => ({ ref_id: item.ref_id, kind: item.kind, name: item.name, mime_type: item.mime_type, size_bytes: item.size_bytes })),
         skills: skills.map(item => ({ id: item.id, name: item.name, summary: item.summary, source: item.source, digest: item.digest })),
         execution_config: executionConfig }) });
-      attempt.text = ""; attempt.request = undefined; attempt.creationId = undefined; attempt.conversation = undefined; attempt.images = []; attempt.skills = []; attempt.executionConfig = executionConfig;
+      attempt.text = ""; attempt.hiddenPrompt = undefined; attempt.request = undefined; attempt.creationId = undefined; attempt.conversation = undefined; attempt.images = []; attempt.skills = []; attempt.executionConfig = executionConfig;
       setDraft(""); setMaterials([]); setSkills([]); onDraft("");
       if (!conversation) onCreated?.({ ...target, active_turn_id: turn.id });
       onSubmitted();
@@ -247,6 +254,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
     setSkillDraft(next);
     setDraft(current => {
       const updated = current.replace(/\/[A-Za-z0-9_-]*$/, "").trimStart();
+      attempt.hiddenPrompt = undefined;
       attempt.text = updated; onDraft(updated);
       return updated;
     });
@@ -257,6 +265,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
   }
   function onPromptChange(value: string) {
     const nextValue = value.slice(0, 32000);
+    attempt.hiddenPrompt = undefined;
     setDraft(nextValue); attempt.text = nextValue; onDraft(nextValue);
     const match = nextValue.match(/\/([A-Za-z0-9_-]*)$/);
     if (match) void openSkillMenu({ forceOpen: true, query: match[1], trigger: "slash" });

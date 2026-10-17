@@ -45,7 +45,17 @@ MoonBox MUST 提供 `/spec-study` 技能，用于学习其他项目的 Harness �
 - **AND** Agent MUST NOT 只依赖最终回复、治理日志、tasks 全勾或 Workflow Sync 成功作为交付验证来源
 
 ### Requirement: 原型驱动 UI 开发门禁
+
 系统 SHALL 对带 `prototype/` 的 UI 页面建立从需求完善、OpenSpec 转换、实现、返修到归档的连续门禁，确保原型拆解、UI Contract、UI Skeleton 首轮确认、1440px 与关键交互视觉验收、computed style 验收、Mock/API 边界声明、图标文案一致性检查和 REQ 文档最终一致性检查均被记录并通过。
+
+#### Scenario: req-opsx 承接动作按钮矩阵
+
+- **GIVEN** 一个带 prototype 的 REQ 已进入 `/req-opsx`
+- **AND** prototype 或 context 中包含动作按钮、弹窗、抽屉、Action Modal、AI 面板或归档确认
+- **WHEN** 系统生成 active Change
+- **THEN** Change `design.md` SHALL 包含动作按钮到 modal 类型、selector、状态和验收证据的矩阵
+- **AND** Change `tasks.md` SHALL 包含先完成 UI Contract、UI Skeleton、selector 映射、computed style 采样和 1440px 首轮确认的任务
+- **AND** Change `trace.md` SHALL 记录 prototype 来源、冲突处理、Skeleton 状态、Mock/API 边界、视觉证据、computed style 和 REQ 最终一致性状态
 
 #### Scenario: 需求完善拆解 prototype
 - **GIVEN** 一个 UI REQ 存在 `prototype/web/` 或等价页面原型目录
@@ -129,6 +139,30 @@ MoonBox MUST 在命令完成输出中保留下一步可执行命令的链路身�
 ### Requirement: 命令执行顺序治理
 
 MoonBox MUST 维护 AI 工作流命令的推荐执行顺序，并在技能输出中给出符合链路身份的下一步命令。REQ 来源链路的后续实现和归档命令 MUST 使用原始 `REQ-*`，BUG 来源链路 MUST 使用原始 `BUG-*`，无 REQ/BUG 来源的纯治理 Change 才使用 `<change-id>`。
+
+#### Scenario: req-opsx 固化 execution schema
+
+- **WHEN** 系统通过 `/req-opsx <REQ-full-id>` 创建 OpenSpec Change
+- **THEN** Change `trace.md` frontmatter MUST 写入 `execution.schema_version: 1`
+- **AND** `execution.started_at` 和 `execution.completed_at` MUST 为 `null`
+- **AND** `execution.last_event` MUST 为 `req.opsx`
+- **AND** 系统不得在创建 Change 时伪造开发启动或完成时间
+
+#### Scenario: req-opsx 回填同一 Sprint
+
+- **GIVEN** REQ 已通过 `/sprint-propose` 纳入某个 `sprint-xxx`
+- **WHEN** `/req-opsx` 创建或确认 Change
+- **THEN** Workflow Sync MUST 将该 Change 回填到同一 Sprint 的 `changes[]` 和对应 `scope_estimates[].change`
+- **AND** 后续 `/opsx-apply`、`/opsx-modify` 和 `/opsx-archive` 输出与执行入口仍 MUST 使用完整 REQ ID
+
+#### Scenario: writer 应用必须以 Workflow Sync 闭环
+
+- **WHEN** 后端治理 writer 应用 REQ 或 BUG 来源的 generate、complete 或 review 类候选成果
+- **THEN** writer MUST 在标记 application 为 `applied` 前执行对应 Workflow Sync 事件
+- **AND** Workflow Sync 成功后 MUST 重读治理事实源并记录同步后的事实源摘要
+- **AND** Workflow Sync 失败、事实源版本变化或外部修改冲突时 MUST 保持待恢复或冲突状态
+- **AND** candidate 不得被标记为 `applied`
+- **AND** 需求中心卡片不得刷新为完成态
 
 #### Scenario: 推荐标准执行顺序
 
@@ -631,4 +665,18 @@ Workflow Sync MUST 在 `sprint.propose` 聚焦 REQ 或 BUG 成功同步时，将
 - **WHEN** Workflow Sync 执行 `--event sprint.propose --req <REQ-full-id>`
 - **THEN** 系统 MUST 将该 REQ 的 `requirement.md` Frontmatter `status` 同步为 `in_sprint`
 - **AND** 系统 MUST 保持未聚焦 REQ 的主文档状态不被本次同步改写
+
+### Requirement: 产品运行态证据的浏览器选择
+
+Agent 需要产品运行态证据时，MUST 优先检查并复用 Codex 侧边浏览器中与当前任务相关的目标产品标签页；若不可用或不能取得本次所需证据，MUST 尝试其他已提供的浏览器或等价自动化工具，Firefox 可作为后备。Agent MUST 区分旧页面展示与当前服务连通性，并记录实际浏览器、环境、视口、操作及脱敏结果。
+
+#### Scenario: 侧边浏览器可满足取证
+
+- **WHEN** Codex 侧边浏览器可访问目标产品并取得所需证据
+- **THEN** Agent 使用该入口完成取证，不占用用户 Firefox 会话
+
+#### Scenario: 侧边浏览器无法满足取证
+
+- **WHEN** 侧边浏览器不可用或缺少所需证据能力
+- **THEN** Agent 尝试其他可用入口，并记录失败与替代路径
 

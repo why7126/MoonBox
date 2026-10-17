@@ -17,11 +17,12 @@ def mapping():
     source=Path(os.environ.get('MOONBOX_CHAT_SOURCE_ROOT',''))
     if not root.is_absolute() or not source.is_absolute(): raise ValueError('需配置绝对路径的仓库和私有数据目录')
     return {'id':repository,'space_id':space,'source_root':str(source),'workspace_root':str(root/'workspaces'),
-            'governance_root':'/app/governance'}
+            'governance_root':'/app/governance','workspace_mode':'source'}
 
 
 def check():
-    from app.chat.settings import execution_limits, retention_limits
+    from app.chat.settings import execution_limits, retention_limits, local_snapshot_limit
+    local_snapshot_limit()
     if os.getuid()==0: raise ValueError('执行控制器需要非root部署用户')
     row=mapping();source=trusted_directory(row['source_root'])
     git(source,'rev-parse','--verify','HEAD')
@@ -30,7 +31,7 @@ def check():
         if part.is_symlink(): raise ValueError('私有数据目录不能包含符号链接')
     if source==root or root in source.parents: raise ValueError('源仓库不能位于执行数据目录内')
     if source in root.parents:
-        git(source,'check-ignore','-q',str(root/'workspaces'))
+        raise ValueError('执行数据目录不能位于源仓库内')
     auth=Path(os.environ['MOONBOX_CHAT_AUTH_SOURCE'])
     info=auth.lstat()
     if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.getuid(): raise ValueError('本机Codex认证文件不可用')
@@ -45,6 +46,13 @@ def prepare():
     for name in ('state','runtime','backups','workspaces'):
         path=root/name;path.mkdir(mode=0o700,exist_ok=True);trusted_directory(path)
         if path.stat().st_mode & 0o077: raise ValueError('私有子目录需要0700权限')
+    verification=root/'verification'
+    verification.mkdir(mode=0o700,exist_ok=True)
+    trusted_directory(verification)
+    if verification.stat().st_mode & 0o077: raise ValueError('验证私有目录需要0700权限')
+    for name in ('state','workspaces','artifacts','evidence'):
+        path=verification/name;path.mkdir(mode=0o700,exist_ok=True);trusted_directory(path)
+        if path.stat().st_mode & 0o077: raise ValueError('验证私有子目录需要0700权限')
     from app.chat.backup import LocalBackupStore
     backup=root/'backups'
     LocalBackupStore(backup,initialize=not (backup/'deletions.sqlite').exists())

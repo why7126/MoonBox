@@ -1,0 +1,29 @@
+{
+  "mode": "real-components-synthetic-api",
+  "network": [
+    {
+      "endpoint": "/api/v1/chat/turns/turn",
+      "id": "turn",
+      "status": "failed",
+      "error_code": "workspace_unapplied_changes"
+    },
+    {
+      "endpoint": "/api/v1/chat/turns/turn",
+      "id": "turn",
+      "status": "failed",
+      "error_code": "workspace_unapplied_changes"
+    }
+  ],
+  "evidence": [
+    {
+      "text": "执行前阻断工作区有尚未应用的成果，已保留，不能覆盖。请先核对上一轮成果再重试。",
+      "width": 1126,
+      "display": "flex"
+    },
+    {
+      "text": "执行前阻断工作区有尚未应用的成果，已保留，不能覆盖。请先核对上一轮成果再重试。",
+      "width": 1126,
+      "display": "flex"
+    }
+  ]
+}

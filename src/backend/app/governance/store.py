@@ -24,7 +24,7 @@ def identifier(value):
 
 
 def write(record_id, name, value):
-    if name not in ('baseline','result','operation'): raise ValueError('record_name')
+    if name not in ('baseline','result','operation','recovery-origin'): raise ValueError('record_name')
     base=root()/identifier(record_id)
     base.mkdir(mode=0o700,exist_ok=True);trusted_directory(base)
     fd=os.open(base,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
@@ -55,7 +55,7 @@ def write(record_id, name, value):
 
 
 def read(record_id,name):
-    if name not in ('baseline','result','operation'): raise ValueError('record_name')
+    if name not in ('baseline','result','operation','recovery-origin'): raise ValueError('record_name')
     base=trusted_directory(root()/identifier(record_id))
     fd=os.open(base,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     try:

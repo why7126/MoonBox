@@ -2,7 +2,7 @@
 purpose: 对象存储策略
 content: MoonBox 文档和图片资产存储策略
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-08-07 22:52:00
+updated_at: 2026-10-08 15:19:34
 owner: MoonBox 产品团队
 ---
 
@@ -65,7 +65,7 @@ tmp/uploads/{uuid}.part
 - 对象 Key 由服务端生成，格式为 `images/avatars/{uuid}.{ext}`，不使用用户原始文件名。
 - 读取必须通过后台授权接口代理，前端不得直连 MinIO 私有对象。
 - 上传成功后同一会话立即回显。
-- Docker 本地验收必须解析实际 `HOST_PORT_WEB`，默认使用 `18102` Web 同源入口完成上传、读取和回显；不得硬编码 `:3000`。
+- Docker 本地验收必须解析实际 `HOST_PORT_WEB`，默认使用 `39002` Web 同源入口完成上传、读取和回显；不得硬编码 `:3000`。
 - Docker 本地验收必须由脚本准备一次性测试用户、测试会话或可回收 fixture，不得依赖 `data/runtime/backend` 持久库中的管理员密码等于 `ADMIN_INITIAL_PASSWORD`。
 
 ## Chat 图片与文件上下文上传

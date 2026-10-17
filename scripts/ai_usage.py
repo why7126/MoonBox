@@ -52,6 +52,7 @@ SPRINT_MATRIX_COMMAND_COLUMNS = (
     ("opsx.propose", "Opsx-Propose"),
     ("opsx.apply", "Opsx-Apply"),
     ("opsx.modify", "Opsx-Modify"),
+    ("opsx.accept", "Opsx-Accept"),
     ("opsx.archive", "Opsx-Archive"),
     ("sprint.propose", "Sprint-Propose"),
     ("sprint.explore", "Sprint-Explore"),
@@ -1427,7 +1428,11 @@ def workflow_search_terms(
 def discover_session_jsonl(search_terms: list[str]) -> Path | None:
     if not search_terms:
         return None
-    root = Path(os.environ.get("AI_USAGE_SESSIONS_DIR") or Path.home() / ".codex" / "sessions")
+    configured_root = os.environ.get("AI_USAGE_SESSIONS_DIR")
+    try:
+        root = Path(configured_root) if configured_root else Path.home() / ".codex" / "sessions"
+    except (RuntimeError, OSError):
+        return None
     if not root.exists():
         return None
     try:

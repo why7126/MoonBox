@@ -9,17 +9,26 @@ import uuid
 from app.chat.app_server import AppServer, ExecutorError
 from app.chat.workspace import trusted_directory
 
+TOOL_PATH = '/usr/local/bin:/usr/bin:/bin'
+
 
 def write_profiles(runtime):
     runtime = trusted_directory(runtime)
     config = 'model_reasoning_effort="low"\ncli_auth_credentials_store="file"\nweb_search="disabled"\n[features]\napps=false\nmulti_agent=false\n[analytics]\nenabled=false\n'
+    # Tool caches must never use the private credential HOME of app-server.
+    config += '\n[shell_environment_policy.set]\nHOME="/tmp"\nXDG_CONFIG_HOME="/tmp/config"\nXDG_CACHE_HOME="/tmp/cache"\nOPENSPEC_TELEMETRY="0"\nDO_NOT_TRACK="1"\nPATH="' + TOOL_PATH + '"\n'
+    config += 'MOONBOX_CHAT_TOOL_SANDBOX="1"\n'
     profiles = {
         'read': {'/':'read','/runtime':'deny','/proc':'deny','/work':'read','/work/.git':'read'},
         'write': {'/':'read','/runtime':'deny','/proc':'deny','/work':'write','/work/.git':'read'},
         'governance': {'/':'read','/runtime':'deny','/proc':'deny','/work':'read',
             '/work/issues':'write','/work/openspec/changes':'write','/work/iterations':'write','/work/docs/spec-logs':'write','/work/.git':'read'},
+        'archive': {'/':'read','/runtime':'deny','/proc':'deny','/work':'read',
+            '/work/issues':'write','/work/openspec/changes':'write','/work/openspec/specs':'write',
+            '/work/openspec/archive':'write','/work/iterations':'write','/work/docs/spec-logs':'write','/work/.git':'read'},
     }
     for mode, paths in profiles.items():
+        paths['/tmp'] = 'write'
         config += f'\n[permissions.moonbox-{mode}.filesystem]\n'
         for path, access in paths.items():
             config += json.dumps(path) + '=' + json.dumps(access) + '\n'
@@ -31,7 +40,7 @@ def write_profiles(runtime):
 class ContainerAppServer(AppServer):
     IMAGE = 'moonbox-chat-executor:0.153.4-test'
 
-    def __init__(self, workspace, runtime, *, write=True, timeout=30, write_scope=None):
+    def __init__(self, workspace, runtime, *, write=True, timeout=180, write_scope=None):
         self.docker = shutil.which('docker')
         if not self.docker:raise ExecutorError('container_runtime_unavailable')
         if os.getuid()==0:raise ExecutorError('nonroot_controller_required')
@@ -59,6 +68,10 @@ class ContainerAppServer(AppServer):
 
     def version_command(self, executable):
         return [self.docker,'run','--rm','--network','none','--read-only',self.IMAGE,'codex','--version']
+
+    def version_timeout(self):
+        # A cold Docker start can exceed the local CLI's 30-second limit.
+        return 180
 
     def launch_command(self, executable):
         return [self.docker,'run','--rm','--init','--interactive','--name',self.container_name,
@@ -98,6 +111,10 @@ try:
 except OSError:checks['git_readonly']=True
 with tempfile.TemporaryFile(dir='.') as file:file.write(b'own')
 checks['own_write']=True
+with tempfile.TemporaryFile() as file:
+ import fcntl
+ file.write(b'lock');fcntl.flock(file,fcntl.LOCK_EX|fcntl.LOCK_NB)
+ checks['temporary_lock_write']=True
 s=None
 try:s=socket.socket();s.settimeout(1);s.connect(('1.1.1.1',443));checks['tool_network_denied']=False
 except OSError:checks['tool_network_denied']=True
@@ -131,6 +148,7 @@ def persistent_container_server(workspace, runtime_root, auth_source):
             auth.chmod(0o600);file.write('{"OPENAI_API_KEY":"synthetic-invalid-key"}')
     try:
         with ContainerAppServer(workspace,runtime) as server:
+            verify_toolchain(server)
             result=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-write','-C','/work','/usr/local/bin/python','-c',SANDBOX_CHECK],capture_output=True,text=True,timeout=30)
             try:checks=json.loads(result.stdout)
             except ValueError:checks={}
@@ -139,6 +157,9 @@ def persistent_container_server(workspace, runtime_root, auth_source):
             readonly=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-read','-C','/work','/usr/local/bin/python','-c',READONLY_CHECK],capture_output=True,text=True,timeout=30)
             if readonly.returncode or readonly.stdout.strip()!='readonly-denied':
                 raise ExecutorError('container_readonly_preflight_failed')
+            governance=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-governance','-C','/work','/usr/local/bin/python','-c',"import tempfile,fcntl; f=tempfile.TemporaryFile(); f.write(b'lock'); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB); print('governance-lock-ready')"],capture_output=True,text=True,timeout=30)
+            if governance.returncode or governance.stdout.strip()!='governance-lock-ready':
+                raise ExecutorError('container_governance_lock_unavailable')
     finally:
         if synthetic:auth.unlink(missing_ok=True)
     if synthetic or os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex':
@@ -153,3 +174,23 @@ def persistent_container_server(workspace, runtime_root, auth_source):
             stage.replace(auth)
         finally: stage.unlink(missing_ok=True)
     return ContainerAppServer(workspace,runtime)
+
+
+def verify_toolchain(server):
+    try:
+        result = subprocess.run([server.docker, 'exec', server.container_name,
+            'codex', 'sandbox', '-P', 'moonbox-read', '-C', '/work',
+            '/usr/bin/env', '-i', f'PATH={TOOL_PATH}', 'HOME=/tmp',
+            'XDG_CONFIG_HOME=/tmp/config', 'XDG_CACHE_HOME=/tmp/cache',
+            'OPENSPEC_TELEMETRY=0', 'DO_NOT_TRACK=1',
+            '/usr/local/bin/python', '/app/container/check_toolchain.py'],
+            capture_output=True, text=True, timeout=180)
+        report = json.loads(result.stdout)
+        if result.returncode or report != {'ready': True, 'unavailable': []}:
+            allowed = {'python','git','bash','rg','node','npm','pnpm','openspec','uv','curl','jq','patch','unzip','zip'}
+            missing = report.get('unavailable', []) if isinstance(report, dict) else []
+            tools = sorted(set(missing) & allowed) if isinstance(missing, list) and all(isinstance(value, str) for value in missing) else []
+            print(json.dumps({'event': 'chat.toolchain_preflight_failed', 'tools': tools}), flush=True)
+            raise ExecutorError('container_toolchain_unavailable')
+    except (ValueError, OSError, subprocess.TimeoutExpired) as error:
+        raise ExecutorError('container_toolchain_unavailable') from error

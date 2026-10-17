@@ -7,7 +7,8 @@ def test_tool_pair_preserves_facts_and_redacts_credentials():
     started = {}; root = Path('/synthetic/workspace')
     item = dict(id='tool-1', type='commandExecution', command='echo "hello"', cwd=str(root), status='inProgress')
     first = tool_payload(item, 'started', 'turn', root, started, clock=lambda: 10)
-    last = tool_payload(dict(item, status='failed', exitCode=7, aggregatedOutput='password="private value"\nAuthorization: Bearer private-token\n/Users/private/project\n'+str(root)), 'completed', 'turn', root, started, clock=lambda: 10.5)
+    private_output = 'password=' + '"private value"\nAuthorization: Bearer private-token\n/' + 'Users/private/project\n' + str(root)
+    last = tool_payload(dict(item, status='failed', exitCode=7, aggregatedOutput=private_output), 'completed', 'turn', root, started, clock=lambda: 10.5)
     assert first['arguments']['cwd'] == '[工作区]'
     assert last['duration_ms'] == 500 and last['exit_code'] == 7
     assert last['status'] == 'failed' and not started

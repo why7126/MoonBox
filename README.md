@@ -2,7 +2,7 @@
 purpose: 项目入口说明
 content: MoonBox 产品简介、快速启动、目录导航、常用命令和文档入口
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-13 23:43:10
+updated_at: 2026-10-12 15:27:04
 owner: MoonBox 产品团队
 ---
 
@@ -39,7 +39,7 @@ bash scripts/docker-up.sh
 ```
 
 Chat 真实执行的受控测试可使用 `bash scripts/docker-up.sh self-storage-sqlite --chat-test`，
-独立入口为 `http://localhost:18121/chat`。需要本地 Codex 登录、Python 3.12+ 后端依赖和 Linux Docker 引擎。
+独立入口为 `http://localhost:39021/chat`。需要本地 Codex 登录、Python 3.12+ 后端依赖和 Linux Docker 引擎。
 测试账号、数据库与仓库独立，停止会删除测试数据；完整操作见 [部署说明](docs/02-deployment.md#日常脚本与-chat-受控测试)。
 
 部署矩阵与产品手册预览：
@@ -81,7 +81,7 @@ bash scripts/run-tests.sh
 
 ## 常用命令
 
-开放问题、想法或方案讨论先用 `/explore` 只读探索；需求从 `/capture` 或 `/req-capture` 进入；缺陷从 `/bug-capture` 进入；已评审事项通过 `/req-opsx` 或 `/bug-opsx` 转为 OpenSpec Change；实现通过 `/sprint-apply` 或 `/opsx-apply` 执行，并在完成后同步工作流状态。规范、技能、命令和治理脚本优化使用 `/spec-opt`；跨项目 Harness 学习和确认后应用使用 `/spec-study`。
+开放问题、想法或方案讨论先用 `/explore` 只读探索；需求从 `/capture` 或 `/req-capture` 进入；缺陷从 `/bug-capture` 进入；已评审事项通过 `/req-opsx` 或 `/bug-opsx` 转为 OpenSpec Change；实现通过 `/sprint-apply` 或 `/opsx-apply` 执行，随后由 `/opsx-accept` 自动形成逐项验收证据与归档就绪结论，并同步工作流状态。规范、技能、命令和治理脚本优化使用 `/spec-opt`；跨项目 Harness 学习和确认后应用使用 `/spec-study`。
 
 关键未决策事项集中在 `docs/pending-decisions.md`。
 

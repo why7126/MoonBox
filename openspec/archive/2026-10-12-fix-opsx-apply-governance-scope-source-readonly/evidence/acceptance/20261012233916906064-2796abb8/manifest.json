@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-opsx-apply-governance-scope-source-readonly",
+  "run_id": "20261012233916906064-2796abb8",
+  "created_at": "2026-10-12 23:39:32",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-moonbox-original-deployment-pending-verification",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "19089b402860af60606b4b2980ba7c2cb11676c968786c5fb796e83559a81f52",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 4518,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "d202cd4a193f728cb2956434299fec549645ae6678ecbee1c47ff7e4a41040c1",
+      "reused": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "conversation_id": "b8502b21-3cec-58b6-9698-9736f848af5e",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 46,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "sha256": "06e8d0c4be3896bc1d273ab747900fb007d26bc67c7a5ea1e6928c2a9ea34a75"
+        }
+      ],
+      "duration_ms": 20,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "13d6cd034a650812a829dda197bb668e7616d51f1945f51f5d616b9ba8d9926c",
+      "reused": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "9a67d449-acff-4f0e-9c07-4fa55ce4a8b8",
+      "conversation_id": "356e9802-f15c-55c9-8c9a-a18a56aa0229",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 32,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md",
+          "sha256": "83006f75e7b382d926d1ccebd8ebef10f075532ff68df66e03e73611499e71b5"
+        }
+      ],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "a5e9c6c0965e2ef8a572412a8369f3954ad0d88c069aeaafb353df9830068481",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2602,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "3dc31448b61f39d9759936afc7e661b08ee015d9763d60e28e4d256be0113466",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2176,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "bedd93dca4e72a6bbf4502de4d01d03a16e3c8d49a1a0b1d4fb9b062a04fdf87",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1788,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "1373603338b4118272fc60c66f0ef5820219a0ba25e81c9812e993a5f9055aa3",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/req-revocation-turns-20261012.md",
+          "sha256": "83006f75e7b382d926d1ccebd8ebef10f075532ff68df66e03e73611499e71b5"
+        }
+      ],
+      "duration_ms": 421,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "bff1b26f0489e7c297e5e00b915ee2eb9ef90598312430b89cc5ed55b17558b9",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/verification.md",
+          "sha256": "bcada129732d57b23aac9a293709ee74fede0fa3592815f34361c67ae1eb18eb"
+        }
+      ],
+      "duration_ms": 1946,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "9bab23a57c35ec0e6765d6a20d8484409b795cdf9b0e5b45b849016a281d19fe",
+      "reused": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "conversation_id": "b8502b21-3cec-58b6-9698-9736f848af5e",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 46,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "sha256": "06e8d0c4be3896bc1d273ab747900fb007d26bc67c7a5ea1e6928c2a9ea34a75"
+        }
+      ],
+      "duration_ms": 5,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "8890b1235bcc00c45716178228b80ae91222ea77c50826a2b309cf9dcce0e1b1",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1492,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "b282d389b18388d7db2dfecb9092051fd2225b6d00c12cdacdec8e52f79f6809",
+      "reused": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "9b89c57a-541f-4483-9e78-517b5360ef59",
+      "conversation_id": "b8502b21-3cec-58b6-9698-9736f848af5e",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 46,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-opsx-apply-governance-scope-source-readonly/evidence/acceptance/original-deployment-turn-20261012.md",
+          "sha256": "06e8d0c4be3896bc1d273ab747900fb007d26bc67c7a5ea1e6928c2a9ea34a75"
+        }
+      ],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    }
+  ]
+}

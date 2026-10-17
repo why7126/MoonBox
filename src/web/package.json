@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "assert:runtime-bundle": "node scripts/assert-runtime-bundle.mjs",
     "test": "vitest run",
     "sync:tokens": "node scripts/sync-tokens.mjs"
   },

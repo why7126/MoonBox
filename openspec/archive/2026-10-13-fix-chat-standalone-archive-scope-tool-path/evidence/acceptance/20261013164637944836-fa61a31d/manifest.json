@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-standalone-archive-scope-tool-path",
+  "run_id": "20261013164637944836-fa61a31d",
+  "created_at": "2026-10-13 16:47:00",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "local-isolated-product",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "a224901f02b0570196033ce375ac1036480b0ad9d05b4e362d1d84a6569adb10",
+      "reused": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 22073,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "31d7d9a1d036b40d9f31b03408e1b931e090a59e0984fb7cee46ae0a4a403a69",
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "cd31a0b385cef6203e961ef45d1037f4edfd94ebe77a5163573dea82b0106190",
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "d58a408a24277fa814686e0ca78d6efccb44e7ea9ada52ff36d6a1e53725e3dc",
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "not-selected",
+      "fingerprint": "a78c4c018406da9b820438c22b824dec725375d198627bcaf91c4cb55b66260a",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    }
+  ]
+}

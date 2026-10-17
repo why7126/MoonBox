@@ -1,0 +1,125 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "evidence_kind": "observed-product-turns-and-read-only-file-facts",
+  "rounds": [
+    {
+      "action": "req-generate",
+      "object_id": "REQ-9205-ac011-before-write",
+      "turn_id": "51b9914b-323f-436d-aa83-db85487386d1",
+      "window": "executor-running-before-business-file",
+      "injection": "isolated-worker-SIGKILL",
+      "after_restart": {
+        "turn": "stopped",
+        "candidate": "rejected",
+        "application_count": 0,
+        "requirement_exists": false,
+        "full_governance_equals_baseline": true,
+        "revision": "7054f2f5c4920d1e3bc9ace7e5c95638b6c8878a039e2bb83bbc87fc5c7b2479"
+      }
+    },
+    {
+      "action": "req-generate",
+      "object_id": "REQ-9206-ac011-before-sync",
+      "turn_id": "16bffada-66c2-4fe5-aa7d-26ff1d4491d6",
+      "window": "successful-non-dry-run-sync-before-chat-terminal",
+      "injection": "isolated-worker-SIGKILL",
+      "before_restart": {
+        "requirement_bytes": 4423,
+        "trace": "draft",
+        "registry": "draft",
+        "successful_sync_tool_count": 4,
+        "turn": "running"
+      },
+      "after_restart": {
+        "turn": "completed",
+        "candidate": "applied",
+        "application_count": 1,
+        "application_phase": "verified",
+        "registry": "draft",
+        "repeat_observation_stable": true
+      },
+      "limit": "The model invoked Sync multiple times before interruption; this proves one recovered application, not per-invocation Sync deduplication."
+    },
+    {
+      "action": "req-complete",
+      "object_id": "REQ-9206-ac011-before-sync",
+      "turn_id": "d5b21911-c331-45e2-89f8-398823700623",
+      "window": "multiple-business-files-written-before-terminal",
+      "injection": "isolated-worker-SIGKILL",
+      "before_restart": {
+        "changed_governance_file_count": 6,
+        "user_stories_bytes": 1332,
+        "user_stories_sha256": "2dbf3e94504097251dc5b164af1d7660a26cb4b23613b7ce4977d7c143e22017"
+      },
+      "after_restart": {
+        "turn": "stopped",
+        "new_business_files_exist": false,
+        "pending_review": false,
+        "full_governance_equals_baseline": true,
+        "revision": "22bc3ae506c9f781026a20fdbb6b8cdc83554028f95d6503695c7e9a8123634b",
+        "repeat_observation_stable": true
+      }
+    },
+    {
+      "action": "req-review",
+      "object_id": "REQ-9207-ac011-review-fault",
+      "turn_id": "8d55fb42-f6b4-463d-a719-39f3686cb8ba",
+      "window": "review-document-and-three-differences-before-terminal",
+      "injection": "isolated-worker-SIGKILL",
+      "before_restart": {
+        "review_bytes": 1670,
+        "review_sha256": "88860cc107f1cf115b4669a10a2b6fb25237f4e375bde719ec9cd06c173de6ef",
+        "changed_governance_file_count": 3
+      },
+      "after_restart": {
+        "turn": "stopped",
+        "review_exists": false,
+        "status": "pending_review",
+        "stage": "plan",
+        "full_governance_equals_baseline": true,
+        "revision": "600e0f1820d60a0ac72704a970ba4c6e364e543667cc9c8170a104cfd1765596"
+      }
+    },
+    {
+      "action": "sprint-propose",
+      "object_id": "REQ-9208-ac011-sprint-fault",
+      "turn_id": "30aab92f-acc5-4391-9ade-9192be71fb50",
+      "window": "sprint-yaml-first-unobserved-change",
+      "injection": "isolated-worker-SIGKILL",
+      "after_restart": {
+        "turn": "stopped",
+        "journal_classification": "blocked_unobserved_source_change",
+        "changed_file_count": 1,
+        "changed_file": "sprint.yaml",
+        "registry_status": "approved",
+        "registry_iteration": null,
+        "partial_source_preserved": true
+      },
+      "fixture_cleanup": "After evidence, operator verified the sole difference and restored that file from the immutable baseline; this was not automatic product recovery."
+    },
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9108-sprint-single",
+      "turn_id": "813ca19f-9752-4090-ace3-b5614642e765",
+      "window": "first-change-proposal-unobserved-write",
+      "injection": "isolated-worker-SIGKILL",
+      "after_restart": {
+        "turn": "stopped",
+        "journal_classification": "blocked_unobserved_source_change",
+        "changed_visible_file_count": 1,
+        "changed_visible_file": "proposal.md",
+        "new_hidden_change_control": ".openspec.yaml",
+        "partial_source_preserved": true
+      },
+      "fixture_cleanup": "After evidence, operator removed only the verified generated proposal and control file; this was not automatic product recovery."
+    }
+  ],
+  "additional_diagnostics": {
+    "req_opsx_control_retest_turn_id": "5b440888-995a-4733-8e3e-9b9c1e9fc57d",
+    "result": "failed-before-any-tool-or-write; source-equals-prepared-baseline",
+    "open_spec_control_files_in_current_governance_snapshot": 4,
+    "snapshot_regression": "The new .openspec.yaml inclusion failed before repair and passed afterward."
+  },
+  "overall": "partial; remaining seven-action stage matrix is incomplete"
+}

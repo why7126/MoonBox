@@ -1,0 +1,51 @@
+{
+  "criterion": "AC-011",
+  "status": "partial",
+  "workspace_mode": "source",
+  "candidate_actions": [
+    "req-generate",
+    "req-complete",
+    "req-review"
+  ],
+  "candidate_integration_windows": [
+    "before-write",
+    "first-file",
+    "before-sync",
+    "partial-sync",
+    "after-sync",
+    "unknown-external-edit"
+  ],
+  "candidate_integration_result": {
+    "passed": 18,
+    "total": 18,
+    "test": "src/backend/tests/test_ac011_source_fault_matrix.py",
+    "evidence_kind": "isolated_integration_fault_injection"
+  },
+  "real_product_observations": [
+    {
+      "action": "req-generate",
+      "turn_id": "29a9592c-4925-4668-8222-57315b6d4ce5",
+      "window": "before-write",
+      "result": "executor_failed_without_business_file"
+    },
+    {
+      "action": "req-generate",
+      "turn_id": "2aa5fecb-7d9a-445f-9091-8fe88456e451",
+      "window": "first-file",
+      "result": "stopped_and_rejected_with_partial_file; safe_baseline_restoration_verified; implementation_gap_fixed_after_observation"
+    },
+    {
+      "action": "req-generate",
+      "turn_id": "86246c55-cc81-443b-a0a9-fde622da682e",
+      "window": "before-write",
+      "result": "executor_failed_before_fixed_first-file_window_http_429"
+    }
+  ],
+  "direct_chat_actions_missing_matrix": [
+    "sprint-propose",
+    "req-opsx",
+    "opsx-apply",
+    "opsx-archive"
+  ],
+  "signoff": false
+}

@@ -75,8 +75,8 @@ def preflight(root):
     if not shutil.which('git') or not shutil.which('docker'):raise RuntimeError('需要Git和Docker')
     result=subprocess.run(['docker','info','--format','{{.OSType}}'],capture_output=True,text=True,timeout=15)
     if result.returncode or result.stdout.strip()!='linux':raise RuntimeError('Docker Linux引擎不可用')
-    port=int(os.environ.get('HOST_PORT_CHAT_TEST','18121'))
-    if not 18101<=port<=18199:raise RuntimeError('Chat测试端口需要位于18101–18199')
+    port=int(os.environ.get('HOST_PORT_CHAT_TEST','39021'))
+    if not 39001<=port<=39050:raise RuntimeError('Chat测试端口需要位于39001–39050')
     with socket.socket() as probe:
         try:probe.bind(('127.0.0.1',port))
         except OSError:raise RuntimeError('Chat测试端口已占用；不会停止占用端口的其他服务')

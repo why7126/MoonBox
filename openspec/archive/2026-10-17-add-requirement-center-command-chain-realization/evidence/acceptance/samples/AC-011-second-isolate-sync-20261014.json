@@ -1,0 +1,37 @@
+{
+  "criterion": "AC-011",
+  "environment": "second-independent-local-isolated-project",
+  "finding": "Direct-command journal initially classified an opsx-apply dry-run command as a successful Workflow Sync because it matched the script name and exit code zero.",
+  "dry_run_round": {
+    "action": "opsx-apply",
+    "object_id": "add-isolated-apply-ac011",
+    "turn_id": "6be80532-b3d9-4b09-9687-c0d1f0c37e88",
+    "command_flags_verified_read_only": {"dry_run": true, "event": true},
+    "governance_source_equals_baseline": true,
+    "post_restart_journal_classification": "no_governance_write",
+    "verdict": "Not a post-sync success cell."
+  },
+  "repair": {
+    "change": "Observe Workflow Sync success only for formal event commands; exclude --dry-run, --check and text searches.",
+    "focused_regression": "83 passed, 1 skipped across direct-command journal and Chat tests"
+  },
+  "formal_start_sync_round": {
+    "action": "opsx-apply",
+    "object_id": "add-isolated-apply-ac011",
+    "turn_id": "3d4b9f51-1845-4bbf-b6d3-e58c2e53a636",
+    "baseline_revision": "fe3611e97ae4fdbd54325a8600f0dea6f9eaa29cf57bfab7187bda122fd4c3ae",
+    "source_revision_before_kill": "67944a8f75a7d18dbe2452763cf960b7d614ccee2edb4d697b037a53e3ed8faa",
+    "window": "formal-opsx-start-sync-succeeded-before-chat-terminal",
+    "after_restart": {
+      "turn": "stopped",
+      "error_code": "worker_heartbeat_lost",
+      "journal_classification": "sync_completed_unverified",
+      "change_status": "in_progress",
+      "started_at_present": true,
+      "completed_at_present": false,
+      "tasks_checked": 0
+    },
+    "limit": "This proves the start-sync window, not completion of the full opsx-apply action. The stopped turn was not replayed automatically."
+  },
+  "overall": "partial; AC-011 remains unsigned"
+}

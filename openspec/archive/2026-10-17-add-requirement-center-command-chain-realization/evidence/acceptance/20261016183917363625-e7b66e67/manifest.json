@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "change_id": "add-requirement-center-command-chain-realization",
+  "run_id": "20261016183917363625-e7b66e67",
+  "created_at": "2026-10-16 18:39:17",
+  "source_revision": "72f193aeb37a3c78dd73449616447619869b6bd3",
+  "environment": "isolated-moonbox-39028-source",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "424119e4093327ae3399d00d8f3f5a875967f953c87f005105e85a76a98bd63b",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "f17ad1be0da22cdbfc61967cbc618d95d84ff1239ad9715ccdf1defa5e49b7b4",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "c6191376824494b6b6895e1ea449d128355e0ebc6b31fa338fb5802a8ae7dc4f",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "fab8e4eb73edbb362d6d34be6a3fd7c914e09a484cb9cebdd5530217e8e56397",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "e1a0f9162254de1119319dc2379d9ddf92a03c96ce2862cae1285f556a1864c5",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "7098ccf61e102c90fd966296c5830c4c7b6acfe3ae2efc361275a3f0b4bc5d44",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "7d479d56d7cba781548ace7254b8d63a8c48e28e0b0da78be0dcb0e54e8b0bcb",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "fe0205463d13a34340adfa11ef958893f99b39261005e0f1ad602bf444f754b3",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "845741505ac68d38d1ee744a26b4b8c9109999b382bf77afaf328c8ff934ebd9",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "d39f80514b88bd4f790e5b6fc06fc495c6267c91d19ca5c723f7fc5d6d48b2e5",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "3ad81babe641061005ccbd69426eb86ccdee71c38817adbb6ae189eb84e6b42c",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "9277998a2cb5cde31dadb1d8a0d7e86ada429163c8dfe96da39aedce923c1252",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "6763c8aa4db9b283d90d2daf60605246755ba99ec0434b41851aa18d6095f259",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "fingerprint": "8363de919f8d88030127a1b3936e4431de7b7a9b5971daf3e56496e9138c7b33",
+      "reused": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014.md",
+          "sha256": "dd3f47b92e90ce34eabec102d1fb4d151aaa2f1436170b3e18dfe09af78f1f82"
+        },
+        {
+          "path": "openspec/changes/add-requirement-center-command-chain-realization/evidence/acceptance/samples/AC-014-observability-matrix.json",
+          "sha256": "d5e7fb97773287799d60ebd1474308d2976b782506798830931c6cf721d3ee7e"
+        }
+      ],
+      "duration_ms": 33794,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "9c8dd561bdf28daa7b4cf40de6ca3632c4e2ec48721a39167d37b668d3c4a5c0",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "e5f1b6ef56ca6fb49a193e548e0f116e63bec416afcc64b487a61a93a871e75e",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "7932c3cf60b11e6d2bd6316c1ac0fed2c99213bbf1d63bfc206772d7cb52908d",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "c22b5cd1a174c0b8ce1676a0ee1ae3258882172382aac80a0eec9b8f9b066199",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-019",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "a11e586c4f58671fdfcd74ede42787c2b73517ea301c4e0d4804a52bcc04dceb",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-020",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "0296f65d625c403db270ce7c20c37ae0e1966d50931942bfc193d08952115994",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "2322c2e82c34fb0afda329a051bb0d744ab070bc0cdf00e3a758175374eff9f1",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-002",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "e1583f95a00e88f379ce54bb605bef2a4797abe2cff5aea9b06bd398862bf16a",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "a4fd4514344c2975ddb11ecb9607afa1ee891677ca7da49fd776cfad8ebf04ce",
+      "effect_problems": [
+        "product-db-unavailable"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "5ee565926ec805a67343cad54cf62c14cb48df9d9e7b142f332ee530b6caf3f8",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "ac9fd4715b7eea52ec3eb4da23201b9edc737350631576c6c6818119bb4a464c",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "375e217baa119dd910feedbb8f17065bb2721af827d486b49214fe73eb5154c2",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "127ea9416fe70ff66269c46c94a642b03306ffb97211c2cc23f11455db964143",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "status": "blocked",
+      "reason": "preflight-failed",
+      "fingerprint": "13b490830ea7f1384ac5d5b90e969d8c0ba8fb0733ac2e760c018785692f4146",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ]
+    }
+  ]
+}

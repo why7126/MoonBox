@@ -67,7 +67,7 @@ export interface ConversationRead {
   pinned: boolean;
   archived: boolean;
   active_turn_id: string | null;
-  /** @pattern ^(read_only|governance_write|implementation_write)$ */
+  /** @pattern ^(read_only|governance_write|implementation_write|archive_write)$ */
   write_scope?: string;
   /** @maxLength 80 */
   write_reason_code?: string;
@@ -208,6 +208,50 @@ export interface ApiResponseListDictStrStr {
   data: ApiResponseListDictStrStrDataItem[];
 }
 
+export interface VerificationTaskCreate {
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  client_request_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ */
+  space_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ */
+  repository_id: string;
+  /** @pattern ^(firefox|chromium)$ */
+  browser: string;
+}
+
+export type MessageReadEffectiveConfig = { [key: string]: unknown };
+
+export type MessageReadMaterialsItem = { [key: string]: unknown };
+
+export interface MessageRead {
+  id: string;
+  turn_id: string;
+  role: string;
+  content: string;
+  created_at: string;
+  effective_config?: MessageReadEffectiveConfig;
+  config_fallback_reason?: string | null;
+  materials?: MessageReadMaterialsItem[];
+  /** 正文来源：message 为已落库，events 为只读事件投影 */
+  output_source?: string | null;
+  /** 部分输出不代表执行完成 */
+  output_partial?: boolean;
+  /** 输出有序号缺口或超出读取窗口 */
+  output_truncated?: boolean;
+}
+
+export interface MessagePage {
+  items: MessageRead[];
+  page: number;
+  page_size: number;
+}
+
+export interface ApiResponseMessagePage {
+  code?: number;
+  message?: string;
+  data: MessagePage;
+}
+
 export interface RelationsUpdate {
   primary?: string | null;
   /** @maxItems 10 */
@@ -290,6 +334,19 @@ export type StreamApiV1ChatTurnsTidEventsGetParams = {
  * @minimum 0
  */
 after?: number;
+};
+
+export type VerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetParams = {
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+repository_id: string;
 };
 
 export type ConversationMessagesApiV1ChatConversationsCidMessagesGetParams = {
@@ -1512,8 +1569,373 @@ export const spacesApiV1ChatSpacesGet = async ( options?: RequestInit): Promise<
 
 
 
-export type conversationMessagesApiV1ChatConversationsCidMessagesGetResponse200 = {
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse200 = {
   data: ApiResponseDict
+  status: 200
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponseSuccess = (verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse200) & {
+  headers: Headers;
+};
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponseError = (verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse403 | verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse404 | verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse409 | verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse422 | verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse503) & {
+  headers: Headers;
+};
+
+export type verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse = (verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponseSuccess | verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponseError)
+
+export const getVerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetUrl = (params: VerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/verification-environments/preflight?${stringifiedParams}` : `/api/v1/chat/verification-environments/preflight`
+}
+
+/**
+ * @summary 预检授权项目的浏览器验证环境
+ */
+export const verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGet = async (params: VerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetParams, options?: RequestInit): Promise<verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse> => {
+
+  const res = await fetch(getVerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse
+}
+
+
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponseSuccess = (verificationCreateApiV1ChatVerificationTasksPostResponse200) & {
+  headers: Headers;
+};
+export type verificationCreateApiV1ChatVerificationTasksPostResponseError = (verificationCreateApiV1ChatVerificationTasksPostResponse403 | verificationCreateApiV1ChatVerificationTasksPostResponse404 | verificationCreateApiV1ChatVerificationTasksPostResponse409 | verificationCreateApiV1ChatVerificationTasksPostResponse422 | verificationCreateApiV1ChatVerificationTasksPostResponse503) & {
+  headers: Headers;
+};
+
+export type verificationCreateApiV1ChatVerificationTasksPostResponse = (verificationCreateApiV1ChatVerificationTasksPostResponseSuccess | verificationCreateApiV1ChatVerificationTasksPostResponseError)
+
+export const getVerificationCreateApiV1ChatVerificationTasksPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/verification-tasks`
+}
+
+/**
+ * @summary 幂等创建授权浏览器验证任务
+ */
+export const verificationCreateApiV1ChatVerificationTasksPost = async (verificationTaskCreate: VerificationTaskCreate, options?: RequestInit): Promise<verificationCreateApiV1ChatVerificationTasksPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getVerificationCreateApiV1ChatVerificationTasksPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(verificationTaskCreate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verificationCreateApiV1ChatVerificationTasksPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verificationCreateApiV1ChatVerificationTasksPostResponse
+}
+
+
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponseSuccess = (verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse200) & {
+  headers: Headers;
+};
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponseError = (verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse403 | verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse404 | verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse409 | verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse422 | verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse503) & {
+  headers: Headers;
+};
+
+export type verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse = (verificationTaskApiV1ChatVerificationTasksTaskIdGetResponseSuccess | verificationTaskApiV1ChatVerificationTasksTaskIdGetResponseError)
+
+export const getVerificationTaskApiV1ChatVerificationTasksTaskIdGetUrl = (taskId: string,) => {
+
+
+
+
+  return `/api/v1/chat/verification-tasks/${taskId}`
+}
+
+/**
+ * @summary 查询本人项目验证任务
+ */
+export const verificationTaskApiV1ChatVerificationTasksTaskIdGet = async (taskId: string, options?: RequestInit): Promise<verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse> => {
+
+  const res = await fetch(getVerificationTaskApiV1ChatVerificationTasksTaskIdGetUrl(taskId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verificationTaskApiV1ChatVerificationTasksTaskIdGetResponse
+}
+
+
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponseSuccess = (verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse200) & {
+  headers: Headers;
+};
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponseError = (verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse403 | verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse404 | verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse409 | verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse422 | verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse503) & {
+  headers: Headers;
+};
+
+export type verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse = (verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponseSuccess | verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponseError)
+
+export const getVerificationCancelApiV1ChatVerificationTasksTaskIdCancelPostUrl = (taskId: string,) => {
+
+
+
+
+  return `/api/v1/chat/verification-tasks/${taskId}/cancel`
+}
+
+/**
+ * @summary 取消本人项目验证任务
+ */
+export const verificationCancelApiV1ChatVerificationTasksTaskIdCancelPost = async (taskId: string, options?: RequestInit): Promise<verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse> => {
+
+  const res = await fetch(getVerificationCancelApiV1ChatVerificationTasksTaskIdCancelPostUrl(taskId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verificationCancelApiV1ChatVerificationTasksTaskIdCancelPostResponse
+}
+
+
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponseSuccess = (verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse200) & {
+  headers: Headers;
+};
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponseError = (verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse403 | verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse404 | verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse409 | verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse422 | verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse503) & {
+  headers: Headers;
+};
+
+export type verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse = (verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponseSuccess | verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponseError)
+
+export const getVerificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetUrl = (taskId: string,
+    filename: string,) => {
+
+
+
+
+  return `/api/v1/chat/verification-tasks/${taskId}/evidence/${filename}`
+}
+
+/**
+ * @summary 鉴权读取七日内真实浏览器截图
+ */
+export const verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGet = async (taskId: string,
+    filename: string, options?: RequestInit): Promise<verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse> => {
+
+  const res = await fetch(getVerificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetUrl(taskId,filename),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verificationEvidenceApiV1ChatVerificationTasksTaskIdEvidenceFilenameGetResponse
+}
+
+
+
+export type conversationMessagesApiV1ChatConversationsCidMessagesGetResponse200 = {
+  data: ApiResponseMessagePage
   status: 200
 }
 

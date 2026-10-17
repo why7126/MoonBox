@@ -30,10 +30,10 @@ def main():
             db.execute(text("INSERT INTO admin_space_products(id,space_id,product_id,product_name,immutable_binding,created_at,updated_at) VALUES('lifecycle-product','space','lifecycle-probe','Lifecycle 隔离验收',1,'2026-09-12','2026-09-12')"));db.commit()
             scope=authorize(db,'alice','space',binding['id'])
         permit=private/'maintenance.json';permit.write_text(json.dumps({'scope_key':scope.key,'binding_revision':scope.binding_revision,'registered_writers':['governance-controller'],'external_writers_paused':True,'expires_at':time.time()+3500}));permit.chmod(0o600)
-        config=root/'browser.json';config.write_text(json.dumps({'password':password,'url':'http://127.0.0.1:18131'}));config.chmod(0o600)
+        config=root/'browser.json';config.write_text(json.dumps({'password':password,'url':'http://127.0.0.1:39031'}));config.chmod(0o600)
         for args,name in (([__file__,'serve'],'api'),):
             children.append(subprocess.Popen([sys.executable,*args],stdout=(root/(name+'.log')).open('w'),stderr=subprocess.STDOUT))
-        print(json.dumps({'root':str(root),'url':'http://127.0.0.1:18131'}),flush=True)
+        print(json.dumps({'root':str(root),'url':'http://127.0.0.1:39031'}),flush=True)
         for line in sys.stdin:
             if line.strip()=='cleanup':break
     finally:
@@ -55,7 +55,7 @@ def serve():
     def index(): return FileResponse(dist/'index.html')
     app.mount('/assets',StaticFiles(directory=dist/'assets'))
     app.mount('/brand',StaticFiles(directory=dist/'brand'))
-    uvicorn.run(app,host='127.0.0.1',port=18131,access_log=False,log_level='error')
+    uvicorn.run(app,host='127.0.0.1',port=39031,access_log=False,log_level='error')
 
 if __name__=='__main__':
     if len(sys.argv)>1 and sys.argv[1]=='serve':serve()

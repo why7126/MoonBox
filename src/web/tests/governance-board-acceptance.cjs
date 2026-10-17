@@ -16,7 +16,7 @@ const fs=require('node:fs');const path=require('node:path');
   else throw Error('unexpected endpoint '+url.pathname);
   await route.fulfill({json:{code:0,data:response}});
  });
- await page.goto((process.env.BOARD_URL||'http://127.0.0.1:18122')+'/tests/governance-board-preview.html');
+ await page.goto((process.env.BOARD_URL||'http://127.0.0.1:39022')+'/tests/governance-board-preview.html');
  await expect(page.getByText('REQ-0022',{exact:true})).toHaveCount(1);
  await expect(page.getByTestId('project-binding')).toHaveCount(0);
  await expect(page.locator('.rc-card')).toHaveCount(38);

@@ -38,9 +38,10 @@ def identity():
     return {'id': str(uuid4()), 'created_at': stamp, 'updated_at': stamp}
 
 class ChatError(Exception):
-    def __init__(self, code: int, message: str, status: int = 409, *, kind: str | None = None):
+    def __init__(self, code: int, message: str, status: int = 409, *, kind: str | None = None, details: dict | None = None):
         self.code, self.message, self.status = code, message, status
         self.kind = kind
+        self.details = details or {}
 
 
 def authorize_space(db: Session, actor: str, space_id: str):
@@ -523,13 +524,16 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
         raise ChatError(2504, '归档会话只读')
     if row['active_turn_id']:
         raise ChatError(2504, '原运行尚未终止或状态未知')
-    from app.governance.preparation import check_send
-    check_send(db, actor, row)
+    from app.governance.preparation import check_send, execution_prompt_for_turn, prepare_command_snapshot
+    prepare_command_snapshot(db,actor,row,prompt,client_id)
+    governance_candidate = check_send(db, actor, row)
     from app.chat.isolated import allowed
     if allowed(db,actor,row['space_id'],row['repository_id']):
         from app.chat.admission import enqueue
         from app.chat.settings import execution_limits
-        return enqueue(db,actor,cid,client_id,prompt,execution_limits(),materials=materials,execution_config=config,request_id=request_id)
+        return enqueue(db,actor,cid,client_id,prompt,execution_limits(),materials=materials,execution_config=config,
+            request_id=request_id,budget_prompt=execution_prompt_for_turn(db,row,prompt),
+            governance_candidate_id=governance_candidate['id'] if governance_candidate else None)
     # Normal deployment stays closed; only the isolated launcher has a test gate.
     raise ChatError(2505, '执行服务尚未通过隔离与额度验收，暂不可发送', 503)
 
@@ -579,11 +583,11 @@ def _attach_workspace_status(db, row_turn, result):
         from app.chat.settings import repository_binding
         binding = repository_binding(parent['repository_id'], parent['space_id']) or {}
         workspace_id = parent['workspace_id']
-        root = binding.get('workspace_root')
+        root = binding.get('source_root') if binding.get('workspace_mode') == 'source' and workspace_id == 'source' else binding.get('workspace_root')
         if not workspace_id or not isinstance(root, str):
             return result
         from app.chat.workspace import snapshot, trusted_directory
-        workspace = trusted_directory(Path(root) / workspace_id)
+        workspace = trusted_directory(Path(root) if workspace_id == 'source' else Path(root) / workspace_id)
         current = snapshot(workspace, max_text_bytes=0)
         for key in ('files', 'cumulative_files'):
             if isinstance(result.get(key), list):

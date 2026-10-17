@@ -2,7 +2,7 @@
 purpose: 数据库设计
 content: MoonBox SQLite 初始数据域与迁移治理
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-09-18 16:07:12
+updated_at: 2026-10-08 19:56:38
 owner: MoonBox 产品团队
 ---
 
@@ -10,13 +10,16 @@ owner: MoonBox 产品团队
 
 MoonBox MVP 采用双数据库策略：开发和自动化快速测试使用 SQLite，生产环境使用 MySQL。迁移策略为 Alembic 或等价 schema 初始化机制；在当前基线中，`schema_metadata` 由后端数据库初始化流程维护。
 
-本地 Docker 环境默认通过 `DATABASE_TYPE=sqlite` 与 `DATABASE_URL=sqlite:////app/data/sqlite/moonbox.db` 注入后端服务。宿主机 canonical SQLite 目录为 `data/sqlite/`；历史部署若仍通过挂载让容器路径落到 `data/runtime/backend/sqlite/moonbox.db`，该路径只视为迁移期 legacy 位置。运行时数据库文件属于本地数据，不得提交 Git。
+本地 Docker 环境默认通过 `DATABASE_TYPE=sqlite` 与 `DATABASE_URL=sqlite:////app/data/sqlite/moonbox.db` 注入后端服务。根 Compose、本地 Compose 和 Chat/Governance overlay 将宿主机 `data/` 挂载到容器 `/app/data`，业务库实际位置统一为 `data/sqlite/moonbox.db`。历史部署的 `data/runtime/backend/sqlite/moonbox.db` 只作为迁移期 legacy 位置；启动预检发现它时停止，不能静默创建第二份业务库。运行时数据库文件属于本地数据，不得提交 Git。
 
 SQLite 目录治理：
+
+- Chat 归档验收的并发读写曾触发 `database is locked`，影响会话查询。SQLite 连接设置 30 秒锁等待（`timeout` 与 `PRAGMA busy_timeout`）；这仅缓解短时写锁竞争，轮次仍须以持久化终态和命令退出码验收。
 
 - 本地 SQLite 文件 SHOULD 放在 `data/sqlite/`，默认库为 `data/sqlite/moonbox.db`。
 - `data/runtime/` 只承载 Chat Platform、Governance、Codex 执行器等运行控制状态，不作为业务数据库 canonical 根目录。
 - 将 legacy 数据库迁回 `data/sqlite/` 前必须停服、备份源库和目标库、执行 `PRAGMA integrity_check`，并对关键业务表行数做对比；不得在服务运行中直接移动或覆盖 SQLite 文件。
+- Chat 自动快照账本与独立删除日志位于私有备份目录。新建快照记录来源；未带来源的旧条目按 `unknown` 保守保留。默认自动上限为 2，`0` 不创建新自动快照，也不删除已有副本或独立删除日志；手动副本与治理引用副本不参与自动清理。备份账本新增来源与保护表，不改变业务库 schema；生产 MySQL 仍使用原有配置门禁。
 
 生产环境必须显式设置 `DATABASE_TYPE=mysql`，并通过 `DATABASE_URL` 或 `MYSQL_DATABASE_URL` 注入 MySQL 连接串。MySQL 凭据不得写入仓库；生产环境配置缺失、连接串非 MySQL 或误用 SQLite 时，服务必须启动失败。
 
@@ -174,6 +177,8 @@ Chat预留表增加concurrency_released INTEGER NOT NULL DEFAULT 0，作为并�
 - applications：candidate唯一有效操作、actor/scope/idempotency唯一约束，idempotency键先SHA-256编码避免MySQL默认大小写不敏感排序导致键碰撞；request_hash防止同键不同内容。state+created_at索引支撑控制器队列，phase/fencing_token/worker_id支持恢复。
 - project_locks：scope_key主键、单调fencing_token、当前operation_id/worker_id/updated_at。DB记录配合本机私有文件锁；过期时间不构成接管依据。
 
+对象会话复用按最新 turn、消息和会话时间排序；空值使用 `IS NULL` 布尔排序键置后，再按时间降序，兼容 SQLite 与 MySQL，不生成 MySQL 8.2 不支持的 `NULLS LAST` 语法。此调整只改变查询排序 SQL，不改表、字段、索引或迁移。
+
 迁移回退保留新增表与私有目录，不drop。备份需覆盖数据库和私有记录，同一维护窗口下形成一致副本。未终态恢复记录不按时间删除；治理会话在保留清理能力验收前拒绝删除。请求日志90天、行为180天、已终态治理Task Trace90天；未终态trace不按finished_at清理。对象存储没有新增表或依赖。
 
 当前验证包含SQLite真实读写/唯一键/重启恢复、MySQL DDL编译及独立MySQL 8.2.0矩阵13项通过；生产数据迁移尚未执行，不能据此宣称生产升级已经验收。
@@ -207,3 +212,15 @@ SQLite与一次性MySQL 8.2.0均验证创建、幂等、恢复和操作查询；
 确认按草稿行条件更新与事务冻结，最终REQ/BUG编号由既有governance项目锁下批次计划分配；状态库与文件计划通过前向恢复协调。原请求重复或失败重试不能重新分号。正式来源保留初判、用户修改、来源边和确认快照；确认图片转retained并退出草稿配额。
 
 删除意图使用治理私有状态目录内独立 `capture-deletions.sqlite`，权限0600；恢复旧业务库前重放删除，避免恢复已主动删除草稿。SQLite备份恢复入口已接入；MySQL原生恢复需在恢复库对外开放前调用同一replay，并保留独立删除日志。现有常驻模型worker部署入口仍只支持SQLite；MySQL数据契约已在临时MySQL8.2容器中回归，不能据此宣称MySQL整套部署已支持。
+
+## Chat 助手输出与消息一致性
+
+BUG-0030 修复复用 chat_messages 和 chat_events，无表结构或迁移变化。正常收尾、异常标记 unknown、权威恢复共用正文补存 helper，按 turn 派生确定性消息主键；写入位于已取得 turn 行写锁及 generation/fencing 判定的事务内。重复恢复仅一方赢得终态更新，不插入重复 assistant。既有非投影助手记录优先保留。
+
+异常路径通过 savepoint 隔离消息写入失败，终态仍可记录 unknown，读取可从已提交事件投影。有界 final_answer 快照存入既有事件，以 assistant:final: 来源标识，替代过程增量；权限、脱敏和容量约束沿用执行链。该文本是业务输出事件，不复制到请求日志或 Task Trace。SQL 使用通用 SQLAlchemy select/union/exists，不引入方言特定语法；SQLite 回归通过不代表已运行 MySQL 服务验证。
+
+## 跨空间浏览器验证任务（REQ-0044）
+
+`verification_tasks` 由 `app.chat.schema.migrate` 的幂等 `create_all` 同步创建于 SQLite 与 MySQL。主键为任务 UUID；`actor_id` 和 `space_id` 分别关联已有管理员与空间，`repository_id` 为不透明项目标识。`actor_id + space_id + repository_id + client_request_id` 唯一约束支撑幂等重试；`client_request_id` 存放原始请求值的 SHA256 摘要，避免 MySQL 大小写排序规则改变比较语义。`status + created_at` 支撑单控制 worker 的队列领取；该 worker 最多同时运行两个隔离浏览器任务。`space_id + repository_id + created_at` 支撑项目内查询。状态、环境键、镜像摘要、稳定错误码及脱敏结果保存在数据库；截图和完整依赖树只在受保护运行目录中保存。`started_at`、`completed_at` 使用现有 UTC ISO 字符串口径。
+
+迁移只增表与索引，不更改旧 Chat 记录。SQLite 与 MySQL 均使用 `String`、`Text` 和唯一约束，不依赖 JSON 列或数据库专有锁语法；并发领取靠条件 `UPDATE status='queued'`，重启时将中断中的任务显式标记 `blocked`。当前自动化覆盖 SQLite 幂等、授权撤销、领取与重启恢复；MySQL 实机迁移与生产备份/回滚仍需按部署矩阵验收。回滚先停止新任务与 worker，保留任务表及证据目录，不自动删除历史结果。

@@ -1,0 +1,91 @@
+{
+  "criterion": "AC-011",
+  "environment": "independent-local-isolated-project",
+  "evidence_kind": "real-product-turns-with-isolated-worker-faults",
+  "source_mode": "source",
+  "rounds": [
+    {
+      "action": "sprint-propose",
+      "object_id": "REQ-9208-ac011-sprint-fault",
+      "turn_id": "30aab92f-acc5-4391-9ade-9192be71fb50",
+      "window": "first-sprint-yaml-change-before-sync",
+      "before_restart": {"turn": "running", "changed_file_count": 1, "journal_steps": 10, "sync_steps": 0},
+      "after_restart": {
+        "turn": "stopped", "journal_classification": "blocked_unobserved_source_change",
+        "changed_file_count": 1, "target_req_status": "approved",
+        "target_req_iteration": null, "partial_source_preserved": true,
+        "source_revision": "e40485a20cc0ec295a02497e2d62b734d365dde5599ae76b25936a66a621b884"
+      },
+      "fixture_cleanup": "Verified the sole difference and restored sprint.yaml from immutable baseline after evidence; no automatic product rollback claimed."
+    },
+    {
+      "action": "req-opsx",
+      "object_id": "REQ-9108-sprint-single",
+      "turn_id": "813ca19f-9752-4090-ace3-b5614642e765",
+      "window": "first-proposal-write",
+      "before_restart": {"turn": "running", "changed_visible_file_count": 1, "journal_steps": 12},
+      "after_restart": {
+        "turn": "stopped", "journal_classification": "blocked_unobserved_source_change",
+        "changed_visible_file_count": 1,
+        "generated_hidden_control_file": ".openspec.yaml",
+        "partial_source_preserved": true,
+        "source_revision": "35900d1cbfbe2ceb388ee0a6f175f4d7055618bf223db5a0f88df3789d0138b4"
+      },
+      "finding": "The prior governance snapshot omitted the OpenSpec change control file. The snapshot now includes .openspec.yaml only at a Change root; focused regression passed.",
+      "fixture_cleanup": "Verified generated proposal and control file, then removed both from isolated fixture after evidence."
+    },
+    {
+      "action": "opsx-apply",
+      "object_id": "add-isolated-apply-ac011",
+      "turn_id": "54dbe198-634e-4228-bb12-866ca2d0883f",
+      "window": "opsx-start-sync-incomplete-after-sprint-yaml-write",
+      "before_restart": {"turn": "running", "changed_file_count": 1, "journal_phase": "sync_observed", "journal_steps": 27},
+      "after_restart": {
+        "turn": "stopped", "journal_classification": "sync_incomplete",
+        "changed_file_count": 1, "changed_file": "sprint.yaml",
+        "change_status": "proposed", "started_at_present": false,
+        "completed_at_present": false, "partial_source_preserved": true,
+        "source_revision": "472804e8b06b744202504a02a39aade69a2adfaf45ac8c045de3d9cfa627e027"
+      },
+      "fixture_cleanup": "The sole YAML file differed in bytes but not parsed top-level values. Operator restored exact baseline bytes after evidence; no automatic product rollback claimed."
+    },
+    {
+      "action": "opsx-archive",
+      "object_id": "add-isolated-apply-ac010",
+      "turn_id": "14b34890-0250-4884-9912-ad43755b1eb1",
+      "window": "active-change-trace-first-write",
+      "after_restart": {
+        "turn": "stopped", "journal_classification": "blocked_unobserved_source_change",
+        "changed_file_count": 1, "active_change_exists": true,
+        "archive_directory_count": 0, "partial_source_preserved": true,
+        "source_revision": "ea901dbfe09c492f2d2205321b569c16fa487def5c690a42c7a66b9a8bfb06db"
+      },
+      "fixture_cleanup": "Verified and restored only the changed trace.md from immutable baseline after evidence."
+    },
+    {
+      "action": "opsx-archive",
+      "object_id": "add-isolated-apply-ac010",
+      "turn_id": "2cb84d2c-b78a-4021-a6f8-3f55c724a1e8",
+      "window": "spec-merge-and-change-move-after-worker-kill",
+      "before_restart": {
+        "turn": "running", "spec_difference_count": 1,
+        "archive_directory_difference_count": 7,
+        "active_change_difference_count": 7,
+        "source_revision": "2264b188d4abc253cd19c6adb7f5dc611bf1f855e70356b839d9bda7998af427"
+      },
+      "after_restart": {
+        "turn": "stopped", "journal_classification": "blocked_unobserved_source_change",
+        "active_change_exists": false, "archive_directory_count": 1,
+        "archive_trace_status": "applied", "partial_source_preserved": true,
+        "source_revision": "2264b188d4abc253cd19c6adb7f5dc611bf1f855e70356b839d9bda7998af427"
+      },
+      "interpretation": "The archive process continued moving files after the worker was killed. Recovery preserved the partial state and did not claim done or replay the archive. The isolated partial state was left intact for further recovery analysis."
+    }
+  ],
+  "unmet": [
+    "All seven actions still need complete write-before, partial-file, before-sync, during-sync, after-sync, and restart coverage.",
+    "Direct-command blocked cases need an operator-visible and action-specific safe resume path.",
+    "Archive recovery still needs a proven no-duplicate-merge continuation from the preserved partial state."
+  ],
+  "overall": "partial; AC-011 remains unsigned"
+}

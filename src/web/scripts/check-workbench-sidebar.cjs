@@ -2,7 +2,7 @@
 const { chromium } = require('@playwright/test');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
-const origin = process.argv[2] || 'http://localhost:18102';
+const origin = process.argv[2] || 'http://localhost:39002';
 const dir = '../../openspec/changes/add-chat-workbench-codex/evidence/sidebar-ui';
 const workspace = { workspaceId:'s1', name:'隔离验收空间', organizationName:'视觉测试', slug:'synthetic', description:'', timezone:'UTC', memberCount:2, role:'拥有者' };
 const readonly = {...workspace, workspaceId:'s2', name:'只读验收空间', readonly:true};

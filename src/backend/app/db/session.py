@@ -14,9 +14,9 @@ _engine: Engine | None = None
 _session_factory: sessionmaker[Session] | None = None
 
 
-def _sqlite_connect_args(database_url: str) -> dict[str, bool]:
+def _sqlite_connect_args(database_url: str) -> dict[str, bool | int]:
     if database_url.startswith("sqlite"):
-        return {"check_same_thread": False}
+        return {"check_same_thread": False, "timeout": 30}
     return {}
 
 
@@ -32,6 +32,10 @@ def _ensure_sqlite_parent_dir(database_url: str) -> None:
 def create_database_engine(config: Settings = settings) -> Engine:
     config.validate_database()
     database_url = config.resolved_database_url()
+    if (config.database_type.lower() == "sqlite"
+            and make_url(database_url).database == "/app/data/sqlite/moonbox.db"
+            and Path("/app/data/runtime/backend/sqlite/moonbox.db").exists()):
+        raise ConfigurationError("检测到 legacy 业务库，须先完成离线迁移与核对。")
     _ensure_sqlite_parent_dir(database_url)
     engine = create_engine(
         database_url,
@@ -46,6 +50,7 @@ def create_database_engine(config: Settings = settings) -> Engine:
         def _set_sqlite_pragma(dbapi_connection, _connection_record) -> None:  # type: ignore[no-untyped-def]
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.execute("PRAGMA busy_timeout=30000")
             cursor.close()
 
     return engine

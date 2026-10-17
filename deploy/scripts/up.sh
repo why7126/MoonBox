@@ -73,6 +73,12 @@ python "${ROOT_DIR}/deploy/scripts/validate-env.py" \
   --env-file "${ENV_FILE}" \
   --profile "${PROFILE_TEXT}"
 
+if [[ "${DOMAIN}" == local && "${ENVIRONMENT}" == *-sqlite ]]; then
+  RESOLVED_SQLITE_URL="$(awk -F= '$1 == "DATABASE_URL" {print substr($0,index($0,"=")+1);exit}' "${ENV_FILE}")"
+  PYTHONPATH="${ROOT_DIR}/src/backend${PYTHONPATH:+:${PYTHONPATH}}" python -m app.db.local_data_migration preflight \
+    --root "${ROOT_DIR}" --database-url "${RESOLVED_SQLITE_URL}"
+fi
+
 COMPOSE_ARGS=(--project-name moonbox --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}")
 for COMPOSE_PROFILE in "${PROFILES[@]}"; do
   COMPOSE_ARGS=(--profile "${COMPOSE_PROFILE}" "${COMPOSE_ARGS[@]}")
@@ -100,4 +106,3 @@ else
   echo "- Object Storage: external provider（未启动本地 MinIO）"
 fi
 echo "- Docs Site: http://localhost:${HOST_PORT_MINTLIFY_DOCS}"
-

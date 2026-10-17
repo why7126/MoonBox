@@ -591,14 +591,14 @@ def test_admin_auth_cors_preflight_allows_web_origin(api_client: TestClient) -> 
     response = api_client.options(
         "/api/v1/auth/login",
         headers={
-            "origin": "http://localhost:18102",
+            "origin": "http://localhost:39002",
             "access-control-request-method": "POST",
             "access-control-request-headers": "content-type",
         },
     )
 
     assert response.status_code == 200
-    assert response.headers["access-control-allow-origin"] == "http://localhost:18102"
+    assert response.headers["access-control-allow-origin"] == "http://localhost:39002"
     assert "POST" in response.headers["access-control-allow-methods"]
     assert "content-type" in response.headers["access-control-allow-headers"].lower()
 

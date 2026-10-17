@@ -1,7 +1,14 @@
 ---
 name: "bug-explore"
 description: "缺陷探索 - 复现与影响分析，默认不写文档"
+updated_at: 2026-10-13 16:27:44
 ---
+
+## 浏览器自主取证（MUST）
+
+浏览器清单超时、单个工具失败或终端 HTTP 探测失败时，先按 `rules/root-cause-evidence.md` §5.0 检查现有标签页、直接连接浏览器窗口并尝试可行替代入口；区分旧页面展示和当前服务连通性，完成这些检查后才判断是否无法访问。
+
+测试、验收、BUG 补证或问题排查需要产品运行态证据时，Agent 可在已有权限与任务范围内直接通过浏览器访问产品并取证，优先复用 Codex 侧边浏览器中与任务相关的产品标签页，无需人工二次确认；该入口不可用或不能取得所需证据时，使用已提供的其他浏览器或等价自动化工具，Firefox 作为后备。只有无法访问、权限不足、操作超出已授权边界，或自主取证后关键证据仍不足时，才请用户补证，并说明已尝试路径与具体缺口。证据脱敏、不可逆操作和存放边界遵循 `rules/root-cause-evidence.md` 第 5 节。
 
 ## Context Budget Guardrails（MUST）
 
@@ -42,9 +49,9 @@ Use this skill when the user asks to run the migrated source command `bug-explor
 ## Root Cause Evidence Gate（MUST）
 
 - MUST 遵守 `rules/root-cause-evidence.md`。
-- 本命令默认只做复现、影响面和证据缺口探索；证据不足时 MUST 将根因标记为 `unknown`、`hypothesis` 或 `probable`，不得输出已确认根因。
-- 如果需要人工补证，MUST 输出待补证项、为什么需要、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
-- 人工补证返回后，MUST 先复核证据是否足够，再建议进入 `/bug-generate` 或 `/bug-complete`。
+- 本命令默认只做复现、影响面和证据缺口探索；若根因仍为 `unknown`、`hypothesis` 或 `probable`，MUST 按 `rules/root-cause-evidence.md` §2.1 在本轮继续自主补证，逐项验证或排除最小关键假设，不得因已有 capture 或探索结论而停止。
+- 需要产品运行态证据时，先按 `rules/root-cause-evidence.md` 第 5 节通过浏览器自主取证（优先复用 Codex 侧边浏览器，无需用户二次确认）；确实需要人工补证时，MUST 输出待补证项、为什么需要、已尝试的自主取证路径、操作步骤、需要返回的字段、脱敏要求和返回格式；不得只说“请提供日志/截图”。
+- 输出证据来源、支持或排除的判断、根因状态和剩余缺口；有充分直接证据时可报告 `confirmed`，否则保持真实状态并说明已尝试的取证路径。默认只读，不因补证自动生成 `bug.md` 或 `root-cause.md`；人工补证返回后先复核证据，再建议进入 `/bug-generate` 或 `/bug-complete`。
 
 **Input**：完整 `BUG-xxxx-slug`
 

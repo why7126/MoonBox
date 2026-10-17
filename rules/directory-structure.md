@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-09-18 16:07:12
+updated_at: 2026-10-12 14:59:30
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -35,6 +35,10 @@ note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把
 | `design-schemes/` | 可复用 UI/UE、导航栏和 HTML Demo 设计资产库 | 否 |
 | `models/` | 模型说明和校验信息；不得提交大模型权重 | 否 |
 | `deploy/` | 部署编排与发布脚本 | 否 |
+
+仓库自有目录仅允许根目录 `.agents/` 作为技能入口。其他位置的 `.agents/`、`.codex/` 工具路径均为禁止项，即使为空也不得保留；目录校验递归检查仓库自有目录。`.git`、`.venv`、`node_modules`、构建缓存、`data/` 下的运行数据子目录、根 `logs/` 与 `tmp/` 属于 Git 元数据、第三方依赖或本地运行数据，不纳入自动清理；`data/samples/` 等仓库自有内容仍受目录边界约束。清理前必须确认目标为空；非空目录、文件和符号链接保留现场并阻断，不自动删除未知内容。
+
+Chat 执行沙箱可在 `/work/issues`、`/work/iterations`、`/work/openspec/{changes,specs,archive}` 和 `/work/docs/spec-logs` 的 `.agents`、`.codex` 精确路径上出现临时空挂载点。私有配置注入 `MOONBOX_CHAT_TOOL_SANDBOX=1`；目录校验仅在该标记、根为 `/work`、上述精确路径为空且不是符号链接时记为执行环境警告。worker 在写入型 Chat 轮次前后从真实工作区视图清理仓库自有目录中的空残留；非空目录、文件和符号链接阻断，不尝试删除执行中的挂载点。
 
 ## 2.1 `data/` 本地数据目录边界
 
@@ -244,7 +248,7 @@ src/infrastructure/
 - Web Nginx 配置放入 `src/web/nginx.conf`。
 - 部署脚本放入 `scripts/` 或 `deploy/`，并在 README / 部署文档中说明。
 - `deploy/local/` 维护本地六模式矩阵；`deploy/prod/` 维护生产 Compose 入口；`deploy/scripts/` 维护环境校验、启动/停止和产品手册静态预览脚本。
-- Sprint / OpenSpec 归档证据、readiness、stale scan、Fact Sheet 等治理脚本放入 `scripts/`，并由 `.agents/skills/opsx-archive`、`.agents/skills/sprint-archive`、`.agents/skills/sprint-exps` 引用。
+- Sprint / OpenSpec 自动验收、归档证据、readiness、stale scan、Fact Sheet 等治理脚本放入 `scripts/`，并由 `.agents/skills/opsx-accept`、`.agents/skills/opsx-archive`、`.agents/skills/sprint-archive`、`.agents/skills/sprint-exps` 引用。长期验收包归属 Change `evidence/acceptance/`，原始会话仍属本地产品数据。
 
 ## 9. AI 新增文件前检查清单
 

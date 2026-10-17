@@ -71,6 +71,25 @@ def test_missing_session_recommends_default_discovery_locations(tmp_path, monkey
     assert "~/.codex/sessions" in summary["recommended_action"]
 
 
+def test_post_command_hook_without_home_reports_unavailable(tmp_path, monkeypatch) -> None:
+    for name in ("AI_USAGE_SESSIONS_DIR", "AI_USAGE_SESSION_JSONL", "CODEX_SESSION_JSONL"):
+        monkeypatch.delenv(name, raising=False)
+
+    def missing_home():
+        raise RuntimeError("Could not determine home directory.")
+
+    monkeypatch.setattr(Path, "home", missing_home)
+    summary = ai_usage.post_command_hook(
+        session_jsonl=None,
+        out_dir=tmp_path / "ai-usage",
+        workflow_event="opsx.archive",
+        changes=["archive-without-container-home"],
+    )
+    assert summary["usage_mode"] == "unavailable"
+    assert summary["command_run_count"] == 0
+    assert summary["status"] in {"skipped", "warning"}
+
+
 def test_token_count_missing_recommends_auto_discovery_and_explicit_session(tmp_path) -> None:
     session = tmp_path / "session.jsonl"
     write_jsonl(session, [{"type": "user_message", "text": "/opsx-archive apply-local-session-jsonl-governance"}])

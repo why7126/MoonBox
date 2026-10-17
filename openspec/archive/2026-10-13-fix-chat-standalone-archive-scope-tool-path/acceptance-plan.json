@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-standalone-archive-scope-tool-path",
+  "issue_id": "BUG-0034-chat-standalone-archive-scope-tool-path",
+  "environment": "local-isolated-product",
+  "sample_policy": "仅使用已授权隔离产品对象；真实归档需事先核对目标 Change 的授权与门禁。旧隔离回归不替代产品轮次。",
+  "checks": [
+    {
+      "id": "AC-001",
+      "objective": "合法纯治理 Change 归档获得最小归档写权限；检查 applied、Sprint 和对象身份。",
+      "kind": "command",
+      "inputs": ["issues/bugs/review/BUG-0034-chat-standalone-archive-scope-tool-path/acceptance.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/design.md", "src/backend/tests/test_chat.py"],
+      "argv": ["src/backend/.venv/bin/python", "-m", "pytest", "-q", "src/backend/tests/test_chat.py", "-k", "archives_standalone_change"],
+      "evidence_kinds": ["command"],
+      "timeout_seconds": 120,
+      "safe_retries": 0
+    },
+    {
+      "id": "AC-002",
+      "objective": "非归档命令、门禁不足或撤权时不授予归档权限。",
+      "kind": "command",
+      "inputs": ["issues/bugs/review/BUG-0034-chat-standalone-archive-scope-tool-path/acceptance.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/design.md", "src/backend/tests/test_chat.py", "src/backend/tests/test_chat_platform.py"],
+      "argv": ["src/backend/.venv/bin/python", "-m", "pytest", "-q", "src/backend/tests/test_chat.py", "src/backend/tests/test_chat_platform.py", "-k", "write_policy_grants_archive_scope or archive_permission_profile"],
+      "evidence_kinds": ["command"],
+      "timeout_seconds": 120,
+      "safe_retries": 0
+    },
+    {
+      "id": "AC-003",
+      "objective": "固定 PATH 能解析沙箱工具，且不扩大宿主挂载和网络边界。",
+      "kind": "command",
+      "inputs": ["issues/bugs/review/BUG-0034-chat-standalone-archive-scope-tool-path/acceptance.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/design.md", "src/backend/tests/test_chat_toolchain.py"],
+      "argv": ["src/backend/.venv/bin/python", "-m", "pytest", "-q", "src/backend/tests/test_chat_toolchain.py"],
+      "evidence_kinds": ["command"],
+      "timeout_seconds": 120,
+      "safe_retries": 0,
+      "evidence_note": "命令回归只覆盖配置；真实容器检查以 Change trace 中既有记录为历史证据。"
+    },
+    {
+      "id": "AC-004",
+      "objective": "隔离仓库归档完成规格、目录、Workflow Sync 与终态闭环。",
+      "kind": "command",
+      "inputs": ["issues/bugs/review/BUG-0034-chat-standalone-archive-scope-tool-path/acceptance.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/trace.md"],
+      "argv": ["src/backend/.venv/bin/python", "-c", "from pathlib import Path; p=Path('openspec/changes/fix-chat-standalone-archive-scope-tool-path/trace.md'); assert '隔离仓库归档' in p.read_text(encoding='utf-8')"],
+      "evidence_kinds": ["command", "file_state"],
+      "timeout_seconds": 30,
+      "evidence_note": "仅核查既有隔离归档记录；原始隔离样本未保留，需重新执行才可独立复核。"
+    },
+    {
+      "id": "AC-005",
+      "objective": "新可归档纯治理 Change 在产品对象 Chat 完成真实归档，核对同轮权限 profile、工具退出和事实源。",
+      "kind": "product_turn",
+      "inputs": ["issues/bugs/review/BUG-0034-chat-standalone-archive-scope-tool-path/acceptance.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/design.md", "openspec/changes/fix-chat-standalone-archive-scope-tool-path/trace.md"],
+      "turn_id": "8436f1d1-4381-423a-89f2-2f29f789edc0",
+      "command_contains": "archive-change.sh",
+      "evidence_kinds": ["product_turn", "file_state"],
+      "timeout_seconds": 180,
+      "required_sample": {"scope": "获授权的隔离产品 source 工作区纯治理 Change；记录完整对象 ID、轮次 ID、脱敏 profile 和归档事实", "status": "completed-source-archive"},
+      "artifacts": ["openspec/changes/fix-chat-standalone-archive-scope-tool-path/evidence/acceptance/samples/AC-005.md"]
+    }
+  ]
+}

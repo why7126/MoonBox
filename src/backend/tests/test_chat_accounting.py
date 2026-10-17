@@ -11,6 +11,71 @@ from app.chat.app_server import ExecutorError
 
 LIMITS=dict(user_concurrency=1,space_concurrency=1,user_monthly_tokens=10000,space_monthly_tokens=10000,user_storage_bytes=1000000,space_storage_bytes=1000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
 
+def test_terminal_grace_preserves_command_completion(chat,tmp_path):
+    from app.chat.schema import events
+    client,factory=chat;cid=create(client);path=tmp_path.resolve()/cid;path.mkdir()
+    class Peer:
+        def connect(self,_):return 'thread'
+        def start_turn(self,*_):
+            self.items=[
+                {'method':'item/started','params':{'threadId':'thread','turnId':'run','item':{'id':'cmd','type':'commandExecution'}}},
+                {'method':'turn/completed','params':{'threadId':'thread','turn':{'id':'run','status':'completed'}}},
+                {'method':'item/completed','params':{'threadId':'thread','turnId':'run','item':{'id':'cmd','type':'commandExecution','status':'completed','exitCode':0}}},
+                {'method':'thread/tokenUsage/updated','params':{'threadId':'thread','turnId':'run','tokenUsage':{'total':{'totalTokens':7}}}}]
+            return 'run'
+        def event(self,timeout):
+            if self.items:return self.items.pop(0)
+            raise ExecutorError('executor_disconnected')
+        def close(self):pass
+    with factory() as db:
+        row=enqueue(db,'alice',cid,'late-command','test',LIMITS);token=worker.claim(db,'worker')
+    assert run_claim(factory,token,path,lambda _:Peer())=='completed'
+    with factory() as db:
+        payloads=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.turn_id==row['id'],events.c.event_type=='execution.tool'))]
+        assert [value['phase'] for value in payloads]==['started','completed']
+        assert payloads[-1]['exit_code']==0
+        assert db.scalar(select(reservations.c.actual_tokens))==7
+
+def test_unknown_terminal_reconciliation_settles_persisted_receipt(chat,tmp_path):
+    from sqlalchemy import insert
+    from app.chat import service
+    from app.chat.execution import reconcile_unknown
+    from app.chat.schema import conversations, turns, events
+    client,factory=chat;cid=create(client);path=tmp_path.resolve()/cid;path.mkdir()
+    with factory() as db:
+        row=enqueue(db,'alice',cid,'recover-accounting','test',LIMITS)
+        db.execute(update(conversations).where(conversations.c.id==cid).values(workspace_id=cid,thread_id='thread'))
+        db.execute(update(turns).where(turns.c.id==row['id']).values(status='unknown',executor_turn_id='run'))
+        db.execute(insert(events).values(**service.identity(),turn_id=row['id'],sequence=1,source_id='runner:accounting',
+            event_type='execution.usage',payload=json.dumps({'total_tokens':17,'actual_bytes':123,'usage_scope':'app_server_process_v1'})))
+        db.commit()
+    class Peer:
+        def read_turn(self,thread,turn):return {'id':turn,'status':'completed','items':[
+            {'id':'archive-cmd','type':'commandExecution','status':'completed','exitCode':0},
+            {'id':'unfinished-cmd','type':'commandExecution','status':'inProgress'}]}
+        def close(self):pass
+    assert reconcile_unknown(factory,row['id'],path,lambda _:Peer())
+    assert not reconcile_unknown(factory,row['id'],path,lambda _:Peer())
+    with factory() as db:
+        assert db.scalar(select(reservations.c.status))=='settled'
+        assert db.scalar(select(reservations.c.actual_tokens))==17
+        assert db.scalar(select(turns.c.error_code)) is None
+        recovered=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.event_type=='execution.tool'))]
+        assert len(recovered)==1 and recovered[0]['exit_code']==0
+        terminal=json.loads(db.scalar(select(events.c.payload).where(events.c.source_id=='reconcile:terminal')))
+        assert terminal['usage_pending'] is False
+
+def test_archive_execution_prompt_uses_serial_recovery_contract(chat):
+    from app.governance.preparation import execution_prompt_for_turn
+    client,factory=chat;cid=create(client)
+    prompt='/opsx-archive BUG-9001-test-archive'
+    with factory() as db:
+        result=execution_prompt_for_turn(db,{'id':cid},prompt)
+        assert result.startswith(prompt+'\n')
+        assert 'scripts/archive-change.sh' in result and '--finalize' in result
+        assert 'shutil.move' in result and '禁止使用 Path.rename' in result
+        assert 'Workflow Sync' in result and 'Issue promote' in result
+
 @pytest.mark.parametrize('defer', [False, True])
 def test_late_usage_monotonic_scoped_idempotent(chat,tmp_path,monkeypatch,defer):
     client,factory=chat;cid=create(client);path=tmp_path.resolve()/cid;path.mkdir()

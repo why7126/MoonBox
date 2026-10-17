@@ -40,6 +40,22 @@ def test_legacy_hint_missing_and_invalid(tmp_path):
     assert 'missing severity' in resolve_classification(tmp_path, 'bug')[1]
 
 
+def test_generate_keeps_already_aligned_capture_bytes(tmp_path, monkeypatch):
+    import scripts.workflow_sync.patch as patch
+    monkeypatch.setattr(patch, 'ROOT', tmp_path)
+    folder = tmp_path / 'issues/bugs/plan/BUG-0099-test'
+    folder.mkdir(parents=True)
+    doc(folder / 'trace.md', 'severity: low')
+    doc(folder / 'capture.md', 'severity: low\nsource: capture')
+    original = (folder / 'capture.md').read_bytes()
+    issue = load_issue_record(folder, 'bug')
+
+    result = sync_classification(issue, write=True)
+
+    assert not any(item.changed for item in result)
+    assert (folder / 'capture.md').read_bytes() == original
+
+
 def test_registry_bug_field_is_severity(tmp_path, monkeypatch):
     import scripts.workflow_sync.patch as patch
     from scripts.workflow_sync.collect import IssueRecord
