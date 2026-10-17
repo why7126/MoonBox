@@ -1,5 +1,20 @@
-next_id: 45
+next_id: 46
 entries:
+- id: REQ-0045-isolated-acceptance-data-source-label
+  title: "隔离验收环境在需求中心显示数据源标识"
+  status: approved
+  priority: P2
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: review
+  path: issues/requirements/review/REQ-0045-isolated-acceptance-data-source-label/
+  created: '2026-10-11 10:20:11'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  related_requirements: []
+  related_changes: []
 - id: REQ-0044-shared-project-verification-environment
   title: "平台提供跨空间项目验证环境"
   status: done
@@ -31,6 +46,57 @@ entries:
   requester: user
   related_requirements:
   - REQ-0025-chat-workbench
+  related_changes: []
+- id: REQ-0042-agent-runtime-version-space-isolation
+  title: "Agent 运行环境版本治理与多空间隔离"
+  status: captured
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0042-agent-runtime-version-space-isolation/
+  created: '2026-10-06 21:29:24'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  related_requirements:
+  - REQ-0040-space-agent-model-reasoning-config
+  related_changes: []
+- id: REQ-0041-remove-capture-draft-binding-check
+  title: "移除新建 Capture 草稿的项目绑定版本校验"
+  status: draft
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0041-remove-capture-draft-binding-check/
+  created: '2026-10-05 23:30:19'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  parent_requirement: REQ-0029-capture-multimodal-candidate-review
+  related_requirements:
+  - REQ-0029-capture-multimodal-candidate-review
+  related_changes: []
+- id: REQ-0040-space-agent-model-reasoning-config
+  title: "空间级 Agent、模型与思考程度配置"
+  status: captured
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0040-space-agent-model-reasoning-config/
+  created: '2026-10-05 22:13:21'
+  iteration: null
+  related_change: null
+  type: feature
+  requester: user
+  parent_requirement: REQ-0035-chat-agent-model-reasoning-selector
+  related_requirements:
+  - REQ-0035-chat-agent-model-reasoning-selector
+  - REQ-0017-admin-space-management
   related_changes: []
 - id: REQ-0039-requirement-center-card-chat-session-reuse
   title: "需求中心卡片动作复用对象会话"

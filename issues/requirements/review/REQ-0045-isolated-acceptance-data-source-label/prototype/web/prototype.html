@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>需求中心数据来源标识结构原型</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0c1019; color: #f2f4f8; }
+    body { margin: 0; padding: 40px 32px; }
+    main { max-width: 1280px; margin: auto; }
+    header { display: flex; gap: 20px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+    h1 { margin: 0; font-size: 30px; }
+    .source { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; font-weight: 700; background: #513b18; color: #ffe1a6; }
+    .meta { color: #a9b5c8; font-size: 14px; }
+    button { border: 1px solid #779fd3; border-radius: 8px; background: #244a7b; color: white; padding: 10px 16px; font: inherit; }
+    .board { margin-top: 28px; padding: 24px; border: 1px solid #39475a; border-radius: 12px; color: #a9b5c8; }
+    .variants { margin-top: 24px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .variant { border: 1px solid #39475a; border-radius: 10px; padding: 16px; }
+    .normal { background: #1d3f38; color: #bce8d8; }
+    .unknown { background: #493039; color: #ffd1d8; }
+    .stale { background: #384153; color: #e0e8f8; }
+    @media (max-width: 600px) { body { padding: 20px 16px; } header { display: block; } header button { margin-top: 20px; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>需求研发流转看板</h1>
+        <div class="source" aria-label="数据来源：隔离验收数据">
+          <span class="badge">隔离验收数据</span>
+          <span class="meta">当前项目 · 快照 a1b2c3d4</span>
+        </div>
+      </div>
+      <button type="button">新建 Capture</button>
+    </header>
+    <section class="board" aria-label="现有需求看板区域">现有筛选、九阶段看板和卡片区域：本需求不改动卡片阶段推导。</section>
+    <section class="variants" aria-label="来源状态示例">
+      <div class="variant"><span class="badge normal">正常项目数据</span></div>
+      <div class="variant"><span class="badge unknown">数据来源待确认</span></div>
+      <div class="variant"><span class="badge stale">上次成功读取的快照</span> <button type="button">重试</button></div>
+    </section>
+  </main>
+</body>
+</html>

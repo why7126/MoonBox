@@ -28,8 +28,12 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| REQ-0045-isolated-acceptance-data-source-label | 隔离验收环境在需求中心显示数据源标识 | approved | review | P2 | 无 | 无 | 2026-10-11 10:37:48 | `/sprint-propose --req REQ-0045-isolated-acceptance-data-source-label` | `issues/requirements/review/REQ-0045-isolated-acceptance-data-source-label/trace.md` |
 | REQ-0044-shared-project-verification-environment | 平台提供跨空间项目验证环境 | done | archive | P1 | sprint-009 | add-shared-project-verification-environment | 2026-10-09 10:25:09 | 无 | `issues/requirements/archive/REQ-0044-shared-project-verification-environment/trace.md` |
 | REQ-0043-unify-data-mount-and-snapshot-rotation | 统一 data 目录边界与本地数据挂载及快照轮转 | done | archive | P1 | sprint-009 | add-local-data-mount-and-snapshot-rotation | 2026-10-08 17:44:19 | 无 | `issues/requirements/archive/REQ-0043-unify-data-mount-and-snapshot-rotation/trace.md` |
+| REQ-0042-agent-runtime-version-space-isolation | Agent 运行环境版本治理与多空间隔离 | captured | plan | P1 | 无 | 无 | 2026-10-06 21:30:34 | `/req-generate REQ-0042-agent-runtime-version-space-isolation` | `issues/requirements/plan/REQ-0042-agent-runtime-version-space-isolation/trace.md` |
+| REQ-0041-remove-capture-draft-binding-check | 移除新建 Capture 草稿的项目绑定版本校验 | draft | plan | P1 | 无 | 无 | 2026-10-08 23:03:55 | `/req-complete REQ-0041-remove-capture-draft-binding-check` | `issues/requirements/plan/REQ-0041-remove-capture-draft-binding-check/trace.md` |
+| REQ-0040-space-agent-model-reasoning-config | 空间级 Agent、模型与思考程度配置 | captured | plan | P1 | 无 | 无 | 2026-10-05 22:13:21 | `/req-generate REQ-0040-space-agent-model-reasoning-config` | `issues/requirements/plan/REQ-0040-space-agent-model-reasoning-config/trace.md` |
 | REQ-0039-requirement-center-card-chat-session-reuse | 需求中心卡片动作复用对象会话 | done | archive | P1 | sprint-008 | add-requirement-center-card-chat-session-reuse | 2026-10-06 00:21:08 | 无 | `issues/requirements/archive/REQ-0039-requirement-center-card-chat-session-reuse/trace.md` |
 | REQ-0038-capture-md | Capture 弹窗使用单一 MD 编辑器统一承载图片与文本文件 | P2 | captured | plan | 无 | 无 | 2026-09-16 20:00:07 | `/req-generate REQ-0038-capture-md` | `issues/requirements/plan/REQ-0038-capture-md/trace.md` |
 | REQ-0037-current-iteration-archive-entry | 当前迭代容量区域新增归档当前迭代入口 | done | archive | P1 | sprint-007 | add-current-iteration-archive-entry | 2026-09-17 10:24:50 | 无 | `issues/requirements/archive/REQ-0037-current-iteration-archive-entry/trace.md` |

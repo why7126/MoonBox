@@ -3,7 +3,7 @@ requirement_id: REQ-0026-requirement-center-standalone-change-cards
 title: 需求中心 Change 可见性与关联追溯
 status: done
 created_at: '2026-09-12 17:51:26'
-updated_at: 2026-09-17 08:12:45
+updated_at: 2026-10-11 10:02:56
 lifecycle_stage: archive
 lifecycle:
   generated: '2026-09-12 21:11:07'
@@ -101,3 +101,4 @@ REQ主文档、故事、流程、验收、trace、原型context及HTML已核对�
 | BUG | 严重等级 | 状态 | 关联 Change | 说明 |
 |---|---|---|---|---|
 | BUG-0018-standalone-change-acceptance-source-unverified | medium | done | fix-standalone-change-acceptance-source | 独立 Change 卡片误报验收来源待核实 |
+| BUG-0039-standalone-change-sprint-membership-false-warning | medium | captured | — | 需求中心纯 Change 卡片误报缺少 Sprint 归属 |

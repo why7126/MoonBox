@@ -3,7 +3,7 @@ requirement_id: REQ-0025-chat-workbench
 title: 实现 Chat 工作台功能
 status: done
 created_at: 2026-09-08 08:50:32
-updated_at: 2026-09-14 00:04:50
+updated_at: 2026-10-12 23:01:32
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-09-08 08:50:32
@@ -15,7 +15,7 @@ iteration: sprint-004
 openspec_changes:
   - change_id: add-chat-workbench-codex
     type: add
-    status: archived
+    status: proposed
 related_requirements:
 - REQ-0020-requirement-center-card-document-actions-ai-chat
 - REQ-0023-product-workbench-modern-ops-visual-system
@@ -249,3 +249,12 @@ product_data_collection_observability：status=applicable；affected_layers=[req
 本次只改变Web展示，事件持久化、SSE、API、DB、鉴权、停止/重试、Token计量不变，无需迁移或客户端生成。文件路径链接不在本次范围。
 - 2026-09-14 00:02:14 workflow-sync：状态同步为 done（Change archived）
 - 归档同步：/opsx-archive REQ-0025-chat-workbench
+
+## 关联缺陷
+
+| BUG | 严重等级 | 状态 | 关联 Change | 说明 |
+|---|---|---|---|---|
+| BUG-0029-chat-workbench-nonempty-page-scroll | medium | done | fix-chat-workbench-nonempty-page-scroll | Chat 工作台非空白对话出现页面级滚动条及底部布局异常 |
+| BUG-0030-chat-assistant-output-missing-from-conversation | high | done | fix-chat-assistant-output-missing-from-conversation | Chat 工作台已有助手输出事件但对话正文为空 |
+| BUG-0031-requirement-card-chat-skill-token-missing | medium | captured | — | 需求卡片跳转 Chat 后治理技能未显示为标签 |
+| BUG-0032-chat-session-deletion-precheck-blocked | high | captured | — | 删除会话预检提示工作区状态不可确认且确认按钮不可用 |

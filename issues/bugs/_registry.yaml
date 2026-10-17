@@ -42,6 +42,62 @@ entries:
   reporter: user
   related_requirement: null
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0039-standalone-change-sprint-membership-false-warning
+  title: 需求中心纯 Change 卡片误报缺少 Sprint 归属
+  status: captured
+  severity: medium
+  owner: MoonBox 产品团队
+  source: 用户截图与只读代码、Sprint 范围核对
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0039-standalone-change-sprint-membership-false-warning/
+  created: '2026-10-11 10:02:20'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0026-requirement-center-standalone-change-cards
+  related_bug: null
+- id: BUG-0038-sprint-009-missing-from-board
+  title: 需求看板未显示已存在的 sprint-009 迭代
+  status: enriching
+  severity: medium
+  owner: MoonBox 产品团队
+  source: 用户截图与 Firefox 只读取证
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0038-sprint-009-missing-from-board/
+  created: '2026-10-11 09:57:28'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
+- id: BUG-0037-change-status-projection-unknown
+  title: 需求看板将端口迁移 Change 误判为状态异常
+  status: pending_review
+  severity: medium
+  owner: MoonBox 产品团队
+  source: 用户截图与 Firefox 只读取证
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0037-change-status-projection-unknown/
+  created: '2026-10-11 09:57:28'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
+- id: BUG-0036-bug
+  title: "需求中心 Bug 生成治理链路验收隔离夹具"
+  status: draft
+  severity: low
+  owner: user_b6aa2646805846d49532232d30dcff48
+  source: capture
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0036-bug/
+  created: '2026-10-10 11:20:21'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: null
+  related_bug: null
 - id: BUG-0035-requirement-center-acceptance-readiness-projection
   title: "需求中心卡片验收进度与归档门禁不一致且验收文档入口消失"
   status: done
@@ -84,6 +140,34 @@ entries:
   reporter: user
   related_requirement: null
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
+- id: BUG-0032-chat-session-deletion-precheck-blocked
+  title: 删除会话预检提示工作区状态不可确认且确认按钮不可用
+  status: captured
+  severity: high
+  owner: 产品团队
+  source: 用户截图反馈与只读代码定位
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0032-chat-session-deletion-precheck-blocked/
+  created: '2026-10-05 23:22:00'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: null
+- id: BUG-0031-requirement-card-chat-skill-token-missing
+  title: 需求卡片跳转 Chat 后治理技能未显示为标签
+  status: captured
+  severity: medium
+  owner: 产品团队
+  source: 用户截图反馈与只读代码定位
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0031-requirement-card-chat-skill-token-missing/
+  created: '2026-10-05 23:15:20'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: BUG-0025-requirement-center-command-chain-write-gap
 - id: BUG-0030-chat-assistant-output-missing-from-conversation
   title: "Chat 工作台已有助手输出事件但对话正文为空"
   status: done
@@ -112,6 +196,20 @@ entries:
   reporter: user
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0027-page-scroll-bottom-light-background-exposed
+- id: BUG-0028-requirement-center-card-owner-raw-user-id
+  title: 需求中心 Capture 卡片直接显示内部用户标识
+  status: approved
+  severity: medium
+  owner: 产品团队
+  source: 用户截图反馈
+  lifecycle_stage: review
+  path: issues/bugs/review/BUG-0028-requirement-center-card-owner-raw-user-id/
+  created: '2026-10-05 22:23:03'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
 - id: BUG-0027-page-scroll-bottom-light-background-exposed
   title: "页面向上滑动时底部露出浅色背景"
   status: done
