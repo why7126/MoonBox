@@ -14,13 +14,16 @@ import subprocess
 import sys
 import time
 import tempfile
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src/backend"))
+from app.governance.acceptance_evidence import (
+    acceptance_manifests, artifact_path, artifacts_match, change_path, effects, fingerprint, fingerprint_input, input_bytes, latest_manifest, ordered_checks, read_plan, readiness, sample_ready, visual_coverage_problems, within
+)
 ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 AC_ID = re.compile(r"^AC-[A-Za-z0-9-]+$")
 TERMINAL = {"completed", "failed", "stopped"}
@@ -30,157 +33,11 @@ def stamp() -> str:
     return datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def within(base: Path, relative: str) -> Path:
-    path = Path(relative)
-    if path.is_absolute() or ".." in path.parts or not relative.strip():
-        raise ValueError(f"unsafe relative path: {relative!r}")
-    resolved = (base / path).resolve()
-    if not resolved.is_relative_to(base.resolve()):
-        raise ValueError(f"path escapes project: {relative!r}")
-    return resolved
-
-
-def change_path(root: Path, change: str) -> Path:
-    if not ID.fullmatch(change):
-        raise ValueError("invalid Change ID")
-    path = root / "openspec" / "changes" / change
-    if not path.is_dir():
-        raise ValueError(f"active Change missing: {change}")
-    return path
-
-
-def read_plan(change_dir: Path) -> dict:
-    path = change_dir / "acceptance-plan.json"
-    plan = json.loads(path.read_text(encoding="utf-8"))
-    plan_change = plan.get("change_id")
-    archive_name = bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}-" + re.escape(str(plan_change)), change_dir.name))
-    if plan.get("schema_version") != 1 or not isinstance(plan_change, str) or (plan_change != change_dir.name and not archive_name):
-        raise ValueError("acceptance plan identity/schema mismatch")
-    if not ID.fullmatch(str(plan.get("environment", "unspecified"))):
-        raise ValueError("invalid environment label")
-    checks = plan.get("checks")
-    if not isinstance(checks, list) or not checks:
-        raise ValueError("acceptance plan needs checks")
-    seen: set[str] = set()
-    for check in checks:
-        name = check.get("id")
-        if not isinstance(name, str) or not AC_ID.fullmatch(name) or name in seen:
-            raise ValueError("invalid or repeated AC ID")
-        seen.add(name)
-        if check.get("kind") not in {"command", "product_turn"}:
-            raise ValueError(f"{name}: invalid kind")
-        inputs = check.get("inputs")
-        if not isinstance(inputs, list) or not inputs or any(not isinstance(p, str) for p in inputs):
-            raise ValueError(f"{name}: explicit input files required")
-        evidence_kinds = check.get("evidence_kinds", [])
-        if not isinstance(evidence_kinds, list) or any(kind not in {"command", "product_turn", "visual", "file_state"} for kind in evidence_kinds):
-            raise ValueError(f"{name}: invalid evidence kinds")
-        sample = check.get("required_sample")
-        allowed_sample_statuses = {"passed", "partial", "pending"}
-        if archive_name and change_dir.parent.name == "archive":
-            allowed_sample_statuses.add("completed-source-archive")
-        if sample is not None and (not isinstance(sample, dict)
-                                   or sample.get("status") not in allowed_sample_statuses):
-            raise ValueError(f"{name}: invalid required sample status")
-        if "visual" in evidence_kinds:
-            coverage = check.get("coverage")
-            if not check.get("artifacts") or not isinstance(coverage, dict) or any(not isinstance(coverage.get(key), list) or not coverage[key] or any(not isinstance(value, str) or not value.strip() for value in coverage[key]) for key in ("stages", "viewports")):
-                raise ValueError(f"{name}: visual evidence requires artifacts, stages and viewports")
-        if check["kind"] == "command":
-            argv = check.get("argv")
-            if not isinstance(argv, list) or not argv or any(not isinstance(a, str) or not a for a in argv):
-                raise ValueError(f"{name}: argv list required")
-        else:
-            if not ID.fullmatch(str(check.get("turn_id", ""))) or not isinstance(check.get("command_contains"), str) or not check["command_contains"]:
-                raise ValueError(f"{name}: turn_id and command_contains required")
-            if not isinstance(check.get("expected_exit_code", 0), int) or check.get("expected_exit_code", 0) < 0:
-                raise ValueError(f"{name}: invalid expected_exit_code")
-            if not isinstance(check.get("require_acceptance_gate_blocked", False), bool):
-                raise ValueError(f"{name}: invalid require_acceptance_gate_blocked")
-            if check.get("require_acceptance_gate_blocked") and (check.get("expected_exit_code") != 1 or not check.get("effects")):
-                raise ValueError(f"{name}: negative acceptance gate requires exit code 1 and a state effect")
-        for effect in check.get("effects", []):
-            if effect.get("kind") not in {"exists", "absent", "contains"} or not isinstance(effect.get("path"), str):
-                raise ValueError(f"{name}: invalid file effect")
-            if effect["kind"] == "contains" and not isinstance(effect.get("text"), str):
-                raise ValueError(f"{name}: contains effect needs text")
-        artifacts = check.get("artifacts", [])
-        if not isinstance(artifacts, list) or any(not isinstance(item, str) for item in artifacts):
-            raise ValueError(f"{name}: artifacts must be relative paths")
-        for artifact in artifacts:
-            path = within(change_dir.parents[2], artifact)
-            relative = path.relative_to(change_dir.parents[2])
-            if relative.parts[0] in {"data", "logs", "tmp"} or path.name.startswith(".env"):
-                raise ValueError(f"{name}: raw or temporary artifacts cannot be retained")
-    issue_id = plan.get("issue_id")
-    if issue_id:
-        if not isinstance(issue_id, str) or not ID.fullmatch(issue_id) or not issue_id.startswith(("REQ-", "BUG-")):
-            raise ValueError("invalid Issue ID")
-        root = change_dir.parents[2]
-        domain = "requirements" if issue_id.startswith("REQ-") else "bugs"
-        matches = [root / "issues" / domain / stage / issue_id / "acceptance.md" for stage in ("plan", "review", "archive")]
-        matches = [path for path in matches if path.is_file()]
-        if len(matches) != 1:
-            raise ValueError("linked Issue acceptance document missing or ambiguous")
-        text = matches[0].read_text(encoding="utf-8")
-        issue_ac = set(re.findall(r"^(?:- \[[ xX]\] |\|\s*)(AC-[A-Za-z0-9-]+)(?:\b|\s*\|)", text, re.MULTILINE))
-        if issue_ac != seen:
-            raise ValueError("acceptance plan AC set differs from linked Issue")
-    return plan
-
-
-def fingerprint(root: Path, check: dict) -> str:
-    digest = hashlib.sha256(json.dumps(check, ensure_ascii=False, sort_keys=True).encode())
-    for relative in check["inputs"]:
-        path = within(root, relative)
-        digest.update(relative.encode())
-        digest.update(fingerprint_input(path, relative) if path.is_file() else b"<missing>")
-    return digest.hexdigest()
-
-
-def sample_ready(check: dict) -> bool:
-    sample = check.get('required_sample')
-    return not isinstance(sample, dict) or sample.get('status') == 'passed'
-
-
-def fingerprint_input(path: Path, relative: str) -> bytes:
-    """Hash Issue acceptance criteria without Workflow Sync's generated projection."""
-    content = path.read_bytes()
-    parts = Path(relative).parts
-    if not (len(parts) == 5 and parts[0] == "issues"
-            and parts[1] in {"bugs", "requirements"}
-            and parts[2] in {"plan", "review", "archive"}
-            and parts[4] == "acceptance.md"):
-        return content
-    text = content.decode("utf-8")
-    if text.startswith("---\n"):
-        _, front, body = text.split("---", 2)
-        front = "".join(line for line in front.splitlines(keepends=True)
-                        if not re.match(r"^(?:updated_at|acceptance_status):", line))
-        text = "---" + front + "---" + body
-    text = re.sub(r"(?ms)^## 验收结果回填[ \t]*\n.*?(?=^## |\Z)", "", text)
-    return text.encode("utf-8")
-
-
-def effects(root: Path, check: dict) -> list[str]:
-    problems: list[str] = []
-    for effect in check.get("effects", []):
-        path = within(root, effect["path"])
-        kind = effect["kind"]
-        if kind == "exists" and not path.exists():
-            problems.append(f"missing:{effect['path']}")
-        elif kind == "absent" and path.exists():
-            problems.append(f"present:{effect['path']}")
-        elif kind == "contains" and (not path.is_file() or effect["text"] not in path.read_text(encoding="utf-8", errors="replace")):
-            problems.append(f"text-missing:{effect['path']}")
-    return problems
-
-
 def artifact_records(root: Path, check: dict) -> tuple[list[dict], list[str]]:
     records = []
     missing = []
     for relative in check.get("artifacts", []):
-        path = within(root, relative)
+        path = artifact_path(root, relative)
         if not path.is_file():
             missing.append(f"artifact-missing:{relative}")
             continue
@@ -191,68 +48,20 @@ def artifact_records(root: Path, check: dict) -> tuple[list[dict], list[str]]:
     return records, missing
 
 
-def visual_coverage_problems(check: dict) -> list[str]:
-    if "visual" not in check.get("evidence_kinds", []):
-        return []
-    coverage = check["coverage"]
-    samples = coverage.get("samples")
-    if not isinstance(samples, list) or not samples:
-        return ["legacy-coverage-unmapped"]
-    planned = {(stage, viewport) for stage in coverage["stages"] for viewport in coverage["viewports"]}
-    seen: set[tuple[str, str]] = set()
-    problems: list[str] = []
-    declared = set(check.get("artifacts", []))
-    applicable = 0
-    for sample in samples:
-        if not isinstance(sample, dict):
-            problems.append("coverage-invalid-sample")
-            continue
-        key = (sample.get("stage"), sample.get("viewport"))
-        if not all(isinstance(value, str) and value.strip() for value in key):
-            problems.append("coverage-invalid-sample")
-            continue
-        if key not in planned or key in seen:
-            problems.append(f"coverage-invalid-or-duplicate:{key[0]}@{key[1]}")
-            continue
-        seen.add(key)
-        if sample.get("not_applicable") is True:
-            if not isinstance(sample.get("reason"), str) or not sample["reason"].strip():
-                problems.append(f"coverage-reason-missing:{key[0]}@{key[1]}")
-            continue
-        paths = sample.get("artifacts")
-        if not isinstance(paths, list) or not paths or any(not isinstance(path, str) or path not in declared for path in paths):
-            problems.append(f"coverage-artifact-unmapped:{key[0]}@{key[1]}")
-        else:
-            applicable += 1
-    problems.extend(f"coverage-missing:{stage}@{viewport}" for stage, viewport in sorted(planned - seen))
-    if not applicable:
-        problems.append("coverage-no-applicable-sample")
-    return problems
-
-
 def environment_problems(root: Path, check: dict, db_path: Path | None) -> list[str]:
     problems = visual_coverage_problems(check)
     if check["kind"] == "command":
         executable = check["argv"][0]
         if not shutil.which(executable):
             problems.append(f"command-unavailable:{Path(executable).name}")
-    elif db_path is None or not db_path.is_file():
-        problems.append("product-db-unavailable")
+    else:
+        if db_path is None or not db_path.is_file():
+            problems.append("product-db-unavailable")
+        if not check.get("turn_id") or str(check["turn_id"]).startswith("pending-"):
+            problems.append("turn-pending-collection")
     _, missing = artifact_records(root, check)
-    problems.extend(missing)
+    problems.extend(p for p in missing if not (p.startswith("artifact-missing:") and p.split(":", 1)[1] in check.get("produces_artifacts", [])))
     return problems
-
-
-def artifacts_match(root: Path, row: dict, *, archive_dir: Path | None = None) -> bool:
-    for item in row.get("artifacts", []):
-        path = within(root, item["path"])
-        if archive_dir:
-            parts = Path(item["path"]).parts
-            if len(parts) >= 4 and parts[:3] == ("openspec", "changes", archive_dir.name[11:]):
-                path = within(archive_dir, str(Path(*parts[3:])))
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item["sha256"]:
-            return False
-    return True
 
 
 def archived_manifest_artifacts_match(root: Path, archive_dir: Path, manifest: dict) -> bool:
@@ -288,7 +97,7 @@ def archived_manifest_artifacts_match(root: Path, archive_dir: Path, manifest: d
             used: set[str] = set()
             for item in row.get("artifacts", []):
                 parts = Path(item["path"]).parts
-                path = within(root, item["path"])
+                path = artifact_path(root, item["path"])
                 if len(parts) >= 4 and parts[:3] == ("openspec", "changes", plan["change_id"]):
                     path = within(archive_dir, str(Path(*parts[3:])))
                 if not path.is_file():
@@ -307,40 +116,21 @@ def archived_manifest_artifacts_match(root: Path, archive_dir: Path, manifest: d
         return False
 
 
-def acceptance_manifests(change_dir: Path) -> list[dict]:
-    base = change_dir / "evidence" / "acceptance"
-    manifests = []
-    for path in sorted(base.glob("*/manifest.json"), key=lambda item: item.stat().st_mtime_ns, reverse=True):
-        if path.parent.name.startswith("."):
-            continue
-        try:
-            manifests.append(json.loads(path.read_text(encoding="utf-8")))
-        except (OSError, ValueError):
-            continue
-    return manifests
-
-
-def latest_manifest(change_dir: Path) -> dict | None:
-    for manifest in acceptance_manifests(change_dir):
-        if manifest.get("scope", "complete") == "complete" and not any(row.get("reason") == "not-selected" for row in manifest.get("checks", [])):
-            return manifest
-    return None
-
-
 def reusable_checks(root: Path, change_dir: Path, plan: dict) -> dict[str, dict]:
     candidates: dict[str, dict] = {}
     planned = {check["id"]: check for check in plan["checks"]}
     observed: set[str] = set()
+    current_fingerprints = {name: fingerprint(root, check) for name, check in planned.items()}
     for manifest in acceptance_manifests(change_dir):
         for row in manifest.get("checks", []):
             name = row.get("id")
             # A diagnostic preflight never ran this check. Keep looking for an
             # earlier matching pass instead of letting a missing artifact in a
             # different AC erase otherwise valid evidence.
-            if name not in planned or name in observed or row.get("reason") in {"not-selected", "preflight-failed"}:
+            if name not in planned or name in observed or row.get("reason") in {"not-selected", "preflight-failed", "dependency-blocked", "pending-collection"}:
                 continue
             check = planned[name]
-            if row.get("fingerprint") != fingerprint(root, check):
+            if row.get("fingerprint") != current_fingerprints[name]:
                 continue
             observed.add(name)
             if row.get("status") == "passed" and sample_ready(check) and not effects(root, check) and not visual_coverage_problems(check) and artifacts_match(root, row):
@@ -395,6 +185,50 @@ def read_turn(db_path: Path, turn_id: str) -> dict:
     return {"turn_id": turn["id"], "conversation_id": turn["conversation_id"], "status": turn["status"], "error_code": error_code, "commands": commands}
 
 
+def trusted_archive_proof(db_path: Path, turn_id: str, object_id: str) -> dict:
+    """Read the direct archive path's durable result without inventing a tool event."""
+    uri = f"file:{db_path.resolve()}?mode=ro"
+    with sqlite3.connect(uri, uri=True, timeout=2) as db:
+        db.row_factory = sqlite3.Row
+        row = db.execute("""SELECT t.prompt, t.status, t.error_code, c.owner_id,
+                          c.space_id, c.repository_id FROM chat_turns t
+                          JOIN chat_conversations c ON c.id=t.conversation_id WHERE t.id=?""", (turn_id,)).fetchone()
+        if row is None:
+            raise ValueError("product turn not found")
+        primary = db.execute("SELECT object_id FROM chat_relations WHERE conversation_id=(SELECT conversation_id FROM chat_turns WHERE id=?) AND role='primary'", (turn_id,)).fetchall()
+        operations = db.execute("SELECT stage, actor_id FROM governance_archive_operations WHERE change_id=?", (object_id,)).fetchall()
+        events = db.execute("SELECT source_id, event_type, payload FROM chat_events WHERE turn_id=? ORDER BY sequence", (turn_id,)).fetchall()
+    observed = {}
+    for event in events:
+        if event["source_id"] not in {"archive:started", "archive:usage", "archive:terminal"}:
+            continue
+        try:
+            payload = json.loads(event["payload"])
+            if not isinstance(payload, dict):
+                return {"verified": False, "reason": "archive-event-invalid"}
+            observed[event["source_id"]] = (event["event_type"], payload)
+        except (TypeError, ValueError):
+            return {"verified": False, "reason": "archive-event-invalid"}
+    started = observed.get("archive:started")
+    usage = observed.get("archive:usage")
+    terminal = observed.get("archive:terminal")
+    verified = (row["prompt"] == f"/sprint-archive {object_id}"
+                and row["status"] == "completed" and row["error_code"] is None
+                and bool(row["space_id"] and row["repository_id"])
+                and len(primary) == 1 and primary[0]["object_id"] == object_id
+                and len(operations) == 1 and operations[0]["stage"] == "completed"
+                and operations[0]["actor_id"] == row["owner_id"]
+                and started == ("execution.state", {"status": "running", "executor": "trusted_archive"})
+                and terminal == ("execution.state", {"status": "completed"})
+                and usage is not None and usage[0] == "execution.usage"
+                and usage[1].get("usage_scope") == "trusted_archive_v1"
+                and usage[1].get("total_tokens") == 0
+                and usage[1].get("usage_pending") is False)
+    return {"verified": bool(verified), "reason": "same-turn-trusted-archive" if verified else "trusted-archive-proof-incomplete",
+            "operation_stage": operations[0]["stage"] if len(operations) == 1 else None,
+            "model_tokens": usage[1].get("total_tokens") if usage else None}
+
+
 def run_command(check: dict, root: Path) -> dict:
     timeout = min(max(int(check.get("timeout_seconds", 120)), 1), 900)
     attempts = min(max(int(check.get("safe_retries", 0)), 0), 2) + 1
@@ -424,6 +258,16 @@ def run_product_turn(check: dict, db_path: Path) -> dict:
         if turn["status"] in TERMINAL or time.monotonic() >= deadline:
             break
         time.sleep(2)
+    if check.get("execution_proof") == "trusted_archive_v1":
+        try:
+            proof = trusted_archive_proof(db_path, check["turn_id"], check["trusted_archive_object_id"])
+        except (sqlite3.Error, ValueError) as exc:
+            return {"status": "blocked", "reason": type(exc).__name__, "turn_id": check["turn_id"]}
+        status = "passed" if proof["verified"] else "failed" if turn["status"] in TERMINAL else "blocked"
+        return {"status": status, "reason": proof["reason"], "turn_id": turn["turn_id"],
+                "conversation_id": turn["conversation_id"], "turn_status": turn["status"],
+                "error_code": turn["error_code"], "operation_stage": proof.get("operation_stage"),
+                "model_tokens": proof.get("model_tokens")}
     matching = [c for c in turn["commands"] if check["command_contains"] in c["command"] and c["phase"] == "completed"]
     expected_exit = check.get("expected_exit_code", 0)
     successful = [c for c in matching if c["exit_code"] == expected_exit and
@@ -440,80 +284,132 @@ def run_product_turn(check: dict, db_path: Path) -> dict:
 
 
 def run_acceptance(root: Path, change: str, db_path: Path | None, selected: set[str] | None = None,
-                   db_aliases: dict[str, Path] | None = None) -> dict:
+                   db_aliases: dict[str, Path] | None = None, activity: dict | None = None) -> dict:
     change_dir = change_path(root, change)
     plan = read_plan(change_dir)
+    started_run = time.monotonic()
     previous_checks = reusable_checks(root, change_dir, plan)
     run_id = datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y%m%d%H%M%S%f") + "-" + uuid4().hex[:8]
     rows: list[dict] = []
-    preflight = plan.get("preflight", [])
-    for argv in preflight:
+    results = {}
+    preflight_results = []
+    for argv in plan.get("preflight", []):
         if not isinstance(argv, list) or not argv or any(not isinstance(arg, str) for arg in argv):
             raise ValueError("preflight must be argv lists")
-    required = [check for check in plan["checks"] if (not selected or check["id"] in selected) and check["id"] not in previous_checks]
-    preflight_problems = {check["id"]: environment_problems(root, check, db_path) for check in required}
-    if any("visual" in check.get("evidence_kinds", []) for check in required) and not preflight:
-        for check in required:
-            if "visual" in check.get("evidence_kinds", []):
-                preflight_problems[check["id"]].append("visual-preflight-missing")
-    preflight_results = []
-    if not any(preflight_problems.values()):
-        for argv in preflight:
-            result = run_command({"argv": argv, "timeout_seconds": 30}, root)
-            preflight_results.append(result)
-            if result["status"] != "passed":
-                break
-    if preflight_results and preflight_results[-1]["status"] != "passed":
-        result = preflight_results[-1]
-        detail = f"plan-preflight-{result['reason']}"
-        if "exit_code" in result:
-            detail += f"-{result['exit_code']}"
-        for check in required:
-            preflight_problems[check["id"]].append(detail)
-    healthy = not any(preflight_problems.values()) and all(result["status"] == "passed" for result in preflight_results)
-    def execute(check: dict, current_fingerprint: str) -> dict:
+        result = run_command({"argv": argv, "timeout_seconds": 30}, root)
+        preflight_results.append(result)
+        if result["status"] != "passed":
+            break
+    common_ok = all(r["status"] == "passed" for r in preflight_results)
+    cache = {}
+    metrics = {"command_executions": 0, "deduplicated": 0, "reused": 0,
+               "preflight_ms": round((time.monotonic() - started_run) * 1000)}
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=False)
+    source_revision = head.stdout.strip() if re.fullmatch(r"[0-9a-f]{40}", head.stdout.strip()) else None
+
+    def execute(check: dict, current_fingerprint: str, product_db: Path | None) -> dict:
         started = time.monotonic()
-        product_db = (db_aliases or {}).get(check.get("product_db", "default"), db_path)
-        result = run_command(check, root) if check["kind"] == "command" else run_product_turn(check, product_db) if product_db else {"status": "blocked", "reason": "product-db-required"}
+        deduplicated = False
+        if check["kind"] == "command":
+            key = hashlib.sha256(json.dumps({
+                "argv": check["argv"], "timeout": check.get("timeout_seconds", 120),
+                "retries": check.get("safe_retries", 0), "environment": plan.get("environment"),
+                "contract": plan.get("environment_contract"), "preflight": check.get("preflight"),
+                "inputs": [(p, hashlib.sha256(input_bytes(root, check, p)).hexdigest()) for p in check["inputs"]],
+            }, sort_keys=True).encode()).hexdigest()
+            if check.get("deduplicate") and key in cache:
+                result = dict(cache[key])
+                deduplicated = True
+                metrics["deduplicated"] += 1
+            else:
+                result = run_command(check, root)
+                metrics["command_executions"] += 1
+                if check.get("deduplicate") and result["status"] == "passed":
+                    cache[key] = dict(result)
+        else:
+            result = run_product_turn(check, product_db)
         artifact_list, missing_artifacts = artifact_records(root, check)
         problems = effects(root, check) + missing_artifacts
         if result["status"] == "passed" and problems:
             result.update(status="failed", reason="effect-missing")
         if result["status"] == "passed" and not sample_ready(check):
             result.update(status="blocked", reason="sample-incomplete")
-        return {"id": check["id"], "fingerprint": current_fingerprint, "reused": False, **result, "effect_problems": problems, "artifacts": artifact_list, "duration_ms": round((time.monotonic() - started) * 1000)}
+        if fingerprint(root, check) != current_fingerprint:
+            result.update(status="blocked", reason="inputs-changed-during-check")
+        return {"id": check["id"], "fingerprint": current_fingerprint, "reused": False,
+                "deduplicated": deduplicated, **result, "effect_problems": problems,
+                "artifacts": artifact_list, "duration_ms": round((time.monotonic() - started) * 1000)}
 
-    pending: list[tuple[dict, str]] = []
-    for check in plan["checks"]:
+    for check in ordered_checks(plan["checks"]):
         name = check["id"]
         current_fingerprint = fingerprint(root, check)
         old = previous_checks.get(name)
-        reusable = bool(old and old.get("status") == "passed" and sample_ready(check) and old.get("fingerprint") == current_fingerprint and not effects(root, check) and not visual_coverage_problems(check) and artifacts_match(root, old))
+        reusable = bool(old and old.get("fingerprint") == current_fingerprint and not effects(root, check) and artifacts_match(root, old))
+        product_db = (db_aliases or {}).get(check.get("product_db", "default"), db_path)
+        problems = environment_problems(root, check, product_db)
+        if "visual" in check.get("evidence_kinds", []) and not (plan.get("preflight") or check.get("preflight")):
+            problems.append("visual-preflight-missing")
+        dependencies = [d for d in check.get("depends_on", []) if results.get(d, {}).get("status") != "passed"]
+        row = {"id": name, "fingerprint": current_fingerprint, "status": "blocked", "reused": False}
         if selected and name not in selected and not reusable:
-            row = {"id": name, "status": "blocked", "reason": "not-selected", "fingerprint": current_fingerprint}
+            row.update(reason="not-selected")
+        elif dependencies:
+            row.update(reason="dependency-blocked", effect_problems=["dependency:" + d for d in dependencies])
         elif reusable:
-            row = {**old, "reused": True}
-        elif not healthy:
-            row = {"id": name, "status": "blocked", "reason": "preflight-failed", "fingerprint": current_fingerprint,
-                   "effect_problems": preflight_problems.get(name, [])}
-        elif check["kind"] == "command" and check.get("parallel_safe") is True:
-            pending.append((check, current_fingerprint))
-            continue
+            row = {**old, "reused": True, "duration_ms": 0, "deduplicated": False}
+            metrics["reused"] += 1
+        elif not common_ok:
+            row.update(reason="preflight-failed", effect_problems=["common-preflight-failed"])
+        elif check.get("collection", {}).get("state") == "blocked":
+            row.update(reason="collection-blocked", effect_problems=problems)
+        elif check.get("collection", {}).get("state", "collected") != "collected":
+            row.update(reason="pending-collection", effect_problems=problems)
+        elif problems:
+            collecting = all(p.startswith(("artifact-missing:", "turn-pending-collection")) for p in problems)
+            row.update(reason="pending-collection" if collecting else "preflight-failed", effect_problems=problems)
         else:
-            row = execute(check, current_fingerprint)
-        rows.append(row)
-    if pending:
-        with ThreadPoolExecutor(max_workers=min(3, len(pending))) as pool:
-            futures = [pool.submit(execute, check, fp) for check, fp in pending]
-            rows.extend(future.result() for future in futures)
-    rows.sort(key=lambda row: next(index for index, check in enumerate(plan["checks"]) if check["id"] == row["id"]))
-    for check, row in zip(plan["checks"], rows):
+            local = []
+            for argv in check.get("preflight", []):
+                if not isinstance(argv, list) or not argv or any(not isinstance(a, str) for a in argv):
+                    raise ValueError("AC preflight must be argv lists")
+                local.append(run_command({"argv": argv, "timeout_seconds": 30}, root))
+                if local[-1]["status"] != "passed":
+                    break
+            if any(r["status"] != "passed" for r in local):
+                row.update(reason="preflight-failed", effect_problems=["local-preflight-failed"])
+            else:
+                row = execute(check, current_fingerprint, product_db)
         row["evidence_kinds"] = check.get("evidence_kinds") or [check["kind"]]
-    verdict = "passed" if all(row["status"] == "passed" for row in rows) else "failed" if any(row["status"] == "failed" for row in rows) else "blocked"
-    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=False)
-    source_revision = head.stdout.strip() if head.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", head.stdout.strip()) else None
-    scope = "diagnostic" if not healthy or (selected and any(row.get("reason") == "not-selected" for row in rows)) else "complete"
-    manifest = {"schema_version": 1, "change_id": change, "run_id": run_id, "created_at": stamp(), "source_revision": source_revision, "environment": plan.get("environment", "unspecified"), "scope": scope, "status": verdict, "preflight": preflight_results, "checks": rows}
+        row["collection_state"] = ("passed" if row["status"] == "passed" else "failed" if row["status"] == "failed"
+                                   else "pending_collection" if row["reason"] == "pending-collection" else "blocked")
+        rows.append(row)
+        results[name] = row
+        # A validated diagnostic checkpoint preserves completed work after interruption.
+        checkpoint = {"schema_version": 1, "change_id": change, "run_id": run_id + "-checkpoint-" + name,
+                      "created_at": stamp(), "scope": "diagnostic", "status": "blocked", "checks": [row]}
+        checkpoint_summary = "---\ntitle: 验收续接检查点\n---\n\n# 验收续接检查点\n\n结论：blocked。\n" + "\n".join(
+            f"| {r['id']} | {r['status']} | {','.join(r['evidence_kinds'])} | " +
+            ','.join(a['path'] for a in r.get('artifacts', [])) + " |" for r in [row])
+        validate_report(checkpoint, checkpoint_summary)
+        checkpoint_dir = change_dir / "evidence/acceptance/checkpoints" / (run_id + "-checkpoint-" + name)
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        (checkpoint_dir / "summary.md").write_text(checkpoint_summary)
+        temp = checkpoint_dir / "manifest.tmp"
+        temp.write_text(json.dumps(checkpoint, ensure_ascii=False))
+        os.replace(temp, checkpoint_dir / "manifest.json")
+    rows.sort(key=lambda row: next(i for i, c in enumerate(plan["checks"]) if c["id"] == row["id"]))
+    verdict = "passed" if all(r["status"] == "passed" for r in rows) else "failed" if any(r["status"] == "failed" for r in rows) else "blocked"
+    if not common_ok and verdict == "passed":
+        verdict = "blocked"
+    diagnostic = not common_ok or any(r.get("reason") in {"not-selected", "preflight-failed", "pending-collection", "dependency-blocked", "collection-blocked"} for r in rows)
+    scope = "diagnostic" if diagnostic else "complete"
+    metrics.update(duration_ms=round((time.monotonic() - started_run) * 1000),
+                   blocked=sum(r["status"] == "blocked" for r in rows),
+                   failed=sum(r["status"] == "failed" for r in rows))
+    manifest = {"schema_version": 1, "change_id": change, "run_id": run_id, "created_at": stamp(),
+                "source_revision": source_revision, "environment": plan.get("environment", "unspecified"),
+                "scope": scope, "status": verdict, "preflight": preflight_results, "checks": rows, "metrics": metrics,
+                "activity": activity or {"status": "unavailable"}}
     dest = change_dir / "evidence" / "acceptance" / run_id
     dest.parent.mkdir(parents=True, exist_ok=True)
     trace_text = (change_dir / "trace.md").read_text(encoding="utf-8") if (change_dir / "trace.md").is_file() else ""
@@ -540,33 +436,59 @@ def run_acceptance(root: Path, change: str, db_path: Path | None, selected: set[
     finally:
         if staging.exists():
             shutil.rmtree(staging)
-    return {"status": verdict, "scope": scope, "run_id": run_id, "path": str(dest.relative_to(root)), "checks": len(rows)}
+    from app.governance.archive_admission import change_acceptance
+    archive = change_acceptance(root, change)
+    return {"status": verdict, "scope": scope, "run_id": run_id, "path": str(dest.relative_to(root)), "checks": len(rows), "metrics": metrics, "pending_collection": [r["id"] for r in rows if r.get("collection_state") == "pending_collection"],
+            "archive_admission": archive, "archive_ready": verdict == "passed" and archive["ready"],
+            "final_admission_required": True}
 
 
-def readiness(root: Path, change: str) -> dict:
-    change_dir = change_path(root, change)
-    plan = read_plan(change_dir)
-    manifest = latest_manifest(change_dir)
-    if not manifest:
-        return {"status": "blocked", "reason": "manifest-missing"}
-    rows = {row["id"]: row for row in manifest.get("checks", [])}
-    stale = [check["id"] for check in plan["checks"] if not sample_ready(check) or rows.get(check["id"], {}).get("status") != "passed" or rows[check["id"]].get("fingerprint") != fingerprint(root, check) or effects(root, check) or visual_coverage_problems(check) or not artifacts_match(root, rows[check["id"]])]
-    # A newer substantive diagnostic failure revokes an older complete pass;
-    # missing/unselected rows in a partial run do not affect readiness.
-    observed: set[str] = set()
-    planned = {check["id"]: check for check in plan["checks"]}
-    for newer in acceptance_manifests(change_dir):
-        if newer.get("run_id") == manifest.get("run_id"):
-            break
-        for row in newer.get("checks", []):
-            name = row.get("id")
-            check = planned.get(name)
-            if not check or name in observed or row.get("reason") == "not-selected" or row.get("fingerprint") != fingerprint(root, check):
-                continue
-            observed.add(name)
-            if row.get("status") == "failed" and name not in stale:
-                stale.append(name)
-    return {"status": "ready" if not stale and manifest.get("status") == "passed" else "blocked", "stale": stale, "run_id": manifest.get("run_id")}
+def acceptance_queue(root: Path, change: str, db_path: Path | None, aliases: dict | None = None) -> dict:
+    """Read-only handoff to the Agent; never creates samples or grants permission."""
+    directory = change_path(root, change)
+    plan = read_plan(directory)
+    reusable = reusable_checks(root, directory, plan)
+    queue = []
+    for check in ordered_checks(plan["checks"]):
+        name = check["id"]
+        problems = environment_problems(root, check, (aliases or {}).get(check.get("product_db", "default"), db_path))
+        dependencies = [d for d in check.get("depends_on", []) if d not in reusable]
+        if name in reusable and not dependencies:
+            state, action = "passed", "reuse"
+        elif dependencies:
+            state, action = "blocked", "complete-dependencies"
+        elif any(p.startswith(("product-db-unavailable", "command-unavailable")) for p in problems):
+            state, action = "blocked", "restore-environment"
+        elif check.get("collection", {}).get("state") == "blocked":
+            state, action = "blocked", "resolve-recorded-blocker"
+        elif problems or not sample_ready(check) or check.get("collection", {}).get("state") in {"pending", "collecting", "blocked"}:
+            state, action = "pending_collection", "collect-with-existing-authorization"
+        else:
+            state, action = "ready", "execute-check"
+        queue.append({"id": name, "state": state, "action": action, "dependencies": dependencies, "gaps": problems})
+    return {"status": "queue-ready", "change_id": change, "queue": queue,
+            "executable": [r["id"] for r in queue if r["state"] == "ready"],
+            "pending_collection": [r["id"] for r in queue if r["state"] == "pending_collection"]}
+
+
+def activity_summary(path: Path | None) -> dict:
+    if path is None:
+        return {"status": "unavailable"}
+    events = json.loads(path.read_text())
+    phases = {"environment", "collection", "testing", "repair", "waiting", "archive"}
+    if not isinstance(events, list):
+        raise ValueError("activity must be a list of phase/duration_ms events")
+    totals = {phase: 0 for phase in sorted(phases)}
+    interventions = 0
+    for event in events:
+        if (not isinstance(event, dict) or set(event) - {"phase", "duration_ms", "human_intervention"}
+                or event.get("phase") not in phases or type(event.get("duration_ms")) is not int
+                or event["duration_ms"] < 0 or type(event.get("human_intervention", False)) is not bool):
+            raise ValueError("invalid activity event; raw text/identity is not accepted")
+        totals[event["phase"]] += event["duration_ms"]
+        interventions += int(event.get("human_intervention", False))
+    return {"status": "reported", "phase_ms": totals, "human_interventions": interventions,
+            "event_count": len(events)}
 
 
 def main() -> int:
@@ -577,7 +499,11 @@ def main() -> int:
     parser.add_argument("--db-alias", action="append", default=[], metavar="NAME=PATH",
                         help="Additional authorized read-only product SQLite for checks declaring product_db")
     parser.add_argument("--only", action="append", help="Run selected AC; reuse valid others")
-    parser.add_argument("--readiness", action="store_true", help="Check current evidence without executing")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--readiness", action="store_true", help="Check current evidence without executing")
+    mode.add_argument("--archive-readiness", action="store_true", help="Check final shared product/CLI admission after all acceptance hooks")
+    parser.add_argument("--activity-file", type=Path, help="Optional sanitized phase duration events; distinct from measured check timing")
+    mode.add_argument("--queue", action="store_true", help="Read-only per-AC next actions for Agent collection and resume")
     args = parser.parse_args()
     try:
         aliases = {}
@@ -586,11 +512,16 @@ def main() -> int:
             if not sep or not re.fullmatch(r"[a-z][a-z0-9_-]*", name) or not path:
                 raise ValueError("invalid --db-alias; expected NAME=PATH")
             aliases[name] = Path(path)
-        result = readiness(args.root, args.change) if args.readiness else run_acceptance(args.root, args.change, args.db, set(args.only) if args.only else None, aliases)
+        if args.archive_readiness:
+            from app.governance.archive_admission import change_acceptance
+            admission = change_acceptance(args.root, args.change)
+            result = {**admission, "status": "ready" if admission["ready"] else "blocked"}
+        else:
+            result = acceptance_queue(args.root, args.change, args.db, aliases) if args.queue else readiness(args.root, args.change) if args.readiness else run_acceptance(args.root, args.change, args.db, set(args.only) if args.only else None, aliases, activity_summary(args.activity_file))
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         result = {"status": "blocked", "reason": str(exc)}
     print(json.dumps(result, ensure_ascii=False))
-    return 0 if result["status"] in {"passed", "ready"} else 1
+    return 0 if result["status"] in {"passed", "ready", "queue-ready"} else 1
 
 
 if __name__ == "__main__":

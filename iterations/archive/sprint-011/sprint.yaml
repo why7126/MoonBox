@@ -1,0 +1,93 @@
+sprint_id: sprint-011
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-20 09:08:32'
+updated_at: '2026-10-21 19:15:57'
+start_date: '2026-10-20 09:08:32'
+end_date: '2026-11-03 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0046-chat-execution-output-status-feedback
+bugs:
+  - BUG-0052-verified-result-execution-guard-not-released
+  - BUG-0053-deployed-acceptance-input-resolution
+  - BUG-0054-change-card-blocked-reason-missing
+  - BUG-0055-chat-turn-message-order-inversion
+changes:
+  - fix-verified-result-execution-guard-convergence
+  - fix-chat-unified-run-status-verification
+  - optimize-acceptance-stable-validation
+  - optimize-governance-feedback-loop
+  - fix-deployed-acceptance-input-resolution
+  - fix-change-card-blocked-reason
+  - fix-archive-usage-attribution
+  - fix-chat-turn-message-order
+estimated_story_points: 34
+estimated_person_days: 29.5
+scope_estimates:
+  - id: BUG-0052-verified-result-execution-guard-not-released
+    bug: BUG-0052-verified-result-execution-guard-not-released
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 证明与准入边界2人天、持久交接及补偿2人天、幂等权限故障回归2人天、真实样本与联合契约验收2人天；共8人天。
+    change: fix-verified-result-execution-guard-convergence
+  - id: REQ-0046-chat-execution-output-status-feedback
+    change: fix-chat-unified-run-status-verification
+    requirement: REQ-0046-chat-execution-output-status-feedback
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 状态映射2人天、状态条详情动作族2人天、跨看板核验1人天、双视口及真实联合验收2人天、文档增量复验1人天；复用BUG-0052后端能力。
+  - id: optimize-acceptance-stable-validation
+    change: optimize-acceptance-stable-validation
+    size: S
+    story_points: 2
+    estimated_person_days: 0.5
+    rationale: 用户授权验收编排、证据复用与进度反馈治理优化
+  - id: optimize-governance-feedback-loop
+    change: optimize-governance-feedback-loop
+    size: M
+    story_points: 5
+    estimated_person_days: 3
+    rationale: 用户授权治理量化闭环：运行归因与采集1人天、分级决策及收益评估1人天、测试与治理文档1人天
+  - id: BUG-0053-deployed-acceptance-input-resolution
+    change: fix-deployed-acceptance-input-resolution
+    bug: BUG-0053-deployed-acceptance-input-resolution
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 输入权威来源与安全边界1人天，指纹及负向回归1人天，部署取证和文档验收1人天；复用S10-A002分层证据实践。
+  - id: BUG-0054-change-card-blocked-reason-missing
+    change: fix-change-card-blocked-reason
+    bug: BUG-0054-change-card-blocked-reason-missing
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 诊断传播及中文提示0.5人天，脱敏负向回归与真实卡片验收0.5人天；与BUG-0053共享样本但独立验收。
+  - id: fix-archive-usage-attribution
+    change: fix-archive-usage-attribution
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 修复归档用量 Sprint 归属及桌面会话用户消息解析，保留实际用量边界
+  - id: BUG-0055-chat-turn-message-order-inversion
+    change: fix-chat-turn-message-order
+    bug: BUG-0055-chat-turn-message-order-inversion
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 统一排序及时间契约1人天、分页与历史兼容1.5人天、Web合并和流式恢复1人天、接口集成及部署产品验收1人天、文档与客户端同步0.5人天；复用S10-A002分层证据，不重放历史归档。
+capacity_usage: 0.9833
+fix_buffer_person_days: 0.5
+fix_buffer_ratio: 0.0167
+knowledge_intake:
+  - action_id: S10-A002
+    scope: 仅复用分层证据与串行样本实践；通用治理扩展仍open
+    source: docs/knowledge-base/retrospectives/sprint-010-retrospective.md
+  - action_id: S9-A004
+    scope: 关联经验；不整体纳入
+    source: docs/knowledge-base/retrospectives/sprint-009-retrospective.md

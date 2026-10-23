@@ -3,6 +3,7 @@ name = "moonbox-backend"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+  "cryptography==46.0.7",
   "fastapi>=0.115.0",
   "minio>=7.2.0",
   "python-multipart>=0.0.9",

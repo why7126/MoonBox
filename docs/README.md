@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-12 23:08:16
+updated_at: 2026-10-23 08:31:02
 owner: MoonBox 产品团队
 ---
 
@@ -21,7 +21,7 @@ owner: MoonBox 产品团队
 | `pending-decisions.md` | 集中未决策事项 |
 | `standards/` | API、认证、测试、上传、安全、产品数据采集、链路观测、原型驱动 UI 验收等专项标准 |
 | `standards/product-data-collection-observability.md` | 行为事件、请求日志、Task Trace、流程节点、脱敏、保留周期和治理门禁 |
-| `standards/opsx-acceptance.md` | OpenSpec 逐 AC 自动验收、环境与证据预检、视觉阶段视口矩阵、产品轮次取证、增量复验与归档就绪 |
+| `standards/opsx-acceptance.md` | OpenSpec 逐 AC 连续验收、局部预检、采集队列、检查点、精确复用、环境样本契约、耗时指标与归档预演 |
 | `standards/task-trace-coverage.md` | MoonBox 任务链路候选场景、接入优先级和流程节点策略 |
 | `../data/ai-usage/README.md` | AI Usage 本地 session JSONL 输入、脱敏派生事实、自动发现与历史回填边界 |
 | `standards/prototype-ui-acceptance.md` | 带 prototype 的 UI Change 的 UI Contract、Skeleton、截图、computed style、Mock/API 和一致性验收清单 |
@@ -36,3 +36,7 @@ owner: MoonBox 产品团队
 - [Change 身份唯一性](../rules/document-governance.md#change-身份唯一性)：创建前占用检查、归档门禁及历史身份纠正。
 
 - [本地取证日志目录](../rules/directory-structure.md#本地取证日志目录)：logs/ 忽略边界与归档证据转存。
+
+- [治理执行量化与分级优化闭环](standards/governance-feedback-loop.md)：耗时、Token、预算、受控修复、净收益与成本记录；脚本入口 `scripts/governance_feedback.py --help`。
+
+- [产品经理视角沟通](../rules/language.md#产品经理视角沟通)：业务结果优先、术语解释和决策取舍说明。

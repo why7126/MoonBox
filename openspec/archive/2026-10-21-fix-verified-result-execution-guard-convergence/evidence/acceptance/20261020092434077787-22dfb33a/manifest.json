@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-verified-result-execution-guard-convergence",
+  "run_id": "20261020092434077787-22dfb33a",
+  "created_at": "2026-10-20 09:25:13",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "78295a30ba3c12fabb854eebd47826ce7286d51ec33ed072e62b18b182d57994",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 6132,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "9452d84ca2ec04d43aced2f724a5ccafc5fea26c9b845e840602e3802a794181",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 5599,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "de5cc87549119b6f206076ad475ddc62c34a66fd4f8aaa7ccdfd88c5ddd5ebbb",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1128,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "2b2e94a7ca04ef1284c94473f009b49796a40d78b53882f1915f000c4a852c6e",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 734,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "7e60c20d2e736a3c0af11c5eab9ab5591e9ffc326f163de42be343ad34173931",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3639,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "84c62f4b4fcfb4c342177bb37cdd5cbf7a20e0ee84dba65fdb0265f0d1ebec40",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 4082,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "a3b8250abfe7dffe7b5330429414eb73a60d53e7cec129480b578d743a3623c3",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 435,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "ee223f6dc7b0d269cb71dfa6564c2561bc9a59b7d2b2ce3a52ba8d780a5002c2",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1045,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "21aafd96dd59757a6d66794d47e343acae51625a99a5f31c44d718befec52804",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "inputs-changed-during-check",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 5258,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "b0c254232a16e7ee01af827a405c1991cf2bf88fa55c36d16cdbbaba7496c1b4",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 5318,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "95c94b9d33a31b73975e78dde83b6fc35f46d5293d89c2b8401b1bab026e25d1",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3751,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "f10ade590b9e91a40b707ec920b6fc9c8c2d82242b974f8d42c0ec535a2f9282",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2393,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 12,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 15,
+    "duration_ms": 39581,
+    "blocked": 5,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

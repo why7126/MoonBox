@@ -5,6 +5,7 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
 from app.chat import service
 from app.chat.schema import conversations, turns, messages, usage_accounts, reservations
+from app.governance.execution_guard import Replay
 
 
 def _account(db, key):
@@ -24,6 +25,9 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
     if not limits:
         raise service.ChatError(2505, '执行额度尚未配置', 503)
     row = service.conversation(db, actor, cid)
+    from app.governance.execution_context import prepare as prepare_guard, acquire as acquire_guard, fingerprint
+    prior_id = db.scalar(select(turns.c.id).where(turns.c.conversation_id == cid, turns.c.client_request_id == client_id))
+    guard_context = None if prior_id else prepare_guard(db, actor, row, prompt, client_id=client_id)
     # Serialize on the conversation before looking up idempotency, including concurrent duplicates.
     won = db.execute(update(conversations).where(conversations.c.id == cid,
         conversations.c.deleted_at.is_(None)).values(updated_at=service.now())).rowcount
@@ -52,6 +56,8 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
     reserve_tokens, reserve_bytes = limits['turn_reserved_tokens'] or 0, limits['turn_reserved_bytes']
     # Fixed space/user lock order also serializes different conversations sharing quotas.
     try:
+        acquire_guard(db, guard_context, tid, row, actor, client_id=client_id,
+                      request_fingerprint=fingerprint(prompt, materials, execution_config))
         for kind, identifier in [('space', row['space_id']), ('user', actor)]:
             base = f'{kind}:{identifier}'
             for key in (base, f'{base}:{period}'):
@@ -91,7 +97,17 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
         from app.chat.observability import trace
         trace(db,tid,'queued',actor=actor,request_id=request_id,
             metadata={**service.material_counts(materials), **service.execution_config_metadata(execution_config)})
+        if guard_context:
+            from app.governance.execution_guard import observe
+            for oid, _ in guard_context['objects']:
+                observe(db, tid, 'admitted', object_id=oid, action=guard_context['action'])
         db.commit()
+    except Replay as replay:
+        db.rollback()
+        previous = service.turn(db, actor, replay.operation_id)
+        result = service.public_turn(previous)
+        result.update(service.material_counts(service.read_turn_materials(db, [previous['id']]).get(previous['id'], [])))
+        return result
     except Exception:
         db.rollback(); raise
     result = service.public_turn(service.turn(db, actor, tid))

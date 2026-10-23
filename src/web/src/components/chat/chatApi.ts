@@ -1,3 +1,4 @@
+import type { ArchiveBlocker } from "./ArchiveBlockers";
 import { readValidFrontendSession, redirectToFrontendLogin } from "../../pages/home/frontendSession";
 import type { ConversationRead as GeneratedConversationRead, ConversationPage, TurnRead as GeneratedTurnRead } from "../../api/generated/chat";
 export type ConversationRead = GeneratedConversationRead & { write_scope?: string; write_reason_code?: string };
@@ -13,7 +14,7 @@ export type ChatRepository = { id: string; space_id: string; branches?: BranchCa
 export type UploadedMaterial = { ref_id: string; kind: "image" | "file"; name: string; mime_type: string; size_bytes: number; status: string };
 export type Capabilities = { execution_ready: boolean; reason: string; reason_code?: string; repositories: ChatRepository[]; materials?: MaterialLimits; execution?: ExecutionCapabilities };
 export type Space = { id: string; name: string };
-export class ChatApiError extends Error { constructor(public status: number, message: string) { super(message); } }
+export class ChatApiError extends Error { constructor(public status: number, message: string, public archiveBlockers: ArchiveBlocker[] = []) { super(message); } }
 export function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
 }
@@ -29,7 +30,7 @@ function authError(message = "登录已失效，请重新登录") {
 }
 function chatStatusError(response: Response, body: any, fallback: string) {
   if (response.status === 401) return authError();
-  return new ChatApiError(response.status, response.status === 403 ? (body?.code === 2509 ? "关联对象不可访问，请检查对象状态或权限" : "无权访问当前空间或会话，请切换空间") : body?.message || fallback);
+  return new ChatApiError(response.status, response.status === 403 ? (body?.code === 2509 ? "关联对象不可访问，请检查对象状态或权限" : "无权访问当前空间或会话，请切换空间") : body?.message || fallback, parseArchiveBlockers(body?.data?.archive_blockers));
 }
 export async function chatRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = readValidFrontendSession()?.access_token;
@@ -77,3 +78,11 @@ export async function fetchChatMaterialBlob(path: string, signal?: AbortSignal):
 }
 export const listSessions = (space: string, query: string, archived: boolean | "all" | "pinned", page: number, signal?: AbortSignal) => chatRequest<ConversationPage>(`/conversations?${new URLSearchParams({ space_id: space, q: query, archived: String(archived === true), ...(typeof archived === "string" ? { filter: archived } : {}), page: String(page), page_size: "20" })}`, { signal });
 export const patchSession = (id: string, patch: { title?: string; pinned?: boolean; archived?: boolean }) => chatRequest<ConversationRead>(`/conversations/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(patch) });
+
+export function parseArchiveBlockers(value: unknown): ArchiveBlocker[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 30).filter((item): item is ArchiveBlocker => !!item && typeof item === "object"
+    && ["requirement", "bug", "change", "acceptance_report", "permission", "workflow_sync", "capacity"].includes(item.type)
+    && typeof item.message === "string" && item.message.length <= 1500 && item.visible !== false
+    && [item.id, item.status, item.action_hint].every(v => v == null || typeof v === "string" && v.length <= 1500));
+}

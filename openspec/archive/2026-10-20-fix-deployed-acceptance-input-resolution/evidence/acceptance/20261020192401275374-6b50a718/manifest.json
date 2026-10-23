@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-deployed-acceptance-input-resolution",
+  "run_id": "20261020192401275374-6b50a718",
+  "created_at": "2026-10-20 19:24:51",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "local-docker",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "80f90eb8d2fc8896b17bd3176b7bac3a6758eb3eb09da5f6b7118f04001090d4",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 24970,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "a08eaaa8cb6fe3cc21ffe9ccbdd4ad90a1821ec9a527232af3718b456b72d124",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-blocked.png",
+          "sha256": "c3c6ee7afb2c3458b53ec52581aee49c07c963f2c20a8777d46f2b1c61e8f6b4"
+        },
+        {
+          "path": "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-ready.png",
+          "sha256": "726f8e956e77a88f52d0164dbb4c5ffdfb8cf714b71fd0ab64e76e40dd32e3b4"
+        },
+        {
+          "path": "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployment-observation.json",
+          "sha256": "40629271600e40df951f07bd5b6e669c6ffc15137cb66474e61a1a2f27957ad1"
+        },
+        {
+          "path": "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/archive-prepared.png",
+          "sha256": "41b5264ab0bebb0fb156b9ad5c44c440efd30a252f700fd1120acc03865be7f8"
+        }
+      ],
+      "duration_ms": 25026,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "08ff5ab57c414fbfd57b3f97d52f51112ea3d9423f74d02278a342e069b0996a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "1f37986fb04248295cc9ff62a4ca030533639f611dffcc6c740eab26187f939d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "969ff0e6f118accebe7648eb6d0248671ec576593c4f4fea8fbb60df00879c6c",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 3,
+    "reused": 0,
+    "preflight_ms": 36,
+    "duration_ms": 50147,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -281,3 +281,7 @@ product_data_collection_observability：applicable。affected_layers：API、DB�
 Chat 在既有 execution.state payload 的 permission_decision 中记录 scope、reason_code、turn_id、时间和治理输入的 SHA-256 摘要。entry_sha256 为本次读取注册表条目的规范 JSON 摘要；change_sha256/sprint_sha256 为该次读取文本摘要，不代表事后重新读取的版本。未走实现判定路径时输入摘要可能不齐，不补造。
 
 phase 区分 selected、acknowledged、unknown。selected_profile 仅表示选用配置；acknowledged_profile 表示 turn/start 请求获得执行器响应，不代表操作系统隔离已完成独立验收。实际源码写入和边界拒绝仍需运行态验证。缺少 adapter 确认时保持 unknown。profile 不匹配阻断执行；观测写入失败只输出固定 permission_observation_unavailable 警告，不记录原始异常，不扩权。事件沿用原 turn 的租约校验、source_id 去重、会话访问控制与保留清理链路；不新增数据表、公开 API 字段或 usage_events。
+
+## 治理恢复映射（REQ-0047）
+
+product_data_collection_observability: applicable；affected_layers: api、db、request_logs、usage_events、task_traces、task_trace_spans、web。恢复POST沿ChatRoute写可信request_id；显式Web入口记录governance.recovery，直接API不伪造行为事件。操作/尝试/application关联使用不透明标识，Task Trace沿governance.operation记录queued及原writer阶段。恢复不调用模型、不产生新增模型用量。metadata白名单不含原文、token、主机路径。验证覆盖权限过滤、重复请求、直接API与Web行为区分、SQLite/MySQL事务和90天恢复诊断清理；其余保留策略不扩大。

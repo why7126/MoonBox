@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "successor": "fix-cross-entry-continuation-guard",
+  "capability": "governance-command-durable-recovery",
+  "requirement": "直接命令最终签认与版本围栏",
+  "before_sha256": "dc0adb7044da2175bd23ecf19a424723a1da89be574ab64627c0570030501caf",
+  "after_sha256": "9f589ffe0d00ed896cd254a2ea1d84d953ee16b54de606da33ce59f10bfd4d85",
+  "added_scenarios": [
+    "后继完成与新执行竞争"
+  ],
+  "classification": "compatible_append",
+  "status": "passed",
+  "reviewer": "Codex implementation review",
+  "rationale": "原条文已要求复读并按操作版本条件更新；新增后继交付竞争场景继续拒绝旧版本确认，未移除或弱化保护。",
+  "contradictions": []
+}

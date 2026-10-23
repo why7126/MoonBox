@@ -1,0 +1,783 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-compatible-requirement-successor",
+  "issue_id": "BUG-0063-compatible-requirement-successor-blocked",
+  "orchestration_version": 1,
+  "environment": "local-and-isolated-product",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前现场只读回读或真实隔离 OpenSpec CLI；详见指定证据"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-001.json"
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前现场只读回读或真实隔离 OpenSpec CLI；详见指定证据"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-009.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/cli-archive.json"
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/governance/reader.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实产品已通过发送准入，CLI真实隔离合并、Sprint只读及跨入口测试分别记录，不等同正式Sprint关闭"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-010.json"
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/web/src/components/chat/ArchiveBlockers.tsx",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/archive-blockers.test.tsx"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "src/archive-blockers.test.tsx",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实浏览器逐条诊断和签署独立阻断已观察"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-011.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/computed-style.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-390.png"
+      ],
+      "coverage": {
+        "stages": [
+          "blocked-expanded",
+          "signoff-only"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "blocked-expanded",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-1440.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json"
+            ]
+          },
+          {
+            "stage": "blocked-expanded",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-390.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json"
+            ]
+          },
+          {
+            "stage": "signoff-only",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-1440.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json"
+            ]
+          },
+          {
+            "stage": "signoff-only",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-390.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/dist/index.html\").is_file()"
+        ]
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/web/src/components/chat/ArchiveBlockers.tsx",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/archive-blockers.test.tsx"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "src/archive-blockers.test.tsx",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实粘贴上传就绪后，归档签署门禁拒绝；命令、图片、Skill均保留且0轮次"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-012.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/draft-materials-preserved.png"
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-013",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/governance/reader.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-014",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前代码独立容器真实 sprint-103 关闭完成，经产品核验成果已核验；持久记录 completed，规格与既有归档树未变。旧样本保留为历史。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-014.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-observation.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/interrupted-sample.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-observation.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/styles.json"
+      ],
+      "turn_id": "14a64cb2-3319-4ca6-b163-e04c6615bcb2",
+      "command_contains": "/sprint-archive sprint-103",
+      "execution_proof": "trusted_archive_v1",
+      "trusted_archive_object_id": "sprint-103",
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AC-015",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/web/src/components/chat/ArchiveBlockers.tsx",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/archive-blockers.test.tsx"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn",
+        "visual"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前代码独立容器真实 sprint-103 关闭完成，经产品核验成果已核验；持久记录 completed，规格与既有归档树未变。旧样本保留为历史。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-015.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/computed-style.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/deployment-versions.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/positive-sprint-closed.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/positive-sprint-verified.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/deployment.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-observation.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/interrupted-sample.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-observation.json",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-1440.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-390.png",
+        "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "blocked-expanded",
+          "signoff-only",
+          "verified-archive"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "blocked-expanded",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-1440.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json"
+            ]
+          },
+          {
+            "stage": "blocked-expanded",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-390.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json"
+            ]
+          },
+          {
+            "stage": "signoff-only",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-1440.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json"
+            ]
+          },
+          {
+            "stage": "signoff-only",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-390.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json"
+            ]
+          },
+          {
+            "stage": "verified-archive",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-1440.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/styles.json"
+            ]
+          },
+          {
+            "stage": "verified-archive",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/archive-390.png",
+              "openspec/changes/fix-compatible-requirement-successor/evidence/proof-optional/styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/dist/index.html\").is_file()"
+        ]
+      ],
+      "turn_id": "14a64cb2-3319-4ca6-b163-e04c6615bcb2",
+      "command_contains": "/sprint-archive sprint-103",
+      "execution_proof": "trusted_archive_v1",
+      "trusted_archive_object_id": "sprint-103",
+      "timeout_seconds": 30
+    },
+    {
+      "id": "AC-016",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-017",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/web/src/components/chat/ArchiveBlockers.tsx",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/archive-blockers.test.tsx",
+        "docs/03-api-index.md",
+        "docs/02-deployment.md",
+        "rules/security.md",
+        "docs/knowledge-base/incidents/20261022-compatible-requirement-successor.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "fix-compatible-requirement-successor"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 240
+    },
+    {
+      "id": "AC-018",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/compatible_successor.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "scripts/record-compatible-successor.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_compatible_successor.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "-q",
+        "--tb=short"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前现场只读回读或真实隔离 OpenSpec CLI；详见指定证据"
+      },
+      "artifacts": [
+        "openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-018.json"
+      ],
+      "timeout_seconds": 240
+    }
+  ],
+  "environment_contract": {
+    "deployment": "当前源代码只读挂载的独立容器；独立 SQLite、独立一次性治理副本；原 Docker 服务未修改",
+    "workspace_mode": "isolated",
+    "sample_scope": "sprint-103 当前真实产品关闭与成果核验；旧 sprint-099/101/102 仅历史证据；正式 sprint-012 只读",
+    "authorization_ref": "用户明确选择新建隔离验证环境，并要求补证执行 opsx-accept",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "独立种子测试账户，凭证仅临时私有文件，不持久化",
+    "retry_limit": 2,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "preflight": [
+    [
+      "sh",
+      "-c",
+      "command -v openspec >/dev/null && test -f src/web/node_modules/vitest/vitest.mjs"
+    ]
+  ]
+}

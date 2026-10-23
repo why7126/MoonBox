@@ -1,0 +1,61 @@
+{
+  "sample": "sprint-099",
+  "source": "isolated-live-product",
+  "session_count": 1,
+  "turns": [
+    {
+      "id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "status": "completed",
+      "error_code": null,
+      "conversation_id": "a36bd1b8-f7e7-50fe-90ea-70949c6beabd",
+      "sync": [
+        {
+          "sequence": 81,
+          "exit_code": 0,
+          "dry_run": true
+        },
+        {
+          "sequence": 294,
+          "exit_code": 0,
+          "dry_run": false
+        }
+      ]
+    }
+  ],
+  "guards": [
+    {
+      "object_id": "sprint-099",
+      "state": "validated",
+      "action": "sprint-archive",
+      "operation_id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "confirmed_stage": "done",
+      "reason_code": null
+    }
+  ],
+  "active_exists": false,
+  "archive_exists": true,
+  "behavior": [
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "a36bd1b8-f7e7-50fe-90ea-70949c6beabd",
+        "object_type": "SPRINT",
+        "object_id": "sprint-099",
+        "action_type": "sprint-archive",
+        "result": "new_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "a36bd1b8-f7e7-50fe-90ea-70949c6beabd",
+        "object_type": "SPRINT",
+        "object_id": "sprint-099",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    }
+  ]
+}

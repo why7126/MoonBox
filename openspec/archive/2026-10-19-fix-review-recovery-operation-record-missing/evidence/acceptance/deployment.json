@@ -1,0 +1,22 @@
+{
+  "environment": "isolated-local-review-validation",
+  "services": [
+    "backend",
+    "worker",
+    "controller"
+  ],
+  "source_hashes": {
+    "src/backend/app/governance/direct_command_journal.py": "c1dd6766fb06154802b286562e060d63261578a15e39b3142518992dc9879fb8",
+    "src/backend/app/governance/preparation.py": "041a75a64adabe0199949012ccc8254a993f0c8de8f2d2c05d0ef8666c50675a",
+    "src/backend/app/chat/preparation_failure.py": "9e864b59ac831e14de05736b9e1e99fcb1fed874d34d4871df4b6a8615e9dd4e"
+  },
+  "original_deployment_updated": false,
+  "validation_runtime": "fresh processes launched from the same backend venv and source tree after final scoped edits",
+  "product_reviews_verified": true,
+  "restarted_after_reviews": true,
+  "review_evidence": [
+    "bug-review-result.json",
+    "req-review-result.json",
+    "restart-verification.json"
+  ]
+}

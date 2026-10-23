@@ -2,7 +2,7 @@
 requirement_id: REQ-0012-frontend-requirement-center
 status: done
 created_at: 2026-08-10 12:47:39
-updated_at: 2026-10-13 08:26:09
+updated_at: 2026-10-19 13:55:20
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-08-10 12:47:39
@@ -144,10 +144,12 @@ priority: P1
 | BUG-0021-requirement-center-bug-card-severity-display | medium | done | fix-requirement-center-bug-card-severity-display | 需求中心 BUG 卡片显示优先级 P 值而非严重性 |
 | BUG-0022-requirement-center-html-preview-auth-lost | medium | done | fix-requirement-center-html-preview-auth-lost | 需求中心卡片 HTML 预览直开受保护接口导致认证失败 |
 | BUG-0023-requirement-center-acceptance-progress-task-classification | medium | done | fix-requirement-center-acceptance-progress-task-classification | 需求中心验收中卡片进度未按 tasks.md 分类统计返修任务 |
-| BUG-0028-requirement-center-card-owner-raw-user-id | medium | approved | — | 需求中心 Capture 卡片直接显示内部用户标识 |
+| BUG-0028-requirement-center-card-owner-raw-user-id | medium | done | fix-requirement-center-owner-display | 需求中心 Capture 卡片直接显示内部用户标识 |
 | BUG-0035-requirement-center-acceptance-readiness-projection | medium | done | fix-requirement-center-acceptance-readiness-projection | 需求中心卡片验收进度与归档门禁不一致且验收文档入口消失 |
 | BUG-0037-change-status-projection-unknown | medium | pending_review | — | 需求看板将端口迁移 Change 误判为状态异常 |
 | BUG-0038-sprint-009-missing-from-board | medium | enriching | — | 需求看板未显示已存在的 sprint-009 迭代 |
+| BUG-0043-requirement-center-card-width-sprint-tag-wrap | low | done | fix-requirement-center-card-width-sprint-tag-wrap | 需求中心九阶段卡片宽度不足导致迭代标签换行 |
+| BUG-0044-requirement-stage-premature-transition-session-split | high | done | fix-requirement-stage-completion-session-continuity | 需求中心阶段提前迁移并开放后续动作导致同一对象会话分裂 |
 
 ## BUG-0014 修复反向追溯
 
@@ -156,3 +158,7 @@ BUG-0014-requirement-center-capture-not-persisted在sprint-005通过fix-requirem
 ## BUG-0015 修复反向追溯
 
 fix-requirement-center-apply-lifecycle-sync 已实现启动事实同步与0/N阶段流转；验证见 openspec/archive/2026-09-14-fix-requirement-center-apply-lifecycle-sync/verification.md。父需求保持历史归档状态，本次交付由BUG-0015与sprint-005承接。
+
+## BUG-0043 布局修复追溯
+
+BUG-0043 已纳入 sprint-010；其修复 Change 将九阶段列宽统一为 380px，Sprint 标签单行不可收缩，长 ID 在剩余空间换行。此局部契约覆盖历史原型的卡片宽度；其他页面语义保持不变。验收以 BUG acceptance.md 与关联 Change 证据为准，父需求保持归档状态。

@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-unified-run-status-verification",
+  "run_id": "20261020133202343578-095be20c",
+  "created_at": "2026-10-20 13:32:45",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "fcd01ea60618b71fbd7673643c606c60132697df9b0fcc1c52edc899162d8c85",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 20233,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "4472152c7b80ad4dd15058b6b22015ca6cc5c374ab048219df7424a3cc111462",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "b677ff816f697623dcc81ee1c9cba9ae77bdb171f13cae784f192e4c4d0bd30d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "f684bf0ceafacbde2ab816f33d3afec00084c758699f8db1aa3706afa2b5bf75",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "9031a7ddd2a8bca64c01ae1a3548108cb06bd12dd2cd2aebf8ed309e2ca42fbb",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "eeff8ac154fe4be556f3114cca8d562257d11e87dc4a90382804ea79b3cf8f22",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "f0cf44d431f4d80342cb0376659e95331b3f896e24be879e18ab94ccc077bc7d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "2cd926f44292404c67bceeec003b303f6a9834d19d429be8e77c709f747c8d11",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "2ce527c99995c80b30b21cecede67f56fbd7808fd05eee6aaaecdc1e3ba5fb94",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "7046c9eee2f3f5451aaa8a3d2f8efaed7060ac7e5f37fb8837619d02b4f1e977",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "ec52b6a89e352d7093f47431de15b04b9789bfae01da2f237db231d0c58daada",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "876b1ff82979f6fd18e1743a2e4a4e3c04021e552706eeeb1a66c9303df19281",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-013",
+      "fingerprint": "62e4b80b71c5322b4e0280b1cacc1603d5f832866448f522608f51e49a708972",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-014",
+      "fingerprint": "c6498bad96423e31c0e00ff198a45a84fb6066e974b2b91f39d0346acc1ef237",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-015",
+      "fingerprint": "6a8494b98bab9d8632a3371adc4c9c04904ee7323444f3c0ec094040ef073572",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/chat-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/chat-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/detail-390x844-computed.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-016",
+      "fingerprint": "b538db6cd9504e67e0ed7d86d1c09a08249049ab992e5ce6765d69a7ce3c6aaa",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-017",
+      "fingerprint": "0bc050e1b5c7bad50bdfce3b57305c0477fa8c52062d8c421b2ede38b95f3185",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-018",
+      "fingerprint": "effe25804346add151374a2d4f9a2397d132d2c10b2e06ec36b0263a1a2d3d5b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-019",
+      "fingerprint": "7c2841a9c7990c5400e51e144fc00d45a705bbb38abda1628d4caa0b73784458",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-020",
+      "fingerprint": "c678723e9bba337f9e9e49f3b835d73fad2dfcda5c838aa97a47d74f429c0d6a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-021",
+      "fingerprint": "1af007f7930b8d833260f80fc3326868b0366832dd7047214b1108dc4512f028",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-390x844.png",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-390x844-computed.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-022",
+      "fingerprint": "2c0296bed5dd73ec0a37710d10eab46ec0c52b7d05b1c32b9e28e2d16f552239",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-023",
+      "fingerprint": "0eaa85c20b0166167b64ed005c73377d19c8f80e5a4445ab28a160c422c46f1e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-024",
+      "fingerprint": "2a9633edb194f6c9fc4f0066679935bd07287fcc14b08168090ae631d80cd0ba",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/card-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/card-1440x900.png",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/card-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/chat-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/chat-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/detail-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-390x844-computed.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-025",
+      "fingerprint": "3b9915dcf83f4b14c7b508cc88c4ccdfd7609784675cb8fcc6943b2bbe324a72",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-026",
+      "fingerprint": "2d6402bb83cee9f3c39d9931e429a8a3ef076c50ab23110a9ab7a2b559edfe8e",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-390x844-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/evidence-390x844.png",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-1440x900-computed.json",
+        "artifact-missing:openspec/changes/fix-chat-unified-run-status-verification/evidence/verification-differences-390x844-computed.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "7d65663b387f029f5eedd1ebf81ad277c270069ade03438940b02e78085deffe",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 22720,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "abb99dc180a3ec08db3e093e56220213337ea8428178911d8af6bd370cc3504b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "5be2b85d11db6de00c28ce201214a19ade4d423f1d464779e55c1547bc26b6f3",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "fingerprint": "918fb980845423f1b16ce4ac5ff512da855bdac6ac8a4e6ee29e8cc037e7df63",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 24,
+    "reused": 0,
+    "preflight_ms": 147,
+    "duration_ms": 43572,
+    "blocked": 14,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

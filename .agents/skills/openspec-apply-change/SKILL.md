@@ -7,7 +7,7 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.3.1"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 ---
 
 
@@ -125,3 +125,11 @@ MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、B
 实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `python scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
 
 完成门禁通过后才执行opsx.apply；全勾选不替代完成门禁。重复启动不重置时间，中断保留启动事实，不宣称Agent进程在线。CLI和后端共用执行事实判定，所有写入串行，冲突或中断后重跑修复投影；closed/archived Issue不重开。用户命令保留完整REQ/BUG身份。
+
+## 稳定验证编排
+
+遵循 [稳定批次与增量复验契约](docs/standards/opsx-acceptance.md#稳定批次与增量复验契约)：完整入口前置检查、修改稳定后集中验证、受影响范围增量复验和里程碑进度反馈。保留现有正确性门禁；未完成入口验证不提前宣布最终完成。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

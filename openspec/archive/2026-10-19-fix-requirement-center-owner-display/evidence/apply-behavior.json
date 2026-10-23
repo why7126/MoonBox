@@ -1,0 +1,50 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#实施与验证记录 V6"
+      ],
+      "tasks": [
+        {
+          "id": "docs",
+          "state": "pending",
+          "deps": []
+        },
+        {
+          "id": "fallback-tests",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#必要外部依赖与恢复",
+        "verification.md#实施与验证记录 V6-V8"
+      ],
+      "tasks": [
+        {
+          "id": "implementation",
+          "state": "done",
+          "deps": []
+        },
+        {
+          "id": "product-verification",
+          "state": "pending",
+          "deps": [],
+          "external": "可运行组件/HTTP测试和浏览器的授权环境",
+          "blocker_evidence": [
+            "verification.md#实施与验证记录 V6-V8"
+          ]
+        }
+      ],
+      "gates_passed": false,
+      "action": "wait"
+    }
+  ]
+}

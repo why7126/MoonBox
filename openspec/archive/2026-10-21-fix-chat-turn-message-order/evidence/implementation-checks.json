@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "source_sha256": {
+    "src/backend/app/chat/assistant_output.py": "dfe9a9149173127ec0c4bad8fab3356635d54edf0a3dc77d3ce615ded0beb387",
+    "src/backend/app/chat/api.py": "d4608d4fe74bdb477380cf670ccfada5571b53cd30e339f3cb618b7072e01497",
+    "src/backend/tests/test_chat_message_order.py": "4e22a054d3dd0d24a8cc986d56fa0cebe273a880fb3694ab805b45e62b99efdb",
+    "src/backend/tests/test_chat_assistant_output.py": "679c2a282c3d119b4e2984a1eb273c45b796d0a36bf79d8c4f091a58f38a9a3d",
+    "src/web/src/components/chat/useConversationMessages.ts": "899f9e35b2551af8ca344112caf64350536c6852a2d5d7b097fe1a649ada66f4",
+    "src/web/src/components/chat/ConversationMessages.tsx": "f54a704e1381e2128edd5ef6bfa4b85e2b552c11896f7c029e09636f4defdbc8",
+    "src/web/scripts/test-chat-message-order.cjs": "440f53d26046a36d94821b4de428a8042f8158e8f37406f58cba8087a5620f9f",
+    "src/web/src/api/generated/chat.ts": "94bfa41b8b5727cc983a919220193488b3c78edccbf8a70cd682046647d3f474",
+    "src/web/src/chat-messages.test.tsx": "eb15548120433a1bc6c1c42305cf045f1b9baf6632b49adb034861c622d36d26",
+    "src/web/src/chat-assistant-output.test.tsx": "1b185ad48276078409e11776bce6d3f253cfda7cb06c1399bd54c5f42756ddda",
+    "src/web/src/chat-workbench.test.tsx": "26408f3328189a14a1b5bf0b44b08dab860998d5fa1d6449bdb7c8877914c857",
+    "src/web/openapi.json": "07db6ec2f56bc6330190a8171ab530efad13078432734a0620f565cd18e31eb7"
+  },
+  "checks": {
+    "sqlite": {
+      "passed": true,
+      "artifact": "evidence/regression/sqlite.txt"
+    },
+    "sqlite-final": {
+      "passed": true,
+      "artifact": "evidence/regression/sqlite-final.txt"
+    },
+    "mysql": {
+      "passed": true,
+      "artifact": "evidence/regression/mysql.txt"
+    },
+    "vitest": {
+      "passed": true,
+      "artifact": "evidence/regression/vitest.txt"
+    },
+    "dom": {
+      "passed": true,
+      "artifact": "evidence/regression/dom.txt"
+    },
+    "build": {
+      "passed": true,
+      "artifact": "evidence/regression/build.txt"
+    }
+  },
+  "counts": {
+    "sqlite": 23,
+    "sqlite_subtests": 3,
+    "mysql": 23,
+    "mysql_subtests": 3,
+    "vitest": 25,
+    "react_dom": 7
+  },
+  "deployment": {
+    "backend_worker_controller_match": true,
+    "web_index_sha256": "970088c410b126b350df7b3e02b1c6638a79e826e61c311ecfcb1ec81283d180",
+    "database_migration": false
+  }
+}

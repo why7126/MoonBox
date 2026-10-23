@@ -1,0 +1,31 @@
+{
+  "evidence_kind": "observed_product",
+  "sample": "REQ-9093-recovery-recovery",
+  "conversation_id": "11672fd9-4132-5c7a-8efb-4760fe59c7db",
+  "turn_id": "e63ea940-4488-41b0-90cf-009d4cfb96bf",
+  "terminal": "completed",
+  "error_code": null,
+  "interrupted": true,
+  "candidate_state": "applied",
+  "operation": {
+    "id": "b654c18d-ab31-4cab-b653-f0225ed2592e",
+    "object_id": "REQ-9093-recovery-recovery",
+    "action": "req-review",
+    "stage": "complete",
+    "state": "completed",
+    "version": 28,
+    "execution_terminal": "completed",
+    "reason_code": null,
+    "auto_retry_count": 0,
+    "manual_count": 0,
+    "next_retry_at": null,
+    "recovery_expires_at": "2026-10-20T10:08:57+00:00",
+    "candidate_id": "c4612a5d-d360-554e-9c90-2e06a641737a",
+    "application_id": "c67a8915-9a4d-48f6-94ba-149537a39e80",
+    "allowed_actions": [
+      "refresh",
+      "evidence"
+    ]
+  },
+  "interruption_mode": "service_crash_during_apply"
+}

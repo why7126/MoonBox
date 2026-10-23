@@ -1,0 +1,64 @@
+{
+  "sample": "sprint-098",
+  "source": "isolated-live-product",
+  "session_count": 1,
+  "turns": [],
+  "guards": [
+    {
+      "object_id": "sprint-098",
+      "state": "idle",
+      "action": "external-sync",
+      "operation_id": null,
+      "confirmed_stage": "sprint-planning",
+      "reason_code": null
+    }
+  ],
+  "active_exists": true,
+  "archive_exists": false,
+  "behavior": [
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "new_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    }
+  ]
+}

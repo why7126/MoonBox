@@ -500,3 +500,14 @@ def seed_title_documents(root, monkeypatch, engine_module, directory, names):
     folder.mkdir(parents=True)
     for name in names:
         (folder / name).write_text("---\ntitle: 工作流状态同步业务标题\n---\n# 工作流状态同步业务标题\n")
+
+
+def test_sprint_archive_receipt_identifies_sprint(monkeypatch, capsys):
+    import json
+    from scripts.workflow_sync import engine
+    monkeypatch.setattr(engine.SyncEngine, 'run', lambda self, **kw: SyncReport(sprint_id='sprint-099', event='sprint.archive'))
+    assert engine.main(['--event','sprint.archive','--sprint','sprint-099','--dry-run']) == 0
+    line=next(line for line in capsys.readouterr().out.splitlines() if line.startswith('MOONBOX_WORKFLOW_RESULT:'))
+    result=json.loads(line.split(':',1)[1])
+    assert result['object_id']=='sprint-099'
+    assert result['mode']=='dry-run'

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "authorization": "user-approved-governance-scope-20261020",
+  "allowed_prefixes": [".agents/skills/", "rules/", "docs/", "scripts/", "tests/unit/"],
+  "allowed_files": ["AGENTS.md"],
+  "protected_files": ["rules/governance-feedback-policy.json", "rules/security.md", "rules/global.md"],
+  "max_optimization_seconds": 600,
+  "max_optimization_tokens": 30000,
+  "min_samples": 3,
+  "regression_ratio": 0.1,
+  "slow_run_seconds": 300,
+  "cooldown_hours": 24,
+  "retention_days": 30
+}

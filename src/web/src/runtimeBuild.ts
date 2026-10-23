@@ -26,8 +26,10 @@ function latestHtmlAssetPaths(html: string, baseUrl: string) {
 
 export function removeLegacyGovernancePanels(doc: Document = document) {
   let removed = 0;
+  // Message text can mention legacy actions. Only explicitly identified legacy
+  // panels are eligible; never scan their labelled conversation ancestors.
   const candidates = Array.from(doc.querySelectorAll<HTMLElement>(
-    ".chat-main > .pg-result, [data-testid='governance-result-preview'], [aria-label], dialog",
+    ".chat-main > .pg-result, [data-testid='governance-result-preview'], dialog[aria-label='审阅治理成果'], [role='dialog'][aria-label='审阅治理成果']",
   ));
   for (const node of candidates) {
     const text = `${node.getAttribute("aria-label") || ""} ${node.textContent || ""}`;

@@ -1,10 +1,16 @@
 ---
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 name: workflow-sync
 description: Sync REQ/BUG/Sprint/OpenSpec workflow status after req/bug/sprint/opsx commands
 ---
 
 # workflow-sync
+
+## Governance Feedback Loop
+
+按 `docs/standards/governance-feedback-loop.md` 执行 `scripts/governance_feedback.py` 的 start → finish/review → plan/decide → evaluate 链路。非只读命令入口开始记录，完成门禁后结束；失败也记录真实结果。AI Usage Hook 自动导入脱敏 provisional 用量，不替代完整运行。
+
+本项目治理范围已有用户明确授权，`rules/governance-feedback-policy.json` 为范围与预算策略；在有效授权下发现证据充分的问题，自动续接 spec-opt、Change/Sprint 门禁和验证，不重复询问同一授权。默认未授权及业务范围仍「未自动创建 Issue/Change」。只读 explore 不落盘；优化任务只记自身成本，不递归优化；精确 Token 不可用时不宣称收益或自动预算通过。主任务状态、优化状态和量化结果分别报告。
 
 `opsx.accept` 用于逐 AC 证据包验收后的状态投影。有验收计划时，Issue `acceptance_status` 仅依据最新证据清单与当前输入就绪判定；`opsx.modify` 不得无故重置仍有效的 passed，`opsx.archive` 不得仅凭目录迁移把待验收改成 passed。具体证据契约见 `docs/standards/opsx-acceptance.md`。
 
@@ -145,8 +151,8 @@ Guardrails:
 Workflow Sync 会在聚焦事件中同步 Issue 主文档和验收文档：
 
 - `req.*` / `bug.*`：同步当前 `--req` / `--bug` 的主文档状态。
-- `opsx.apply` / `opsx.modify`：将关联 Issue 的 `acceptance.md` 标记为 `acceptance_status: pending`。
-- `opsx.archive` / `sprint.archive`：将已闭环 Issue 的验收回填为 `acceptance_status: passed`，并记录 source Change/Sprint。
+- 有 acceptance-plan 的 `opsx.apply` / `opsx.modify`：按当前指纹、证据和就绪结论派生状态；保留仍有效的 passed。仅无新计划的历史链路沿用 pending 兼容策略。
+- `opsx.archive` / `sprint.archive`：有计划时仅投影已经有效签认的证据结论；无计划的历史链路按原交付证据门禁回填，不以目录迁移本身伪造 passed。记录 source Change/Sprint。
 - 对带 prototype 的 UI Change，`opsx.apply` / `opsx.modify` SHOULD 在关联 Issue `acceptance.md` 或 `trace.md` 中保留 `prototype_gate.visual_acceptance_1440: pending|passed|failed` 与证据入口；`opsx.archive` MUST 在回填前确认 `prototype_gate.req_final_consistency: passed`，否则报告 blocker 而不是静默标记验收通过。
 - Workflow Sync 不直接推断视觉通过；它只同步父命令已经记录的 1440px 验收证据和最终一致性状态。缺证据、证据 stale 或 REQ 文档与 Change trace 不一致时，父命令 MUST 先补齐再重跑 sync。
 - `--scan-issue-subdocuments` 用于只扫描当前聚焦 Issue；`--apply-issue-subdocuments` 只应用脚本判定为 safe 的同步项。
@@ -208,3 +214,7 @@ Workflow Sync 会在聚焦事件中同步 Issue 主文档和验收文档：
 ## 执行生命周期事件
 
 opsx.start和opsx.progress为Change事件，同样要求Sprint范围与Issue门禁。execution.schema_version=1保存started_at、completed_at、last_event，区分启动、进度、完成。opsx.apply只在完成门禁通过后调用；CLI校验任务全完成。先写Change执行事实，再重放Issue/Sprint投影；重复操作幂等，旧终态兼容，CLI不伪造界面行为事件。启动同步不执行AI Usage完成Hook。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

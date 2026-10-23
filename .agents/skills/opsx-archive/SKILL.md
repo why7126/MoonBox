@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 ---
 
 # opsx-archive
@@ -136,6 +136,8 @@ openspec status --change "<change-id>" --json
 
 ## Final Steps（MUST）
 
+以下底层步骤由 `archive-change.sh --finalize` 统一串行执行。wrapper 成功后只核对返回结果，禁止再重复执行这组步骤和 AI Usage hook。中断后使用 wrapper 与恢复日志续接，保持幂等门禁。仅 wrapper 不可用且完成相同恢复检查时，才手动执行下面步骤。
+
 Run these commands strictly sequentially. Do not use parallel execution or `multi_tool_use.parallel` for directory validation, Workflow Sync and issue promotion: each step depends on the files written by the previous step, and issue promotion depends on the files written by Workflow Sync.
 
 ```bash
@@ -161,7 +163,7 @@ python scripts/promote-issues-for-archive.py --change <change-id> --reason "/ops
 
 ## Final Step — AI Usage Post-command Hook (MUST)
 
-After Workflow Sync and issue promotion exit with code `0`, run:
+仅在手动恢复且 wrapper 尚未运行本 hook 时，Workflow Sync 和 issue promotion 均为0后执行；wrapper 成功则复用其摘要，不重复执行：
 
 ```bash
 python scripts/extract-ai-usage.py --post-command-hook --workflow-event opsx.archive --change <change-id> --sprint <resolved-sprint-id> [--req <linked-REQ-id>] [--bug <linked-BUG-id>] --json
@@ -185,3 +187,15 @@ Report change id, archive path, documentation sync status, spec sync status, war
 ## Change 身份门禁
 
 遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+
+## 稳定验证编排
+
+遵循 [稳定批次与增量复验契约](docs/standards/opsx-acceptance.md#稳定批次与增量复验契约)：完整入口前置检查、修改稳定后集中验证、受影响范围增量复验和里程碑进度反馈。保留现有正确性门禁；未完成入口验证不提前宣布最终完成。
+
+## 用量归属兼容
+
+wrapper 使用 Workflow Sync 的 resolve_sprint_id 按 Change 范围解析 Sprint；不得只读取 trace 的 sprint 字段而遗漏 iteration。摘要保留 warnings，区分会话缺失、用户消息未识别与 Token 缺失。归档成功后修复用量仅重放 Hook，不重复归档；同次指令多个 Change 共享 turn 用量，不重复计成本。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

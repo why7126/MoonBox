@@ -77,11 +77,32 @@ audit = Table('chat_request_logs', metadata, *identity(),
 CHAT_TABLES = [conversations, turns, events, messages, turn_materials, uploaded_materials, snapshots, diffs, audit]
 
 def migrate(engine):
+    from app.governance.completion_handoff import handoffs
+    if handoffs not in CHAT_TABLES:
+        CHAT_TABLES.append(handoffs)
+    from app.governance.execution_guard import execution_guards, execution_requests
+    for table in (execution_guards, execution_requests):
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     from app.governance.capture_schema import TABLES as capture_tables
     for table in capture_tables:
         if table not in CHAT_TABLES:
             CHAT_TABLES.append(table)
+    from app.governance.recovery_schema import TABLES as recovery_tables
+    for table in recovery_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
+    from app.governance.replacement_schema import TABLES as replacement_tables
+    for table in replacement_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
+    from app.governance.rule_change_schema import TABLES as rule_change_tables
+    for table in rule_change_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     metadata.create_all(engine, tables=CHAT_TABLES)
+    from app.governance.replacement_schema import install_audit_guards
+    install_audit_guards(engine)
     from sqlalchemy import inspect, text
     with engine.begin() as connection:
         turn_columns = {column['name'] for column in inspect(connection).get_columns('chat_turns')}

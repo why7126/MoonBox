@@ -11,9 +11,12 @@ from uuid import NAMESPACE_URL, uuid5
 import yaml
 
 from app.governance import store
+from app.chat.workspace import WorkspaceError
 from app.governance.snapshot import digest, read_once
 
-DIRECT_ACTIONS = frozenset(('sprint-propose', 'req-opsx', 'opsx-apply', 'opsx-archive'))
+DIRECT_ACTIONS = frozenset(('sprint-propose', 'req-generate', 'bug-generate',
+    'req-complete', 'bug-complete', 'req-review', 'bug-review',
+    'req-opsx', 'bug-opsx', 'opsx-apply', 'opsx-modify', 'opsx-archive', 'sprint-archive'))
 MAX_STEPS = 256
 
 
@@ -26,23 +29,19 @@ def archive_spec_drift(object_id, workspace):
     if not journal.exists():
         return False
     try:
-        if journal.is_symlink() or journal.stat().st_size > 8192:
+        from app.governance.archive_recovery import read_record, tree_hash, transition_chain, archive_paths
+        record = read_record(journal)
+        actual = tree_hash(root / 'openspec/specs')
+        if actual == record['expected_spec_hash']:
+            return False
+        active = root / 'openspec/changes' / object_id
+        archives = archive_paths(root, object_id)
+        if len(archives) + int(active.is_dir()) != 1:
             return True
-        record = json.loads(journal.read_text())
-        if record.get('change_id') != object_id or not re.fullmatch(r'[a-f0-9]{64}', record.get('expected_spec_hash', '')):
-            return True
-        value = hashlib.sha256()
-        specs = root / 'openspec' / 'specs'
-        if specs.exists():
-            for path in sorted(specs.rglob('*')):
-                if path.is_symlink():
-                    return True
-                if path.is_file():
-                    value.update(path.relative_to(specs).as_posix().encode())
-                    value.update(b'\0')
-                    value.update(hashlib.sha256(path.read_bytes()).digest())
-        return value.hexdigest() != record['expected_spec_hash']
-    except (OSError, ValueError, TypeError, KeyError):
+        transition_chain(root, object_id, record['expected_spec_hash'], actual,
+                         active if active.is_dir() else archives[0])
+        return False
+    except (OSError, ValueError, TypeError, KeyError, RecursionError):
         return True
 
 
@@ -61,6 +60,48 @@ def archive_completion_blocked(conversation_id, client_id, workspace):
         operation.get('object_id'), workspace)
 
 
+def record_block_reason(conversation_id, client_id, *, action=None, object_id=None, revision=None):
+    """Validate immutable command inputs without repairing or overwriting evidence."""
+    rid = record_id(conversation_id, client_id)
+    if not (store.root() / rid).exists():
+        return 'direct_command_operation_missing'
+    try:
+        operation = store.read(rid, 'operation')
+    except FileNotFoundError:
+        return 'direct_command_operation_missing'
+    except (ValueError, OSError, WorkspaceError):
+        return 'direct_command_operation_invalid'
+    if (not isinstance(operation, dict) or type(operation.get('schema_version')) is not int or operation.get('schema_version') != 1
+            or operation.get('action') not in DIRECT_ACTIONS
+            or not isinstance(operation.get('object_id'), str)
+            or not isinstance(operation.get('baseline_revision'), str)
+            or not isinstance(operation.get('steps'), list)
+            or operation.get('phase') not in ('prepared', 'write_observed', 'sync_observed', 'blocked_step_limit', 'terminal')):
+        return 'direct_command_operation_invalid'
+    if any(not isinstance(step, dict)
+            or not isinstance(step.get('item_key'), str)
+            or not isinstance(step.get('source_revision'), (str, type(None)))
+            or type(step.get('workflow_sync')) is not bool
+            or type(step.get('sync_succeeded')) is not bool
+            for step in operation['steps']):
+        return 'direct_command_operation_invalid'
+    expected = {'action': action, 'object_id': object_id, 'baseline_revision': revision}
+    if any(value is not None and operation.get(key) != value for key, value in expected.items()):
+        return 'direct_command_identity_mismatch'
+    try:
+        baseline = store.read(rid, 'baseline')
+    except FileNotFoundError:
+        return None if action is None else 'direct_command_baseline_missing'
+    except (ValueError, OSError, WorkspaceError):
+        return 'direct_command_baseline_invalid'
+    if not isinstance(baseline, dict):
+        return 'direct_command_baseline_invalid'
+    if any(baseline.get(key) != operation.get(target) for key, target in (
+            ('action', 'action'), ('object_id', 'object_id'), ('revision', 'baseline_revision'))):
+        return 'direct_command_identity_mismatch'
+    return None
+
+
 def completion_block_reason(conversation_id, client_id, workspace):
     """Reject a direct command's success when its source facts are invalid."""
     if not os.environ.get('MOONBOX_GOVERNANCE_STATE_ROOT'):
@@ -69,10 +110,10 @@ def completion_block_reason(conversation_id, client_id, workspace):
     record_path = store.root() / rid
     if not record_path.exists() and not record_path.is_symlink():
         return None
-    try:
-        operation = store.read(rid, 'operation')
-    except (FileNotFoundError, ValueError, OSError):
-        return 'direct_command_recovery_blocked'
+    reason = record_block_reason(conversation_id, client_id)
+    if reason:
+        return reason
+    operation = store.read(rid, 'operation')
     if operation.get('action') == 'opsx-archive':
         return 'archive_recovery_blocked' if archive_spec_drift(
             operation.get('object_id'), workspace) else None
@@ -102,15 +143,48 @@ def completion_block_reason(conversation_id, client_id, workspace):
 
 
 def is_formal_workflow_sync(item):
-    """Exclude dry-run/check probes from persistent sync success observations."""
+    """Candidate recognition only; a successful structured result is also required."""
+    import shlex
     if item.get('type') != 'commandExecution':
         return False
     command = item.get('command')
-    if not isinstance(command, str) or 'sync-workflow-status.py' not in command:
+    if not isinstance(command, str):
         return False
-    if not re.search(r'(?<!\S)--event(?:\s|=)', command):
+    try:
+        tokens = shlex.split(command)
+        if len(tokens) >= 3 and Path(tokens[0]).name in ('sh', 'bash', 'zsh') and tokens[1] in ('-c', '-lc'):
+            command = tokens[2]
+        lexer = shlex.shlex(command, posix=True, punctuation_chars=';&|()<>')
+        lexer.whitespace_split = True
+        tokens = list(lexer)
+    except ValueError:
         return False
-    return not re.search(r'(?<!\S)--(?:dry-run|check)(?=\s|$|["\'])', command)
+    # Reject probes anywhere in compound commands; false negatives are safer than
+    # crediting another subcommand's shell exit status.
+    if any(t.split('=', 1)[0] in ('--dry-run', '--check') for t in tokens):
+        return False
+    return any(Path(t).name == 'sync-workflow-status.py' for t in tokens) and any(
+        t == '--event' or t.startswith('--event=') for t in tokens)
+
+
+def workflow_sync_result(item):
+    """Use the standard CLI's own result, not the containing shell's exit code."""
+    if not is_formal_workflow_sync(item) or item.get('exitCode') != 0 or item.get('status') != 'completed':
+        return None
+    output = item.get('aggregatedOutput', '')
+    if not isinstance(output, str):
+        return None
+    results = []
+    for line in output.splitlines():
+        if line.startswith('MOONBOX_WORKFLOW_RESULT:'):
+            try:
+                results.append(json.loads(line.split(':', 1)[1]))
+            except ValueError:
+                return None
+    if not results or any(not isinstance(r, dict) or r.get('schema_version') != 1
+                          or r.get('mode') != 'write' or r.get('ok') is not True for r in results):
+        return None
+    return results[-1]
 
 
 def record_id(conversation_id, client_id):
@@ -121,14 +195,21 @@ def record_id(conversation_id, client_id):
 def prepare(conversation_id, client_id, action, object_id, revision):
     if action not in DIRECT_ACTIONS:
         return
-    store.write(record_id(conversation_id, client_id), 'operation', {
-        'schema_version': 1, 'action': action, 'object_id': object_id,
+    rid = record_id(conversation_id, client_id)
+    if (store.root() / rid / 'operation.json').exists():
+        reason = record_block_reason(conversation_id, client_id, action=action,
+                                     object_id=object_id, revision=revision)
+        if reason:
+            raise ValueError(reason)
+        return
+    store.write(rid, 'operation', {
+        'schema_version': 1, 'proof_schema_version': 1, 'action': action, 'object_id': object_id,
         'baseline_revision': revision, 'steps': [], 'phase': 'prepared',
     })
 
 
 def observe(conversation_id, client_id, item_id, phase, workspace, *, sync=False,
-            sync_succeeded=False):
+            sync_succeeded=False, sync_result=None):
     """Record an exact filesystem hash at a tool boundary; never store content."""
     if not os.environ.get('MOONBOX_GOVERNANCE_STATE_ROOT'):
         return None
@@ -136,12 +217,13 @@ def observe(conversation_id, client_id, item_id, phase, workspace, *, sync=False
     record_path = store.root() / rid
     if not record_path.exists() and not record_path.is_symlink():
         return None
-    try:
-        operation = store.read(rid, 'operation')
-    except FileNotFoundError:
+    if record_block_reason(conversation_id, client_id):
         return None
+    operation = store.read(rid, 'operation')
     if operation['phase'] == 'terminal':
         return operation
+    if sync_result is not None and sync_result.get('object_id') != operation['object_id']:
+        sync_succeeded = False
     steps = operation['steps']
     key = hashlib.sha256(f'{item_id}:{phase}'.encode()).hexdigest()
     if any(step['item_key'] == key for step in steps):
@@ -151,7 +233,8 @@ def observe(conversation_id, client_id, item_id, phase, workspace, *, sync=False
         store.write(rid, 'operation', operation)
         return operation
     try:
-        revision = digest(read_once(workspace))
+        files = read_once(workspace)
+        revision = digest(files)
         state = 'observed'
     except (OSError, ValueError, UnicodeError):
         revision = None
@@ -159,6 +242,14 @@ def observe(conversation_id, client_id, item_id, phase, workspace, *, sync=False
     steps.append({'item_key': key, 'phase': phase, 'source_revision': revision,
                   'state': state, 'workflow_sync': bool(sync),
                   'sync_succeeded': bool(sync and phase == 'completed' and sync_succeeded)})
+    if sync_result is not None:
+        steps[-1]['sync_result'] = sync_result
+    if sync and phase == 'completed' and sync_succeeded and revision:
+        from app.governance.direct_completion import manifest, DirectProofError
+        try:
+            steps[-1]['completion_manifest'] = manifest(files, operation['object_id'], operation['action'])
+        except DirectProofError as error:
+            steps[-1]['completion_reason'] = str(error)
     operation['phase'] = 'sync_observed' if sync else 'write_observed'
     store.write(rid, 'operation', operation)
     return operation
@@ -172,10 +263,9 @@ def terminal(conversation_id, client_id, status, workspace):
     record_path = store.root() / rid
     if not record_path.exists() and not record_path.is_symlink():
         return None
-    try:
-        operation = store.read(rid, 'operation')
-    except FileNotFoundError:
+    if record_block_reason(conversation_id, client_id):
         return None
+    operation = store.read(rid, 'operation')
     if operation['phase'] == 'terminal':
         return operation
     try:

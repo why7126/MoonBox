@@ -1,7 +1,7 @@
 ---
 name: "opsx-explore"
 description: "Enter explore mode - think through ideas, investigate problems, clarify requirements"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 ---
 
 # opsx-explore
@@ -237,3 +237,7 @@ When things crystallize, you might offer a summary - but it's optional. Sometime
 ## Command Execution Review Hook（MUST）
 
 命令结束前 MUST 遵守 `.agents/skills/workflow-sync/SKILL.md` 的 Command Execution Review Hook，输出「执行链路复盘」：链路状态、问题证据、规范优化建议，并说明默认未自动创建 Issue/Change。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

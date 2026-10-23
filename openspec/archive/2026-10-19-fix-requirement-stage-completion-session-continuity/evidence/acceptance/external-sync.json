@@ -1,0 +1,18 @@
+{
+  "evidence_type": "actual_cli_on_disposable_copy",
+  "command": "python scripts/sync-workflow-status.py --event opsx.start --change fix-requirement-stage-completion-session-continuity --sprint auto",
+  "exit_code": 0,
+  "errors": 0,
+  "status": "in_progress",
+  "execution": {
+    "schema_version": 1,
+    "started_at": "2026-10-19 11:59:05",
+    "completed_at": null,
+    "last_event": "opsx.progress"
+  },
+  "model_turn_required": false,
+  "historical_validation": {
+    "objects": 172,
+    "unverified": 0
+  }
+}

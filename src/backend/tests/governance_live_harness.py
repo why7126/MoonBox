@@ -20,7 +20,7 @@ def main():
         for name in ('workspaces','state','runtime','private','backups'):(root/name).mkdir(mode=0o700)
         password=secrets.token_urlsafe(24)+'9A!'
         LIMITS.update(user_monthly_tokens=3000000,space_monthly_tokens=3000000,turn_reserved_tokens=1000000,turn_reserved_bytes=16000000,user_storage_bytes=128000000,space_storage_bytes=128000000)
-        binding={'id':'moonbox-validation','space_id':'space','source_root':str(source),'governance_root':str(source),'workspace_root':str(root/'workspaces')}
+        binding={'id':'moonbox-validation','space_id':'space','source_root':str(source),'governance_root':str(source),'workspace_root':str(root/'workspaces'),'workspace_mode':'copy'}
         os.environ.update(APP_ENV='isolated-test',APP_SECRET_KEY=secrets.token_urlsafe(32),DATABASE_TYPE='sqlite',DATABASE_URL='sqlite:///'+str(root/'moonbox.db'),SQLITE_DATABASE_URL='sqlite:///'+str(root/'moonbox.db'),ADMIN_INITIAL_PASSWORD=secrets.token_urlsafe(24)+'9A!',
           MOONBOX_CHAT_EXECUTION_MODE='local-codex',MOONBOX_CHAT_STATE_ROOT=str(root/'state'),MOONBOX_CHAT_RUNTIME_ROOT=str(root/'runtime'),MOONBOX_CHAT_AUTH_FILE=str(Path.home()/'.codex/auth.json'),
           MOONBOX_CHAT_LIMITS=json.dumps(LIMITS),MOONBOX_CHAT_RETENTION=json.dumps({'executor_delete_seconds':86400,'backup_expiry_seconds':86400}),MOONBOX_CHAT_BACKUP_ROOT=str(root/'backups'),

@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-review-recovery-operation-record-missing",
+  "environment": "isolated-local-review-validation",
+  "environment_contract": {
+    "deployment": "disposable-local-api-worker-controller",
+    "workspace_mode": "isolated",
+    "sample_scope": "preflight-validated REQ-9095 and BUG-9096; rejected earlier fixture attempts retained",
+    "authorization_ref": "current opsx-apply and approved Change",
+    "login_strategy": "disposable test account; private credentials",
+    "retry_limit": 2,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-002",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-board.png",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-board.png",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-style.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-style.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-result.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-result.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/restart-verification.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/negative-product-observations.json"
+      ],
+      "turn_id": "2333f6e8-bc47-47cb-b76b-d996d23c3462",
+      "command_contains": "--event bug.review",
+      "required_sample": {
+        "status": "passed",
+        "reason": "BUG 正常完成并应用；REQ 中断后恢复应用且原 stopped 事实保留；两者已评审卡片重连核验通过"
+      },
+      "coverage": {
+        "stages": [
+          "approved"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-board.png",
+              "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-board.png"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection((\"127.0.0.1\",39028),timeout=3); s.close()"
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-result.json",
+          "text": "\"candidate_state\": \"applied\""
+        },
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-result.json",
+          "text": "\"candidate_state\": \"applied\""
+        }
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-007",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-board.png",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-board.png",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-style.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-style.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-result.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-result.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/restart-verification.json",
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/negative-product-observations.json"
+      ],
+      "turn_id": "2333f6e8-bc47-47cb-b76b-d996d23c3462",
+      "command_contains": "--event bug.review",
+      "required_sample": {
+        "status": "passed",
+        "reason": "BUG 正常完成并应用；REQ 中断后恢复应用且原 stopped 事实保留；两者已评审卡片重连核验通过"
+      },
+      "coverage": {
+        "stages": [
+          "approved"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-board.png",
+              "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-board.png"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection((\"127.0.0.1\",39028),timeout=3); s.close()"
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/bug-review-result.json",
+          "text": "\"candidate_state\": \"applied\""
+        },
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/req-review-result.json",
+          "text": "\"candidate_state\": \"applied\""
+        }
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import json,hashlib; from pathlib import Path; d=json.loads(Path('openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/deployment.json').read_text()); assert d.get('product_reviews_verified') is True; assert all(hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in d['source_hashes'].items()); print('verified isolated runtime source and review results')"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-review-recovery-operation-record-missing/evidence/acceptance/deployment.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "最终源码启动三个隔离服务并完成真实评审与服务重启回读"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/chat/preparation_failure.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_review.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.environ['TMPDIR']='/private/tmp'; import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_review_operation_record.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_ac011_direct_command_journal.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_governance_execution_guard.py', 'src/backend/tests/test_governance_execution_validation.py', 'src/backend/tests/test_governance_review.py', '-q']))"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": []
+    }
+  ]
+}

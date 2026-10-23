@@ -1,0 +1,42 @@
+[
+  {
+    "object_id": "REQ-9601-direct-normal",
+    "action": "req-opsx",
+    "conversation_id": "5bce998e-4d1b-5a09-baa7-3dea9715fc10",
+    "turn_id": "f855646d-d1c7-4b1a-a32b-a71452fe3fb5",
+    "send_http": 200,
+    "status": "stopped",
+    "error_code": "result_or_token_limit",
+    "context_http": 200,
+    "verification_http": 200,
+    "verification": {
+      "available": true,
+      "state": "needs_review",
+      "version": 2,
+      "reason_code": "direct_historical_evidence_missing",
+      "last_checked_at": null,
+      "can_verify": true,
+      "historical_evidence_missing": true
+    }
+  },
+  {
+    "object_id": "BUG-9602-direct-normal",
+    "action": "bug-opsx",
+    "conversation_id": "8fe169c9-517b-52fb-9586-ba9c5fc6e0f9",
+    "turn_id": "5139b5cc-c501-49cb-83fc-1c90d8fd1487",
+    "send_http": 200,
+    "status": "completed",
+    "error_code": null,
+    "context_http": 200,
+    "verification_http": 200,
+    "verification": {
+      "available": true,
+      "state": "needs_review",
+      "version": 2,
+      "reason_code": "direct_historical_evidence_missing",
+      "last_checked_at": null,
+      "can_verify": true,
+      "historical_evidence_missing": true
+    }
+  }
+]

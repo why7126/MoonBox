@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 name: openspec-archive-change
 description: Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.
 license: MIT
@@ -146,3 +146,7 @@ All artifacts complete. All tasks complete.
 ## Change 身份门禁
 
 遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

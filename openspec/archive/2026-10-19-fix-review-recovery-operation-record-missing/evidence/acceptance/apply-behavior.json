@@ -1,0 +1,40 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "../../verification.md#实施中验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "temp-path-retest",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "../../verification.md#实施中验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "product-review",
+          "state": "pending",
+          "deps": []
+        },
+        {
+          "id": "independent-regression",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

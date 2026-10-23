@@ -12,9 +12,17 @@ def reconcile_usage(db, tid):
     release_concurrency(db, tid)
     db.commit()
     receipt=db.scalar(select(events.c.payload).where(events.c.turn_id==tid,events.c.source_id=='runner:accounting'))
+    trusted_archive=False
+    if not receipt and not row['executor_turn_id']:
+        receipt=db.scalar(select(events.c.payload).where(events.c.turn_id==tid,events.c.source_id=='archive:usage'))
+        started=db.scalar(select(events.c.payload).where(events.c.turn_id==tid,events.c.source_id=='archive:started'))
+        if receipt and started:
+            trusted_archive=(json.loads(started).get('executor')=='trusted_archive'
+                and json.loads(receipt).get('usage_scope')=='trusted_archive_v1'
+                and json.loads(receipt).get('total_tokens')==0)
     if not receipt:return False
     data=json.loads(receipt)
-    if data.get('usage_scope') != 'app_server_process_v1':
+    if data.get('usage_scope') != 'app_server_process_v1' and not trusted_archive:
         db.execute(update(turns).where(turns.c.id==tid, turns.c.error_code.is_(None),
             turns.c.id.in_(select(reservations.c.turn_id).where(reservations.c.status=='reserved'))
         ).values(error_code='usage_unavailable'))

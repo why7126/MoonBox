@@ -21,47 +21,13 @@ def frontmatter(path: Path) -> dict:
 
 
 def readiness(root: Path, change: str) -> tuple[bool, str]:
-    active = root / "openspec" / "changes" / change
-    archive_roots = (root / "openspec" / "archive",
-                     root / "openspec" / "changes" / "archive")
-    archived = [path for archive_root in archive_roots
-                for path in archive_root.glob(f"????-??-??-{change}")
-                if path.is_dir() and not path.is_symlink()]
-    if active.exists():
-        if archived:
-            return False, "change_identity_ambiguous"
-        trace = active / "trace.md"
-    else:
-        if len(archived) > 1:
-            return False, "change_identity_ambiguous"
-        trace = archived[0] / "trace.md" if archived else active / "trace.md"
-    if not trace.is_file():
-        return False, "change_trace_missing"
-    try:
-        metadata = frontmatter(trace)
-        issue = (metadata.get("bug") or metadata.get("requirement")
-                 or metadata.get("bug_id") or metadata.get("requirement_id")
-                 or metadata.get("source_bug") or metadata.get("source_requirement"))
-    except (OSError, ValueError, yaml.YAMLError):
-        return False, "change_trace_invalid"
-    if not issue:
-        return True, "standalone_change"
-    if not isinstance(issue, str) or not re.fullmatch(r"(?:BUG|REQ)-\d{4}-[a-z0-9-]+", issue):
-        return False, "issue_identity_invalid"
-    domain = "bugs" if issue.startswith("BUG-") else "requirements"
-    found = [root / "issues" / domain / stage / issue / "acceptance.md" for stage in ("plan", "review", "archive")]
-    found = [path for path in found if path.is_file()]
-    if len(found) != 1:
-        return False, "issue_acceptance_missing_or_ambiguous"
-    try:
-        text = found[0].read_text(encoding="utf-8")
-        status = frontmatter(found[0]).get("acceptance_status")
-    except (OSError, ValueError, yaml.YAMLError):
-        return False, "issue_acceptance_invalid"
-    checks = re.findall(r"^- \[([ xX])\] AC-[A-Za-z0-9-]+\b", text, re.MULTILINE)
-    if status != "passed" or not checks or any(mark == " " for mark in checks):
-        return False, f"issue_acceptance_pending checked={sum(mark != ' ' for mark in checks)} total={len(checks)}"
-    return True, "issue_acceptance_passed"
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src/backend"))
+    from app.governance.archive_admission import change_acceptance
+    result = change_acceptance(root, change)
+    if not result["ready"] and result.get("source") == "manual" and result.get("total"):
+        return False, f"issue_acceptance_pending checked={result['done']} total={result['total']}"
+    return result["ready"], result.get("reason") or "issue_acceptance_passed"
 
 
 def main() -> int:

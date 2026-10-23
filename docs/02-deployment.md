@@ -2,7 +2,7 @@
 purpose: 部署说明
 content: MoonBox 本地 docker-compose 部署、端口和环境变量边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-08 18:29:53
+updated_at: '2026-10-21 12:05:35'
 owner: MoonBox 产品团队
 ---
 
@@ -532,3 +532,87 @@ worker同时接入app-network，通过服务名解析MinIO；仅注入配置但�
 新锁文件依赖仅在明确配置 HTTPS `MOONBOX_VERIFICATION_REGISTRY_URL` 与预建 `MOONBOX_VERIFICATION_PREPARE_NETWORK` 后允许准备。准备容器只复制 package.json 与 pnpm 锁文件，拒绝外部 tarball/git/file/link 引用，运行固定 `pnpm install --frozen-lockfile --ignore-scripts`，无模型或业务凭据；成品按锁文件、Node、包管理器、Playwright、OS/架构和镜像摘要分键，校验目录内容后只读发布。未配置受控制品源时预检保持 unavailable，不悄悄联网。2026-10-09 用户明确授权本次使用外部 npm 后，当前 MoonBox Web 锁文件已成功准备 Linux arm64 真实依赖制品；生产环境仍须单独配置获批准的制品源和网络策略。
 
 任务数据库与截图目录分别备份。API 截图读取七日后拒绝，worker 每小时只清理已终态且超过七日的任务截图；制品清理仍需独立容量门禁，不自动删除可能被活跃任务引用的依赖树。升级 runner 时保存上一已验证镜像 ID，重新运行双浏览器启动探针并重算环境键；新环境键缺制品时重新准备，不能沿用旧镜像制品。回滚先阻止新任务并停止 `verification-worker`，等待或取消两个活动任务，再恢复前一已验证镜像和对应制品；保留任务表、未到期证据和活跃制品，不执行 `down -v` 或删除业务数据。隔离合成身份的双空间同仓库及独立 Web 项目已完成 API→worker→真实浏览器验证，双空间任务并发执行已观察到重叠；生产部署尚待单独验收。BUG-0030 的合成 API 真浏览器用例和已登录历史会话只读观察已完成，已删除的原故障轮次无法复验。
+
+## 治理恢复滚动部署与回退（REQ-0047）
+
+先执行兼容的增量建表，再更新backend、worker和governance-controller。worker/controller在私有状态目录发布schema区间与动作能力，30秒内有效；backend本机能力与两个运行态声明求交集。缺失、过期或不兼容在模型启动前失败，不能仅凭发行版本号宣称兼容。首期恢复仅支持评审；真实服务代码版本与仓库版本分别核验。
+
+恢复窗口为可靠轮次终态加7天与MOONBOX_CHAT_RETENTION既有副本/备份期限及原更早期限的最小值，缺配置不开放续接。此变更不修改部署现有保留值。回滚先停止新领取、核验在途事务并关闭恢复入口；保留新表及私有journal，旧版本只读，不自动drop表或执行生产数据库restore。停止不会自动重跑模型，半迁移与未知执行占用需要受控核验。
+
+## 聊天旧面板清理与评审字段兼容（BUG-0048）
+
+旧面板清理仅定位明确历史组件标识，不能按普通 aria-label 容器的后代正文删除会话。更新 Web 镜像后刷新目标会话，验证正文、输入区和轨迹保持可用。评审后端兼容既有 trace req_id 身份字段且拒绝冲突字段，需同步 backend、chat-worker 与 governance-controller；不涉及数据库迁移、API 或生成客户端。真实评审以候选 applied、唯一应用 applied/verified 和正式文件回读共同确认，执行 completed 本身不足。
+
+BUG-0048 本地返修最后一次使用既有本地镜像依赖层增量复制 app 代码构建 backend/worker，再由 Compose 重建对应服务；controller 复用 backend。仅用于本地验证，正式发布仍使用完整 Dockerfile。部署后对比代码 SHA-256 并回读应用结果。
+
+治理目录与源码目录分离部署时，source-mode 的同步脚本从已授权 source_root 加载，治理投影 root 无需挂载 scripts。同步前后同时比对两处治理事实；不能通过修改绑定或跳过事实检查绕开不一致。
+
+## BUG-0049 归档结果可信核验
+
+同步更新 backend、chat-worker 和 governance-controller 的 governance/archive_proof.py 与 execution_context.py。没有数据库迁移或客户端生成；既有私有operation增加可选archive_verification字段，历史步骤不改写。读取需求中心时对已完成但待核对的归档执行重新核验，通过后确认原门禁，不调用模型或重跑归档。需要可信source_root包含sync-workflow-status.py且只读check可运行；root与source_root快照一致，失败保留具体archive_*原因。部署前确认无活动轮次，保留旧镜像；回滚不撤回已归档文件或数据库。
+
+## 完成保护收敛部署（BUG-0052）
+
+先由backend初始化增量交接表，再更新governance-controller与Chat worker；本地验证先检查无活动轮次。controller每10秒运行有界扫描，每批最多100条；已存在交接不重复占用补建队列。健康且无冲突时目标60秒收敛，失败自动尝试最多3次，间隔5/15/30秒并受扫描周期影响，重启不清预算。停机不承诺墙钟时限。无新增端口/环境变量。回滚先停止补偿controller，保留新增表与历史证明，再恢复旧版本；无法解释新证据时安全阻断。生产发布另走发布流程，不能把本地测试等同生产升级通过。
+
+## 验收输入读取器部署核验
+
+变更 acceptance_evidence.py 后，更新 backend、governance-controller 与 chat-worker，核对运行代码哈希。可信源码挂载须包含 src/scripts/tests；治理投影仍独立读取治理文档。部署前核对活跃轮次，部署后比较两类工作区 readiness 与实际对象会话准备的 can_send；不通过真实模型发送来代替准入核验。
+
+### 验收指纹的部署输入来源
+
+验收读取仅从已配置可信源码绑定补读 src、scripts、tests、AGENTS.md 和 .gitignore；issues、openspec 等治理事实保持投影来源，不进行通用缺失回退。部署后同时核对本地与容器的 readiness 和刷新后的卡片状态。输入真实变化时先按依赖增量复验，不能改写 manifest。BUG-0053/0054 本地验收采用当前镜像叠加两个治理模块的限定更新并保留原镜像回退点；后续正式构建仍按标准后端 Dockerfile 打包源码，不新增环境变量、权限或数据库迁移。
+
+归档恢复基线返修需同步部署 backend、governance-controller、chat-worker 的 archive_recovery、archive_admission 和 direct_command_journal 模块；治理源使用同版 archive-recovery-guard.py。部署后核对模块哈希与正式对象产品/CLI准入。无数据库迁移、端口或环境变量变更；历史 journal 不删除，显式刷新须通过连续证明和临时归档预演。
+
+### 直接命令完成证明部署与恢复（BUG-0060）
+
+使用标准 docker-up.sh --chat-platform 同步部署 backend、web、worker、controller 和执行镜像；先核对活动轮次，避免中断用户工作。部署后验证实际发送、成果写入、同步、最终核验、卡片刷新和下一动作准入，不能以健康检查或准备成功代替。
+
+直接命令历史恢复在所属轮次展开详情后选择“核验当前成果”，使用服务端当前守卫版本；无模型调用、不重放原业务。操作者 CLI 可在已配置服务环境运行 `python -m app.governance.direct_completion_cli --actor` 配合实际操作者标识和 `--turn` 原轮次标识查询；需要恢复时显式传 `--recover --expected-version`。CLI 和 HTTP 共用核验器与权限检查，只有已核验状态退出0。相关冲突或权限问题先解决事实源，不手改守卫。
+
+回滚保留私有证明和 SQL 守卫记录，停止新发送后核对在途操作；旧版本不能理解的新证明保持阻断，不清空保护、不删除记录。部署签认与历史恢复证据分开保留。
+
+### 跨入口后继证明兼容（BUG-0061）
+
+标准同步脚本与 backend、chat-worker、governance-controller 应一并更新；Web 需包含新增原因说明。`opsx.accept` 的标准写入模式在 Change `.workflow-receipts/` 生成不可覆盖的 JSON 收据，绑定当前计划与完整报告哈希；dry-run/check 不生成。治理目录挂载需保留该目录，隔离验收复制必须包含标准同步辅助模块 `app/governance/workflow_receipt.py`，不能只复制入口脚本。
+
+部署后验证受阻历史→CLI 后继完成→产品核验→产品实际归档发送→归档终态，并与临时 CLI 对照；不得把静态 ready 作为完整验证。回滚保留旧 journal、后继收据和业务状态，不能清空保护或重放原命令。无新增环境变量、端口或数据库迁移。
+
+### 兼容追加证明部署核对
+
+BUG-0063 增加归档只读证明消费者与 Chat 分项诊断，部署需同时更新 Web、backend、chat-worker、governance-controller，核对 compatible_successor.py、archive_recovery.py 和 requirement_center.py 内容指纹一致。证明与审查附件来自治理事实源挂载；部署来源代码分离时只从既有可信 source_root 补读验收输入，不从用户错误详情解析本地路径。无数据库迁移、对象存储结构或权限变更。
+
+## 受控规则替代的信任部署边界
+
+**当前产品方案（2026-10-23）：** REQ-0050 的新规则修改确认不再要求运维制品审阅、项目首次启用或独立签名服务。产品在归档检查中展示具体修改，由当前空间所有者确认精确内容；验收签署和最终归档继续独立执行。下文部署步骤仅用于旧版记录及仍在进行中的旧操作恢复，不应作为新方案启用步骤。历史证明与授权记录保留可读、可核验。
+
+受控替代默认关闭。启用需要受独立审查的不可变后端制品、外部信任文件、独立签名服务和持久授权数据库；仓库中的需求批准或提案文档不能代替运维制品授权。实施期的隔离测试根不用于正式项目。
+
+- 后端以非 root 身份运行。`MOONBOX_REPLACEMENT_TRUST_FILE` 指向仓库外的只读普通文件，文件和全部父目录对后端不可写，禁止符号链接及硬链接共享。内容绑定精确 release_digest、policy_version、公开密钥及用途分组、撤销列表和经独立审查的完整差异 profiles。不存在默认信任根。
+- 独立进程通过 `python -m app.governance.replacement_signing_service` 启动，私钥仅该进程挂载且权限为 0600。`MOONBOX_AUTHORIZATION_KEY_ID` 标识版本；旧公钥保留用于历史核验。Unix socket 对专用后端组可访问，禁止挂载到 Agent 执行环境，后端不读取签名私钥。
+- 运维 `bootstrap.ops` 使用独立离线密钥，不属于在线签名服务允许用途。可选 `MOONBOX_AUTHORIZATION_PURPOSES` 只允许配置现有用途的非空 JSON 子集，未知或重复用途拒绝启动；不设置时采用实现内固定白名单。恢复时只清理本进程身份拥有且已失活的 socket，活端点、外来文件和符号链接均拒绝覆盖。
+- OpenSpec 工具、其依赖和治理脚本由制品以只读方式部署；运行时拒绝可写目录和执行中摘要变化。仓库事实源、数据库和检查点分别持久化；不可把更新镜像当作授权事件或完成证明。
+- 首次启用先准备精确 manifest 与运维收据，再由项目空间所有者独立确认。转换中断保持 activating，普通替代不可批准；确认失败后先读原操作，修复服务后使用同一清单恢复。不能通过直接改数据库 active 字段或删除检查点处理失败。
+- SQLite/MySQL 添加授权事件、提案状态、策略启用与归档操作表；授权事件使用数据库触发器拒绝 UPDATE/DELETE。升级前按现有备份规则备份数据库和治理私有状态。回退可停用新写入口并保留表、收据和公钥；不能删除仍被历史归档引用的证据。授权默认 24 小时，未领取过期后须重新准备和批准，已完成历史不因普通过期失效；密钥信任撤销仍阻断其依赖链。
+
+当前实现和验收进度以关联 Change 的 tasks、trace 与逐 AC 证据为准。正式制品/运维授权缺失时保持关闭，不使用隔离验收凭据代替正式批准。
+
+受控项目的人工 CLI 使用 `scripts/controlled-archive.py` 在线调用共同提交服务。已有用户会话放在仓库外、当前用户所有且权限为 0600 的配置文件，包含 `base_url` 与 `access_token`；不挂载给模型执行沙箱，不写入仓库或命令行。非回环连接必须使用 HTTPS，客户端不跟随重定向。`--proposal` 默认为只读预检，执行时须同时提供 `--execute`、`--operation`、`--expected-revision` 和 `--digest`；按对象执行使用 `--object`、`--space`、`--repository` 和 `--execute`。重试沿用原身份，无法联机不降级为本地写入。已有受控证明目录的项目不再允许 `archive-change.sh` 直接归档。
+
+### 首次可信启用：部署、独立运维审阅与项目确认
+
+使用已有常驻 Chat 部署时，显式追加 `--controlled-replacement`；先执行 `bash scripts/docker-up.sh self-storage-sqlite --chat-platform --controlled-replacement --check`。该开关加载 `deploy/docker-compose.replacement.yml`，采用带固定 OpenSpec 工具链的 `Dockerfile.replacement`，连接 backend、chat-worker 与独立签名进程；不会生成密钥、批准清单或启用项目策略。
+
+仓库外配置四项：`MOONBOX_REPLACEMENT_TRUST_SOURCE` 为经过独立审查的公开信任 JSON；`MOONBOX_AUTHORIZATION_KEY_SOURCE` 为仅供在线签名进程使用的 Ed25519 PEM；`MOONBOX_AUTHORIZATION_KEY_ID` 为其公钥版本；`MOONBOX_REPLACEMENT_SOCKET_ROOT` 为当前部署用户拥有的私有目录。文件和目录都需预先存在，禁止符号链接；私钥权限为 0600，目录建议 0700。预检验证用途分组、密钥匹配、撤销、路径隔离及治理写入条件。服务内公开信任及其父目录只读，签名器无网络且仅挂载在线私钥；Agent 执行容器没有信任根、私钥或签名 socket。运维离线私钥不进入这套 Compose。
+
+产品操作按以下顺序完成：
+
+1. 登录 Chat，选择目标空间和项目，点击输入框中的“审阅规则替代证明”（无需先发送消息），打开“规则替代审阅”中的“首次可信启用”，点击“查看启用条件”。缺部署信任时先处理部署预检。
+2. 填写机制 Change，点击“生成并校验精确清单”。接口只读核验当前验收、交付和静态门禁，并在临时目录预演归档；不写授权或归档检查点。核对原条文、转换后条文、制品/验证器摘要、保护义务与证据摘要，然后导出运维审阅包。
+3. 运维在独立受信环境运行 `python scripts/review-policy-installation.py --bundle 审阅包文件`。默认只检查和展示；独立核对发布制品、验收证据和完整差异后，显式增加 `--sign --key-file 运维私钥绝对路径 --key-id 运维公钥版本 --actor 运维身份 --approved-manifest-sha256 页面完整清单摘要 --output 收据绝对路径`。工具使用仓库外只读 `MOONBOX_REPLACEMENT_TRUST_FILE`，私钥和新输出都位于仓库外；信任文件所有父目录对执行身份不可写。可在独立、无网络、非 root 的只读运维容器执行，只挂载公开信任、独立运维私钥、只读审阅包和私有收据输出目录。不要将离线运维私钥挂载到 Web/API、在线签名器或 Agent。签发绑定同一项目、制品、清单和原操作，24 小时有效，不调用服务、不激活策略。
+4. 在原页面粘贴收据 JSON，点击“核验并导入运维授权”，确认仅导入。篡改、用途不符、过期或当前输入变化均拒绝；文本保留便于修正。导入人须有项目与机制对象写权限。
+5. 当前空间所有者独立登录、读取原操作，审阅精确转换及不可豁免保护，再点击“审阅并确认本项目转换”。二次确认将执行机制 Change 归档；只有正式结果回读通过才显示 active。成员不能代替所有者确认，普通提案批准不能替代此确认。
+6. 页面显示归档身份及原操作号后，刷新需求中心。首次启用只完成清单中机制 Change；BUG-0063 的替代提案批准、其他对象验收及 Sprint 独立签署仍分别处理。
+
+恢复处理：请求中断或重启后先“查看启用条件”，读取同一 operation 与检查点；authorized/activating 状态使用“继续原转换”，不重复合并或创建新清单。prepared/authorized 授权过期时，导出原清单重新独立审阅并导入新收据，随后所有者再次确认；不改变原 operation。若规格、证据、绑定或受信制品变化，保持阻断并核对原操作，禁止删除检查点、伪造完成证据或直接修改数据库 active。撤销签名信任仍阻断恢复；独立签署缺失也不会因运维授权而跳过。

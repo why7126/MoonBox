@@ -1,0 +1,31 @@
+{
+  "evidence_kind": "observed_product",
+  "sample": "BUG-9093-recovery-recovery",
+  "conversation_id": "fab62af1-a61b-503b-bf74-7936c96bd937",
+  "turn_id": "0709daec-e01c-4916-9a42-a2201f3c8556",
+  "terminal": "completed",
+  "error_code": "worker_heartbeat_lost",
+  "interrupted": true,
+  "candidate_state": "applied",
+  "operation": {
+    "id": "83f85da3-25d3-4394-ba00-bfb3b0767bd0",
+    "object_id": "BUG-9093-recovery-recovery",
+    "action": "bug-review",
+    "stage": "complete",
+    "state": "completed",
+    "version": 24,
+    "execution_terminal": "completed",
+    "reason_code": null,
+    "auto_retry_count": 0,
+    "manual_count": 0,
+    "next_retry_at": null,
+    "recovery_expires_at": "2026-10-20T10:00:36+00:00",
+    "candidate_id": "f3fa6a4a-c496-5156-acb1-0bb92a227c98",
+    "application_id": "5512252b-712c-4bd4-a101-3cfe1f0b0189",
+    "allowed_actions": [
+      "refresh",
+      "evidence"
+    ]
+  },
+  "interruption_mode": "service_crash"
+}

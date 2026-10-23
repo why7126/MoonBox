@@ -9,6 +9,7 @@ def _fixture(tmp_path: Path, monkeypatch):
     change = "fix-example"
     archive = tmp_path / "openspec" / "archive" / f"2026-10-17-{change}"
     archive.mkdir(parents=True)
+    (archive / "trace.md").write_text("---\nstatus: archived\nchange_id: fix-example\n---\n")
     evidence = archive / "verification.md"
     evidence.write_text("new evidence\n", encoding="utf-8")
     old = hashlib.sha256(b"old evidence\n").hexdigest()

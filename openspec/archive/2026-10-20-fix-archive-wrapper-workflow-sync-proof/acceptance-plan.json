@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-archive-wrapper-workflow-sync-proof",
+  "environment_contract": {
+    "deployment": "local-compose",
+    "workspace_mode": "source",
+    "sample_scope": "BUG-0051无干扰首次归档；BUG-0050并发漂移拒绝与重启恢复；BUG-0048原执行恢复",
+    "authorization_ref": "用户两次明确授权各1条正式样本及归档；既有本地容器更新授权",
+    "login_strategy": "复用已登录本地浏览器",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py"
+      ],
+      "turn_id": "432acfee-6660-4496-80d3-de5aa9c60d7a",
+      "command_contains": "archive-change.sh",
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实浏览器与同轮命令、门禁和文件事实核验通过；见脱敏证明及截图。"
+      },
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-first-archive.json",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-completed-1440.jpg"
+      ],
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket; socket.create_connection(('127.0.0.1',39002),timeout=5).close()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "completed-chat"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "completed-chat",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-completed-1440.jpg"
+            ]
+          }
+        ]
+      },
+      "effects": [
+        {
+          "kind": "exists",
+          "path": "issues/bugs/archive/BUG-0051-archive-wrapper-proof-serial-fixture/trace.md"
+        },
+        {
+          "kind": "absent",
+          "path": "openspec/changes/fix-archive-wrapper-proof-serial-fixture"
+        },
+        {
+          "kind": "contains",
+          "path": "openspec/specs/chat-archive-acceptance-evidence/spec.md",
+          "text": "包装脚本首次归档样本串行执行"
+        }
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_chat.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/pytest",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "-q",
+        "--tb=short"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "合成回归覆盖，真实重启观察另见 AC-007。"
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_chat.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/pytest",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "-q",
+        "--tb=short"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "合成回归覆盖，真实重启观察另见 AC-007。"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py"
+      ],
+      "turn_id": "35ee4b98-fa14-45bc-8bb2-16c24973d57b",
+      "command_contains": "archive-change.sh",
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "原BUG-0048完成轮次只读重核验，未启动模型或重放归档；历史16步骤保留且同步成功仍0。"
+      },
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-recovery.json",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-restored-1440.jpg",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-chat-readonly-1440.jpg"
+      ],
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket; socket.create_connection(('127.0.0.1',39002),timeout=5).close()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "done-board",
+          "readonly-chat"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "done-board",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-restored-1440.jpg"
+            ]
+          },
+          {
+            "stage": "readonly-chat",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-chat-readonly-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_chat.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/pytest",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "-q",
+        "--tb=short"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "合成回归覆盖，真实重启观察另见 AC-007。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-after-restart.json"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_chat.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/pytest",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_ac011_source_fault_matrix.py",
+        "-q",
+        "--tb=short"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "合成回归覆盖，真实重启观察另见 AC-007。"
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/archive_workflow_check.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/store.py",
+        "src/backend/app/governance/writer.py"
+      ],
+      "turn_id": "432acfee-6660-4496-80d3-de5aa9c60d7a",
+      "command_contains": "archive-change.sh",
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实浏览器与同轮命令、门禁和文件事实核验通过；见脱敏证明及截图。"
+      },
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-done-board-1440.jpg",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-refreshed-1440.jpg",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-rejected-registry-1440.jpg",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-rejected-registry.json",
+        "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-restart-1440.jpg"
+      ],
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket; socket.create_connection(('127.0.0.1',39002),timeout=5).close()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "done-board",
+          "readonly-chat",
+          "rejected-board",
+          "recovered-board"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "done-board",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-done-board-1440.jpg"
+            ]
+          },
+          {
+            "stage": "readonly-chat",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-refreshed-1440.jpg"
+            ]
+          },
+          {
+            "stage": "rejected-board",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-rejected-registry-1440.jpg"
+            ]
+          },
+          {
+            "stage": "recovered-board",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-restart-1440.jpg"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "environment": "local-compose"
+}

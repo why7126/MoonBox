@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "optimize-acceptance-archive-orchestration",
+  "environment": "local-governance",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_acceptance_orchestration.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py"
+      ],
+      "inputs": [
+        "scripts/opsx_acceptance.py",
+        "scripts/archive-recovery-guard.py",
+        "scripts/validate-agent-context-budget.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_acceptance_orchestration.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/benchmark-acceptance-orchestration.py",
+        "--baseline-ref",
+        "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+        "--output",
+        "openspec/changes/optimize-acceptance-archive-orchestration/evidence/comparison.json"
+      ],
+      "inputs": [
+        "scripts/opsx_acceptance.py",
+        "scripts/benchmark-acceptance-orchestration.py"
+      ],
+      "artifacts": [
+        "openspec/changes/optimize-acceptance-archive-orchestration/evidence/comparison.json"
+      ],
+      "produces_artifacts": [
+        "openspec/changes/optimize-acceptance-archive-orchestration/evidence/comparison.json"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        ".agents/skills/opsx-accept/SKILL.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        ".agents/skills/workflow-sync/SKILL.md",
+        "rules/agent-context-budget.md"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "optimize-acceptance-archive-orchestration",
+        "--residual-report"
+      ],
+      "inputs": [
+        "openspec/changes/optimize-acceptance-archive-orchestration/proposal.md",
+        "openspec/changes/optimize-acceptance-archive-orchestration/design.md",
+        "openspec/changes/optimize-acceptance-archive-orchestration/specs/acceptance-orchestration/spec.md"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/validate-directory-structure.py"
+      ],
+      "inputs": [
+        "scripts/validate-directory-structure.py",
+        "rules/directory-structure.md"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/archive-recovery-guard.py",
+        "optimize-acceptance-archive-orchestration",
+        "--preview"
+      ],
+      "inputs": [
+        "scripts/archive-recovery-guard.py",
+        "openspec/changes/optimize-acceptance-archive-orchestration/specs/acceptance-orchestration/spec.md",
+        "openspec/specs/web-catalog-chat-workbench/spec.md",
+        "openspec/specs/automated-opsx-acceptance/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-login-page/spec.md",
+        "openspec/specs/deployment-governance/spec.md",
+        "openspec/specs/archived-acceptance-artifact-supplement/spec.md",
+        "openspec/specs/codex-session-execution/spec.md",
+        "openspec/specs/web-admin-auth-system/spec.md",
+        "openspec/specs/sprint-planning-governance/spec.md",
+        "openspec/specs/database-compatibility/spec.md",
+        "openspec/specs/web-admin-user-management/spec.md",
+        "openspec/specs/web-admin-space-management/spec.md",
+        "openspec/specs/web-catalog-homepage/spec.md",
+        "openspec/specs/git-check-security-gate/spec.md",
+        "openspec/specs/web-catalog-user-profile/spec.md",
+        "openspec/specs/chat-archive-acceptance-evidence/spec.md",
+        "openspec/specs/testing/spec.md",
+        "openspec/specs/sprint-capacity-default/spec.md",
+        "openspec/specs/web-catalog-requirement-center/spec.md",
+        "openspec/specs/issue-classification-metadata/spec.md",
+        "openspec/specs/harness-runtime/spec.md",
+        "openspec/specs/api-governance/spec.md",
+        "openspec/specs/local-project-governance-loop/spec.md",
+        "openspec/specs/release-governance/spec.md",
+        "openspec/specs/web-admin-crud-list-template/spec.md",
+        "openspec/specs/agent-workflow-tooling/spec.md",
+        "openspec/specs/design-system/spec.md",
+        "openspec/specs/capture-candidate-review/spec.md",
+        "openspec/specs/local-snapshot-rotation/spec.md",
+        "openspec/specs/change-identity-uniqueness/spec.md",
+        "openspec/specs/git-sync-governance/spec.md",
+        "openspec/specs/project-verification-environment/spec.md",
+        "openspec/specs/sprint-close-history-aware-scan/spec.md"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "argv": [
+        "python",
+        "scripts/validate-product-data-observability.py",
+        "--change",
+        "optimize-acceptance-archive-orchestration"
+      ],
+      "inputs": [
+        "docs/standards/opsx-acceptance.md",
+        "docs/standards/product-data-collection-observability.md"
+      ]
+    }
+  ]
+}

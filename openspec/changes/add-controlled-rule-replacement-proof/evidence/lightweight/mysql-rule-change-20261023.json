@@ -1,0 +1,13 @@
+{
+  "environment": "isolated mysql:8.2.0",
+  "database": "temporary memory-backed container",
+  "checks": [
+    "migration",
+    "confirmation insert",
+    "event insert",
+    "request-key uniqueness",
+    "append-only event update blocked"
+  ],
+  "status": "passed",
+  "formal_project_affected": false
+}

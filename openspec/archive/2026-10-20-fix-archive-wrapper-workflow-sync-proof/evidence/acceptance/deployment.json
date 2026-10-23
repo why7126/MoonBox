@@ -1,0 +1,21 @@
+{
+  "deployment": "local-compose",
+  "source_matches_all_services": true,
+  "services": [
+    "moonbox-backend",
+    "moonbox-chat-worker",
+    "moonbox-governance-controller"
+  ],
+  "images": {
+    "moonbox-backend": "sha256:a200c22d66b56416ee6250e2e02455a54ddc433b5640945b9a2b5f46008d6b8d",
+    "moonbox-chat-worker": "sha256:0a808744f4cfa5ea0974a441523f50a2bd996b1dbb84dc2035c4746805a90fbb",
+    "moonbox-governance-controller": "sha256:a200c22d66b56416ee6250e2e02455a54ddc433b5640945b9a2b5f46008d6b8d"
+  },
+  "sha256": {
+    "archive_proof.py": "5d98e7dabf62d1f0bc5627afb22446788a36cb8ae0044cbf1a41fec0d7643a6e",
+    "archive_workflow_check.py": "25fb0e9ad6bcbbf4e64c24e4ed167ee4bd99bf7852b8c7124be7553ea20bafff",
+    "execution_context.py": "f7af543ecf85f41f97b941f4c32e33e04626bed110695080b9a79852ddca2f6a"
+  },
+  "database_migration": false,
+  "api_schema_change": false
+}

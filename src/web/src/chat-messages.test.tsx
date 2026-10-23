@@ -148,7 +148,7 @@ it("computes running assistant activity and status output as full-width", async 
     stubRunningAssistantFetch();
     render(<ConversationMessages conversationId="c" onTrace={vi.fn()} />);
     const status = await screen.findByText(/dry-run 在创建临时锁前失败/);
-    expect(status.getAttribute("role")).toBe("status");
+    expect(status.getAttribute("aria-live")).toBe("off");
     const assistant = status.closest(".turn-assistant") as HTMLElement;
     const activity = status.closest(".chat-turn-activity") as HTMLElement;
     const summary = activity.querySelector(".chat-tool-summary") as HTMLElement;

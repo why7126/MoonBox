@@ -1,0 +1,62 @@
+sprint_id: sprint-013
+status: planning
+lifecycle_stage: change
+created_at: '2026-10-22 13:17:23'
+updated_at: '2026-10-23 08:30:13'
+start_date: 2026-10-22 13:17:23
+end_date: 2026-11-05 18:00:00
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0050-controlled-rule-replacement-proof
+  - REQ-0051-card-persistent-info-tags
+bugs: []
+estimated_story_points: 17
+estimated_person_days: 16.5
+scope_estimates:
+  - id: REQ-0050-controlled-rule-replacement-proof
+    change: add-controlled-rule-replacement-proof
+    requirement: REQ-0050-controlled-rule-replacement-proof
+    size: XXL
+    story_points: 13
+    estimated_person_days: 13
+    rationale: 用户明确选择新建sprint-013；证明与授权3人天、首次可信启用3、并发恢复3、审批UI与真实端到端验收4，共13人天；首次纳入时保留30人天容量及17人天剩余缓冲，不调整sprint-012。
+  - id: REQ-0051-card-persistent-info-tags
+    change: add-card-persistent-info-tags
+    requirement: REQ-0051-card-persistent-info-tags
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 用户指定 sprint-013；数据投影与根因兼容1人天、标签及文档交互1人天、测试视觉验收与文档1人天，共3人天；预计总量16/30，剩余14人天，不调整已有范围。
+  - id: product-manager-readable-agent-output
+    change: product-manager-readable-agent-output
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 统一产品经理视角沟通，降低术语理解成本
+knowledge_intake:
+- action_id: S10-A002
+  scope: 本需求首次成功、失败拒绝及中断恢复分层验收，隔离样本串行执行，不声称关闭通用行动。
+  source: docs/knowledge-base/retrospectives/sprint-011-retrospective.md
+- action_id: S11-A001
+  scope: 容量硬阻断后经用户选择拆至sprint-013，保留17人天缓冲及sprint-012外部关闭依赖。
+  source: docs/knowledge-base/retrospectives/sprint-011-retrospective.md
+capacity_usage: 0.55
+fix_buffer_person_days: 13.5
+fix_buffer_ratio: 0.45
+changes:
+  - add-controlled-rule-replacement-proof
+  - add-card-persistent-info-tags
+
+  - product-manager-readable-agent-output
+requirement_knowledge_intake:
+  REQ-0051-card-persistent-info-tags:
+    sources:
+      - docs/knowledge-base/best-practices/prototype-driven-ui-gate.md
+      - docs/knowledge-base/incidents/20260912-requirement-center-read-performance.md
+      - docs/knowledge-base/retrospectives/sprint-011-retrospective.md
+    action_ids: [S10-A001, S10-A002, S11-A001]
+    scope: 当前事实与历史证据区分、隔离样本及追加范围缓冲；仅承接适用部分，不宣称关闭行动。
+    validation: AC-XCUT-001/002/003 与 AC-PROTOTYPE-001/002/003/004

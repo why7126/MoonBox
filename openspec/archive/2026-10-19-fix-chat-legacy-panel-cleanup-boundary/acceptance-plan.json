@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-legacy-panel-cleanup-boundary",
+  "environment": "local-compose",
+  "environment_contract": {
+    "deployment": "authorized-local-compose",
+    "workspace_mode": "source",
+    "sample_scope": "REQ-0046 original conversation",
+    "authorization_ref": "用户授权修复、更新本地容器并重评REQ-0046",
+    "login_strategy": "existing-authorized-browser-session",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/runtimeBuild.ts",
+        "src/web/src/runtimeBuild.test.ts",
+        "src/web/src/chat-workbench.test.tsx",
+        "src/web/src/governance.test.tsx"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import subprocess,os;raise SystemExit(subprocess.call(['node','node_modules/vitest/vitest.mjs','run','src/runtimeBuild.test.ts','src/chat-workbench.test.tsx','src/governance.test.tsx'],cwd='src/web',env={**os.environ,'NODE_OPTIONS':'--no-experimental-webstorage'}))"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/runtimeBuild.ts",
+        "src/web/src/runtimeBuild.test.ts",
+        "src/web/src/chat-workbench.test.tsx",
+        "src/web/src/governance.test.tsx"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import subprocess,os;raise SystemExit(subprocess.call(['node','node_modules/vitest/vitest.mjs','run','src/runtimeBuild.test.ts','src/chat-workbench.test.tsx','src/governance.test.tsx'],cwd='src/web',env={**os.environ,'NODE_OPTIONS':'--no-experimental-webstorage'}))"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/runtimeBuild.ts"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import json;d=json.load(open('openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/computed-style.json'));assert d['viewport']['width']==1440;assert all(n['exists'] and n['visibility']=='visible' and n['height']>0 for n in d['nodes'])"
+      ],
+      "evidence_kinds": [
+        "visual",
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/conversation-1440.jpg",
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/trace-1440.jpg",
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/computed-style.json"
+      ],
+      "coverage": {
+        "stages": [
+          "conversation",
+          "trace"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "conversation",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/conversation-1440.jpg",
+              "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/computed-style.json"
+            ]
+          },
+          {
+            "stage": "trace",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/trace-1440.jpg",
+              "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/computed-style.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "python",
+          "-c",
+          "import socket;socket.create_connection(('127.0.0.1',39002),5).close()"
+        ]
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "已目视确认原会话刷新后正文、输入区可见，轨迹切换正常，样式采样通过。"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/review.py",
+        "src/backend/app/governance/review_finalization.py",
+        "src/backend/app/governance/candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "turn_id": "cff097ea-eadc-40c6-b8d9-671206988d51",
+      "command_contains": "sync-workflow-status.py",
+      "timeout_seconds": 30,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实轮次completed，候选applied，唯一应用applied/verified，恢复操作completed；9文件正式迁入review，approved/P2，验收仍未开始。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/product-application.json",
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/review-file-state.json",
+        "openspec/changes/fix-chat-legacy-panel-cleanup-boundary/evidence/acceptance/browser/review-applied-1440.jpg"
+      ],
+      "effects": [
+        {
+          "kind": "exists",
+          "path": "issues/requirements/review/REQ-0046-chat-execution-output-status-feedback/review.md"
+        },
+        {
+          "kind": "contains",
+          "path": "issues/requirements/review/REQ-0046-chat-execution-output-status-feedback/requirement.md",
+          "text": "status: approved"
+        },
+        {
+          "kind": "absent",
+          "path": "issues/requirements/plan/REQ-0046-chat-execution-output-status-feedback"
+        }
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/review.py",
+        "src/backend/tests/test_governance_review.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "src/backend/app/governance/review_finalization.py",
+        "src/backend/app/governance/candidates.py",
+        "src/backend/app/governance/preparation.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/pytest",
+        "src/backend/tests/test_governance_review.py",
+        "src/backend/tests/test_review_operation_record.py",
+        "-q",
+        "--tb=short"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

@@ -2116,7 +2116,7 @@ body {
 
 .rc-board {
   display: grid;
-  grid-template-columns: repeat(9, 320px);
+  grid-template-columns: repeat(9, 380px);
   grid-template-rows: auto minmax(260px, 1fr);
   align-items: start;
   gap: 10px;
@@ -2316,6 +2316,8 @@ body {
 
 .rc-change-id-row strong,
 .rc-card-top strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--rc-muted);
   font-family: var(--rc-font-mono);
   font-size: 10.5px;
@@ -2325,6 +2327,8 @@ body {
 }
 
 .rc-sprint-tag {
+  white-space: nowrap;
+  flex-shrink: 0;
   border: 1px solid color-mix(in srgb, var(--rc-accent) 42%, transparent);
   border-radius: var(--ops-radius-sm);
   padding: 2px 6px;
@@ -2424,6 +2428,10 @@ body {
 }
 
 .rc-card-tags > .rc-tag {
+  font: normal 10px/1.2 var(--rc-font-mono);
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 20px;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -8813,3 +8821,26 @@ body .admin-space-more-menu.light button.danger:focus-visible {
   /* Keep the board scrollable after the additional type statistic. */
   .rc-board-wrap { flex-basis: 560px; }
 }
+
+/* Persistent metadata shares the existing card tag row. */
+.rc-card-tags { flex-wrap: wrap; }
+.rc-card .rc-root-cause-tag { cursor: pointer; background: var(--rc-panel-2); color: var(--rc-warning, var(--rc-muted)); }
+.rc-card .rc-root-cause-tag.confirmed { color: var(--rc-success); }
+.rc-person-days-tag { background: var(--rc-panel-2); color: var(--rc-muted); }
+.rc-card .rc-root-cause-tag:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 2px; }
+.rc-card .rc-root-cause-tag:disabled { cursor: not-allowed; opacity: .6; }
+
+/* Effort is encoded by both text and color; amounts remain exact and read-only. */
+.rc-person-days-tag.rc-effort-s { --rc-effort-color: #167c80; }
+.rc-person-days-tag.rc-effort-m { --rc-effort-color: #326bb5; }
+.rc-person-days-tag.rc-effort-l { --rc-effort-color: #8051b1; }
+.rc-person-days-tag.rc-effort-xl { --rc-effort-color: #a56314; }
+.rc-person-days-tag.rc-effort-xxl { --rc-effort-color: #b24170; }
+[data-theme="dark"] .rc-person-days-tag.rc-effort-s { --rc-effort-color: #73cbd0; }
+[data-theme="dark"] .rc-person-days-tag.rc-effort-m { --rc-effort-color: #88b9f3; }
+[data-theme="dark"] .rc-person-days-tag.rc-effort-l { --rc-effort-color: #c2a0ec; }
+[data-theme="dark"] .rc-person-days-tag.rc-effort-xl { --rc-effort-color: #edba70; }
+[data-theme="dark"] .rc-person-days-tag.rc-effort-xxl { --rc-effort-color: #ed94b8; }
+.rc-person-days-tag { color: var(--rc-effort-color); background: color-mix(in srgb, var(--rc-effort-color) 14%, var(--rc-panel)); }
+
+.rc-effort-separator { margin-inline: 2px; }

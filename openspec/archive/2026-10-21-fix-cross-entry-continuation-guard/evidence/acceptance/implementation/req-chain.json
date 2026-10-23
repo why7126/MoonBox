@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "sample": "REQ",
+  "synthetic_precondition": "old blocked apply journal constructed by fixture",
+  "real_observations": [
+    "standard CLI continuation and acceptance",
+    "product completion-verification HTTP",
+    "actual product send",
+    "model executed standard archive",
+    "business effects reread"
+  ],
+  "turn": {
+    "status": "completed",
+    "error_code": null,
+    "id": "ee2b6d16-17a2-481e-9a65-de7ff17696af"
+  },
+  "guard": {
+    "state": "validated",
+    "confirmed_stage": "done",
+    "action": "opsx-archive",
+    "reason_code": null,
+    "terminal_status": "completed"
+  },
+  "archive_directory": "2026-10-21-fix-isolated-cross-entry-req",
+  "issue_archived": true,
+  "active_change_absent": true,
+  "passed": true
+}

@@ -1,0 +1,26 @@
+{
+  "source": "isolated-live-api-and-browser",
+  "sample": "sprint-099",
+  "scenarios": [
+    {
+      "name": "missing-proof-and-signoff",
+      "result": "blocked",
+      "blockers": [
+        "archive_requirement_conflict",
+        "missing_signoff"
+      ],
+      "requirement_visible": "能力",
+      "draft_retained": true
+    },
+    {
+      "name": "proof-restored-signoff-pending",
+      "result": "blocked",
+      "blockers": [
+        "missing_signoff"
+      ],
+      "draft_retained": true
+    }
+  ],
+  "model_execution": false,
+  "turn_count": 0
+}

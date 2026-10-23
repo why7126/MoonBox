@@ -1,0 +1,16 @@
+{
+  "environment": "isolated SQLite service 39022",
+  "change": "fix-compatible-requirement-successor",
+  "checks": {
+    "owner_read": 200,
+    "non_owner_confirm": 403,
+    "stale_digest": 409,
+    "owner_confirm": 200,
+    "owner_revoke": 200,
+    "state_after_revoke": "revoked"
+  },
+  "formal_project_affected": false,
+  "archive_performed": false,
+  "chat_turn_sent": false,
+  "status": "passed"
+}

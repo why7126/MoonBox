@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "successor": "fix-cross-entry-continuation-guard",
+  "capability": "governance-command-durable-recovery",
+  "requirement": "直接命令动作级交付契约",
+  "before_sha256": "349625e5f6b69d32b0ff35a4719e1e675e5d6285861b17d1562791f626028701",
+  "after_sha256": "21ca10936cca4315b6a471bd3435b4fca6c1677ff75ef69cd4a5d31090e61dd8",
+  "added_scenarios": [
+    "仅进度事件不能完成"
+  ],
+  "classification": "compatible_append",
+  "status": "passed",
+  "reviewer": "Codex implementation review",
+  "rationale": "原条文要求正式完成证明；追加场景明确 start/progress 或外层 shell 成功不构成证明，与原约束一致。",
+  "contradictions": []
+}

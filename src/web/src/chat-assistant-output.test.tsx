@@ -16,8 +16,8 @@ it("renders saved partial body independently of the unknown terminal warning", a
   }));
   render(<ConversationMessages conversationId="c" onTrace={vi.fn()}/>);
   await screen.findByText("已保存的合成正文");
-  expect((await screen.findByTestId("chat-partial-output")).textContent).toContain("不代表执行完成");
-  expect(screen.getByTestId("chat-partial-output").textContent).toContain("已截断");
+  expect((await screen.findByTestId("turn-status-feedback")).textContent).toContain("输出内容不完整");
+  expect(screen.getAllByText("输出内容不完整")).toHaveLength(1);
   await screen.findByText(/不要重复发送命令/);
   expect(screen.queryByText("已完成",{exact:true})).toBeNull();
 });

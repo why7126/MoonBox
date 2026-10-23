@@ -1,0 +1,785 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-requirement-stage-completion-session-continuity",
+  "environment": "bug0044-isolated-local",
+  "environment_contract": {
+    "deployment": "disposable-local-api-and-browser",
+    "workspace_mode": "isolated",
+    "sample_scope": "REQ-9098 and BUG-9898 disposable copy; BUG-9901..9903 synthetic UI states",
+    "authorization_ref": "User opsx-apply and approved UI skeleton; isolated validation within implementation scope",
+    "login_strategy": "Authorized disposable test accounts and existing browser sessions; secrets remain private",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "preflight": [
+    [
+      "python",
+      "-c",
+      "import socket; from pathlib import Path; assert Path('/Applications/Google Chrome.app').is_dir(); s=socket.create_connection(('127.0.0.1',39028),timeout=3); s.close(); print('isolated API reachable; Chrome installed; browser evidence collected')"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "timeout_seconds": 240,
+      "evidence_kinds": [
+        "product_turn",
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-validated.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-ready-1440.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "turn_id": "d571ebae-29a0-479b-a1ff-f5f9c342886b",
+      "command_contains": "--event req.generate",
+      "effects": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+          "kind": "exists"
+        },
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+          "text": "\"state\": \"applied\""
+        }
+      ],
+      "coverage": {
+        "stages": [
+          "running",
+          "ready"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "running",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          },
+          {
+            "stage": "ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-ready-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/governanceSession.ts",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/chat-workbench.test.tsx",
+        "src/web/src/styles/globals.css",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.environ['NODE_OPTIONS']='--no-experimental-webstorage'; os.execvp('npm',['npm','--prefix','src/web','test','--','src/requirement-center.test.tsx','src/chat-workbench.test.tsx','src/chat-composer.test.tsx'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-original-conversation-header.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retained-draft.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/view-original-execution-1440.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "coverage": {
+        "stages": [
+          "view-original"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "view-original",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/view-original-execution-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-entry-requests.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/observability-sample.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-sync.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-development.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-read-progress.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "coverage": {
+        "stages": [
+          "failed"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "failed",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-unknown-1440.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "coverage": {
+        "stages": [
+          "unknown"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "unknown",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-unknown-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-entry-requests.json",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-sync.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/governanceSession.ts",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/chat-workbench.test.tsx",
+        "src/web/src/styles/globals.css",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.environ['NODE_OPTIONS']='--no-experimental-webstorage'; os.execvp('npm',['npm','--prefix','src/web','test','--','src/requirement-center.test.tsx','src/chat-workbench.test.tsx','src/chat-composer.test.tsx'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-read-document-1440.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-read-progress.png",
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "coverage": {
+        "stages": [
+          "read-document"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "read-document",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-read-document-1440.png",
+              "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/observability.py",
+        "src/backend/app/chat/admission.py",
+        "src/backend/app/chat/service.py",
+        "src/backend/app/chat/worker.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_governance_execution_validation.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_board.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_lifecycle.py",
+        "src/backend/tests/test_chat_platform_worker.py",
+        "src/backend/tests/test_governance_unsupported_action.py",
+        "tests/unit/test_workflow_execution.py"
+      ],
+      "argv": [
+        "python",
+        "-c",
+        "import os; os.chdir('src/backend'); os.environ['TMPDIR']='/private/tmp'; os.execvp('uv', ['uv','run','--offline','--with','pytest','--with','httpx','python','-m','pytest','-p','no:cacheprovider','tests/test_governance_execution_guard.py','tests/test_governance_execution_validation.py','tests/test_governance_candidates.py','tests/test_chat.py','tests/test_governance_board.py','tests/test_governance_scope.py','tests/test_governance_lifecycle.py','tests/test_chat_platform_worker.py','tests/test_governance_unsupported_action.py','../../tests/unit/test_workflow_execution.py','-q','--tb=short'])"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/observability-sample.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项证据性质与边界见 signoff.md"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    }
+  ]
+}

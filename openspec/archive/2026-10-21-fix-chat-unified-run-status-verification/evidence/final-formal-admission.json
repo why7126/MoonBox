@@ -1,0 +1,64 @@
+{
+  "samples": [
+    {
+      "object_id": "REQ-0046-chat-execution-output-status-feedback",
+      "can_send": true,
+      "execution_state": "idle",
+      "reason_code": null,
+      "conversation_id": "29005959-fc5b-58fc-884c-7f46a349a4f6",
+      "model_submitted": false
+    },
+    {
+      "object_id": "BUG-0052-verified-result-execution-guard-not-released",
+      "can_send": true,
+      "execution_state": "idle",
+      "reason_code": null,
+      "conversation_id": "07759edc-230e-57e1-9fd9-a6960a106e12",
+      "model_submitted": false
+    }
+  ],
+  "cards": [
+    {
+      "id": "REQ-0046",
+      "stage": "acceptance",
+      "can_send": true,
+      "execution_state": "validated",
+      "execution_reason": null,
+      "manual_acceptance_progress": [
+        31,
+        31
+      ],
+      "acceptance_pending_count": 0,
+      "acceptance_blocked_reason": null,
+      "action": {
+        "command": "/opsx-archive REQ-0046-chat-execution-output-status-feedback",
+        "label": "完成 / 归档",
+        "requires_choice": null,
+        "disabled_reason": null
+      },
+      "blocked": null
+    },
+    {
+      "id": "BUG-0052",
+      "stage": "acceptance",
+      "can_send": true,
+      "execution_state": "idle",
+      "execution_reason": null,
+      "manual_acceptance_progress": [
+        15,
+        15
+      ],
+      "acceptance_pending_count": 0,
+      "acceptance_blocked_reason": null,
+      "action": {
+        "command": "/opsx-archive BUG-0052-verified-result-execution-guard-not-released",
+        "label": "完成 / 归档",
+        "requires_choice": null,
+        "disabled_reason": null
+      },
+      "blocked": null
+    }
+  ],
+  "formal_archive_executed": false,
+  "model_submitted": false
+}

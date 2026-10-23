@@ -140,9 +140,8 @@ def acceptance_status_for(derived: DerivedIssue, event: str | None, *, issue_pat
                 if linked_issue and issue_path is not None and linked_issue != issue_path.name:
                     return "pending"
                 if plan.parent.parent.name == "archive":
-                    from opsx_acceptance import archived_manifest_artifacts_match, latest_manifest
-                    manifest = latest_manifest(plan.parent)
-                    return "passed" if manifest and manifest.get("status") == "passed" and archived_manifest_artifacts_match(ROOT, plan.parent, manifest) else "pending"
+                    from app.governance.acceptance_evidence import archived_readiness
+                    return "passed" if archived_readiness(ROOT, plan.parent).get("evidence_status") == "ready" else "pending"
                 from opsx_acceptance import readiness
                 if readiness(ROOT, source_change)["status"] == "ready":
                     return "passed"

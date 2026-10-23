@@ -1,6 +1,6 @@
 ---
 name: "sprint-apply"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 description: "按 Sprint 依赖与优先级编排 OpenSpec Change 开发"
 ---
 
@@ -156,3 +156,7 @@ python scripts/sync-workflow-status.py --event sprint.apply --sprint <sprint-id>
 ## Change执行状态
 
 每个Change门禁通过后由apply共用入口运行opsx.start，分批验证后opsx.progress，完成门禁通过后opsx.apply；不把Sprint总状态当作单条目启动事实。重复和恢复遵守同一契约。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

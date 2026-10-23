@@ -6003,6 +6003,23 @@
             }
           },
           {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "required": false,
@@ -7259,7 +7276,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                  "$ref": "#/components/schemas/ApiResponse_GovernancePreparationResponse_"
                 }
               }
             }
@@ -7318,7 +7335,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                  "$ref": "#/components/schemas/ApiResponse_ObjectSessionResponse_"
                 }
               }
             }
@@ -7503,6 +7520,1258 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/governance-operations/{operation_id}": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "只读查询治理恢复操作",
+        "operationId": "get_recovery_operation_api_v1_chat_governance_operations__operation_id__get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_RecoveryOperationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/governance-operations/{operation_id}/recoveries": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "确认续接治理操作",
+        "operationId": "post_recovery_operation_api_v1_chat_governance_operations__operation_id__recoveries_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_RecoveryAttemptResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/governance-operations/{operation_id}/retention-dispositions": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "管理员处置恢复证据保留",
+        "operationId": "post_recovery_disposition_api_v1_chat_governance_operations__operation_id__retention_dispositions_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryDispositionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/governance-operations/{operation_id}/verifications": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "核验原操作完成证明与准入",
+        "operationId": "verify_completed_operation_api_v1_chat_governance_operations__operation_id__verifications_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_CompletionVerificationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{turn_id}/completion-verification": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "查询直接命令完成核验状态",
+        "operationId": "direct_verification_status_api_v1_chat_turns__turn_id__completion_verification_get",
+        "parameters": [
+          {
+            "name": "turn_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Turn Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_DirectVerificationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "安全核验直接命令当前成果",
+        "operationId": "verify_direct_completion_api_v1_chat_turns__turn_id__completion_verification_post",
+        "parameters": [
+          {
+            "name": "turn_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Turn Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_DirectVerificationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-proposals/{proposal_id}/admission": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "只读核验受控归档的当前权威准入",
+        "operationId": "admission_api_v1_chat_replacement_proposals__proposal_id__admission_get",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ReplacementAdmissionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-proposals": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "读取当前项目规则替代审阅列表",
+        "operationId": "listing_api_v1_chat_replacement_proposals_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ReplacementListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "准备绑定精确差异的规则替代提案",
+        "operationId": "prepare_api_v1_chat_replacement_proposals_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Prepare"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ReplacementReviewResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-proposals/{proposal_id}/{action}": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "独立确认批准、拒绝或撤销规则替代提案",
+        "operationId": "decision_api_v1_chat_replacement_proposals__proposal_id___action__post",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "approve",
+                "reject",
+                "revoke"
+              ],
+              "type": "string",
+              "title": "Action"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__governance__replacement_api__Decision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ReplacementDecisionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/rule-changes": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "查看对象规则修改及检查状态",
+        "operationId": "read_api_v1_chat_rule_changes_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "change_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/rule-changes/decision": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "旧规则修改确认入口已停用",
+        "operationId": "decide_api_v1_chat_rule_changes_decision_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__governance__rule_change_api__Decision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-policy/preview": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "只读生成可独立审阅的精确策略转换清单",
+        "operationId": "preview_api_v1_chat_replacement_policy_preview_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallationPreview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-policy": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "读取首次策略启用的独立授权状态",
+        "operationId": "status_api_v1_chat_replacement_policy_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_PolicyStatus_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "准备已获运维制品授权的精确策略转换",
+        "operationId": "prepare_api_v1_chat_replacement_policy_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallationPrepare"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_PolicyStatus_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-policy/confirm": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "所有者独立确认项目策略转换",
+        "operationId": "confirm_api_v1_chat_replacement_policy_confirm_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallationConfirm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_PolicyStatus_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-policy/resume": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "依据原清单恢复首次策略转换",
+        "operationId": "resume_api_v1_chat_replacement_policy_resume_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallationConfirm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_PolicyStatus_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-archive-operations": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "执行或恢复同一受控归档操作",
+        "operationId": "create_api_v1_chat_replacement_archive_operations_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ArchiveOperationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/replacement-archive-operations/{operation_id}": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "回读受控归档原操作检查点",
+        "operationId": "read_api_v1_chat_replacement_archive_operations__operation_id__get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ArchiveOperationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/archive-commands": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "通过共同提交边界执行对象归档",
+        "operationId": "command_api_v1_chat_archive_commands_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveObjectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ArchiveObjectResponse_"
                 }
               }
             }
@@ -11317,6 +12586,50 @@
         ],
         "title": "ApiResponse[AdminUserRead]"
       },
+      "ApiResponse_ArchiveObjectResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ArchiveObjectResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ArchiveObjectResponse]"
+      },
+      "ApiResponse_ArchiveOperationResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ArchiveOperationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ArchiveOperationResponse]"
+      },
       "ApiResponse_CapabilitiesResult_": {
         "properties": {
           "code": {
@@ -11360,6 +12673,28 @@
           "data"
         ],
         "title": "ApiResponse[CatalogSpaceCreateResult]"
+      },
+      "ApiResponse_CompletionVerificationResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CompletionVerificationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[CompletionVerificationResponse]"
       },
       "ApiResponse_ConfirmationResult_": {
         "properties": {
@@ -11471,6 +12806,28 @@
         ],
         "title": "ApiResponse[DiffRead]"
       },
+      "ApiResponse_DirectVerificationResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DirectVerificationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[DirectVerificationResponse]"
+      },
       "ApiResponse_DraftList_": {
         "properties": {
           "code": {
@@ -11515,6 +12872,28 @@
         ],
         "title": "ApiResponse[DraftResult]"
       },
+      "ApiResponse_GovernancePreparationResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GovernancePreparationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[GovernancePreparationResponse]"
+      },
       "ApiResponse_MaterialResult_": {
         "properties": {
           "code": {
@@ -11558,6 +12937,28 @@
           "data"
         ],
         "title": "ApiResponse[MessagePage]"
+      },
+      "ApiResponse_ObjectSessionResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ObjectSessionResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ObjectSessionResponse]"
       },
       "ApiResponse_OrganizeResult_": {
         "properties": {
@@ -11668,6 +13069,160 @@
           "data"
         ],
         "title": "ApiResponse[PageResponse[AdminUserRead]]"
+      },
+      "ApiResponse_PolicyStatus_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PolicyStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[PolicyStatus]"
+      },
+      "ApiResponse_RecoveryAttemptResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecoveryAttemptResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[RecoveryAttemptResponse]"
+      },
+      "ApiResponse_RecoveryOperationResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecoveryOperationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[RecoveryOperationResponse]"
+      },
+      "ApiResponse_ReplacementAdmissionResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplacementAdmissionResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ReplacementAdmissionResponse]"
+      },
+      "ApiResponse_ReplacementDecisionResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplacementDecisionResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ReplacementDecisionResponse]"
+      },
+      "ApiResponse_ReplacementListResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplacementListResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ReplacementListResponse]"
+      },
+      "ApiResponse_ReplacementReviewResponse_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplacementReviewResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ReplacementReviewResponse]"
       },
       "ApiResponse_RequirementCenterContext_": {
         "properties": {
@@ -11923,6 +13478,134 @@
           "maintenance_confirmed"
         ],
         "title": "ApplicationRequest"
+      },
+      "ArchiveObjectRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "object_id": {
+            "type": "string",
+            "pattern": "^(?:(?:REQ|BUG)-\\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$",
+            "title": "Object Id"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "object_id",
+          "confirmed"
+        ],
+        "title": "ArchiveObjectRequest"
+      },
+      "ArchiveObjectResponse": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/ArchiveOperationResponse"
+            },
+            "type": "array",
+            "title": "Operations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stage",
+          "operations"
+        ],
+        "title": "ArchiveObjectResponse"
+      },
+      "ArchiveOperationResponse": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "replayed": {
+            "type": "boolean",
+            "title": "Replayed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "stage"
+        ],
+        "title": "ArchiveOperationResponse"
+      },
+      "ArchiveRequest": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Proposal Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "proposal_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Digest"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Idempotency Key"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "expected_revision",
+          "proposal_digest",
+          "idempotency_key",
+          "confirmed"
+        ],
+        "title": "ArchiveRequest"
       },
       "BehaviorEventCreate": {
         "properties": {
@@ -12408,6 +14091,71 @@
         ],
         "title": "CatalogSpaceCreateResult"
       },
+      "CompletionVerificationResponse": {
+        "properties": {
+          "historical_result": {
+            "type": "string",
+            "title": "Historical Result"
+          },
+          "admission_state": {
+            "type": "string",
+            "title": "Admission State"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          },
+          "verification_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Reason"
+          },
+          "verification_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Actions"
+          },
+          "verification_differences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Differences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "historical_result",
+          "admission_state"
+        ],
+        "title": "CompletionVerificationResponse"
+      },
       "ConfirmInput": {
         "properties": {
           "expected_revision": {
@@ -12768,6 +14516,107 @@
         ],
         "title": "DiffRead"
       },
+      "DirectVerificationDifference": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "kind"
+        ],
+        "title": "DirectVerificationDifference"
+      },
+      "DirectVerificationRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected_version"
+        ],
+        "title": "DirectVerificationRequest"
+      },
+      "DirectVerificationResponse": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          },
+          "can_verify": {
+            "type": "boolean",
+            "title": "Can Verify"
+          },
+          "historical_evidence_missing": {
+            "type": "boolean",
+            "title": "Historical Evidence Missing",
+            "default": false
+          },
+          "differences": {
+            "items": {
+              "$ref": "#/components/schemas/DirectVerificationDifference"
+            },
+            "type": "array",
+            "title": "Differences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "state",
+          "version",
+          "can_verify"
+        ],
+        "title": "DirectVerificationResponse"
+      },
       "DraftContent": {
         "properties": {
           "text": {
@@ -12923,9 +14772,7 @@
           "data": {
             "anyOf": [
               {
-                "additionalProperties": {
-                  "type": "string"
-                },
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -12942,6 +14789,152 @@
         ],
         "title": "ErrorResponse"
       },
+      "Evidence": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Path"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "title": "Evidence"
+      },
+      "GovernancePreparationResponse": {
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "object_id": {
+            "type": "string",
+            "title": "Object Id"
+          },
+          "object_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Type"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "reused_conversation": {
+            "type": "boolean",
+            "title": "Reused Conversation",
+            "default": false
+          },
+          "execution_state": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "running",
+              "needs_review",
+              "validated",
+              "recovered_valid"
+            ],
+            "title": "Execution State",
+            "default": "idle"
+          },
+          "can_send": {
+            "type": "boolean",
+            "title": "Can Send",
+            "default": true
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "view_conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View Conversation Id"
+          },
+          "preparation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Id"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "object_id",
+          "preparation_id",
+          "prompt",
+          "state"
+        ],
+        "title": "GovernancePreparationResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -12954,6 +14947,235 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Installation": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "kind": {
+            "type": "string",
+            "const": "policy_installation",
+            "title": "Kind"
+          },
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Project Id"
+          },
+          "binding_revision": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Binding Revision"
+          },
+          "mechanism_change": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Mechanism Change"
+          },
+          "from_policy": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "From Policy"
+          },
+          "to_policy": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "To Policy"
+          },
+          "release_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Release Digest"
+          },
+          "verifier_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Verifier Digest"
+          },
+          "delta_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Delta Digest"
+          },
+          "acceptance_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Acceptance Digest"
+          },
+          "delivery_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Delivery Digest"
+          },
+          "baseline_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Baseline Digest"
+          },
+          "expected_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Digest"
+          },
+          "protected_obligations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 10,
+            "title": "Protected Obligations"
+          },
+          "operation_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Operation Id"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyTransition"
+            },
+            "type": "array",
+            "maxItems": 1,
+            "minItems": 1,
+            "title": "Transitions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "kind",
+          "project_id",
+          "binding_revision",
+          "mechanism_change",
+          "from_policy",
+          "to_policy",
+          "release_digest",
+          "verifier_digest",
+          "delta_digest",
+          "acceptance_digest",
+          "delivery_digest",
+          "baseline_digest",
+          "expected_digest",
+          "protected_obligations",
+          "operation_id",
+          "transitions"
+        ],
+        "title": "Installation"
+      },
+      "InstallationConfirm": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "manifest_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Manifest Hash"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "expected_revision",
+          "manifest_hash",
+          "confirmed"
+        ],
+        "title": "InstallationConfirm"
+      },
+      "InstallationPrepare": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "manifest": {
+            "$ref": "#/components/schemas/Installation"
+          },
+          "ops_receipt": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Ops Receipt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "manifest",
+          "ops_receipt"
+        ],
+        "title": "InstallationPrepare"
+      },
+      "InstallationPreview": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "mechanism_change": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,100}$",
+            "title": "Mechanism Change"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "mechanism_change"
+        ],
+        "title": "InstallationPreview"
       },
       "IssueLink": {
         "properties": {
@@ -13018,6 +15240,39 @@
         ],
         "title": "MaterialResult"
       },
+      "MessageOrderKey": {
+        "properties": {
+          "turn_created_at": {
+            "type": "string",
+            "title": "Turn Created At"
+          },
+          "turn_id": {
+            "type": "string",
+            "title": "Turn Id"
+          },
+          "role_rank": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "title": "Role Rank"
+          },
+          "message_id": {
+            "type": "string",
+            "title": "Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "turn_created_at",
+          "turn_id",
+          "role_rank",
+          "message_id"
+        ],
+        "title": "MessageOrderKey"
+      },
       "MessagePage": {
         "properties": {
           "items": {
@@ -13026,6 +15281,22 @@
             },
             "type": "array",
             "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More",
+            "default": false
           },
           "page": {
             "type": "integer",
@@ -13090,6 +15361,31 @@
             "type": "array",
             "title": "Materials"
           },
+          "order_key": {
+            "$ref": "#/components/schemas/MessageOrderKey"
+          },
+          "display_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Time",
+            "description": "可确认的消息保存或输出事件时间；历史不可靠时间为空"
+          },
+          "time_source": {
+            "type": "string",
+            "enum": [
+              "message_saved",
+              "output_event",
+              "legacy_unknown"
+            ],
+            "title": "Time Source",
+            "description": "message_saved、output_event 或 legacy_unknown；与排序独立"
+          },
           "output_source": {
             "anyOf": [
               {
@@ -13121,7 +15417,9 @@
           "turn_id",
           "role",
           "content",
-          "created_at"
+          "created_at",
+          "order_key",
+          "time_source"
         ],
         "title": "MessageRead"
       },
@@ -13174,6 +15472,140 @@
           "object_id"
         ],
         "title": "ObjectSessionRequest"
+      },
+      "ObjectSessionResponse": {
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "object_id": {
+            "type": "string",
+            "title": "Object Id"
+          },
+          "object_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Type"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "reused_conversation": {
+            "type": "boolean",
+            "title": "Reused Conversation",
+            "default": false
+          },
+          "execution_state": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "running",
+              "needs_review",
+              "validated",
+              "recovered_valid"
+            ],
+            "title": "Execution State",
+            "default": "idle"
+          },
+          "can_send": {
+            "type": "boolean",
+            "title": "Can Send",
+            "default": true
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "view_conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View Conversation Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "object_id"
+        ],
+        "title": "ObjectSessionResponse"
+      },
+      "Obligation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Evidence"
+          },
+          "before": {
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "title": "Before"
+          },
+          "after": {
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "title": "After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "before",
+          "after"
+        ],
+        "title": "Obligation"
       },
       "OrganizePayload": {
         "properties": {
@@ -13368,6 +15800,171 @@
         ],
         "title": "PageResponse[AdminUserRead]"
       },
+      "PolicyStatus": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "manifest_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Hash"
+          },
+          "mechanism_change": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanism Change"
+          },
+          "from_policy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Policy"
+          },
+          "to_policy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Policy"
+          },
+          "can_confirm": {
+            "type": "boolean",
+            "title": "Can Confirm",
+            "default": false
+          },
+          "can_resume": {
+            "type": "boolean",
+            "title": "Can Resume",
+            "default": false
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "trust_status": {
+            "type": "string",
+            "title": "Trust Status"
+          },
+          "can_prepare": {
+            "type": "boolean",
+            "title": "Can Prepare",
+            "default": false
+          },
+          "review": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "trust_status"
+        ],
+        "title": "PolicyStatus"
+      },
+      "PolicyTransition": {
+        "properties": {
+          "capability": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Capability"
+          },
+          "requirement": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Requirement"
+          },
+          "before_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Before Sha256"
+          },
+          "after_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "After Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "capability",
+          "requirement",
+          "before_sha256",
+          "after_sha256"
+        ],
+        "title": "PolicyTransition"
+      },
       "PreparationRequest": {
         "properties": {
           "space_id": {
@@ -13419,6 +16016,434 @@
         ],
         "title": "PreparationRequest"
       },
+      "Prepare": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "proposal"
+        ],
+        "title": "Prepare"
+      },
+      "Proposal": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "classification": {
+            "type": "string",
+            "const": "guarded_exception_extension",
+            "title": "Classification"
+          },
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Project Id"
+          },
+          "binding_revision": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Binding Revision"
+          },
+          "successor": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Successor"
+          },
+          "predecessors": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_-]+$"
+            },
+            "type": "array",
+            "maxItems": 256,
+            "minItems": 1,
+            "title": "Predecessors"
+          },
+          "capability": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Capability"
+          },
+          "requirement": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Requirement"
+          },
+          "before": {
+            "type": "string",
+            "maxLength": 65536,
+            "minLength": 1,
+            "title": "Before"
+          },
+          "after": {
+            "type": "string",
+            "maxLength": 65536,
+            "minLength": 1,
+            "title": "After"
+          },
+          "delta_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Delta Sha256"
+          },
+          "acceptance_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Acceptance Sha256"
+          },
+          "delivery_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Delivery Sha256"
+          },
+          "policy_version": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Policy Version"
+          },
+          "verifier_version": {
+            "type": "string",
+            "const": "replacement-v1",
+            "title": "Verifier Version"
+          },
+          "obligations": {
+            "items": {
+              "$ref": "#/components/schemas/Obligation"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 10,
+            "title": "Obligations"
+          },
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/RuleEdit"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Edits"
+          },
+          "review": {
+            "$ref": "#/components/schemas/Evidence"
+          },
+          "regression": {
+            "$ref": "#/components/schemas/Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "classification",
+          "project_id",
+          "binding_revision",
+          "successor",
+          "predecessors",
+          "capability",
+          "requirement",
+          "before",
+          "after",
+          "delta_sha256",
+          "acceptance_sha256",
+          "delivery_sha256",
+          "policy_version",
+          "verifier_version",
+          "obligations",
+          "edits",
+          "review",
+          "regression"
+        ],
+        "title": "Proposal"
+      },
+      "RecoveryAttemptResponse": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "attempt_id": {
+            "type": "string",
+            "title": "Attempt Id"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "attempt_id",
+          "state"
+        ],
+        "title": "RecoveryAttemptResponse"
+      },
+      "RecoveryDispositionRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "recheck",
+              "retain_7_days"
+            ],
+            "title": "Disposition"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected_version",
+          "disposition"
+        ],
+        "title": "RecoveryDispositionRequest"
+      },
+      "RecoveryOperationResponse": {
+        "properties": {
+          "historical_result": {
+            "type": "string",
+            "title": "Historical Result",
+            "default": "unverified"
+          },
+          "admission_state": {
+            "type": "string",
+            "title": "Admission State",
+            "default": "blocked"
+          },
+          "admission_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Admission Reason"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          },
+          "verification_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Reason"
+          },
+          "verification_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Actions"
+          },
+          "verification_differences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Differences"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "object_id": {
+            "type": "string",
+            "title": "Object Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "execution_terminal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Terminal"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "auto_retry_count": {
+            "type": "integer",
+            "title": "Auto Retry Count"
+          },
+          "manual_count": {
+            "type": "integer",
+            "title": "Manual Count"
+          },
+          "next_retry_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Retry At"
+          },
+          "recovery_expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovery Expires At"
+          },
+          "candidate_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Id"
+          },
+          "application_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Id"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "object_id",
+          "action",
+          "stage",
+          "state",
+          "version",
+          "execution_terminal",
+          "reason_code",
+          "auto_retry_count",
+          "manual_count",
+          "next_retry_at",
+          "recovery_expires_at",
+          "candidate_id",
+          "application_id",
+          "allowed_actions"
+        ],
+        "title": "RecoveryOperationResponse"
+      },
+      "RecoveryRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Idempotency Key"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected_version",
+          "idempotency_key",
+          "confirmed"
+        ],
+        "title": "RecoveryRequest"
+      },
       "RelationsUpdate": {
         "properties": {
           "primary": {
@@ -13444,6 +16469,196 @@
         },
         "type": "object",
         "title": "RelationsUpdate"
+      },
+      "ReplacementAdmissionResponse": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "blocked",
+              "resume"
+            ],
+            "title": "Decision"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "proposal_revision": {
+            "type": "integer",
+            "title": "Proposal Revision"
+          },
+          "proposal_digest": {
+            "type": "string",
+            "title": "Proposal Digest"
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Version"
+          },
+          "input_fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Fingerprint"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision",
+          "reason_code",
+          "blockers",
+          "proposal_revision",
+          "proposal_digest",
+          "policy_version",
+          "input_fingerprint",
+          "operation_id"
+        ],
+        "title": "ReplacementAdmissionResponse"
+      },
+      "ReplacementDecisionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "replayed": {
+            "type": "boolean",
+            "title": "Replayed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "replayed"
+        ],
+        "title": "ReplacementDecisionResponse"
+      },
+      "ReplacementListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReplacementReviewResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ReplacementListResponse"
+      },
+      "ReplacementReviewResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "digest": {
+            "type": "string",
+            "title": "Digest"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "can_approve": {
+            "type": "boolean",
+            "title": "Can Approve"
+          },
+          "can_reject": {
+            "type": "boolean",
+            "title": "Can Reject"
+          },
+          "can_revoke": {
+            "type": "boolean",
+            "title": "Can Revoke"
+          },
+          "trust_status": {
+            "type": "string",
+            "title": "Trust Status"
+          },
+          "policy_state": {
+            "type": "string",
+            "title": "Policy State"
+          },
+          "independent_signoff": {
+            "type": "string",
+            "title": "Independent Signoff"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "digest",
+          "state",
+          "proposal",
+          "expires_at",
+          "can_approve",
+          "can_reject",
+          "can_revoke",
+          "trust_status",
+          "policy_state",
+          "independent_signoff"
+        ],
+        "title": "ReplacementReviewResponse"
       },
       "RequirementCenterAction": {
         "properties": {
@@ -13812,6 +17027,9 @@
             "type": "string",
             "enum": [
               "ready",
+              "empty_scope",
+              "scope_unknown",
+              "already_archived",
               "capacity_zero",
               "capacity_unknown",
               "unarchived_scope",
@@ -14042,6 +17260,150 @@
       },
       "RequirementCenterIssue": {
         "properties": {
+          "estimated_person_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Person Days",
+            "description": "对象有效 Sprint Scope 的预估开发人天；缺失不填零"
+          },
+          "estimate_status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "missing",
+              "conflict",
+              "invalid"
+            ],
+            "title": "Estimate Status",
+            "default": "missing"
+          },
+          "root_cause_state": {
+            "type": "string",
+            "enum": [
+              "absent",
+              "pending",
+              "confirmed"
+            ],
+            "title": "Root Cause State",
+            "default": "absent"
+          },
+          "root_cause_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "missing",
+                  "conflict",
+                  "invalid"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root Cause Reason"
+          },
+          "verification_operation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Operation Id"
+          },
+          "view_turn_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View Turn Id"
+          },
+          "historical_result": {
+            "type": "string",
+            "title": "Historical Result",
+            "default": "unverified"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          },
+          "verification_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Reason"
+          },
+          "verification_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Actions"
+          },
+          "verification_differences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Differences"
+          },
+          "execution_state": {
+            "type": "string",
+            "title": "Execution State",
+            "default": "idle"
+          },
+          "can_send": {
+            "type": "boolean",
+            "title": "Can Send",
+            "default": true
+          },
+          "execution_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Reason"
+          },
+          "view_conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View Conversation Id"
+          },
           "display_title": {
             "anyOf": [
               {
@@ -14128,6 +17490,30 @@
           "owner": {
             "type": "string",
             "title": "Owner"
+          },
+          "owner_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Key",
+            "description": "负责人稳定筛选键，不用于认证授权"
+          },
+          "owner_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Display Name",
+            "description": "当前授权范围内的负责人可读名称"
           },
           "source": {
             "type": "string",
@@ -14677,6 +18063,43 @@
         ],
         "title": "RetryCreate"
       },
+      "RuleEdit": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Profile Id"
+          },
+          "before": {
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "title": "Before"
+          },
+          "after": {
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "title": "After"
+          },
+          "exception": {
+            "type": "string",
+            "const": "compatible_append_verified",
+            "title": "Exception"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profile_id",
+          "before",
+          "after",
+          "exception"
+        ],
+        "title": "RuleEdit"
+      },
       "SourceContent": {
         "properties": {
           "text": {
@@ -14806,6 +18229,17 @@
       },
       "TurnRead": {
         "properties": {
+          "direct_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direct Action"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -15006,6 +18440,102 @@
           "expected_revision"
         ],
         "title": "VersionInput"
+      },
+      "app__governance__replacement_api__Decision": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "proposal_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Digest"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Idempotency Key"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Reason",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "proposal_digest",
+          "idempotency_key",
+          "confirmed"
+        ],
+        "title": "Decision"
+      },
+      "app__governance__rule_change_api__Decision": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "change_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,100}$",
+            "title": "Change Id"
+          },
+          "content_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Digest"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "confirm",
+              "reject",
+              "revoke"
+            ],
+            "title": "Action"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Reason",
+            "default": ""
+          },
+          "request_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Request Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "change_id",
+          "content_digest",
+          "action",
+          "request_key"
+        ],
+        "title": "Decision",
+        "description": "Retained only to reject old clients without accepting a new approval."
       }
     }
   }

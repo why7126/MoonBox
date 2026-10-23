@@ -2,7 +2,7 @@
 purpose: 兼容性矩阵
 content: MoonBox 当前启用端、数据库、对象存储和未启用能力边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-07-30 09:15:29
+updated_at: 2026-10-21 14:28:59
 owner: MoonBox 产品团队
 ---
 
@@ -21,3 +21,14 @@ owner: MoonBox 产品团队
 | 本地模型 | 未启用 |
 
 兼容性扩展必须通过 OpenSpec Change 明确目标平台、测试矩阵和发布门禁。
+
+
+## Chat 消息顺序修复验证边界（BUG-0055）
+
+SQLite：已通过跨秒、分页、持久化及历史兼容回归。MySQL：已核对 SHA2、二进制排序与参数化查询编译；独立实例运行待补，不宣称生产兼容通过。
+
+Web：TypeScript 与 React DOM 集成覆盖统一排序、时间降级、游标复核、刷新重挂载及会话隔离。当前执行环境缺 Linux ARM64 Rollup/esbuild 与浏览器二进制，标准 Vitest/生产构建及真实浏览器验收待具备依赖的环境完成。DOM测试忽略 CSS，不替代1440px及窄屏视觉证据。
+
+服务增加兼容字段、保留原 page 入口。新 Web 连接旧服务时显示兼容模式，无法保证完整新排序契约；建议配套升级。无 DB schema、权限、对象存储或部署拓扑变化。
+
+- BUG-0061：直接命令旧清单仍按原协议读取；新结构化同步结果按实际 event/mode/对象识别。apply/modify 可使用独立有效后继证明，review/archive 专用协议不变。旧终态、任务范围变化、权限/绑定失效或过期 guard 不自动放行。SQLite 与 MySQL8.2 已做聚焦回归，产品真实链路证据见对应 Change 验收记录。

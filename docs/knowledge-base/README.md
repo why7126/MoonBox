@@ -6,10 +6,12 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-10-17 17:20:00
+updated_at: 2026-10-23 22:51:31
 ---
 
 # 知识库使用说明
+
+- [受控规则替代的验证与恢复经验](best-practices/20261022-controlled-rule-replacement.md)
 
 `docs/knowledge-base/` 保存跨 Sprint 可复用的经验、复盘、事故和最佳实践。它不是事后报告库；后续规划、需求完善和实现命令必须把这里的内容作为输入。
 
@@ -56,6 +58,9 @@ updated_at: 2026-10-17 17:20:00
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-012 | [Sprint-012 经验复盘](retrospectives/sprint-012-retrospective.md) | active | 6（含5项前序承接） |
+| sprint-011 | [Sprint-011 经验复盘](retrospectives/sprint-011-retrospective.md) | active | 5（含4项前序承接） |
+| sprint-010 | [Sprint-010 经验复盘](retrospectives/sprint-010-retrospective.md) | active | 4 |
 | sprint-009 | [Sprint-009 经验复盘](retrospectives/sprint-009-retrospective.md) | active | 5 |
 | sprint-008 | [Sprint-008 经验复盘](retrospectives/sprint-008-retrospective.md) | active | 5 |
 | sprint-007 | [Sprint-007 经验复盘](retrospectives/sprint-007-retrospective.md) | active | 6 |
@@ -73,3 +78,19 @@ updated_at: 2026-10-17 17:20:00
 [启动事实与任务进度分离](incidents/20260912-apply-start-stage.md)：BUG-0015已通过Change实现与验证，无新增未承接行动项。
 
 - [需求中心读取失败与重复解析](incidents/20260912-requirement-center-read-performance.md)：BUG-0016后端阶段证据，UI与部署验收仍待完成。
+
+## 治理恢复与归档验收
+
+- [治理恢复与归档验收证据分层实践](best-practices/governance-recovery-archive-evidence.md)：生产消费契约、首次成功与恢复分层、串行样本及历史证据保留。
+
+- [完成证明与执行保护交接故障](incidents/20261020-completion-proof-guard-convergence.md)：BUG-0052，历史证明与当前准入分离、持久交接和有界核验。
+
+- [直接治理命令完成证明与安全核验](incidents/20261021-direct-command-completion-proof.md)：BUG-0060，相关依赖、最终签认、持久核验队列及历史缺证边界。
+
+- [Chat 跨秒消息倒置的排序与时间分离实践](incidents/20261021-chat-message-causal-order.md)：BUG-0055，运行验收待补。
+
+- [跨入口续接证明与执行保护收敛](incidents/cross-entry-successor-proof-convergence.md)：BUG-0061，正式同步收据、独立后继证明、保守冲突判断与实际归档验收。
+
+- [归档条文冲突与验收进度](incidents/20261021-archive-requirement-scope-conflict.md)：BUG-0062，条文级冲突、有效验收进度与恢复准入分离；sprint-012修复解除sprint-011关闭阻塞。
+
+- [同条文兼容追加与显式替代边界](incidents/20261022-compatible-requirement-successor.md)：BUG-0063，独立证明、逐边完整链、候选预检及原约束保留。

@@ -149,6 +149,9 @@ if [[ ! "$archive_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
 fi
 
 project_root="$(pwd)"
+if [[ -e "$project_root/openspec/archive/.controlled-successors" ]]; then
+  fail "受控归档项目须通过在线共同提交入口执行；使用 scripts/controlled-archive.py，保留原对象与操作身份。离线脚本不能领取授权。"
+fi
 canonical_root="$project_root/openspec/archive"
 legacy_root="$project_root/openspec/changes/archive"
 active_dir="$project_root/openspec/changes/$change_id"
@@ -156,6 +159,7 @@ target_dir="$canonical_root/$archive_date-$change_id"
 legacy_target_dir="$legacy_root/$archive_date-$change_id"
 
 python scripts/validate-issue-acceptance-ready.py "$change_id" || fail "Issue acceptance gate blocked archive for $change_id"
+python scripts/validate-change-delivery-evidence.py --change "$change_id" || fail "Change delivery evidence gate blocked archive for $change_id"
 
 if [[ -f "$active_dir/acceptance-plan.json" ]]; then
   python scripts/opsx_acceptance.py --change "$change_id" --readiness || fail "automated acceptance evidence is missing or stale for $change_id"
@@ -188,6 +192,16 @@ fi
 
 relocate_legacy_archives "$canonical_root" "$legacy_root"
 
+# OpenSpec chooses its actual migration day; resolve the single identity rather
+# than assuming a preparation date or a caller-supplied day is the destination.
+shopt -s nullglob
+matches=("$canonical_root"/????-??-??-"$change_id")
+shopt -u nullglob
+[[ "${#matches[@]}" == 1 && -d "${matches[0]}" ]] || fail "expected exactly one archived change"
+target_dir="${matches[0]}"
+archive_date="$(basename "$target_dir")"
+archive_date="${archive_date:0:10}"
+
 [[ -d "$target_dir" ]] || fail "canonical archive target missing after archive: openspec/archive/$archive_date-$change_id"
 [[ ! -e "$active_dir" ]] || fail "active change still exists after archive: openspec/changes/$change_id"
 python scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
@@ -199,21 +213,20 @@ python scripts/validate-archive-evidence.py --change "$change_id" --archive-path
 if (( finalize )); then
   python scripts/sync-workflow-status.py --event opsx.archive --change "$change_id" --sprint auto
   python scripts/promote-issues-for-archive.py --change "$change_id" --reason "/opsx-archive $change_id"
-  resolved_sprint="$(python - "$target_dir/trace.md" <<'PY'
-import pathlib
+  resolved_sprint="$(python - "$change_id" <<'PYTHON'
 import sys
-import yaml
-text = pathlib.Path(sys.argv[1]).read_text()
-metadata = yaml.safe_load(text.split('---', 2)[1]) if text.startswith('---\n') else {}
-print(metadata.get('sprint') or '')
-PY
+sys.path.insert(0, 'scripts')
+from workflow_sync.collect import resolve_sprint_id
+sprint, _ = resolve_sprint_id('auto', event='opsx.archive', change_id=sys.argv[1])
+print(sprint or '')
+PYTHON
 )"
   usage_arguments=(--post-command-hook --workflow-event opsx.archive --change "$change_id")
   if [[ -n "$resolved_sprint" ]]; then usage_arguments+=(--sprint "$resolved_sprint"); fi
   python scripts/extract-ai-usage.py "${usage_arguments[@]}" --json | python -c '
 import json, sys
 data = json.load(sys.stdin)
-keys = ("status", "usage_mode", "command_run_count", "sprint_snapshot", "warning_count", "recommended_action")
+keys = ("status", "usage_mode", "command_run_count", "sprint_snapshot", "warning_count", "warnings", "recommended_action")
 print(json.dumps({key: data[key] for key in keys if key in data}, ensure_ascii=False))
 '
 fi

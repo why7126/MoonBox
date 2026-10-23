@@ -52,6 +52,34 @@ export interface RequirementCenterReadError {
   data?: RequirementCenterReadFailureDetails | null;
 }
 
+export type RequirementCenterIssueEstimateStatus = typeof RequirementCenterIssueEstimateStatus[keyof typeof RequirementCenterIssueEstimateStatus];
+
+
+export const RequirementCenterIssueEstimateStatus = {
+  available: 'available',
+  missing: 'missing',
+  conflict: 'conflict',
+  invalid: 'invalid',
+} as const;
+
+export type RequirementCenterIssueRootCauseState = typeof RequirementCenterIssueRootCauseState[keyof typeof RequirementCenterIssueRootCauseState];
+
+
+export const RequirementCenterIssueRootCauseState = {
+  absent: 'absent',
+  pending: 'pending',
+  confirmed: 'confirmed',
+} as const;
+
+export type RequirementCenterIssueRootCauseReason = typeof RequirementCenterIssueRootCauseReason[keyof typeof RequirementCenterIssueRootCauseReason] | null;
+
+
+export const RequirementCenterIssueRootCauseReason = {
+  missing: 'missing',
+  conflict: 'conflict',
+  invalid: 'invalid',
+} as const;
+
 export interface RequirementCenterDocumentCapability {
   readable?: boolean;
   human_editable?: boolean;
@@ -96,6 +124,22 @@ export interface RequirementCenterTasks {
 }
 
 export interface RequirementCenterIssue {
+  /** 对象有效 Sprint Scope 的预估开发人天；缺失不填零 */
+  estimated_person_days?: number | null;
+  estimate_status?: RequirementCenterIssueEstimateStatus;
+  root_cause_state?: RequirementCenterIssueRootCauseState;
+  root_cause_reason?: RequirementCenterIssueRootCauseReason;
+  verification_operation_id?: string | null;
+  view_turn_id?: string | null;
+  historical_result?: string;
+  last_checked_at?: string | null;
+  verification_reason?: string | null;
+  verification_actions?: string[];
+  verification_differences?: string[];
+  execution_state?: string;
+  can_send?: boolean;
+  execution_reason?: string | null;
+  view_conversation_id?: string | null;
   display_title?: string | null;
   title_source?: string | null;
   title_warning?: string | null;
@@ -108,6 +152,10 @@ export interface RequirementCenterIssue {
   priority?: string;
   severity?: string;
   owner: string;
+  /** 负责人稳定筛选键，不用于认证授权 */
+  owner_key?: string | null;
+  /** 当前授权范围内的负责人可读名称 */
+  owner_display_name?: string | null;
   source: string;
   stage: string;
   status?: string | null;
@@ -230,6 +278,9 @@ export type RequirementCenterCurrentIterationArchiveReadinessReasonCode = typeof
 
 export const RequirementCenterCurrentIterationArchiveReadinessReasonCode = {
   ready: 'ready',
+  empty_scope: 'empty_scope',
+  scope_unknown: 'scope_unknown',
+  already_archived: 'already_archived',
   capacity_zero: 'capacity_zero',
   capacity_unknown: 'capacity_unknown',
   unarchived_scope: 'unarchived_scope',
@@ -428,6 +479,39 @@ export interface PreparationRequest {
   idempotency_key?: string | null;
 }
 
+export type GovernancePreparationResponseExecutionState = typeof GovernancePreparationResponseExecutionState[keyof typeof GovernancePreparationResponseExecutionState];
+
+
+export const GovernancePreparationResponseExecutionState = {
+  idle: 'idle',
+  running: 'running',
+  needs_review: 'needs_review',
+  validated: 'validated',
+  recovered_valid: 'recovered_valid',
+} as const;
+
+export interface GovernancePreparationResponse {
+  conversation_id: string | null;
+  object_id: string;
+  object_type?: string | null;
+  title?: string | null;
+  action?: string | null;
+  reused_conversation?: boolean;
+  execution_state?: GovernancePreparationResponseExecutionState;
+  can_send?: boolean;
+  reason_code?: string | null;
+  view_conversation_id?: string | null;
+  preparation_id: string | null;
+  prompt: string;
+  state: string;
+}
+
+export interface ApiResponseGovernancePreparationResponse {
+  code?: number;
+  message?: string;
+  data: GovernancePreparationResponse;
+}
+
 export interface ObjectSessionRequest {
   /**
      * @minLength 1
@@ -450,6 +534,36 @@ export interface ObjectSessionRequest {
   idempotency_key?: string | null;
 }
 
+export type ObjectSessionResponseExecutionState = typeof ObjectSessionResponseExecutionState[keyof typeof ObjectSessionResponseExecutionState];
+
+
+export const ObjectSessionResponseExecutionState = {
+  idle: 'idle',
+  running: 'running',
+  needs_review: 'needs_review',
+  validated: 'validated',
+  recovered_valid: 'recovered_valid',
+} as const;
+
+export interface ObjectSessionResponse {
+  conversation_id: string | null;
+  object_id: string;
+  object_type?: string | null;
+  title?: string | null;
+  action?: string | null;
+  reused_conversation?: boolean;
+  execution_state?: ObjectSessionResponseExecutionState;
+  can_send?: boolean;
+  reason_code?: string | null;
+  view_conversation_id?: string | null;
+}
+
+export interface ApiResponseObjectSessionResponse {
+  code?: number;
+  message?: string;
+  data: ObjectSessionResponse;
+}
+
 export interface ApplicationRequest {
   /** @pattern ^[a-f0-9]{64}$ */
   expected_manifest_hash: string;
@@ -462,6 +576,566 @@ export interface ApplicationRequest {
      */
   idempotency_key: string;
   maintenance_confirmed: boolean;
+}
+
+export interface RecoveryOperationResponse {
+  historical_result?: string;
+  admission_state?: string;
+  admission_reason?: string | null;
+  last_checked_at?: string | null;
+  verification_reason?: string | null;
+  verification_actions?: string[];
+  verification_differences?: string[];
+  id: string;
+  object_id: string;
+  action: string;
+  stage: string;
+  state: string;
+  version: number;
+  execution_terminal: string | null;
+  reason_code: string | null;
+  auto_retry_count: number;
+  manual_count: number;
+  next_retry_at: string | null;
+  recovery_expires_at: string | null;
+  candidate_id: string | null;
+  application_id: string | null;
+  allowed_actions: string[];
+}
+
+export interface ApiResponseRecoveryOperationResponse {
+  code?: number;
+  message?: string;
+  data: RecoveryOperationResponse;
+}
+
+export interface RecoveryRequest {
+  /** @minimum 1 */
+  expected_version: number;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  idempotency_key: string;
+  confirmed: boolean;
+}
+
+export interface RecoveryAttemptResponse {
+  operation_id: string;
+  attempt_id: string;
+  state: string;
+}
+
+export interface ApiResponseRecoveryAttemptResponse {
+  code?: number;
+  message?: string;
+  data: RecoveryAttemptResponse;
+}
+
+export type RecoveryDispositionRequestDisposition = typeof RecoveryDispositionRequestDisposition[keyof typeof RecoveryDispositionRequestDisposition];
+
+
+export const RecoveryDispositionRequestDisposition = {
+  recheck: 'recheck',
+  retain_7_days: 'retain_7_days',
+} as const;
+
+export interface RecoveryDispositionRequest {
+  /** @minimum 1 */
+  expected_version: number;
+  disposition: RecoveryDispositionRequestDisposition;
+}
+
+export interface CompletionVerificationResponse {
+  historical_result: string;
+  admission_state: string;
+  reason_code?: string | null;
+  last_checked_at?: string | null;
+  verification_reason?: string | null;
+  verification_actions?: string[];
+  verification_differences?: string[];
+}
+
+export interface ApiResponseCompletionVerificationResponse {
+  code?: number;
+  message?: string;
+  data: CompletionVerificationResponse;
+}
+
+export interface DirectVerificationDifference {
+  path: string;
+  kind: string;
+}
+
+export interface DirectVerificationResponse {
+  available: boolean;
+  state: string;
+  version: number | null;
+  reason_code?: string | null;
+  last_checked_at?: string | null;
+  can_verify: boolean;
+  historical_evidence_missing?: boolean;
+  differences?: DirectVerificationDifference[];
+}
+
+export interface ApiResponseDirectVerificationResponse {
+  code?: number;
+  message?: string;
+  data: DirectVerificationResponse;
+}
+
+export interface DirectVerificationRequest {
+  /** @minimum 1 */
+  expected_version: number;
+}
+
+export type ReplacementAdmissionResponseDecision = typeof ReplacementAdmissionResponseDecision[keyof typeof ReplacementAdmissionResponseDecision];
+
+
+export const ReplacementAdmissionResponseDecision = {
+  ready: 'ready',
+  blocked: 'blocked',
+  resume: 'resume',
+} as const;
+
+export interface ReplacementAdmissionResponse {
+  decision: ReplacementAdmissionResponseDecision;
+  reason_code: string;
+  blockers: string[];
+  proposal_revision: number;
+  proposal_digest: string;
+  policy_version: string | null;
+  input_fingerprint: string | null;
+  operation_id: string | null;
+}
+
+export interface ApiResponseReplacementAdmissionResponse {
+  code?: number;
+  message?: string;
+  data: ReplacementAdmissionResponse;
+}
+
+export interface Evidence {
+  /**
+     * @minLength 1
+     * @maxLength 512
+     */
+  path: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  sha256: string;
+}
+
+export interface Obligation {
+  id: string;
+  source: Evidence;
+  /**
+     * @minLength 1
+     * @maxLength 32768
+     */
+  before: string;
+  /**
+     * @minLength 1
+     * @maxLength 32768
+     */
+  after: string;
+}
+
+export interface RuleEdit {
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  profile_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 32768
+     */
+  before: string;
+  /**
+     * @minLength 1
+     * @maxLength 32768
+     */
+  after: string;
+  exception: 'compatible_append_verified';
+}
+
+export interface Proposal {
+  schema_version: 1;
+  classification: 'guarded_exception_extension';
+  /** @pattern ^[a-f0-9]{64}$ */
+  project_id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  binding_revision: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  successor: string;
+  /**
+     * @minItems 1
+     * @maxItems 256
+     * @items.minLength 1
+     * @items.maxLength 128
+     * @items.pattern ^[A-Za-z0-9_-]+$
+     */
+  predecessors: string[];
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  capability: string;
+  /**
+     * @minLength 1
+     * @maxLength 256
+     */
+  requirement: string;
+  /**
+     * @minLength 1
+     * @maxLength 65536
+     */
+  before: string;
+  /**
+     * @minLength 1
+     * @maxLength 65536
+     */
+  after: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  delta_sha256: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  acceptance_sha256: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  delivery_sha256: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  policy_version: string;
+  verifier_version: 'replacement-v1';
+  /**
+     * @minItems 10
+     * @maxItems 10
+     */
+  obligations: Obligation[];
+  /**
+     * @minItems 1
+     * @maxItems 32
+     */
+  edits: RuleEdit[];
+  review: Evidence;
+  regression: Evidence;
+}
+
+export interface ReplacementReviewResponse {
+  id: string;
+  revision: number;
+  digest: string;
+  state: string;
+  proposal: Proposal;
+  expires_at: string | null;
+  can_approve: boolean;
+  can_reject: boolean;
+  can_revoke: boolean;
+  trust_status: string;
+  policy_state: string;
+  independent_signoff: string;
+}
+
+export interface ReplacementListResponse {
+  items: ReplacementReviewResponse[];
+}
+
+export interface ApiResponseReplacementListResponse {
+  code?: number;
+  message?: string;
+  data: ReplacementListResponse;
+}
+
+export interface Prepare {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  proposal: Proposal;
+}
+
+export interface ApiResponseReplacementReviewResponse {
+  code?: number;
+  message?: string;
+  data: ReplacementReviewResponse;
+}
+
+export interface AppGovernanceReplacementApiDecision {
+  /** @minimum 1 */
+  expected_revision: number;
+  /** @pattern ^[a-f0-9]{64}$ */
+  proposal_digest: string;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  idempotency_key: string;
+  confirmed: boolean;
+  /** @maxLength 500 */
+  reason?: string;
+}
+
+export interface ReplacementDecisionResponse {
+  id: string;
+  revision: number;
+  replayed: boolean;
+}
+
+export interface ApiResponseReplacementDecisionResponse {
+  code?: number;
+  message?: string;
+  data: ReplacementDecisionResponse;
+}
+
+export type AppGovernanceRuleChangeApiDecisionAction = typeof AppGovernanceRuleChangeApiDecisionAction[keyof typeof AppGovernanceRuleChangeApiDecisionAction];
+
+
+export const AppGovernanceRuleChangeApiDecisionAction = {
+  confirm: 'confirm',
+  reject: 'reject',
+  revoke: 'revoke',
+} as const;
+
+/**
+ * Retained only to reject old clients without accepting a new approval.
+ */
+export interface AppGovernanceRuleChangeApiDecision {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @pattern ^[a-z0-9][a-z0-9-]{0,100}$ */
+  change_id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  content_digest: string;
+  action: AppGovernanceRuleChangeApiDecisionAction;
+  /** @maxLength 500 */
+  reason?: string;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  request_key: string;
+}
+
+export interface InstallationPreview {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @pattern ^[a-z0-9][a-z0-9-]{0,100}$ */
+  mechanism_change: string;
+}
+
+export type PolicyStatusReview = { [key: string]: unknown } | null;
+
+export interface PolicyStatus {
+  state: string;
+  revision?: number | null;
+  manifest_hash?: string | null;
+  mechanism_change?: string | null;
+  from_policy?: string | null;
+  to_policy?: string | null;
+  can_confirm?: boolean;
+  can_resume?: boolean;
+  operation_id?: string | null;
+  trust_status: string;
+  can_prepare?: boolean;
+  review?: PolicyStatusReview;
+  stage?: string | null;
+  blockers?: string[];
+}
+
+export interface ApiResponsePolicyStatus {
+  code?: number;
+  message?: string;
+  data: PolicyStatus;
+}
+
+export type InstallationPrepareOpsReceipt = { [key: string]: unknown };
+
+export interface PolicyTransition {
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  capability: string;
+  /**
+     * @minLength 1
+     * @maxLength 256
+     */
+  requirement: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  before_sha256: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  after_sha256: string;
+}
+
+export interface Installation {
+  schema_version: 1;
+  kind: 'policy_installation';
+  /** @pattern ^[a-f0-9]{64}$ */
+  project_id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  binding_revision: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  mechanism_change: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  from_policy: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  to_policy: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  release_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  verifier_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  delta_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  acceptance_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  delivery_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  baseline_digest: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  expected_digest: string;
+  /**
+     * @minItems 10
+     * @maxItems 10
+     */
+  protected_obligations: string[];
+  /**
+     * @minLength 1
+     * @maxLength 128
+     * @pattern ^[A-Za-z0-9_-]+$
+     */
+  operation_id: string;
+  /**
+     * @minItems 1
+     * @maxItems 1
+     */
+  transitions: PolicyTransition[];
+}
+
+export interface InstallationPrepare {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  manifest: Installation;
+  ops_receipt: InstallationPrepareOpsReceipt;
+}
+
+export interface InstallationConfirm {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @minimum 1 */
+  expected_revision: number;
+  /** @pattern ^[a-f0-9]{64}$ */
+  manifest_hash: string;
+  confirmed: boolean;
+}
+
+export interface ArchiveRequest {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  proposal_id: string;
+  /** @minimum 1 */
+  expected_revision: number;
+  /** @pattern ^[a-f0-9]{64}$ */
+  proposal_digest: string;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  idempotency_key: string;
+  confirmed: boolean;
+}
+
+export interface ArchiveOperationResponse {
+  operation_id: string;
+  stage: string;
+  revision?: number | null;
+  replayed?: boolean;
+}
+
+export interface ApiResponseArchiveOperationResponse {
+  code?: number;
+  message?: string;
+  data: ArchiveOperationResponse;
+}
+
+export interface ArchiveObjectRequest {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @pattern ^(?:(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$ */
+  object_id: string;
+  confirmed: boolean;
+}
+
+export interface ArchiveObjectResponse {
+  stage: string;
+  operations: ArchiveOperationResponse[];
+}
+
+export interface ApiResponseArchiveObjectResponse {
+  code?: number;
+  message?: string;
+  data: ArchiveObjectResponse;
 }
 
 export type GetRequirementCenterContextApiV1RequirementCenterContextGetParams = {
@@ -578,6 +1252,22 @@ space_id: string;
  * @minLength 1
  * @maxLength 64
  */
+repository_id: string;
+};
+
+export type ListingApiV1ChatReplacementProposalsGetParams = {
+space_id: string;
+repository_id: string;
+};
+
+export type ReadApiV1ChatRuleChangesGetParams = {
+space_id: string;
+repository_id: string;
+change_id: string;
+};
+
+export type StatusApiV1ChatReplacementPolicyGetParams = {
+space_id: string;
 repository_id: string;
 };
 
@@ -1247,7 +1937,7 @@ export const captureReadinessApiV1RequirementCenterCaptureReadinessGet = async (
 
 
 export type createPreparationApiV1ChatGovernancePreparationsPostResponse200 = {
-  data: ApiResponseDict
+  data: ApiResponseGovernancePreparationResponse
   status: 200
 }
 
@@ -1303,7 +1993,7 @@ const res = await fetch(getCreatePreparationApiV1ChatGovernancePreparationsPostU
 
 
 export type createObjectSessionApiV1ChatObjectSessionsPostResponse200 = {
-  data: ApiResponseDict
+  data: ApiResponseObjectSessionResponse
   status: 200
 }
 
@@ -1511,4 +2201,1103 @@ export const getApplicationApiV1ChatGovernanceApplicationsOperationIdGet = async
 
   const data: getApplicationApiV1ChatGovernanceApplicationsOperationIdGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getApplicationApiV1ChatGovernanceApplicationsOperationIdGetResponse
+}
+
+
+
+export type getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse200 = {
+  data: ApiResponseRecoveryOperationResponse
+  status: 200
+}
+
+export type getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponseSuccess = (getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse200) & {
+  headers: Headers;
+};
+export type getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponseError = (getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse422) & {
+  headers: Headers;
+};
+
+export type getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse = (getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponseSuccess | getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponseError)
+
+export const getGetRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/governance-operations/${operationId}`
+}
+
+/**
+ * @summary 只读查询治理恢复操作
+ */
+export const getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGet = async (operationId: string, options?: RequestInit): Promise<getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse> => {
+
+  const res = await fetch(getGetRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetUrl(operationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getRecoveryOperationApiV1ChatGovernanceOperationsOperationIdGetResponse
+}
+
+
+
+export type postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse202 = {
+  data: ApiResponseRecoveryAttemptResponse
+  status: 202
+}
+
+export type postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponseSuccess = (postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse202) & {
+  headers: Headers;
+};
+export type postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponseError = (postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse422) & {
+  headers: Headers;
+};
+
+export type postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse = (postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponseSuccess | postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponseError)
+
+export const getPostRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/governance-operations/${operationId}/recoveries`
+}
+
+/**
+ * @summary 确认续接治理操作
+ */
+export const postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPost = async (operationId: string,
+    recoveryRequest: RecoveryRequest, options?: RequestInit): Promise<postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getPostRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostUrl(operationId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recoveryRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as postRecoveryOperationApiV1ChatGovernanceOperationsOperationIdRecoveriesPostResponse
+}
+
+
+
+export type postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponseSuccess = (postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse200) & {
+  headers: Headers;
+};
+export type postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponseError = (postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse422) & {
+  headers: Headers;
+};
+
+export type postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse = (postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponseSuccess | postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponseError)
+
+export const getPostRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/governance-operations/${operationId}/retention-dispositions`
+}
+
+/**
+ * @summary 管理员处置恢复证据保留
+ */
+export const postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPost = async (operationId: string,
+    recoveryDispositionRequest: RecoveryDispositionRequest, options?: RequestInit): Promise<postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getPostRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostUrl(operationId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recoveryDispositionRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as postRecoveryDispositionApiV1ChatGovernanceOperationsOperationIdRetentionDispositionsPostResponse
+}
+
+
+
+export type verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse200 = {
+  data: ApiResponseCompletionVerificationResponse
+  status: 200
+}
+
+export type verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponseSuccess = (verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse200) & {
+  headers: Headers;
+};
+export type verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponseError = (verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse422) & {
+  headers: Headers;
+};
+
+export type verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse = (verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponseSuccess | verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponseError)
+
+export const getVerifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/governance-operations/${operationId}/verifications`
+}
+
+/**
+ * @summary 核验原操作完成证明与准入
+ */
+export const verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPost = async (operationId: string, options?: RequestInit): Promise<verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse> => {
+
+  const res = await fetch(getVerifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostUrl(operationId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verifyCompletedOperationApiV1ChatGovernanceOperationsOperationIdVerificationsPostResponse
+}
+
+
+
+export type directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse200 = {
+  data: ApiResponseDirectVerificationResponse
+  status: 200
+}
+
+export type directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponseSuccess = (directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse200) & {
+  headers: Headers;
+};
+export type directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponseError = (directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse422) & {
+  headers: Headers;
+};
+
+export type directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse = (directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponseSuccess | directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponseError)
+
+export const getDirectVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetUrl = (turnId: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${turnId}/completion-verification`
+}
+
+/**
+ * @summary 查询直接命令完成核验状态
+ */
+export const directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGet = async (turnId: string, options?: RequestInit): Promise<directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse> => {
+
+  const res = await fetch(getDirectVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetUrl(turnId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as directVerificationStatusApiV1ChatTurnsTurnIdCompletionVerificationGetResponse
+}
+
+
+
+export type verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse200 = {
+  data: ApiResponseDirectVerificationResponse
+  status: 200
+}
+
+export type verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponseSuccess = (verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse200) & {
+  headers: Headers;
+};
+export type verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponseError = (verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse422) & {
+  headers: Headers;
+};
+
+export type verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse = (verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponseSuccess | verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponseError)
+
+export const getVerifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostUrl = (turnId: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${turnId}/completion-verification`
+}
+
+/**
+ * @summary 安全核验直接命令当前成果
+ */
+export const verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPost = async (turnId: string,
+    directVerificationRequest: DirectVerificationRequest, options?: RequestInit): Promise<verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getVerifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostUrl(turnId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(directVerificationRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as verifyDirectCompletionApiV1ChatTurnsTurnIdCompletionVerificationPostResponse
+}
+
+
+
+export type admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse200 = {
+  data: ApiResponseReplacementAdmissionResponse
+  status: 200
+}
+
+export type admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponseSuccess = (admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse200) & {
+  headers: Headers;
+};
+export type admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponseError = (admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse422) & {
+  headers: Headers;
+};
+
+export type admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse = (admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponseSuccess | admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponseError)
+
+export const getAdmissionApiV1ChatReplacementProposalsProposalIdAdmissionGetUrl = (proposalId: string,) => {
+
+
+
+
+  return `/api/v1/chat/replacement-proposals/${proposalId}/admission`
+}
+
+/**
+ * @summary 只读核验受控归档的当前权威准入
+ */
+export const admissionApiV1ChatReplacementProposalsProposalIdAdmissionGet = async (proposalId: string, options?: RequestInit): Promise<admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse> => {
+
+  const res = await fetch(getAdmissionApiV1ChatReplacementProposalsProposalIdAdmissionGetUrl(proposalId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as admissionApiV1ChatReplacementProposalsProposalIdAdmissionGetResponse
+}
+
+
+
+export type listingApiV1ChatReplacementProposalsGetResponse200 = {
+  data: ApiResponseReplacementListResponse
+  status: 200
+}
+
+export type listingApiV1ChatReplacementProposalsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type listingApiV1ChatReplacementProposalsGetResponseSuccess = (listingApiV1ChatReplacementProposalsGetResponse200) & {
+  headers: Headers;
+};
+export type listingApiV1ChatReplacementProposalsGetResponseError = (listingApiV1ChatReplacementProposalsGetResponse422) & {
+  headers: Headers;
+};
+
+export type listingApiV1ChatReplacementProposalsGetResponse = (listingApiV1ChatReplacementProposalsGetResponseSuccess | listingApiV1ChatReplacementProposalsGetResponseError)
+
+export const getListingApiV1ChatReplacementProposalsGetUrl = (params: ListingApiV1ChatReplacementProposalsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/replacement-proposals?${stringifiedParams}` : `/api/v1/chat/replacement-proposals`
+}
+
+/**
+ * @summary 读取当前项目规则替代审阅列表
+ */
+export const listingApiV1ChatReplacementProposalsGet = async (params: ListingApiV1ChatReplacementProposalsGetParams, options?: RequestInit): Promise<listingApiV1ChatReplacementProposalsGetResponse> => {
+
+  const res = await fetch(getListingApiV1ChatReplacementProposalsGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listingApiV1ChatReplacementProposalsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listingApiV1ChatReplacementProposalsGetResponse
+}
+
+
+
+export type prepareApiV1ChatReplacementProposalsPostResponse200 = {
+  data: ApiResponseReplacementReviewResponse
+  status: 200
+}
+
+export type prepareApiV1ChatReplacementProposalsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type prepareApiV1ChatReplacementProposalsPostResponseSuccess = (prepareApiV1ChatReplacementProposalsPostResponse200) & {
+  headers: Headers;
+};
+export type prepareApiV1ChatReplacementProposalsPostResponseError = (prepareApiV1ChatReplacementProposalsPostResponse422) & {
+  headers: Headers;
+};
+
+export type prepareApiV1ChatReplacementProposalsPostResponse = (prepareApiV1ChatReplacementProposalsPostResponseSuccess | prepareApiV1ChatReplacementProposalsPostResponseError)
+
+export const getPrepareApiV1ChatReplacementProposalsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-proposals`
+}
+
+/**
+ * @summary 准备绑定精确差异的规则替代提案
+ */
+export const prepareApiV1ChatReplacementProposalsPost = async (prepare: Prepare, options?: RequestInit): Promise<prepareApiV1ChatReplacementProposalsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getPrepareApiV1ChatReplacementProposalsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(prepare)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: prepareApiV1ChatReplacementProposalsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as prepareApiV1ChatReplacementProposalsPostResponse
+}
+
+
+
+export type decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse200 = {
+  data: ApiResponseReplacementDecisionResponse
+  status: 200
+}
+
+export type decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type decisionApiV1ChatReplacementProposalsProposalIdActionPostResponseSuccess = (decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse200) & {
+  headers: Headers;
+};
+export type decisionApiV1ChatReplacementProposalsProposalIdActionPostResponseError = (decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse422) & {
+  headers: Headers;
+};
+
+export type decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse = (decisionApiV1ChatReplacementProposalsProposalIdActionPostResponseSuccess | decisionApiV1ChatReplacementProposalsProposalIdActionPostResponseError)
+
+export const getDecisionApiV1ChatReplacementProposalsProposalIdActionPostUrl = (proposalId: string,
+    action: 'approve' | 'reject' | 'revoke',) => {
+
+
+
+
+  return `/api/v1/chat/replacement-proposals/${proposalId}/${action}`
+}
+
+/**
+ * @summary 独立确认批准、拒绝或撤销规则替代提案
+ */
+export const decisionApiV1ChatReplacementProposalsProposalIdActionPost = async (proposalId: string,
+    action: 'approve' | 'reject' | 'revoke',
+    appGovernanceReplacementApiDecision: AppGovernanceReplacementApiDecision, options?: RequestInit): Promise<decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getDecisionApiV1ChatReplacementProposalsProposalIdActionPostUrl(proposalId,action),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(appGovernanceReplacementApiDecision)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as decisionApiV1ChatReplacementProposalsProposalIdActionPostResponse
+}
+
+
+
+export type readApiV1ChatRuleChangesGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type readApiV1ChatRuleChangesGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type readApiV1ChatRuleChangesGetResponseSuccess = (readApiV1ChatRuleChangesGetResponse200) & {
+  headers: Headers;
+};
+export type readApiV1ChatRuleChangesGetResponseError = (readApiV1ChatRuleChangesGetResponse422) & {
+  headers: Headers;
+};
+
+export type readApiV1ChatRuleChangesGetResponse = (readApiV1ChatRuleChangesGetResponseSuccess | readApiV1ChatRuleChangesGetResponseError)
+
+export const getReadApiV1ChatRuleChangesGetUrl = (params: ReadApiV1ChatRuleChangesGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/rule-changes?${stringifiedParams}` : `/api/v1/chat/rule-changes`
+}
+
+/**
+ * @summary 查看对象规则修改及检查状态
+ */
+export const readApiV1ChatRuleChangesGet = async (params: ReadApiV1ChatRuleChangesGetParams, options?: RequestInit): Promise<readApiV1ChatRuleChangesGetResponse> => {
+
+  const res = await fetch(getReadApiV1ChatRuleChangesGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: readApiV1ChatRuleChangesGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as readApiV1ChatRuleChangesGetResponse
+}
+
+
+
+export type decideApiV1ChatRuleChangesDecisionPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type decideApiV1ChatRuleChangesDecisionPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type decideApiV1ChatRuleChangesDecisionPostResponseSuccess = (decideApiV1ChatRuleChangesDecisionPostResponse200) & {
+  headers: Headers;
+};
+export type decideApiV1ChatRuleChangesDecisionPostResponseError = (decideApiV1ChatRuleChangesDecisionPostResponse422) & {
+  headers: Headers;
+};
+
+export type decideApiV1ChatRuleChangesDecisionPostResponse = (decideApiV1ChatRuleChangesDecisionPostResponseSuccess | decideApiV1ChatRuleChangesDecisionPostResponseError)
+
+export const getDecideApiV1ChatRuleChangesDecisionPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/rule-changes/decision`
+}
+
+/**
+ * @summary 旧规则修改确认入口已停用
+ */
+export const decideApiV1ChatRuleChangesDecisionPost = async (appGovernanceRuleChangeApiDecision: AppGovernanceRuleChangeApiDecision, options?: RequestInit): Promise<decideApiV1ChatRuleChangesDecisionPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getDecideApiV1ChatRuleChangesDecisionPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(appGovernanceRuleChangeApiDecision)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: decideApiV1ChatRuleChangesDecisionPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as decideApiV1ChatRuleChangesDecisionPostResponse
+}
+
+
+
+export type previewApiV1ChatReplacementPolicyPreviewPostResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type previewApiV1ChatReplacementPolicyPreviewPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type previewApiV1ChatReplacementPolicyPreviewPostResponseSuccess = (previewApiV1ChatReplacementPolicyPreviewPostResponse200) & {
+  headers: Headers;
+};
+export type previewApiV1ChatReplacementPolicyPreviewPostResponseError = (previewApiV1ChatReplacementPolicyPreviewPostResponse422) & {
+  headers: Headers;
+};
+
+export type previewApiV1ChatReplacementPolicyPreviewPostResponse = (previewApiV1ChatReplacementPolicyPreviewPostResponseSuccess | previewApiV1ChatReplacementPolicyPreviewPostResponseError)
+
+export const getPreviewApiV1ChatReplacementPolicyPreviewPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-policy/preview`
+}
+
+/**
+ * @summary 只读生成可独立审阅的精确策略转换清单
+ */
+export const previewApiV1ChatReplacementPolicyPreviewPost = async (installationPreview: InstallationPreview, options?: RequestInit): Promise<previewApiV1ChatReplacementPolicyPreviewPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getPreviewApiV1ChatReplacementPolicyPreviewPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(installationPreview)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: previewApiV1ChatReplacementPolicyPreviewPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as previewApiV1ChatReplacementPolicyPreviewPostResponse
+}
+
+
+
+export type statusApiV1ChatReplacementPolicyGetResponse200 = {
+  data: ApiResponsePolicyStatus
+  status: 200
+}
+
+export type statusApiV1ChatReplacementPolicyGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type statusApiV1ChatReplacementPolicyGetResponseSuccess = (statusApiV1ChatReplacementPolicyGetResponse200) & {
+  headers: Headers;
+};
+export type statusApiV1ChatReplacementPolicyGetResponseError = (statusApiV1ChatReplacementPolicyGetResponse422) & {
+  headers: Headers;
+};
+
+export type statusApiV1ChatReplacementPolicyGetResponse = (statusApiV1ChatReplacementPolicyGetResponseSuccess | statusApiV1ChatReplacementPolicyGetResponseError)
+
+export const getStatusApiV1ChatReplacementPolicyGetUrl = (params: StatusApiV1ChatReplacementPolicyGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/replacement-policy?${stringifiedParams}` : `/api/v1/chat/replacement-policy`
+}
+
+/**
+ * @summary 读取首次策略启用的独立授权状态
+ */
+export const statusApiV1ChatReplacementPolicyGet = async (params: StatusApiV1ChatReplacementPolicyGetParams, options?: RequestInit): Promise<statusApiV1ChatReplacementPolicyGetResponse> => {
+
+  const res = await fetch(getStatusApiV1ChatReplacementPolicyGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: statusApiV1ChatReplacementPolicyGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as statusApiV1ChatReplacementPolicyGetResponse
+}
+
+
+
+export type prepareApiV1ChatReplacementPolicyPostResponse200 = {
+  data: ApiResponsePolicyStatus
+  status: 200
+}
+
+export type prepareApiV1ChatReplacementPolicyPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type prepareApiV1ChatReplacementPolicyPostResponseSuccess = (prepareApiV1ChatReplacementPolicyPostResponse200) & {
+  headers: Headers;
+};
+export type prepareApiV1ChatReplacementPolicyPostResponseError = (prepareApiV1ChatReplacementPolicyPostResponse422) & {
+  headers: Headers;
+};
+
+export type prepareApiV1ChatReplacementPolicyPostResponse = (prepareApiV1ChatReplacementPolicyPostResponseSuccess | prepareApiV1ChatReplacementPolicyPostResponseError)
+
+export const getPrepareApiV1ChatReplacementPolicyPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-policy`
+}
+
+/**
+ * @summary 准备已获运维制品授权的精确策略转换
+ */
+export const prepareApiV1ChatReplacementPolicyPost = async (installationPrepare: InstallationPrepare, options?: RequestInit): Promise<prepareApiV1ChatReplacementPolicyPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getPrepareApiV1ChatReplacementPolicyPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(installationPrepare)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: prepareApiV1ChatReplacementPolicyPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as prepareApiV1ChatReplacementPolicyPostResponse
+}
+
+
+
+export type confirmApiV1ChatReplacementPolicyConfirmPostResponse200 = {
+  data: ApiResponsePolicyStatus
+  status: 200
+}
+
+export type confirmApiV1ChatReplacementPolicyConfirmPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type confirmApiV1ChatReplacementPolicyConfirmPostResponseSuccess = (confirmApiV1ChatReplacementPolicyConfirmPostResponse200) & {
+  headers: Headers;
+};
+export type confirmApiV1ChatReplacementPolicyConfirmPostResponseError = (confirmApiV1ChatReplacementPolicyConfirmPostResponse422) & {
+  headers: Headers;
+};
+
+export type confirmApiV1ChatReplacementPolicyConfirmPostResponse = (confirmApiV1ChatReplacementPolicyConfirmPostResponseSuccess | confirmApiV1ChatReplacementPolicyConfirmPostResponseError)
+
+export const getConfirmApiV1ChatReplacementPolicyConfirmPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-policy/confirm`
+}
+
+/**
+ * @summary 所有者独立确认项目策略转换
+ */
+export const confirmApiV1ChatReplacementPolicyConfirmPost = async (installationConfirm: InstallationConfirm, options?: RequestInit): Promise<confirmApiV1ChatReplacementPolicyConfirmPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getConfirmApiV1ChatReplacementPolicyConfirmPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(installationConfirm)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: confirmApiV1ChatReplacementPolicyConfirmPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as confirmApiV1ChatReplacementPolicyConfirmPostResponse
+}
+
+
+
+export type resumeApiV1ChatReplacementPolicyResumePostResponse200 = {
+  data: ApiResponsePolicyStatus
+  status: 200
+}
+
+export type resumeApiV1ChatReplacementPolicyResumePostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type resumeApiV1ChatReplacementPolicyResumePostResponseSuccess = (resumeApiV1ChatReplacementPolicyResumePostResponse200) & {
+  headers: Headers;
+};
+export type resumeApiV1ChatReplacementPolicyResumePostResponseError = (resumeApiV1ChatReplacementPolicyResumePostResponse422) & {
+  headers: Headers;
+};
+
+export type resumeApiV1ChatReplacementPolicyResumePostResponse = (resumeApiV1ChatReplacementPolicyResumePostResponseSuccess | resumeApiV1ChatReplacementPolicyResumePostResponseError)
+
+export const getResumeApiV1ChatReplacementPolicyResumePostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-policy/resume`
+}
+
+/**
+ * @summary 依据原清单恢复首次策略转换
+ */
+export const resumeApiV1ChatReplacementPolicyResumePost = async (installationConfirm: InstallationConfirm, options?: RequestInit): Promise<resumeApiV1ChatReplacementPolicyResumePostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getResumeApiV1ChatReplacementPolicyResumePostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(installationConfirm)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: resumeApiV1ChatReplacementPolicyResumePostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as resumeApiV1ChatReplacementPolicyResumePostResponse
+}
+
+
+
+export type createApiV1ChatReplacementArchiveOperationsPostResponse200 = {
+  data: ApiResponseArchiveOperationResponse
+  status: 200
+}
+
+export type createApiV1ChatReplacementArchiveOperationsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type createApiV1ChatReplacementArchiveOperationsPostResponseSuccess = (createApiV1ChatReplacementArchiveOperationsPostResponse200) & {
+  headers: Headers;
+};
+export type createApiV1ChatReplacementArchiveOperationsPostResponseError = (createApiV1ChatReplacementArchiveOperationsPostResponse422) & {
+  headers: Headers;
+};
+
+export type createApiV1ChatReplacementArchiveOperationsPostResponse = (createApiV1ChatReplacementArchiveOperationsPostResponseSuccess | createApiV1ChatReplacementArchiveOperationsPostResponseError)
+
+export const getCreateApiV1ChatReplacementArchiveOperationsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/replacement-archive-operations`
+}
+
+/**
+ * @summary 执行或恢复同一受控归档操作
+ */
+export const createApiV1ChatReplacementArchiveOperationsPost = async (archiveRequest: ArchiveRequest, options?: RequestInit): Promise<createApiV1ChatReplacementArchiveOperationsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getCreateApiV1ChatReplacementArchiveOperationsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(archiveRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: createApiV1ChatReplacementArchiveOperationsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createApiV1ChatReplacementArchiveOperationsPostResponse
+}
+
+
+
+export type readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse200 = {
+  data: ApiResponseArchiveOperationResponse
+  status: 200
+}
+
+export type readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type readApiV1ChatReplacementArchiveOperationsOperationIdGetResponseSuccess = (readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse200) & {
+  headers: Headers;
+};
+export type readApiV1ChatReplacementArchiveOperationsOperationIdGetResponseError = (readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse422) & {
+  headers: Headers;
+};
+
+export type readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse = (readApiV1ChatReplacementArchiveOperationsOperationIdGetResponseSuccess | readApiV1ChatReplacementArchiveOperationsOperationIdGetResponseError)
+
+export const getReadApiV1ChatReplacementArchiveOperationsOperationIdGetUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/replacement-archive-operations/${operationId}`
+}
+
+/**
+ * @summary 回读受控归档原操作检查点
+ */
+export const readApiV1ChatReplacementArchiveOperationsOperationIdGet = async (operationId: string, options?: RequestInit): Promise<readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse> => {
+
+  const res = await fetch(getReadApiV1ChatReplacementArchiveOperationsOperationIdGetUrl(operationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as readApiV1ChatReplacementArchiveOperationsOperationIdGetResponse
+}
+
+
+
+export type commandApiV1ChatArchiveCommandsPostResponse200 = {
+  data: ApiResponseArchiveObjectResponse
+  status: 200
+}
+
+export type commandApiV1ChatArchiveCommandsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type commandApiV1ChatArchiveCommandsPostResponseSuccess = (commandApiV1ChatArchiveCommandsPostResponse200) & {
+  headers: Headers;
+};
+export type commandApiV1ChatArchiveCommandsPostResponseError = (commandApiV1ChatArchiveCommandsPostResponse422) & {
+  headers: Headers;
+};
+
+export type commandApiV1ChatArchiveCommandsPostResponse = (commandApiV1ChatArchiveCommandsPostResponseSuccess | commandApiV1ChatArchiveCommandsPostResponseError)
+
+export const getCommandApiV1ChatArchiveCommandsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/archive-commands`
+}
+
+/**
+ * @summary 通过共同提交边界执行对象归档
+ */
+export const commandApiV1ChatArchiveCommandsPost = async (archiveObjectRequest: ArchiveObjectRequest, options?: RequestInit): Promise<commandApiV1ChatArchiveCommandsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getCommandApiV1ChatArchiveCommandsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(archiveObjectRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: commandApiV1ChatArchiveCommandsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as commandApiV1ChatArchiveCommandsPostResponse
 }

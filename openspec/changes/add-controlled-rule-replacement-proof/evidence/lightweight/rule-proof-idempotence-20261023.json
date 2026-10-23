@@ -1,0 +1,11 @@
+{
+  "kind": "isolated-proof-regression",
+  "test_file": "src/backend/tests/test_rule_change_light.py",
+  "passed": 14,
+  "checks": [
+    "repeat_publish_preserves_identical_proof_bytes",
+    "archived_proof_remains_readable_after_owner_change",
+    "tampered_archived_proof_is_rejected"
+  ],
+  "scope": "synthetic isolated file and SQLite; no actual archive or checkpoint interruption"
+}

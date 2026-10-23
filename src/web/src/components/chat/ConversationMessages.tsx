@@ -1,3 +1,5 @@
+import { useConversationMessages, messageTime, type OrderedMessage } from "./useConversationMessages";
+import type { GovernanceCandidate } from "./GovernanceResult";
 import type { MessageRead as GeneratedMessageRead } from "../../api/generated/chat";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Box, Check, CircleAlert, Copy, Sparkles } from "lucide-react";
@@ -6,7 +8,7 @@ import { SafeMarkdown } from "./SafeMarkdown";
 import { ChatApiError, normalizeChatError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef, type TurnRead } from "./chatApi";
 import { readChatEvents, type ChatEvent } from "./chatEvents";
 import { executionConfigLabel } from "./executionLabels";
-type Message = Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
+type Message = OrderedMessage & Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
 type UsagePayload = {
   total_tokens?: number;
   input_tokens?: number;
@@ -188,7 +190,7 @@ function AssistantMeta({ row, skills, displayContent }: { row: Message; skills: 
     <CopyMessageButton text={displayContent || row.content}/>
     {!!skills.length&&<><span className="chat-message-sep">·</span><button type="button" className="chat-skill-meta" aria-label={`使用的 Skill：${skillTitle}`} title={`Skills\n${skillTitle}`}><Sparkles size={14} aria-hidden="true"/></button></>}
     <span className="chat-message-sep">·</span>
-    <time>{new Date(row.created_at).toLocaleString()}</time>
+    <time>{messageTime(row)}</time>
     {!!firstToken&&<><span className="chat-message-sep">·</span><span>首 Token {firstToken}</span></>}
     {!!reasoningDuration&&<><span className="chat-message-sep">·</span><span>思考 {reasoningDuration}</span></>}
     {!!(usageDuration || totalDuration)&&<><span className="chat-message-sep">·</span><span>耗时 {usageDuration || totalDuration}</span></>}
@@ -207,38 +209,26 @@ function UserMessageBody({ content, skills }: { content: string; skills: Materia
     {!!rest && <SafeMarkdown content={rest}/>}
   </>;
 }
-export function ConversationMessages({ conversationId, onTrace, rejectedGovernanceTurnIds = [] }: { conversationId: string; onTrace?: (id: string) => void; rejectedGovernanceTurnIds?: string[] }) {
-  const [rows, setRows] = useState<Message[]>([]), [page,setPage] = useState(1), [more,setMore] = useState(true), [loading,setLoading] = useState(true), [error,setError] = useState("");
+export function ConversationMessages({ conversationId, onTrace, rejectedGovernanceTurnIds = [], candidates = [], onDraft = () => {}, draftText = "" }: { candidates?: GovernanceCandidate[]; onDraft?: (text:string)=>void; draftText?:string; conversationId: string; onTrace?: (id: string) => void; rejectedGovernanceTurnIds?: string[] }) {
   const [preview, setPreview] = useState<PreviewMaterial | null>(null);
   const root = useRef<HTMLDivElement>(null), follow = useRef(true), [atBottom,setAtBottom] = useState(true);
+  const { rows, more, loading, error, compatibility, loadOlder } = useConversationMessages<Message>(conversationId, () => {
+    const scroller = root.current?.closest(".chat-conversation"), height = scroller?.scrollHeight || 0;
+    return () => { if (scroller) scroller.scrollTop += scroller.scrollHeight - height; };
+  });
   useEffect(() => {
     const scroller = root.current?.closest(".chat-conversation");
     const changed=()=>{if(scroller){follow.current=scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<100;setAtBottom(follow.current);}};
     scroller?.addEventListener("scroll",changed);return()=>scroller?.removeEventListener("scroll",changed);
   },[]);
   useEffect(()=>{ if(follow.current) root.current?.lastElementChild?.scrollIntoView?.({block:"end"}); },[rows]);
-  useEffect(() => {
-    const controller=new AbortController();let timer:ReturnType<typeof setTimeout>;
-    const merge=(items:Message[])=>setRows(old=>[...new Map([...old,...items].map(r=>[r.id,r])).values()].sort((a,b)=>a.created_at.localeCompare(b.created_at)||(a.turn_id === b.turn_id && a.role !== b.role ? (a.role === "user" ? -1 : 1) : a.id.localeCompare(b.id))));
-    const read=async (older=false)=>{
-      try {
-        const data=await chatRequest<{items:Message[]}>(`/conversations/${conversationId}/messages?page=${older?page:1}`,{signal:controller.signal});
-        if(controller.signal.aborted)return;
-        const scroller=root.current?.closest(".chat-conversation"), height=scroller?.scrollHeight||0;
-        merge(data.items);setError("");setLoading(false);
-        if(older||page===1)setMore(data.items.length===20);
-        if(older && scroller)requestAnimationFrame(()=>{if(!controller.signal.aborted)scroller.scrollTop+=scroller.scrollHeight-height;});
-      } catch(e){if(!controller.signal.aborted){const normalized=normalizeChatError(e,"消息暂不可读，请稍后重试");setError(normalized instanceof ChatApiError&&normalized.status===0?"消息暂不可读，请稍后重试":normalized instanceof Error?normalized.message:"消息暂不可读，请稍后重试");setLoading(false);if(normalized instanceof ChatApiError&&[401,403,404].includes(normalized.status))setRows([]);}}
-    };
-    const poll=async()=>{await read();if(!controller.signal.aborted)timer=setTimeout(poll,3000);};
-    if(page>1)void read(true);void poll();return()=>{controller.abort();clearTimeout(timer);};
-  },[conversationId,page]);
   const assistantTurnIds = new Set(rows.filter(row => row.role !== "user" && row.turn_id).map(row => row.turn_id));
   return <div className="chat-message-history" ref={root} data-testid="chat-message-history">
-    {more && rows.length>0 && <button disabled={loading} onClick={()=>{follow.current=false;setLoading(true);setPage(p=>p+1);}}>加载更早消息</button>}
+    {more && rows.length>0 && <button disabled={loading} onClick={()=>{follow.current=false;loadOlder();}}>加载更早消息</button>}
+    {compatibility && <p role="status" className="chat-message-time">历史消息正在使用兼容模式，顺序可能尚未校正。</p>}
     {error && <p role="alert" className="chat-error">{error}</p>}
     {!rows.length && <p role="status">{loading?"正在读取消息…":error?"":"开始一个新话题"}</p>}
-    {rows.map(row=>{
+    {rows.map((row,rowIndex)=>{
       const skills=(row.materials||[]).filter(item=>item.kind==="skill");
       const attachments=row.role==="user"?(row.materials||[]).filter(item=>item.kind!=="skill"):[];
       const displayContent=messageContentForDisplay(row, skills);
@@ -251,8 +241,8 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
             {!!attachments.length && <div className="chat-message-attachments" data-testid="chat-message-attachments">
               {attachments.map((item,index)=><button type="button" key={`${item.kind}-${item.ref_id || item.name}-${index}`} className={`chat-message-attachment ${item.kind==="image"?"is-image":"is-file"}`} title={`${item.name} · ${item.size_bytes || 0} bytes`} aria-label={`查看附件 ${item.name}`} onClick={()=>setPreview({...item, preview_url: materialPreviewUrl(item)})}><MaterialThumbnail item={item}/></button>)}
             </div>}
-            {row.role!=="user"&&row.turn_id&&onTrace&&<TurnActivity turnId={row.turn_id} onTrace={onTrace} hasBody={!!displayContent}/>}
-            {row.role !== "user" && row.output_partial && <p role="note" data-testid="chat-partial-output">部分输出 · 不代表执行完成{row.output_truncated ? " · 内容有缺口或已截断，请查看轨迹" : ""}</p>}
+            {row.role!=="user"&&row.turn_id&&onTrace&&!rows.slice(0,rowIndex).some(other=>other.role!=="user"&&other.turn_id===row.turn_id)&&<TurnActivity turnId={row.turn_id} onTrace={onTrace} hasBody={!!displayContent} partial={!!row.output_partial} truncated={!!row.output_truncated} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/>}
+
             <div className="chat-message-bubble">
               {row.role==="user"
                 ? <UserMessageBody content={displayContent} skills={skills}/>
@@ -262,7 +252,7 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
             </div>
             {row.role==="user"?<div className="chat-message-meta">
               {row.role==="user"&&effectiveConfig&&<><span className="chat-message-model" data-testid="chat-message-model">{effectiveConfig}{row.config_fallback_reason?` · ${row.config_fallback_reason}`:""}</span><span className="chat-message-sep">·</span></>}
-              <time>{new Date(row.created_at).toLocaleString()}</time>
+              <time>{messageTime(row)}</time>
               <span className="chat-message-sep">·</span>
               <CopyMessageButton text={displayContent || row.content}/>
             </div>:<AssistantMeta row={row} skills={skills} displayContent={displayContent}/>}
@@ -272,7 +262,7 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
         <div className="chat-message-block turn-assistant" data-testid="chat-pending-assistant">
           <article className="chat-message">
             <span className="chat-assistant-avatar" aria-hidden="true"><Box size={15}/></span>
-            <div className="chat-assistant-col"><TurnActivity turnId={row.turn_id} onTrace={onTrace}/></div>
+            <div className="chat-assistant-col"><TurnActivity turnId={row.turn_id} onTrace={onTrace} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/></div>
           </article>
         </div>}
       </Fragment>;

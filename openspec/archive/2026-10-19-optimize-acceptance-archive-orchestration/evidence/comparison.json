@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "evidence_type": "synthetic-comparison",
+  "baseline_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "baseline_sha256": "05cf2a74512ab0b1c131a27e50cac4b9071cf94965f3b025ccc2b1a6067c0541",
+  "status": "passed",
+  "scenarios": {
+    "local-evidence-gap": {
+      "baseline": {
+        "status": "blocked",
+        "command_executions": 0,
+        "passed": 0,
+        "blocked": 3,
+        "elapsed_ms": 10
+      },
+      "current": {
+        "status": "blocked",
+        "command_executions": 1,
+        "passed": 2,
+        "blocked": 1,
+        "elapsed_ms": 45
+      }
+    },
+    "duplicate-readonly-command": {
+      "baseline": {
+        "status": "passed",
+        "command_executions": 3,
+        "passed": 3,
+        "blocked": 0,
+        "elapsed_ms": 109
+      },
+      "current": {
+        "status": "passed",
+        "command_executions": 1,
+        "passed": 3,
+        "blocked": 0,
+        "elapsed_ms": 47
+      }
+    }
+  },
+  "limitation": "隔离脚本夹具；不代表真实产品 Agent 全链路耗时或浏览器行为。"
+}

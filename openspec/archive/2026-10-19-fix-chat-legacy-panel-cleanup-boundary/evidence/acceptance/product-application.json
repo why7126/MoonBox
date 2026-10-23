@@ -1,0 +1,35 @@
+{
+  "turn": {
+    "id": "cff097ea-eadc-40c6-b8d9-671206988d51",
+    "status": "completed",
+    "error_code": null
+  },
+  "candidate": {
+    "id": "ef8b6ec8-4464-51d0-a5ab-763a37aff51e",
+    "state": "applied",
+    "error_code": null
+  },
+  "applications": [
+    {
+      "id": "a4150523-b06b-4c4e-bc70-23a5a37a4748",
+      "state": "applied",
+      "phase": "verified",
+      "error_code": null
+    }
+  ],
+  "recovery_operations": [
+    {
+      "id": "c30e5101-4a4d-4637-bf86-b2c2fc56b03c",
+      "stage": "complete",
+      "state": "completed",
+      "execution_terminal": "completed",
+      "reason_code": null
+    }
+  ],
+  "original_turn": {
+    "status": "failed",
+    "error_code": "direct_command_recovery_blocked"
+  },
+  "application_operation_present": true,
+  "workflow_sync_event": "req.review"
+}

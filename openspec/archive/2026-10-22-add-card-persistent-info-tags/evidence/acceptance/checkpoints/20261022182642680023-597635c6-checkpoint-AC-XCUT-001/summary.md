@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-XCUT-001 | passed | command,visual | openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png,openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png |

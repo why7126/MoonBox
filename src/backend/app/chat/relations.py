@@ -60,6 +60,9 @@ def _document(root, base, names):
 
 
 def _entries(root, object_id=None):
+    if object_id is not None and object_id.startswith('sprint-'):
+        from app.governance.sprint_object import resolve
+        return [resolve(root, object_id)]
     result = []
     for folder in ('requirements', 'bugs'):
         if object_id is not None and not object_id.startswith('REQ-' if folder == 'requirements' else 'BUG-'):
@@ -145,8 +148,10 @@ def resolve_object(db, actor, space_id, repository_id, object_id):
         _authorize_object(db, actor, space_id, repository_id, full_id)
     # An absent ACL inherits the already-checked repository/space membership; explicit ACL narrows it.
     base = entry.get('path', '')
-    if not isinstance(base,str) or not (base.startswith('issues/') or base.startswith('openspec/changes/') or base.startswith('openspec/archive/')): raise service.ChatError(2509, '对象不存在或无权访问', 403)
-    if base.startswith(('openspec/changes/', 'openspec/archive/')):
+    if not isinstance(base,str) or not (base.startswith('issues/') or base.startswith('openspec/changes/') or base.startswith('openspec/archive/') or base.startswith('iterations/')): raise service.ChatError(2509, '对象不存在或无权访问', 403)
+    if full_id.startswith('sprint-'):
+        content = _read_file(root, base + '/sprint.yaml')
+    elif base.startswith(('openspec/changes/', 'openspec/archive/')):
         content = _document(root, base, ('trace.md', 'proposal.md'))
     else:
         document = 'requirement.md' if full_id.startswith('REQ-') else 'bug.md'

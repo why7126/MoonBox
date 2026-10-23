@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": "REQ-0046",
+  "change": "fix-chat-unified-run-status-verification",
+  "acceptance_run": "20261020184255924101-94846458",
+  "passed_checks": 34,
+  "cli_readiness": "ready",
+  "deployed_readiness": "ready",
+  "deployed_object_session": {
+    "action": "opsx-archive",
+    "can_send": true,
+    "execution_state": "idle",
+    "reason_code": null,
+    "method": "deployed service with existing authorized conversation owner and project scope; no model submission"
+  },
+  "browser": {
+    "entry": "requirement center archive action to chat composer",
+    "result": "draft loaded; send enabled; no acceptance evidence error",
+    "retry_note": "BUG first attempt before project context loaded was rejected; overlapping verification and documentation update caused one manifest mismatch and one request failure; stable retry entered chat successfully"
+  },
+  "runtime": {
+    "backend": "healthy",
+    "governance-controller": "healthy",
+    "chat-worker": "healthy",
+    "acceptance_evidence_sha256": "dabe6289cc7273b2f6ab69e58121b4e697badafd11efd3d347506e8b5ef5f9fe"
+  },
+  "formal_archive_executed": false,
+  "model_messages_sent": 0,
+  "api_schema_change": false,
+  "database_migration": false,
+  "ui_code_change": false
+}

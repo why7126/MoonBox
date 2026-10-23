@@ -1,0 +1,10 @@
+{
+  "sample": "REQ-9093-recovery-recovery",
+  "turn_id": "fee66c97-edcd-494c-bf2d-c556d5bfa6b8",
+  "operation_id": "ad4c02ce-3781-4c85-953c-62884be359d8",
+  "terminal": "completed",
+  "business_state": "completed",
+  "reason": "停止请求晚于真实模型完成；本次不作为中断恢复通过；同一隔离样本仅重置测试源后进行第二次真实服务中断验证",
+  "private_source_snapshot_retained": true,
+  "isolated_guard_reset": true
+}

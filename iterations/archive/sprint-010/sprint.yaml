@@ -1,0 +1,107 @@
+sprint_id: sprint-010
+status: completed
+lifecycle_stage: archive
+start_date: 2026-10-19 09:00:30
+end_date: 2026-10-30 18:00:00
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0047-governance-command-durable-recovery
+estimated_story_points: 36.5
+estimated_person_days: 36
+changes:
+  - optimize-acceptance-archive-orchestration
+  - fix-requirement-center-card-width-sprint-tag-wrap
+  - fix-requirement-center-owner-display
+  - fix-requirement-stage-completion-session-continuity
+  - fix-review-recovery-operation-record-missing
+  - add-governance-command-durable-recovery
+  - fix-chat-legacy-panel-cleanup-boundary
+  - fix-archive-wrapper-workflow-sync-proof
+  - fix-archive-wrapper-proof-acceptance-fixture
+  - fix-archive-wrapper-proof-serial-fixture
+scope_estimates:
+  - id: optimize-acceptance-archive-orchestration
+    change: optimize-acceptance-archive-orchestration
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 十项治理优化分三批实施，保留真实性门禁
+  - id: BUG-0043-requirement-center-card-width-sprint-tag-wrap
+    change: fix-requirement-center-card-width-sprint-tag-wrap
+    bug: BUG-0043-requirement-center-card-width-sprint-tag-wrap
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 九阶段共用CSS扩宽、Sprint标签防压缩及长ID布局修复，包含双视口视觉与交互回归，估算1人天
+  - id: BUG-0028-requirement-center-card-owner-raw-user-id
+    change: fix-requirement-center-owner-display
+    bug: BUG-0028-requirement-center-card-owner-raw-user-id
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 负责人名称解析与安全回退，保留稳定身份和权限筛选语义，覆盖REQ/BUG及AC-001至AC-008跨层、视觉与权限回归，估算3人天
+  - id: BUG-0044-requirement-stage-premature-transition-session-split
+    change: fix-requirement-stage-completion-session-continuity
+    bug: BUG-0044-requirement-stage-premature-transition-session-split
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 统一完成型阶段门禁、对象互斥与原会话续用，覆盖失败未知恢复、权限隔离、外部同步及AC-001至AC-012全入口分层验收，估算8人天
+  - id: BUG-0047-review-recovery-operation-record-missing
+    change: fix-review-recovery-operation-record-missing
+    bug: BUG-0047-review-recovery-operation-record-missing
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 评审操作初始化与完成检查契约修复，复用BUG-0044既有门禁和工作区已有实现；包含缺失损坏记录、幂等并发权限回归、真实评审及部署版本核验，估算3人天；通用恢复增量与展示优化分别归属REQ-0047和REQ-0046
+  - id: REQ-0047-governance-command-durable-recovery
+    change: add-governance-command-durable-recovery
+    requirement: REQ-0047-governance-command-durable-recovery
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 评审恢复试点复用BUG-0044/0047基线：统一阶段及兼容2人天、恢复预算/停止/保留2人天、最小UI动作族1人天、数据库与端到端分层验证3人天，合计8；REQ-0046仅协同展示契约，不扩展全命令自动恢复。纳入后31/30人天，无剩余缓冲，后续低优先级新增项建议延后。
+  - id: BUG-0048-chat-legacy-panel-cleanup-removes-conversation
+    change: fix-chat-legacy-panel-cleanup-boundary
+    bug: BUG-0048-chat-legacy-panel-cleanup-removes-conversation
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 旧面板清理边界修复、DOM回归、本地部署与实际评审应用核验；32/30人天，无fix缓冲，低优先级新增项延后。
+  - id: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+    change: fix-archive-wrapper-workflow-sync-proof
+    bug: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 归档包装脚本可信完成凭证及对账1人天、原执行受控恢复与身份摘要并发边界1人天、七项回归及真实产品验证1人天，共3人天。复用既有门禁与归档流程，不扩展通用全命令恢复。纳入后35/30人天116.67%，未超过120%硬门禁，无fix缓冲，低优先级新增范围延后；承接S9-A004的独立归档样本与恢复分层验证经验，不将该治理行动项整体纳入。product_data_collection_observability=applicable；affected_layers=命令观测、操作凭证、执行门禁、看板投影；validation=身份摘要核验、失败拒绝、幂等恢复及真实页面一致性；本次规划无API或DB变更。
+  - id: BUG-0050-archive-wrapper-proof-acceptance-fixture
+    change: fix-archive-wrapper-proof-acceptance-fixture
+    bug: BUG-0050-archive-wrapper-proof-acceptance-fixture
+    size: XS
+    story_points: 0.5
+    estimated_person_days: 0.5
+    rationale: 用户明确授权BUG-0049独立首次归档样本，准备与真实归档取证0.5人天；35.5/30人天118.33%，无缓冲，其他新增范围延后。
+  - id: BUG-0051-archive-wrapper-proof-serial-fixture
+    change: fix-archive-wrapper-proof-serial-fixture
+    bug: BUG-0051-archive-wrapper-proof-serial-fixture
+    size: XS
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 用户补充授权独立串行首次归档验证；避免父任务并发治理写入
+capacity_usage: 1.2
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+updated_at: '2026-10-19 23:43:13'
+bugs:
+  - BUG-0043-requirement-center-card-width-sprint-tag-wrap
+  - BUG-0028-requirement-center-card-owner-raw-user-id
+  - BUG-0044-requirement-stage-premature-transition-session-split
+  - BUG-0047-review-recovery-operation-record-missing
+  - BUG-0048-chat-legacy-panel-cleanup-removes-conversation
+  - BUG-0049-archive-wrapper-workflow-sync-unrecognized
+  - BUG-0050-archive-wrapper-proof-acceptance-fixture
+  - BUG-0051-archive-wrapper-proof-serial-fixture

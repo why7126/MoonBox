@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-review-recovery-operation-record-missing",
+  "run_id": "20261019151635466927-1104e929",
+  "created_at": "2026-10-19 15:17:33",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "isolated-local-review-validation",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "4525d11e54c9896948c3c22caa61777f0f53add9d060a34b459f45380c81d757",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 57575,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "4923bdc5fb81fee549edeeff875b55ec56a304a5c74e9b53ef55f78d0158acab",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "c806d46654084ec15c54fcc03db727e295af8efbd6072c078da4e31e8c4414a1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "ab8380273c749a39e16e3e5d0e2a7d03b5a6c1ed3fc602f728e822a4e3bf2d44",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "7d2ba690a9322efee29dd734ab6a5d4308a1f3ef73d93daa2824168896723f35",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "0f23fb3f0c74621c4ade5e7c6371eee404e2e373e886cc1da9661b427e16386a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "e9e8a78b8eaa19397bfdb1c3bd2d6ec417d5003f8d7da680eb822bfe1833b7ed",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "ccd5c34ffe81a83812e4c5df279b5d4364a8968041eacd907daafd3a7de59f65",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "9892fcd4841984abbfc77bc41a88b110c239644308c964582e64da589957f055",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 5,
+    "reused": 0,
+    "preflight_ms": 83,
+    "duration_ms": 57733,
+    "blocked": 3,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -65,7 +65,8 @@ def prepare_completion(db,actor,parent,project,item,baseline,client_id,action='r
     oid=item['id'];folder='bugs' if action.startswith('bug-') else 'requirements';base=f'issues/{folder}/plan/{oid}'
     binding=repository_binding(parent['repository_id'],parent['space_id'])
     workspace=(Path(binding['workspace_root'])/parent['id']) if binding.get('workspace_root') and binding.get('workspace_mode')!='source' else None
-    record={'files':{p:b.decode() for p,b in baseline.files.items()},'base_path':base}
+    record={'files':{p:b.decode() for p,b in baseline.files.items()},'base_path':base,
+            'binding_revision':project.binding_revision}
     if workspace is not None and workspace.exists():
         workspace=trusted_directory(workspace)
     applied=False

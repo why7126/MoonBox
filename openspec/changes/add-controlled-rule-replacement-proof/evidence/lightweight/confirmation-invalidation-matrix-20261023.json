@@ -1,0 +1,16 @@
+{
+  "kind": "isolated-confirmation-invalidation-regression",
+  "test_file": "src/backend/tests/test_rule_change_light.py",
+  "passed": 14,
+  "new_cases": [
+    "acceptance_plan",
+    "acceptance_evidence",
+    "issue_acceptance",
+    "rule_delta",
+    "archive_history",
+    "project_binding",
+    "space_owner"
+  ],
+  "result": "old_confirmation_rejected_after_every_mutation",
+  "scope": "isolated file copy and SQLite; no formal confirmation"
+}

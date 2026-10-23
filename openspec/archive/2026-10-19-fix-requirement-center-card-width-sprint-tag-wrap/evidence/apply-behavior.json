@@ -1,0 +1,20 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "repair-fixture",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

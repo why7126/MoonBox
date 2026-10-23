@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chat 每轮运行状态原型</title>
+<style>
+:root{color-scheme:dark;--bg:#0A0D14;--panel:#131826;--line:#242A3A;--text:#ECEAE4;--muted:#98A0B3;--gold:#D8AC55}body.light{color-scheme:light;--bg:#F4F6FA;--panel:#FFFFFF;--line:#DDE3EE;--text:#202636;--muted:#677085;--gold:#B9832E}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,"Noto Sans SC",system-ui}header{padding:20px 28px;border-bottom:1px solid var(--line)}h1{font-size:18px;margin:0}main{max-width:1008px;margin:auto;padding:24px}nav,.actions,.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}nav{padding-bottom:20px;border-bottom:1px solid var(--line)}button,select,textarea{font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 12px;max-width:100%}button{cursor:pointer}button:disabled{cursor:default;opacity:.6}button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}article{padding:24px 0;border-bottom:1px solid var(--line)}small,.meta{color:var(--muted)}.prompt{margin:0 0 20px}#activity{display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-align:left;border:0;background:none;padding:4px 0;width:100%}#primary{font-weight:650;color:var(--gold)}#feedback{border-left:2px solid var(--gold);padding:8px 12px;margin:12px 0;background:var(--panel)}#feedback:empty{display:none}#body{white-space:pre-wrap;overflow-wrap:anywhere}#trace-detail{background:var(--panel);padding:18px;margin:16px 0;border:1px solid var(--line);border-radius:6px}#stage-list{padding-left:20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}#detail-facts{white-space:pre-line;overflow-wrap:anywhere}.actions{margin-top:12px}#draft{width:100%;min-height:90px;margin-top:20px}dialog{color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;width:min(520px,calc(100% - 32px));max-height:80vh;overflow:auto;padding:24px}dialog::backdrop{background:#0009}dialog h2{font-size:18px;margin-top:0}[hidden]{display:none!important}@media(max-width:600px){main{padding:16px}header{padding:16px}#stage-list{grid-template-columns:1fr 1fr}.meta{font-size:12px}dialog{padding:18px}}
+</style></head><body><header><h1>Chat 工作台 · 每轮运行状态</h1><small>交互设计原型 · 全部为模拟数据，不调用 API，不执行命令</small></header><main>
+<nav><label for="scenario">状态场景</label><select id="scenario"></select><button id="theme">切换深浅主题</button></nav>
+<article id="history-turn"><p class="prompt">你 · 上一轮评审</p><details><summary>执行失败 · 原成果未应用 · 3 次工具调用</summary><p>历史轮次 turn-demo-previous，独立操作 op-demo-previous。当前轮次成功不会覆盖本轮失败。</p></details></article>
+<article id="current-turn" data-turn-id="turn-demo-current"><p class="prompt">你 · /req-review REQ-0046-chat-execution-output-status-feedback</p>
+<button id="activity" aria-expanded="false" aria-controls="trace-detail"><span id="primary"></span><span id="secondary"></span><span class="meta">5 次工具调用 · Codex · GPT-6 Astra</span><span aria-hidden="true">›</span></button>
+<div id="feedback" role="status" aria-live="polite"></div><div id="body"></div><details id="rejected-output" hidden><summary>查看未通过校验的助手原文</summary><p>评审完成，以下是生成的内容。（模拟原文，未经事实源确认）</p></details>
+<div class="actions"><button id="refresh" hidden>刷新状态</button><button id="resume" hidden>继续剩余步骤</button><button id="regenerate" hidden>重新生成草稿</button></div>
+<section id="trace-detail" hidden aria-label="本轮执行详情"><h2 style="font-size:15px">执行详情 · 当前轮次</h2><ol id="stage-list"></ol><p id="detail-facts"></p><details><summary>工具轨迹</summary><p>模拟：读取资料 → 生成评审成果 → 核对文件。真实产品按当前轮次加载。</p></details><div class="actions"><button id="evidence">查看证据</button><button id="close-detail">收起详情</button></div></section>
+</article><label for="draft">当前会话草稿（原型）</label><textarea id="draft" placeholder="已有草稿会在替换前要求确认"></textarea><p id="notice" role="status"></p>
+<article id="consistency-card" aria-label="已评审但结果待核对示例"><h2>已评审</h2><small>独立模拟场景 · 不随上方样本切换</small><h3>REQ-0046 · Chat 状态反馈</h3><p>执行结果待核对 · 完成证明尚未与当前结果确认一致</p><details><summary>状态详情</summary><p class="meta">历史结果与当前动作分别核验；最近核验：本次模拟检查。</p><div class="actions"><button id="recheck">重新核验</button><button id="difference">查看差异</button><button id="original-run">查看原执行</button><button disabled>加入迭代</button></div><p id="check-result" role="status"></p></details></article></main><dialog id="action-dialog" aria-labelledby="dialog-title"><h2 id="dialog-title"></h2><p id="dialog-body"></p><div class="actions"><button id="cancel-action">关闭</button><button id="confirm-action">确认</button></div></dialog>
+<script>
+const $=s=>document.querySelector(s);
+// 模拟状态仅用于交互设计；产品状态必须由身份、版本及后端事实投影。
+const scenarios=[
+['排队','排队中','等待执行','','请求已接收。',-1,'queued'],
+['准备','准备中','正在连接执行器','','正在准备环境。',0,'connecting'],
+['执行','执行中','正在生成成果','','正在整理评审意见。',1,'running'],
+['停止请求','停止中','等待执行器确认','','已产生的内容保留。',1,'stopping'],
+['校验','校验中','模型执行已结束','','评审成果已生成。',2,'completed'],
+['应用','应用中','模型执行已结束','','工作区执行完成，后端应用尚未确认。',3,'completed'],
+['回读','确认中','正在回读核验','','成果已应用，等待核验。',4,'completed'],
+['完成','已完成','成果已应用并核验','','工作区执行完成，后端应用尚未确认。（原文保留，以状态行后续确认结果为准）',5,'completed'],
+['校验拒绝','待处理','结果未通过校验','缺少必需文档。原成果保留，可查看证据。','',2,'completed','regenerate'],
+['待校验','待处理','结果待校验','尚未取得正在校验的事实，不显示活动进度。','已生成成果。',1,'completed'],
+['失败可恢复','执行失败','成果已保留','应用中断，可核验后继续剩余步骤。','已有过程输出。',3,'failed','resume'],
+['已停止','已停止','原成果已保留','停止不撤销已提交成果；续接需另行确认。','已有过程输出。',2,'stopped','resume'],
+['未知','结果待确认','尚未确认执行终态','请先核对结果，避免重复执行写入命令。','已有过程输出。',1,'unknown','refresh'],
+['失败无正文','执行失败','','未收到可展示的输出。','',1,'failed'],
+['正文缺口','已完成','成果已应用并核验','输出内容不完整，可在详情查看轨迹。','已保存的正文片段。',5,'completed'],
+['无最终答复','已完成','成果已应用并核验','未收到最终答复，以下为已保留的过程输出。','正在核对文件。',5,'completed'],
+['普通聊天','已完成','普通对话，无业务校验','','以下是整理后的答复。',-2,'completed'],
+['读取中','正在读取状态','','','已保存的正文。',-1,'未知'],
+['读取失败','状态暂不可用','','暂时无法读取状态，请刷新核对。','已保存的正文。',-1,'未知','refresh'],
+['完成后读取失败','已完成','上次已确认，更新失败','状态刷新失败，未撤销已有完成证明。','已有最终正文。',5,'completed','refresh'],
+['恢复中','应用中','恢复中 · 原执行失败','','复用已保存成果，不重新调用模型。',3,'failed'],
+['恢复完成','已完成','经恢复完成 · 原执行失败','','原过程输出保留。',5,'failed'],
+['无权限','待处理','当前无恢复权限','可以查看已授权证据，请联系项目维护者。','成果已保留。',3,'failed'],
+['恢复过期','待处理','恢复期限已到','原成果不可续接，可明确重新生成。','成果记录保留。',3,'failed','regenerate'],
+['版本冲突','待处理','成果版本已变化','请核对较新成果，不覆盖后续操作。','成果记录保留。',3,'failed','refresh']
+];
+let current, opener, action;
+scenarios.forEach((s,i)=>$('#scenario').add(new Option(s[0],i)));
+function show(){current=scenarios[+$('#scenario').value];$('#primary').textContent=current[1];$('#secondary').textContent=current[2];$('#feedback').textContent=current[3];$('#body').textContent=current[4];$('#rejected-output').hidden=current[0]!=='校验拒绝';$('#rejected-output').open=false;['refresh','resume','regenerate'].forEach(k=>$('#'+k).hidden=current[7]!==k);$('#trace-detail').hidden=true;$('#activity').setAttribute('aria-expanded','false');$('#stage-list').replaceChildren();if(current[5]!==-2)['准备','生成','校验','应用','回读','完成'].forEach((label,i)=>{let li=document.createElement('li');li.textContent=label+' · '+(i<current[5]||current[5]===5?'已完成':i===current[5]?(['待处理','执行失败','已停止','结果待确认','停止中'].includes(current[1])?'停留阶段':'当前阶段'):'未开始');$('#stage-list').append(li)});$('#detail-facts').textContent='轮次：turn-demo-current\n操作：'+(current[5]===-2?'不适用':'op-demo-current')+'\n原执行：'+({queued:'排队中',connecting:'连接中',running:'执行中',stopping:'停止中',completed:'已结束',failed:'失败',stopped:'已停止',unknown:'待确认'}[current[6]]||'待确认')+(current[7]==='resume'?'\n自动重试 3/3 · 手动尝试 0/1 · 恢复期限：模拟有效期内':'');$('#evidence').hidden=current[5]===-2;$('#notice').textContent='';}
+function detail(open){$('#trace-detail').hidden=!open;$('#activity').setAttribute('aria-expanded',String(open));}
+$('#activity').onclick=()=>detail($('#trace-detail').hidden);$('#close-detail').onclick=()=>{detail(false);$('#activity').focus()};$('#scenario').onchange=show;$('#theme').onclick=()=>document.body.classList.toggle('light');
+function modal(kind,button){action=kind;opener=button;$('#dialog-title').textContent={resume:'继续剩余步骤',evidence:'本轮操作证据',regenerate:'替换当前草稿'}[kind];$('#dialog-body').textContent={resume:'对象 REQ-0046；将从当前可信阶段续接，复用成果，不重新调用模型。提交前重新核验权限与版本。本原型仅模拟确认。',evidence:'当前轮次 turn-demo-current → op-demo-current → candidate-demo；应用与状态版本按实际阶段显示。模拟标识，不代表真实证据。',regenerate:'当前草稿非空，确认替换为本轮重新生成命令？取消将保留原草稿。发送后才执行。'}[kind];$('#confirm-action').hidden=kind==='evidence';$('#cancel-action').textContent=kind==='evidence'?'关闭':'取消';$('#action-dialog').showModal();}
+function close(){ $('#action-dialog').close();opener?.focus() }
+$('#resume').onclick=()=>modal('resume',$('#resume'));$('#evidence').onclick=()=>modal('evidence',$('#evidence'));
+function fillDraft(){$('#draft').value='/req-review REQ-0046-chat-execution-output-status-feedback';$('#notice').textContent='已填入模拟草稿；发送后才执行，本原型不会发送。'}
+$('#regenerate').onclick=()=>$('#draft').value.trim()?modal('regenerate',$('#regenerate')):fillDraft();$('#cancel-action').onclick=close;$('#confirm-action').onclick=()=>{if(action==='regenerate')fillDraft();else $('#notice').textContent='模拟：续接请求已提交，等待事实源核验；未执行真实写入。';close()};$('#action-dialog').addEventListener('cancel',e=>{e.preventDefault();close()});$('#action-dialog').addEventListener('click',e=>{let r=e.currentTarget.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close()},true);
+$('#refresh').onclick=()=>$('#notice').textContent='模拟：已请求只读核验，当前事实未更新；不会重新发送命令。';$('#recheck').onclick=()=>{$('#check-result').textContent='模拟核验未收敛：完成证明仍待确认。保留已评审事实和准入阻断；未重新执行或应用成果。'};
+$('#difference').onclick=()=>{opener=$('#difference');action='evidence';$('#dialog-title').textContent='相关变化与核验说明';$('#dialog-body').textContent='模拟：展示关联对象与必要依赖的版本差异摘要。当前真实失配原因尚未确认，不推断具体文件已冲突。';$('#confirm-action').hidden=true;$('#cancel-action').textContent='关闭';$('#action-dialog').showModal()};
+$('#original-run').onclick=()=>{detail(true);$('#activity').focus()};
+$('#scenario').value=7;show();
+</script></body></html>

@@ -245,6 +245,10 @@ def replace_file(root,relative,before,after,oid,*,create_parents=False):
 
 def set_state(db,oid,state,phase,error=None):
     db.execute(update(applications).where(applications.c.id==oid).values(state=state,phase=phase,error_code=error,updated_at=service.now()))
+    candidate_id = db.scalar(select(applications.c.candidate_id).where(applications.c.id == oid))
+    if candidate_id:
+        from app.governance.recovery_service import checkpoint
+        checkpoint(db, candidate_id, 'readback' if phase in ('syncing', 'verified') else 'apply')
     from app.governance.observability import trace
     trace(db,oid,state)
     from app.governance.capture_schema import confirmations as capture_confirmations
@@ -327,7 +331,7 @@ def finish_verified(db, row, fence):
     set_state(db,row['id'],'applied','verified')
 
 
-def process(db,oid,*,after_write=None):
+def process(db,oid,*,after_write=None,recovery_fence=None):
     db.commit()
     row=db.execute(select(applications).where(applications.c.id==oid)).mappings().one()
     if row['state'] in TERMINAL or row['state']=='recovery_blocked': return public(row)
@@ -360,6 +364,16 @@ def process(db,oid,*,after_write=None):
                     record['planning_baseline_hash']=baseline
                     store.write(oid,'operation',record)
             lock=db.execute(select(locks).where(locks.c.scope_key==project.key)).mappings().first()
+            if lock and lock['operation_id'] and lock['operation_id'] != oid:
+                from .replacement_schema import commits as replacement_commits, activations as replacement_activations, archive_operations
+                replacement_busy=db.scalar(select(replacement_commits.c.id).where(
+                    replacement_commits.c.id==lock['operation_id'],replacement_commits.c.stage!='completed'))
+                activation_busy=db.scalar(select(replacement_activations.c.id).where(
+                    replacement_activations.c.operation_id==lock['operation_id'],replacement_activations.c.state=='activating'))
+                ordinary_busy=db.scalar(select(archive_operations.c.id).where(
+                    archive_operations.c.id==lock['operation_id'],archive_operations.c.stage!='completed'))
+                if replacement_busy or activation_busy or ordinary_busy:
+                    raise ValueError('project_controlled_archive_pending')
             fence=(lock['fencing_token'] if lock else 0)+1;worker_id=str(uuid4())
             values={'operation_id':oid,'fencing_token':fence,'worker_id':worker_id,'updated_at':service.now()}
             if lock:db.execute(update(locks).where(locks.c.scope_key==project.key).values(**values))
@@ -415,6 +429,11 @@ def process(db,oid,*,after_write=None):
             # Persist destinations before removing old paths; journal replay is idempotent.
             for index,(path,body) in enumerate(sorted(after.items(),key=lambda item:(item[1] is None,item[0]))):
                 if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
+                project=scope.authorize(db,row['actor_id'],row['space_id'],row['repository_id'],write=True)
+                if project.binding_revision != record['binding_revision']: raise ValueError('binding_changed')
+                if recovery_fence:
+                    from app.governance.recovery_controller import assert_fence
+                    assert_fence(db, *recovery_fence)
                 write_permission(project, record.get('kind'))
                 actual=read_once(project.root)
                 if actual!=expected: raise ValueError('external_change')
@@ -427,6 +446,9 @@ def process(db,oid,*,after_write=None):
                 set_state(db,oid,'applying',record['phase'])
             if record['kind']=='capture_batch':project=refresh_capture_authorization(db,row,record)
             if stable(project.root).files!=merged_files(before,after):raise ValueError('final_conflict')
+            project=scope.authorize(db,row['actor_id'],row['space_id'],row['repository_id'],write=True)
+            if project.binding_revision != record['binding_revision']: raise ValueError('binding_changed')
+            write_permission(project, record.get('kind'))
             if record['kind'] in ('req-review','bug-review'):
                 prune_migrated_directories(project.root,record['base_path'],after)
             if record['kind'] == 'capture_batch':
@@ -436,6 +458,9 @@ def process(db,oid,*,after_write=None):
             record['sync_input_hash']=digest(read_once(project.root))
             store.write(oid,'operation',record)
             set_state(db,oid,'applying','syncing')
+            if recovery_fence:
+                from app.governance.recovery_controller import assert_fence
+                assert_fence(db, *recovery_fence)
             sync_result=run_workflow_sync(project,record)
             if sync_result:
                 record['workflow_sync']=sync_result
@@ -446,6 +471,8 @@ def process(db,oid,*,after_write=None):
             latest=db.execute(select(applications.c.state).where(applications.c.id==oid)).scalar_one()
             state='recovery_blocked' if recovering or wrote else 'conflict'
             error_code = 'workflow_sync_failed' if isinstance(error, ValueError) and str(error) == 'workflow_sync_failed' else 'source_or_permission_conflict'
+            if isinstance(error, OSError) and not isinstance(error, PermissionError) and not recovering and not wrote:
+                error_code = 'storage_unavailable'
             set_state(db,oid,state,'verification_failed',error_code)
             if state=='conflict':
                 db.execute(update(locks).where(locks.c.scope_key==project.key,locks.c.operation_id==oid).values(operation_id=None,worker_id=None));db.commit()

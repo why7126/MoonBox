@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-deployed-acceptance-input-resolution",
+  "issue_id": "BUG-0053-deployed-acceptance-input-resolution",
+  "environment": "local-docker",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "BUG-0053-deployed-acceptance-input-resolution 验收项 1",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "issues/bugs/review/BUG-0053-deployed-acceptance-input-resolution/acceptance.md"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "title": "BUG-0053-deployed-acceptance-input-resolution 验收项 2",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "issues/bugs/review/BUG-0053-deployed-acceptance-input-resolution/acceptance.md"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-blocked.png",
+        "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-ready.png",
+        "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployment-observation.json",
+        "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/archive-prepared.png"
+      ],
+      "coverage": {
+        "stages": [
+          "blocked",
+          "ready"
+        ],
+        "viewports": [
+          "1633x836"
+        ],
+        "samples": [
+          {
+            "stage": "blocked",
+            "viewport": "1633x836",
+            "artifacts": [
+              "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-blocked.png"
+            ]
+          },
+          {
+            "stage": "ready",
+            "viewport": "1633x836",
+            "artifacts": [
+              "openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-ready.png"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "from pathlib import Path; assert all(Path(p).is_file() for p in ['openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-blocked.png', 'openspec/changes/fix-deployed-acceptance-input-resolution/evidence/deployed-ready.png'])"
+        ]
+      ]
+    },
+    {
+      "id": "AC-003",
+      "title": "BUG-0053-deployed-acceptance-input-resolution 验收项 3",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "issues/bugs/review/BUG-0053-deployed-acceptance-input-resolution/acceptance.md"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "title": "BUG-0053-deployed-acceptance-input-resolution 验收项 4",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "issues/bugs/review/BUG-0053-deployed-acceptance-input-resolution/acceptance.md"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "title": "BUG-0053-deployed-acceptance-input-resolution 验收项 5",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "issues/bugs/review/BUG-0053-deployed-acceptance-input-resolution/acceptance.md"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ],
+  "environment_contract": {
+    "deployment": "local-docker",
+    "workspace_mode": "source",
+    "sample_scope": "existing-governance-change-readonly",
+    "authorization_ref": "user-opsx-apply-two-bugs",
+    "login_strategy": "existing-browser-session",
+    "retry_limit": 1,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "computed_style"
+    ]
+  }
+}

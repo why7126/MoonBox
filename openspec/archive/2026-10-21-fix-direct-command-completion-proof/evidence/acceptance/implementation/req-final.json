@@ -1,0 +1,51 @@
+{
+  "object_id": "REQ-9603-direct-normal",
+  "action": "req-opsx",
+  "conversation_id": "a222506e-782c-50cb-8518-55bb0a7997b3",
+  "turn_id": "d6da6398-a59a-410d-a31f-00565f3112d1",
+  "send_http": 200,
+  "status": "completed",
+  "error_code": null,
+  "context_http": 200,
+  "verification_http": 200,
+  "verification": {
+    "available": true,
+    "state": "validated",
+    "version": 1,
+    "reason_code": null,
+    "last_checked_at": "2026-10-21T06:04:17.132845+00:00",
+    "can_verify": false,
+    "historical_evidence_missing": false,
+    "differences": []
+  },
+  "cards": [
+    {
+      "id": "REQ-9603",
+      "stage": "ready-dev",
+      "can_send": true,
+      "execution_state": "validated",
+      "execution_reason": null,
+      "action": {
+        "command": "/opsx-apply REQ-9603-direct-normal",
+        "label": "开始开发",
+        "requires_choice": null,
+        "disabled_reason": null
+      }
+    }
+  ],
+  "next_action_http": 200,
+  "next_action_prepared": true,
+  "cli_exit": 0,
+  "cli_verification": {
+    "available": true,
+    "state": "validated",
+    "version": 1,
+    "differences": [],
+    "reason_code": null,
+    "last_checked_at": "2026-10-21T06:04:17.132845+00:00",
+    "can_verify": false,
+    "historical_evidence_missing": false
+  },
+  "chain_verified": true,
+  "formal_objects_archived": false
+}

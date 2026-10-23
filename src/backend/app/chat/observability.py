@@ -7,7 +7,7 @@ from uuid import uuid4
 from sqlalchemy import delete,insert,select,update
 from app.chat import service
 from app.chat.schema import audit,usage_events,task_traces,task_trace_spans
-EVENTS={'governance.capture','governance.prepare','governance.apply','governance.document_save','chat.send','chat.stop','chat.retry','chat.session_create','chat.session_update','chat.session_delete','chat.relations_save','chat.image_add','chat.image_remove','chat.file_add','chat.file_remove','chat.skill_select','chat.skill_remove','chat.config_select'}
+EVENTS={'governance.recovery','governance.capture','governance.prepare','governance.apply','governance.document_save','chat.send','chat.stop','chat.retry','chat.session_create','chat.session_update','chat.session_delete','chat.relations_save','chat.image_add','chat.image_remove','chat.file_add','chat.file_remove','chat.skill_select','chat.skill_remove','chat.config_select'}
 EVENTS.update({'capture.upload','capture.organize','capture.review_save','capture.confirm','capture.retry'})
 STAGES={'queued','connecting','running','completed','failed','stopped','unknown','stopping'}
 

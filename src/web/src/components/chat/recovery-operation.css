@@ -1,0 +1,49 @@
+.recovery-operation { box-sizing: border-box; width: 100%; max-width: 960px; margin: 20px auto; padding: 24px; border: 1px solid var(--mb-border); border-radius: 8px; background: var(--mb-panel); color: var(--mb-text); font: 14px/1.45 Inter, 'Noto Sans SC', system-ui, sans-serif; }
+.recovery-operation header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+.recovery-operation strong { color: var(--mb-accent); }
+.recovery-muted { color: var(--mb-muted); }
+.recovery-operation ol { display: flex; gap: 12px; padding: 0; list-style: none; margin: 24px 0; }
+.recovery-operation li { flex: 1; padding: 12px; border: 1px solid var(--mb-border); border-radius: 8px; }
+.recovery-summary { padding: 0 0 12px; overflow-wrap: anywhere; }
+.recovery-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.recovery-operation button { border: 1px solid var(--mb-border); border-radius: 8px; padding: 10px 16px; background: transparent; color: var(--mb-text); font: inherit; }
+.recovery-operation button.recovery-primary { background: var(--mb-accent); color: var(--mb-background); }
+.recovery-operation button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 639px) { .recovery-operation { padding: 16px; } .recovery-operation ol { flex-direction: column; } }
+.recovery-operation li[aria-current=step] { border-color: var(--mb-accent); color: var(--mb-accent); }
+.recovery-operation .chat-dialog { width: min(560px, calc(100vw - 32px)); max-height: 80vh; overflow: auto; }
+.recovery-operation .chat-dialog-body { overflow-wrap: anywhere; }
+[data-theme=light] .recovery-operation { background: var(--mb-panel); color: var(--mb-text); border-color: var(--mb-border); }
+[data-theme=light] .recovery-operation .recovery-muted { color: var(--mb-muted); }
+[data-theme=light] .recovery-operation button { color: var(--mb-text); border-color: var(--mb-border); }
+
+.recovery-operation { --rc-panel: var(--mb-panel); --rc-border: var(--mb-border); --rc-text: var(--mb-text); }
+[data-theme=light] .recovery-operation { --rc-panel: var(--mb-panel); --rc-border: var(--mb-border); --rc-text: var(--mb-text); }
+.recovery-operation .chat-dialog button[data-testid=recovery-confirm] { background: var(--mb-accent); color: var(--mb-background); }
+
+.recovery-operation header > span { min-width: 0; overflow-wrap: anywhere; }
+
+.chat-turn-activity .recovery-operation { margin: 8px 0; padding: 12px; border-radius: 6px; max-width: 100%; font-size:14px;line-height:1.5; }
+.chat-turn-activity .recovery-operation:has(>div[hidden]):not(:has(.recovery-actions:not([hidden]))):not(:has([data-testid=operation-verification-reason])) {border:0;padding:0;}
+.chat-turn-activity .chat-tool-summary {flex-wrap:wrap;gap:10px;text-align:left;max-width:100%;white-space:normal;}
+.chat-turn-activity [data-testid=turn-status-feedback] {overflow-wrap:anywhere;font-size:14px;line-height:1.5;}
+.recovery-operation [hidden] {display:none!important;}
+.recovery-operation .chat-dialog {width:min(520px,calc(100vw - 32px));}
+[data-testid=requirement-operation-status] {font-size:12px;overflow-wrap:anywhere;}
+[data-testid=requirement-operation-status] .recovery-actions {gap:8px;margin:8px 0;}
+@media(max-width:600px){.chat-turn-activity .recovery-operation {padding:12px}.chat-turn-activity .recovery-operation ol {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.chat-turn-activity .recovery-operation li {padding:8px;min-width:0}}
+
+.chat-turn-activity .recovery-operation.is-collapsed {border:0;background:transparent;padding:0;margin:0;}
+.chat-shell .chat-message-history {max-width:1008px;margin-left:auto;margin-right:auto;width:100%;box-sizing:border-box;}
+.chat-turn-activity .chat-tool-summary {font-size:14px;line-height:1.5;}
+/* 核验卡片在窄屏仍完整可读，阶段看板保留横向滚动。 */
+@media (max-width: 600px) {
+  .requirement-center .rc-board-wrap { padding-inline: 16px; }
+  .requirement-center .rc-board { grid-template-columns: repeat(9, min(380px, calc(100vw - 104px))); }
+  .requirement-center .rc-card { min-width: 0; overflow-wrap: anywhere; }
+}
+.chat-dialog-backdrop .chat-dialog { width: min(520px, calc(100vw - 32px)); max-height: 80vh; overflow: auto; font-size: 14px; line-height: 1.5; }
+
+.rc-operation-details { margin-block: 8px; font-size: 13px; }
+.rc-operation-details > summary { cursor: pointer; color: var(--text-secondary, #8f98aa); }
+.rc-operation-details[open] { padding: 10px; border: 1px solid var(--border-color, #283041); border-radius: 8px; }

@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-10-12 14:59:30
+updated_at: 2026-10-20 18:27:28
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -275,3 +275,5 @@ src/infrastructure/
 ## 本地取证日志目录
 
 根 `logs/` 用于本地诊断、基准样本与截图等取证产物，保留现有路径；必须由 `/logs/` Git 忽略规则覆盖，不得跟踪或强制提交。目录校验检查该边界，不将 logs 注册为正式源码目录。长期归档事实须转存所属 Change 的 evidence 或脱敏摘要；本地原始日志不复制到公开治理文档。
+
+治理量化台账使用已忽略的 `logs/governance-feedback/`，仅存脱敏指标与仓库相对路径哈希。保留及清理遵循 [治理分级闭环](../docs/standards/governance-feedback-loop.md)，长期结论转存 Change evidence，禁止提交原始会话。

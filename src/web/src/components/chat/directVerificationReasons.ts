@@ -1,0 +1,18 @@
+export const directVerificationReasons:Record<string,string>={
+ direct_historical_evidence_missing:'历史文件清单缺失，需要核验当前成果；不会重放原命令。',
+ direct_historical_verified:'历史成果已核验；当前动作以最新准入核验为准。',
+ direct_historical_record_preserved:'历史核验记录已保留；对象已有后续变化，当前动作以最新准入核验为准。',
+ direct_successor_evidence_invalid:'后继交付证据缺失或过期，请补齐验收后核验。',
+ direct_successor_input_uncovered:'变化文件未被当前有效验收覆盖，保护已保留。',
+ direct_successor_tasks_changed:'任务范围已变化，需要独立核对后继交付范围。',
+ direct_successor_completion_missing:'缺少后继交付的正式完成记录。',
+ direct_completion_event_missing:'原执行只完成启动或进度同步，需要核验后继交付。',
+ direct_successor_unsupported:'当前动作需要专用恢复协议。',
+ direct_dependency_conflict:'相关交付输入已变化，请核对后再恢复。',
+ direct_dependency_invalid:'关联文档或共享约束未通过校验。',
+ direct_result_invalid:'当前成果尚未通过业务校验。',direct_sync_missing:'缺少正式同步成功证明。',
+ direct_proof_invalid:'完成证明损坏或版本不受支持。',direct_binding_changed:'权限或项目绑定已变化。',
+ direct_operation_superseded:'对象已有新的执行，不能确认旧操作。',
+ direct_specialized_verification_required:'请通过原评审或归档核验入口恢复。',
+ result_unverified:'执行已结束，成果仍待核验。',
+};

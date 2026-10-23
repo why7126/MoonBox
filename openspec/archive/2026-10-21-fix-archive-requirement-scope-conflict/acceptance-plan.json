@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-archive-requirement-scope-conflict",
+  "issue_id": "BUG-0062-archive-requirement-scope-conflict",
+  "environment": "local",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/readonly-observation.json"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/readonly-observation.json"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_issue_acceptance_checkmarks.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "-q",
+        "--disable-warnings"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "argv": [
+        "python",
+        "-c",
+        "import json; from pathlib import Path; p=Path('openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-observation.json'); d=json.loads(p.read_text()); assert d['status']=='passed' and d['deployment_verified'] and d['refresh_verified']"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": false,
+      "artifacts": [
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-observation.json",
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/deployed-probe.json",
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-1440.jpg",
+        "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-computed-style.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "实际部署5个代码文件匹配；运行中36/36；浏览器1440px、computed style与刷新后结果一致，Agent按证据签认"
+      },
+      "coverage": {
+        "stages": [
+          "已完成卡片"
+        ],
+        "viewports": [
+          "1440x900"
+        ],
+        "samples": [
+          {
+            "stage": "已完成卡片",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-observation.json",
+              "openspec/changes/fix-archive-requirement-scope-conflict/evidence/deployed-probe.json",
+              "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-1440.jpg",
+              "openspec/changes/fix-archive-requirement-scope-conflict/evidence/product-computed-style.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import json,hashlib; from pathlib import Path; from PIL import Image; b=Path('openspec/changes/fix-archive-requirement-scope-conflict/evidence'); assert Image.open(b/'product-1440.jpg').size==(1440,900); p=json.loads((b/'deployed-probe.json').read_text()); assert all(hashlib.sha256((Path('src/backend')/k).read_bytes()).hexdigest()==v for k,v in p['source_hashes'].items()); s=json.loads((b/'product-computed-style.json').read_text()); assert s['text'] and s['rect']['x']+s['rect']['width']<=1440"
+        ]
+      ],
+      "browser_dependency": "浏览器采集已由CUA实测完成；本命令消费已签认截图与样式，预检Pillow可读性、1440x900尺寸、可见边界和部署代码指纹，不伪装重新驱动浏览器。"
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "argv": [
+        "python",
+        "-c",
+        "import subprocess; commands=[['python', 'scripts/validate-openspec-language.py', '--change', 'fix-archive-requirement-scope-conflict'], ['python', 'scripts/validate-document-titles.py', '--change', 'fix-archive-requirement-scope-conflict', '--bug', 'BUG-0062-archive-requirement-scope-conflict'], ['python', 'scripts/validate-product-data-observability.py', '--change', 'fix-archive-requirement-scope-conflict'], ['python', 'scripts/validate-sprint-scope.py', 'sprint-012', '--item', 'BUG-0062-archive-requirement-scope-conflict', '--item', 'fix-archive-requirement-scope-conflict'], ['openspec', 'validate', 'fix-archive-requirement-scope-conflict', '--strict']]; [subprocess.run(c,check=True) for c in commands]"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/sprint_archive_admission.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "src/backend/app/services/requirement_center.py",
+        "tests/unit/test_archived_acceptance_supplement.py",
+        "tests/unit/test_opsx_acceptance.py",
+        "docs/standards/opsx-acceptance.md",
+        "rules/security.md",
+        "docs/03-api-index.md",
+        "openspec/changes/fix-archive-requirement-scope-conflict/specs/governance-command-durable-recovery/spec.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": false
+    }
+  ],
+  "environment_contract": {
+    "deployment": "local-moonbox-compose",
+    "workspace_mode": "readonly",
+    "sample_scope": "REQ-0046现有归档及sprint-011只读展示",
+    "authorization_ref": "用户选择当前Chat结束后部署；opsx-apply范围内自主只读取证",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "复用已有本地产品登录会话",
+    "retry_limit": 0,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  }
+}

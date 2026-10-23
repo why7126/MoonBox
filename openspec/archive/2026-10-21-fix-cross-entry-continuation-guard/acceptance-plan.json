@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-cross-entry-continuation-guard",
+  "issue_id": "BUG-0061-cross-entry-continuation-guard-convergence",
+  "environment": "cross-entry-continuation",
+  "environment_contract": {
+    "deployment": "authorized-local-chat-platform",
+    "workspace_mode": "isolated",
+    "sample_scope": "REQ-and-BUG-isolated-archives-formal-BUG0055-recovery",
+    "authorization_ref": "user-approved-two-isolated-archive-samples",
+    "login_strategy": "existing-formal-session-generated-isolated-user",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md",
+        "src/web/src/components/chat/DirectCompletion.tsx",
+        "src/web/src/components/chat/RecoveryOperationPanel.tsx",
+        "src/web/src/components/chat/directVerificationReasons.ts",
+        "src/web/src/direct-completion.test.tsx"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/blocked-1440.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/blocked-390.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/recovered-1440.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/recovered-390.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/refreshed-1440.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/refreshed-390.png",
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/computed-style.json"
+      ],
+      "coverage": {
+        "stages": [
+          "blocked",
+          "recovered",
+          "refreshed"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "blocked",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/blocked-1440.png"
+            ]
+          },
+          {
+            "stage": "blocked",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/blocked-390.png"
+            ]
+          },
+          {
+            "stage": "recovered",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/recovered-1440.png"
+            ]
+          },
+          {
+            "stage": "recovered",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/recovered-390.png"
+            ]
+          },
+          {
+            "stage": "refreshed",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/refreshed-1440.png"
+            ]
+          },
+          {
+            "stage": "refreshed",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/refreshed-390.png"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import json;from PIL import Image;from pathlib import Path;p=Path('openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation');assert json.loads((p/'computed-style.json').read_text())['run_status']['fontSize'];assert all(Image.open(p/(s+'-'+str(w)+'.png')).size[0]==w for s in ('blocked','recovered','refreshed') for w in (1440,390))"
+        ]
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "timeout_seconds": 240,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "turn_id": "ee2b6d16-17a2-481e-9a65-de7ff17696af",
+      "command_contains": "archive-change.sh",
+      "product_db": "req",
+      "required_sample": {
+        "status": "passed"
+      },
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/req-chain.json"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/cli-comparison.json"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/formal-recovery.json"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "timeout_seconds": 240,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "turn_id": "d05344af-dc4e-44e1-a9b5-0766d2854e49",
+      "command_contains": "archive-change.sh",
+      "product_db": "bug",
+      "required_sample": {
+        "status": "passed"
+      },
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/bug-chain.json"
+      ]
+    },
+    {
+      "id": "AC-014",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/chat/execution.py",
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "openspec/changes/fix-cross-entry-continuation-guard/design.md"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_successor_completion.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_archive_proof.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 240,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-cross-entry-continuation-guard/evidence/acceptance/implementation/historical-boundary.md"
+      ]
+    }
+  ]
+}

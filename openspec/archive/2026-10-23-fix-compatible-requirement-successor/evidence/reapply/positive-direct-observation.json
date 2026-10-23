@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "real-product-isolated-synthetic-business-data",
+  "sample": "sprint-102",
+  "turn_id": "a8a3eb7a-9788-4d2d-ba9b-ae675823d497",
+  "conversation_id": "d7438e38-d0a7-584d-98d5-737a8981508a",
+  "turn_status": "completed",
+  "error_code": null,
+  "archive_operation_stage": "completed",
+  "archive_operation_revision": 5,
+  "model_tokens": 0,
+  "usage_scope": "trusted_archive_v1",
+  "active_exists": false,
+  "archive_exists": true,
+  "protected_tree_changes": 0,
+  "diff_paths": [
+    "issues/bugs/_registry.yaml",
+    "issues/requirements/_registry.yaml",
+    "iterations/archive/sprint-102/acceptance-report.md",
+    "iterations/archive/sprint-102/release-note.md",
+    "iterations/archive/sprint-102/sprint.md",
+    "iterations/archive/sprint-102/sprint.yaml",
+    "iterations/change/sprint-102/acceptance-report.md",
+    "iterations/change/sprint-102/release-note.md",
+    "iterations/change/sprint-102/sprint.md",
+    "iterations/change/sprint-102/sprint.yaml"
+  ],
+  "preflight_snapshot_files": 3913,
+  "conversation_reused": true,
+  "formal_project_mutated": false,
+  "sample_note": "独立隔离样本；测试签署字段不是正式独立验收签署。与目标 Change 无关的旧归档 evidence 在发送前从隔离副本移除，以保持状态采集在文件上限内。"
+}

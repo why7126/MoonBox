@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T08:18:38.132582+00:00",
+  "samples": [
+    {
+      "object_id": "BUG-9097-recovery-normal",
+      "turn_id": "e33e3b17-b752-4763-a989-eba81a9c5096",
+      "turn_status": "completed",
+      "guard": {
+        "object_id": "BUG-9097-recovery-normal",
+        "operation_id": "e33e3b17-b752-4763-a989-eba81a9c5096",
+        "state": "validated",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "archive_wrapper": [
+        {
+          "sequence": 159,
+          "exit_code": 0,
+          "command": "bash scripts/archive-change.sh isolated-bug-archive-convergence"
+        }
+      ],
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "original_review_retained": true,
+      "manual_guard_edit": false,
+      "evidence_level": "real-product-model-archive-after-cli-acceptance"
+    },
+    {
+      "object_id": "REQ-9096-recovery-normal",
+      "turn_id": "b5da9750-50fa-4276-a537-773b28776ba9",
+      "turn_status": "completed",
+      "guard": {
+        "object_id": "REQ-9096-recovery-normal",
+        "operation_id": "b5da9750-50fa-4276-a537-773b28776ba9",
+        "state": "validated",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "archive_wrapper": [
+        {
+          "sequence": 53,
+          "exit_code": 0,
+          "command": "bash scripts/archive-change.sh isolated-req-archive-convergence"
+        }
+      ],
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "original_review_retained": true,
+      "manual_guard_edit": false,
+      "evidence_level": "real-product-model-archive-after-cli-acceptance"
+    }
+  ],
+  "negative_req_attempt": {
+    "turn_id": "0f1cdc49-3e9a-47cb-9efb-174189a8b1a2",
+    "terminal_status": "completed",
+    "classification": "no_governance_write",
+    "archived": false,
+    "causes": [
+      "executor req_id alias omitted",
+      "temporary delivery evidence missing"
+    ],
+    "preserved": true
+  },
+  "authorization": "REQ/BUG各一次隔离归档；首个REQ零写入后仅追加一次REQ；共三次，未归档正式对象",
+  "runtime_note": "BUG归档使用别名与交付预检修复；REQ补跑另加载零写入重试修复。两次均为真实调用，未将历史评审冒称当前重跑。",
+  "current_source_sha256": {
+    "src/backend/app/chat/policy.py": "99cc4793415e4cc2ba51d73cb6dbfa3db3ef75c63c78be56d61a1f66952f2441",
+    "src/backend/app/governance/archive_admission.py": "babc88fab9264a8965095af4ae7b8fd788c7d7402191dfde12ae6282ddead1fc",
+    "src/backend/app/governance/execution_context.py": "e7d1ade60264b191fb897b9a6435da894df746217669b9f494f91e96553b34d1",
+    "src/backend/app/governance/execution_guard.py": "c71818e7e776027ef29d6e79ced5ed43e0763d9a167a0272ee622886139dd087",
+    "src/backend/app/governance/preparation.py": "872f5c7b184a9e6c01697923d220777d78f6a9cba5336d3c787ef0e01864737c",
+    "src/backend/app/governance/review_successor.py": "50245bb4ce97b8fa261b2e46aee74d042d8928ea9ceddc7999fb596862f80e36",
+    "scripts/archive-change.sh": "6f39276b952bc717981b8f94d7c730c0ecfe7354b44f6d52664f9aa619bb5276"
+  },
+  "formal_objects_archived": false,
+  "ready": true
+}

@@ -52,3 +52,9 @@ it("notifies the parent with saved relations so conversation scope can refresh",
   await waitFor(() => expect(saved).toHaveBeenCalledWith({ primary: objects[0], references: [objects[1]] }));
   expect(screen.getByText(objects[0].id)).toBeTruthy();
 });
+
+it("does not show a permanent rule review action in the object bar", async () => {
+  render(<RelationsBar conversation={{ id: 'c', space_id: 'space', repository_id: 'repo' } as ConversationRead} />);
+  await screen.findByTestId('chat-relations-bar');
+  expect(screen.queryByTestId('chat-rule-change-review')).toBeNull();
+});

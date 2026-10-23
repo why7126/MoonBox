@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T15:32:13.693317+00:00",
+  "change_id": "fix-verified-result-execution-guard-convergence",
+  "invariance": {
+    "journal_unchanged": true,
+    "delivery_inputs_unchanged": true,
+    "full_tree_changed_by_outputs": true,
+    "formal_active_preserved": true
+  },
+  "acceptance": {
+    "status": "passed",
+    "scope": "complete",
+    "run_id": "20261020232544692037-eee891dd",
+    "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/acceptance/20261020232544692037-eee891dd",
+    "checks": 20,
+    "metrics": {
+      "command_executions": 0,
+      "deduplicated": 0,
+      "reused": 20,
+      "preflight_ms": 111,
+      "duration_ms": 205,
+      "blocked": 0,
+      "failed": 0
+    },
+    "pending_collection": [],
+    "archive_admission": {
+      "ready": true,
+      "done": 20,
+      "total": 20,
+      "source": "evidence",
+      "reason": null
+    },
+    "archive_ready": true,
+    "final_admission_required": true
+  },
+  "formal_admission": {
+    "schema_version": 1,
+    "collected_at": "2026-10-20T15:29:12.523065+00:00",
+    "samples": [
+      {
+        "object_id": "REQ-0046-chat-execution-output-status-feedback",
+        "change_id": "fix-chat-unified-run-status-verification",
+        "cli_ready": true,
+        "cli_result": "ACCEPTANCE_GATE_READY issue_acceptance_passed",
+        "product_http_status": 200,
+        "can_send": true,
+        "reason": null,
+        "send_preflight": {
+          "allowed": true,
+          "same_snapshot": true,
+          "no_new_turn": true,
+          "duration_seconds": 5.88
+        }
+      },
+      {
+        "object_id": "BUG-0052-verified-result-execution-guard-not-released",
+        "change_id": "fix-verified-result-execution-guard-convergence",
+        "cli_ready": true,
+        "cli_result": "ACCEPTANCE_GATE_READY issue_acceptance_passed",
+        "product_http_status": 200,
+        "can_send": true,
+        "reason": null,
+        "send_preflight": {
+          "allowed": true,
+          "same_snapshot": true,
+          "no_new_turn": true,
+          "duration_seconds": 5.91
+        }
+      }
+    ],
+    "model_calls": 0,
+    "formal_archive_executed": false,
+    "scope": "formal HTTP preparation and deployed send preflight versus CLI admission; actual turns POST success/rejection covered by synthetic regression",
+    "code_sha256": {
+      "src/backend/app/governance/archive_recovery.py": "de99fc9fa30f9713ef335eb2f59d8af9e8c00b7ecb0b3412f2bd121a69dec09f",
+      "src/backend/app/governance/archive_admission.py": "86b9c34cf9cfe6369ec9bd15dd044cb327ae19407c3beed0176c96b7658122a3",
+      "src/backend/app/governance/acceptance_evidence.py": "6542cfb04dbe23b5b5b5505df567987a44a6107feb5e7ae8c6d8b497586b7db6",
+      "scripts/archive-recovery-guard.py": "e2c97ff80500846367f83137bdc3caa567571847a50a41a350b89e54770d672c"
+    }
+  },
+  "full_formal_material_cli_copies": [
+    {
+      "change_id": "fix-chat-unified-run-status-verification",
+      "exit_code": 0,
+      "active_exists": false,
+      "archive_count": 1
+    },
+    {
+      "change_id": "fix-verified-result-execution-guard-convergence",
+      "exit_code": 0,
+      "active_exists": false,
+      "archive_count": 1
+    }
+  ],
+  "real_model_samples": {
+    "calls": 2,
+    "both_completed_and_archived": true,
+    "evidence": "../reaccept-archive-real-chain.json",
+    "reuse_scope": "真实成功路径证据复用；其后异常 YAML 分类及关联归档附件定位改动由最终版本 HTTP 回归与完整正式材料副本连续归档覆盖，未追加模型调用。"
+  },
+  "deployment": {
+    "services": [
+      "backend",
+      "governance-controller",
+      "chat-worker"
+    ],
+    "all_healthy": true,
+    "all_deployed_hashes_match_source": true,
+    "hashes": {
+      "src/backend/app/governance/archive_recovery.py": "de99fc9fa30f9713ef335eb2f59d8af9e8c00b7ecb0b3412f2bd121a69dec09f",
+      "src/backend/app/governance/archive_admission.py": "86b9c34cf9cfe6369ec9bd15dd044cb327ae19407c3beed0176c96b7658122a3",
+      "src/backend/app/governance/acceptance_evidence.py": "6542cfb04dbe23b5b5b5505df567987a44a6107feb5e7ae8c6d8b497586b7db6",
+      "scripts/archive-recovery-guard.py": "e2c97ff80500846367f83137bdc3caa567571847a50a41a350b89e54770d672c"
+    }
+  },
+  "validation": "REQ 36 项、BUG 20 项验收通过；最终补充 verification.md 跨归档附件测试后，8 项相关正向 HTTP 测试通过，其余同批 153 项已通过。Workflow Sync 与用量 Hook 均成功。",
+  "formal_objects_archived": false
+}

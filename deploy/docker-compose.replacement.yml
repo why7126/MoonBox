@@ -1,0 +1,75 @@
+# Explicit opt-in after chat-platform and governance. No private key/socket in Agent containers.
+services:
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile.replacement
+    environment: &replacement-env
+      MOONBOX_REPLACEMENT_TRUST_FILE: /run/replacement-trust/public.json
+      MOONBOX_REPLACEMENT_SIGNER_SOCKET: /run/replacement-signing/authorization.sock
+    volumes: &replacement-volumes
+      - ./:/app/governance:ro
+      - ./issues:/app/governance/issues
+      - ./openspec:/app/governance/openspec
+      - ./iterations:/app/governance/iterations
+      - type: bind
+        source: ${MOONBOX_REPLACEMENT_TRUST_SOURCE:?Explicit external trust file required}
+        target: /run/replacement-trust/public.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${MOONBOX_REPLACEMENT_SOCKET_ROOT:?Explicit external socket directory required}
+        target: /run/replacement-signing
+        read_only: true
+        bind: {create_host_path: false}
+    depends_on:
+      replacement-signer:
+        condition: service_healthy
+  chat-worker:
+    environment: *replacement-env
+    volumes: *replacement-volumes
+    depends_on:
+      replacement-signer:
+        condition: service_healthy
+  governance-controller:
+    environment:
+      MOONBOX_REPLACEMENT_TRUST_FILE: /run/replacement-trust/public.json
+    volumes:
+      - ./:/app/governance:ro
+      - ./issues:/app/governance/issues
+      - ./openspec:/app/governance/openspec
+      - ./iterations:/app/governance/iterations
+      - type: bind
+        source: ${MOONBOX_REPLACEMENT_TRUST_SOURCE}
+        target: /run/replacement-trust/public.json
+        read_only: true
+        bind: {create_host_path: false}
+  replacement-signer:
+    image: ${BACKEND_IMAGE:-moonbox-backend:local}
+    user: ${MOONBOX_CHAT_WORKER_UID}:${MOONBOX_CHAT_WORKER_GID}
+    command: [python, -m, app.governance.replacement_signing_service]
+    restart: unless-stopped
+    init: true
+    read_only: true
+    network_mode: none
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      MOONBOX_AUTHORIZATION_PRIVATE_KEY: /run/replacement-key/owner.pem
+      MOONBOX_AUTHORIZATION_KEY_ID: ${MOONBOX_AUTHORIZATION_KEY_ID:?Explicit online key version required}
+      MOONBOX_REPLACEMENT_SIGNER_SOCKET: /run/replacement-signing/authorization.sock
+    volumes:
+      - type: bind
+        source: ${MOONBOX_AUTHORIZATION_KEY_SOURCE:?Explicit external ONLINE key required}
+        target: /run/replacement-key/owner.pem
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${MOONBOX_REPLACEMENT_SOCKET_ROOT}
+        target: /run/replacement-signing
+        bind: {create_host_path: false}
+    healthcheck:
+      test: [CMD, python, -c, "import socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect('/run/replacement-signing/authorization.sock'); s.close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 6

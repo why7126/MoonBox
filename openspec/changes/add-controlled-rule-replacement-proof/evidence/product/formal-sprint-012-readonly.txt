@@ -1,0 +1,46 @@
+## Sprint Archive Readiness Report
+
+**Sprint:** sprint-012
+**Sprint Path:** `iterations/change/sprint-012`
+**Mode:** strict
+
+| Change | Location | Tasks | Archive Evidence | Result |
+|---|---|---:|---|---|
+| `fix-direct-command-completion-proof` | archived | 16/16 | trace.md present | PASS |
+| `fix-cross-entry-continuation-guard` | archived | 16/16 | trace.md present | PASS |
+| `fix-archive-requirement-scope-conflict` | archived | 11/11 | trace.md present | PASS |
+| `add-sprint-archive-chat-entry` | archived | 19/19 | trace.md present | PASS |
+| `fix-compatible-requirement-successor` | active | 18/18 | active change; fallback not required | BLOCKED: fix-compatible-requirement-successor: acceptance_not_ready: 验收证据缺失、过期或未全部通过 |
+
+## Change Batches
+
+- Applicable: False (not_applicable)
+- Total Changes: 5
+- Batch Count: 0
+- Batch Size: 5
+
+## Sprint Close Stale Scan
+
+- Checked Files: 39
+- Blockers: 5
+- Warnings: 0
+- Allowed Legacy: 0
+- Verdict: BLOCKED
+
+| Severity | Kind | Target | File | Line | Reason |
+|---|---|---|---|---:|---|
+| blocker | issue-subdocument-active-change-path | `REQ-0049-sprint-archive-chat-entry` | `issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/business-flow.md` | 57 | Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。 |
+| blocker | issue-subdocument-active-change-path | `REQ-0049-sprint-archive-chat-entry` | `issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/requirement.md` | 157 | Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。 |
+| blocker | issue-subdocument-active-change-path | `REQ-0049-sprint-archive-chat-entry` | `issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/user-stories.md` | 27 | Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。 |
+| blocker | issue-subdocument-active-change-path | `BUG-0060-direct-command-completion-proof-drift` | `issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/acceptance.md` | 160 | Change `fix-direct-command-completion-proof` 已 archived，Issue 子文档不应继续引用 active change 路径。 |
+| blocker | issue-subdocument-active-change-path | `BUG-0060-direct-command-completion-proof-drift` | `issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/trace.md` | 64 | Change `fix-direct-command-completion-proof` 已 archived，Issue 子文档不应继续引用 active change 路径。 |
+
+Fix stale Sprint close facts, then rerun:
+`python scripts/check-sprint-close-stale-scan.py --sprint sprint-012`
+Do not hand-edit `sprint.md` workflow-sync marker blocks.
+
+**Verdict:** BLOCKED
+
+Resolve the listed task, evidence or recovery blockers before `/sprint-archive`.
+Fix stale Sprint close facts before `/sprint-archive`.
+

@@ -24,6 +24,8 @@ from archive_evidence import validate_archive_evidence
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src/backend"))
+from app.governance.sprint_archive_admission import close_blockers
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,7 @@ class ChangeReadiness:
     fallback_summary_file: str | None = None
     fallback_summary_missing: list[str] | None = None
     blocker: str | None = None
+    deep_blocked: bool = False
 
 
 @dataclass(frozen=True)
@@ -196,6 +199,10 @@ def evaluate_sprint(root: Path, sprint_id: str, *, only_change: str | None = Non
                 fallback_summary_missing = evidence.missing_items
                 blocker = evidence.blocker
 
+        deep = close_blockers(root, [change_id]) if change_dir else []
+        if deep:
+            blocker = "; ".join(filter(None, [blocker, *deep]))
+
         records.append(
             ChangeReadiness(
                 change_id=change_id,
@@ -207,6 +214,7 @@ def evaluate_sprint(root: Path, sprint_id: str, *, only_change: str | None = Non
                 fallback_summary_file=fallback_summary_file,
                 fallback_summary_missing=fallback_summary_missing,
                 blocker=blocker,
+                deep_blocked=bool(deep),
             )
         )
 
@@ -329,11 +337,11 @@ def render_markdown(readiness: SprintReadiness, *, force: bool) -> str:
 
     blockers = readiness.blockers
     lines.append("")
-    if readiness.has_blockers and not force:
+    if readiness.has_blockers and (not force or any(change.deep_blocked for change in readiness.changes)):
         lines.append("**Verdict:** BLOCKED")
         lines.append("")
         if blockers:
-            lines.append("Complete remaining `tasks.md` items via `/sprint-apply` before `/sprint-archive`.")
+            lines.append("Resolve the listed task, evidence or recovery blockers before `/sprint-archive`.")
         if not stale.ok:
             lines.append("Fix stale Sprint close facts before `/sprint-archive`.")
     elif readiness.has_blockers:
@@ -349,7 +357,7 @@ def render_markdown(readiness: SprintReadiness, *, force: bool) -> str:
 def readiness_to_json(readiness: SprintReadiness, *, force: bool) -> str:
     payload = asdict(readiness)
     payload["mode"] = "force" if force else "strict"
-    payload["verdict"] = "blocked" if readiness.has_blockers and not force else "pass"
+    payload["verdict"] = "blocked" if readiness.has_blockers and (not force or any(change.deep_blocked for change in readiness.changes)) else "pass"
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
@@ -358,7 +366,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sprint", required=True, help="Sprint id, e.g. sprint-004")
     parser.add_argument("--change", help="Validate one change listed in the Sprint")
     parser.add_argument("--root", type=Path, default=ROOT, help=argparse.SUPPRESS)
-    parser.add_argument("--force", action="store_true", help="Report blockers but exit 0")
+    parser.add_argument("--force", action="store_true", help="Allow task/document blockers; deep acceptance/recovery failures still exit 1")
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     return parser
 
@@ -376,7 +384,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(render_markdown(readiness, force=args.force))
 
-    if readiness.has_blockers and not args.force:
+    if readiness.has_blockers and (not args.force or any(change.deep_blocked for change in readiness.changes)):
         return 1
     return 0
 

@@ -9,6 +9,16 @@ function typePrompt(value:string){
  fireEvent.input(input);
  return input;
 }
+it.each(['/sprint-archive sprint-001','/opsx-archive REQ-0050-controlled-rule-replacement-proof'])('allows reviewing %s before execution is available without sending the draft',(prompt)=>{
+ const submitted=vi.fn();
+ vi.stubGlobal('fetch',vi.fn());
+ render(<Composer conversation={{id:'c',space_id:'space',repository_id:'repo'} as ConversationRead} capabilities={{execution_ready:false,reason:'未就绪',repositories:[]}} initialDraft={prompt} onDraft={()=>{}} onSubmitted={submitted}/>);
+ expect(screen.queryByTestId('replacement-review')).toBeNull();
+ expect(screen.getByTestId('chat-prompt').textContent).toBe(prompt);
+ expect((screen.getByTestId('chat-send') as HTMLButtonElement).disabled).toBe(true);
+ expect(submitted).not.toHaveBeenCalled();
+ expect(fetch).not.toHaveBeenCalled();
+});
 it('keeps the draft and request identity after an uncertain failure',async()=>{
  localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
  let first=true;
@@ -305,4 +315,12 @@ it('selects model and reasoning and sends the stable execution config',async()=>
  expect(calls.filter(call=>call.body?.event_name==='chat.config_select')).toHaveLength(2);
  const turn=calls.find(call=>call.path.endsWith('/turns'))!;
  expect(turn.body.execution_config).toEqual({agent:'codex',model:'gpt-5.6-sol',reasoning:'medium'});
+});
+
+it('keeps a new conversation draft free of project governance actions', () => {
+ vi.stubGlobal('fetch', vi.fn());
+ render(<Composer spaceId="space" conversation={null} capabilities={{ execution_ready: false, reason: '未就绪', repositories: [{ id: 'repo', space_id: 'space', branches: { items: [], default: 'main' } }] } as unknown as Capabilities} initialDraft="保留草稿" onDraft={() => {}} onSubmitted={() => {}} />);
+ expect(screen.queryByTestId('replacement-review')).toBeNull();
+ expect(screen.getByTestId('chat-prompt').textContent).toBe('保留草稿');
+ expect(fetch).not.toHaveBeenCalled();
 });

@@ -19,7 +19,11 @@ def mark_stale_unknown(db, stale_seconds=120):
     from app.chat.observability import trace
     for tid in candidates:
         changed=db.execute(update(turns).where(turns.c.id==tid,turns.c.status.in_(('connecting','running','stopping')),turns.c.heartbeat_at<cutoff).values(status='unknown',error_code='worker_heartbeat_lost',updated_at=service.now())).rowcount
-        if changed:count+=1;trace(db,tid,'unknown')
+        if changed:
+            count += 1
+            from app.governance.execution_guard import terminal as guard_terminal
+            guard_terminal(db, tid, 'unknown')
+            trace(db, tid, 'unknown')
     # active_turn_id is deliberately retained; lease expiry is not termination evidence.
     db.commit()
     return count
@@ -75,6 +79,8 @@ def record_event(db, claim_token, source_id, event_type, payload, terminal=None)
     if not terminal and event_type == 'execution.state' and payload.get('status') == 'running':
         db.execute(update(turns).where(t.id==token['turn_id'],t.status=='connecting').values(status='running'))
     if terminal:
+        from app.governance.execution_guard import terminal as guard_terminal
+        guard_terminal(db, token['turn_id'], terminal)
         db.execute(update(turns).where(t.id==token['turn_id']).values(status=terminal))
         db.execute(update(conversations).where(conversations.c.id==token['conversation_id'],conversations.c.active_turn_id==token['turn_id']).values(active_turn_id=None,updated_at=service.now()))
         from app.chat.admission import release_concurrency

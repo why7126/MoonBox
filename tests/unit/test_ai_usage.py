@@ -1,12 +1,18 @@
 from pathlib import Path
 import json
 import sys
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts import ai_usage
+
+
+@pytest.fixture(autouse=True)
+def isolated_feedback_store(tmp_path, monkeypatch):
+    monkeypatch.setenv("GOVERNANCE_FEEDBACK_STORE", str(tmp_path / "feedback"))
 
 
 def write_jsonl(path: Path, rows: list[dict], *, malformed: bool = False) -> None:
@@ -132,3 +138,41 @@ def test_post_command_hook_skips_unsafe_records_without_crashing(tmp_path) -> No
     assert summary["command_run_count"] == 0
     assert "unsafe-records-skipped:1" in summary["warnings"]
     assert "no-safe-command-runs" in summary["warnings"]
+
+
+def test_desktop_content_blocks_preserve_usage_and_ignore_duplicate_channel(tmp_path):
+    path = tmp_path / 'desktop.jsonl'
+    write_jsonl(path, [
+        {'type': 'response_item', 'payload': {'type': 'message', 'role': 'user', 'content': [
+            {'type': 'input_text', 'text': '/opsx-archive BUG-0053-example'},
+            {'type': 'input_image', 'text': 'must-not-be-read', 'image_url': 'private'},
+        ]}},
+        {'payload': {'type': 'token_usage_record', 'usage': {'total_tokens': 100}}},
+        {'payload': {'type': 'token_count', 'info': {'last_token_usage': {'input_tokens': 80, 'output_tokens': 20, 'total_tokens': 100}}}},
+    ])
+    records, warnings = ai_usage.parse_session_jsonl(path)
+    assert len(records) == 1
+    assert records[0]['total_tokens'] == 100
+    assert records[0]['model_call_count'] == 1
+    assert records[0]['command'] == 'opsx.archive'
+    assert 'private' not in json.dumps(records)
+    assert warnings == []
+
+
+def test_desktop_nontext_and_assistant_do_not_create_user_turn():
+    assert ai_usage.user_text({'payload': {'role': 'user', 'content': [{'type': 'input_image', 'text': 'ignore'}]}}) == ''
+    assert ai_usage.user_text({'payload': {'role': 'assistant', 'content': [{'type': 'text', 'text': '/opsx-archive'}]}}) == ''
+    assert ai_usage.user_text({'message': {'role': 'user', 'content': [{'type': 'text', 'text': 'legacy'}]}}) == 'legacy'
+
+
+def test_unrecognized_message_diagnostic(tmp_path):
+    path = tmp_path / 'unknown.jsonl'
+    write_jsonl(path, [{'payload': {'type': 'token_count', 'last_token_usage': {'total_tokens': 100}}}])
+    summary = ai_usage.post_command_hook(session_jsonl=path, out_dir=tmp_path / 'out', sprint_id='sprint-011', dry_run=True)
+    assert 'user-message-unrecognized-or-absent' in summary['warnings']
+    assert summary['usage_mode'] == 'unavailable'
+
+
+def test_compact_summary_preserves_safe_reason_codes():
+    result = ai_usage.compact_post_command_summary({"warnings": ["user-message-unrecognized-or-absent"], "warning_count": 1})
+    assert result["warnings"] == ["user-message-unrecognized-or-absent"]

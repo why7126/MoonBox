@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 name: "sprint-propose"
 description: "提议并创建新 Sprint 迭代规划（四件套）"
 ---
@@ -239,3 +239,7 @@ python scripts/sync-workflow-status.py --event sprint.propose --sprint <sprint-i
 - 零、负数、空值、非数字或非有限数均为非法值，不能回退为默认值。估算仍需明确。
 - 调整使用 `python scripts/add-sprint-scope-item.py --sprint sprint-005 --capacity-person-days 30 --rationale "用户确认容量纠正"`；随后 Workflow Sync 刷新四件套，复核并清理目标 Sprint 中过时的容量风险说明。
 - 修改容量后重新计算占用、剩余缓冲及120%硬门禁；默认30不豁免门禁，低于30%缓冲仍提示风险。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

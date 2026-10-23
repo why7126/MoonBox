@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-requirement-stage-completion-session-continuity",
+  "run_id": "20261019134237428491-2d1bc441",
+  "created_at": "2026-10-19 13:42:37",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "bug0044-isolated-local",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "7a1ee63fbaa106d51d16737db3cae88328dcfc0e3be16601bafe2e498e979c45",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "d571ebae-29a0-479b-a1ff-f5f9c342886b",
+      "conversation_id": "309d067e-5394-4cc4-af0c-0b8bc901c835",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 180,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.png",
+          "sha256": "d2d9274420fa84c9cc22a1d861c28ae4113317cb180731acb0a0b7f1e06688c0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.json",
+          "sha256": "3345a5b176d9be7261af3424235268a057e857499ac6e6deb963b099e59499a3"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-validated.png",
+          "sha256": "83fa7cebe9508e995aef82365dfb1a7a06d8c685eabe96ed7678af67fd3439b6"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+          "sha256": "66f6253fca7ce61a17d627ef77214026bb51a6bb46d2e06201ad8296f5ec1772"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+          "sha256": "0d301321ac0e6f8a1f304e669ce666ba96ba9f052b8e3db96b226b1c1e6b8ce7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+          "sha256": "72ddcfa43beeee118d45bddb4e1e94d6a397fd8ea92b01b1f193d8624f867b09"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-ready-1440.png",
+          "sha256": "a6306468054aa42e5e31ce036d444f13b2b59bbcfa5cab3b4ab7f8ccf2579a0a"
+        }
+      ],
+      "duration_ms": 12,
+      "evidence_kinds": [
+        "product_turn",
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "c09693bfc4241a06699a6fe0c62bc80cc98ea9d2d4daded172a8f44fefde00d0",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-original-conversation-header.png",
+          "sha256": "9ffb42eed35a9452a1e32fe647e7c942e3e5659409958428370b9aa13fc7fda9"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retained-draft.png",
+          "sha256": "ebad93323de77f9b563badd4dc92bd0ee4ce3f49a7442db147cc15339c07b2a1"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/view-original-execution-1440.png",
+          "sha256": "0ad1731b339806ffabd49f88601938a853714f2c03eb5c6c60e1ce513e50cc59"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+          "sha256": "72ddcfa43beeee118d45bddb4e1e94d6a397fd8ea92b01b1f193d8624f867b09"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "5eb6c8e20f48888011849f4bf6187e01e0dce1c157c2a3b1b8884ef2e9da09a8",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-entry-requests.json",
+          "sha256": "4a8e4f7b982c38c9bb7c32cc25d3312ceb9caa46cb03357b56e3edf00b6eff73"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/observability-sample.json",
+          "sha256": "38cca29a6de65d6b6a2ed85d1cc244d2f74def5d13ab5df287a0f10645ff6203"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "7eb20f504c855a8b70b57679cf359d0ea9d7c0babc0ff50990f3c9c810cc447f",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+          "sha256": "a37ed3f86807318841ab3befc2353c542b2227bc638b4c5f54b51a3284a7ef58"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "841bdc2fd60a4fc40097a7d09c77661e2751c193b26430bbb47abc248e642a86",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-sync.json",
+          "sha256": "1baef9654b6b6de1d684a5b3602b74ece8796c45ce701d7436078b37481ccfe0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-development.png",
+          "sha256": "748921948c989fcc3fe27c7d3685dd8554e69ed4acf5f6d3a17413a22eedede4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-read-progress.png",
+          "sha256": "84de6783a4ed09be5300ac06a88dc829b36f51e6d910d3de48aa2921daa65416"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "5c5bdf24c59f43c4cab31d7e75391a0532da387195730f2dff20044f789ebf35",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-states-1440.png",
+          "sha256": "0d301321ac0e6f8a1f304e669ce666ba96ba9f052b8e3db96b226b1c1e6b8ce7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+          "sha256": "a37ed3f86807318841ab3befc2353c542b2227bc638b4c5f54b51a3284a7ef58"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+          "sha256": "72ddcfa43beeee118d45bddb4e1e94d6a397fd8ea92b01b1f193d8624f867b09"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "ff98797ac981e44888cfd2fd72c354a6410fb4be2e46d8f036e6dce2ff5f1b73",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-unknown-1440.png",
+          "sha256": "5e04fd98095bc4c7d8f1efc9fd512f58a81f35e21abef615c05d88a8440f4604"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+          "sha256": "a37ed3f86807318841ab3befc2353c542b2227bc638b4c5f54b51a3284a7ef58"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+          "sha256": "72ddcfa43beeee118d45bddb4e1e94d6a397fd8ea92b01b1f193d8624f867b09"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "ec5579b2deee4424db42fe14e0c480b41f611a5d9245e7f838982addacfd97e7",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-generation-result.json",
+          "sha256": "66f6253fca7ce61a17d627ef77214026bb51a6bb46d2e06201ad8296f5ec1772"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-retry-slow-tail.json",
+          "sha256": "3345a5b176d9be7261af3424235268a057e857499ac6e6deb963b099e59499a3"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "d11f66f47a9ac9d88f0babd6d53f1fd47d9f1c25becd137ec2d8cece271cba78",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/live-entry-requests.json",
+          "sha256": "4a8e4f7b982c38c9bb7c32cc25d3312ceb9caa46cb03357b56e3edf00b6eff73"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/signoff.md",
+          "sha256": "a37ed3f86807318841ab3befc2353c542b2227bc638b4c5f54b51a3284a7ef58"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "163f18681083d5d55174ccf45e5fdd54644f186b7383e97ed7a2e5d4d14b2c1d",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-sync.json",
+          "sha256": "1baef9654b6b6de1d684a5b3602b74ece8796c45ce701d7436078b37481ccfe0"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "33a21f638336c9cb00327d8d6c2d300085ae8847b710c54122d5db2ae4c30d6b",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/execution-read-document-1440.png",
+          "sha256": "2c7b04ba18cd3db9744b69bc63ff170fff7e10e80f894078bb3c7e717472e514"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/external-start-read-progress.png",
+          "sha256": "84de6783a4ed09be5300ac06a88dc829b36f51e6d910d3de48aa2921daa65416"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/computed-styles-1440.json",
+          "sha256": "72ddcfa43beeee118d45bddb4e1e94d6a397fd8ea92b01b1f193d8624f867b09"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "d6ed26a446d57eaeff62d29ffec82629ec346eab55487f7d0a7b82b0cfdb6e0e",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-stage-completion-session-continuity/evidence/acceptance/observability-sample.json",
+          "sha256": "38cca29a6de65d6b6a2ed85d1cc244d2f74def5d13ab5df287a0f10645ff6203"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 0,
+    "deduplicated": 0,
+    "reused": 11,
+    "preflight_ms": 125,
+    "duration_ms": 283,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

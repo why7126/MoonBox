@@ -3,7 +3,7 @@ requirement_id: REQ-0027-requirement-center-command-chain-realization
 title: 需求中心卡片全命令产品链路真实化 Trace
 status: done
 created_at: '2026-09-12 21:11:40'
-updated_at: 2026-10-17 16:21:01
+updated_at: 2026-10-20 08:13:21
 owner: 产品团队
 source: 用户反馈
 lifecycle_stage: archive
@@ -11,7 +11,7 @@ iteration: sprint-008
 openspec_changes:
   - change_id: add-requirement-center-command-chain-realization
     type: add
-    status: archived
+    status: proposed
 previous_requirement_id: REQ-0027-capture
 lifecycle:
   captured: '2026-09-12 21:11:40'
@@ -86,3 +86,9 @@ Readiness：归档门禁仍为 blocked。原型拆解、真实 Skeleton、1440px
 - 阶段迁移：plan → review（/req-review）
 - 2026-10-17 16:21:01 workflow-sync：状态同步为 done（Change archived）
 - 归档同步：/opsx-archive add-requirement-center-command-chain-realization
+
+## 关联缺陷
+
+| BUG | 严重等级 | 状态 | 关联 Change | 说明 |
+|---|---|---|---|---|
+| BUG-0049-archive-wrapper-workflow-sync-unrecognized | high | done | fix-archive-wrapper-workflow-sync-proof | 归档包装脚本同步成功未识别导致看板停留验收中 |

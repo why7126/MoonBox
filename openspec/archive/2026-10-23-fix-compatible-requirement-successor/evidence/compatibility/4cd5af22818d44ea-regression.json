@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "successor": "fix-cross-entry-continuation-guard",
+  "capability": "governance-command-durable-recovery",
+  "requirement": "直接命令最终签认与版本围栏",
+  "before_sha256": "dc0adb7044da2175bd23ecf19a424723a1da89be574ab64627c0570030501caf",
+  "after_sha256": "9f589ffe0d00ed896cd254a2ea1d84d953ee16b54de606da33ce59f10bfd4d85",
+  "added_scenarios": [
+    "后继完成与新执行竞争"
+  ],
+  "classification": "compatible_append",
+  "status": "passed",
+  "checks": [
+    "original_contract",
+    "added_scenarios",
+    "destructive_changes",
+    "broken_chain",
+    "concurrent_change"
+  ],
+  "validation": [
+    {
+      "suite": [
+        "test_direct_completion.py",
+        "test_successor_completion.py",
+        "test_cross_entry_archive_admission.py"
+      ],
+      "passed": 177
+    },
+    {
+      "suite": [
+        "test_compatible_successor.py",
+        "test_archive_requirement_scope.py",
+        "test_archive_baseline_transition.py"
+      ],
+      "passed": 96
+    }
+  ],
+  "evidence_type": "synthetic regression plus existing archived acceptance; not new live product observation"
+}

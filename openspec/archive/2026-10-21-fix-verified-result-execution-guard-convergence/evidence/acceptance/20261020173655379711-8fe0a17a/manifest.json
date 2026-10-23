@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-verified-result-execution-guard-convergence",
+  "run_id": "20261020173655379711-8fe0a17a",
+  "created_at": "2026-10-20 17:38:06",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "967b0d80f1e26d3f2aebfb551c8ecff6fe15de223b7f0fc3c82ba6073cadfcab",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/verification.md",
+          "sha256": "574866a259936624197a5bc102106a4748d980299925da08f373c082fd8a2e39"
+        }
+      ],
+      "duration_ms": 25825,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "1589cff0ab104c88424930acd8ca303d766e966ae1f45fd8567d4ac9664a409f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 36,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "ef162cee73a395c2f0ec22b7d15f516e160a3d4d5cc248f0f4539f4c1ac2b10a",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 5607,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "6281e8f82b5300258330626a4ab3de8f9f6cddd6c4b885005230a360dbd0ddf9",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 25,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "8b5967d6bd7ad1391dd6d490f0e533177ab049a823239f3c36d145a92eff1a9a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 32,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "ca27dc0ac523cac8ea307cb60c1ebd6353ed897b6b7af601f95b3180a1244810",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 29,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "4f47699f6b584fad0af2c674e7c6819f8eb0fda0aa4f6132264b431bfefd5efb",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 77,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "9ad133146729957f396e4ec3b9909c79012d72498df16d144439b1e6d313bf10",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 8968,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "0e2e9e2042e8879de56f7548ce382c30616c22b59a498fab42ee8dc3f57e6a3a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/verification.md",
+          "sha256": "574866a259936624197a5bc102106a4748d980299925da08f373c082fd8a2e39"
+        }
+      ],
+      "duration_ms": 48,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "3c335167928ed40361dc9c69c9a9ed5d4729a099551923c7dbe105be245f8794",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900.png",
+          "sha256": "67e2e1a7de32201877cb2daf0d669d21c5b504b8aa4a84feb55205840097a241"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900-computed.json",
+          "sha256": "58db6d3ac87e7cdca47bfad8ccdbae3b2860b5238e315a2208afd660c6a239b1"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844.png",
+          "sha256": "40bd895eee1ea3678066caa86e1b2710be5cc20b59ed2cfd0565ccf4af2fb4ee"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844-computed.json",
+          "sha256": "55fd7e998868e2d143f5e49334d70c70de4103c57f1d7ccbbb51ec6ac9d32fde"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/verification.md",
+          "sha256": "574866a259936624197a5bc102106a4748d980299925da08f373c082fd8a2e39"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-restored.json",
+          "sha256": "3a8b064639a0d8ce2e5372207e691a45cbf2641505cb89075b893fe0e2f8e3f1"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/current-real-turns.json",
+          "sha256": "c1d6206573b01c23fe0ca475828992d7b4b5b44e92d0d42188bd46e2be8407c4"
+        },
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.png",
+          "sha256": "5f3d88f6f56921621c9e4b153e14096bc625c99e0c9bb332e9d71a794264307e"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.json",
+          "sha256": "3e688e9420ca7b9e807f1e81fbca4fb76d450303e04a5af0a076fe6c3466c30c"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-1440x900.png",
+          "sha256": "9915254197cc24b58f43ed629a177d8e1f53e85f7568c75341ab161c48d2cfd5"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-1440x900.json",
+          "sha256": "d4ab845ab6d8a7b2da2014c5bd52df158e119aa5005ee8da6d3fb08ad5fc79a1"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.png",
+          "sha256": "a00fd28605c1120953134263c72598da8abf339171fea860198f27e5749aa0b9"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.json",
+          "sha256": "3b64ec38494b6e24a467a588f8ffbe2d32bf246b3e8fde3624d2e2d84f164a2d"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.png",
+          "sha256": "5f9ee5bdd0db4445f64bff45b7764552bec1165b94e48c0946db3b19274605db"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.json",
+          "sha256": "d55ed707df9e071fc87bb418920bf38d2482dd33ec4a6ca26bcc1a8fa1917d42"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-390x844.png",
+          "sha256": "6f989620c2ce825b9ac362a11f3811e890502e407e707b3684d13556e64c1100"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-390x844.json",
+          "sha256": "8cb3d4f7d3a305928c853f49197c76daebf68a32e9db145501e8fd9f870b9a25"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.png",
+          "sha256": "336ff36a5ae2ad5bd82cb452b8e0aed20a5a6dd3f5bd60448b1b844ac39a60ad"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.json",
+          "sha256": "50ae16b25e01e45b8cc9503ef63cc8d7a882c711bfb2fc42768450f621e2186c"
+        }
+      ],
+      "duration_ms": 23331,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "f7d4d87108b10f6932b93460656f74d26f929eb15eb4f051cf8b44dcd62e5638",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/original-verification.json",
+          "sha256": "6f64f29b8742de05e7613ca8a717e99c397dff8c2d1d4aebcf271c8317754d71"
+        },
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/runtime-fingerprints.json",
+          "sha256": "22898970be64780a4f475c922133fbf34e8ff70b9548b03358a930e479941f29"
+        }
+      ],
+      "duration_ms": 13,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "d242329e8a48336190f2f5f566ea23fa953c6a3ee8659ff1c2b7ee8801f01eb2",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unified-run-status-verification/verification.md",
+          "sha256": "574866a259936624197a5bc102106a4748d980299925da08f373c082fd8a2e39"
+        }
+      ],
+      "duration_ms": 6701,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-001-REQ",
+      "fingerprint": "ecfddecf2d065e750ab2bfae9e6a7a35a7721397b82370f723b9a647e6583be6",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "94dbb6e3-2ed8-4280-9a1e-52254874f578",
+      "conversation_id": "ba965c01-3b9f-5fbc-8556-4e343a4121b3",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 202,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-001-BUG",
+      "fingerprint": "df64a5423589d3d0f5fa4033cd7c973f68dd337415d0da23cb5daedd366570e7",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "175ab702-f7a9-4389-9bc5-ebab564d3a5f",
+      "conversation_id": "01710d6f-93ca-5050-85d9-3b6192493ba3",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 216,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+          "sha256": "6a9cfe82f0733eb7fc6755ca54076996d4403bf2f6a3150c7bdd444c5b684cd8"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-013",
+      "fingerprint": "63e96f8fbd027d383066892fc762faad7a48d2889ef4e9c67f0f374d10591a32",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/cross-entry-archive-verification.json",
+          "sha256": "396f616c587f92e9f407502a50c6da3e61f07b34b170be2b085b3e14e867340a"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 5,
+    "deduplicated": 7,
+    "reused": 3,
+    "preflight_ms": 319,
+    "duration_ms": 71689,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

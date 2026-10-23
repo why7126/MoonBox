@@ -1,0 +1,70 @@
+{
+  "samples": [
+    {
+      "object_id": "REQ-9196-send-race",
+      "change_id": "isolated-send-race-req",
+      "http_status": 200,
+      "turn_status": "queued",
+      "replay_same_turn": true,
+      "turn_count": 1,
+      "duration_seconds": 0.06,
+      "turn_id": "1b96f7f4-192b-4f4e-a2ca-52b05f8110ca",
+      "conversation_id": "257f3b5c-7142-573f-bbc1-e58825c28061",
+      "cleanup_status": "stopped",
+      "duration_note": "idempotent replay timing; initial successful enqueue was observed before serial quota cleanup"
+    },
+    {
+      "object_id": "BUG-9197-send-race",
+      "change_id": "isolated-send-race-bug",
+      "http_status": 200,
+      "turn_status": "queued",
+      "replay_same_turn": true,
+      "turn_count": 1,
+      "duration_seconds": 10.84,
+      "turn_id": "25ed5586-7421-44f2-b698-d2d85c98273c",
+      "conversation_id": "e7a83790-052d-53b4-8726-ab8280722f6b",
+      "cleanup_status": "stopped"
+    }
+  ],
+  "model_calls": 0,
+  "queue_consumer": "paused in isolated fixture only",
+  "authentication": "normal login; no dependency overrides",
+  "validation_scope": "HTTP admission and durable queue, not model completion",
+  "preparation_sha256": "c6f6a1b40a3d1cf49ba069a8ce6f398a76e468cb504e023a1144d5dc34f9bc69",
+  "transport": "real loopback HTTP with normal login in independent deployment; same preparation source as Docker deployment",
+  "regression": {
+    "focused_passed": 128,
+    "expanded_passed": 201,
+    "expanded_preexisting_failures": 4,
+    "baseline_reproduced": true
+  },
+  "scope": "send through durable queue; model execution and archive outcome not verified in this batch",
+  "deployment": {
+    "services": [
+      "backend",
+      "governance-controller",
+      "chat-worker"
+    ],
+    "health": "healthy",
+    "preparation_sha256": "c6f6a1b40a3d1cf49ba069a8ce6f398a76e468cb504e023a1144d5dc34f9bc69",
+    "all_services_match": true,
+    "backend_image": "sha256:53a7a4860136d60d6b5be6f54bf65e33c2ea4c31cb83c9eb8a728bc6553a9090",
+    "worker_image": "sha256:463cd59f332f4b6dc38a944df61f44bf68b5795323e335a25dc2ecc269cdc296"
+  },
+  "acceptance": {
+    "status": "passed",
+    "run_id": "20261020192355608339-cf42b6c6",
+    "checks": 35
+  },
+  "formal_deployment_read_checks": {
+    "status": "passed",
+    "baseline_matches": true,
+    "duration_seconds": 7.0,
+    "created_turn": false
+  },
+  "isolated_cleanup": {
+    "both_turns": "stopped",
+    "execution_events": 0,
+    "runtime_stopped": true
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "evidence_type": "real_isolated_database_readonly_projection",
+  "collected_at": "2026-10-19T13:35:10.561554",
+  "web_links": [
+    {
+      "event": "governance.prepare",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "chat.send",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "governance.prepare",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "chat.send",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "governance.prepare",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "chat.send",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "governance.prepare",
+      "request_linked": true,
+      "task_linked": true
+    },
+    {
+      "event": "chat.send",
+      "request_linked": true,
+      "task_linked": true
+    }
+  ],
+  "direct_api_conflicts_without_behavior": 1,
+  "guard_results": [
+    {
+      "turn_id": "d571ebae-29a0-479b-a1ff-f5f9c342886b",
+      "object_id": "REQ-9098-stage-live-validation",
+      "action_type": "req-generate",
+      "result": "admitted"
+    },
+    {
+      "turn_id": "d571ebae-29a0-479b-a1ff-f5f9c342886b",
+      "object_id": "REQ-9098-stage-live-validation",
+      "action_type": "req-generate",
+      "result": "validated"
+    },
+    {
+      "turn_id": "27c18240-4c12-4f3f-b1f0-4d2a3612b91b",
+      "object_id": "REQ-9098-stage-live-validation",
+      "action_type": "req-complete",
+      "result": "admitted"
+    },
+    {
+      "turn_id": "27c18240-4c12-4f3f-b1f0-4d2a3612b91b",
+      "object_id": "REQ-9098-stage-live-validation",
+      "action_type": "req-complete",
+      "result": "no_governance_write"
+    },
+    {
+      "turn_id": "698dca0e-e11d-437b-b108-f6222b7405b6",
+      "object_id": "BUG-9898-stage-live-validation",
+      "action_type": "bug-generate",
+      "result": "admitted"
+    },
+    {
+      "turn_id": "7b2e620b-8097-4c45-9cf5-e1399453b25d",
+      "object_id": "BUG-9898-stage-live-validation",
+      "action_type": "bug-generate",
+      "result": "admitted"
+    }
+  ],
+  "turns": [
+    {
+      "id": "d571ebae-29a0-479b-a1ff-f5f9c342886b",
+      "status": "completed",
+      "conversation_id": "309d067e-5394-4cc4-af0c-0b8bc901c835"
+    },
+    {
+      "id": "27c18240-4c12-4f3f-b1f0-4d2a3612b91b",
+      "status": "completed",
+      "conversation_id": "309d067e-5394-4cc4-af0c-0b8bc901c835"
+    },
+    {
+      "id": "698dca0e-e11d-437b-b108-f6222b7405b6",
+      "status": "completed",
+      "conversation_id": "02a40fb2-9baa-4a31-a18e-0d6ff5e9dd22"
+    },
+    {
+      "id": "7b2e620b-8097-4c45-9cf5-e1399453b25d",
+      "status": "completed",
+      "conversation_id": "02a40fb2-9baa-4a31-a18e-0d6ff5e9dd22"
+    }
+  ],
+  "security": "Only identifiers, fixed results and linkage booleans retained; no raw prompt, message, credentials or event bodies."
+}

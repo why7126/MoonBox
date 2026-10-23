@@ -1,0 +1,31 @@
+{
+  "evidence_kind": "observed_product",
+  "sample": "REQ-9094-recovery-normal",
+  "conversation_id": "6229c8c9-4425-54b7-b42e-5f2b06e63ed5",
+  "turn_id": "777f5b79-bda2-456f-ad1b-99b46ef9bd53",
+  "terminal": "completed",
+  "error_code": null,
+  "interrupted": false,
+  "candidate_state": "rejected",
+  "operation": {
+    "id": "68d1e3d7-dcec-49a4-ab8b-125af63913e6",
+    "object_id": "REQ-9094-recovery-normal",
+    "action": "req-review",
+    "stage": "validation",
+    "state": "blocked",
+    "version": 5,
+    "execution_terminal": "completed",
+    "reason_code": "review_trace_scope",
+    "auto_retry_count": 0,
+    "manual_count": 0,
+    "next_retry_at": null,
+    "recovery_expires_at": "2026-10-20T09:20:14+00:00",
+    "candidate_id": "f0b94fd1-137d-5d73-9ab5-beb0496db798",
+    "application_id": null,
+    "allowed_actions": [
+      "refresh",
+      "evidence",
+      "regenerate"
+    ]
+  }
+}

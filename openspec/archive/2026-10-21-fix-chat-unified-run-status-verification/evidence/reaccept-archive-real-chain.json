@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T14:56:02.477417+00:00",
+  "samples": [
+    {
+      "object_id": "REQ-9296-reaccept-archive",
+      "change_id": "isolated-reaccept-req",
+      "conversation_id": "7872a443-788a-5d9c-a101-37d7a401fa13",
+      "turn_id": "7f1cd7a2-9a68-4a66-a3f6-227485de0973",
+      "status": "queued",
+      "http_status": 200,
+      "guard": {
+        "state": "idle",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "turn_status": "completed",
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "wrapper_results": [
+        {
+          "sequence": 70,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "object_id": "BUG-9297-reaccept-archive",
+      "change_id": "isolated-reaccept-bug",
+      "conversation_id": "4434a8ab-4e19-5e69-857a-b7064a0189be",
+      "turn_id": "6b495f97-7ee3-4b0d-a381-657a45768df1",
+      "status": "queued",
+      "http_status": 200,
+      "guard": {
+        "state": "validated",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "turn_status": "completed",
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "wrapper_results": [
+        {
+          "sequence": 127,
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "real_model_turn_count": 2,
+  "serial": true,
+  "normal_http_authentication": true,
+  "guard_verified_by": "normal requirement-center/context API read after terminal",
+  "manual_guard_edit": false,
+  "formal_objects_archived": false,
+  "source_sha256": "c6f6a1b40a3d1cf49ba069a8ce6f398a76e468cb504e023a1144d5dc34f9bc69",
+  "scope": "isolated minimal governance archive samples; actual HTTP enqueue through configured model to archive and guard convergence; original business acceptance is covered by retained acceptance manifests",
+  "ready": true,
+  "sequence": [
+    "create_recovery_record",
+    "run_acceptance_again",
+    "workflow_sync",
+    "shared_final_admission",
+    "actual_http_send",
+    "model_archive_wrapper",
+    "terminal_and_guard_readback"
+  ],
+  "cli_full_chains": [
+    {
+      "change_id": "isolated-reaccept-req",
+      "exit_code": 0,
+      "active": false,
+      "archives": 1
+    },
+    {
+      "change_id": "isolated-reaccept-bug",
+      "exit_code": 0,
+      "active": false,
+      "archives": 1
+    }
+  ],
+  "runtime_archive_recovery_sha256": "8929b032657b83599e97d42d5f6b7d515f19e96931a0915c6e4682f201a32e12",
+  "final_archive_recovery_sha256": "de99fc9fa30f9713ef335eb2f59d8af9e8c00b7ecb0b3412f2bd121a69dec09f",
+  "post_sample_delta": "正常模型发送与归档样本复用；随后仅补充非法 YAML 拒绝和关联 Change 归档后证据定位分支。当前版本通过实际 HTTP 回归和完整正式材料 CLI 副本验证新增分支，不追加模型调用。",
+  "final_acceptance_evidence_sha256": "6542cfb04dbe23b5b5b5505df567987a44a6107feb5e7ae8c6d8b497586b7db6"
+}

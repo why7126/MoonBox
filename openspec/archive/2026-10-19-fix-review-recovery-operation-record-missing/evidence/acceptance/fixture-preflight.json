@@ -1,0 +1,18 @@
+{
+  "validator": "app.governance.candidates.validate",
+  "samples": [
+    "REQ-9095-review-record-validation",
+    "BUG-9096-review-record-validation"
+  ],
+  "result": "passed",
+  "checks": [
+    "complete initial index row",
+    "registry and primary identity",
+    "pending_review source",
+    "allowed metadata-only migration",
+    "protected document preservation",
+    "root-cause confirmed for BUG",
+    "no Sprint or Change in acceptance origin"
+  ],
+  "actual_product_success": false
+}

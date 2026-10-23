@@ -1,0 +1,122 @@
+{
+  "ready": false,
+  "samples": [
+    {
+      "object_id": "REQ-9096-recovery-normal",
+      "turn_id": "94dbb6e3-2ed8-4280-9a1e-52254874f578",
+      "guard_state": "needs_review",
+      "terminal_status": "completed",
+      "turn_status": "completed",
+      "terminal_recorded_at": "2026-10-20T05:41:39+00:00",
+      "handoff_state": "blocked",
+      "attempt_count": 1,
+      "enqueued_at": "2026-10-20T05:41:58.694547Z",
+      "last_checked_at": "2026-10-20T05:52:28.756187Z",
+      "application_state": "applied",
+      "application_phase": "verified",
+      "application_updated_at": "2026-10-20T05:41:58+00:00",
+      "sync_commands": [
+        {
+          "sequence": 126,
+          "phase": "started",
+          "exit_code": null,
+          "workflow_event": "req.review"
+        },
+        {
+          "sequence": 127,
+          "phase": "completed",
+          "exit_code": 0,
+          "workflow_event": "req.review"
+        },
+        {
+          "sequence": 135,
+          "phase": "started",
+          "exit_code": null,
+          "workflow_event": "req.review"
+        },
+        {
+          "sequence": 136,
+          "phase": "completed",
+          "exit_code": 0,
+          "workflow_event": "req.review"
+        },
+        {
+          "sequence": 201,
+          "phase": "started",
+          "exit_code": null,
+          "workflow_event": "req.review"
+        },
+        {
+          "sequence": 202,
+          "phase": "completed",
+          "exit_code": 0,
+          "workflow_event": "req.review"
+        }
+      ],
+      "application_count": 1,
+      "candidate_count": 1,
+      "turn_count": 1,
+      "guard_observation_events": [
+        "admitted",
+        "validated",
+        "completion_confirmed"
+      ],
+      "handoff_seconds": 630.06164,
+      "terminal_to_confirmation_seconds": 649.756187
+    },
+    {
+      "object_id": "BUG-9096-recovery-normal",
+      "turn_id": "9ce9c8a5-5ecb-4ede-9845-5c8e93000c2d",
+      "guard_state": "needs_review",
+      "terminal_status": "completed",
+      "turn_status": "completed",
+      "terminal_recorded_at": "2026-10-20T05:49:51+00:00",
+      "handoff_state": null,
+      "attempt_count": null,
+      "enqueued_at": null,
+      "last_checked_at": null,
+      "application_state": null,
+      "application_phase": null,
+      "application_updated_at": null,
+      "sync_commands": [
+        {
+          "sequence": 130,
+          "phase": "started",
+          "exit_code": null,
+          "workflow_event": "bug.review"
+        },
+        {
+          "sequence": 133,
+          "phase": "completed",
+          "exit_code": 0,
+          "workflow_event": "bug.review"
+        },
+        {
+          "sequence": 213,
+          "phase": "started",
+          "exit_code": null,
+          "workflow_event": "bug.review"
+        },
+        {
+          "sequence": 215,
+          "phase": "completed",
+          "exit_code": 0,
+          "workflow_event": "bug.review"
+        }
+      ],
+      "application_count": 0,
+      "candidate_count": 1,
+      "turn_count": 1,
+      "guard_observation_events": [
+        "admitted"
+      ]
+    }
+  ],
+  "evidence_level": "real-product-turn-current-backend",
+  "model_runs": 2,
+  "model_replayed": false,
+  "manual_guard_edit": false,
+  "bug_rejection_reason": "模型评审文档使用review_result字段，现有评审校验仅接受status或result；review_outcome拒绝，未应用。",
+  "fingerprint_validation_ref": "runtime-comparison.json",
+  "scope": "历史中间态与BUG9096负例，不作为最终成功结论；当前正例见关联BUG live-req46-joint-verification.json"
+}

@@ -12,7 +12,7 @@ import re
 from typing import Any
 
 from app.governance.lifecycle import change_state, aggregate_states
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.orm import Session
 import yaml
 
@@ -80,14 +80,21 @@ def _governance_root() -> Path:
     return _SCOPED_ROOT.get() or GOVERNANCE_ROOT
 
 @contextmanager
-def using_governance_root(root: Path, *, immutable: bool = False):
+def using_governance_root(root: Path, *, immutable: bool = False, evidence_root: Path | None = None, evidence_source_root: Path | None = None):
     token = _SCOPED_ROOT.set(root)
+    evidence_token = _EVIDENCE_ROOT.set(evidence_root)
+    source_token = _EVIDENCE_SOURCE_ROOT.set(evidence_source_root)
     memo_token = _READ_MEMO.set({} if immutable else None)
     try:
         yield
     finally:
         _SCOPED_ROOT.reset(token)
+        _EVIDENCE_ROOT.reset(evidence_token)
+        _EVIDENCE_SOURCE_ROOT.reset(source_token)
         _READ_MEMO.reset(memo_token)
+
+_EVIDENCE_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_evidence_root", default=None)
+_EVIDENCE_SOURCE_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_evidence_source_root", default=None)
 
 # Request-local pure parsing only. Mutable legacy/writer contexts opt out.
 _READ_MEMO: ContextVar[dict | None] = ContextVar("requirement_center_read_memo", default=None)
@@ -127,9 +134,11 @@ def build_requirement_center_context(
     current_user: dict[str, Any] | None = None,
     db: Session | None = None,
     visibility=None,
+    owner_space_id: str | None = None,
 ) -> RequirementCenterContext:
     from app.governance.change_index import ChangeIndex
     issues = ChangeIndex(_governance_root()).cards(visibility or (lambda _: True))
+    _resolve_issue_owners(issues, db, owner_space_id)
     issues.sort(key=lambda item: item.updated_at, reverse=True)
     stats = RequirementCenterStats(
         total=len(issues),
@@ -216,6 +225,7 @@ def _build_issue(issue_type: str, entry: dict[str, Any], changes_override: list[
         priority=priority,
         severity=severity,
         owner=_owner_name(entry.get("owner") or entry.get("requester") or entry.get("reporter")),
+        owner_key=_owner_key(entry.get("owner") or entry.get("requester") or entry.get("reporter")),
         source=str(entry.get("lifecycle_stage") or entry.get("status") or "registry"),
         stage=stage,
         status=str(status),
@@ -298,26 +308,15 @@ def _document_names(issue_dir: Path | None) -> list[str]:
 
 
 def _acceptance_readiness(issue_dir: Path | None) -> tuple[int, int, str | None]:
-    """Project an Issue's explicit acceptance result; never infer sign-off from tasks."""
+    """Use the same evidence and manual-signoff rules as the archive CLI."""
     if issue_dir is None:
         return 0, 0, "验收来源待核实：Issue 目录不可用"
-    target = issue_dir / "acceptance.md"
-    if not target.is_file() or target.is_symlink():
-        return 0, 0, "验收来源待核实：acceptance.md 不存在或不可读"
-    try:
-        content = target.read_text(encoding="utf-8")
-        metadata = _frontmatter(target)
-    except (OSError, UnicodeError, yaml.YAMLError):
-        return 0, 0, "验收来源待核实：acceptance.md 无法解析"
-    ac_lines = [re.match(r"^\s*[-*]\s+\[([ xX])\]\s+AC[-－]\d+", line) for line in content.splitlines()]
-    total = sum(match is not None for match in ac_lines)
-    pending = sum(match is not None and match.group(1) == " " for match in ac_lines)
-    state = str(metadata.get("acceptance_status") or "").strip().lower()
-    if pending:
-        return pending, total, f"验收未完成：{pending} 项待验证，请查看 acceptance.md"
-    if state not in {"accepted", "passed", "approved", "done", "complete", "completed"}:
-        return 0, total, "验收结论待核实，请查看 acceptance.md 与交付证据"
-    return 0, total, None
+    from app.governance.archive_admission import issue_acceptance
+    trace = _frontmatter(issue_dir / "trace.md")
+    changes = _linked_changes({}, trace)
+    root = _EVIDENCE_ROOT.get() or _governance_root()
+    result = issue_acceptance(root, issue_dir, changes, source_root=_EVIDENCE_SOURCE_ROOT.get())
+    return result["total"] - result["done"], result["total"], result["reason"]
 
 
 def _display_document_names(issue_dir: Path | None, changes: list[str], status: Any) -> list[str]:
@@ -606,17 +605,8 @@ def _frontmatter(path: Path) -> dict[str, Any]:
 
 
 def _linked_changes(entry: dict[str, Any], trace: dict[str, Any]) -> list[str]:
-    changes: list[str] = []
-    for key in ("related_changes", "related_change"):
-        value = entry.get(key)
-        if isinstance(value, list):
-            changes.extend(str(item) for item in value if item)
-        elif value:
-            changes.append(str(value))
-    for item in trace.get("openspec_changes", []) or []:
-        if isinstance(item, dict) and item.get("change_id"):
-            changes.append(str(item["change_id"]))
-    return sorted(set(changes))
+    from app.governance.archive_admission import linked_changes
+    return linked_changes(entry, trace)
 
 
 @_memoized_read
@@ -953,34 +943,16 @@ def _sprint_archive_readiness(
     used_capacity: float | None,
     capacity_status: str,
 ) -> RequirementCenterCurrentIterationArchiveReadiness:
-    if used_capacity is None or capacity_status == "unknown":
+    from app.governance.sprint_object import preparation_reason, REASONS
+    reason = preparation_reason(_governance_root(), sprint_id, sprint)
+    if reason:
         return RequirementCenterCurrentIterationArchiveReadiness(
-            display_mode="hidden",
-            reason_code="capacity_unknown",
-            safe_summary="当前迭代容量待核实，归档入口暂不展示。",
+            display_mode="disabled", reason_code=reason,
+            safe_summary=REASONS[reason],
         )
-    if used_capacity <= 0:
-        return RequirementCenterCurrentIterationArchiveReadiness(
-            display_mode="hidden",
-            reason_code="capacity_zero",
-            safe_summary="当前迭代尚未消耗容量，归档入口暂不展示。",
-        )
-
-    blockers = _sprint_archive_blockers(sprint_id, sprint)
-    if blockers:
-        reason = "missing_signoff" if all(blocker.type == "acceptance_report" for blocker in blockers) else "unarchived_scope"
-        return RequirementCenterCurrentIterationArchiveReadiness(
-            display_mode="disabled",
-            reason_code=reason,  # type: ignore[arg-type]
-            safe_summary=_archive_safe_summary(blockers),
-            blockers=blockers,
-        )
-
     return RequirementCenterCurrentIterationArchiveReadiness(
-        can_enter_confirmation=True,
-        display_mode="enabled",
-        reason_code="ready",
-        safe_summary="范围内 REQ、BUG 与独立 Change 均已归档闭环，验收 sign-off、权限与 Workflow Sync 将在 Sprint archive 确认流程中继续复核。",
+        can_enter_confirmation=True, display_mode="enabled", reason_code="ready",
+        safe_summary="迭代内对象均已完成，可进入 Chat 准备归档；发送后检查验收签署与最终归档条件。",
     )
 
 
@@ -1022,6 +994,23 @@ def _sprint_archive_blockers(sprint_id: str, sprint: dict[str, Any]) -> list[Req
                     action_hint=f"/opsx-archive {change_id}",
                 )
             )
+        else:
+            from app.governance.sprint_archive_admission import change_close_readiness
+            deep = change_close_readiness(_governance_root(), change_id, source_root=_EVIDENCE_SOURCE_ROOT.get())
+            if not deep['ready']:
+                diagnostic_titles = [str(item.get('requirement', ''))[:180]
+                                     for item in deep.get('diagnostics', [])[:5]
+                                     if isinstance(item, dict) and item.get('requirement')]
+                diagnostic_message = deep.get('reason') or '归档证据待核验'
+                missing_titles = [title for title in diagnostic_titles if title not in diagnostic_message]
+                if missing_titles:
+                    diagnostic_message += '；涉及条文：' + '、'.join(missing_titles)
+                blockers.append(RequirementCenterArchiveReadinessBlocker(
+                    type="change", id=change_id,
+                    status=deep.get('recovery_reason') or 'acceptance_not_ready',
+                    message=diagnostic_message,
+                    action_hint=f"核验 {change_id} 的归档记录、规格基线与后继验收；保留历史记录，证据完整后重新核验",
+                ))
     if not _sprint_acceptance_signed_off(sprint_id):
         blockers.append(
             RequirementCenterArchiveReadinessBlocker(
@@ -1029,7 +1018,7 @@ def _sprint_archive_blockers(sprint_id: str, sprint: dict[str, Any]) -> list[Req
                 id=sprint_id,
                 status="missing_signoff",
                 message="验收报告尚未完成 sign-off",
-                action_hint=f"/sprint-archive {sprint_id}",
+                action_hint="完成迭代验收报告人工签署，再重新发送归档命令；不要通过改写历史证明绕过门禁",
             )
         )
     return blockers
@@ -1065,19 +1054,24 @@ def _governance_issue_status(issue_type: str, issue_id: str) -> str | None:
 def _sprint_acceptance_signed_off(sprint_id: str) -> bool:
     report_path = _governance_root() / "iterations" / "change" / sprint_id / "acceptance-report.md"
     if not report_path.exists():
-        return False
-    frontmatter = _frontmatter(report_path)
-    for key in ("signed_off", "signoff", "sign_off", "acceptance_signed_off"):
-        value = frontmatter.get(key)
-        if value is True or str(value).strip().lower() in {"true", "yes", "passed", "approved", "signed"}:
-            return True
+        report_path = _governance_root() / "iterations" / "archive" / sprint_id / "acceptance-report.md"
     try:
-        text = report_path.read_text(encoding="utf-8").lower()
+        return _sprint_report_signed_off(report_path.read_text(encoding="utf-8"))
     except OSError:
         return False
-    if re.search(r"(signed[_ -]?off|sign[_ -]?off|验收\s*签署|人工\s*sign-off)\s*[:：]\s*(true|yes|passed|approved|signed|已完成|通过)", text):
-        return True
-    return False
+
+
+def _sprint_report_signed_off(text: str) -> bool:
+    from app.governance.candidates import frontmatter as parse_frontmatter
+    try:
+        metadata, _ = parse_frontmatter(text.encode())
+    except (ValueError, yaml.YAMLError):
+        metadata = {}
+    for key in ("signed_off", "signoff", "sign_off", "acceptance_signed_off"):
+        value = metadata.get(key)
+        if value is True or str(value).strip().lower() in {"true", "yes", "passed", "approved", "signed"}:
+            return True
+    return bool(re.search(r"(signed[_ -]?off|sign[_ -]?off|验收\s*签署|人工\s*sign-off)\s*[:：]\s*(true|yes|passed|approved|signed|已完成|通过)", text.lower()))
 
 
 def _archive_safe_summary(blockers: list[RequirementCenterArchiveReadinessBlocker]) -> str:
@@ -1423,14 +1417,46 @@ def _test_progress(documents: list[str], stage: str) -> tuple[int, int] | None:
     return (done, 3)
 
 
+def _owner_key(value: Any) -> str:
+    value = str(value or "").strip()
+    return "" if value in {"null", "None", "未分配"} else value
+
+
 def _owner_name(value: Any) -> str:
-    mapping = {
-        "product": "产品团队",
-        "user": "用户反馈",
-        "null": "未分配",
-        "None": "未分配",
-    }
-    return mapping.get(str(value), str(value or "未分配"))
+    value = _owner_key(value)
+    if value.startswith("user_"):
+        return "未知用户"
+    return {"product": "产品团队", "user": "用户反馈", "": "未分配"}.get(value, value)
+
+
+def _resolve_issue_owners(issues: list[RequirementCenterIssue], db: Session | None, space_id: str | None) -> None:
+    """Resolve only visible card owners in the already authorized space, without caching PII."""
+    keys = sorted({issue.owner_key for issue in issues if issue.owner_key and issue.owner_key.startswith("user_")})
+    names: dict[str, str] = {}
+    if db is not None and space_id and keys:
+        statement = text("""
+            SELECT u.id, u.nickname, u.username FROM admin_users u
+            WHERE u.id IN :owner_ids AND u.status != '已删除' AND u.deleted_at IS NULL
+              AND EXISTS (SELECT 1 FROM admin_spaces s
+                WHERE s.id = :space_id AND s.deleted_at IS NULL
+                  AND (s.owner_id = u.id OR EXISTS (SELECT 1 FROM admin_space_members m
+                    WHERE m.space_id = s.id AND m.user_id = u.id)))
+        """).bindparams(bindparam("owner_ids", expanding=True))
+        # Bound chunks avoid database parameter limits without one query per card.
+        for start in range(0, len(keys), 500):
+            rows = db.execute(statement, {"owner_ids": keys[start:start + 500], "space_id": space_id}).mappings()
+            for row in rows:
+                for value in (row["nickname"], row["username"]):
+                    candidate = str(value or "").strip()
+                    if candidate and not candidate.startswith("user_"):
+                        names[str(row["id"])] = candidate
+                        break
+    for issue in issues:
+        key = issue.owner_key if issue.owner_key is not None else _owner_key(issue.owner)
+        display_name = names.get(key, _owner_name(key))
+        issue.owner_key = key
+        issue.owner_display_name = display_name
+        issue.owner = display_name
 
 
 def _updated_at(value: Any) -> str:

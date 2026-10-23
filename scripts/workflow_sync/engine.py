@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from .constants import ROOT, ISSUE_DONE_STATUSES
@@ -52,6 +53,7 @@ class SyncReport:
     event: str | None = None
     focus_issue: str | None = None
     focus_change: str | None = None
+    completion_object_id: str | None = None
     updated: list[PatchResult] = field(default_factory=list)
     skipped: list[PatchResult] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
@@ -221,7 +223,14 @@ class SyncEngine:
     def run(self, **kwargs) -> SyncReport:
         with sync_lock(ROOT):
             try:
-                return self._run(**kwargs)
+                report = self._run(**kwargs)
+                if report.ok and not self.dry_run and not self.check and kwargs.get('event') == 'opsx.accept':
+                    backend = str(ROOT / 'src/backend')
+                    if backend not in sys.path:
+                        sys.path.insert(0, backend)
+                    from app.governance.workflow_receipt import emit
+                    emit(ROOT, kwargs.get('change_id'), kwargs.get('event'), report.focus_issue)
+                return report
             except (ValueError, OSError) as exc:
                 return SyncReport(event=kwargs.get("event"), errors=[str(exc)])
 
@@ -275,6 +284,15 @@ class SyncEngine:
             report.errors.append("No sprint found to sync")
             return report
 
+        if event == "sprint.archive" and sprint:
+            backend = str(ROOT / "src/backend")
+            if backend not in sys.path:
+                sys.path.insert(0, backend)
+            from app.governance.sprint_archive_admission import close_blockers
+            report.errors.extend(close_blockers(ROOT, sprint.changes))
+            if report.errors:
+                return report
+
         change_ids = set(sprint.changes if sprint else [])
         if change_id:
             change_ids.add(change_id)
@@ -292,6 +310,16 @@ class SyncEngine:
         change_records = {
             cid: load_change_record(cid, issues, openspec_data) for cid in sorted(change_ids)
         }
+        selected_record = change_records.get(change_id or '')
+        selected_trace = getattr(selected_record, 'trace', {})
+        declared_ids = {selected_trace.get(key) for key in ('bug_id', 'requirement_id', 'req_id')
+                        if selected_trace.get(key)}
+        if len(declared_ids) == 1:
+            selected_id = next(iter(declared_ids))
+            selected_issue = issues.get(selected_id)
+            if selected_issue and (selected_issue.related_change == change_id or any(
+                    entry.get('change_id') == change_id for entry in selected_issue.openspec_changes)):
+                report.completion_object_id = selected_id
         if event in EVENTS:
             record = change_records.get(change_id or "")
             if not record or not sprint or change_id not in sprint.changes:
@@ -604,6 +632,13 @@ def main(argv: list[str] | None = None) -> int:
         apply_issue_subdocuments=args.apply_issue_subdocuments,
     )
     print(report.format_text(args.output))
+    print('MOONBOX_WORKFLOW_RESULT:' + json.dumps({
+        'schema_version': 1, 'event': args.event,
+        'mode': 'check' if args.check else 'dry-run' if args.dry_run else 'write',
+        'ok': report.ok, 'object_id': (report.sprint_id if args.event == 'sprint.archive' else
+                                      report.focus_issue or report.completion_object_id or args.change_id),
+        'change_id': args.change_id, 'sprint_id': report.sprint_id,
+    }, ensure_ascii=False, separators=(',', ':')))
     return 0 if report.ok else 1
 
 

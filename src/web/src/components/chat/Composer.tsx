@@ -1,7 +1,8 @@
+import { ArchiveBlockers, type ArchiveBlocker } from "./ArchiveBlockers";
 import { useEffect, useRef, useState } from "react";
 import type { ClipboardEvent, KeyboardEvent } from "react";
 import { ChevronDown, FileText, Paperclip, Send, Sparkles, X } from "lucide-react";
-import { chatRequest, uploadChatMaterial, type Capabilities, type ConversationRead, type ExecutionConfig, type ExecutionOption, type SkillCandidate, type TurnRead } from "./chatApi";
+import { ChatApiError, chatRequest, uploadChatMaterial, type Capabilities, type ConversationRead, type ExecutionConfig, type ExecutionOption, type SkillCandidate, type TurnRead } from "./chatApi";
 import { agentDisplayName, modelDisplayName, reasoningDisplayName } from "./executionLabels";
 
 /** 内存草稿同时保留不确定请求的标识，切换历史后重试仍复用原请求。 */
@@ -30,6 +31,7 @@ function skillSearchText(item: SkillCandidate) {
 }
 function writeScopeLabel(conversation: ConversationRead | null) {
   if (!conversation) return "";
+  if (conversation.write_reason_code === "sprint_command_required") return "发送时校验";
   if (conversation.write_reason_code === "analysis_object_read_only") return "只读分析";
   if (conversation.write_scope === "implementation_write") return "实现可写";
   if (conversation.write_scope === "archive_write") return "归档可写";
@@ -46,6 +48,8 @@ function writeScopeReason(conversation: ConversationRead | null) {
     governance_candidate_running: "治理候选对象生成中，仅允许受控治理写入。",
     governance_facts_invalid: "主对象治理事实读取失败，无法确认可写范围。",
     analysis_object_read_only: "采集或探索阶段的分析会话不能写入治理文件；生成与归档须走独立受控动作。",
+    sprint_command_required: "发送 Sprint 归档命令时检查完整范围、签署与权限。",
+    archive_sprint_ready: "本轮 Sprint 归档已通过执行准入，继续按最新事实复核。",
     governance_object_read_only: "主对象已归档、关闭或完成，无法继续写入。",
     governance_object_writable: "当前主对象允许治理文档写入；产品实现文件仍受 Sprint 和 Change 门禁限制。",
     implementation_change_in_sprint: "当前主对象已纳入 Sprint 与活动 Change，允许实现写入。",
@@ -55,9 +59,10 @@ function writeScopeReason(conversation: ConversationRead | null) {
   };
   return labels[code] || code || "写权限由主对象、空间角色和执行门禁自动判定。";
 }
-export function Composer({ conversation, capabilities, onSubmitted, initialDraft, onDraft, unavailableReason, draftState, onCreated, onBusyChange, spaceId }: { spaceId?: string; unavailableReason?: string; initialDraft: string; onDraft: (value: string) => void; conversation: ConversationRead | null; capabilities: Capabilities | null; onSubmitted: () => void; draftState?: DraftState; onCreated?: (row: ConversationRead) => void; onBusyChange?: (busy: boolean) => void }) {
+export function Composer({ conversation, capabilities, onSubmitted, initialDraft, onDraft, unavailableReason, draftState, onCreated, onBusyChange, spaceId, onReviewReplacement }: { spaceId?: string; unavailableReason?: string; initialDraft: string; onDraft: (value: string) => void; conversation: ConversationRead | null; capabilities: Capabilities | null; onSubmitted: () => void; draftState?: DraftState; onCreated?: (row: ConversationRead) => void; onBusyChange?: (busy: boolean) => void; onReviewReplacement?: (changeId: string) => void }) {
   const fallback = useRef<DraftState>({ text: initialDraft });
   const attempt = draftState || fallback.current;
+  const [archiveBlockers, setArchiveBlockers] = useState<ArchiveBlocker[]>([]);
   const [draft, setDraft] = useState(attempt.text), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [materials, setMaterials] = useState<MaterialDraft[]>(attempt.images || []), [skills, setSkills] = useState<SkillCandidate[]>(attempt.skills || []);
   const [skillMenu, setSkillMenu] = useState(false), [skillRows, setSkillRows] = useState<SkillCandidate[]>([]), [skillLoading, setSkillLoading] = useState(false), [skillQuery, setSkillQuery] = useState("");
@@ -230,7 +235,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
     if (pending.current || disabled || hasUploading || !hasContent) return;
     const signature = requestSignature();
     if (!attempt.request || attempt.request.signature !== signature) attempt.request = { prompt: effectivePrompt(), id: crypto.randomUUID(), signature };
-    pending.current = true; setBusy(true); onBusyChange?.(true); setError("");
+    pending.current = true; setBusy(true); onBusyChange?.(true); setError(""); setArchiveBlockers([]);
     try {
       let target = conversation || attempt.conversation;
       if (!target) {
@@ -246,7 +251,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
       setDraft(""); setMaterials([]); setSkills([]); onDraft("");
       if (!conversation) onCreated?.({ ...target, active_turn_id: turn.id });
       onSubmitted();
-    } catch (e) { setError(e instanceof Error ? e.message : "发送失败，草稿已保留"); }
+    } catch (e) { setError(e instanceof Error ? e.message : "发送失败，草稿已保留"); setArchiveBlockers(e instanceof ChatApiError ? e.archiveBlockers : []); }
     finally { pending.current = false; setBusy(false); onBusyChange?.(false); }
   }
   function selectSkill(item: SkillCandidate) {
@@ -340,7 +345,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
       <span ref={bindPrompt} id="chat-prompt" data-testid="chat-prompt" role="textbox" aria-multiline="true" aria-disabled={!!conversation?.archived || busy} aria-describedby={hint ? "chat-composer-hint" : undefined} className="chat-prompt-editor" data-placeholder="发消息，或输入 / 引用 Skill…" contentEditable={!conversation?.archived && !busy} suppressContentEditableWarning onPaste={onPaste} onKeyDown={handlePromptKeyDown} onInput={e => onPromptChange(e.currentTarget.textContent || "")} />
       </div>
     </div>
-    {error && <p role="alert" className="chat-error">{error}</p>}
+    {archiveBlockers.length ? <ArchiveBlockers items={archiveBlockers} onReviewReplacement={onReviewReplacement}/> : error && <p role="alert" className="chat-error">{error}</p>}
     {skillMenu && <div className="chat-composer-popover chat-skill-menu" data-testid="chat-skill-menu" role="listbox" aria-label="Skill 候选">
       {skillLoading && <span>正在读取 Skill…</span>}
       {!skillLoading && !skillRows.length && <span>当前仓库暂无可引用 Skill</span>}

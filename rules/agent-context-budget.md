@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:30:47
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -157,3 +157,19 @@ Issue 分级任务只读取聚焦 Issue 的 trace、主文档和 capture；字�
 Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有效显式值保留，覆盖需明确请求；容量工具为 `scripts/add-sprint-scope-item.py --capacity-person-days`，修改后重算门禁与派生文档。
 
 Change 身份排查使用 `scripts/validate-change-identity.py` 的冲突路径摘要，仅对命中目录读取 trace，不为唯一性检查展开归档正文。
+
+自动验收与归档编排统一遵循 [连续执行与恢复契约](../docs/standards/opsx-acceptance.md)：逐 AC 队列与检查点、局部阻塞隔离、待采集证据自主补齐、精确指纹、命令去重、环境样本契约和归档预演。存在可执行项不得仅输出 diagnostic 后停止；交付、证据与用量分别报告，wrapper 成功不重复收尾。
+
+## 稳定验证编排
+
+遵循 [稳定批次与增量复验契约](docs/standards/opsx-acceptance.md#稳定批次与增量复验契约)：完整入口前置检查、修改稳定后集中验证、受影响范围增量复验和里程碑进度反馈。保留现有正确性门禁；未完成入口验证不提前宣布最终完成。
+
+阶段变化、新发现与阻塞优先反馈；无变化时合并日志与轮询，保留必要状态反馈。复用证据须有当前有效依据，输出精简不减少检查。
+
+## 治理量化与优化成本
+
+执行 [治理分级闭环](../docs/standards/governance-feedback-loop.md)，使用 `scripts/governance_feedback.py` 记录运行边界与版本；每次结束复盘，有证据且通过授权/Change/Sprint/预算门禁才自动优化。读取/分析/验证成本计入优化自身，provisional 不充当完整用量，未知不填零；优化 depth 非零禁止递归。只读命令保持 dry-run。
+
+## 用户可理解性
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。 规则复用中央定义，不为解释术语扩读无关文档；校验脚本检查所有技能引用完整性。

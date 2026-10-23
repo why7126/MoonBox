@@ -3,6 +3,7 @@
 Resolve relationships before applying visibility. Unknown references are never
 reclassified as independent objects, and archived copies never fill active gaps.
 """
+from app.governance.card_metadata import estimate_metadata, root_cause_metadata
 from app.governance.titles import read_title, project_title
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -278,6 +279,9 @@ class ChangeIndex:
                 current.directory / 'proposal.md' if current and current.directory else None)
             if current and current.directory is None:
                 card.title_warning = 'Change 归档版本待核实，已回退 Issue 业务标题'
+            # Resolve the source independently of stage-specific sprint-tag visibility.
+            sid = trace.get('iteration') or entry.get('target_iteration') or entry.get('iteration')
+            self.apply_card_metadata(card, oid, sid, [r.id for r in related], issue_dir)
             cards.append(card)
         for record in visible.values():
             if record.issue_ids:
@@ -285,10 +289,28 @@ class ChangeIndex:
             documents = self.documents(record)
             tasks = legacy._change_tasks([record.id]) if record.directory else None
             cards.append(RequirementCenterIssue(id=record.id, type='change', title=record.title or record.id,
-                priority='', owner=legacy._owner_name(record.trace.get('owner')), source=record.source_kind,
+                priority='', owner=legacy._owner_name(record.trace.get('owner')),
+                owner_key=legacy._owner_key(record.trace.get('owner')), source=record.source_kind,
                 stage=record.stage, documents=[d.name for d in documents], document_entries=documents,
                 detail_url='', updated_at=legacy._updated_at(record.trace.get('updated_at') or record.trace.get('created_at')),
                 tasks=tasks, task_progress=(tasks.done, tasks.total) if tasks else None,
                 sprint_id=self.sprint_id(record), action=self.action(record),
                 drift_warnings=self.warnings(record)))
+        for card in cards:
+            if card.type == 'change':
+                self.apply_card_metadata(card, card.id, card.sprint_id, [], None)
         return cards
+
+    def apply_card_metadata(self, card, object_id, sprint_id, changes, issue_dir):
+        directory = self.sprint_directories.get(sprint_id) if isinstance(sprint_id, str) else None
+        if directory:
+            sprint = legacy._read_yaml(directory / 'sprint.yaml')
+            key = {'requirement': 'requirements', 'bug': 'bugs', 'change': 'changes'}[card.type]
+            if object_id in (sprint.get(key) or []):
+                for name, value in estimate_metadata(sprint.get('scope_estimates'), object_id, changes).items():
+                    setattr(card, name, value)
+        if card.type == 'bug' and issue_dir:
+            path = issue_dir / 'root-cause.md'
+            if path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(issue_dir.resolve()):
+                for name, value in root_cause_metadata(path.read_text(encoding='utf-8'), legacy._frontmatter(path)).items():
+                    setattr(card, name, value)

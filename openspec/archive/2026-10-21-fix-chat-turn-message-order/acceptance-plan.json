@@ -1,0 +1,589 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-turn-message-order",
+  "issue_id": "BUG-0055-chat-turn-message-order-inversion",
+  "environment": "chat-order-verification",
+  "environment_contract": {
+    "deployment": "authorized-chat-validation",
+    "workspace_mode": "isolated",
+    "sample_scope": "12-synthetic-history-turns-and-2-real-chat-turns; formal-history-readonly",
+    "authorization_ref": "user-approved-two-isolated-short-prompts-2026-10-21",
+    "login_strategy": "existing-authorized-test-session",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "console"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "timeout_seconds": 30,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/send-output-1440x900.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/send-output-390x844.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/history-refresh-1440x900.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/history-refresh-390x844.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/interrupt-recovery-1440x900.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/interrupt-recovery-390x844.png",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ],
+      "coverage": {
+        "stages": [
+          "send-output",
+          "history-refresh",
+          "interrupt-recovery"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "send-output",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/send-output-1440x900.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          },
+          {
+            "stage": "send-output",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/send-output-390x844.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          },
+          {
+            "stage": "history-refresh",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/history-refresh-1440x900.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          },
+          {
+            "stage": "history-refresh",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/history-refresh-390x844.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          },
+          {
+            "stage": "interrupt-recovery",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/interrupt-recovery-1440x900.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          },
+          {
+            "stage": "interrupt-recovery",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/interrupt-recovery-390x844.png",
+              "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json"
+            ]
+          }
+        ]
+      },
+      "turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+      "command_contains": "sleep 10",
+      "expected_exit_code": 0
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_message_order.py",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/scripts/test-chat-message-order.cjs",
+        "src/web/src/api/generated/chat.ts",
+        "openspec/changes/fix-chat-turn-message-order/design.md",
+        "openspec/changes/fix-chat-turn-message-order/specs/web-catalog-chat-workbench/spec.md",
+        "issues/bugs/review/BUG-0055-chat-turn-message-order-inversion/acceptance.md",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py",
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json"
+      ],
+      "argv": [
+        "python",
+        "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "稳定回归与真实产品观察分别见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-turn-message-order/evidence/implementation-checks.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/live-chain.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/historical-readonly.json",
+        "openspec/changes/fix-chat-turn-message-order/evidence/product/computed-style.json",
+        "openspec/changes/fix-chat-turn-message-order/verification.md"
+      ]
+    }
+  ],
+  "preflight": [
+    [
+      "python",
+      "openspec/changes/fix-chat-turn-message-order/evidence/verify-evidence.py"
+    ]
+  ]
+}

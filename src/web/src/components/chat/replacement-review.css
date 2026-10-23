@@ -1,0 +1,10 @@
+.replacement-review-shell .chat-dialog-backdrop { justify-content: flex-end; padding: 0; }
+.replacement-review-shell .chat-dialog { width: min(720px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+.replacement-review-shell .chat-dialog-body { min-height: 0; overflow-y: auto; font-size: 14px; line-height: 1.5; }
+.replacement-diff-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.replacement-diff-columns pre { white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: 14px; line-height: 1.5; }
+.replacement-hash { overflow-wrap: anywhere; }
+.replacement-confirm-shell .chat-dialog { width: min(520px, calc(100vw - 24px)); }
+.replacement-confirm-shell .chat-dialog-backdrop { z-index: 210; }
+.replacement-confirm-shell textarea { display: block; width: 100%; min-height: 96px; }
+@media (max-width: 767px) { .replacement-diff-columns { grid-template-columns: minmax(0, 1fr); } }

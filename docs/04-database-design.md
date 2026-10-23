@@ -2,7 +2,7 @@
 purpose: 数据库设计
 content: MoonBox SQLite 初始数据域与迁移治理
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-08 19:56:38
+updated_at: 2026-10-21 14:28:59
 owner: MoonBox 产品团队
 ---
 
@@ -224,3 +224,66 @@ BUG-0030 修复复用 chat_messages 和 chat_events，无表结构或迁移变�
 `verification_tasks` 由 `app.chat.schema.migrate` 的幂等 `create_all` 同步创建于 SQLite 与 MySQL。主键为任务 UUID；`actor_id` 和 `space_id` 分别关联已有管理员与空间，`repository_id` 为不透明项目标识。`actor_id + space_id + repository_id + client_request_id` 唯一约束支撑幂等重试；`client_request_id` 存放原始请求值的 SHA256 摘要，避免 MySQL 大小写排序规则改变比较语义。`status + created_at` 支撑单控制 worker 的队列领取；该 worker 最多同时运行两个隔离浏览器任务。`space_id + repository_id + created_at` 支撑项目内查询。状态、环境键、镜像摘要、稳定错误码及脱敏结果保存在数据库；截图和完整依赖树只在受保护运行目录中保存。`started_at`、`completed_at` 使用现有 UTC ISO 字符串口径。
 
 迁移只增表与索引，不更改旧 Chat 记录。SQLite 与 MySQL 均使用 `String`、`Text` 和唯一约束，不依赖 JSON 列或数据库专有锁语法；并发领取靠条件 `UPDATE status='queued'`，重启时将中断中的任务显式标记 `blocked`。当前自动化覆盖 SQLite 幂等、授权撤销、领取与重启恢复；MySQL 实机迁移与生产备份/回滚仍需按部署矩阵验收。回滚先停止新任务与 worker，保留任务表及证据目录，不自动删除历史结果。
+
+
+### 需求中心负责人名称只读解析
+
+需求中心 context 在既有项目授权和对象可见性过滤后，按当前空间 `admin_spaces.owner_id` / `admin_space_members.user_id` 限定可读取的 `admin_users` 名称，排除已删除状态或非空 `deleted_at`。按去重身份键每批最多 500 个参数查询，避免逐卡查询和跨请求名称缓存。该读取不修改治理 owner、数据库 schema、索引、迁移或保留周期；SQLite 合成测试覆盖批量与空间隔离，MySQL 部署验证另行记录。
+
+
+### BUG-0044 治理对象执行守卫
+
+新增 `governance_execution_guards`，复合主键 `(scope_key, object_id)`；scope_key为授权空间/仓库组合摘要，object_id为完整规范身份。字段包括 version、operation_id（轮次）、conversation_id、owner_id、action、state、confirmed_stage、baseline_revision、result_revision、terminal_status、reason_code、updated_at。
+
+入队事务条件更新 idle/validated/recovered_valid 为 running，并递增版本；终态进入 needs_review，不直接释放。内部核验器绑定轮次、版本与同一成果指纹确认 validated 或 recovered_valid；旧回调不能覆盖新轮次。unknown保持待核验，不依赖TTL解锁。
+
+迁移通过 `app.chat.schema.migrate` 增量建表，已有数据库无破坏性改列；SQLite重复迁移和事务测试已覆盖，独立 MySQL 8.2.0 临时容器已通过14项守卫测试（含双连接/多进程竞争、幂等、回滚和恢复）；完整应用迁移与跨进程矩阵继续验证。执行守卫为业务事实，不随90天观测清理删除；保留每对象最新确认投影和未决执行，观测仅记录脱敏原因和轮次摘要。回滚先停止新发送、核验未决记录，保留新增表和有效治理成果，不直接删表或清空活动轮次。
+
+守卫幂等请求存于 `governance_execution_requests`，复合主键为项目、对象、用户及客户端请求键，保存请求摘要和原轮次映射；后续执行覆盖对象守卫时仍能重放原请求，不保存原始 Prompt。
+
+## 治理恢复持久化增量（REQ-0047）
+
+`governance_operations`保存业务操作与独立origin_turn_id、candidate/application引用、source/manifest/binding摘要、stage/state/version、schema_version、自动/手动次数、next_retry_at、recovery_expires_at及lease/fencing字段。身份唯一键为actor_id+scope_key+action+request_key；candidate/turn关联唯一。队列、对象与到期索引支持控制器读取。
+`governance_recovery_attempts`保存operation_id、request_key/hash、kind、fencing_token、state、request_id与受限reason；同操作同请求唯一。SQLite/MySQL沿chat.schema.migrate增量建表，不修改既有turn终态。CAS更新与既有项目文件锁共同保护领取，lease超时本身不证明可接管。
+
+新增retention_state、artifacts_released_at与retention_until只管理恢复额外引用；不删除其他模块拥有的journal/成果。活动事务保留，半迁移cleanup_blocked；管理员显式保留7天不会重置恢复截止。已释放诊断超过90天清理，既有usage明细180天/聚合1年不变。离线备份一致性检查包含操作及尝试表。
+
+## 完成交接表（BUG-0052）
+
+`governance_completion_handoffs` 使用 `(scope_key, object_id, guard_version)` 复合主键，关联原 operation/application；保存 state、attempt_count、next_attempt_at、lease_owner/lease_until、last_checked_at、reason_code、created_at。队列索引为 state+next_attempt_at。通过 chat schema 的 create_all/checkfirst 兼容增量建表，不修改既有数据。应用verified同事务登记；缺失交接由verified应用扫描补齐。CAS领取时持久计数，30秒租约，三次预算跨重启保留；旧守卫版本不能确认新执行。SQLAlchemy类型用于SQLite/MySQL。记录不保存原文/凭证，保留供审计，不自动清理；回滚保留表和证明，停补偿后回退版本，不手改守卫解锁。
+
+### 直接命令完成证明（BUG-0060）
+
+本次不新增 SQL 表或列，复用 governance_execution_guards 的 operation_id/version 条件确认。私有 operation.json 增加 proof_schema_version 和成功同步步骤 completion_manifest；清单只含动作/对象、版本、相关路径及哈希。最终 final_verification 保存核验时间、守卫版本和模式；历史步骤不覆盖，旧缺清单记录只通过显式当前核验重建证据，不能伪装原同步证明。多次核验不重放业务，重复请求保留原终态，SQLAlchemy 条件更新兼容 SQLite/MySQL。持久证据保留，不随观测日志清理。
+
+
+## Chat 消息排序与时间兼容（BUG-0055）
+
+本次不增表、字段或索引，无迁移。新助手 chat_messages.created_at 使用首次保存时间，重复恢复保留 created_at，仅更新内容与 updated_at。历史助手时间保持原值；读取时不再一律覆盖为 turns.created_at。首个保留输出事件时间仅用于显示来源，不能据此证明模型首次输出或执行完成。
+
+查询联合真实消息和虚拟助手，在 limit/offset 或游标条件前按轮次时间、轮次 ID、角色序号与消息 ID 排序。MySQL 使用 SHA2 与 utf8mb4_bin，SQLite 注册仅用于确定性标识计算的 SHA2 函数并使用 BINARY；两者保留现有助手哈希 ID。时间来源采用每页一次批量查询，正文事件有界读取沿用既有实现。
+
+SQLite SQL/ASGI 回归已通过，MySQL SQL 编译已检查，但本轮无独立 MySQL 连接，真实执行、查询计划和生产兼容仍待验证，不以编译代替实测。回滚应用版本，保留历史记录，不执行数据恢复或时间回填。
+
+### 跨入口后继核验持久语义（BUG-0061）
+
+不新增数据库表、列或迁移。复用 `governance_execution_guards` 的 scope/object/operation/version 条件确认。私有 journal 新增 `final_verification.successor` schema v1，包含原操作版本、验收 run 引用、文件哈希差异和 partial 历史归因；不包含文件正文。原 steps 不覆写。
+
+journal 先写 pending_confirmation，再完成 guard 事务；事务提交后确认日志。提交后中断可由相同已确认版本补齐日志，未确认尝试不作为历史成功签名。文件系统与数据库不假设跨介质原子事务。SQLite/MySQL 共用版本围栏，测试覆盖并发替代和中断重试。
+
+
+### Sprint 对象关联兼容（REQ-0049）
+
+SPRINT 使用既有 `chat_relations.object_id` 字符串保存规范 ID，类型由安全解析结果返回；无 schema 变更或迁移。新会话与 primary 关联在同一事务插入，稳定会话主键处理同对象并发竞争；归档或删除的会话不会被再次选中。SQLite 与隔离 MySQL 8.2.0 的并发/关联事务回归已通过；未连接或迁移业务数据库。
+
+## 受控规则替代授权（REQ-0050）
+
+2026-10-23 REQ-0050 v4 不再要求空间所有者额外确认规则修改。`governance_rule_change_confirmations` 与不可修改的 `governance_rule_change_events` 只保存旧版历史记录，旧客户端确认写入返回 409；表结构保留以便旧版已完成证明只读核验。当前归档复用正常验收、既有权限和完整历史检查；差异页不创造额外证明或许可；下文为历史结构记录。
+
+增量实体：`replacement_proposals` 保存精确提案正文、内容摘要、绑定版本、当前修订和状态；`replacement_authorization_events` 保存不可变签名授权事件；`policy_activation_operations` 保存项目级首次启用清单及两类授权；`replacement_archive_operations` 保存受控替代原归档操作的围栏、租约和检查点；`governance_archive_operations` 保存普通归档及 Sprint 关闭操作。提案按 `(scope_key, digest)` 唯一，授权事件按 `(scope_key, request_key)` 和 `(proposal_id, revision)` 唯一。请求键使用 MySQL 8 NO PAD 二进制排序规则，保持 SQLite 相同的大小写及尾空格语义。
+
+授权决定通过状态/修订条件更新与事件插入在同一事务提交；事件表的 UPDATE/DELETE 由 SQLite/MySQL 触发器拒绝。迁移只增加表与触发器，可重复执行，不改旧归档、验收清单或执行时间。普通遥测清理不包含这些实体；仍被活动或历史证明链引用的授权记录不销毁。
+
+部署前先备份数据库并完成隔离迁移验证。应用回退时停止签发新授权和策略转换，保留新增表、事件、历史公钥及恢复记录；不通过删表或恢复旧数据库抹去已领取操作。本次开发的 SQLite/MySQL 验证使用一次性数据库，没有自动执行真实数据库回退或业务归档。
+
+普通 Change 归档与 Sprint 关闭另用 `governance_archive_operations` 保存原操作、项目绑定、输入清单、租约及阶段；按 `(scope_key, change_id)` 唯一。它与替代归档、首次启用和治理 writer 共享 `governance_project_locks`。普通操作不写授权事件、不能消费替代批准；中断不会把项目围栏释放给另一操作。2026-10-22 的隔离 MySQL 8.0.40 批次覆盖五张新增表的重复迁移、不可变事件、授权竞争、原操作续租和围栏释放，共 27 项通过。

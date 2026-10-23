@@ -74,6 +74,9 @@ class IdentityTests(unittest.TestCase):
         for name in ('archive-change.sh', 'archive-recovery-guard.py', 'validate-change-identity.py', 'change_identity.py',
                      'validate-issue-acceptance-ready.py'):
             shutil.copy(ROOT / 'scripts' / name, scripts)
+        # Wrapper lifecycle tests isolate admission; admission has its own integration suite.
+        for gate in ('validate-issue-acceptance-ready.py', 'validate-change-delivery-evidence.py'):
+            (scripts / gate).write_text('')
         binary = self.root / 'bin'
         binary.mkdir()
         cli = binary / 'openspec'
@@ -81,16 +84,23 @@ class IdentityTests(unittest.TestCase):
         cli.chmod(0o755)
         result = subprocess.run(['bash', 'scripts/archive-change.sh', 'add-governance', '2026-09-13'], cwd=self.root, env={**os.environ, 'PATH': str(binary)+os.pathsep+os.environ['PATH']}, capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('change_identity_ambiguous', result.stdout)
+        self.assertIn('Change ID 重复 add-governance', result.stdout)
         self.assertFalse((self.root / 'openspec-was-called').exists())
         self.assertTrue(active.is_dir() and archived.is_dir())
 
     def archive_fixture(self, fail_validation=False):
         scripts = self.root / 'scripts'
         scripts.mkdir()
+        shutil.copytree(ROOT / 'scripts/workflow_sync', scripts / 'workflow_sync')
+        backend = self.root / 'src/backend'
+        backend.mkdir(parents=True)
+        (backend / 'app').symlink_to(ROOT / 'src/backend/app', target_is_directory=True)
         for name in ('archive-change.sh', 'archive-recovery-guard.py', 'validate-change-identity.py', 'change_identity.py',
                      'validate-issue-acceptance-ready.py'):
             shutil.copy(ROOT / 'scripts' / name, scripts)
+        # Wrapper lifecycle tests isolate admission; admission has its own integration suite.
+        for gate in ('validate-issue-acceptance-ready.py', 'validate-change-delivery-evidence.py'):
+            (scripts / gate).write_text('')
         names = ('validate-directory-structure.py', 'validate-env-ignore-policy.py',
                  'validate-archive-evidence.py', 'sync-workflow-status.py',
                  'promote-issues-for-archive.py', 'extract-ai-usage.py')
@@ -114,6 +124,22 @@ class IdentityTests(unittest.TestCase):
             'validate-directory-structure.py', 'validate-env-ignore-policy.py',
             'validate-archive-evidence.py', 'sync-workflow-status.py',
             'promote-issues-for-archive.py', 'extract-ai-usage.py'])
+
+    def test_archive_usage_resolves_iteration_from_sprint_scope(self):
+        self.archive_fixture()
+        archived = self.change('archive/2026-09-01-add-governance', 'add-governance')
+        (archived / 'trace.md').write_text('---\nchange_id: add-governance\niteration: sprint-011\n---\n')
+        sprint = self.root / 'iterations/change/sprint-011'
+        sprint.mkdir(parents=True)
+        (sprint / 'sprint.yaml').write_text('id: sprint-011\nstatus: planning\nchanges:\n  - add-governance\n')
+        hook = self.root / 'scripts/extract-ai-usage.py'
+        hook.write_text("import sys,json\nfrom pathlib import Path\nPath('hook-args.json').write_text(json.dumps(sys.argv))\nprint('{}')\n")
+        result = subprocess.run(['bash', 'scripts/archive-change.sh', 'add-governance', '--finalize'],
+                                cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        import json
+        args = json.loads((self.root / 'hook-args.json').read_text())
+        self.assertEqual(args[args.index('--sprint') + 1], 'sprint-011')
 
     def test_half_archive_validation_failure_stops_before_sync(self):
         self.archive_fixture(fail_validation=True)
@@ -214,6 +240,11 @@ spec = Path('openspec/specs/example/spec.md')
 spec.write_text(spec.read_text() + 'merged\\n')
 if 'moonbox-archive-preview-' not in str(Path.cwd()):
     raise SystemExit(1)
+import shutil
+source = Path('openspec/changes/add-governance')
+target = Path('openspec/changes/archive/2026-09-01-add-governance')
+target.parent.mkdir(parents=True)
+shutil.move(source, target)
 """)
         cli.chmod(0o755)
         env = {**os.environ, 'PATH': str(binary) + os.pathsep + os.environ['PATH']}

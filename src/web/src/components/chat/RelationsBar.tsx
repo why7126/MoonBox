@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChatDialog } from "./ChatDialog";
 import { chatRequest, type ConversationRead } from "./chatApi";
-type ObjectKind = "REQ" | "BUG" | "OBJECT";
+type ObjectKind = "REQ" | "BUG" | "SPRINT" | "OBJECT";
 type ObjectItem = { id: string; title: string; version?: string; kind?: ObjectKind | string };
 type Relations = { primary: ObjectItem | null; references: ObjectItem[] };
 const empty: Relations = { primary: null, references: [] };
 function objectKind(item: Pick<ObjectItem, "id" | "kind">): ObjectKind {
   if (item.kind === "REQ" || item.kind === "BUG") return item.kind;
+  if (/^sprint-\d{3}$/.test(item.id)) return "SPRINT";
   if (item.id.startsWith("REQ-")) return "REQ";
   if (item.id.startsWith("BUG-")) return "BUG";
   return "OBJECT";
@@ -14,7 +15,7 @@ function objectKind(item: Pick<ObjectItem, "id" | "kind">): ObjectKind {
 function normalizeItems(items: ObjectItem[]) {
   return items.map(item => ({ ...item, kind: objectKind(item) }));
 }
-export function RelationsBar({ conversation, onSaved, projectStatus }: { conversation: ConversationRead | null; onSaved?: (relations: Relations) => void; projectStatus?: ReactNode }) {
+export function RelationsBar({ conversation, onSaved, projectStatus }: { conversation: ConversationRead | null; onSaved?: (relations: Relations) => void; projectStatus?: ReactNode; onReviewRuleChange?: (changeId: string) => void }) {
   const [value, setValue] = useState<Relations>(empty), [open, setOpen] = useState(false), [error, setError] = useState("");
   const [candidates, setCandidates] = useState<ObjectItem[]>([]), [candidatesLoading, setCandidatesLoading] = useState(false), [candidatesReason, setCandidatesReason] = useState("");
   useEffect(() => {

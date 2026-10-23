@@ -1,0 +1,13 @@
+{
+  "sample": "isolated-synthetic-only",
+  "image_digest": "cf018c5d12829b73a056ca3df7cdae785bd0da997105dbabd74e040d16c54200",
+  "bootstrap": {"state": "active", "revision": 7},
+  "ordinary_archive": {"stage": "completed", "revision": 5, "fence": 2},
+  "proposal": {"state": "completed", "revision": 3},
+  "authorization_events": 3,
+  "trace_stages": ["prepared", "approved", "claimed", "merge_verified", "move_verified", "synced", "completed"],
+  "active_change_exists": false,
+  "archive_count": 1,
+  "same_request_retry": {"stage": "completed", "replayed": true},
+  "limitations": ["该版本早于共同 CLI/Chat/Sprint 编排的后续修改，不能替代最终版本验证", "未操作正式 BUG 或 Sprint"]
+}

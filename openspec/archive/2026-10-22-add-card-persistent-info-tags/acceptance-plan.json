@@ -1,0 +1,1542 @@
+{
+  "schema_version": 1,
+  "change_id": "add-card-persistent-info-tags",
+  "environment": "local-isolated",
+  "orchestration_version": 1,
+  "environment_contract": {
+    "deployment": "rebuilt-local-39002/39001; isolated-real-http-39036",
+    "workspace_mode": "isolated",
+    "sample_scope": "本地业务只读观察；临时治理与SQLite真实HTTP样本；Mock视觉矩阵独立标注；本轮视觉用当前生产组件+明确Mock API；旧product样本只复用未变的数据/权限行为，不代表新样式。",
+    "authorization_ref": "用户2026-10-22明确允许重建并重启本地Web/API并继续真实产品验收",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "本地复用登录态；隔离真实服务专用测试会话",
+    "retry_limit": 0,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "preflight": [
+    [
+      "src/backend/.venv/bin/python",
+      "-c",
+      "from pathlib import Path; assert Path(\"openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json\").is_file()"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "sh",
+        "-c",
+        "cd src/web && PATH=\"$HOME/.nvm/versions/node/v25.2.1/bin:$PATH\" NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/card-info-tags.test.tsx src/requirement-center.test.tsx -t 'effort|persistent card tags|renders ordered root|hides unknown fields|shows conflicts'"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "sh",
+        "-c",
+        "cd src/web && PATH=\"$HOME/.nvm/versions/node/v25.2.1/bin:$PATH\" NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/card-info-tags.test.tsx src/requirement-center.test.tsx -t 'effort|persistent card tags|renders ordered root|hides unknown fields|shows conflicts'"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-light.png"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实业务只读观察及隔离真实HTTP产品样本已采集，边界详见product/review.md；不声明Chat轮次或正式归档。"
+      },
+      "coverage": {
+        "stages": [
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440"
+        ],
+        "samples": [
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实业务只读观察及隔离真实HTTP产品样本已采集，边界详见product/review.md；不声明Chat轮次或正式归档。"
+      },
+      "coverage": {
+        "stages": [
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440"
+        ],
+        "samples": [
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "sh",
+        "-c",
+        "cd src/web && PATH=\"$HOME/.nvm/versions/node/v25.2.1/bin:$PATH\" NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/card-info-tags.test.tsx src/requirement-center.test.tsx -t 'effort|persistent card tags|renders ordered root|hides unknown fields|shows conflicts'"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "add-card-persistent-info-tags"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-XCUT-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实业务只读观察及隔离真实HTTP产品样本已采集，边界详见product/review.md；不声明Chat轮次或正式归档。"
+      },
+      "coverage": {
+        "stages": [
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440"
+        ],
+        "samples": [
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-XCUT-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实业务只读观察及隔离真实HTTP产品样本已采集，边界详见product/review.md；不声明Chat轮次或正式归档。"
+      },
+      "coverage": {
+        "stages": [
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440"
+        ],
+        "samples": [
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-XCUT-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_card_metadata.py",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实业务只读观察及隔离真实HTTP产品样本已采集，边界详见product/review.md；不声明Chat轮次或正式归档。"
+      },
+      "coverage": {
+        "stages": [
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440"
+        ],
+        "samples": [
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "add-card-persistent-info-tags"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "add-card-persistent-info-tags"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/ui/skeleton-1440.png",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "sh",
+        "-c",
+        "cd src/web && PATH=\"$HOME/.nvm/versions/node/v25.2.1/bin:$PATH\" NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/card-info-tags.test.tsx src/requirement-center.test.tsx -t 'effort|persistent card tags|renders ordered root|hides unknown fields|shows conflicts'"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-light.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-dark.png",
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-light.png"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+              "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png"
+            ]
+          }
+        ]
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/styles/globals.css",
+        "tests/integration/api/test_card_persistent_info_api.py",
+        "src/backend/tests/test_card_metadata.py",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "openspec/changes/add-card-persistent-info-tags/design.md",
+        "openspec/changes/add-card-persistent-info-tags/specs/web-catalog-requirement-center/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "add-card-persistent-info-tags"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+        "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md"
+      ],
+      "deduplicate": true
+    }
+  ]
+}

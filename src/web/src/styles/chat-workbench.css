@@ -1878,3 +1878,9 @@ select.round-select.small {
     width: 100%;
   }
 }
+
+.chat-archive-blockers { display: grid; gap: 10px; margin-block: 12px; min-width: 0; font-size: 14px; line-height: 1.45; }
+.chat-archive-blockers article { min-width: 0; padding: 12px; border: 1px solid var(--rc-border); border-radius: var(--ops-radius-xs); background: var(--rc-panel); overflow-wrap: anywhere; }
+.chat-archive-blockers p { margin: 8px 0 0; color: var(--rc-muted); white-space: pre-wrap; }
+.chat-archive-blockers summary { margin-top: 8px; cursor: pointer; color: var(--rc-text); }
+.chat-archive-blockers summary:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 3px; }

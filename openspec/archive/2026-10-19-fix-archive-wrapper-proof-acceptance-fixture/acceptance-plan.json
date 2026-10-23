@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-wrapper-proof-acceptance-fixture",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-archive-wrapper-proof-acceptance-fixture/proposal.md",
+        "openspec/changes/fix-archive-wrapper-proof-acceptance-fixture/design.md",
+        "openspec/changes/fix-archive-wrapper-proof-acceptance-fixture/specs/chat-archive-acceptance-evidence/spec.md"
+      ],
+      "argv": [
+        "openspec",
+        "validate",
+        "fix-archive-wrapper-proof-acceptance-fixture",
+        "--strict"
+      ],
+      "timeout_seconds": 60
+    }
+  ]
+}

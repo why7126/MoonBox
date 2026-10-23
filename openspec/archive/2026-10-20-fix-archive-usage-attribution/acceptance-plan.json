@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-usage-attribution",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "桌面消息与归档串行回归",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_ai_usage.py",
+        "tests/unit/test_change_identity.py",
+        "-q"
+      ],
+      "inputs": [
+        "scripts/ai_usage.py",
+        "scripts/archive-change.sh",
+        "tests/unit/test_ai_usage.py",
+        "tests/unit/test_change_identity.py"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "title": "上下文预算门禁",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "inputs": [
+        ".agents/skills/opsx-archive/SKILL.md",
+        "docs/standards/governance-feedback-loop.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "title": "中文门禁",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "fix-archive-usage-attribution",
+        "--residual-report"
+      ],
+      "inputs": [
+        "openspec/changes/fix-archive-usage-attribution/specs"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "title": "目录门禁",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-directory-structure.py"
+      ],
+      "inputs": [
+        "scripts/validate-directory-structure.py"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

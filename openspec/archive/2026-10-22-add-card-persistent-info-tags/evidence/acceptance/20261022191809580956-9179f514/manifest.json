@@ -1,0 +1,1392 @@
+{
+  "schema_version": 1,
+  "change_id": "add-card-persistent-info-tags",
+  "run_id": "20261022191809580956-9179f514",
+  "created_at": "2026-10-22 19:18:24",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "local-isolated",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "132b7207d014564afa1b812ecd2f7c1dbfb4ead36f116fc1933cde93fb27a4f9",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+          "sha256": "3c992af5d36f5a881c159de009c0380901237c4280b10b5962e4c6449948087d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        }
+      ],
+      "duration_ms": 9416,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "f06fae12a2bacbf4923586c821119dd2d21435deaa22925699182db8d427a83f",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 4979,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "6be820931a4252cd340e362f0bc4f976f23894d9ba770f5f4b81b668181df35d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 16,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "bd7acfe3181883678397c1c8e9fcf38df2cb941dec8873afca79ff53d0e1f07b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "4919126d22d48f6d570a938fefc9640abe37dfdc1c811dd219500b7e5a52fae6",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "1e3d5a8147eaa93a3ab7a80960b4dd39c195f6dbc3c10707e74fd77a8eb8a2a9",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "1ad226279c155a7ed700d86945389e1ca5b17424fd547377234a9e46d39b0818",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+          "sha256": "67416a9c7993009d4b9208dc6fba5e87baf7841e9c3b5ea7210cb335ec89179d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+          "sha256": "1405904e95876b0bcf739f817a6746aad5a1c31134c66aa8ae0397c62a9dca5f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+          "sha256": "9bc0ce7cb5e63567079162f69dea2399acc9e851b82d5493a58ec4f1302f9aa1"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+          "sha256": "247733696ab2832c54dd61acace81e37ddd1699625172d2a748462db07bb3ec6"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+          "sha256": "65f9d83a28f057146b567120945a4254463b3e94061f2a7f005c5bac8eaa8a03"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+          "sha256": "31a5de861a04ad145c01b5b2ad635514c15840ed2386f7deb68adae51ce3c85b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+          "sha256": "23d0a2a9bd14d5903d2a76351a1d7554548f9d508a49f51840493a1f94de8eaf"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+          "sha256": "7ecf8ef257920998a7f7c793f034b98a5a905bf8777d612cd00b0c277204cd4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+          "sha256": "0e948cb15391aaa1653ee7aef96089c9cbbbbf8d3636b28ee9a16733a5118153"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+          "sha256": "bd8feb6bf3e3cb032ab3a00cf2e5016c1dc7080f8658bb95386b13da79a62238"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+          "sha256": "acc7be8b52444501ec6911a0721a52b5aa4893af3a7452d9ca260723ec76cb96"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+          "sha256": "330b2d21da0f6cc46f2e6dce8a56081ad875c65d5c736db5a320357db29a80b9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+          "sha256": "ab968f56a0f694457217ccc47c13c0243bd4e5e4f7119bc20c35b7cec869785f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+          "sha256": "9181703c0670e730bff83e463d6adbebb5d763aa19611ea2d40d77769cffb998"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+          "sha256": "2b3fbdf656b0b02af629451136b109f127d2dc81428a0ca448a46934f35dac84"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+          "sha256": "55a7040544edea7003b39f16fe6a27af86b26a93381aff07bc6148de87d889ba"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+          "sha256": "6563f2f718b9b4eab6120a8da62da93d439fd1b29e0668a9822f03589cfe451d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+          "sha256": "0d6bd5abca937b57067b5e6798d995331e5035bb5efdc863cf3c881d300035b2"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+          "sha256": "aaefad740a1ef4decb3c97d3571203361455d08a8c4901cd6f38ece4b3c279c5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+          "sha256": "8addc1028677c7add23f3e71ad57c465e7c1309526d75e529958423dd419c6f9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+          "sha256": "b6c3e830df1429fbe87a6cc15f12f038491f7b380b4830a7508887063d140884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+          "sha256": "24118a46b7d86079a18738b86ef5879e8a7d0beb5379e3749182c38e80106884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+          "sha256": "a3659f39a160be745f43422cda772616a3186cfa20cba68f05fb1567cbb2ef3b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+          "sha256": "251e99a3fd4fcd71b0c1e79a58b4de051972e36bf5c49f828081bcaf6e6130bc"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+          "sha256": "e5017fcccd43c6b7a2eaa96659397e7b0610f4bea2b56c997437e0a051c5abc0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+          "sha256": "cf83818ea7efbb5f6767b8b7e6476338fbc2b9d65c3b5830af23f8aa2947154d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+          "sha256": "749c9db9826da41d0f7ba13f18f6bbd28388dadf76cbe6c1199f775cea3b3f92"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+          "sha256": "49f42c2148ab1db6e6c1ede0aedcd2b3ce7096c362afc0c6960c8d08bbd8643b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+          "sha256": "f4051af2801d2611ecac5246d56e290e6e1f5547e01dfd3687197718321f2cca"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+          "sha256": "e6db32a2ba18385cfad2e853659ff2dfed74ce2a22cc7b125770a8aaa4f86b16"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+          "sha256": "d4605d99e0629bbe972b87306c037f4909d6ecc72c12cff46aa173c830c24f8f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+          "sha256": "e09535e59af9ad3d6f44b2761d62edafafbf23ea63739ee2610f25dacf88af4f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+          "sha256": "06f2ddef6cf50b47aa265c33c9f692667272ee7543054e0972c8fc5958202e34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+          "sha256": "5423cda94012a4f73af3e79e61f9ca1b531860f445648ab6ae880d9bc1864995"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+          "sha256": "1dcfb74667863625e9a4ebc55d4aecbbf8efb105b2c363cad271e08c63d26920"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+          "sha256": "a6484c043c96585995d1d9702d13089c46dfebf8db8d0a46480448999f343b58"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-dark.png",
+          "sha256": "98d730bac2a525550aa334c6f686413a9e322fbf06e6525df3352e79c6dcfb53"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-light.png",
+          "sha256": "6f6b66c371485421c88819825d70d19f0bfe7110f625a3699a368119c46951b7"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-dark.png",
+          "sha256": "45afbae93f701b90ac1e469a4694471b1174e3f770354c3f9fb04ec0a6a914e1"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-light.png",
+          "sha256": "9883bc4ebb04cd9d97d8cc4db947267f1f84bd68626442b0b8e1690bdbd75e8d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-dark.png",
+          "sha256": "df0afe08e55cd00129b9fe96bae1e4bd077ad4d32f20864266fb12d8c055fb48"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-light.png",
+          "sha256": "5719591ddf826af6e719a8e43976760d3cea809746ab550289b8e3ff6aa2fa80"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-dark.png",
+          "sha256": "df0afe08e55cd00129b9fe96bae1e4bd077ad4d32f20864266fb12d8c055fb48"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-light.png",
+          "sha256": "5719591ddf826af6e719a8e43976760d3cea809746ab550289b8e3ff6aa2fa80"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-dark.png",
+          "sha256": "d8351462850be8263115c5f5588b70f7b6ea9304987f015074f3889c28a11a2e"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-light.png",
+          "sha256": "7fd5f70ef91add74bd29cf3aa213bfbef57abf2b305d1d89b6f6eb20c5200d92"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-dark.png",
+          "sha256": "d8351462850be8263115c5f5588b70f7b6ea9304987f015074f3889c28a11a2e"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-light.png",
+          "sha256": "7fd5f70ef91add74bd29cf3aa213bfbef57abf2b305d1d89b6f6eb20c5200d92"
+        }
+      ],
+      "duration_ms": 25,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "c9b6e4f3aa5b433114126c44ff2edc288007b74d9b1a89ace375b7a029c4654b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+          "sha256": "80e85868550ea2271bdcb88d11c668642743002625d7d236ad721ba4e637ac9f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+          "sha256": "d4fdd11ea04776b4da3f74048d4ee3f490bcfa92b4e8de969df77ddd6f6cb9b0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+          "sha256": "7dd716fe334cb10c7854488ce18f591a1792e25f8ac019d400c107d7951c9e4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+          "sha256": "ab77b9c2753ca5e17df6750c053d7d0558fe6130d1b9524489804270bcd04315"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+          "sha256": "694d89d7bec1c5c40ca6c16ad7bff74b9951df53188705a09115d9697ba4e503"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+          "sha256": "757fd38d5546656a87543dd2dd0028cea526d7bf25cbacbcf8204efac61928a5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+          "sha256": "5ad7e95a6a83099249699fdf5db7a6dccbfa2006552190bd6b9ba324076e4b34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+          "sha256": "190092780ee04879458b09d658277cb8ff4198482457a5e2584fb09ac7f32c36"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+          "sha256": "01fbb971c37e41da264ae5a52662c8b1d5cb40d9b5b8c5453a3504ed7201ff2b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+          "sha256": "e52efc9a6f8dd763a62bf7fc42766fa0d484f857e0e2bb786d0587eae8409f71"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+          "sha256": "ce60ffb38807ba9819eb66561880f76ebf43fcc1dc493d058e10f2afdbca103b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+          "sha256": "6e4b61825387618a31a0c080c503822004a3d811ae2bcd03a87f3f694a127015"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+          "sha256": "579aa8aa861d8d73097a207aa7cbbbf501de6b395fb11a4119467c75661df155"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+          "sha256": "46e84f07134bde9447f749304e1d7545d89595750b92e13da842890430f6ecbd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+          "sha256": "3c992af5d36f5a881c159de009c0380901237c4280b10b5962e4c6449948087d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        }
+      ],
+      "duration_ms": 13,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "fb9aaacd56d0eacbbac6ae2f199085a71b6952aba4405037c35bc75ca9733cf3",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+          "sha256": "80e85868550ea2271bdcb88d11c668642743002625d7d236ad721ba4e637ac9f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+          "sha256": "d4fdd11ea04776b4da3f74048d4ee3f490bcfa92b4e8de969df77ddd6f6cb9b0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+          "sha256": "7dd716fe334cb10c7854488ce18f591a1792e25f8ac019d400c107d7951c9e4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+          "sha256": "ab77b9c2753ca5e17df6750c053d7d0558fe6130d1b9524489804270bcd04315"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+          "sha256": "694d89d7bec1c5c40ca6c16ad7bff74b9951df53188705a09115d9697ba4e503"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+          "sha256": "757fd38d5546656a87543dd2dd0028cea526d7bf25cbacbcf8204efac61928a5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+          "sha256": "5ad7e95a6a83099249699fdf5db7a6dccbfa2006552190bd6b9ba324076e4b34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+          "sha256": "190092780ee04879458b09d658277cb8ff4198482457a5e2584fb09ac7f32c36"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+          "sha256": "01fbb971c37e41da264ae5a52662c8b1d5cb40d9b5b8c5453a3504ed7201ff2b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+          "sha256": "e52efc9a6f8dd763a62bf7fc42766fa0d484f857e0e2bb786d0587eae8409f71"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+          "sha256": "ce60ffb38807ba9819eb66561880f76ebf43fcc1dc493d058e10f2afdbca103b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+          "sha256": "6e4b61825387618a31a0c080c503822004a3d811ae2bcd03a87f3f694a127015"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+          "sha256": "579aa8aa861d8d73097a207aa7cbbbf501de6b395fb11a4119467c75661df155"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+          "sha256": "46e84f07134bde9447f749304e1d7545d89595750b92e13da842890430f6ecbd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "344863417114ccbc24bff7a06dfff24b5ea263270eca0b7797c496c206295f40",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+          "sha256": "67416a9c7993009d4b9208dc6fba5e87baf7841e9c3b5ea7210cb335ec89179d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+          "sha256": "1405904e95876b0bcf739f817a6746aad5a1c31134c66aa8ae0397c62a9dca5f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+          "sha256": "9bc0ce7cb5e63567079162f69dea2399acc9e851b82d5493a58ec4f1302f9aa1"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+          "sha256": "247733696ab2832c54dd61acace81e37ddd1699625172d2a748462db07bb3ec6"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+          "sha256": "65f9d83a28f057146b567120945a4254463b3e94061f2a7f005c5bac8eaa8a03"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+          "sha256": "31a5de861a04ad145c01b5b2ad635514c15840ed2386f7deb68adae51ce3c85b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+          "sha256": "23d0a2a9bd14d5903d2a76351a1d7554548f9d508a49f51840493a1f94de8eaf"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+          "sha256": "7ecf8ef257920998a7f7c793f034b98a5a905bf8777d612cd00b0c277204cd4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+          "sha256": "0e948cb15391aaa1653ee7aef96089c9cbbbbf8d3636b28ee9a16733a5118153"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+          "sha256": "bd8feb6bf3e3cb032ab3a00cf2e5016c1dc7080f8658bb95386b13da79a62238"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+          "sha256": "acc7be8b52444501ec6911a0721a52b5aa4893af3a7452d9ca260723ec76cb96"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+          "sha256": "330b2d21da0f6cc46f2e6dce8a56081ad875c65d5c736db5a320357db29a80b9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+          "sha256": "ab968f56a0f694457217ccc47c13c0243bd4e5e4f7119bc20c35b7cec869785f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+          "sha256": "9181703c0670e730bff83e463d6adbebb5d763aa19611ea2d40d77769cffb998"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+          "sha256": "2b3fbdf656b0b02af629451136b109f127d2dc81428a0ca448a46934f35dac84"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+          "sha256": "55a7040544edea7003b39f16fe6a27af86b26a93381aff07bc6148de87d889ba"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+          "sha256": "6563f2f718b9b4eab6120a8da62da93d439fd1b29e0668a9822f03589cfe451d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+          "sha256": "0d6bd5abca937b57067b5e6798d995331e5035bb5efdc863cf3c881d300035b2"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+          "sha256": "aaefad740a1ef4decb3c97d3571203361455d08a8c4901cd6f38ece4b3c279c5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+          "sha256": "8addc1028677c7add23f3e71ad57c465e7c1309526d75e529958423dd419c6f9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+          "sha256": "b6c3e830df1429fbe87a6cc15f12f038491f7b380b4830a7508887063d140884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+          "sha256": "24118a46b7d86079a18738b86ef5879e8a7d0beb5379e3749182c38e80106884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+          "sha256": "a3659f39a160be745f43422cda772616a3186cfa20cba68f05fb1567cbb2ef3b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+          "sha256": "251e99a3fd4fcd71b0c1e79a58b4de051972e36bf5c49f828081bcaf6e6130bc"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+          "sha256": "e5017fcccd43c6b7a2eaa96659397e7b0610f4bea2b56c997437e0a051c5abc0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+          "sha256": "cf83818ea7efbb5f6767b8b7e6476338fbc2b9d65c3b5830af23f8aa2947154d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+          "sha256": "749c9db9826da41d0f7ba13f18f6bbd28388dadf76cbe6c1199f775cea3b3f92"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+          "sha256": "49f42c2148ab1db6e6c1ede0aedcd2b3ce7096c362afc0c6960c8d08bbd8643b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+          "sha256": "f4051af2801d2611ecac5246d56e290e6e1f5547e01dfd3687197718321f2cca"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+          "sha256": "e6db32a2ba18385cfad2e853659ff2dfed74ce2a22cc7b125770a8aaa4f86b16"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+          "sha256": "d4605d99e0629bbe972b87306c037f4909d6ecc72c12cff46aa173c830c24f8f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+          "sha256": "e09535e59af9ad3d6f44b2761d62edafafbf23ea63739ee2610f25dacf88af4f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+          "sha256": "06f2ddef6cf50b47aa265c33c9f692667272ee7543054e0972c8fc5958202e34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+          "sha256": "5423cda94012a4f73af3e79e61f9ca1b531860f445648ab6ae880d9bc1864995"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+          "sha256": "1dcfb74667863625e9a4ebc55d4aecbbf8efb105b2c363cad271e08c63d26920"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+          "sha256": "a6484c043c96585995d1d9702d13089c46dfebf8db8d0a46480448999f343b58"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+          "sha256": "3c992af5d36f5a881c159de009c0380901237c4280b10b5962e4c6449948087d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        }
+      ],
+      "duration_ms": 18,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "393157d46eccfc2cddc5787039355e95359afd456aaf42eceb91be76402d7ff9",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 63,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-001",
+      "fingerprint": "d7b0dc330a8ae6d5a44494746eedf4a12cf33a29d32301747650fbfe4eafb292",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+          "sha256": "80e85868550ea2271bdcb88d11c668642743002625d7d236ad721ba4e637ac9f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+          "sha256": "d4fdd11ea04776b4da3f74048d4ee3f490bcfa92b4e8de969df77ddd6f6cb9b0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+          "sha256": "7dd716fe334cb10c7854488ce18f591a1792e25f8ac019d400c107d7951c9e4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+          "sha256": "ab77b9c2753ca5e17df6750c053d7d0558fe6130d1b9524489804270bcd04315"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+          "sha256": "694d89d7bec1c5c40ca6c16ad7bff74b9951df53188705a09115d9697ba4e503"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+          "sha256": "757fd38d5546656a87543dd2dd0028cea526d7bf25cbacbcf8204efac61928a5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+          "sha256": "5ad7e95a6a83099249699fdf5db7a6dccbfa2006552190bd6b9ba324076e4b34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+          "sha256": "190092780ee04879458b09d658277cb8ff4198482457a5e2584fb09ac7f32c36"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+          "sha256": "01fbb971c37e41da264ae5a52662c8b1d5cb40d9b5b8c5453a3504ed7201ff2b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+          "sha256": "e52efc9a6f8dd763a62bf7fc42766fa0d484f857e0e2bb786d0587eae8409f71"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+          "sha256": "ce60ffb38807ba9819eb66561880f76ebf43fcc1dc493d058e10f2afdbca103b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+          "sha256": "6e4b61825387618a31a0c080c503822004a3d811ae2bcd03a87f3f694a127015"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+          "sha256": "579aa8aa861d8d73097a207aa7cbbbf501de6b395fb11a4119467c75661df155"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+          "sha256": "46e84f07134bde9447f749304e1d7545d89595750b92e13da842890430f6ecbd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 12,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-002",
+      "fingerprint": "abd1eeb955ac0bcfe0656854ca44f8a54e3f5717352642ceaf9ce2170557084c",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+          "sha256": "80e85868550ea2271bdcb88d11c668642743002625d7d236ad721ba4e637ac9f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+          "sha256": "d4fdd11ea04776b4da3f74048d4ee3f490bcfa92b4e8de969df77ddd6f6cb9b0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+          "sha256": "7dd716fe334cb10c7854488ce18f591a1792e25f8ac019d400c107d7951c9e4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+          "sha256": "ab77b9c2753ca5e17df6750c053d7d0558fe6130d1b9524489804270bcd04315"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+          "sha256": "694d89d7bec1c5c40ca6c16ad7bff74b9951df53188705a09115d9697ba4e503"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+          "sha256": "757fd38d5546656a87543dd2dd0028cea526d7bf25cbacbcf8204efac61928a5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+          "sha256": "5ad7e95a6a83099249699fdf5db7a6dccbfa2006552190bd6b9ba324076e4b34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+          "sha256": "190092780ee04879458b09d658277cb8ff4198482457a5e2584fb09ac7f32c36"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+          "sha256": "01fbb971c37e41da264ae5a52662c8b1d5cb40d9b5b8c5453a3504ed7201ff2b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+          "sha256": "e52efc9a6f8dd763a62bf7fc42766fa0d484f857e0e2bb786d0587eae8409f71"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+          "sha256": "ce60ffb38807ba9819eb66561880f76ebf43fcc1dc493d058e10f2afdbca103b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+          "sha256": "6e4b61825387618a31a0c080c503822004a3d811ae2bcd03a87f3f694a127015"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+          "sha256": "579aa8aa861d8d73097a207aa7cbbbf501de6b395fb11a4119467c75661df155"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+          "sha256": "46e84f07134bde9447f749304e1d7545d89595750b92e13da842890430f6ecbd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 16,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-003",
+      "fingerprint": "6b822719db997f904d3f8833f7c4618eb1d3fb1e8c5353d7c1145cf24380d443",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-acceptance.png",
+          "sha256": "80e85868550ea2271bdcb88d11c668642743002625d7d236ad721ba4e637ac9f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-development.png",
+          "sha256": "d4fdd11ea04776b4da3f74048d4ee3f490bcfa92b4e8de969df77ddd6f6cb9b0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done-document.png",
+          "sha256": "7dd716fe334cb10c7854488ce18f591a1792e25f8ac019d400c107d7951c9e4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/isolated-done.png",
+          "sha256": "ab77b9c2753ca5e17df6750c053d7d0558fe6130d1b9524489804270bcd04315"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-done-document.png",
+          "sha256": "694d89d7bec1c5c40ca6c16ad7bff74b9951df53188705a09115d9697ba4e503"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-observation.json",
+          "sha256": "757fd38d5546656a87543dd2dd0028cea526d7bf25cbacbcf8204efac61928a5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/local-req0051-development.png",
+          "sha256": "5ad7e95a6a83099249699fdf5db7a6dccbfa2006552190bd6b9ba324076e4b34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/network.json",
+          "sha256": "190092780ee04879458b09d658277cb8ff4198482457a5e2584fb09ac7f32c36"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/project-switch-empty.png",
+          "sha256": "01fbb971c37e41da264ae5a52662c8b1d5cb40d9b5b8c5453a3504ed7201ff2b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/review.md",
+          "sha256": "e52efc9a6f8dd763a62bf7fc42766fa0d484f857e0e2bb786d0587eae8409f71"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.json",
+          "sha256": "ce60ffb38807ba9819eb66561880f76ebf43fcc1dc493d058e10f2afdbca103b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/revoked.png",
+          "sha256": "6e4b61825387618a31a0c080c503822004a3d811ae2bcd03a87f3f694a127015"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/same-size-updated.png",
+          "sha256": "579aa8aa861d8d73097a207aa7cbbbf501de6b395fb11a4119467c75661df155"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/product/source-deleted.png",
+          "sha256": "46e84f07134bde9447f749304e1d7545d89595750b92e13da842890430f6ecbd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/local-observation.json",
+          "sha256": "3c992af5d36f5a881c159de009c0380901237c4280b10b5962e4c6449948087d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/isolated-real-http.png",
+          "sha256": "343d60437b689bfa258c297792040b763391864a6947ade3c4d57bfac3cd4894"
+        }
+      ],
+      "duration_ms": 33,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "bd8a63c46bc4500908212df717b32a2c89a9119bfd773b6d57bc779510e455f8",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 18,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "b814dd1f728f0216388b8dee40081e7a60a100674805284f80fcebf0b9af1505",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/ui/skeleton-1440.png",
+          "sha256": "a859cfd489710d5c624511534fc3e60e913c556e857e9dfffe6dffed7c890189"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 27,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "5e777ae7437c1f0edf73dfb224122f9bbff6f90dadf45992838ab507ac38c40f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-dark.png",
+          "sha256": "67416a9c7993009d4b9208dc6fba5e87baf7841e9c3b5ea7210cb335ec89179d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-1440-light.png",
+          "sha256": "1405904e95876b0bcf739f817a6746aad5a1c31134c66aa8ae0397c62a9dca5f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-dark.png",
+          "sha256": "9bc0ce7cb5e63567079162f69dea2399acc9e851b82d5493a58ec4f1302f9aa1"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-capture-390-light.png",
+          "sha256": "247733696ab2832c54dd61acace81e37ddd1699625172d2a748462db07bb3ec6"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-dark.png",
+          "sha256": "65f9d83a28f057146b567120945a4254463b3e94061f2a7f005c5bac8eaa8a03"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-1440-light.png",
+          "sha256": "31a5de861a04ad145c01b5b2ad635514c15840ed2386f7deb68adae51ce3c85b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-dark.png",
+          "sha256": "23d0a2a9bd14d5903d2a76351a1d7554548f9d508a49f51840493a1f94de8eaf"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-planning-390-light.png",
+          "sha256": "7ecf8ef257920998a7f7c793f034b98a5a905bf8777d612cd00b0c277204cd4b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-dark.png",
+          "sha256": "0e948cb15391aaa1653ee7aef96089c9cbbbbf8d3636b28ee9a16733a5118153"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-1440-light.png",
+          "sha256": "bd8feb6bf3e3cb032ab3a00cf2e5016c1dc7080f8658bb95386b13da79a62238"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-dark.png",
+          "sha256": "acc7be8b52444501ec6911a0721a52b5aa4893af3a7452d9ca260723ec76cb96"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-review-ready-390-light.png",
+          "sha256": "330b2d21da0f6cc46f2e6dce8a56081ad875c65d5c736db5a320357db29a80b9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-dark.png",
+          "sha256": "ab968f56a0f694457217ccc47c13c0243bd4e5e4f7119bc20c35b7cec869785f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-1440-light.png",
+          "sha256": "9181703c0670e730bff83e463d6adbebb5d763aa19611ea2d40d77769cffb998"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-dark.png",
+          "sha256": "2b3fbdf656b0b02af629451136b109f127d2dc81428a0ca448a46934f35dac84"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-approved-390-light.png",
+          "sha256": "55a7040544edea7003b39f16fe6a27af86b26a93381aff07bc6148de87d889ba"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-dark.png",
+          "sha256": "6563f2f718b9b4eab6120a8da62da93d439fd1b29e0668a9822f03589cfe451d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-1440-light.png",
+          "sha256": "0d6bd5abca937b57067b5e6798d995331e5035bb5efdc863cf3c881d300035b2"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-dark.png",
+          "sha256": "aaefad740a1ef4decb3c97d3571203361455d08a8c4901cd6f38ece4b3c279c5"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-sprint-planning-390-light.png",
+          "sha256": "8addc1028677c7add23f3e71ad57c465e7c1309526d75e529958423dd419c6f9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-dark.png",
+          "sha256": "b6c3e830df1429fbe87a6cc15f12f038491f7b380b4830a7508887063d140884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-1440-light.png",
+          "sha256": "24118a46b7d86079a18738b86ef5879e8a7d0beb5379e3749182c38e80106884"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-dark.png",
+          "sha256": "a3659f39a160be745f43422cda772616a3186cfa20cba68f05fb1567cbb2ef3b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-ready-dev-390-light.png",
+          "sha256": "251e99a3fd4fcd71b0c1e79a58b4de051972e36bf5c49f828081bcaf6e6130bc"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-1440-light.png",
+          "sha256": "e5017fcccd43c6b7a2eaa96659397e7b0610f4bea2b56c997437e0a051c5abc0"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-dark.png",
+          "sha256": "cf83818ea7efbb5f6767b8b7e6476338fbc2b9d65c3b5830af23f8aa2947154d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-development-390-light.png",
+          "sha256": "749c9db9826da41d0f7ba13f18f6bbd28388dadf76cbe6c1199f775cea3b3f92"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-dark.png",
+          "sha256": "45fefc9931c8b85b3e0d66d782c6a07eaced45ec976d3c899c187ae3300200dd"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-1440-light.png",
+          "sha256": "49f42c2148ab1db6e6c1ede0aedcd2b3ce7096c362afc0c6960c8d08bbd8643b"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-dark.png",
+          "sha256": "f4051af2801d2611ecac5246d56e290e6e1f5547e01dfd3687197718321f2cca"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-acceptance-390-light.png",
+          "sha256": "e6db32a2ba18385cfad2e853659ff2dfed74ce2a22cc7b125770a8aaa4f86b16"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-dark.png",
+          "sha256": "d4605d99e0629bbe972b87306c037f4909d6ecc72c12cff46aa173c830c24f8f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-1440-light.png",
+          "sha256": "e09535e59af9ad3d6f44b2761d62edafafbf23ea63739ee2610f25dacf88af4f"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-dark.png",
+          "sha256": "06f2ddef6cf50b47aa265c33c9f692667272ee7543054e0972c8fc5958202e34"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/stage-done-390-light.png",
+          "sha256": "5423cda94012a4f73af3e79e61f9ca1b531860f445648ab6ae880d9bc1864995"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/computed-styles.json",
+          "sha256": "1dcfb74667863625e9a4ebc55d4aecbbf8efb105b2c363cad271e08c63d26920"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/keyboard.json",
+          "sha256": "a6484c043c96585995d1d9702d13089c46dfebf8db8d0a46480448999f343b58"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-dark.png",
+          "sha256": "98d730bac2a525550aa334c6f686413a9e322fbf06e6525df3352e79c6dcfb53"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-1440-light.png",
+          "sha256": "6f6b66c371485421c88819825d70d19f0bfe7110f625a3699a368119c46951b7"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-dark.png",
+          "sha256": "45afbae93f701b90ac1e469a4694471b1174e3f770354c3f9fb04ec0a6a914e1"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-1-390-light.png",
+          "sha256": "9883bc4ebb04cd9d97d8cc4db947267f1f84bd68626442b0b8e1690bdbd75e8d"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-dark.png",
+          "sha256": "df0afe08e55cd00129b9fe96bae1e4bd077ad4d32f20864266fb12d8c055fb48"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-1440-light.png",
+          "sha256": "5719591ddf826af6e719a8e43976760d3cea809746ab550289b8e3ff6aa2fa80"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-dark.png",
+          "sha256": "df0afe08e55cd00129b9fe96bae1e4bd077ad4d32f20864266fb12d8c055fb48"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-6-390-light.png",
+          "sha256": "5719591ddf826af6e719a8e43976760d3cea809746ab550289b8e3ff6aa2fa80"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-dark.png",
+          "sha256": "d8351462850be8263115c5f5588b70f7b6ea9304987f015074f3889c28a11a2e"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-1440-light.png",
+          "sha256": "7fd5f70ef91add74bd29cf3aa213bfbef57abf2b305d1d89b6f6eb20c5200d92"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-dark.png",
+          "sha256": "d8351462850be8263115c5f5588b70f7b6ea9304987f015074f3889c28a11a2e"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/spacing/drawer-8-390-light.png",
+          "sha256": "7fd5f70ef91add74bd29cf3aa213bfbef57abf2b305d1d89b6f6eb20c5200d92"
+        }
+      ],
+      "duration_ms": 51,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "fingerprint": "b2a7b47388c09731148bec6b43b5f26afe6a18b6848111a46d781f4ae0e0086e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/evidence/acceptance/implementation-review.md",
+          "sha256": "82a62c9ba0767545c01a3cc017d989bf0fb962f4b4fb809280da43b7901ca3a9"
+        },
+        {
+          "path": "openspec/changes/add-card-persistent-info-tags/acceptance-fixes.md",
+          "sha256": "fe41e58c5e3f734f6c42be8bff29c2af3e21b7656ff6abc3faa00d183935baee"
+        }
+      ],
+      "duration_ms": 16,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 3,
+    "deduplicated": 15,
+    "reused": 0,
+    "preflight_ms": 205,
+    "duration_ms": 15253,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

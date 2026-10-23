@@ -1,7 +1,7 @@
 ---
 name: "req-complete"
 description: "需求完善 - 基于 requirement.md 补齐六件套（不含 OpenSpec）"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 ---
 
 # req-complete
@@ -264,3 +264,7 @@ python scripts/sync-workflow-status.py --event req.complete --req <REQ-id> --spr
 本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
 
 在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

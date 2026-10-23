@@ -106,6 +106,8 @@ def main():
     heartbeat.__enter__()
     try:
         while running:
+            from app.governance.recovery_capabilities import publish as publish_capabilities
+            publish_capabilities("worker")
             if capture_job is None or not capture_job.is_alive():
                 capture_job=threading.Thread(target=capture_tick,args=(factory,),daemon=True)
                 capture_job.start()
@@ -151,6 +153,9 @@ def main():
                             parent=db.execute(select(conversations).where(conversations.c.id==token['conversation_id'])).mappings().one()
                             service.conversation(db,parent['owner_id'],parent['id'])
                         if path != source and not path.exists(): prepare_workspace(source,path.parent,token['conversation_id'])
+                        # Copying a workspace can exceed the heartbeat TTL. This live
+                        # worker refreshes only its own declaration before preflight.
+                        publish_capabilities("worker")
                         from app.governance.preparation import initialize_workspace
                         with factory() as db: initialize_workspace(db, parent, source, path)
                         trusted_directory(path)

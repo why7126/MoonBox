@@ -1,0 +1,29 @@
+{
+  "observed_at": "2026-10-19",
+  "environment": "isolated actual product, synthetic accounts",
+  "browser_capabilities_verified": [
+    "screenshot",
+    "viewport",
+    "computed_style",
+    "console"
+  ],
+  "observations": {
+    "detail": "REQ-0001 drawer readable owner matches card",
+    "same_name_options": [
+      "同名验收（1）",
+      "同名验收（2）"
+    ],
+    "same_name_selection": "Selecting (1) with search 同名验收 retains only REQ-9003, excludes REQ-9004; manual refresh retains selection",
+    "clearing": "All filters cleared after observation",
+    "long_name": "scrollWidth 356 > clientWidth 290/284; hidden + ellipsis; full readable title",
+    "console_errors": 0,
+    "visible_internal_id": false
+  },
+  "automated_scope": "139 Vitest tests, including project switching and legacy responses; browser product switching not separately claimed",
+  "visual_review": "Capture dark/light at 1440x900 and390x844; ready-dev/acceptance light at both sizes reviewed. Horizontal board panning at390 is existing design. Owner region retains layout and readable title.",
+  "evidence": [
+    "visual/owner-detail-1440x900.png",
+    "visual/same-name-filter-1440x900.png",
+    "visual/owner-dom-audit.json"
+  ]
+}

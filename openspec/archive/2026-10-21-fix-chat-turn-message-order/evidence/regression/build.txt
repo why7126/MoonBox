@@ -1,0 +1,18 @@
+
+> moonbox-web@0.1.0 build
+> tsc -b && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1640 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.52 kB │ gzip:   0.31 kB
+dist/assets/index-DWHuk3pT.css  230.07 kB │ gzip:  37.37 kB
+dist/assets/index-D74RYK8L.js   542.50 kB │ gzip: 167.62 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.66s

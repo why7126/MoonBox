@@ -1,0 +1,55 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#部署与回退"
+      ],
+      "tasks": [
+        {
+          "id": "deployment-config-repair",
+          "state": "pending"
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#动作入口复核"
+      ],
+      "tasks": [
+        {
+          "id": "preparation-retry-after-stability",
+          "state": "pending"
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#自动验收最终结论"
+      ],
+      "tasks": [
+        {
+          "id": "implementation",
+          "state": "done"
+        },
+        {
+          "id": "validation",
+          "state": "done"
+        },
+        {
+          "id": "workflow-sync",
+          "state": "done"
+        }
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-direct-command-completion-proof",
+  "run_id": "20261021123611523281-f7365cd8",
+  "created_at": "2026-10-21 12:36:35",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "diagnostic",
+  "status": "failed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "d6173974cafeef4f55a87a28404ce9c85c03339da86c568db156d14f9da805dd",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 23571,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "f44e1bf8959a74fd277203ce4a1bfbb37fdf1feb654a745e36320047b50a3850",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "turn-or-command-incomplete",
+      "turn_id": "f855646d-d1c7-4b1a-a32b-a71452fe3fb5",
+      "conversation_id": "5bce998e-4d1b-5a09-baa7-3dea9715fc10",
+      "turn_status": "stopped",
+      "error_code": "result_or_token_limit",
+      "command_sequence": 284,
+      "command_exit_code": 0,
+      "effect_problems": [
+        "text-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/req-final.json"
+      ],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/req-final.json",
+          "sha256": "092d439ccb6e4e89d603d655b920c7905714c5458632d1dbf1d50da5375767e8"
+        }
+      ],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "9d02ba3c4d4dd0a6a8aeef39b4c9a16d22f66b59051b8643a48ec90819371be5",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "ce03f97eb927f85e114d8c3435971da10a2e9aa5c6074f5257ea07bb8133ff38",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "8b0437fa5afb3d53a1ebb3dd5c1e48d47d0466b6ce540c829db444b01534dc17",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "38c1b506aa1e420426e022f079d2590c67b917d9b4a163bb032c13b61d5d3fad",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "e8fc8e926ceda3ee685b43611747172512fe279d976d3ee66f8784376cbd605c",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "c31588e5a82a4b3409ba149074f625167d10e71fc6152fa09ca276746b8330ba",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "34cf5b43ff03af282f10ced4364f7c69f030f3a587c3322daef2b9905af4d210",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "f09289f9cda6cf2d19c3f11a0be2f645edf127bf18afaf860adcd1371205e94f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "5af532f911b6854630336c12340dda5239678e21cbfd51fd16df9600b60114ee",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "2b34da696e8a5a0774a24bc9409c5e7df44f9b78091f83913a9f84b8dc6812c2",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-013",
+      "fingerprint": "967dcddbd8227fe557f450b3ddddde15dbf086dcf044f6ad355b663f8cb994a6",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-1440.png",
+        "artifact-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-narrow.png",
+        "artifact-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/computed-style.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-014",
+      "fingerprint": "85f194ef27d7b6e8735e4db46c18b7d2d9a468cb5a299c810426b6d374e379e6",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "effect-missing",
+      "turn_id": "5139b5cc-c501-49cb-83fc-1c90d8fd1487",
+      "conversation_id": "8fe169c9-517b-52fb-9586-ba9c5fc6e0f9",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 160,
+      "command_exit_code": 0,
+      "effect_problems": [
+        "text-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug-final.json"
+      ],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug-final.json",
+          "sha256": "5a4d656d8efa8b7867359db5ce3cb10f9ffa784bf92ae20055fe8a52dc20ae14"
+        }
+      ],
+      "duration_ms": 8,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-015",
+      "fingerprint": "a6a06f82340115916690a68c1425807512ae76321cc9a9e696fd540117a261ef",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug0055-recovery.json"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-016",
+      "fingerprint": "00f3a18496f519b89c2285647f6c050d8943cc1778970c7db177f548272ee4b1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+          "sha256": "9d19906d5b30170a0ef0d403d0a8cd01b3110d1b58d2f47167900a7ff7886c92"
+        },
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/mysql-regression.txt",
+          "sha256": "f212bca0bef8a0ca2e8bb981c0cd15dd1807853b9ff7a1f8d94a262093aef561"
+        },
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/web-regression.txt",
+          "sha256": "1bca4eb8c9fe2f007599eac9702ba47138660b4507461aec536de146f5b5023d"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 11,
+    "reused": 0,
+    "preflight_ms": 80,
+    "duration_ms": 23858,
+    "blocked": 2,
+    "failed": 2
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

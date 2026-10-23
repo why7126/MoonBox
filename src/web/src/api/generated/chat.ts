@@ -13,7 +13,7 @@ export interface ApiResponseDict {
   data: ApiResponseDictData;
 }
 
-export type ErrorResponseData = {[key: string]: string} | null;
+export type ErrorResponseData = { [key: string]: unknown } | null;
 
 export interface ErrorResponse {
   code: number;
@@ -158,6 +158,7 @@ export type TurnReadRequestedConfig = { [key: string]: unknown };
 export type TurnReadEffectiveConfig = { [key: string]: unknown };
 
 export interface TurnRead {
+  direct_action?: string | null;
   id: string;
   conversation_id: string;
   client_request_id: string;
@@ -219,6 +220,34 @@ export interface VerificationTaskCreate {
   browser: string;
 }
 
+export type MessageOrderKeyRoleRank = typeof MessageOrderKeyRoleRank[keyof typeof MessageOrderKeyRoleRank];
+
+
+export const MessageOrderKeyRoleRank = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
+  NUMBER_2: 2,
+} as const;
+
+export interface MessageOrderKey {
+  turn_created_at: string;
+  turn_id: string;
+  role_rank: MessageOrderKeyRoleRank;
+  message_id: string;
+}
+
+/**
+ * message_saved、output_event 或 legacy_unknown；与排序独立
+ */
+export type MessageReadTimeSource = typeof MessageReadTimeSource[keyof typeof MessageReadTimeSource];
+
+
+export const MessageReadTimeSource = {
+  message_saved: 'message_saved',
+  output_event: 'output_event',
+  legacy_unknown: 'legacy_unknown',
+} as const;
+
 export type MessageReadEffectiveConfig = { [key: string]: unknown };
 
 export type MessageReadMaterialsItem = { [key: string]: unknown };
@@ -232,6 +261,11 @@ export interface MessageRead {
   effective_config?: MessageReadEffectiveConfig;
   config_fallback_reason?: string | null;
   materials?: MessageReadMaterialsItem[];
+  order_key: MessageOrderKey;
+  /** 可确认的消息保存或输出事件时间；历史不可靠时间为空 */
+  display_time?: string | null;
+  /** message_saved、output_event 或 legacy_unknown；与排序独立 */
+  time_source: MessageReadTimeSource;
   /** 正文来源：message 为已落库，events 为只读事件投影 */
   output_source?: string | null;
   /** 部分输出不代表执行完成 */
@@ -242,6 +276,8 @@ export interface MessageRead {
 
 export interface MessagePage {
   items: MessageRead[];
+  next_cursor?: string | null;
+  has_more?: boolean;
   page: number;
   page_size: number;
 }
@@ -350,6 +386,7 @@ repository_id: string;
 };
 
 export type ConversationMessagesApiV1ChatConversationsCidMessagesGetParams = {
+before?: string | null;
 /**
  * @minimum 1
  */

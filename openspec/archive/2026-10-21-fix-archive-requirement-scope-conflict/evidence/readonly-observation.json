@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "evidence_type": "repository-readonly-observation",
+  "change_id": "fix-chat-unified-run-status-verification",
+  "before": {
+    "ready": false,
+    "done": 0,
+    "total": 36,
+    "source": "evidence",
+    "reason": "验收证据缺失、过期或未全部通过"
+  },
+  "after": {
+    "ready": true,
+    "done": 36,
+    "total": 36,
+    "source": "evidence",
+    "recovery_reason": null,
+    "diagnostics": [],
+    "reason": null
+  },
+  "chain": [
+    "fix-verified-result-execution-guard-convergence",
+    "fix-direct-command-completion-proof",
+    "fix-chat-turn-message-order",
+    "fix-cross-entry-continuation-guard"
+  ],
+  "archive_unchanged": true,
+  "journals_unchanged": true,
+  "sprint_precheck": "pass",
+  "workflow_dry_run": "ok=true",
+  "actual_archive_performed": false
+}

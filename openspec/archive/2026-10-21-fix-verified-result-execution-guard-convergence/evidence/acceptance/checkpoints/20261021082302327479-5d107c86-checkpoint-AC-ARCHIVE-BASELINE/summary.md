@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-ARCHIVE-BASELINE | passed | command | openspec/changes/fix-verified-result-execution-guard-convergence/evidence/reaccept-archive-real-chain.json,openspec/changes/fix-verified-result-execution-guard-convergence/evidence/cross-day-recovery.json |

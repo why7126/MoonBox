@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Any
 
 from pydantic import BaseModel
 
@@ -21,4 +21,4 @@ class PageResponse(BaseModel, Generic[DataT]):
 class ErrorResponse(BaseModel):
     code: int
     message: str
-    data: dict[str, str] | None = None
+    data: dict[str, Any] | None = None

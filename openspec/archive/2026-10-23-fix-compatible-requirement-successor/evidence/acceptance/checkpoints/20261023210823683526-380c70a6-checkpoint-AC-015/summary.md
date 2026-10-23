@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-015 | blocked | command,product_turn,visual | openspec/changes/fix-compatible-requirement-successor/evidence/product/ac-015.json,openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-1440.png,openspec/changes/fix-compatible-requirement-successor/evidence/product/archive-diagnostics-390.png,openspec/changes/fix-compatible-requirement-successor/evidence/product/computed-style.json,openspec/changes/fix-compatible-requirement-successor/evidence/product/deployment-versions.json,openspec/changes/fix-compatible-requirement-successor/evidence/product/positive-sprint-closed.png,openspec/changes/fix-compatible-requirement-successor/evidence/product/positive-sprint-verified.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-1440.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-1440.json,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/blockers-390.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/styles-390.json,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-1440.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/signoff-390.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/deployment.json,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-observation.json,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/interrupted-sample.json,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-1440.png,openspec/changes/fix-compatible-requirement-successor/evidence/reapply/positive-direct-390.png |

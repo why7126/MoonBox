@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-wrapper-workflow-sync-proof",
+  "run_id": "20261020001201052199-e4819a55",
+  "created_at": "2026-10-20 00:12:01",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "local-compose",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "aeb8e6fa8a8f1f818c7cbf7de3eb9df44b00eed769b2c4b349e7d76bdf654dd2",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "432acfee-6660-4496-80d3-de5aa9c60d7a",
+      "conversation_id": "d580271b-8432-5c38-9de0-ef9818560c57",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 148,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-first-archive.json",
+          "sha256": "a0c34d71d55b0a7bdfbe32336fd0859f9aea512435a410d4c491deb29d6c79ec"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-completed-1440.jpg",
+          "sha256": "4b04e29f606bfc82b19a47222793d4a4dc4d73bdac15175d2a7387bcfce86ca3"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "76d389d37324007230fb1355836581a8f430a4cd3c4bae6fb000cf33b2770969",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "01127ee771fba1266122c87ba49d8ac347e43856819f05c02137d1b9630d3bef",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "db25fb2094ac5172a449d7eba9df0306352b02a2fe059a7f2d57594ac63fa772",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "35ee4b98-fa14-45bc-8bb2-16c24973d57b",
+      "conversation_id": "69bb5ae1-2249-52bf-b204-64ddf6b13d0b",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 121,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-recovery.json",
+          "sha256": "e986fd95b3cfa339564cc7058b3317bf87200d352d604866c369ccccca13f955"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-restored-1440.jpg",
+          "sha256": "e41a792e017a47859325cbebac8fceb42805e9d0cb68ab5e42d747b1fd7c35a9"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0048-chat-readonly-1440.jpg",
+          "sha256": "5d71da24921c97db9e6d9dd77d7a3e3e79a79a0a3b4787354a2ca81fb463498d"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "9d500ef7117bd8acfdf2a15a7d5e8d4465fac90bb1ea8b382e268ec5895ba7fd",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-after-restart.json",
+          "sha256": "cc29061d23d35c0a31e39673d6ca8b1ef20c223afeddc206dd39b0e2f8532e4b"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "054260ddcd4ac10bb04b128463f1ecc45a468674496b2ecdf69015f0eeccb2f6",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "df0d77aeb18b5c959275950d43bb9eb241b7a90201e8dd148e22ef58f2278256",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "432acfee-6660-4496-80d3-de5aa9c60d7a",
+      "conversation_id": "d580271b-8432-5c38-9de0-ef9818560c57",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 148,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-done-board-1440.jpg",
+          "sha256": "6593a69e54a11cb566a41e0e591d0b75507fa8d70f9f605cb28566600567721b"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0051-chat-refreshed-1440.jpg",
+          "sha256": "965a73a55b33006405d0d89bfaa9685a4c8d90660756a2aad1b01532d9208c8c"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-rejected-registry-1440.jpg",
+          "sha256": "7c2b89d7b5914b0781d53ed5e4463d323a7fe6fc2ec94929b9c5fc1a2fe62b7d"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-rejected-registry.json",
+          "sha256": "0d40a6596f6661f6321433ab58d4e5ce8f037e56c33e30fc30a58509a42263a4"
+        },
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-restart-1440.jpg",
+          "sha256": "4daf9f62bdc71e83cd8dd0f19cf73d472a5f087a28b630d44197017f7bcc98be"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 0,
+    "deduplicated": 0,
+    "reused": 4,
+    "preflight_ms": 69,
+    "duration_ms": 494,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

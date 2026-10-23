@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "environment": "isolated-real-api-round5",
+  "sample": "synthetic legacy prepared proposal",
+  "legacy_decision_http_status": 409,
+  "legacy_new_archive_http_status": 409,
+  "legacy_archive_operations_created": 0,
+  "legacy_authorization_events_created": 0,
+  "historical_rows_retained": 1,
+  "claim": "旧版未领取操作不能经旧入口获得新授权或新归档",
+  "remaining": "缺少有原始可信材料的 claimed 旧操作，无法完成真实中断续接；本样本不能代替已归档历史证明的产品只读核验"
+}

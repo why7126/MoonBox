@@ -9,9 +9,21 @@ from app.governance.review import review_outcome, validate_review
 
 
 def finalize_review(before, after, oid, base, action):
+    def sync_acceptance(files):
+        result = dict(files)
+        event = 'bug' if action == 'bug-review' else 'req'
+        for folder in (base, base.replace('/plan/', '/review/')):
+            path = f'{folder}/acceptance.md'
+            if path in result:
+                result[path] = re.sub(
+                    rb'(?m)^source_event: ' + event.encode() + rb'\.complete$',
+                    f'source_event: {event}.review'.encode(), result[path])
+        validate_review(before, result, oid, base, action)
+        return result
+
     try:
         validate_review(before, after, oid, base, action)
-        return after
+        return sync_acceptance(after)
     except ChatError as error:
         # Document, migration and approval gates precede projection checks.
         if (error.details or {}).get('reason') not in ('registry_target', 'index'):
@@ -69,4 +81,4 @@ def finalize_review(before, after, oid, base, action):
     result[index] = ''.join(lines).encode()
     # Validate the complete result again, including unrelated objects and index rows.
     validate_review(before, result, oid, base, action)
-    return result
+    return sync_acceptance(result)

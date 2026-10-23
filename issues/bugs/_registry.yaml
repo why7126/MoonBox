@@ -1,7 +1,283 @@
-next_id: 43
+next_id: 64
 entries:
+- id: BUG-0063-compatible-requirement-successor-blocked
+  title: "同条文兼容追加被归档后继冲突门禁拒绝"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户bug-capture授权及同会话探索
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0063-compatible-requirement-successor-blocked/
+  created: '2026-10-22 08:58:14'
+  related_requirement: null
+  related_bug:
+  - BUG-0060-direct-command-completion-proof-drift
+  - BUG-0061-cross-entry-continuation-guard-convergence
+  - BUG-0062-archive-requirement-scope-conflict
+  related_change: fix-compatible-requirement-successor
+  iteration: sprint-012
+- id: BUG-0062-archive-requirement-scope-conflict
+  title: "归档恢复按模块误判冲突导致验收进度失真与迭代关闭受阻"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户bug-capture授权及同会话只读探索
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0062-archive-requirement-scope-conflict/
+  created: '2026-10-21 17:45:33'
+  related_requirement: REQ-0046-chat-execution-output-status-feedback
+  related_bug: BUG-0052-verified-result-execution-guard-not-released
+  related_change: fix-archive-requirement-scope-conflict
+  iteration: sprint-012
+- id: BUG-0061-cross-entry-continuation-guard-convergence
+  title: "产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话探索证据
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0061-cross-entry-continuation-guard-convergence/
+  created: '2026-10-21 15:36:49'
+  related_requirement: null
+  related_bug: BUG-0060-direct-command-completion-proof-drift
+  iteration: sprint-012
+  related_change: fix-cross-entry-continuation-guard
+- id: BUG-0060-direct-command-completion-proof-drift
+  title: "Chat 治理命令同步后完成证明失效导致卡片滞留旧阶段"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户授权及同会话只读补证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/
+  created: '2026-10-21 09:39:21'
+  related_requirement: null
+  related_bug: BUG-0052-verified-result-execution-guard-not-released
+  iteration: sprint-012
+  related_change: fix-direct-command-completion-proof
+- id: BUG-0056-requirement-center-context-load-latency
+  title: "需求中心首屏聚合请求耗时约二十七秒"
+  status: approved
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话 explore 证据
+  lifecycle_stage: review
+  path: issues/bugs/review/BUG-0056-requirement-center-context-load-latency/
+  created: '2026-10-21 08:50:06'
+  related_requirement: null
+  related_bug: BUG-0016-capture
+  iteration: null
+  related_change: null
+- id: BUG-0057-requirement-card-chat-navigation-latency
+  title: "需求卡片动作准备会话导致进入聊天工作台等待过长"
+  status: enriching
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话 explore 证据
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/
+  created: '2026-10-21 08:50:06'
+  related_requirement: null
+  related_bug: null
+  iteration: null
+  related_change: null
+- id: BUG-0058-chat-history-status-replay-request-amplification
+  title: "聊天历史状态重建与重复读取导致加载迟缓"
+  status: approved
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话 explore 证据
+  lifecycle_stage: review
+  path: issues/bugs/review/BUG-0058-chat-history-status-replay-request-amplification/
+  created: '2026-10-21 08:50:06'
+  related_requirement: null
+  related_bug: null
+  iteration: null
+  related_change: null
+- id: BUG-0059-chat-governance-command-submit-latency
+  title: "聊天治理命令同步准备导致消息提交等待过长缺陷记录"
+  status: captured
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话 explore 证据
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0059-chat-governance-command-submit-latency/
+  created: '2026-10-21 08:50:06'
+  related_requirement: null
+  related_bug: null
+  iteration: null
+  related_change: null
+- id: BUG-0055-chat-turn-message-order-inversion
+  title: "Chat 同轮助手回复排在用户提问之前"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户授权与同会话只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0055-chat-turn-message-order-inversion/
+  created: '2026-10-21 08:41:29'
+  related_requirement: REQ-0046-chat-execution-output-status-feedback
+  related_bug: BUG-0030-chat-assistant-output-missing-from-conversation
+  iteration: sprint-011
+  related_change: fix-chat-turn-message-order
+- id: BUG-0053-deployed-acceptance-input-resolution
+  title: "部署态验收输入解析不完整导致纯 Change 归档误阻塞"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户授权与同会话只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0053-deployed-acceptance-input-resolution/
+  created: '2026-10-20 18:50:18'
+  related_requirement: null
+  related_bug: BUG-0054-change-card-blocked-reason-missing
+  iteration: sprint-011
+  related_change: fix-deployed-acceptance-input-resolution
+- id: BUG-0054-change-card-blocked-reason-missing
+  title: "纯 Change 卡片验收阻塞缺少具体原因"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户授权与同会话只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0054-change-card-blocked-reason-missing/
+  created: '2026-10-20 18:50:18'
+  related_requirement: null
+  related_bug: BUG-0053-deployed-acceptance-input-resolution
+  iteration: sprint-011
+  related_change: fix-change-card-blocked-reason
+- id: BUG-0052-verified-result-execution-guard-not-released
+  title: "成果已核验但执行保护未解除导致需求卡片滞留待评审"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户授权及同会话 explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0052-verified-result-execution-guard-not-released/
+  created: '2026-10-20 08:49:59'
+  related_requirement: REQ-0046-chat-execution-output-status-feedback
+  related_bug: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+  iteration: sprint-011
+  related_change: fix-verified-result-execution-guard-convergence
+- id: BUG-0051-archive-wrapper-proof-serial-fixture
+  title: "归档包装证明无干扰串行验收样本"
+  status: done
+  severity: low
+  path: issues/bugs/archive/BUG-0051-archive-wrapper-proof-serial-fixture/
+  lifecycle_stage: archive
+  created: '2026-10-19 23:42:49'
+  related_bug: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+  iteration: sprint-010
+  related_change: fix-archive-wrapper-proof-serial-fixture
+- id: BUG-0050-archive-wrapper-proof-acceptance-fixture
+  title: "归档包装脚本完成证明首次归档验收样本"
+  status: done
+  severity: low
+  path: issues/bugs/archive/BUG-0050-archive-wrapper-proof-acceptance-fixture/
+  lifecycle_stage: archive
+  created: '2026-10-19 23:19:49'
+  related_bug: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+  iteration: sprint-010
+  related_change: fix-archive-wrapper-proof-acceptance-fixture
+- id: BUG-0049-archive-wrapper-workflow-sync-unrecognized
+  title: "归档包装脚本同步成功未识别导致看板停留验收中"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户截图与同会话 explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0049-archive-wrapper-workflow-sync-unrecognized/
+  created: '2026-10-19 22:55:37'
+  iteration: sprint-010
+  related_change: fix-archive-wrapper-workflow-sync-proof
+  related_requirement: REQ-0027-requirement-center-command-chain-realization
+  related_bug: BUG-0044-requirement-stage-premature-transition-session-split
+- id: BUG-0048-chat-legacy-panel-cleanup-removes-conversation
+  title: "旧治理面板清理误删聊天会话区域"
+  status: done
+  severity: high
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0048-chat-legacy-panel-cleanup-removes-conversation/
+  created: '2026-10-19 18:48:04'
+  owner: 产品团队
+  related_requirement: REQ-0046-chat-execution-output-status-feedback
+  related_bug: BUG-0047-review-recovery-operation-record-missing
+  iteration: sprint-010
+  related_change: fix-chat-legacy-panel-cleanup-boundary
+- id: BUG-0047-review-recovery-operation-record-missing
+  title: "评审恢复记录缺失导致成果未应用与卡片未流转"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户反馈与本会话 explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0047-review-recovery-operation-record-missing/
+  created: '2026-10-19 14:16:01'
+  iteration: sprint-010
+  related_change: fix-review-recovery-operation-record-missing
+  related_requirement: REQ-0046-chat-execution-output-status-feedback
+  related_bug: BUG-0044-requirement-stage-premature-transition-session-split
+  related_requirements:
+  - REQ-0047-governance-command-durable-recovery
+  - REQ-0027-requirement-center-command-chain-realization
+- id: BUG-0045-chat-acceptance-runtime-capability-gap
+  title: "Chat 命令执行环境缺少验收能力导致开发验收中断"
+  status: approved
+  severity: high
+  owner: 产品团队
+  source: 用户截图与同会话反馈
+  lifecycle_stage: review
+  path: issues/bugs/review/BUG-0045-chat-acceptance-runtime-capability-gap/
+  created: '2026-10-19 11:24:41'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: BUG-0046-chat-midrun-question-response-unavailable
+- id: BUG-0046-chat-midrun-question-response-unavailable
+  title: "Chat 命令执行中提出问题但缺少可回答和续接入口"
+  status: approved
+  severity: high
+  owner: 产品团队
+  source: 用户截图与同会话反馈
+  lifecycle_stage: review
+  path: issues/bugs/review/BUG-0046-chat-midrun-question-response-unavailable/
+  created: '2026-10-19 11:24:41'
+  iteration: null
+  related_change: null
+  reporter: user
+  related_requirement: REQ-0025-chat-workbench
+  related_bug: BUG-0045-chat-acceptance-runtime-capability-gap
+- id: BUG-0044-requirement-stage-premature-transition-session-split
+  title: "需求中心阶段提前迁移并开放后续动作导致同一对象会话分裂"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: BUG-0028 操作案例及同会话 explore
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0044-requirement-stage-premature-transition-session-split/
+  created: '2026-10-19 10:56:47'
+  iteration: sprint-010
+  related_change: fix-requirement-stage-completion-session-continuity
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: BUG-0028-requirement-center-card-owner-raw-user-id
+- id: BUG-0043-requirement-center-card-width-sprint-tag-wrap
+  title: "需求中心九阶段卡片宽度不足导致迭代标签换行"
+  status: done
+  severity: low
+  owner: 产品团队
+  source: 用户截图与 explore 只读取证
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0043-requirement-center-card-width-sprint-tag-wrap/
+  created: '2026-10-19 09:24:30'
+  iteration: sprint-010
+  related_change: fix-requirement-center-card-width-sprint-tag-wrap
+  reporter: user
+  related_requirement: REQ-0012-frontend-requirement-center
+  related_bug: null
 - id: BUG-0042-chat-archive-issue-promote-retest-2
-  title: "Chat 关联 Issue 首次归档复验夹具"
+  title: Chat 关联 Issue 首次归档复验夹具
   status: done
   severity: low
   owner: MoonBox 产品团队
@@ -15,7 +291,7 @@ entries:
   related_requirement: null
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
 - id: BUG-0041-chat-archive-issue-promote-retest
-  title: "Chat 关联 Issue 首次归档复验夹具"
+  title: Chat 关联 Issue 首次归档复验夹具
   status: done
   severity: low
   owner: MoonBox 产品团队
@@ -29,7 +305,7 @@ entries:
   related_requirement: null
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
 - id: BUG-0040-chat-archive-issue-promote-fixture
-  title: "Chat 首次归档关联 Issue 迁移验收夹具"
+  title: Chat 首次归档关联 Issue 迁移验收夹具
   status: done
   severity: low
   owner: MoonBox 产品团队
@@ -85,7 +361,7 @@ entries:
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: null
 - id: BUG-0036-bug
-  title: "需求中心 Bug 生成治理链路验收隔离夹具"
+  title: 需求中心 Bug 生成治理链路验收隔离夹具
   status: draft
   severity: low
   owner: user_b6aa2646805846d49532232d30dcff48
@@ -99,7 +375,7 @@ entries:
   related_requirement: null
   related_bug: null
 - id: BUG-0035-requirement-center-acceptance-readiness-projection
-  title: "需求中心卡片验收进度与归档门禁不一致且验收文档入口消失"
+  title: 需求中心卡片验收进度与归档门禁不一致且验收文档入口消失
   status: done
   severity: medium
   owner: 产品团队
@@ -113,7 +389,7 @@ entries:
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: BUG-0023-requirement-center-acceptance-progress-task-classification
 - id: BUG-0034-chat-standalone-archive-scope-tool-path
-  title: "产品内纯治理 Change 归档因权限与命令路径缺失失败"
+  title: 产品内纯治理 Change 归档因权限与命令路径缺失失败
   status: done
   severity: high
   owner: 产品团队
@@ -127,7 +403,7 @@ entries:
   related_requirement: null
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
 - id: BUG-0033-opsx-apply-governance-scope-source-readonly
-  title: "产品内执行 opsx-apply 误授治理写权限导致源码只读"
+  title: 产品内执行 opsx-apply 误授治理写权限导致源码只读
   status: done
   severity: high
   owner: 产品团队
@@ -169,7 +445,7 @@ entries:
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0025-requirement-center-command-chain-write-gap
 - id: BUG-0030-chat-assistant-output-missing-from-conversation
-  title: "Chat 工作台已有助手输出事件但对话正文为空"
+  title: Chat 工作台已有助手输出事件但对话正文为空
   status: done
   severity: high
   owner: 产品团队
@@ -183,7 +459,7 @@ entries:
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0026-chat-platform-opsx-archive-source-permission
 - id: BUG-0029-chat-workbench-nonempty-page-scroll
-  title: "Chat 工作台非空白对话出现页面级滚动条及底部布局异常"
+  title: Chat 工作台非空白对话出现页面级滚动条及底部布局异常
   status: done
   severity: medium
   owner: 产品团队
@@ -197,21 +473,21 @@ entries:
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0027-page-scroll-bottom-light-background-exposed
 - id: BUG-0028-requirement-center-card-owner-raw-user-id
-  title: 需求中心 Capture 卡片直接显示内部用户标识
-  status: approved
+  title: "需求中心 Capture 卡片直接显示内部用户标识"
+  status: done
   severity: medium
   owner: 产品团队
   source: 用户截图反馈
-  lifecycle_stage: review
-  path: issues/bugs/review/BUG-0028-requirement-center-card-owner-raw-user-id/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0028-requirement-center-card-owner-raw-user-id/
   created: '2026-10-05 22:23:03'
-  iteration: null
-  related_change: null
+  iteration: sprint-010
+  related_change: fix-requirement-center-owner-display
   reporter: user
   related_requirement: REQ-0012-frontend-requirement-center
   related_bug: null
 - id: BUG-0027-page-scroll-bottom-light-background-exposed
-  title: "页面向上滑动时底部露出浅色背景"
+  title: 页面向上滑动时底部露出浅色背景
   status: done
   severity: medium
   owner: 产品团队
@@ -225,7 +501,7 @@ entries:
   related_requirement: null
   related_bug: null
 - id: BUG-0026-chat-platform-opsx-archive-source-permission
-  title: "Chat 平台无法归档 source 工作区 Change 且状态未知"
+  title: Chat 平台无法归档 source 工作区 Change 且状态未知
   status: done
   severity: high
   owner: 产品团队
@@ -239,7 +515,7 @@ entries:
   related_requirement: REQ-0039-requirement-center-card-chat-session-reuse
   related_bug: BUG-0025-requirement-center-command-chain-write-gap
 - id: BUG-0025-requirement-center-command-chain-write-gap
-  title: "需求中心看板展示完整治理命令链但多数命令未接入真实写入"
+  title: 需求中心看板展示完整治理命令链但多数命令未接入真实写入
   status: done
   severity: medium
   owner: user_f694abc671d548b48d9eb897f720ba4d
@@ -253,7 +529,7 @@ entries:
   related_requirement: null
   related_bug: null
 - id: BUG-0024-login-expired-refresh-not-redirect-login
-  title: "登录失效时，页面刷新也没有重新定位到登录页"
+  title: 登录失效时，页面刷新也没有重新定位到登录页
   status: done
   severity: medium
   owner: user_f694abc671d548b48d9eb897f720ba4d

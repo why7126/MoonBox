@@ -5,6 +5,7 @@ import logging
 from time import perf_counter
 from urllib.parse import urlencode
 import yaml
+from sqlalchemy import select
 from app.chat.service import ChatError
 from app.governance import scope as scopes
 from app.governance.snapshot import stable, materialize, cached_materialize, safe_load, Snapshot
@@ -88,7 +89,7 @@ class ProjectReader:
             raise ChatError(2605,'受控写入服务尚未就绪，文档保持只读',503)
         files=dict(snapshot.files)
         start = perf_counter()
-        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision)) as root, legacy.using_governance_root(root, immutable=True):
+        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision)) as root, legacy.using_governance_root(root, immutable=True, evidence_root=self.scope.root, evidence_source_root=getattr(self.scope, "source_root", None)):
             timings["materialize_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             if name != 'build_requirement_center_context':
@@ -97,8 +98,11 @@ class ProjectReader:
             timings["object_authorization_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             if name == 'build_requirement_center_context':
-                kwargs = {**kwargs, 'visibility': lambda oid: scopes.visible(self.db, self.actor, self.scope, oid)}
-            result=getattr(legacy,name)(*args,**kwargs)
+                kwargs = {**kwargs, 'owner_space_id': self.scope.space_id,
+                          'visibility': lambda oid: scopes.visible(self.db, self.actor, self.scope, oid)}
+            from .controlled_successor import authority
+            with authority(self.db, self.scope, self.actor):
+                result=getattr(legacy,name)(*args,**kwargs)
             timings["parse_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
         timings["cleanup_ms"] = round((perf_counter() - start) * 1000, 2)
@@ -107,6 +111,56 @@ class ProjectReader:
             result.repository_id=self.scope.repository_id
             result.snapshot_revision=snapshot.revision
             result.sync_status='ready'
+            for sprint in result.current_iteration_capacity:
+                if self.scope.readonly or not scopes.visible(self.db, self.actor, self.scope, sprint.sprint_id):
+                    sprint.archive_readiness.can_enter_confirmation = False
+                    sprint.archive_readiness.display_mode = 'disabled'
+                    sprint.archive_readiness.reason_code = 'permission_denied'
+                    sprint.archive_readiness.safe_summary = '当前用户无权发起迭代归档。'
+                    sprint.archive_readiness.blockers = []
+            from app.governance.execution_context import reconcile, visible_state, canonical_id, reconcile_external
+            from app.governance.execution_guard import read as read_guard
+            reconcile(self.db, self.actor, self.scope)
+            for card in result.issues:
+                object_id = canonical_id(snapshot, card.id)
+                if card.type == 'change' and card.stage == 'acceptance':
+                    from app.governance.archive_admission import change_acceptance
+                    admission = change_acceptance(self.scope.root, object_id, source_root=getattr(self.scope, "source_root", None))
+                    if not admission['ready']:
+                        card.acceptance_blocked_reason = admission.get('reason') or '验收证据尚未就绪'
+                        card.blocked = card.acceptance_blocked_reason
+                        if card.action:
+                            card.action.disabled_reason = card.acceptance_blocked_reason
+                reconcile_external(self.db, self.scope, object_id, card.stage, snapshot)
+                guard = read_guard(self.db, self.scope.key, object_id)
+                state = visible_state(self.db, self.actor, self.scope, object_id)
+                card.execution_state = state['execution_state']
+                card.can_send = state['can_send']
+                card.execution_reason = state.get('reason_code')
+                card.view_conversation_id = state.get('view_conversation_id')
+                if guard and card.view_conversation_id:
+                    from app.governance.recovery_schema import operations
+                    card.view_turn_id = guard['operation_id']
+                    card.verification_operation_id = self.db.scalar(select(operations.c.id).where(operations.c.origin_turn_id == guard['operation_id']))
+                from app.governance.completion_handoff import status as completion_status
+                completion = completion_status(self.db, self.actor, self.scope, guard)
+                card.historical_result = completion['historical_result']
+                card.last_checked_at = completion['last_checked_at']
+                card.verification_reason = completion['verification_reason']
+                card.verification_actions = completion['verification_actions']
+                card.verification_differences = completion['verification_differences']
+                if guard and not state['can_send']:
+                    # Startup is immediate only when the lifecycle projection itself proves it.
+                    started = guard['action'] in ('opsx-apply', 'opsx-modify') and card.stage == 'development'
+                    # A terminated apply may have a verified CLI successor. Keep
+                    # the current lifecycle projection while blocking its action;
+                    # the old execution's stage is historical, not a rollback.
+                    continuation = guard['action'] in ('opsx-apply', 'opsx-modify') and guard['state'] != 'running'
+                    if not started and not continuation and guard['confirmed_stage'] and guard['confirmed_stage'] != 'unknown' and card.historical_result != 'verified':
+                        card.stage = guard['confirmed_stage']
+                    if card.action and card.stage != 'development':
+                        card.action.disabled_reason = '执行中，请查看原执行' if guard['state'] == 'running' else '结果待核对'
+            self.db.commit()
             query=urlencode({'space_id':self.scope.space_id,'repository_id':self.scope.repository_id})
             for issue in result.issues:
                 if issue.type == 'change' and issue.action and issue.stage != 'development' and self.scope.readonly:

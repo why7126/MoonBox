@@ -1,0 +1,394 @@
+{
+  "evidence_kind": "observed_product_readonly_export",
+  "passed": true,
+  "samples": [
+    {
+      "sample": "REQ-9094-recovery-normal",
+      "passed": true,
+      "checks": {
+        "board_after_fresh_login": true,
+        "business_completed": true,
+        "original_terminal_preserved": true,
+        "unique_verified_application": true,
+        "whole_migration": true,
+        "registry_trace_index": true,
+        "same_turn_command_observed": true,
+        "service_crash_preserved_identity_and_budgets": true,
+        "recovery_without_new_model_turn": true
+      },
+      "turn_id": "599bd177-45e1-49e2-ba8c-4116cb82267b",
+      "conversation_id": "6229c8c9-4425-54b7-b42e-5f2b06e63ed5",
+      "operation_id": "05501a92-f5df-4896-ac7f-3a57698afca9",
+      "candidate_id": "062912fd-3ba1-56b8-a0aa-9035605d69d6",
+      "terminal": "completed",
+      "application_ids": [
+        "73b5b277-59f0-46cc-af28-0447aa84e754"
+      ],
+      "attempt_ids": [],
+      "original_file_count": 8,
+      "final_file_count": 9,
+      "command_event_sequences": [
+        54
+      ],
+      "turn_count": 2,
+      "model_turn_count": 2,
+      "restart": null
+    },
+    {
+      "sample": "REQ-9093-recovery-recovery",
+      "passed": true,
+      "checks": {
+        "board_after_fresh_login": true,
+        "business_completed": true,
+        "original_terminal_preserved": true,
+        "unique_verified_application": true,
+        "whole_migration": true,
+        "registry_trace_index": true,
+        "same_turn_command_observed": true,
+        "service_crash_preserved_identity_and_budgets": true,
+        "recovery_without_new_model_turn": true
+      },
+      "turn_id": "e63ea940-4488-41b0-90cf-009d4cfb96bf",
+      "conversation_id": "11672fd9-4132-5c7a-8efb-4760fe59c7db",
+      "operation_id": "b654c18d-ab31-4cab-b653-f0225ed2592e",
+      "candidate_id": "c4612a5d-d360-554e-9c90-2e06a641737a",
+      "terminal": "completed",
+      "application_ids": [
+        "c67a8915-9a4d-48f6-94ba-149537a39e80"
+      ],
+      "attempt_ids": [],
+      "original_file_count": 8,
+      "final_file_count": 9,
+      "command_event_sequences": [
+        113,
+        119,
+        122,
+        125
+      ],
+      "turn_count": 3,
+      "model_turn_count": 2,
+      "restart": {
+        "turn_id": "e63ea940-4488-41b0-90cf-009d4cfb96bf",
+        "mode": "service_crash_during_apply",
+        "source": "operator_observed_process_crash_and_persisted_application_trace",
+        "initial_generation_window_check": "not_met",
+        "before": {
+          "turn_count": 3,
+          "model_turn_count": 2
+        },
+        "after": {
+          "status": "completed",
+          "executor_turn_id": "01a1539f-3127-73e2-ba95-cd39a74774f8",
+          "state": "completed",
+          "stage": "complete",
+          "auto_retry_count": 0,
+          "manual_count": 0,
+          "execution_terminal": null,
+          "application_id": "c67a8915-9a4d-48f6-94ba-149537a39e80",
+          "observed_executor_terminal": "completed",
+          "turn_count": 3,
+          "model_turn_count": 2
+        },
+        "application_id": "c67a8915-9a4d-48f6-94ba-149537a39e80",
+        "recovery_trace": [
+          {
+            "span_name": "governance.queued",
+            "created_at": "2026-10-19T10:09:00+00:00"
+          },
+          {
+            "span_name": "governance.recovering",
+            "created_at": "2026-10-19T10:09:14+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:15+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:16+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:16+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:17+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:18+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:19+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:20+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:20+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:21+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:22+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:24+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:25+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:26+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:27+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:28+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:29+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:31+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:31+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:32+00:00"
+          },
+          {
+            "span_name": "governance.applying",
+            "created_at": "2026-10-19T10:09:35+00:00"
+          },
+          {
+            "span_name": "governance.applied",
+            "created_at": "2026-10-19T10:09:39+00:00"
+          }
+        ],
+        "identity_and_budget_preserved": true
+      }
+    },
+    {
+      "sample": "BUG-9094-recovery-normal",
+      "passed": true,
+      "checks": {
+        "board_after_fresh_login": true,
+        "business_completed": true,
+        "original_terminal_preserved": true,
+        "unique_verified_application": true,
+        "whole_migration": true,
+        "registry_trace_index": true,
+        "same_turn_command_observed": true,
+        "service_crash_preserved_identity_and_budgets": true,
+        "recovery_without_new_model_turn": true
+      },
+      "turn_id": "1925da02-82d3-4714-b786-c622cc65d12f",
+      "conversation_id": "d42257af-cda7-5001-b256-d6c664925305",
+      "operation_id": "a318829e-4a43-4dcf-a988-a9b903e3842b",
+      "candidate_id": "67a0d779-1712-5bf0-b0c7-033e416e0a82",
+      "terminal": "completed",
+      "application_ids": [
+        "0a10fdf2-785d-4e52-afd5-32cc1d63658c"
+      ],
+      "attempt_ids": [],
+      "original_file_count": 6,
+      "final_file_count": 7,
+      "command_event_sequences": [
+        130,
+        133,
+        139,
+        223,
+        229
+      ],
+      "turn_count": 1,
+      "model_turn_count": 1,
+      "restart": null
+    },
+    {
+      "sample": "BUG-9093-recovery-recovery",
+      "passed": true,
+      "checks": {
+        "board_after_fresh_login": true,
+        "business_completed": true,
+        "original_terminal_preserved": true,
+        "unique_verified_application": true,
+        "whole_migration": true,
+        "registry_trace_index": true,
+        "same_turn_command_observed": true,
+        "service_crash_preserved_identity_and_budgets": true,
+        "recovery_without_new_model_turn": true
+      },
+      "turn_id": "0709daec-e01c-4916-9a42-a2201f3c8556",
+      "conversation_id": "fab62af1-a61b-503b-bf74-7936c96bd937",
+      "operation_id": "83f85da3-25d3-4394-ba00-bfb3b0767bd0",
+      "candidate_id": "f3fa6a4a-c496-5156-acb1-0bb92a227c98",
+      "terminal": "completed",
+      "application_ids": [
+        "5512252b-712c-4bd4-a101-3cfe1f0b0189"
+      ],
+      "attempt_ids": [],
+      "original_file_count": 6,
+      "final_file_count": 7,
+      "command_event_sequences": [
+        129,
+        132,
+        138
+      ],
+      "turn_count": 1,
+      "model_turn_count": 1,
+      "restart": {
+        "turn_id": "0709daec-e01c-4916-9a42-a2201f3c8556",
+        "mode": "service_crash",
+        "before": {
+          "status": "running",
+          "executor_turn_id": "01a15398-0d79-7e60-b3d7-fb716c4d011a",
+          "state": "active",
+          "stage": "generation",
+          "auto_retry_count": 0,
+          "manual_count": 0,
+          "execution_terminal": null,
+          "application_id": null,
+          "observed_executor_terminal": "completed",
+          "turn_count": 1,
+          "model_turn_count": 1
+        },
+        "after": {
+          "status": "completed",
+          "executor_turn_id": "01a15398-0d79-7e60-b3d7-fb716c4d011a",
+          "state": "active",
+          "stage": "apply",
+          "auto_retry_count": 0,
+          "manual_count": 0,
+          "execution_terminal": "completed",
+          "application_id": "5512252b-712c-4bd4-a101-3cfe1f0b0189",
+          "observed_executor_terminal": "completed",
+          "turn_count": 1,
+          "model_turn_count": 1
+        },
+        "identity_and_budget_preserved": true
+      }
+    }
+  ],
+  "readback_runtime_fingerprints": {
+    "src/backend/app/governance/recovery_retention.py": "181125eeab0388758d23cd11fecb10da20bfbce2bac3eea166c716b33fadaa80",
+    "src/backend/app/governance/capture_worker.py": "fb7357697b0e14ade4fc010012ee2f2920c38ea60ec89bf04d2a98e76ada4145",
+    "src/backend/app/governance/store.py": "fadcd8dfc3e2950e1a4d7c1a17d9f359dd215e6dffdf2e5f0c15058493e09b71",
+    "src/backend/app/governance/capture_executor.py": "5b4f2232adf156b8ffef4fb77168a6059302834aa1979a25940d972e1a2f0148",
+    "src/backend/app/governance/backup.py": "4e9f9fd76175fb5319a34b93af9c6e4b5b9d3da442dfa6d13822af0b0f9665c6",
+    "src/backend/app/governance/requirement_completion.py": "1349986574d52d9a3e7a337ba05525936cd60d614ab17d0422f96c998b845afe",
+    "src/backend/app/governance/capture_organizer.py": "e94853e61f56219b6e627193316f0bbf6ec026af6d9cdf2483e7821ff23181ba",
+    "src/backend/app/governance/controller.py": "70a574fffafb9159ba4959fd81ae7e1c900ff3cbbf0927cecf3022af8221dc4b",
+    "src/backend/app/governance/deployment.py": "8345bf9a1b16a2658930432e225e1fc1949990f5a10b4e6d8ea8a761c808b1aa",
+    "src/backend/app/governance/candidate_recovery.py": "5c1c15ad6752556e6ed932a740346bfe93321de3dc93205e6e7f5fceea1be246",
+    "src/backend/app/governance/completion_recovery.py": "9333b94316af9a387980171746b53f85aaaac03d9bce66066c9f4dbbfb43536d",
+    "src/backend/app/governance/change_index.py": "ed7a9bb645fe350c4d171eee2aabcf44c6ce331f73dfbf96b2fe554e2bb948eb",
+    "src/backend/app/governance/durable_recovery.py": "341048a69bf19bff133bfdc0e754a71cdf8f2a8e922d4ef2463bb945d0d7a3b2",
+    "src/backend/app/governance/__init__.py": "44f475c52a4e5f40ba28454689d596b20f19149a6380c72fd02bef1c55a3ea09",
+    "src/backend/app/governance/observability.py": "36d7df7de069946e02ac4199ecfce1b93a5a0ede227bf62ba670975fd9be1658",
+    "src/backend/app/governance/recovery_service.py": "cfa77a65eb375979f502b1ac03100677f09316fe36c5fe8e3fc3b1ecef032a6a",
+    "src/backend/app/governance/review.py": "b84f51d31fffa3ccaa8c8acc47ca52ce852971dcbc0637ee0f3b58c0808d47b0",
+    "src/backend/app/governance/titles.py": "8a32a6160647eb94d9371843077f2ee50554c629bc2454fbe4c4c34d1b305495",
+    "src/backend/app/governance/api.py": "dfb1e60359158bf8b8ef9f9a4f1f7f90964173265d9eb0b8b3241b6205823626",
+    "src/backend/app/governance/recovery_controller.py": "b1eec62a9fbca58e6a5b2ebfa0d72d2df04fb56b8c48d4bee8feec65b8d11805",
+    "src/backend/app/governance/reader.py": "40a7359beec306bbe275a266aa3482d1c59e0d3f2eb30929f2ef5a1ec0d9a562",
+    "src/backend/app/governance/capture.py": "6ae0322a9cd0ee87d5fe2721d52aa0799466be43a2e93884a0a41e7f30118764",
+    "src/backend/app/governance/lifecycle.py": "6f9b8a594206855e5be1ae8cc5f05f55e622ff0a1ff4e7fbb605be6e0f93887d",
+    "src/backend/app/governance/capture_drafts.py": "b21ef3b74cd42cefee211834dd173707450d2b4d15e6757edd41063e774feb55",
+    "src/backend/app/governance/direct_command_journal.py": "c1dd6766fb06154802b286562e060d63261578a15e39b3142518992dc9879fb8",
+    "src/backend/app/governance/capture_confirmations.py": "fc39b571f6b66d691debe4ea97f8f312d36eaf23a1658f389561904c3f05f89c",
+    "src/backend/app/governance/execution_context.py": "e95f640a1d8bb5ff0405c6ec431199203c3c4add6ef3d33986eae7430f0e04c0",
+    "src/backend/app/governance/writer.py": "6b908f269a5bd1feca07a40b4294211616f6143eb4b9ef3494690a6861e1ad50",
+    "src/backend/app/governance/review_recovery.py": "b2025fc4e60f2139c7fdbb9797cca280fc6d2747dcf75b94e2307e8638a27021",
+    "src/backend/app/governance/execution_validation.py": "74483577cd5436adee2a574c6c6000abea0568253ea43092d118aad196f65339",
+    "src/backend/app/governance/readiness.py": "bcfa3f08872d16a654df46657c5ecd0fe9739e468d8809332052f1717e27148b",
+    "src/backend/app/governance/execution_guard.py": "3fe540f17f865ebb09f4ac6113bd5d47f9553b1e6d6af37b4c6ee79ccdbca971",
+    "src/backend/app/governance/recovery_capabilities.py": "17df6072fdb5e86a34b10c435c4c3b0b1314998ffa2dcd5010c50c6cc5ca01df",
+    "src/backend/app/governance/candidates.py": "0b1358367040bcfc2899f892328605144799b8ae180d2f061567e54edd8c92b9",
+    "src/backend/app/governance/capture_observability.py": "b93ee414a404c5ef099a103ad5cb2d928ae2f9a4cafdf0ae63c493d3781c0cd6",
+    "src/backend/app/governance/scope.py": "8119e12312c19ecbb4a94a8881c8bd43261b002b5560a8984d1e109722ee922f",
+    "src/backend/app/governance/capture_cleanup.py": "5faa157c4c980c430c93510b33238dee3b8ed3ba2230cd49472b2fdf7d5b395f",
+    "src/backend/app/governance/preparation.py": "49f800b14d3466c6da845c9d63fd4b2418e268c857234dbe0512344e7e101db9",
+    "src/backend/app/governance/review_finalization.py": "a28e0ea9d8b093c8ddcac40c965c20fe3a5bf518cdff0a4b1fec89ccaa7436bd",
+    "src/backend/app/governance/snapshot.py": "4b981468cd5f1830373618f41ee60992a2320746ba3d6a764b121cc3e12105d4",
+    "src/backend/app/governance/capture_media.py": "28097bc94a32782c09e6952df73753895fdbdc19a406f70644df97f06b75216e",
+    "src/backend/app/governance/recovery_schema.py": "f06cf2ba698c49f3906eb5fc17ccac70109dea5e3dc293d961ed584aaf662879",
+    "src/backend/app/governance/capture_schema.py": "0cece0c7df9f44204b68f64d92c2037c9ae602525d9d4cedad73713aa6902298",
+    "src/backend/app/chat/container_server.py": "792ef755fd442babbfacc73979cc8bae01f0f10036a96a859cc585898a64ef7d",
+    "src/backend/app/chat/tool_record.py": "767d979a298e438af128f34c8576abb689be57fcf4c17166b8cc49362754499c",
+    "src/backend/app/chat/worker.py": "77fba2f70c1c95da8f6fd73ff2c164896c72722dc456ddd3f2de65edd7ac0ac9",
+    "src/backend/app/chat/service.py": "cee17ec163579ffe6e5809c609b1a293256ed763fa9c414df46cc19a01deef2f",
+    "src/backend/app/chat/backup.py": "c802963562e7c53c138d7b3a62888ceeb7c9ba127c0c90e67297aef29a896055",
+    "src/backend/app/chat/accounting.py": "180cde3c4fcf9dd25efcd8bd3e7187094ca1087368ad64503294d0aa660af2fa",
+    "src/backend/app/chat/execution.py": "afcaed3742cbc266f6d966bbc0030c1ca1c4dafbf116398b47c861a5423a8d97",
+    "src/backend/app/chat/deployment.py": "f1735d462bda54e362d1a67ca3be55269b797c2ed5c9f9b2529fa0926b2664e1",
+    "src/backend/app/chat/snapshot_observability.py": "ff39ebb5835774e9b8a93d0679bb310e5a2419f2cf5061187dc34d6d1c99432a",
+    "src/backend/app/chat/relations.py": "51fdf543a4a865eae9a7ae1e7a972515a850a19d75f6c5e3509f32c0029af09d",
+    "src/backend/app/chat/policy.py": "ec583f0fa70796b421a30c0e4316e1358ef673132dbb8d1a22b35e944e0b56ad",
+    "src/backend/app/chat/isolated.py": "38fbb0b0c4b1aa77edfcd5bfcaf7810be078df96f950ec69e5985272eab5b2bf",
+    "src/backend/app/chat/__init__.py": "03954d50bcd688508f9d9138af142031c488d2b7f5caa3b027057ebbfcc216a9",
+    "src/backend/app/chat/observability.py": "bda8c6f834f96365f19e07c108944d3605f0923194b7776817b8850e4c561a4e",
+    "src/backend/app/chat/platform_worker.py": "1f8fc3a9b62e2dddd50b7627d41e7908abe2abc12dc48b23a2fe52ce1e8a8cb4",
+    "src/backend/app/chat/cleanup.py": "55d59d34a610c2920c1d4799aabda991f6bbe0031c413a120aa14780e7259226",
+    "src/backend/app/chat/platform.py": "86b9fb4aa9d88c8b61574b943586e863460acc7bbce6a69a2522d930ad422b68",
+    "src/backend/app/chat/api.py": "8070472f202c7e8bcfab398a4260a27d78143300e871f98e00e739f59a3cb2ab",
+    "src/backend/app/chat/platform_deployment.py": "1e4b3f0bdce7e5aa9d63aed6c2ad762c910af7aa844d8926b2c320959594e415",
+    "src/backend/app/chat/local_worker.py": "7d96ddb92a74e2e06c328f1b5be4118eb9abd5ba5a34cad9710280b66c443d3f",
+    "src/backend/app/chat/settings.py": "3308519a84b2da46fc774f00d4aacb6cff9dbf77c47b1fa596eda04d90a62b26",
+    "src/backend/app/chat/preparation_failure.py": "8f104c38aeb04e9772282c73122cd0a618ec777dddbb62e35557f95ec98e04f9",
+    "src/backend/app/chat/admission.py": "34399ab49b6e35a9831ed34207c955a0190a63c9adea7bf8258f5074f3c9e283",
+    "src/backend/app/chat/heartbeat.py": "b95c61aeffd804c21dede19ccb22180c037a58ba91d0f37dd6911a42836c9ee9",
+    "src/backend/app/chat/local_probe.py": "94467f3dfeed1d2bda5df6d9f9ededa31b8b444a90f51c42c1623349b4849a2f",
+    "src/backend/app/chat/app_server.py": "5f3d1edeb527192961b1ac578d0705b4da4ef21eeb3456b913bdae5caa238855",
+    "src/backend/app/chat/workspace.py": "c1ee05c81167150ae6b7edeea7469a6d96f45953b6913a3a7025aa1e0dbd4880",
+    "src/backend/app/chat/process_guard.py": "213d4de398a6f2d274354cf95a0597777d5ed9378da2ebc56efd6d7b242ad02a",
+    "src/backend/app/chat/assistant_output.py": "95db1cede0e1d2402d3c7df3c147587de368290e4edd85a1fa0975ebfaea85f6",
+    "src/backend/app/chat/schema.py": "46e19b050577976e29938ce20c099afe2b6f84288719dbcb0ffa6626e6706648",
+    "src/web/dist/assets/index-DhJcI7EE.js": "63167369afe5afa649cd1a1b4778ef2e2f4440c1b4729eb5d6b70dc0a99e631f",
+    "src/web/dist/assets/index-CpDV-LVE.css": "d012ad5c8cb7f3a9af975f26f886070181ed1d2ef689de387fe5de01a1c2afc2"
+  },
+  "fixture_preflight": [
+    {
+      "sample": "REQ-9094-recovery-normal",
+      "fixture_preflight": "passed",
+      "file_changes": 19,
+      "evidence_kind": "synthetic_fixture"
+    },
+    {
+      "sample": "REQ-9093-recovery-recovery",
+      "fixture_preflight": "passed",
+      "file_changes": 19,
+      "evidence_kind": "synthetic_fixture"
+    },
+    {
+      "sample": "BUG-9094-recovery-normal",
+      "fixture_preflight": "passed",
+      "file_changes": 15,
+      "evidence_kind": "synthetic_fixture"
+    },
+    {
+      "sample": "BUG-9093-recovery-recovery",
+      "fixture_preflight": "passed",
+      "file_changes": 15,
+      "evidence_kind": "synthetic_fixture"
+    }
+  ]
+}

@@ -38,6 +38,8 @@ def main():
         except Exception:mark_unknown(factory,claim,'local_worker_setup_failed')
     try:
         while running:
+            from app.governance.recovery_capabilities import publish as publish_capabilities
+            publish_capabilities("worker")
             with factory() as db:
                 if not configuration(db):break
             stamp=root/'worker-ready.tmp';stamp.write_text(json.dumps({'time':time.time()}));stamp.replace(root/'worker-ready.json')

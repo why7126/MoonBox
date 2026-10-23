@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T11:45:16.483393+00:00",
+  "samples": [
+    {
+      "object_id": "REQ-9196-send-race",
+      "change_id": "isolated-send-race-req",
+      "conversation_id": "257f3b5c-7142-573f-bbc1-e58825c28061",
+      "turn_id": "949ca7a6-a154-4ba3-8712-1c4ac6f6cd2d",
+      "status": "queued",
+      "http_status": 200,
+      "guard": {
+        "state": "idle",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "turn_status": "completed",
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "wrapper_results": [
+        {
+          "sequence": 150,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "object_id": "BUG-9197-send-race",
+      "change_id": "isolated-send-race-bug",
+      "conversation_id": "e7a83790-052d-53b4-8726-ab8280722f6b",
+      "turn_id": "ca0d79ca-2673-4c8b-8a4d-eb36a0d4ca0a",
+      "status": "queued",
+      "http_status": 200,
+      "guard": {
+        "state": "validated",
+        "confirmed_stage": "done",
+        "terminal_status": "completed",
+        "reason_code": null
+      },
+      "turn_status": "completed",
+      "archive_count": 1,
+      "active_change_exists": false,
+      "issue_archived": true,
+      "wrapper_results": [
+        {
+          "sequence": 125,
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "real_model_turn_count": 2,
+  "serial": true,
+  "normal_http_authentication": true,
+  "guard_verified_by": "normal requirement-center/context API read after terminal",
+  "manual_guard_edit": false,
+  "formal_objects_archived": false,
+  "source_sha256": "c6f6a1b40a3d1cf49ba069a8ce6f398a76e468cb504e023a1144d5dc34f9bc69",
+  "scope": "isolated minimal governance archive samples; actual HTTP enqueue through configured model to archive and guard convergence; original business acceptance is covered by retained acceptance manifests",
+  "ready": true,
+  "cleanup": "isolated API/controller/worker stopped after verification"
+}

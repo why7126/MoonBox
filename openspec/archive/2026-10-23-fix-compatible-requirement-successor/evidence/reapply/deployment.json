@@ -1,0 +1,27 @@
+{
+  "services": {
+    "moonbox-backend": {
+      "image": "sha256:6495aff663f326e07522181ae0bafb52eefda66e23878d714faf410f6435d54d",
+      "health": "healthy",
+      "source_hashes_match": true
+    },
+    "moonbox-chat-worker": {
+      "image": "sha256:fc5968dd652cfb4a4832996d32751e1fda8cf8af8e0d98b366c70d5a972391c8",
+      "health": "healthy",
+      "source_hashes_match": true
+    },
+    "moonbox-governance-controller": {
+      "image": "sha256:6495aff663f326e07522181ae0bafb52eefda66e23878d714faf410f6435d54d",
+      "health": "healthy",
+      "source_hashes_match": true
+    }
+  },
+  "source_hashes": {
+    "governance/compatible_successor.py": "86f766ed87d11c4f4d2bd26b481b949a29558e32d5fc4d29e93aff17b6328679",
+    "governance/archive_recovery.py": "238ed9667d12e514ce7f6e49922d528fd965ba9d8f08256408a2639ae702cf4a",
+    "governance/sprint_archive_admission.py": "2521ddf8554c7ce967985116e7cbef9371a93423c6ac58c60019af7908c61dfd",
+    "governance/sprint_object.py": "402dc9a29a3fa15c5aab29265ed7f4bc4deb8902d2ff2068ab2d62721e33671c",
+    "chat/api.py": "dbbb0c81982e8d49dca52bedfd30e5d997d53787c3cf02aafdbbcb4898d7acaa",
+    "services/requirement_center.py": "f575cf0c1505ff9fecef1c4aea7fb500fc7e3f05e18830af49a834da09538a58"
+  }
+}

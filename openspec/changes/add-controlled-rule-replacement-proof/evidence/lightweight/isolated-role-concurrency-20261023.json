@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "isolated_real_http_api",
+  "scope": "合成账号、仓库副本、回环服务；未连接模型执行器或正式项目",
+  "sample_change": "fix-compatible-requirement-successor",
+  "role_results": [
+    {
+      "role": "space_owner",
+      "own_project_read": 200,
+      "can_confirm": true,
+      "own_project_confirm": 200,
+      "other_project_read": 403
+    },
+    {
+      "role": "editor",
+      "own_project_read": 200,
+      "can_confirm": false,
+      "own_project_confirm": 403,
+      "other_project_read": 403
+    },
+    {
+      "role": "viewer",
+      "own_project_read": 200,
+      "can_confirm": false,
+      "own_project_confirm": 403,
+      "other_project_read": 403
+    },
+    {
+      "role": "unrelated_space_owner",
+      "first_project_read": 403,
+      "second_project_read": 200,
+      "second_project_can_confirm": true,
+      "second_project_confirm": 200
+    }
+  ],
+  "version_change": {
+    "trigger": "在隔离仓库副本中追加验收文档内容",
+    "before_state": "confirmed",
+    "after_state": "pending",
+    "digest_changed": true,
+    "after_archive_ready": false,
+    "old_digest_confirm_http": 409,
+    "old_digest_error_code": 2606
+  },
+  "limits": [
+    "没有进行正式身份签署",
+    "没有发送 Chat 归档命令",
+    "没有覆盖全部归档入口或破坏性差异反例"
+  ]
+}

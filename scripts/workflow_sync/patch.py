@@ -1096,7 +1096,8 @@ def patch_acceptance_report(
         )
         text = table_pattern.sub(rf"\1{status_text}\2", text, count=1)
 
-    summary = sprint_summary_for_acceptance(sprint, changes)
+    from app.services.requirement_center import _sprint_report_signed_off
+    summary = sprint_summary_for_acceptance(sprint, changes, signed_off=_sprint_report_signed_off(text))
     note_line = f"note: workflow-sync — {summary}"
     if re.search(r"^note:\s*.+$", text, re.MULTILINE):
         text = re.sub(r"^note:\s*.+$", note_line, text, count=1, flags=re.MULTILINE)
@@ -1107,11 +1108,12 @@ def patch_acceptance_report(
     return PatchResult(str(path.relative_to(ROOT)), changed, "issue status lines + note")
 
 
-def sprint_summary_for_acceptance(sprint: SprintRecord, changes: dict[str, DerivedChange]) -> str:
+def sprint_summary_for_acceptance(sprint: SprintRecord, changes: dict[str, DerivedChange], *, signed_off: bool = False) -> str:
     total = len(sprint.changes)
     archived = sum(1 for cid in sprint.changes if changes.get(cid) and changes[cid].state == "archived")
     applied = sum(1 for cid in sprint.changes if changes.get(cid) and changes[cid].state == "applied")
-    return f"{archived}/{total} Change 已 archive；{applied} applied；待人工 sign-off"
+    signoff = "人工 sign-off 已完成" if signed_off else "待人工 sign-off"
+    return f"{archived}/{total} Change 已 archive；{applied} applied；{signoff}"
 
 
 def bug_summary_text(issue: IssueRecord) -> str:

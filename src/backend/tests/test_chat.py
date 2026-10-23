@@ -755,8 +755,15 @@ def test_write_policy_requires_current_role_and_sprint_change(chat,governance):
     with factory() as db:assert write_policy(db,'alice',parent)=={'write_scope':'governance_write','reason_code':'governance_object_writable'}
 
 
+@pytest.fixture
+def policy_only_admission(monkeypatch):
+    # These fixtures intentionally model only permission metadata. Full object
+    # admission and transaction behavior is covered by execution-guard tests.
+    monkeypatch.setattr('app.governance.execution_context.prepare', lambda *a, **kw: None)
+
+
 @pytest.mark.parametrize('source_field',['requirement','requirement_id'])
-def test_write_policy_grants_archive_scope_only_for_opsx_archive_turn(chat,governance,source_field):
+def test_write_policy_grants_archive_scope_only_for_opsx_archive_turn(chat,governance,source_field,policy_only_admission):
     from app.chat.admission import enqueue
     from app.chat.policy import write_policy
     from test_chat_accounting import LIMITS
@@ -804,7 +811,7 @@ def test_write_policy_grants_archive_scope_only_for_opsx_archive_turn(chat,gover
         assert write_policy(db,'alice',parent)['write_scope']=='read_only'
 
 
-def test_write_policy_grants_archive_scope_for_legacy_source_bug_trace(chat,governance):
+def test_write_policy_grants_archive_scope_for_legacy_source_bug_trace(chat,governance,policy_only_admission):
     import json
     import shutil
     from app.chat.admission import enqueue
@@ -844,7 +851,7 @@ def test_write_policy_grants_archive_scope_for_legacy_source_bug_trace(chat,gove
         assert write_policy(db,'alice',parent)['write_scope']=='read_only'
 
 
-def test_write_policy_archives_standalone_change_with_sprint_and_continuation(chat,governance):
+def test_write_policy_archives_standalone_change_with_sprint_and_continuation(chat,governance,policy_only_admission):
     import json
     import shutil
     from app.chat.admission import enqueue
@@ -878,7 +885,7 @@ def test_write_policy_archives_standalone_change_with_sprint_and_continuation(ch
         assert write_policy(db,'alice',service.conversation(db,'alice',cid))['write_scope']!='archive_write'
 
 
-def test_archive_scope_survives_cli_legacy_directory_transition(chat,governance):
+def test_archive_scope_survives_cli_legacy_directory_transition(chat,governance,policy_only_admission):
     import json
     import shutil
     from app.chat.admission import enqueue

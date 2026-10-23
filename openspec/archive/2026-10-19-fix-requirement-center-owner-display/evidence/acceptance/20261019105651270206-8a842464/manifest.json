@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-requirement-center-owner-display",
+  "run_id": "20261019105651270206-8a842464",
+  "created_at": "2026-10-19 10:56:51",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "2d09dff563f411197e1f1e35a9d24ad535672bc266a4fc067e7bf265e3b1a65e",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "c64a5cf1a9804d5e0e3827b9ae5dd878b541d19a4127c2b35f4c7d81aa0f6444",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "14f3bb9b30ee7b5f9cec216a7c731c23b11719030d755e0810a9298f61277437",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "50d96d0cd51fa0df8995d4549ca1da03eb61065913237abef6aa14ec1f1fce5f",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "ff247a56ecdda461fa02b8581d74a7068ef18e4a5525c611c55db35804dc6b97",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/product-capture.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "64ecb8762c6e2585477d79081d81883515d69cbdc6da32b6fe184e379b995fa1",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/owner-interactions.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "af72442a0ff8ac80b1196197620d954970f47bd7e898faf5b4a35b1123b27e50",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900-styles.json",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844-styles.json",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900-styles.json",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844-styles.json",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900-styles.json",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844.png",
+        "artifact-missing:openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844-styles.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "af5826f4bd78a753bfc59e6a3fd5ed0a770a798fa8c5b8942af1b309771e09be",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 0,
+    "deduplicated": 0,
+    "reused": 4,
+    "preflight_ms": 4,
+    "duration_ms": 13,
+    "blocked": 4,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

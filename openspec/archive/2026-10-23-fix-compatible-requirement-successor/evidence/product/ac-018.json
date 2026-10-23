@@ -1,0 +1,158 @@
+{
+  "sprint_id": "sprint-012",
+  "sprint_path": "iterations/change/sprint-012",
+  "changes": [
+    {
+      "change_id": "fix-direct-command-completion-proof",
+      "location": "archived",
+      "path": "openspec/archive/2026-10-21-fix-direct-command-completion-proof",
+      "tasks": {
+        "done": 16,
+        "total": 16,
+        "missing": false
+      },
+      "trace_exists": true,
+      "fallback_summary_status": "trace-present",
+      "fallback_summary_file": null,
+      "fallback_summary_missing": null,
+      "blocker": null,
+      "deep_blocked": false
+    },
+    {
+      "change_id": "fix-cross-entry-continuation-guard",
+      "location": "archived",
+      "path": "openspec/archive/2026-10-21-fix-cross-entry-continuation-guard",
+      "tasks": {
+        "done": 16,
+        "total": 16,
+        "missing": false
+      },
+      "trace_exists": true,
+      "fallback_summary_status": "trace-present",
+      "fallback_summary_file": null,
+      "fallback_summary_missing": null,
+      "blocker": null,
+      "deep_blocked": false
+    },
+    {
+      "change_id": "fix-archive-requirement-scope-conflict",
+      "location": "archived",
+      "path": "openspec/archive/2026-10-21-fix-archive-requirement-scope-conflict",
+      "tasks": {
+        "done": 11,
+        "total": 11,
+        "missing": false
+      },
+      "trace_exists": true,
+      "fallback_summary_status": "trace-present",
+      "fallback_summary_file": null,
+      "fallback_summary_missing": null,
+      "blocker": null,
+      "deep_blocked": false
+    },
+    {
+      "change_id": "add-sprint-archive-chat-entry",
+      "location": "archived",
+      "path": "openspec/archive/2026-10-21-add-sprint-archive-chat-entry",
+      "tasks": {
+        "done": 19,
+        "total": 19,
+        "missing": false
+      },
+      "trace_exists": true,
+      "fallback_summary_status": "trace-present",
+      "fallback_summary_file": null,
+      "fallback_summary_missing": null,
+      "blocker": null,
+      "deep_blocked": false
+    },
+    {
+      "change_id": "fix-compatible-requirement-successor",
+      "location": "active",
+      "path": "openspec/changes/fix-compatible-requirement-successor",
+      "tasks": {
+        "done": 9,
+        "total": 18,
+        "missing": false
+      },
+      "trace_exists": null,
+      "fallback_summary_status": "n/a",
+      "fallback_summary_file": null,
+      "fallback_summary_missing": null,
+      "blocker": "9 incomplete task(s); fix-compatible-requirement-successor: acceptance_not_ready: 验收证据缺失、过期或未全部通过",
+      "deep_blocked": true
+    }
+  ],
+  "change_batches": {
+    "applicable": false,
+    "reason": "not_applicable",
+    "threshold": 10,
+    "batch_size": 5,
+    "total_changes": 5,
+    "batch_count": 0,
+    "ordering": "archive-readiness queue",
+    "batches": []
+  },
+  "stale_scan": {
+    "sprint_id": "sprint-012",
+    "sprint_path": "iterations/change/sprint-012",
+    "checked_files": 39,
+    "blocker_count": 5,
+    "warning_count": 0,
+    "allowed_legacy_count": 0,
+    "hits": [
+      {
+        "severity": "blocker",
+        "kind": "issue-subdocument-active-change-path",
+        "target": "REQ-0049-sprint-archive-chat-entry",
+        "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/business-flow.md",
+        "line": 57,
+        "context": "2026-10-21：正式实现沿用本需求的范围完成准入、SPRINT 主关联复用、一次性命令预填、inline 草稿保留/填入及发送时最终门禁。附件与 Skill 上下文由原 Composer 保留，未新增确认弹窗或自动发送。API 与客户端文档已同步，关联使用现有字符串字段，无数据库 schema 迁移；SQLite 与 MySQL 回归已执行。真实产品与视觉证据统一见 `openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/`，最终验收结论以该 Change 报告为准。",
+        "reason": "Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。",
+        "suggestion": "改用 `openspec/archive/YYYY-MM-DD-<change-id>/` 或归档 trace 证据路径。"
+      },
+      {
+        "severity": "blocker",
+        "kind": "issue-subdocument-active-change-path",
+        "target": "REQ-0049-sprint-archive-chat-entry",
+        "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/requirement.md",
+        "line": 157,
+        "context": "2026-10-21：正式实现沿用本需求的范围完成准入、SPRINT 主关联复用、一次性命令预填、inline 草稿保留/填入及发送时最终门禁。附件与 Skill 上下文由原 Composer 保留，未新增确认弹窗或自动发送。API 与客户端文档已同步，关联使用现有字符串字段，无数据库 schema 迁移；SQLite 与 MySQL 回归已执行。真实产品与视觉证据统一见 `openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/`，最终验收结论以该 Change 报告为准。",
+        "reason": "Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。",
+        "suggestion": "改用 `openspec/archive/YYYY-MM-DD-<change-id>/` 或归档 trace 证据路径。"
+      },
+      {
+        "severity": "blocker",
+        "kind": "issue-subdocument-active-change-path",
+        "target": "REQ-0049-sprint-archive-chat-entry",
+        "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/user-stories.md",
+        "line": 27,
+        "context": "2026-10-21：正式实现沿用本需求的范围完成准入、SPRINT 主关联复用、一次性命令预填、inline 草稿保留/填入及发送时最终门禁。附件与 Skill 上下文由原 Composer 保留，未新增确认弹窗或自动发送。API 与客户端文档已同步，关联使用现有字符串字段，无数据库 schema 迁移；SQLite 与 MySQL 回归已执行。真实产品与视觉证据统一见 `openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/`，最终验收结论以该 Change 报告为准。",
+        "reason": "Change `add-sprint-archive-chat-entry` 已 archived，Issue 子文档不应继续引用 active change 路径。",
+        "suggestion": "改用 `openspec/archive/YYYY-MM-DD-<change-id>/` 或归档 trace 证据路径。"
+      },
+      {
+        "severity": "blocker",
+        "kind": "issue-subdocument-active-change-path",
+        "target": "BUG-0060-direct-command-completion-proof-drift",
+        "file": "issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/acceptance.md",
+        "line": 160,
+        "context": "16/16通过，失败/阻塞/待采集均为0。证据：`openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/20261021140608208403-5a55718c/summary.md`。REQ/BUG隔离样本均实际发送HTTP 200、completed、validated、卡片ready-dev、下一动作准备HTTP 200、CLI退出0。BUG-0055通过产品核验恢复且原28条步骤哈希未变；历史归因缺口未伪造。原失败样本保留，正式对象未归档。",
+        "reason": "Change `fix-direct-command-completion-proof` 已 archived，Issue 子文档不应继续引用 active change 路径。",
+        "suggestion": "改用 `openspec/archive/YYYY-MM-DD-<change-id>/` 或归档 trace 证据路径。"
+      },
+      {
+        "severity": "blocker",
+        "kind": "issue-subdocument-active-change-path",
+        "target": "BUG-0060-direct-command-completion-proof-drift",
+        "file": "issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/trace.md",
+        "line": 64,
+        "context": "实现与部署已完成。Change完整报告 openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/20261021140608208403-5a55718c/summary.md 为16/16通过；REQ/BUG真实产品收尾、卡片流转、下一动作准备及CLI一致。BUG-0055历史现场经产品核验恢复，原28条步骤哈希不变。历史逐文件归因缺口保留；此前失败样本独立保存。正式对象未归档。",
+        "reason": "Change `fix-direct-command-completion-proof` 已 archived，Issue 子文档不应继续引用 active change 路径。",
+        "suggestion": "改用 `openspec/archive/YYYY-MM-DD-<change-id>/` 或归档 trace 证据路径。"
+      }
+    ]
+  },
+  "mode": "strict",
+  "verdict": "blocked"
+}

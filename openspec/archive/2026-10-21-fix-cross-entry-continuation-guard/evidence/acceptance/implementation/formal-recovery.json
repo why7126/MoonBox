@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "object_id": "BUG-0055-chat-turn-message-order-inversion",
+  "recovery_entry": "deployed product 核验当前成果",
+  "guard": {
+    "state": "idle",
+    "confirmed_stage": "done",
+    "version": 24
+  },
+  "steps_count": 140,
+  "steps_sha256": "dec131d6eee7ed165c7f152a344c9a27740ee4ed70d31a92879c4c6a4aef8c3c",
+  "steps_unchanged": true,
+  "events_count": 909,
+  "events_count_unchanged": true,
+  "events_latest_update": "2026-10-21T06:36:07+00:00",
+  "historical_attribution": "manifest_available",
+  "pending_confirmation": false,
+  "archive_exit_code": 0,
+  "issue_archived": true,
+  "active_change_absent": true,
+  "product_board_stage": "done",
+  "observed_warning": "核验请求曾返回网关504，后端提交成功；刷新核验状态确认成果已核验，未重放原命令。"
+}

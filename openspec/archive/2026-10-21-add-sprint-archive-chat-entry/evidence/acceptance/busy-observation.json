@@ -1,0 +1,83 @@
+{
+  "sample": "sprint-098",
+  "source": "isolated-live-product",
+  "session_count": 1,
+  "turns": [
+    {
+      "id": "8380c626-ecdc-442c-b5d9-263db66107b3",
+      "status": "running",
+      "error_code": null,
+      "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+      "sync": []
+    }
+  ],
+  "guards": [
+    {
+      "object_id": "sprint-098",
+      "state": "running",
+      "action": "sprint-archive",
+      "operation_id": "8380c626-ecdc-442c-b5d9-263db66107b3",
+      "confirmed_stage": "sprint-planning",
+      "reason_code": null
+    }
+  ],
+  "active_exists": true,
+  "archive_exists": false,
+  "behavior": [
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "new_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "SPRINT",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "reused_conversation"
+      }
+    },
+    {
+      "event_name": "governance.prepare",
+      "result": "success",
+      "properties": {
+        "conversation_id": "410f5dd0-85aa-5641-b2d6-f7f05f875f9e",
+        "object_type": "sprint",
+        "object_id": "sprint-098",
+        "action_type": "sprint-archive",
+        "result": "object_running"
+      }
+    }
+  ]
+}

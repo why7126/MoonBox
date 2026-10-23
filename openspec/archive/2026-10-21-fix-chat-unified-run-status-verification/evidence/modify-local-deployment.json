@@ -1,0 +1,54 @@
+{
+  "mode": "self-storage-sqlite",
+  "result": "healthy",
+  "services": {
+    "moonbox-backend": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:b079ef5eb13b4904e555b033019b0391bbba80c096488704ee1535b700c3b01a"
+    },
+    "moonbox-governance-controller": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:b079ef5eb13b4904e555b033019b0391bbba80c096488704ee1535b700c3b01a"
+    },
+    "moonbox-chat-worker": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:7d034d76d5c989e25a354980427d637d705fd9ee0b6a413ae87ca2a19f9c8b73"
+    },
+    "moonbox-web": {
+      "state": "running",
+      "health": "not-configured",
+      "image": "sha256:42a2ee8f0d4b1b12233cf7d4202b32f4553ffa9281ce1535ffc2179331c6e5ec"
+    },
+    "moonbox-minio": {
+      "state": "running",
+      "health": "healthy",
+      "image": "sha256:8f08aee614800a237906bd48114d733e5ac5bfac4ccdf731f141b0e880d7a253"
+    }
+  },
+  "source_matches": {
+    "moonbox-backend": true,
+    "moonbox-governance-controller": true,
+    "moonbox-chat-worker": true
+  },
+  "source_sha256": {
+    "governance/archive_admission.py": "552d208bc8e146da1a34b0a1782ceba80b4ad155f22936c832121e6a2ded17d2",
+    "governance/review_successor.py": "1272ddc760d314683964b9bb72f31b82e98d5c67e83bf6389db3507b4bf0e525",
+    "governance/execution_validation.py": "13136aebfb7a16043804418729afdf5576a91d21ff40fc1e1c10d57346d80bc7",
+    "governance/acceptance_evidence.py": "3a485ec61614d4aed873307e8d17338b491ba8a1886b65e60d9bb5cee5be0ab3",
+    "governance/reader.py": "23c370cfa9156e73fd92d17d4c77e7d0aa053f9a9237324a678147eb459d0e58",
+    "governance/preparation.py": "c6653f1987bcc88abfd59f47a26e0feefbc7edca23d13af6f5b5422ac33ff34a",
+    "governance/archive_proof.py": "6f63ad4cf10f48f4b511a8d4759204bb7846b0bb7384b5e8231f9c8c2f6a61c2",
+    "chat/policy.py": "2af3e44b0dc88c94c89b815c7d6cc7c46a5e1750cc3508afde8d0b57de8f2960",
+    "services/requirement_center.py": "792b237f4310174c5fb8307cd53c86b0d7f461b17d795bd7d326c61a4abebaa6"
+  },
+  "build": "standard docker-up followed by complete frozen app layers on fixed local backend/worker dependency images",
+  "dependency_bases": {
+    "backend": "sha256:90cf4ca0a67f6bf0ecb5eec6b0dc8be6e861332c888238393f6c87f2ada1f9b3",
+    "worker": "sha256:cb6566ff8d28a8486c29a02ca2ebf59a5bc4bf55e95d99d763f5296f7f5ac8d1"
+  },
+  "production_changed": false,
+  "schema_or_permission_change": false
+}

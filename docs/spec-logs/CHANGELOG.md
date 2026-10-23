@@ -2,11 +2,25 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-20 19:45:28
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-22 17:24:02 · governance · [受控规则替代的共同归档边界](20261022172402-governance-controlled-rule-replacement.md)：精确授权、共享围栏、在线 CLI 与同步恢复。
+
+- 2026-10-20 20:06:00 · governance · [归档恢复基线连续证明](20261020200600-governance-archive-baseline-proof.md)：共享恢复准入、连续归档证据、保留历史与跨入口回归。
+
+- 2026-10-20 19:45:28 · governance · [归档用量归属与桌面消息兼容](20261020194528-governance-archive-usage-attribution.md)：同源 Sprint、文本块解析、实际用量回填与优化成本。
+
+- 2026-10-20 18:42:00 · governance · [验收输入跨环境一致性](20261020184200-governance-input-projection-parity.md)：可信 tests、目录指纹、部署后产品准入核验。
+
+- 2026-10-20 18:32:12 · governance · [治理执行量化与授权优化闭环](20261020183212-governance-feedback-loop.md)：运行计量、治理授权、预算、净收益与优化成本；验证见Change证据。
+
+- 2026-10-20 18:28:10 · governance · [归档预演完成事实核验](20261020182810-governance-archive-preview-effects.md)：零退出码失败拒绝、增量分类与安全恢复日志。
+
+- 2026-10-20 18:09:32 · governance · [验收稳定批次与增量复验](20261020180932-governance-stable-validation.md)：入口前置、稳定验证、依赖增量与进度反馈；静态正反例通过。
 
 本文件用于记录每一次规范、脚本、命令、目录边界和校验规则更新的历史摘要，帮助快速追踪治理资产演进。
 
@@ -133,3 +147,11 @@ owner: MoonBox 产品团队
 ## 2026-09-12 Apply生命周期
 
 [治理记录](20260912213000-governance-apply-lifecycle.md)：启动/进度/完成事件、共享解析和两份apply契约；验证证据在关联Change verification.md。
+
+- 2026-10-19 09:10:35：自动验收与归档连续编排优化；[治理日志](20261019091035-governance-acceptance-archive-orchestration.md)，关联 `optimize-acceptance-archive-orchestration`、sprint-010。50项回归与7项治理验收通过；影响技能、规则、脚本和证据契约。后续建议：真实产品链路观察。
+
+- [2026-10-20 验收输出与归档恢复隔离](20261020230954-governance-archive-acceptance-output.md)：REQ-0046 / BUG-0052 联合返修，保留正确性门禁。
+
+- 2026-10-21：[跨日归档恢复修正](20261021084000-governance-cross-day-archive-recovery.md)，关联 BUG-0052 / REQ-0046。
+
+- 2026-10-23 governance：[后继兼容证明取消硬门禁](20261023211000-governance-successor-proof-optional.md)。

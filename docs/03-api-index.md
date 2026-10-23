@@ -2,11 +2,33 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-08 19:56:38
+updated_at: 2026-10-21 14:28:59
 owner: MoonBox 产品团队
 ---
 
 # API 索引
+
+## 受控规则替代审阅
+
+2026-10-23 起，REQ-0050 当前方案使用 `GET /api/v1/chat/rule-changes` 查看当前未归档对象的原规则、修改后规则以及共享验收/归档状态，不要求独立兼容证明，不新增规则修改确认。旧客户端调用 `POST /api/v1/chat/rule-changes/decision` 只返回 409，不再写入确认、拒绝或撤销记录。原 `replacement-proposals` 与 `replacement-policy` 的新增/批准/启用写入口已停用，仅保留历史查询及原操作恢复。归档仍须独立验收签署和原有权限；下表记录旧版接口历史，不作为新方案操作指引。
+
+以下接口使用当前人类登录会话和项目绑定鉴权，响应禁止缓存。项目可写者可准备提案；批准、拒绝和撤销只允许有效空间所有者。平台管理员、空间管理员或执行器身份不会自动取得批准权。
+
+| 方法与路径 | 语义 |
+|---|---|
+| GET /api/v1/chat/replacement-proposals | 返回可见提案、精确差异、保留义务及服务端动作能力 |
+| POST /api/v1/chat/replacement-proposals | 准备当前证据绑定的提案；同一摘要复用身份，过期或拒绝后重新准备增加修订 |
+| POST /api/v1/chat/replacement-proposals/{proposal_id}/{action} | approve、reject、revoke；绑定 expected_revision、proposal_digest、idempotency_key 与显式 confirmed |
+| GET /api/v1/chat/replacement-policy | 读取独立首次启用状态及原 operation_id |
+| POST /api/v1/chat/replacement-policy | 准备精确转换 manifest 及独立运维签名收据 |
+| POST /api/v1/chat/replacement-policy/confirm | 所有者确认当前 manifest_hash/revision，执行固定机制转换 |
+| POST /api/v1/chat/replacement-policy/resume | 当前项目可写者按原 manifest_hash/revision 恢复转换 |
+| POST /api/v1/chat/replacement-archive-operations | 独立执行或恢复普通受控归档，不由批准请求隐式触发 |
+| GET /api/v1/chat/replacement-archive-operations/{operation_id} | 回读原归档检查点 |
+
+修订为严格整数，confirmed 为严格布尔值。批准不发送 Chat 轮次、不归档、不代替独立验收签署；首次启用只有机制转换完成后才发布 active，activating 时禁止普通替代批准。归档领取与撤销竞争使用事务 CAS；领取后撤销返回 operation_started。未知结果先回读原操作，不换幂等键重建操作。
+
+可信服务缺失、证据变化及恢复受阻返回安全业务错误 2606/409，权限失败为 2601/403，不返回底层异常、私有路径或密钥。授权收据事件独立于行为遥测保存；行为事件失败不会把已完成的授权改报失败。OpenAPI 来源为后端路由模型，Web Orval 客户端由该契约生成。
 
 ### 评审成果应用语义
 
@@ -133,7 +155,7 @@ MoonBox API 采用 REST 风格，由 FastAPI 暴露 OpenAPI 契约，前端通�
 
 BUG-0035 扩展上下文卡片：`acceptance_pending_count` 是未完成 AC 数量，`acceptance_blocked_reason` 是脱敏验收阻断摘要，二者与 `tasks.md` 的研发、测试、人工任务进度独立。`document_entries` 按实际文件保留 Issue、关联 Change 与 Sprint 的来源和受控读取 URL；同名文件不合并，展示范围不扩大文档写权限。验收结论未知时不推断为可归档，最终归档仍由服务端复核。
 
-需求中心 context 接口是读聚合 BFF。治理对象数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown/HTML 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`iterations/archive/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。卡片响应额外返回受控 `document_entries`、`detail_url`、`archive_url`、`action`、`tasks`、项目级 `sprint_metrics`、当前迭代容量 `current_iteration_capacity`、Sprint 标识列表 `sprint_options` 与状态明细 `sprint_option_details`，用于前端文档抽屉、新 Tab 预览、阶段动作、tasks 进度、Sprint 已完成/累计指标、当前迭代容量展示、Sprint 选择和 Sprint 筛选状态展示；验收中卡片的 `task_progress` 只统计 `tasks.md` 中实施/研发/开发/修复/文档同步类 checkbox，`test_progress` 只统计回归验证/测试/校验/视觉证据类 checkbox，`manual_acceptance_progress` 只统计人工验收/人工复验/sign-off 类 checkbox。`/opsx-modify` 追加的“验收返修”任务按单条文本归类：返修实现进入研发分母，返修验证、视觉证据和截图进入测试分母，人工复验或人工签收进入人工验收分母；`acceptance-fixes.md` 台账、`acceptance.md`、`review.md` 与 `trace.md` 文件存在性不进入三类进度分母，也不得把测试或人工验收推导为完成态。`sprint_option_details[]` 只返回 `sprint_id`、`label`、`lifecycle_stage`、`status`、`status_label` 和脱敏 `warning`，其中活动迭代可显示规划中/进行中，归档迭代显示已归档，未知或冲突来源显示状态待核实，不返回内部路径、原始 YAML 或堆栈。`sprint_metrics.completed_count` 统计已完成 Sprint，`sprint_metrics.total_count` 统计活动与归档 Sprint 去重后的累计数量，`sprint_metrics.warning` 仅返回脱敏口径提示，不返回内部路径或原始文件内容；该指标为项目级总览，不随前端搜索、对象类型、负责人、优先级或 Sprint 筛选变化。`current_iteration_capacity[]` 来自授权项目的活动 Sprint 事实源，每项包含 `sprint_id`、`used_capacity`、`total_capacity`、`capacity_unit=person_day`、`capacity_source`、`status`、安全提示和 `archive_readiness`；`used_capacity` 汇总 `scope_estimates[].estimated_person_days`，`total_capacity` 优先 `capacity_person_days`，缺失时使用默认容量并标记 `default`，异常或超过两个当前迭代时返回 `unknown`/待核实提示，不返回内部路径、原始 YAML、Markdown 正文或堆栈。`archive_readiness` 只用于当前迭代归档入口启用口径，返回 `can_enter_confirmation`、`display_mode`、`reason_code`、`safe_summary` 与脱敏 `blockers[]`；当范围内 REQ、BUG、独立 Change 或验收 sign-off 未闭环时入口必须隐藏或禁用，真实归档执行、权限和 Workflow Sync 仍由 `/sprint-archive` 既有门禁重新校验，不能信任客户端 readiness 状态。`document_entries[].capability` 统一返回 `readable`、`human_editable`、`ai_mutable`、`task_toggle_only` 与 `reason`，前端据此决定 Vditor 全文编辑、只读阅读态或验收中 tasks checkbox 专用操作，兼容字段 `document_entries[].editable` 继续等同于 `human_editable`。`trace.md` 始终人工只读但允许系统治理链路更新；待开发阶段只显示并允许编辑当前 Change 下的 `proposal.md`、`spec.md`、`design.md`、`tasks.md`，不会写入已生效 `openspec/specs/`。`action.disabled_reason` 承载阶段主动作门禁：采集池 Requirement / Bug 生成动作要求 `capture.md` 与 `trace.md` 均存在且内容非空；规划中 Requirement / Bug 完善动作分别要求 `capture.md`、`trace.md`、`requirement.md` 或 `capture.md`、`trace.md`、`bug.md` 均存在且内容非空；待评审 Requirement / Bug 评审动作分别要求 `capture.md`、`trace.md`、`requirement.md`、`acceptance.md`、`business-flow.md`、`user-stories.md` 或 `capture.md`、`trace.md`、`bug.md`、`root-cause.md`、`workaround.md`、`acceptance.md` 均存在且内容非空；已评审 Requirement / Bug 加入迭代动作要求对应待评审文档包再加 `review.md` 非空。空间上下文来自后台空间事实源 `admin_spaces`、`admin_space_members` 与 `admin_space_products`：仅返回当前登录用户作为负责人或成员已加入、且未处于回收状态的空间；冻结空间保留可见并返回 `status=FROZEN` 与 `readonly=true`。空间响应只输出 `workspace_id`、`name`、`slug`、`description`、`member_count`、`role`、`status`、`readonly` 等前台白名单字段，不返回后台配额、审计、删除原因、负责人内部详情或高风险动作。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。响应不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；Markdown/HTML 全文只通过受控文档接口按单文件读取；人工保存只通过受控写入接口并由后端按阶段、文档名、路径类别和勾选专用规则二次校验；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
+需求中心 context 接口是读聚合 BFF。治理对象数据源限定为 `project.yaml`、`issues/requirements/_registry.yaml`、`issues/bugs/_registry.yaml`、对应 issue 目录内的 Markdown/HTML 文件名与 `trace.md` frontmatter、`iterations/change/<sprint>/sprint.yaml`、`iterations/archive/<sprint>/sprint.yaml`、`openspec/changes/<change>/tasks.md` 和 `trace.md` frontmatter。卡片响应额外返回受控 `document_entries`、`detail_url`、`archive_url`、`action`、`tasks`、项目级 `sprint_metrics`、当前迭代容量 `current_iteration_capacity`、Sprint 标识列表 `sprint_options` 与状态明细 `sprint_option_details`，用于前端文档抽屉、新 Tab 预览、阶段动作、tasks 进度、Sprint 已完成/累计指标、当前迭代容量展示、Sprint 选择和 Sprint 筛选状态展示；验收中卡片的 `task_progress` 只统计 `tasks.md` 中实施/研发/开发/修复/文档同步类 checkbox，`test_progress` 只统计回归验证/测试/校验/视觉证据类 checkbox，`manual_acceptance_progress` 只统计人工验收/人工复验/sign-off 类 checkbox。`/opsx-modify` 追加的“验收返修”任务按单条文本归类：返修实现进入研发分母，返修验证、视觉证据和截图进入测试分母，人工复验或人工签收进入人工验收分母；`acceptance-fixes.md` 台账、`acceptance.md`、`review.md` 与 `trace.md` 文件存在性不进入三类进度分母，也不得把测试或人工验收推导为完成态。`sprint_option_details[]` 只返回 `sprint_id`、`label`、`lifecycle_stage`、`status`、`status_label` 和脱敏 `warning`，其中活动迭代可显示规划中/进行中，归档迭代显示已归档，未知或冲突来源显示状态待核实，不返回内部路径、原始 YAML 或堆栈。`sprint_metrics.completed_count` 统计已完成 Sprint，`sprint_metrics.total_count` 统计活动与归档 Sprint 去重后的累计数量，`sprint_metrics.warning` 仅返回脱敏口径提示，不返回内部路径或原始文件内容；该指标为项目级总览，不随前端搜索、对象类型、负责人、优先级或 Sprint 筛选变化。`current_iteration_capacity[]` 来自授权项目的活动 Sprint 事实源，每项包含 `sprint_id`、`used_capacity`、`total_capacity`、`capacity_unit=person_day`、`capacity_source`、`status`、安全提示和 `archive_readiness`；`used_capacity` 汇总 `scope_estimates[].estimated_person_days`，`total_capacity` 优先 `capacity_person_days`，缺失时使用默认容量并标记 `default`，异常或超过两个当前迭代时返回 `unknown`/待核实提示，不返回内部路径、原始 YAML、Markdown 正文或堆栈。`archive_readiness` 只用于当前迭代归档入口启用口径，返回 `can_enter_confirmation`、`display_mode`、`reason_code`、`safe_summary` 与脱敏 `blockers[]`；非空完整范围内 REQ、BUG 与全部关联 Change 均完成后可准备会话；空范围、未知事实或未完成对象禁用。容量为零/未知、尚未签署不单独阻止准备。兼容字段 `can_enter_confirmation` 表示允许进入 Chat 准备命令。新增原因 `empty_scope`、`scope_unknown`、`already_archived`；权限、签署、证据及同步在主动发送后重新校验。`document_entries[].capability` 统一返回 `readable`、`human_editable`、`ai_mutable`、`task_toggle_only` 与 `reason`，前端据此决定 Vditor 全文编辑、只读阅读态或验收中 tasks checkbox 专用操作，兼容字段 `document_entries[].editable` 继续等同于 `human_editable`。`trace.md` 始终人工只读但允许系统治理链路更新；待开发阶段只显示并允许编辑当前 Change 下的 `proposal.md`、`spec.md`、`design.md`、`tasks.md`，不会写入已生效 `openspec/specs/`。`action.disabled_reason` 承载阶段主动作门禁：采集池 Requirement / Bug 生成动作要求 `capture.md` 与 `trace.md` 均存在且内容非空；规划中 Requirement / Bug 完善动作分别要求 `capture.md`、`trace.md`、`requirement.md` 或 `capture.md`、`trace.md`、`bug.md` 均存在且内容非空；待评审 Requirement / Bug 评审动作分别要求 `capture.md`、`trace.md`、`requirement.md`、`acceptance.md`、`business-flow.md`、`user-stories.md` 或 `capture.md`、`trace.md`、`bug.md`、`root-cause.md`、`workaround.md`、`acceptance.md` 均存在且内容非空；已评审 Requirement / Bug 加入迭代动作要求对应待评审文档包再加 `review.md` 非空。空间上下文来自后台空间事实源 `admin_spaces`、`admin_space_members` 与 `admin_space_products`：仅返回当前登录用户作为负责人或成员已加入、且未处于回收状态的空间；冻结空间保留可见并返回 `status=FROZEN` 与 `readonly=true`。空间响应只输出 `workspace_id`、`name`、`slug`、`description`、`member_count`、`role`、`status`、`readonly` 等前台白名单字段，不返回后台配额、审计、删除原因、负责人内部详情或高风险动作。Docker 环境通过 `MOONBOX_GOVERNANCE_ROOT=/app/governance` 读取治理事实源。响应不返回本机绝对路径、系统用户名、Markdown 全文、`.env`、token、日志或堆栈；Markdown/HTML 全文只通过受控文档接口按单文件读取；人工保存只通过受控写入接口并由后端按阶段、文档名、路径类别和勾选专用规则二次校验；未登录返回 401，数据源不可读时返回脱敏 503。前端生产运行时不得再使用页面内静态 `initialIssues`、`workspaces` 或 `currentUser` 替代该接口。
 
 API 变更必须同步 OpenAPI、Orval 客户端、测试、`docs/03-api-index.md` 和相关 OpenSpec Change。
 
@@ -180,8 +202,8 @@ Chat会话/关联/发送/重试/停止/事件/Diff接口实现与权限、幂等
 
 | 路由 | 方法 | 结果 |
 |---|---|---|
-| /api/v1/chat/governance-preparations | POST | `req-generate` / `bug-generate` 准备ID、对象会话ID、完整对象ID、待发送建议和 `reused_conversation`；REQ 可从 `captured` 或 `exploring` 且非空 capture/trace 准备生成，结果候选仍限目标主文档、trace、registry 与 CHANGELOG；同一对象优先复用最近未归档、未删除且无活动运行的个人对象会话，不存在才新建；可选 `idempotency_key` 防止同一次准备重试重复创建 candidate；不会发送 |
-| /api/v1/chat/object-sessions | POST | 为 REQ、BUG 或 Change 准备个人对象会话；同一对象优先复用最近未归档、未删除且无活动运行的会话，不存在才新建；用于未接入真实 candidate 写入的卡片动作进入 Chat 并保留命令草稿。动作名先经服务端已接入白名单校验，未知动作返回 422/2604，不创建会话；`req-generate` / `bug-generate` 即使从本入口直接调用也必须满足采集阶段及非空 capture，真正生成仍使用 `/governance-preparations`；`req-opsx` / `bug-opsx` 还需对象 trace 的有效迭代与未关闭 Sprint 正式 requirements / bugs 范围一致；`opsx-apply` / `opsx-modify` / `opsx-archive` 需关联活动 Change 处于对应实施阶段。阶段不符返回 409/2604 且不创建会话；既有响应字段不变。 |
+| /api/v1/chat/governance-preparations | POST | `req-generate` / `bug-generate` 准备ID、对象会话ID、完整对象ID、待发送建议和 `reused_conversation`；REQ 可从 `captured` 或 `exploring` 且非空 capture/trace 准备生成，结果候选仍限目标主文档、trace、registry 与 CHANGELOG；同一对象优先返回可访问的执行中个人会话供查看，空闲时复用最近未归档、未删除会话；无可用会话且无对象执行占用才新建；可选 `idempotency_key` 防止同一次准备重试重复创建 candidate；不会发送 |
+| /api/v1/chat/object-sessions | POST | 为 REQ、BUG 或 Change 准备个人对象会话；同一对象执行中返回受控忙碌状态，空闲时复用最近未归档、未删除会话；无可用会话且无执行占用才新建；用于未接入真实 candidate 写入的卡片动作进入 Chat 并保留命令草稿。动作名先经服务端已接入白名单校验，未知动作返回 422/2604，不创建会话；`req-generate` / `bug-generate` 即使从本入口直接调用也必须满足采集阶段及非空 capture，真正生成仍使用 `/governance-preparations`；`req-opsx` / `bug-opsx` 还需对象 trace 的有效迭代与未关闭 Sprint 正式 requirements / bugs 范围一致；`opsx-apply` / `opsx-modify` / `opsx-archive` 需关联活动 Change 处于对应实施阶段。阶段不符返回 409/2604 且不创建会话；既有响应字段不变。 |
 | /api/v1/chat/conversations/{cid}/governance-candidates | GET | 按最新优先返回该会话的治理候选列表，包含本轮/历史候选状态、固定版本、完整文件差异、不可应用原因 |
 | /api/v1/chat/governance-candidates/{candidate_id}/applications | POST | 手工申请固定候选应用时校验manifest/revision/幂等键；`req-generate` / `bug-generate` 的低风险候选默认由后端 collect/controller 自动创建 application，Chat 历史入口不得自动POST |
 | /api/v1/chat/governance-applications/{operation_id} | GET | pending/applying/recovering/applied/conflict/failed/recovery_blocked |
@@ -192,7 +214,7 @@ Chat会话/关联/发送/重试/停止/事件/Diff接口实现与权限、幂等
 
 BUG-0025 增量：`POST /api/v1/chat/governance-preparations` 的 `object_id` 支持 `REQ-*` 与 `BUG-*`，`action` 支持 `req-generate` 与 `bug-generate`。`bug-generate` 仅允许采集池 BUG 进入治理准备，会进入同对象会话并返回待发送 `/bug-generate <BUG-full-id>` 建议；Chat 历史只保存该 display_prompt，执行器内部治理约束由后端根据 candidate 恢复，不落入用户消息。合法候选通过固定 governance candidate / application 链路自动应用，写入边界限定为目标 BUG 的 `bug.md`、`trace.md`、BUG registry 与 BUG CHANGELOG；执行器不可用返回 `executor_unavailable`，治理结果越界或不合规返回 `governance_validation_failed`。未接入真实写入链路的 complete、review、sprint-propose、opsx 系列动作不得在非 demo 产品路径模拟成功，应提示用户改用对应 Codex 命令。
 
-REQ-0039 增量：需求中心卡片对象会话入口按对象主关联复用会话，REQ/BUG 由 registry 解析，Change 由 `openspec/changes/<change-id>/trace.md` 或 `proposal.md` 解析。排序优先级为最近 turn 更新时间、最近消息更新时间、会话 `updated_at`、会话创建事实；空时间值置后，SQLite/MySQL 使用兼容排序表达式。归档、删除、活动运行中或失权会话不复用。每次新的 `req-generate` / `bug-generate` 真实生成准备都会在目标对象会话内创建新的 governance candidate；发送建议时将本轮 turn 绑定到该 candidate，历史 candidate 仅保留为查询结果。同一 `idempotency_key` 重试返回同一 preparation，不创建多个不可区分候选。未接入真实 candidate 写入的卡片动作使用 `/api/v1/chat/object-sessions` 进入同一对象 Chat 并填充命令草稿，不模拟写入成功；`opsx-archive` 也使用该产品语义，点击需求中心归档按钮后进入对象 Chat 并填入 `/opsx-archive <object-id>`，由 Agent 执行归档。`usage_events` 与 `task_traces` 仅记录 object/action/conversation/turn/candidate/result/error_code 等脱敏摘要。
+REQ-0039 增量：需求中心卡片对象会话入口按对象主关联复用会话，REQ/BUG 由 registry 解析，Change 由 `openspec/changes/<change-id>/trace.md` 或 `proposal.md` 解析。排序优先级为最近 turn 更新时间、最近消息更新时间、会话 `updated_at`、会话创建事实；空时间值置后，SQLite/MySQL 使用兼容排序表达式。归档、删除或失权会话不复用；活动会话作为查看执行目标，不能继续发送。每次新的 `req-generate` / `bug-generate` 真实生成准备都会在目标对象会话内创建新的 governance candidate；发送建议时将本轮 turn 绑定到该 candidate，历史 candidate 仅保留为查询结果。同一 `idempotency_key` 重试返回同一 preparation，不创建多个不可区分候选。未接入真实 candidate 写入的卡片动作使用 `/api/v1/chat/object-sessions` 进入同一对象 Chat 并填充命令草稿，不模拟写入成功；`opsx-archive` 也使用该产品语义，点击需求中心归档按钮后进入对象 Chat 并填入 `/opsx-archive <object-id>`，由 Agent 执行归档。`usage_events` 与 `task_traces` 仅记录 object/action/conversation/turn/candidate/result/error_code 等脱敏摘要。
 
 
 ## Chat 创建请求幂等补充
@@ -334,3 +356,123 @@ BUG-0033 使用既有 Chat 事件读取接口和 execution.state 类型，在通
 缺少 assistant 记录但已有输出的轮次以只读虚拟行参与 SQL 分页；每轮最多检查1000个事件和200000字符，工具 payload 不参与正文。虚拟行与后续补存使用同一确定性 ID 及轮次时间；GET 不写库。OpenAPI 与 Orval Chat 客户端同步自 MessagePage / MessageRead。
 
 REQ-0027 AC-001 验收返修：采集或探索阶段的 REQ/BUG 对象会话在读取响应中返回 `write_scope: read_only` 与 `write_reason_code: analysis_object_read_only`，Web 标识“只读分析”。该值由服务端治理状态判定，发送前与执行时复核；只有匹配对象、操作者、绑定版本且处于运行态的受控生成候选可临时取得 `governance_write`。本次仅新增原因值，未改变响应结构、数据库表或 OpenAPI 字段形状。
+
+
+### 需求中心负责人名称与身份键
+
+`GET /api/v1/requirement-center/context` 的 `issues[]` 新增可空 `owner_key` 和 `owner_display_name`。`owner_key` 保存原稳定筛选身份，不能用于客户端授权；`owner_display_name` 与兼容字段 `owner` 为可读名称。空间授权与对象可见性过滤后，仅批量解析该空间负责人/成员中未删除用户：昵称 → 用户名 → “未知用户”；未知或空间外身份统一回退，空 owner 为“未分配”，既有团队别名和可读文本保留。卡片、详情、title 与负责人筛选统一使用展示名，筛选值按稳定键区分同名用户。旧响应由客户端安全归一化，内部键不得充当显示名称。无数据库迁移、写入身份变更或新增采集事件。
+
+
+### BUG-0044 对象执行准入增量
+
+对象会话/生成准备响应增加 `execution_state`、`can_send`、`reason_code`、`view_conversation_id`。忙碌时不创建候选、不自动发送，生成准备的 `preparation_id` 可为 null；他人占用或原会话不可访问时 `conversation_id`/查看目标可为 null，前端只能展示对象忙碌，不能将其拼接为跳转地址。原有字段在可发送路径保留。
+
+`POST /conversations/{cid}/turns` 在入队事务中以项目与规范化对象身份抢占守卫；冲突返回 HTTP409、业务码2607、kind `governance_object_busy`，不返回其他用户会话信息。终态成功仍需业务成果和同步指纹校验；失败/停止保留产物，unknown不因租约到期释放。
+
+需求中心 Issue 响应增加上述执行状态、`execution_reason` 和授权后可用的查看目标。完成型阶段保持上次确认值；实际开发/返修启动仍即时显示研发中。只读文档入口不加写入锁。入口、恢复及前端证据见对应 Change 的 evidence/acceptance/signoff.md；真实轮次、HTTP请求与合成回归分别记录。
+
+### 评审操作记录完整性诊断
+
+BUG-0047：治理写命令在发送准备及 worker 启动前核对基线与操作记录。`direct_command_preparation_failed` 表示记录写入中断；`direct_command_operation_missing` / `direct_command_operation_invalid` 表示操作记录缺失或非法；`direct_command_baseline_missing` / `direct_command_baseline_invalid` 表示基线缺失或非法；`direct_command_identity_mismatch` 表示动作、对象或基线不一致。准备失败沿现有错误响应返回 `kind` 和 `details.phase=preparation`，不调用模型；终态及候选沿既有 error_code 字段保留原因，不统一归为 executor_unavailable。旧 `direct_command_recovery_blocked` 仍保留历史含义。失败不会补空记录、覆盖成果或自动重跑。
+
+本次未新增路由、响应字段或数据库列；错误字符串使用既有开放字段，无需重新生成客户端类型。请求日志与 Task Trace 仅记录稳定原因及既有身份关联，不写入基线内容或凭证。
+
+## 治理命令持久化恢复（REQ-0047）
+
+- GET `/api/v1/chat/governance-operations/{operation_id}`：只读返回业务阶段、原执行终态、版本、次数、期限及服务端allowed_actions；不领取或调用模型。
+- POST `/api/v1/chat/governance-operations/{operation_id}/recoveries`：expected_version、idempotency_key、confirmed；202返回同一操作与尝试，重放不重复写入，同键异输入或版本冲突409。服务端重新验证会话、项目与成果权限。
+- POST `/api/v1/chat/governance-operations/{operation_id}/retention-dispositions`：项目管理员显式recheck或retain_7_days；不能清理活动/未知事务，保留延长不延长恢复期限，不删除共享文件。
+
+首期仅req-review/bug-review；其他命令沿原有链路。响应使用ApiResponse与X-Request-ID，契约来自OpenAPI并生成Orval。前端只读刷新；恢复确认后等待可信回读，不模拟成功。证据标识按权限过滤，不返回主机路径或文档原文。
+
+### 归档执行结果核验（BUG-0049）
+
+现有需求中心执行状态读取可返回归档核验失败原因archive_*（例如archive_sync_check_failed、archive_spec_merge_mismatch、archive_source_changed）。不新增路由或响应字段；execution_reason沿用字符串。验证成功返回既有validated及done投影，归档对象仍只读。无需重新生成客户端。
+
+## 已核验成果与执行保护核验（BUG-0052）
+
+新增 POST `/api/v1/chat/governance-operations/{operation_id}/verifications`：授权原操作只读核验并收敛守卫，不调用模型、不重放应用。返回 historical_result、admission_state、reason_code、last_checked_at、verification_reason、verification_actions；同一原操作重复请求幂等，旧操作不得释放新守卫。GET operation 与需求卡片也返回历史核验结果和异常，业务stage独立于准入。权限、项目绑定、对象可见性及原轮次身份保持原边界。请求日志沿用ChatRoute；后台补偿不伪造usage_events。
+
+完成核验响应补充 `verification_differences: string[]`：按对象成果、对象索引、治理规范和关联依赖返回新增/删除/修改计数；不暴露源码正文、文件私有路径或凭证。
+
+### 每轮状态与核验身份（REQ-0046）
+
+需求中心卡片新增只读 `verification_operation_id`、`view_turn_id`，仅在用户可查看原会话时返回；核验和原执行定位必须使用该绑定，不用最新候选替代。Chat 按当前 conversation/turn 匹配 candidate.recovery_operation_id。POST 核验会重新检查已经 validated 的原操作相关依赖；无关文件变化不清除原证明身份，相关变化保留历史 verified 并阻断下一步，恢复依赖后可再次核验。重复调用不新增 turn/application。无 DB 迁移或新权限。
+
+## 跨入口归档准入与验收投影
+
+REQ-0046 / BUG-0052 验收返修统一使用只读验收判定：产品卡片、归档动作准备和 CLI 包装脚本按同一份验收计划、当前输入指纹及人工签认字段判定。自动验收已覆盖的 AC 不再被未更新的 Markdown 勾选重复阻断；未覆盖项、缺失证据、过期指纹和待人工签认仍阻断。验收进度按唯一 AC ID 汇总，包含标题式 AC 与原型 AC。
+
+旧评审的历史成果证明保持不可变。后续合法流转只有在身份、评审结论、治理规则及当前交付证据均可核验时才更新执行保护的准入投影；仍在执行、权限不足、证据不明时不放行。卡片默认折叠状态详情，只保留一个阻断提示；核验、差异、原执行在展开后可达。
+
+product_data_collection_observability: applicable；affected_layers: web/api/task_traces。复用既有请求与核验观测，不增加采集字段或模型调用；无数据库迁移、权限扩展、对象存储或部署机制变化，API 响应字段兼容，无需重新生成客户端。本轮验证状态和证据以两个 Change 的 acceptance-fixes.md 为准。
+
+归档验收读取补充：治理投影与源码目录分离时，产品从既有受信任 source_root 读取 src/、scripts/ 指纹输入；治理文档、计划、manifest 和附件仍以治理根为准。未配置或缺失源码不能推定通过，治理文档变化和删除也不能回退到源码副本。此行为不新增 API 字段或授权范围。
+
+发送快照竞争：Chat turns 保持错误码 2606 与现有 details 结构；reason 区分 concurrent_update 和 manifest_mismatch，phase=send_preflight，attempts=3。只读预检有界重试，权限/验收失败不重试放行；请求日志沿用既有脱敏策略。
+
+### 纯 Change 验收阻塞诊断
+
+需求中心沿用既有 acceptance_blocked_reason 与 action.disabled_reason 字符串字段，未增加响应字段。纯 Change 的验收计划阻塞时显示安全中文摘要、受影响 AC 和必要的仓库相对输入路径；区分未执行、缺失、变化、不可读、证据无效及未知原因。ready 时清除原因，不改变权限或准入判定；不输出原始异常、配置和绝对绑定路径。
+
+归档恢复基线准入补充（REQ-0046 / BUG-0052）：归档准备和实际发送预检共享 CLI 的只读恢复判定；合法独立归档哈希链可衔接历史基线。无证明或相关规格冲突沿用 2604/governance_validation_failed，按具体原因区分交付输入变化、旧记录过期、规格基线缺证、身份冲突和恢复记录损坏。无新增路由、字段、数据库迁移或客户端生成。
+
+## REQ-0046 / BUG-0052 再次验收后归档
+
+再次验收产生的报告与 trace 运行正文属于派生输出，不得使归档恢复记录自失效；交付输入、链路身份、真实证据完整性及并发变化仍受门禁保护。验收收尾后必须通过产品与 CLI 共用的正式准入，验收 passed 不等于归档 ready。错误须区分交付输入变化、旧记录过期、规格基线缺证、身份冲突和记录损坏。
+收尾命令使用 `scripts/opsx_acceptance.py --archive-readiness` 指定当前 Change。不新增 API 路由、DB schema 或权限；归档恢复读操作不写记录。
+
+归档恢复兼容：产品与 CLI 共同读取唯一迁移后自动验收计划及完整证据，不回退人工勾选。准备日期与实际迁移日分离；已归档对象保持正常只读，未改变接口结构或权限。
+
+### 直接命令成果核验（BUG-0060）
+
+`GET /api/v1/chat/turns/{turn_id}/completion-verification` 只读返回当前守卫版本、业务确认状态、原因、核验时间与可核验能力。`POST` 使用 `expected_version`，只验证原执行当前成果，不调用模型或重放命令；所有权、会话访问、项目写权限、对象可见性、绑定和操作版本均重新校验。未知/活动执行、缺同步证明、相关冲突和新执行占用保持保护。历史清单缺失仅在受控当前核验充分时签发新记录，历史归因仍为 unknown。返回原因区分 direct_sync_missing、direct_historical_evidence_missing、direct_proof_invalid、direct_dependency_conflict、direct_result_invalid、direct_binding_changed、direct_operation_superseded；既有评审/归档专用核验协议保留。
+
+当前守卫被后续同步或新操作替换后，GET 仍可读取原轮次签认记录。相关成果当前复核通过返回 `direct_historical_verified`；交付已变化返回 `direct_historical_record_preserved`。两者均不返回可恢复版本，`can_verify=false`，不修改或放行当前操作；POST 仍要求当前操作身份匹配。
+
+TurnRead 新增可空 `direct_action`，仅返回支持的动作名，不返回提示正文。OpenAPI 与 Web 生成类型同步。核验入口位于所属轮次详情，卡片不增加独立状态面板。
+
+完成核验响应另含 differences：最多30项相关路径的 added/modified/deleted 分类，不包含正文；历史缺证不推造差异。通用核验遇到专用评审或归档返回 direct_specialized_verification_required。
+
+
+## Chat 消息因果排序与时间来源（BUG-0055）
+
+`GET /api/v1/chat/conversations/{cid}/messages` 保留 page/page_size，新增 before（最长1024字符，版本化且绑定会话的游标）。响应增加 next_cursor、has_more；before 有效时忽略 page 的偏移，非法或跨会话游标返回既有2504/422，访问权仍先行校验。游标不是权限凭证。
+
+每条消息新增 order_key：turn_created_at、turn_id、role_rank（user=0、assistant=1、其他既有角色=2）、message_id。服务端按四元组逆序分页，Web 按正序阅读；标识使用二进制排序，UTC Z 后缀统一为 +00:00。虚拟助手在分页前生成与持久化一致的身份，旧实际消息 ID 保留。
+
+display_time 与 time_source（message_saved、output_event、legacy_unknown）表达消息保存或首个保留输出事件的记录时间；未知历史回复时间为空并显示“历史回复时间未确认”。created_at 保留存储/旧投影兼容值，不用于前端总排序；历史行不改写。无输出时不凭空生成回复。
+
+新 Web 用游标加载更多并串行复核已加载范围：最新页每3秒读取，深页每批1页、间隔250ms；深扫描期间每3秒穿插最新页。首页变化或距上次完整复核15秒时启动复核，旧会话响应丢弃。数据停止变化后收敛，无事务快照承诺；旧服务缺元数据时显示兼容提示。查询不新增行为事件或 Task Trace，沿用 request_logs 与现有鉴权。OpenAPI 和 Chat 生成客户端已同步。
+
+### 跨入口后继交付核验（BUG-0061）
+
+直接完成核验沿用上述端点与 `expected_version`，没有新增 OpenAPI 字段或生成客户端变更。对于已终止的 apply/modify，原清单不一致时可核验独立 CLI 后继交付：正式验收收据、当前逐 AC 指纹、原任务范围和变化输入覆盖全部成立才解除原 guard。原 steps 保留，后继签名不改写历史执行成功状态。review/archive 继续走专用协议。
+
+新增原因：`direct_successor_evidence_invalid`（缺证/过期）、`direct_successor_input_uncovered`（变化未覆盖）、`direct_successor_tasks_changed`（任务范围变化）、`direct_successor_completion_missing`（正式后继完成记录缺失）、`direct_completion_event_missing`（只观察到启动/进度）、`direct_successor_unsupported`（需专用协议）。失败仍沿用现有冲突响应和原因字段，不放开发送。已终止 apply 的保护独立于卡片当前阶段展示，当前动作仍受同一发送准入约束。
+
+
+## 归档恢复验收兼容说明
+
+BUG-0062保留需求中心既有验收进度与阻塞原因字段：有效AC不因恢复准入失败归零，阻塞原因携带可安全展示的Change及条文标识。Sprint既有blocker status/message承载共享深层判定；内部诊断字段不直接扩展公开schema，本次无OpenAPI或客户端生成物变化、DB迁移或权限扩展。
+
+
+### Sprint 对象会话准备（REQ-0049）
+
+`POST /api/v1/chat/object-sessions` 支持 `action=sprint-archive`、`object_id=sprint-NNN`，返回 `object_type=SPRINT`。按当前用户、空间、仓库、主关联选最近会话；无可用会话时使用对象创建代际稳定身份，同一事务写入会话与关联。准备不创建 turn/candidate、不执行命令。忙碌只返回本人可见执行入口；独立校验空间、仓库、写权限与对象 ACL。归档后历史关联解析唯一归档 Sprint，不接受文件路径。前端接入与真实轮次验收仍待完成。
+
+## Sprint 归档发送诊断（BUG-0063）
+
+Chat 发送拒绝响应沿用原 HTTP 状态与错误码，data 增加可选 archive_blockers 数组，复用 RequirementCenterArchiveReadinessBlocker：type、id、status、message、action_hint、visible。最多30项，每段文本最多1500字符；隐藏对象、明显私有路径与凭证内容不出站。前端分项展示并允许展开处理步骤，发送失败不清理草稿、材料和 Skill。没有结构化详情时继续显示原错误文本。无新增路由、权限或数据库迁移；OpenAPI 与客户端由同一来源再生成。
+
+## 卡片常驻信息元数据
+
+需求中心 context 的 Issue/独立 Change 响应新增 `estimated_person_days`（非负有限数或 null）、`estimate_status`（available/missing/conflict/invalid）、`root_cause_state`（absent/pending/confirmed）、`root_cause_reason`（missing/conflict/invalid 或 null）。这些是授权项目快照中的只读投影，不新增接口或数据库字段。
+
+人天取有效 Sprint 的对象总估算，必要时仅对完整 Change 分项求和；0 有效，缺失不填零。BUG 根因有有效分析或证据正文才展示，兼容专用字段、合法 status 和正文状态声明，冲突保守为 pending。根因标签沿用 Issue 文档读取接口及既有请求关联和事件采集；context 不传根因正文，不增加逐卡文档请求。新客户端容忍字段缺失，旧客户端可忽略新增字段。
+
+受控归档共同入口补充：`GET /api/v1/chat/replacement-proposals/{proposal_id}/admission` 返回只读 `decision`、安全 `reason_code/blockers`、提案修订、策略版本、输入指纹及原操作标识。候选预检不生成归档证明。`POST /api/v1/chat/archive-commands` 接收已鉴权项目中的 `object_id` 与显式 `confirmed`，由后台解析 REQ/BUG/Change/Sprint，复用原归档操作与项目围栏；批准仍由独立端点完成。
+
+可信 Chat 归档不调用模型，使用单独的 `trusted_archive_v1` 执行用量来源；只有无模型轮次标识、可信归档启动事件和零 token 回执同时成立时才结算为零。CLI 不伪造浏览器行为事件。
+
+首次可信启用补全：`POST /api/v1/chat/replacement-policy/preview` 接收 space_id、repository_id、mechanism_change，返回精确 manifest、manifest_hash、绑定的条文前后全文、不可豁免义务和证据摘要；生成/临时预演均只读。当前人须具备项目及对象写权限，不接收文件系统路径。已有操作仅回读原清单，不创建第二次安装。`GET /api/v1/chat/replacement-policy` 增加 can_prepare、review、stage、blockers，呈现完整审阅及恢复状态。原 prepare 接口接收最多 16 KiB 独立运维收据，确认和恢复继续复用原 revision/hash 门禁。OpenAPI 和 Orval 客户端同步生成；本轮不增加数据库表或权限角色。沿用 ReplacementRoute 的脱敏请求/行为/链路采集，不记录私钥或完整收据正文。

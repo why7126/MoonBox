@@ -1,0 +1,22 @@
+{
+  "environment": "isolated-local-review-validation",
+  "observations": [
+    {
+      "object_id": "REQ-9097-review-record-validation",
+      "state": "rejected",
+      "error_code": "review_unrelated_document_edit"
+    },
+    {
+      "object_id": "BUG-9097-review-record-validation",
+      "state": "rejected",
+      "error_code": "review_acceptance_scope"
+    },
+    {
+      "object_id": "REQ-9096-review-record-validation",
+      "state": "rejected",
+      "error_code": "review_index"
+    }
+  ],
+  "counted_as_positive": false,
+  "original_failed_facts_preserved": true
+}

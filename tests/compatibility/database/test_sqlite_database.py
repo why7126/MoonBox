@@ -3,10 +3,25 @@ from __future__ import annotations
 import os
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 from app.core.config import settings
 from app.db.session import get_engine, init_database, reset_engine
+
+
+def _assert_rule_change_schema() -> None:
+    from app.chat.schema import migrate
+
+    engine = get_engine()
+    migrate(engine)
+    tables = set(inspect(engine).get_table_names())
+    assert {'governance_rule_change_confirmations', 'governance_rule_change_events'} <= tables
+    unique = {constraint['name'] for constraint in inspect(engine).get_unique_constraints(
+        'governance_rule_change_confirmations')}
+    assert 'uq_rule_change_exact_content' in unique
+    unique_events = {constraint['name'] for constraint in inspect(engine).get_unique_constraints(
+        'governance_rule_change_events')}
+    assert 'uq_rule_change_event_request' in unique_events
 
 
 def test_sqlite_initialization_creates_schema_metadata(tmp_path) -> None:
@@ -22,6 +37,7 @@ def test_sqlite_initialization_creates_schema_metadata(tmp_path) -> None:
         row = connection.execute(text("SELECT schema_version FROM schema_metadata WHERE id = 1")).one()
 
     assert row[0] == "0000-initialize-project"
+    _assert_rule_change_schema()
     reset_engine()
 
 
@@ -42,4 +58,5 @@ def test_mysql_initialization_creates_schema_metadata() -> None:
         row = connection.execute(text("SELECT schema_version FROM schema_metadata WHERE id = 1")).one()
 
     assert row[0] == "0000-initialize-project"
+    _assert_rule_change_schema()
     reset_engine()

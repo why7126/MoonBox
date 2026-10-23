@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-direct-command-completion-proof",
+  "run_id": "20261021140107420005-48b5427e",
+  "created_at": "2026-10-21 14:01:07",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "unspecified",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "388f2aa5050c10b7b0f6946b7b8ca4238e0e2ffea465fb0ab4ca85157cf3d0c7",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "99362c1ccc5c9ce5555fd33efa37de1e3c2f7a2fd65ea363a05a061917167b81",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "ca0e689260f6f515d7fa6599cf748c2aa05a91f880a727ac24fc52fa0b9b2611",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "1da560dc3457aaa96a02756934f596d152a919ed45b92b0f93cd2d5c6ff36d89",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "24cf2bd20355369c35ca9a42591958f65298b1c0ba84ec7bb112cb9083d06b06",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "43ea2d7c69534205b0b3baea7a5342fab13e8f380e29bfb70518efcfb3cbe352",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "6828ebb3e2cc127aa3110c871c5645df8806f13c976a491eeaedf771689689f4",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "8c73dbc9b724937fa0eac1fbded2528ae4104cf0ae52d79d538b5ce954244323",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "e019080ff1f816c075645fe4334e309c48e6e3d16bd6dcde3fe0d49f4013c697",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "ed4b9790fd8dcad22f8c629246f7aed8c9321ff16830ec744069ef3ca3cd0c6e",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "3d3e30a1254deeb4816f59187a42818eb919302c1da2687d0901523ea01dae0b",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "de4259f6509a58a3f0b701c8d62e3c1ec4409c9b1dfaa73b09aa168d59585093",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-013",
+      "fingerprint": "b758fdbff8371e3005b6c48d83cdda66ed4214f53de78db4ffeeb7c6e44ca275",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-014",
+      "fingerprint": "daf73748f1ec152f63a3d466468bbcd5ac83ab0a0f9eae12050df1884776c3be",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "same-turn-complete",
+      "turn_id": "2f547bf2-233c-46c5-bcb2-9e05473c2ee6",
+      "conversation_id": "2f87a8ed-2a68-5ed3-984c-8c4f9d188310",
+      "turn_status": "completed",
+      "error_code": null,
+      "command_sequence": 213,
+      "command_exit_code": 0,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug-final.json",
+          "sha256": "f6cfff7119caf9678bb9b13670201564e716dfa1740e05208856e47219e17730"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-015",
+      "fingerprint": "05af7bcff7d1d41f4dc16700b5582658215015f17fa2076fe265756502fffca4",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-016",
+      "fingerprint": "4ffb745c976525a310dd3796411efe9a82a526de725e0490f79e02bd722797d6",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 0,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 93,
+    "duration_ms": 220,
+    "blocked": 15,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

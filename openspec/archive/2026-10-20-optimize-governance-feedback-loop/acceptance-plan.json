@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "change_id": "optimize-governance-feedback-loop",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "计量、授权、去重、质量与收益正反例",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_governance_feedback.py",
+        "tests/unit/test_ai_usage.py",
+        "-q"
+      ],
+      "inputs": [
+        "scripts/governance_feedback.py",
+        "scripts/ai_usage.py",
+        "scripts/extract-ai-usage.py",
+        "tests/unit/test_governance_feedback.py",
+        "tests/unit/test_ai_usage.py",
+        "rules/governance-feedback-policy.json"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "title": "中央技能与量化入口契约",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        "AGENTS.md",
+        "rules/agent-context-budget.md",
+        ".agents/skills/workflow-sync/SKILL.md",
+        ".agents/skills/spec-opt/SKILL.md",
+        "docs/standards/governance-feedback-loop.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "title": "当前变更中文优先",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "optimize-governance-feedback-loop",
+        "--residual-report"
+      ],
+      "inputs": [
+        "openspec/changes/optimize-governance-feedback-loop/proposal.md",
+        "openspec/changes/optimize-governance-feedback-loop/design.md",
+        "openspec/changes/optimize-governance-feedback-loop/specs/governance-feedback-loop/spec.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "title": "目录与本地台账边界",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-directory-structure.py"
+      ],
+      "inputs": [
+        "rules/directory-structure.md",
+        ".gitignore"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "title": "正式规格增量校验",
+      "kind": "command",
+      "argv": [
+        "openspec",
+        "validate",
+        "optimize-governance-feedback-loop"
+      ],
+      "inputs": [
+        "openspec/changes/optimize-governance-feedback-loop/specs/governance-feedback-loop/spec.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "title": "迭代正式纳入与容量",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-sprint-scope.py",
+        "sprint-011",
+        "--item",
+        "optimize-governance-feedback-loop"
+      ],
+      "inputs": [
+        "iterations/change/sprint-011/sprint.yaml"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "title": "中文文档标题",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/validate-document-titles.py",
+        "--change",
+        "optimize-governance-feedback-loop"
+      ],
+      "inputs": [
+        "openspec/changes/optimize-governance-feedback-loop/proposal.md",
+        "openspec/changes/optimize-governance-feedback-loop/design.md",
+        "openspec/changes/optimize-governance-feedback-loop/tasks.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "title": "真实CLI采集开销",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/benchmark-governance-feedback.py",
+        "--iterations",
+        "20"
+      ],
+      "inputs": [
+        "scripts/benchmark-governance-feedback.py",
+        "scripts/governance_feedback.py",
+        "rules/governance-feedback-policy.json"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

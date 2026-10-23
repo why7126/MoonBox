@@ -568,6 +568,88 @@ def is_guided_feedback_target(path: Path) -> bool:
     )
 
 
+def validate_acceptance_orchestration_contract() -> list[str]:
+    """Prevent global-stop and unconditional status-reset wording regressions."""
+    errors = []
+    acceptance = (SKILLS_DIR / "opsx-accept/SKILL.md").read_text()
+    for term in ("连续执行与恢复契约", "--queue", "pending_collection", "局部阻塞", "--preview", "environment_contract"):
+        if term not in acceptance:
+            errors.append("opsx-accept 缺少编排契约: " + term)
+    sync = (SKILLS_DIR / "workflow-sync/SKILL.md").read_text()
+    if "将关联 Issue 的 `acceptance.md` 标记为 `acceptance_status: pending`" in sync:
+        errors.append("workflow-sync 恢复了无条件 pending 重置")
+    archive = (SKILLS_DIR / "opsx-archive/SKILL.md").read_text()
+    if "wrapper 成功后只核对" not in archive:
+        errors.append("opsx-archive 缺少收尾去重契约")
+    return errors
+
+
+STABLE_VALIDATION_TERMS = (
+    "### 完整入口前置检查", "### 修改稳定后集中验证",
+    "### 受影响范围增量复验", "### 里程碑进度反馈",
+    "下游依赖闭包", "无法可靠界定影响时扩大验证",
+    "隔离成功不能替代正式入口只读核验", "较新的真实失败撤销旧通过",
+    "不承诺跨轮或跨 Change 命令缓存", "最终所有 AC 必须有当前有效证据",
+    "不降低指纹、真实产品与视觉证据",
+)
+STABLE_VALIDATION_PATHS = (
+    "AGENTS.md", "rules/agent-context-budget.md", "docs/08-command-execution-order.md",
+    *[f".agents/skills/{name}/SKILL.md" for name in
+      ("opsx-apply", "openspec-apply-change", "opsx-modify", "opsx-accept", "opsx-archive")],
+)
+
+
+def validate_stable_validation_contract(root: Path = ROOT) -> list[str]:
+    """静态防回退；不冒充真实 Agent 行为或提速证明。"""
+    errors = []
+    source = root / "docs/standards/opsx-acceptance.md"
+    text = source.read_text() if source.is_file() else ""
+    for term in STABLE_VALIDATION_TERMS:
+        if term not in text:
+            errors.append("验收稳定批次缺少条款: " + term)
+    for relative in STABLE_VALIDATION_PATHS:
+        path = root / relative
+        content = path.read_text() if path.is_file() else ""
+        if "opsx-acceptance.md#稳定批次与增量复验契约" not in content:
+            errors.append(relative + " 缺少稳定批次中央契约引用")
+    return errors
+
+
+def validate_governance_feedback_contract(root: Path = ROOT) -> list[str]:
+    """Central routing stays small; numerical and admission semantics have behavior tests."""
+    errors = []
+    standard = "docs/standards/governance-feedback-loop.md"
+    for name in ("AGENTS.md", "rules/agent-context-budget.md",
+                 ".agents/skills/workflow-sync/SKILL.md", ".agents/skills/spec-opt/SKILL.md"):
+        text = (root / name).read_text()
+        if "governance-feedback-loop.md" not in text or "scripts/governance_feedback.py" not in text:
+            errors.append(f"{name}: 缺少治理量化闭环入口")
+    if not (root / standard).is_file():
+        errors.append("缺少治理量化闭环事实源")
+    try:
+        from governance_feedback import policy_load
+        policy_load(root / "rules/governance-feedback-policy.json")
+    except (ImportError, OSError, ValueError, KeyError, TypeError):
+        errors.append("治理量化策略无效")
+    return errors
+
+
+def validate_pm_readable_output(root: Path = ROOT) -> list[str]:
+    """检查产品经理沟通规则和技能引用，不评价自然语言回复质量。"""
+    errors = []
+    source = (root / "rules/language.md").read_text()
+    for term in ("## 产品经理视角沟通", "业务结果和用户影响", "必要技术术语随文解释", "体验、成本、时间和风险", "不编造数字"):
+        if term not in source:
+            errors.append(f"rules/language.md: 缺少沟通要求 {term}")
+    paths = [root / "AGENTS.md", root / "rules/agent-context-budget.md"]
+    paths.extend(sorted((root / ".agents/skills").glob("*/SKILL.md")))
+    for path in paths:
+        text = path.read_text()
+        if "rules/language.md" not in text or "产品经理视角沟通" not in text:
+            errors.append(f"{path.relative_to(root)}: 缺少产品经理沟通规则引用")
+    return errors
+
+
 def main() -> int:
     all_skill_paths = sorted(SKILLS_DIR.glob("*/SKILL.md"))
     skill_paths = [path for path in all_skill_paths if is_command_skill(path)]
@@ -588,9 +670,13 @@ def main() -> int:
         errors.extend(validate_issue_target_contract(path))
         errors.extend(validate_explore_chain_identity_contract(path))
         errors.extend(validate_apply_execution_contract(path))
+    errors.extend(validate_acceptance_orchestration_contract())
+    errors.extend(validate_stable_validation_contract())
     errors.extend(validate_apply_contract_source())
     errors.extend(validate_governance_privacy_boundaries())
     errors.extend(validate_command_execution_review_hook())
+    errors.extend(validate_governance_feedback_contract())
+    errors.extend(validate_pm_readable_output())
 
     if errors:
         print("Agent 上下文预算校验失败：")

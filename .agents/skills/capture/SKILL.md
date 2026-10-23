@@ -1,6 +1,6 @@
 ---
 name: "capture"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 description: "智能收集 - 自动区分需求与缺陷，按需拆分并分别走 req-capture / bug-capture 落盘"
 ---
 
@@ -122,3 +122,7 @@ done
 - Exit code **MUST** be `0`
 - Print summary **Workflow Sync Report**（注明 REQ N 条 + BUG M 条）；use `--output detail` only for debugging
 - Do **not** hand-edit `sprint.md` Scope marker blocks
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

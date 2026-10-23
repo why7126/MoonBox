@@ -1,6 +1,6 @@
 ---
 name: "release-prepare"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 description: "执行发布前校验并生成或更新公开公告源文件"
 ---
 
@@ -189,3 +189,7 @@ python scripts/extract-ai-usage.py \
 - If local session input is unavailable, report `usage_mode: unavailable` and the recommended action; do not treat that as parent command failure.
 - If the hook reports `unsafe-records-skipped:<count>`, treat it as a usage-data blocker to fix or explicitly report; do not replace it with a deliberately missing `--session-jsonl`.
 - Release scope often includes IDs such as password or token; these business IDs are allowed in command-run metadata and must not be treated as secrets unless they appear as raw credentials, auth headers, `.env` content, assigned secret-like fields, or local absolute paths.
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

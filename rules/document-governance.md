@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-10-12 14:59:30
+updated_at: 2026-10-19 09:05:50
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -271,3 +271,5 @@ python scripts/sync-workflow-status.py --event <event> [--sprint auto] [--change
 ## Change 执行事实
 
 Change trace的可选execution.schema_version=1保存started_at、completed_at、last_event；status由执行事实派生，Issue主状态仍in_sprint。opsx.start在实施前门禁后写入，opsx.progress不声明完成，opsx.apply在完成门禁后写入completed_at。旧条目兼容读取但不伪造时间，不批量重写历史终态。CLI与后端复用src/backend/app/governance/lifecycle.py的状态契约，索引和看板仅作投影。
+
+自动验收与归档编排统一遵循 [连续执行与恢复契约](../docs/standards/opsx-acceptance.md)：逐 AC 队列与检查点、局部阻塞隔离、待采集证据自主补齐、精确指纹、命令去重、环境样本契约和归档预演。存在可执行项不得仅输出 diagnostic 后停止；交付、证据与用量分别报告，wrapper 成功不重复收尾。

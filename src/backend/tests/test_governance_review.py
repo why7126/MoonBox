@@ -432,3 +432,87 @@ def test_rejected_source_review_restores_moved_plan_directory(chat, tmp_path, mo
         assert not db.scalar(select(governance_applications.c.id))
         assert snapshot(root)['files'].keys() == manifest.keys()
         assert {name: (root / name).read_bytes() for name in before} == before
+
+
+@pytest.mark.parametrize('result', ['approved', 'rejected', 'deferred'])
+def test_review_accepts_existing_req_id_trace(result):
+    before, after, oid, base = review_files(result=result)
+    target = base.replace('/plan/', '/review/') if result == 'approved' else base
+    for files, path in ((before, base), (after, target)):
+        files[path + '/trace.md'] = files[path + '/trace.md'].replace(b'requirement_id:', b'req_id:')
+    assert validate(before, after, oid, base, 'req-review')['files']
+
+
+@pytest.mark.parametrize('identity', [None, 'REQ-9999-other'])
+def test_review_rejects_conflicting_trace_identity_alias(identity):
+    before, after, oid, base = review_files()
+    for files, path in ((before, base), (after, base.replace('/plan/', '/review/'))):
+        meta, _ = frontmatter(files[path + '/trace.md'])
+        meta['req_id'] = identity
+        files[path + '/trace.md'] = front(meta)
+    with pytest.raises(ChatError) as error:
+        validate(before, after, oid, base, 'req-review')
+    assert error.value.details == {'reason': 'state'}
+
+
+@pytest.mark.parametrize('bug', [False, True])
+def test_review_finalization_syncs_only_acceptance_source_event(bug):
+    from app.governance.review_finalization import finalize_review
+    before, after, oid, base = review_files(bug)
+    event = 'bug' if bug else 'req'
+    body = front({'bug_id' if bug else 'requirement_id': oid}) + f'\nsource_event: {event}.complete\n'.encode()
+    before[base + '/acceptance.md'] = body
+    target = base.replace('/plan/', '/review/') + '/acceptance.md'
+    after[target] = body
+    actual = finalize_review(before, after, oid, base, event + '-review')
+    assert actual[target] == body.replace(f'{event}.complete'.encode(), f'{event}.review'.encode())
+    assert after[target] == body
+    assert finalize_review(before, actual, oid, base, event + '-review') == actual
+
+
+@pytest.mark.parametrize('bug', [False, True])
+def test_review_accepts_workflow_sync_acceptance_trailing_newline(bug):
+    before, after, oid, base = review_files(bug)
+    field = 'bug_id' if bug else 'requirement_id'
+    event = 'bug' if bug else 'req'
+    body = front({field: oid}) + f'\nsource_event: {event}.complete\n'.encode()
+    before[base + '/acceptance.md'] = body
+    target = base.replace('/plan/', '/review/') + '/acceptance.md'
+    after[target] = body.replace(f'{event}.complete'.encode(), f'{event}.review'.encode()) + b'\n'
+    assert validate(before, after, oid, base, event + '-review')['files']
+    after[target] += b'changed acceptance content\n'
+    with pytest.raises(ChatError) as error:
+        validate(before, after, oid, base, event + '-review')
+    assert error.value.details == {'reason': 'acceptance_scope'}
+
+
+def test_source_sync_uses_source_root_with_separate_governance_projection(tmp_path, monkeypatch):
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+    from app.governance import preparation, writer, snapshot
+    projection, source = tmp_path / 'projection', tmp_path / 'source'
+    projection.mkdir(); (source / 'scripts').mkdir(parents=True)
+    script = source / 'scripts/sync-workflow-status.py'
+    script.write_text('# test script')
+    expected = {'issues/example.md': b'approved'}
+    project = SimpleNamespace(root=projection, source_root=source)
+    reads = []
+    def read(root):
+        reads.append(root)
+        return dict(expected)
+    monkeypatch.setattr(snapshot, 'read_once', read)
+    monkeypatch.setattr(writer, 'project_lock', lambda p: nullcontext())
+    calls = []
+    def run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return SimpleNamespace(returncode=0)
+    monkeypatch.setattr(preparation.subprocess, 'run', run)
+    proof = preparation._verify_source_workflow_sync(project, 'req-review', OID, expected)
+    assert proof['event'] == 'req.review'
+    assert calls[0][0][1] == str(script)
+    assert calls[0][1]['cwd'] == source
+    assert source in reads and projection in reads
+    monkeypatch.setattr(snapshot, 'read_once', lambda root: {} if root == source else expected)
+    with pytest.raises(ChatError):
+        preparation._verify_source_workflow_sync(project, 'req-review', OID, expected)
+    assert len(calls) == 1

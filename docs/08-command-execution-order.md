@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: 2026-10-12 15:27:04
+updated_at: 2026-10-20 18:27:28
 owner: MoonBox 产品团队
 ---
 
@@ -203,3 +203,15 @@ OpenSpec CLI 的动态提示（包括 Pause if you hit blockers or need clarific
 apply通过实施前门禁后先运行opsx.start；每批验证后运行opsx.progress；完成门禁通过后运行opsx.apply。两份apply技能与Sprint编排使用相同事件链。启动与进度不受仅收尾时执行完成态同步的限制。零完成数不等于未启动；全勾选不替代完成门禁；执行事实不代表进程在线。
 
 Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有效显式值保留，覆盖需明确请求；容量工具为 `scripts/add-sprint-scope-item.py --capacity-person-days`，修改后重算门禁与派生文档。
+
+自动验收与归档编排统一遵循 [连续执行与恢复契约](standards/opsx-acceptance.md)：逐 AC 队列与检查点、局部阻塞隔离、待采集证据自主补齐、精确指纹、命令去重、环境样本契约和归档预演。存在可执行项不得仅输出 diagnostic 后停止；交付、证据与用量分别报告，wrapper 成功不重复收尾。
+
+## 稳定验证编排
+
+遵循 [稳定批次与增量复验契约](standards/opsx-acceptance.md#稳定批次与增量复验契约)：完整入口前置检查、修改稳定后集中验证、受影响范围增量复验和里程碑进度反馈。保留现有正确性门禁；未完成入口验证不提前宣布最终完成。
+
+阶段变化、新发现与阻塞优先反馈；无变化时合并日志与轮询，保留必要状态反馈。复用证据须有当前有效依据，输出精简不减少检查。
+
+## 治理量化闭环接续
+
+按 [治理分级闭环](standards/governance-feedback-loop.md) 在命令入口 start、结束 finish/review，中央入口为 `scripts/governance_feedback.py`。自动优化在有效治理授权内接续 spec-opt → Change/Sprint 门禁 → plan/decide → 修复验证 → 后续 evaluate；业务 follow-up 仍遵守原门禁。计入优化自身成本、防递归、保留只读探索边界，不把暂态会话用量充当完整调用。

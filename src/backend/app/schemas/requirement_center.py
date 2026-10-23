@@ -34,6 +34,21 @@ class RequirementCenterChangeSummary(BaseModel):
 
 
 class RequirementCenterIssue(BaseModel):
+    estimated_person_days: float | None = Field(default=None, description="对象有效 Sprint Scope 的预估开发人天；缺失不填零")
+    estimate_status: Literal["available", "missing", "conflict", "invalid"] = "missing"
+    root_cause_state: Literal["absent", "pending", "confirmed"] = "absent"
+    root_cause_reason: Literal["missing", "conflict", "invalid"] | None = None
+    verification_operation_id: str | None = None
+    view_turn_id: str | None = None
+    historical_result: str = "unverified"
+    last_checked_at: str | None = None
+    verification_reason: str | None = None
+    verification_actions: list[str] = Field(default_factory=list)
+    verification_differences: list[str] = Field(default_factory=list)
+    execution_state: str = "idle"
+    can_send: bool = True
+    execution_reason: str | None = None
+    view_conversation_id: str | None = None
     display_title: str | None = None
     title_source: str | None = None
     title_warning: str | None = None
@@ -46,6 +61,8 @@ class RequirementCenterIssue(BaseModel):
     priority: str = ""
     severity: str = ""
     owner: str
+    owner_key: str | None = Field(default=None, description="负责人稳定筛选键，不用于认证授权")
+    owner_display_name: str | None = Field(default=None, description="当前授权范围内的负责人可读名称")
     source: str
     stage: str
     status: str | None = None
@@ -151,6 +168,9 @@ class RequirementCenterCurrentIterationArchiveReadiness(BaseModel):
     display_mode: Literal["hidden", "disabled", "enabled"] = "hidden"
     reason_code: Literal[
         "ready",
+        "empty_scope",
+        "scope_unknown",
+        "already_archived",
         "capacity_zero",
         "capacity_unknown",
         "unarchived_scope",

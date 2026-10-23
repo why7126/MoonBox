@@ -179,6 +179,9 @@ def public_turn(row):
     data['requested_config'] = _json_config(row.get('requested_config') if hasattr(row, 'get') else None)
     data['effective_config'] = _json_config(row.get('effective_config') if hasattr(row, 'get') else None)
     data['config_fallback_reason'] = row.get('config_fallback_reason') if hasattr(row, 'get') else None
+    from app.governance.direct_completion import ACTIONS
+    command = (row.get('prompt') or '').split(maxsplit=1)[0].removeprefix('/') if row.get('prompt') else ''
+    data['direct_action'] = command if command in ACTIONS else None
     return data
 
 
@@ -520,6 +523,10 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
         result = public_turn(previous)
         result.update(material_counts(previous_materials))
         return result
+    from app.governance.execution_context import replay as replay_governance
+    replayed = replay_governance(db, actor, row, prompt, client_id, materials, config)
+    if replayed is not None:
+        return replayed
     if row['archived']:
         raise ChatError(2504, '归档会话只读')
     if row['active_turn_id']:
@@ -547,6 +554,8 @@ def interrupt(db, actor, tid):
     if row['status'] == 'queued':
         changed = db.execute(update(turns).where(turns.c.id == tid, turns.c.status == 'queued').values(status='stopped', updated_at=now())).rowcount
         if changed:
+            from app.governance.execution_guard import terminal as guard_terminal
+            guard_terminal(db, tid, 'stopped')
             db.execute(update(conversations).where(conversations.c.id == row['conversation_id'], conversations.c.active_turn_id == tid).values(active_turn_id=None, updated_at=now()))
             from app.chat.admission import settle
             from app.chat.schema import snapshots

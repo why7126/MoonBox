@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "run_id": "20261023211447519762-7f16a24d",
+  "created_at": "2026-10-23 21:14:51",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "isolated-objective-rule-change-v4",
+  "scope": "complete",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-L01",
+      "fingerprint": "d882f89f76ea7f49ae24c9f1f31dece0b457b7e03bb2fcda78b9e7c520ea5a4e",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1849,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L02",
+      "fingerprint": "48ff66d4a617ce0ae38f4add661343031060295cb92e763009c1301faba1d6e2",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L03",
+      "fingerprint": "00a74567ef560713d56395f4f2742bb03cd388a0bb8830abee7ab8be3da200e2",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L04",
+      "fingerprint": "cdaa7c1e7cc8fefd510bb3a8b1945ee1a9cefc42f8b4c9d488366d255aa8e5f7",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L05",
+      "fingerprint": "1e0d45bbb567a23495aba18b7b3ca9e9bcc1c9b2f33c2e42abffd6fb4bc45fcf",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L06",
+      "fingerprint": "071a834bf2ac7a8621ec605a683bdee2c4f894b650bc49d1f4899acb28d50bf9",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-dark.json",
+          "sha256": "72772fb6add9c1f481164578b945645c8cfe332bd2f3ac118ee35c4bc8911743"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-dark.png",
+          "sha256": "ff8dbdd5fa3611e069c637fa0f58ed1942ab54be3c83b0540155a65e3f3282da"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-light.json",
+          "sha256": "d355c7e0328ab2c9bff1cc69e1f70f0375c4ddca51d3ab587ea423005ce5b579"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-light.png",
+          "sha256": "05a3541a519c58278e6352f84731ea26a6970b8a4e8c3f76814f18f63f1cb277"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-dark.json",
+          "sha256": "8db0d3ea138dd0deb31f27a5f4b177adbcee9ca4f680a1168a6e79f29c53b872"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-dark.png",
+          "sha256": "e3d27b0bcea24d8fb319a1186d110c6f94ccad1177ffe906c9a99d63dfacb8fa"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-light.json",
+          "sha256": "f41ab952a0d77f141f87b1f992a8042c82beb821e115c5e3beb8461fece9ed11"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-light.png",
+          "sha256": "d3a82a1bc6dc1a604f9274615ea0b559f1a826d06876a6718c09097ec0fb7f60"
+        }
+      ],
+      "duration_ms": 1777,
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L07",
+      "fingerprint": "416f4328370ab9a5ae3729f401b397e1564803b6daa1d98846ff7e6dcddf3f73",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L08",
+      "fingerprint": "97e17646276c4f8a7ce70c1285de1d346c5b840b964a9ef2ca8fb60dca69efdb",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L09",
+      "fingerprint": "6823634bcc1ab7bdd75dd0382e08d45e3aa202c315cc2deed0f1d6734029aa65",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-dark.json",
+          "sha256": "72772fb6add9c1f481164578b945645c8cfe332bd2f3ac118ee35c4bc8911743"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-dark.png",
+          "sha256": "ff8dbdd5fa3611e069c637fa0f58ed1942ab54be3c83b0540155a65e3f3282da"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-light.json",
+          "sha256": "d355c7e0328ab2c9bff1cc69e1f70f0375c4ddca51d3ab587ea423005ce5b579"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-1440-light.png",
+          "sha256": "05a3541a519c58278e6352f84731ea26a6970b8a4e8c3f76814f18f63f1cb277"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-dark.json",
+          "sha256": "8db0d3ea138dd0deb31f27a5f4b177adbcee9ca4f680a1168a6e79f29c53b872"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-dark.png",
+          "sha256": "e3d27b0bcea24d8fb319a1186d110c6f94ccad1177ffe906c9a99d63dfacb8fa"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-light.json",
+          "sha256": "f41ab952a0d77f141f87b1f992a8042c82beb821e115c5e3beb8461fece9ed11"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/isolated-real-chat-390-light.png",
+          "sha256": "d3a82a1bc6dc1a604f9274615ea0b559f1a826d06876a6718c09097ec0fb7f60"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/live-rule-review-dark-1440.png",
+          "sha256": "cecc1c7a621c6f0db9e8057dbaaa44f936f07bd581bd01f347f96f459150717e"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/live-rule-review-dark-390.png",
+          "sha256": "f5ceb7f0a54fd4b15f6954cf909d0a447483e767348b1b336df04e2dfcddc1e3"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/live-rule-review-light-1440.png",
+          "sha256": "9eae0d70fc6eb724871b6c80e80ea384a8c0a464c7b1e098694f2e50979b1f8f"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/lightweight/live-rule-review-light-390.png",
+          "sha256": "3dcb6c9b503e14d4ddebb2c871e24144d750b41416854f85d59f1a64d1dd566d"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L10",
+      "fingerprint": "bfc264b7edc073956c3e1fc4f562b5b28ba0b92a7ea620179a9a50aec1c7ae83",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L11",
+      "fingerprint": "ccb0d8f80b052a01da58be64ddab7ed86a631974a2a8d1ce33bfb8a5f6252d4d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L12",
+      "fingerprint": "24357a5dc77850e5a016f4f0255716b8369e44cabda29a36f6be0a61e645f1a1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 10,
+    "reused": 0,
+    "preflight_ms": 46,
+    "duration_ms": 3735,
+    "blocked": 12,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

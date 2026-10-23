@@ -1,6 +1,6 @@
 import { governanceRequest, type Application } from "../workbench/governanceApi";
 import { useEffect, useRef, useState } from "react";
-export type GovernanceCandidate = { id: string; object_id: string; action?: string; current?: boolean; state: string; turn_id?: string | null; prepared_turn_id?: string | null; files: {path: string; diff: string}[]; manifest_hash: string; revision: string | number; error_code?: string; application?: Application };
+export type GovernanceCandidate = { recovery_operation_id?: string; id: string; object_id: string; action?: string; current?: boolean; state: string; turn_id?: string | null; prepared_turn_id?: string | null; files: {path: string; diff: string}[]; manifest_hash: string; revision: string | number; error_code?: string; application?: Application };
 export const activeGovernanceCandidate = (items: GovernanceCandidate[]) =>
   items.find(item => item.current) || items[0];
 const reviewReasons: Record<string, string> = {

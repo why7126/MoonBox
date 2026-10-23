@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import sqlite3
-from uuid import UUID
+from uuid import UUID, uuid5, NAMESPACE_URL
 from sqlalchemy import select
 from app.chat.schema import governance_candidates,governance_applications,turns
 from app.chat.workspace import trusted_directory
@@ -14,6 +14,7 @@ from app.governance import store,scope
 from app.chat.backup import LocalBackupStore
 from app.chat.settings import backup_root
 from app.governance.writer import project_lock
+from app.governance.recovery_schema import operations, attempts
 
 
 RECORD_NAMES={'baseline.json','result.json','operation.json'}
@@ -21,7 +22,10 @@ RECORD_NAMES={'baseline.json','result.json','operation.json'}
 
 def records(root):
     result={}
+    ephemeral = {str(uuid5(NAMESPACE_URL, 'moonbox-recovery-runtime:' + role)) for role in ('worker', 'controller')}
     for directory in sorted(root.iterdir()):
+        # Runtime heartbeats are recreated by live peers, never restored as evidence.
+        if directory.name in ephemeral: continue
         try: UUID(directory.name)
         except ValueError:continue
         trusted_directory(directory)
@@ -43,7 +47,7 @@ def records(root):
 
 def facts(db):
     return {table.name:[dict(row) for row in db.execute(select(table).order_by(table.c.id)).mappings()]
-            for table in (governance_candidates,governance_applications)}
+            for table in (governance_candidates,governance_applications,operations,attempts)}
 
 
 def create(factory,destination):
@@ -57,7 +61,7 @@ def create(factory,destination):
         if db.scalar(select(governance_applications.c.id).where(governance_applications.c.state.in_(('applying','recovering'))).limit(1)):
             raise ValueError('recover_active_application_before_backup')
         before=facts(db)
-        projects={(row['actor_id'],row['space_id'],row['repository_id']) for values in before.values() for row in values}
+        projects={(row['actor_id'],row['space_id'],row['repository_id']) for values in before.values() for row in values if 'actor_id' in row}
         acquired=set()
         for actor,space_id,repository_id in sorted(projects):
             project=scope.authorize(db,actor,space_id,repository_id)
@@ -128,6 +132,9 @@ def restore(backup,destination):
         finally:restored_engine.dispose()
         with sqlite3.connect(destination/'database.sqlite') as restored:
             live_ids={row[0] for table in ('governance_candidates','governance_applications') for row in restored.execute('SELECT id FROM '+table)}
+            if restored.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='governance_operations'").fetchone():
+                from app.governance.direct_command_journal import record_id
+                live_ids.update(record_id(cid,key) for cid,key in restored.execute('SELECT conversation_id,request_key FROM governance_operations'))
         for name,body in blobs.items():
             if name=='database.sqlite' or name.split('/')[0] not in live_ids:continue
             path=destination/name if name=='database.sqlite' else destination/'records'/name

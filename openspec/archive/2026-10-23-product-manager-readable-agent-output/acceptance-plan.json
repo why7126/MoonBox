@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "change_id": "product-manager-readable-agent-output",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "rules/language.md",
+        "AGENTS.md",
+        "rules/agent-context-budget.md",
+        "scripts/validate-agent-context-budget.py",
+        ".agents/skills/opsx-explore/SKILL.md",
+        ".agents/skills/req-capture/SKILL.md",
+        ".agents/skills/release-prepare/SKILL.md",
+        ".agents/skills/capture/SKILL.md",
+        ".agents/skills/req-generate/SKILL.md",
+        ".agents/skills/usage-docs-generate/SKILL.md",
+        ".agents/skills/bug-complete/SKILL.md",
+        ".agents/skills/release-propose/SKILL.md",
+        ".agents/skills/opsx-accept/SKILL.md",
+        ".agents/skills/openspec-apply-change/SKILL.md",
+        ".agents/skills/build-design-system/SKILL.md",
+        ".agents/skills/openspec-explore/SKILL.md",
+        ".agents/skills/bug-capture/SKILL.md",
+        ".agents/skills/workflow-sync/SKILL.md",
+        ".agents/skills/sprint-archive/SKILL.md",
+        ".agents/skills/git-check/SKILL.md",
+        ".agents/skills/opsx-apply/SKILL.md",
+        ".agents/skills/sprint-propose/SKILL.md",
+        ".agents/skills/opsx-modify/SKILL.md",
+        ".agents/skills/initialize-project/SKILL.md",
+        ".agents/skills/spec-opt/SKILL.md",
+        ".agents/skills/usage-docs-update/SKILL.md",
+        ".agents/skills/explore/SKILL.md",
+        ".agents/skills/build-test-framework/SKILL.md",
+        ".agents/skills/sprint-apply/SKILL.md",
+        ".agents/skills/bug-opsx/SKILL.md",
+        ".agents/skills/opsx-propose/SKILL.md",
+        ".agents/skills/bug-generate/SKILL.md",
+        ".agents/skills/req-explore/SKILL.md",
+        ".agents/skills/upgrade-validate/SKILL.md",
+        ".agents/skills/openspec-archive-change/SKILL.md",
+        ".agents/skills/req-review/SKILL.md",
+        ".agents/skills/req-complete/SKILL.md",
+        ".agents/skills/req-opsx/SKILL.md",
+        ".agents/skills/bug-review/SKILL.md",
+        ".agents/skills/build-api-standard/SKILL.md",
+        ".agents/skills/image-prepare/SKILL.md",
+        ".agents/skills/usage-docs-validate/SKILL.md",
+        ".agents/skills/git-sync/SKILL.md",
+        ".agents/skills/release-publish/SKILL.md",
+        ".agents/skills/upgrade-plan/SKILL.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        ".agents/skills/openspec-propose/SKILL.md",
+        ".agents/skills/spec-study/SKILL.md",
+        ".agents/skills/bug-explore/SKILL.md",
+        ".agents/skills/sprint-explore/SKILL.md",
+        ".agents/skills/sprint-exps/SKILL.md",
+        ".agents/skills/image-build/SKILL.md"
+      ],
+      "argv": [
+        "python",
+        "scripts/validate-agent-context-budget.py"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/product-manager-readable-agent-output/specs/pm-readable-output/spec.md"
+      ],
+      "argv": [
+        "openspec",
+        "validate",
+        "product-manager-readable-agent-output"
+      ]
+    }
+  ]
+}

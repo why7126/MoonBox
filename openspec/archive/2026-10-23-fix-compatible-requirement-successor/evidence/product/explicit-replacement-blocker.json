@@ -1,0 +1,15 @@
+{
+  "user_decision": "保留阻断，显式替代另行处理",
+  "candidate_preflight": [
+    {
+      "change_id": "fix-compatible-requirement-successor",
+      "capability": "governance-command-durable-recovery",
+      "requirement": "归档连续证明的条文冲突范围",
+      "protected_changes": [
+        "fix-archive-requirement-scope-conflict"
+      ],
+      "reason": "兼容追加证明缺失、失效或存在破坏性变化"
+    }
+  ],
+  "bypass_added": false
+}

@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-requirement-center-owner-display",
+  "environment_contract": {
+    "deployment": "当前源码的本机隔离产品实例",
+    "workspace_mode": "isolated",
+    "sample_scope": "合成账号及 REQ/BUG 样本，不写生产数据",
+    "authorization_ref": "trace.md 的实施与验证记录",
+    "login_strategy": "隔离合成账号；不使用生产凭证",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "console"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import sys,runpy; sys.path.insert(0,'src/backend'); runpy.run_path('tests/unit/test_requirement_owner_display.py',run_name='__main__')"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "scope": "合成数据名称规则回归；真实首次 Capture 与刷新由 AC-005 覆盖"
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import sys,runpy; sys.path.insert(0,'src/backend'); runpy.run_path('tests/unit/test_requirement_owner_display.py',run_name='__main__')"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "scope": "合成数据名称规则回归；真实首次 Capture 与刷新由 AC-005 覆盖"
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import sys,runpy; sys.path.insert(0,'src/backend'); runpy.run_path('tests/unit/test_requirement_owner_display.py',run_name='__main__')"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "scope": "合成数据名称规则回归；真实首次 Capture 与刷新由 AC-005 覆盖"
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import sys,runpy; sys.path.insert(0,'src/backend'); runpy.run_path('tests/unit/test_requirement_owner_display.py',run_name='__main__')"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "scope": "合成数据名称规则回归；真实首次 Capture 与刷新由 AC-005 覆盖"
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/requirementOwner.ts",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/requirement-owner.test.ts",
+        "tests/integration/api/test_requirement_owner_display_api.py",
+        "src/backend/tests/owner_display_live_harness.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/integration/api/test_requirement_owner_display_api.py",
+        "-q"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/product-capture.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "授权产品中 REQ/BUG 首次 Capture、刷新、同条响应与名称对照"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "deduplicate": true
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/requirementOwner.ts",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/requirement-owner.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import os; os.chdir('src/web'); os.environ['NODE_OPTIONS']='--no-experimental-webstorage'; os.execvp('node',['node','node_modules/vitest/vitest.mjs','run','src/requirement-center.test.tsx','src/requirement-owner.test.ts','--reporter=dot'])"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/owner-interactions.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/owner-detail-1440x900.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/same-name-filter-1440x900.png"
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/requirementOwner.ts",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/requirement-owner.test.ts",
+        "src/web/src/styles/globals.css"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-owner.cjs"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-light-1440x900-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-light-1440x900.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-light-390x844-styles.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-light-390x844.png",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/owner-dom-audit.json",
+        "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/owner-interactions.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "ready-dev",
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-1440x900-styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/capture-390x844-styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-1440x900-styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/ready-dev-390x844-styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-1440x900-styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844.png",
+              "openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/visual/acceptance-390x844-styles.json"
+            ]
+          }
+        ]
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/change_index.py",
+        "tests/unit/test_requirement_owner_display.py",
+        "tests/integration/api/test_requirement_owner_display_api.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/integration/api/test_requirement_owner_display_api.py",
+        "-q"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "deduplicate": true
+    }
+  ],
+  "preflight": [
+    [
+      "src/backend/.venv/bin/python",
+      "-c",
+      "import json,pytest,httpx,sqlalchemy; from pathlib import Path; p=Path('openspec/changes/fix-requirement-center-owner-display/evidence/acceptance/owner-interactions.json'); d=json.loads(p.read_text()); assert {'screenshot','viewport','computed_style','console'} <= set(d['browser_capabilities_verified'])"
+    ]
+  ]
+}

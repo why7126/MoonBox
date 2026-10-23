@@ -1,0 +1,28 @@
+{
+  "environment": "local Docker self-storage-sqlite",
+  "production": false,
+  "services_healthy": [
+    "backend",
+    "chat-worker",
+    "governance-controller"
+  ],
+  "api_health": "ok",
+  "served_assets": {
+    "index-BUpv8XEl.js": {
+      "sha256": "e6b4c6b38540a6863c7edfb49814d4b76bdc165b55fc3f47c8a5b92ae6c2ad5a",
+      "bytes": 566553
+    },
+    "index-fZyE0K_j.css": {
+      "sha256": "ca21c9afe2d07bc7771ae002b18388c94c78aaafef50e5f409a442a922db0e07",
+      "bytes": 229843
+    }
+  },
+  "startup_recovery": "quarantined verified stale controller heartbeat temporary file; business records unchanged",
+  "build_note": "Docker uses Linux Node22/pnpm build; distinct JS hash from host npm build. CSS identical. Final local build inspected separately; real-model evidence belongs to isolated source environment.",
+  "final_feature_markers": {
+    "refreshKey": true,
+    "governance-operation-verified": true,
+    "下一步暂不可执行": true,
+    "visibilitychange": true
+  }
+}

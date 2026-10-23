@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "deployment_verified": true,
+  "refresh_verified": true,
+  "evidence_type": "deployed-product-observation",
+  "deployment": "local-moonbox-compose",
+  "services_healthy": [
+    "backend",
+    "web",
+    "chat-worker",
+    "governance-controller"
+  ],
+  "matching_code_files": 5,
+  "source_probe": "deployed-probe.json",
+  "readiness": {
+    "done": 36,
+    "total": 36,
+    "ready": true
+  },
+  "browser": {
+    "route": "/requirements",
+    "object": "REQ-0046",
+    "stage": "已完成",
+    "filtered_total": 1,
+    "filtered_blocked": 0,
+    "refresh_count": 2,
+    "viewport": "1440x900",
+    "screenshot": "product-1440.jpg",
+    "computed_style": "product-computed-style.json",
+    "visual_verdict": "卡片完整显示于已完成列，未见溢出或恢复阻塞；布局样式未变更"
+  },
+  "remaining_sprint_condition": "sprint-011仍要求独立验收sign-off，未绕过也未关闭",
+  "negative_case_evidence": "真实同条文冲突与36/36阻塞分离由隔离回归验证；未篡改生产归档构造负例",
+  "public_contract": "复用原进度及原因字段，无新增OpenAPI字段或UI动作；原执行状态保留",
+  "accepted_by": "Agent按实际浏览器、运行容器与源码指纹证据签认",
+  "actual_archive_performed": false
+}

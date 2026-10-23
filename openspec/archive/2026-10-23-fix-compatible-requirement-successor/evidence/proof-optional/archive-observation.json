@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "real-product-isolated-synthetic-business-data",
+  "sample": "sprint-103",
+  "turn": {
+    "id": "14a64cb2-3319-4ca6-b163-e04c6615bcb2",
+    "conversation_id": "2f245a33-67b6-5d89-bee3-08737015f922",
+    "status": "completed",
+    "error_code": null
+  },
+  "archive_operation": {
+    "id": "b0e9d56e-29b4-501b-a852-8b5a3cf0204d",
+    "change_id": "sprint-103",
+    "stage": "completed",
+    "revision": 5
+  },
+  "guards": [
+    {
+      "state": "recovered_valid",
+      "reason_code": null,
+      "confirmed_stage": "done"
+    }
+  ],
+  "usage": [
+    {
+      "total_tokens": 0,
+      "actual_bytes": 12121,
+      "thread_total": 0,
+      "usage_scope": "trusted_archive_v1",
+      "usage_pending": false
+    }
+  ],
+  "protected_trees_unchanged": true,
+  "active_exists": false,
+  "archive_exists": true,
+  "formal_project_mutated": false,
+  "scope": "真实产品 Sprint 关闭与核验；同条文后继策略由当前 CLI 与回归覆盖，此样本不冒充后继规格写入。",
+  "source_hashes": {
+    "src/backend/app/governance/archive_recovery.py": "5f157a6f490ec7217a325aa0d7ddf2d2cafafa34208d20ac6de700711cb26275",
+    "src/backend/app/governance/archive_coordinator.py": "96a7566546bc9573d5d554f8310cc15b5832a75c361c4be2bf8dede5a01b191b",
+    "src/backend/app/governance/reader.py": "75cb1c98ddf03fe542c1673c75c64868eacdae088179f365746ebb0bf8b90f88"
+  }
+}

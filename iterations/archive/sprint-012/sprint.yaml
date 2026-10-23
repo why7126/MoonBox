@@ -1,0 +1,69 @@
+sprint_id: sprint-012
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-21 11:39:09'
+updated_at: '2026-10-23 22:42:09'
+start_date: '2026-10-21 11:39:09'
+end_date: '2026-11-04 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0049-sprint-archive-chat-entry
+bugs:
+  - BUG-0060-direct-command-completion-proof-drift
+  - BUG-0061-cross-entry-continuation-guard-convergence
+  - BUG-0062-archive-requirement-scope-conflict
+  - BUG-0063-compatible-requirement-successor-blocked
+changes:
+  - fix-direct-command-completion-proof
+  - fix-cross-entry-continuation-guard
+  - fix-archive-requirement-scope-conflict
+  - add-sprint-archive-chat-entry
+  - fix-compatible-requirement-successor
+estimated_story_points: 34
+estimated_person_days: 34
+capacity_usage: 1.1333
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+scope_estimates:
+  - id: BUG-0060-direct-command-completion-proof-drift
+    change: fix-direct-command-completion-proof
+    type: BUG
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 完成证明与依赖划分2；收尾核验与安全恢复2；并发与兼容回归2；部署及产品、CLI联合验收2。
+  - id: BUG-0061-cross-entry-continuation-guard-convergence
+    change: fix-cross-entry-continuation-guard
+    bug: BUG-0061-cross-entry-continuation-guard-convergence
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 后继证明与差异分类2；同步采集及dry-run误识别1；安全恢复与并发围栏2；部署、BUG-0055现场恢复及产品/CLI实际归档验收3。用户指定sprint-012，保留正确性门禁。
+  - id: BUG-0062-archive-requirement-scope-conflict
+    change: fix-archive-requirement-scope-conflict
+    bug: BUG-0062-archive-requirement-scope-conflict
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 用户指定sprint-012；条文冲突解析及连续证明1.5人天，验收进度与诊断1人天，共享Sprint预检及同步1人天，安全负例与产品/CLI一致性验收1.5人天；保留历史证据和并发门禁。
+  - id: REQ-0049-sprint-archive-chat-entry
+    change: add-sprint-archive-chat-entry
+    requirement: REQ-0049-sprint-archive-chat-entry
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 用户指定 sprint-012；会话与准入扩展1.5、跳转及草稿保护1、权限与幂等回归1、原型确认和真实链路验收1.5，共5人天。复用已归档能力，最终签署门禁保留；同期新增BUG-0062后合计26/30人天，4人天缓冲，低于建议30%，需保留范围风险。
+  - id: BUG-0063-compatible-requirement-successor-blocked
+    change: fix-compatible-requirement-successor
+    bug: BUG-0063-compatible-requirement-successor-blocked
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 通用兼容追加证明与多跳安全2人天；后继影响预检及四入口一致1.5；产品按项诊断和草稿保护1；并发/篡改/破坏性负例与持续回归1.5；部署和真实产品/CLI验收2。合计8人天。默认唯一活动sprint-012，保留30人天容量；总计34/30（113.3%），超额4人天且无剩余缓冲，未超过120%硬门禁。当前已交付26人天不倒扣，无可移出未交付低优先项；后续新增范围延后，估算增长超过36人天须拆分或调整范围。
+knowledge_intake:
+  - action_id: S10-A002
+    scope: 复用首次成功、失败拒绝、原执行恢复与串行样本证据实践；通用治理扩展仍保留原状态。
+    source: docs/knowledge-base/retrospectives/sprint-010-retrospective.md

@@ -1,0 +1,1149 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-requirement-center-card-width-sprint-tag-wrap",
+  "environment": "isolated-source-ui",
+  "environment_contract": {
+    "deployment": "local-vite-isolated",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic-layout-and-existing-product-baseline",
+    "authorization_ref": "BUG-0043-opsx-apply",
+    "login_strategy": "synthetic-local-session",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "preflight": [
+    [
+      "node",
+      "-e",
+      "require('./src/web/node_modules/@playwright/test');fetch('http://127.0.0.1:39035/tests/governance-board-preview.html').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/globals.css",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/tests/requirement-center-card-width.cjs",
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-center-card-width.cjs"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离源代码真实浏览器采样已完成；不代表旧部署更新"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "input_sections": {
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md": [
+          "## 验收范围",
+          "## 验收矩阵",
+          "## 组件与样式检查"
+        ]
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/globals.css",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/tests/requirement-center-card-width.cjs",
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-center-card-width.cjs"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离源代码真实浏览器采样已完成；不代表旧部署更新"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "input_sections": {
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md": [
+          "## 验收范围",
+          "## 验收矩阵",
+          "## 组件与样式检查"
+        ]
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/globals.css",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/tests/requirement-center-card-width.cjs",
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-center-card-width.cjs"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离源代码真实浏览器采样已完成；不代表旧部署更新"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "input_sections": {
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md": [
+          "## 验收范围",
+          "## 验收矩阵",
+          "## 组件与样式检查"
+        ]
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/globals.css",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/tests/requirement-center-card-width.cjs",
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-center-card-width.cjs"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离源代码真实浏览器采样已完成；不代表旧部署更新"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "input_sections": {
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md": [
+          "## 验收范围",
+          "## 验收矩阵",
+          "## 组件与样式检查"
+        ]
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/styles/globals.css",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/tests/requirement-center-card-width.cjs",
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md"
+      ],
+      "argv": [
+        "node",
+        "src/web/tests/requirement-center-card-width.cjs"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/document-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/progress-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-1440.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/empty-768.png",
+        "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+      ],
+      "coverage": {
+        "stages": [
+          "capture",
+          "planning",
+          "review-ready",
+          "approved",
+          "sprint-planning",
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900"
+        ],
+        "samples": [
+          {
+            "stage": "capture",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "capture",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/capture-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "review-ready",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/review-ready-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "approved",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/approved-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "sprint-planning",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/sprint-planning-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/ready-dev-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/development-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/acceptance-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-1440.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/done-768.png",
+              "openspec/changes/fix-requirement-center-card-width-sprint-tag-wrap/evidence/acceptance/layout/styles.json"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离源代码真实浏览器采样已完成；不代表旧部署更新"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "input_sections": {
+        "issues/bugs/review/BUG-0043-requirement-center-card-width-sprint-tag-wrap/acceptance.md": [
+          "## 验收范围",
+          "## 验收矩阵",
+          "## 组件与样式检查"
+        ]
+      }
+    }
+  ]
+}

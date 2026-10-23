@@ -1,10 +1,14 @@
 ---
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
 
 # spec-opt
+
+## 分级量化优化
+
+遵循 `docs/standards/governance-feedback-loop.md` 与 `rules/governance-feedback-policy.json`。已有本项目治理授权内自动处理规范、技能和脚本问题；保留 Change/Sprint/验证，不重复请求授权，不扩展业务或权限边界。自动候选先经 `scripts/governance_feedback.py plan/decide`，分析、实施、验证分别计入同一优化成本；评估区分修复通过、observing、benefit-confirmed 和 regressed。只撤回本次退化差异，保留工作区既有改动；depth 非零禁止自触发。
 
 Use this skill when the user asks to run `/spec-opt ...` or requests optimization of project governance specifications, including `.agents/skills` commands, `rules/`, `docs/`, and governance scripts.
 
@@ -170,3 +174,7 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 ## Change 身份门禁
 
 遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

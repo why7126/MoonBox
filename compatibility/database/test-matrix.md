@@ -3,7 +3,7 @@ purpose: 数据库兼容测试矩阵
 content: 数据库兼容范围、测试环境、Schema/迁移验证、CRUD、查询、事务、类型映射、性能、安全、CI 门禁和初始化生成规则
 update_method: 项目初始化时由用户输入参数生成；数据库类型、兼容目标、迁移策略、测试框架、部署环境或质量门禁变化时更新；后续由 AI 辅助更新并经人工 Review
 created_at: 2026-06-27 08:44:18
-updated_at: 2026-09-08 14:50:39
+updated_at: '2026-10-20 09:20:02'
 owner: MoonBox
 status: draft
 note: 适用于 MoonBox 项目
@@ -305,3 +305,25 @@ REQ-0025并发释放返修：SQLite增列/重复迁移、终态预留补偿、�
 ### REQ-0044 平台浏览器验证任务
 
 `verification_tasks` 增量创建采用 SQLite/MySQL 共用的 SQLAlchemy `String`、`Text`、外键、复合唯一键和索引。SQLite 已覆盖重复迁移、幂等提交、条件领取、撤权读取和 worker 重启保持 blocked；2026-10-09 在一次性 MySQL 8.4 空库完成两次 `migrate`、表/唯一约束/索引检查及合成任务写读回环。MySQL 并发领取与恢复未单独压测，单 worker 条件领取在 SQLite 回归覆盖；原始幂等请求值以 SHA256 入库，避免 MySQL 大小写排序规则改变比较语义。证据截图不入库，保留期由 API 复核 UTC 完成时间。
+
+## BUG-0044 对象执行门禁增量矩阵
+
+`governance_execution_guards` 与 `governance_execution_requests` 使用复合唯一键和事务条件更新。SQLite 使用真实临时文件与独立连接；MySQL 使用独立 8.2.0 容器，不连接业务库。MySQL 守卫测试通过14项，覆盖竞争、回滚、幂等、未知终态及陈旧回调；SQL编译结果单独记录，不代替数据库执行。
+
+测试入口：`src/backend/tests/test_governance_execution_guard.py`。`GUARD_TEST_DATABASE_URL` 仅允许指向可销毁的隔离测试库，测试会创建并清理两张守卫表；不配置时使用临时 SQLite。新增多进程竞争用例及完整应用迁移结果以当前 Change 验证记录为准。
+
+## REQ-0047 治理持久恢复增量矩阵
+
+新增 governance_operations 与 governance_recovery_attempts 使用 SQLite/MySQL 共用状态与 CAS 条件更新、唯一操作/候选/轮次及尝试索引。MySQL 8.0+ 的请求键使用 utf8mb4_0900_bin（NO PAD），使大小写和尾空格身份与 SQLite 一致；不依赖 MySQL 的默认不区分大小写排序规则。旧业务表不做破坏性迁移。
+
+入口为 `src/backend/tests/recovery_mysql_matrix.py`，启动独立 MySQL 8.2 临时容器并运行真实恢复 writer/API、撤权/换绑定/成果变化、保留保护与持久策略测试；不连接业务数据库。SQLite 使用临时文件及独立事务。各轮测试计数和最终结论见 `openspec/changes/add-governance-command-durable-recovery/verification.md`；DDL编译检查不替代实际矩阵。MySQL 8.4和生产升级不在本次已验证环境内。
+
+## BUG-0052 完成交接矩阵
+
+新增复合主键与队列索引使用跨数据库SQLAlchemy DDL；验证重复建表、唯一交接、CAS领取、原版本隔离、预算持久化、失败回滚及重启补建。合成集成测试见 test_completion_handoff.py，SQLite和独立MySQL容器分开报告；不连接业务MySQL。时间用UTC字符串，禁止本地无时区值参与队列比较。
+
+- BUG-0061：独立 MySQL 8.2 临时容器运行 successor/direct completion、completion handoff/proof、execution guard：120 项及 6 子测试通过；未连接正式业务数据库。新增后继核验仅复用现有 guard CAS，不新增迁移；后续中断日志补齐用例增量复验见 Change 验收记录。
+
+### BUG-0063 适用性
+
+兼容条文证明在文件系统执行，API 错误详情复用现有响应，不新增 SQL、表、字段或事务。SQLite Chat 准入及跨入口回归已执行；MySQL schema/migration 本次不适用，原数据库兼容路径不变。真实产品观察与文件证明测试见 fix-compatible-requirement-successor 的验证记录。

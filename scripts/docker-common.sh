@@ -13,13 +13,15 @@ MODE=self-storage-sqlite
 CHAT_TEST=false
 CHAT_PLATFORM=false
 CHECK_ONLY=false
+CONTROLLED_REPLACEMENT=false
 MODE_SET=false
 for arg in "$@"; do
   case "$arg" in
     --chat-test) CHAT_TEST=true ;;
     --chat-platform) CHAT_PLATFORM=true ;;
+    --controlled-replacement) CONTROLLED_REPLACEMENT=true ;;
     --check) CHECK_ONLY=true ;;
-    --help|-h) echo '用法：bash scripts/docker-up.sh [部署模式] [--chat-test|--chat-platform] [--check]；docker-down.sh参数相同。'; exit 0 ;;
+    --help|-h) echo '用法：bash scripts/docker-up.sh [部署模式] [--chat-test|--chat-platform] [--controlled-replacement] [--check]；docker-down.sh参数相同。'; exit 0 ;;
     --*) echo "未知选项：$arg" >&2; exit 2 ;;
     *) [[ "$MODE_SET" = false ]] || { echo '只能指定一个部署模式。' >&2; exit 2; }; MODE="$arg"; MODE_SET=true ;;
   esac
@@ -118,4 +120,15 @@ if [[ "$CHAT_PLATFORM" = true ]]; then
   export MOONBOX_GOVERNANCE_HOST_STATE_ROOT="$(config_value MOONBOX_GOVERNANCE_HOST_STATE_ROOT "$ROOT_DIR/data/runtime/governance")"
   COMPOSE+=(-f "$ROOT_DIR/deploy/docker-compose.governance.yml")
   SERVICES+=(governance-controller)
+fi
+
+# Optional deployment wiring; never creates trust roots or authorizes installation.
+if [[ "$CONTROLLED_REPLACEMENT" = true ]]; then
+  [[ "$CHAT_PLATFORM" = true ]] || { echo '--controlled-replacement需要--chat-platform。' >&2; exit 2; }
+  for replacement_var in MOONBOX_REPLACEMENT_TRUST_SOURCE MOONBOX_AUTHORIZATION_KEY_SOURCE MOONBOX_REPLACEMENT_SOCKET_ROOT MOONBOX_AUTHORIZATION_KEY_ID; do
+    export "$replacement_var=$(config_value "$replacement_var" '')"
+  done
+  PYTHONPATH=src/backend "$PYTHON_BIN" -m app.governance.replacement_deployment
+  COMPOSE+=(-f "$ROOT_DIR/deploy/docker-compose.replacement.yml")
+  SERVICES+=(replacement-signer)
 fi

@@ -1,0 +1,51 @@
+{
+  "object_id": "BUG-9604-direct-normal",
+  "action": "bug-opsx",
+  "conversation_id": "2f87a8ed-2a68-5ed3-984c-8c4f9d188310",
+  "turn_id": "2f547bf2-233c-46c5-bcb2-9e05473c2ee6",
+  "send_http": 200,
+  "status": "completed",
+  "error_code": null,
+  "context_http": 200,
+  "verification_http": 200,
+  "verification": {
+    "available": true,
+    "state": "validated",
+    "version": 2,
+    "reason_code": null,
+    "last_checked_at": "2026-10-21T05:58:52.466272+00:00",
+    "can_verify": false,
+    "historical_evidence_missing": false,
+    "differences": []
+  },
+  "cards": [
+    {
+      "id": "BUG-9604",
+      "stage": "ready-dev",
+      "can_send": true,
+      "execution_state": "validated",
+      "execution_reason": null,
+      "action": {
+        "command": "/opsx-apply BUG-9604-direct-normal",
+        "label": "开始修复",
+        "requires_choice": null,
+        "disabled_reason": null
+      }
+    }
+  ],
+  "next_action_http": 200,
+  "next_action_prepared": true,
+  "cli_exit": 0,
+  "cli_verification": {
+    "available": true,
+    "state": "validated",
+    "version": 2,
+    "differences": [],
+    "reason_code": null,
+    "last_checked_at": "2026-10-21T05:58:52.466272+00:00",
+    "can_verify": false,
+    "historical_evidence_missing": false
+  },
+  "chain_verified": true,
+  "formal_objects_archived": false
+}

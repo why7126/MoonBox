@@ -111,6 +111,19 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 - **AND** 已进入迭代规划及后续阶段的卡片必须展示唯一 `sprint-xxx` 标签
 - **AND** 未纳入迭代的卡片不得展示空 Sprint 标签
 
+#### Scenario: 九阶段统一扩宽
+
+- **WHEN** 用户在桌面或窄视口查看九阶段看板
+- **THEN** 系统 MUST 将九个阶段列宽统一为 380px，卡片随列扩宽，列头与列体保持对齐
+- **AND** 系统 MUST 保留横向滚动，使首列至末列均可访问
+
+#### Scenario: 长标识与迭代标签共同展示
+
+- **WHEN** 卡片同时显示长 ID 和 Sprint 标签
+- **THEN** 系统 MUST 将 Sprint 标签保持完整单行且禁止收缩，不得溢出卡片
+- **AND** ID MUST 在剩余空间内合理换行，不覆盖标签或撑破卡片
+- **AND** 无 Sprint 标签时 MUST 保留原有显示条件，不增加空标签或额外固定占位
+
 ### Requirement: 前台需求中心筛选与搜索
 
 系统 MUST 支持用户按对象类型、关键字、负责人、优先级和 Sprint 聚焦需求中心看板范围，并在 Sprint 筛选选项中展示可追溯的 Sprint 状态。
@@ -962,77 +975,47 @@ TBD - created by archiving change fix-frontend-user-menu-change-password. Update
 
 ### Requirement: 当前迭代归档入口
 
-系统 SHALL 在前台需求中心当前迭代容量区域或当前迭代操作区提供受 Sprint archive readiness 控制的“归档当前迭代”入口，并通过确认流程复用既有 Sprint archive 门禁。
+系统 SHALL 在当前迭代容量区域保留明确绑定目标 Sprint 的归档入口。非空完整范围全部对象已完成、Sprint未归档且用户有权限时允许准备会话；点击直接进入Chat工作台，预填命令但不发送。最终签署及归档检查在用户发送后的执行阶段完成。
 
-#### Scenario: 展示可进入确认的归档入口
-- **WHEN** 用户打开需求中心
-- **AND** 当前迭代存在
-- **AND** 当前迭代 `used_capacity` 大于 0 人天
-- **AND** Sprint archive readiness 汇总允许进入确认流程
-- **THEN** 页面 SHALL 在当前迭代容量区域或当前迭代操作区展示“归档当前迭代”入口
-- **AND** 入口 SHALL 明确绑定目标 Sprint
-- **AND** 入口 SHALL 靠近容量信息展示，不得分散到每张治理对象卡片内
+#### Scenario: 全部对象完成后允许进入
+- **WHEN** Sprint非空完整范围的REQ、BUG和全部关联Change均已完成且尚未归档
+- **THEN** 入口 SHALL 可用并明确绑定该Sprint
+- **AND** 容量为零或待核实、验收尚未sign-off MUST NOT 单独阻止准备会话
+- **AND** 入口 SHALL 保留在容量区域，不分散到每张对象卡片
 
-#### Scenario: 未归档闭环时隐藏或禁用入口
-- **WHEN** 当前迭代 `used_capacity` 大于 0 人天
-- **AND** Sprint 范围内任一 REQ、BUG 或独立 Change 未归档闭环
-- **THEN** 页面 SHALL 隐藏归档入口或展示禁用态
-- **AND** 若展示禁用态，页面 SHALL 展示安全摘要和修复方向
-- **AND** 页面 MUST NOT 允许用户进入可执行归档路径
-- **AND** 安全摘要 MUST NOT 泄露不可见资源细节、内部路径、堆栈、密钥或 `.env` 内容
+#### Scenario: 不完整或未知范围拒绝
+- **WHEN** 存在未完成对象、空范围、事实源缺失、状态未知或当前迭代不可解析
+- **THEN** 系统 MUST 禁用可执行入口并区分安全原因
+- **AND** 当前搜索、筛选及分页 MUST NOT 掩盖未完成或关联Change
+- **AND** applied状态或任务勾选率 MUST NOT 单独视为已完成
 
-#### Scenario: 容量或当前迭代不满足时不可执行
-- **WHEN** 无当前迭代、无可见 Sprint、容量待核实、当前迭代解析失败或 `used_capacity` 等于 0
-- **THEN** 页面 MUST NOT 提供可执行归档入口
-- **AND** 页面 MAY 隐藏入口或展示不可用摘要
+#### Scenario: 多迭代与异步响应
+- **WHEN** 页面有多个当前Sprint或请求期间切换项目
+- **THEN** 点击 SHALL 仅准备所选Sprint，不按编号或更新时间替用户选择
+- **AND** 迟到响应 MUST NOT 导航或预填到其他项目、Sprint或会话
 
-#### Scenario: 多当前迭代绑定目标 Sprint
-- **WHEN** 需求中心存在多个当前迭代
-- **THEN** 每个归档入口或确认流程 SHALL 明确绑定一个目标 Sprint
-- **AND** 系统 MUST NOT 默认选择编号最大、更新时间最新或容量最高的 Sprint 直接进入归档
-- **AND** 迟到的 readiness 或归档响应 MUST NOT 覆盖用户当前正在确认的其他 Sprint
+#### Scenario: 直接进入对象会话
+- **WHEN** 用户点击可用归档入口
+- **THEN** 系统 SHALL 显示准备状态并复用或创建对应SPRINT会话后直接进入Chat
+- **AND** 正常路径 MUST NOT 打开旧归档确认modal，也不得仅提示手动复制命令
+- **AND** 系统 MUST NOT 因点击或导航直接归档；退出Chat或放弃草稿不改变归档事实
 
-#### Scenario: 点击入口进入确认流程
-- **WHEN** 用户点击可进入确认的归档入口
-- **THEN** 页面 SHALL 打开归档确认弹窗或等价 action modal
-- **AND** 确认流程 SHALL 展示目标 Sprint ID、当前状态、容量摘要、门禁检查结果和归档影响
-- **AND** 页面 MUST NOT 因入口点击直接执行 Sprint archive
+#### Scenario: 准备或权限失败
+- **WHEN** 准备失败、关联失败或用户无权限
+- **THEN** 系统 MUST 安全反馈并允许适用的重试，不打开无关联空会话
+- **AND** 系统 MUST NOT 泄漏不可见对象、会话、内部路径、堆栈、密钥或环境内容
+- **AND** 系统 MUST NOT 提供强制归档绕过按钮
 
-#### Scenario: 取消确认不改变事实源
-- **WHEN** 用户在归档确认流程中点击取消或按约定关闭弹窗
-- **THEN** 系统 MUST NOT 改变 Sprint、REQ、BUG、Change、验收报告或 Workflow Sync 状态
-- **AND** 页面 SHALL 保留当前迭代容量和卡片上下文
+#### Scenario: 最终归档与刷新
+- **WHEN** 用户发送后的归档流程执行完成
+- **THEN** 系统 MUST 依据最新权限、范围、验收签署、文档及Workflow Sync真实结果判断成功
+- **AND** 成功后 SHALL 重新读取当前迭代、容量、Scope、卡片及统计，已归档Sprint不再显示为当前迭代
+- **AND** 检查、执行或刷新失败 SHALL 保留上下文并显示失败或过期提示，不能提前展示归档成功
 
-#### Scenario: 门禁失败阻断执行
-- **WHEN** Sprint archive readiness 或执行前门禁发现未归档范围、验收报告未 sign-off、权限不足或 Workflow Sync 校验失败
-- **THEN** 页面 SHALL 展示失败项和修复方向
-- **AND** 页面 MUST NOT 展示“强制归档”或等价绕过按钮
-- **AND** 失败项入口 MUST 遵守权限过滤和脱敏规则
-
-#### Scenario: 后端门禁是最终裁判
-- **WHEN** 用户确认执行归档
-- **THEN** 服务端或既有治理命令 MUST 重新校验目标 Sprint、权限、未归档范围、验收 sign-off 和 Workflow Sync
-- **AND** 服务端 MUST NOT 信任客户端传入的 readiness、权限、Sprint ID 或行为链路字段作为最终授权依据
-- **AND** 前端自行判定通过 MUST NOT 直接写入归档结果
-
-#### Scenario: 归档成功刷新需求中心
-- **WHEN** Sprint archive 执行成功
-- **AND** Workflow Sync 刷新成功
-- **THEN** 需求中心 SHALL 刷新当前迭代列表、容量区域、Scope 投影和相关卡片状态
-- **AND** 已归档 Sprint MUST NOT 继续伪装为当前迭代
-
-#### Scenario: 执行或同步失败保留上下文
-- **WHEN** 门禁检查、归档执行请求或 Workflow Sync 刷新失败
-- **THEN** 页面 SHALL 保留当前迭代容量和卡片上下文
-- **AND** 页面 SHALL 展示轻量失败信息或状态可能过期提示
-- **AND** 页面 MUST NOT 清空看板、伪装归档成功或静默移除当前迭代
-
-#### Scenario: 当前迭代归档入口 UI 验收
-- **WHEN** 完成当前迭代归档入口 UI 实现
-- **THEN** 验收 MUST 覆盖 1440px 桌面下的入口、禁用态、确认弹窗、门禁失败列表、权限态和成功/失败反馈
-- **AND** 验收 MUST 覆盖 390px 窄屏、长 Sprint ID、多当前迭代和文本不重叠
-- **AND** 验收 MUST 记录截图、computed style 或等价证据
-- **AND** click outside 关闭若被支持，验收 MUST 覆盖弹窗内 `stopPropagation` 不误关闭、外部点击仍按约定关闭
+#### Scenario: 原型与真实验收
+- **WHEN** 本入口和Chat输入保护完成实现并准备验收
+- **THEN** 系统 SHALL 按Change设计、验收清单、1440px及关键交互视觉证据、computed style、Mock/API边界和REQ最终一致性共同验收
+- **AND** 原型 SHALL 仅作为设计输入，模拟数据和静态检查不得替代真实产品证据
 
 ### Requirement: Capture 弹窗按附件原型呈现单列三阶段工作台
 
@@ -1113,4 +1096,120 @@ Capture 弹窗 MUST 使用当前 MoonBox 设计系统复刻验收附件的单列
 
 - **WHEN** 用户点击已评审 REQ 或 BUG 卡片的“加入迭代”
 - **THEN** REQ Prompt 为 `/sprint-propose --req <完整REQ-ID>`，BUG Prompt 为 `/sprint-propose --bug <完整BUG-ID>`
+
+### Requirement: 负责人可读名称与稳定身份分离
+
+系统 MUST 将负责人展示名与稳定身份键分离，在 REQ/BUG 卡片、详情及负责人筛选使用一致的安全名称规则；持久化归属与权限判断 MUST 保留稳定身份语义。
+
+#### Scenario: 有昵称或用户名的负责人
+
+- **WHEN** 当前授权范围内可以解析用户身份
+- **THEN** 系统 MUST 优先显示非空昵称，其次非空且不等于内部身份键的用户名
+- **AND** 卡片文本、title、详情和筛选标签 MUST 一致
+
+#### Scenario: 缺失名称或身份无法解析
+
+- **WHEN** 非空内部身份缺少可读名称、已删除或不可在当前范围解析
+- **THEN** 系统 MUST 显示“未知用户”，不得在文本、title 或可访问性名称中回显内部身份键
+- **AND** 空 owner MUST 显示“未分配”
+
+#### Scenario: 团队和历史归属
+
+- **WHEN** owner 为 product、user、中文团队或历史可读文本
+- **THEN** 系统 MUST 保留既有产品团队、用户反馈或原可读归属语义，不修改持久化 owner
+
+#### Scenario: 同名用户筛选
+
+- **WHEN** 两个不同稳定身份拥有相同展示名且用户选择其中一个负责人
+- **THEN** 系统 MUST 按稳定键仅匹配对应条目，以非敏感方式区分选项，不能按名称合并
+- **AND** 搜索、详情、刷新和项目切换 MUST 保持名称与身份一致
+
+#### Scenario: 新建与刷新一致
+
+- **WHEN** 用户创建 REQ 或 BUG Capture 并刷新需求中心
+- **THEN** 首次显示与刷新后 MUST 使用同一名称解析规则
+
+#### Scenario: 长名称展示
+
+- **WHEN** 长名称在 1440px 或窄视口卡片展示
+- **THEN** 系统 MUST 保持布局可用，截断时 title 提供完整可读名称，且不露出内部键
+
+#### Scenario: 授权范围与兼容回退
+
+- **WHEN** 访问未授权项目或身份无法在当前项目授权范围解析，或客户端收到旧字段响应
+- **THEN** 系统 MUST 保持原有 API 权限门禁，禁止跨项目泄露名称，旧响应内部键使用安全回退
+- **AND** 新增展示字段 MUST NOT 改写归属、权限或持久化数据
+
+### Requirement: 生命周期与操作核验分层展示
+系统 SHALL 分别显示可信生命周期、历史操作结果和当前准入；Chat、卡片及详情使用同一操作的最近核验事实及安全原因。
+
+#### Scenario: 历史已评审但当前依赖冲突
+- **WHEN** 生命周期可信为approved而当前核验发现相关变化
+- **THEN** 卡片保留已评审列并解释待核对原因，加入迭代仍受准入阻断，不要求重复评审；无可信生命周期不猜测阶段
+
+### Requirement: 能力约束的核验入口
+系统 SHALL 仅按后端权限能力展示核验、差异与原执行入口，区分证明缺失、相关变化、占用未知、无权限和读取失败。
+
+#### Scenario: 核验请求与投影刷新
+- **WHEN** 用户核验原操作
+- **THEN** 防重复提交，不重跑模型或重复应用，完成后重读共享状态，失败保留历史事实，不乐观解除保护，不无限轮询或重复提醒
+
+#### Scenario: 查看差异及原执行
+- **WHEN** 用户查看允许的差异或原执行
+- **THEN** 使用对应异常操作身份和脱敏差异，不跳至最新无关轮次；只读弹窗支持双视口、Esc、内外点击及焦点返回，无权限说明原因
+
+### Requirement: 跨入口当前动作一致性
+
+系统 SHALL 以同一结构化验收事实判定产品与CLI归档准入，并保留历史完成证明。合法后续阶段须有可信关联和当前证据，未知占用、真实冲突及证据过期不得放行。卡片仅显示一次阻塞摘要，历史核验细节默认折叠。
+
+#### Scenario: 后续合法交付承接历史评审
+
+- **WHEN** REQ或BUG已有可信评审成果且后续Change完成有效验收
+- **THEN** 产品与CLI按当前归档动作作出一致判断，不因旧评审摘要变化永久阻断
+- **AND** 历史操作与原终态保持不变，后续实质变更由当前证据覆盖
+
+#### Scenario: 治理投影与源码根分离
+
+- **WHEN** 部署中的治理根只包含治理文档，验收计划另有 src 或 scripts 输入
+- **THEN** 系统 SHALL 仅从已配置的受信任源码根读取这些源码输入的指纹，治理文档与证据仍以治理根为准
+- **AND** 缺失或过期输入仍阻断，不能以另一副本掩盖治理删除或变化
+
+#### Scenario: 后续复核的证据承接
+- **WHEN** 原评审之后发生同对象的补充 approved 评审，当前完整评审文件已被有效验收指纹覆盖
+- **THEN** 可承接原保护且保留原操作终态；结论拒绝、身份不符、无覆盖或证据过期时仍拒绝
+
+### Requirement: 卡片常驻根因与人天标签
+系统 MUST 在等级与负责人之后按根因状态、开发人天顺序展示已有有效数据；根因仅适用于BUG，所有卡片的人天均为预估投入。
+
+#### Scenario: 两类信息并存
+- **WHEN** BUG存在有效根因信息及开发人天
+- **THEN** 两个标签均可见且根因在前，窄列自然换行
+
+#### Scenario: 缺失与跨阶段
+- **WHEN** 数据缺失或对象进入研发、验收、已完成
+- **THEN** 缺失项隐藏而有效项跨阶段保留，刷新后按当前事实恢复
+
+### Requirement: 根因标签安全查看文档
+系统 MUST 以已确认或待确认文字表达根因，并复用授权Markdown抽屉，不改变确认门禁。
+
+#### Scenario: 键盘及异常路径
+- **WHEN** 用户点击或键盘激活根因按钮
+- **THEN** 打开对应BUG文档，保留关闭、Esc、外部退出和焦点返回，内部操作不误关闭
+- **AND** 权限拒绝、缺失或读取失败有既有错误提示，不能泄漏正文或触发卡片主动作
+
+### Requirement: 常驻标签原型与真实验收
+系统 MUST 以原型为设计输入，并以Change设计、18项验收、视觉和样式证据、真实API边界及REQ最终一致性共同确认交付。
+
+#### Scenario: 实施与归档
+- **WHEN** 实现本功能并准备归档
+- **THEN** 先完成UI Skeleton首轮1440px检查，最终覆盖1440/390深浅主题与关键交互，记录computed style且不将Mock当真实实现
+
+### Requirement: 人天分档与标签视觉一致
+系统 MUST 按以下规则展示人天标签。人天按有效非负值d分档：S为0≤d≤1，M为1<d≤3，L为3<d≤5，XL为5<d≤10，XXL为d>10；显示“档位·数值人天”（如“M·3人天”），不含“开发”前缀。S青、M蓝、L紫、XL橙、XXL玫红，保留精确值和“档位 · 预估开发数值人天”提示；缺失/非法值隐藏。新旧标签共用字体、10px字号、1.2行高、3px 8px内边距、20px圆角且无描边；根因保留状态色、点击与focus-visible提示。
+
+#### Scenario: 档位边界与样式
+- **WHEN** 卡片有合法人天3或3.01
+- **THEN** 分别显示“M·3人天”和“L·3.01人天”，采用对应档位颜色，与既有标签保持相同尺寸样式
+
+分隔点展示细则：去除两侧普通空格，使用独立分隔点左右各2px固定间距；其余标签样式及根因交互保持不变。
 

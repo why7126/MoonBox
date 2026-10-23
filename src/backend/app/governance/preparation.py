@@ -6,7 +6,7 @@ import subprocess
 import sys
 import yaml
 from datetime import datetime, timezone
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, uuid4, uuid5
 from sqlalchemy import func, insert, select, update
 from sqlalchemy.exc import IntegrityError
 from app.chat import service, relations
@@ -67,7 +67,11 @@ def _ensure_executor_snapshot(project):
         raise _workspace_standard_deployment_outdated()
     snapshot_root=getattr(project,'source_root',None) or project.root
     projected=stable(project.root)
-    if stable(snapshot_root).revision != projected.revision:
+    source = stable(snapshot_root)
+    if source.revision != projected.revision:
+        # The projection may have advanced while the source was being read.
+        projected = stable(project.root)
+    if source.revision != projected.revision:
         raise service.ChatError(2606,'治理目录与源工作区内容不一致，请同步事实源后重试。',
             409,kind='workspace_fact_source_stale',
             details={'reason':'manifest_mismatch','suggested_action':'sync_governance_facts'})
@@ -137,25 +141,22 @@ def _require_issue_fact_source(snapshot, object_id, action, root=None):
                 or sprint.get('status') in {'completed','closed','archived'}):
             raise service.ChatError(2604,'对象未列入归属迭代的正式范围，已阻断发送',409,kind='governance_validation_failed')
     if action in CHANGE_ACTION_STATUSES:
-        links=trace_meta.get('openspec_changes')
-        if not isinstance(links,list):
-            links=[]
+        from app.governance.archive_admission import linked_changes
+        links=linked_changes(entry, trace_meta)
         eligible=False
-        for link in links:
-            change_id=link.get('change_id') if isinstance(link,dict) else None
+        for change_id in links:
             if not isinstance(change_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',change_id):
                 continue
             try:
                 change_meta,_=frontmatter(snapshot.files[f'openspec/changes/{change_id}/trace.md'])
             except (KeyError,ValueError):
                 continue
-            source_id=change_meta.get('requirement_id') or change_meta.get('bug_id') or change_meta.get('source_requirement') or change_meta.get('source_bug')
-            if source_id==object_id and change_meta.get('status') in CHANGE_ACTION_STATUSES[action]:
+            if _matches_change_source(change_meta, object_id) and change_meta.get('status') in CHANGE_ACTION_STATUSES[action]:
                 eligible=True
                 break
         if not eligible and action == 'opsx-archive' and root is not None and len(links) == 1:
             from app.governance.direct_command_journal import archive_spec_drift
-            change_id = links[0].get('change_id') if isinstance(links[0], dict) else None
+            change_id = links[0]
             if isinstance(change_id, str) and re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', change_id):
                 journal = root / 'openspec/archive/.archive-recovery' / f'{change_id}.json'
                 archives = list((root / 'openspec/archive').glob(f'????-??-??-{change_id}'))
@@ -165,12 +166,20 @@ def _require_issue_fact_source(snapshot, object_id, action, root=None):
                         change_meta, _ = frontmatter(snapshot.files[relative])
                     except (KeyError, ValueError):
                         change_meta = {}
-                    source_id = (change_meta.get('requirement_id') or change_meta.get('bug_id')
-                                 or change_meta.get('source_requirement') or change_meta.get('source_bug'))
-                    eligible = source_id == object_id and change_meta.get('status') in ('applied', 'archived')
+                    eligible = _matches_change_source(change_meta, object_id) and change_meta.get('status') in ('applied', 'archived')
         if not eligible:
             raise service.ChatError(2604,'对象没有处于该动作阶段的关联活动 Change，已阻断发送',409,kind='governance_validation_failed')
     return {'id':object_id,'path':base,'title':str(entry.get('title') or object_id)[:200],'status':trace_status}
+
+
+def _matches_change_source(metadata, object_id):
+    from app.chat.policy import _alias_value, GovernanceFieldError
+    keys = (('requirement', 'requirement_id', 'req_id', 'source_requirement')
+            if object_id.startswith('REQ-') else ('bug', 'bug_id', 'source_bug', 'related_bug'))
+    try:
+        return _alias_value(metadata, keys, r'(?:REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?') == object_id
+    except GovernanceFieldError:
+        return False
 
 
 def _require_change_fact_source(snapshot, reader, object_id, action):
@@ -225,20 +234,63 @@ def _require_change_fact_source(snapshot, reader, object_id, action):
 
 
 def _preflight_object_session(db, actor, project, object_id, action):
+    from .controlled_successor import authority
+    with authority(db, project, actor):
+        return _preflight_object_session_authorized(db, actor, project, object_id, action)
+
+
+def _preflight_object_session_authorized(db, actor, project, object_id, action):
     name=_action_name(action)
     if name in READ_ONLY_OBJECT_ACTIONS:
         return relations.resolve_object(db,actor,project.space_id,project.repository_id,object_id)
     _ensure_executor_snapshot(project)
     reader=ProjectReader(db,actor,project)
     snapshot=reader.snapshot()
+    if object_id.startswith('sprint-') or name == 'sprint-archive':
+        if name != 'sprint-archive':
+            raise service.ChatError(2604, '该动作不适用于 Sprint 对象', 422)
+        from app.governance.sprint_object import resolve, preparation_reason, REASONS
+        item = resolve(project.root, object_id)
+        if item['path'] != f'iterations/change/{object_id}':
+            raise service.ChatError(2604, '迭代已归档，不能再次准备归档', 409)
+        relations._authorize_object(db, actor, project.space_id, project.repository_id, object_id)
+        reason = preparation_reason(project.root, object_id, item['plan'])
+        if reason:
+            raise service.ChatError(2604, REASONS[reason], 409, kind='governance_validation_failed')
+        return {**item, 'root': project.root, 'version': snapshot.revision}
     if object_id.startswith(('REQ-','BUG-')):
         entry=reader.authorize_object(snapshot,object_id,write=True)[0]
         full_id=entry['id']
         item=_require_issue_fact_source(snapshot,full_id,name,project.root)
         if item:
+            if name == 'opsx-archive':
+                from app.governance.archive_admission import issue_acceptance, linked_changes
+                trace_meta, _ = frontmatter(snapshot.files[item['path'] + '/trace.md'])
+                links = linked_changes(entry, trace_meta)
+                admission = issue_acceptance(project.root, project.root / item['path'], links, source_root=getattr(project, "source_root", None))
+                if not admission['ready']:
+                    raise service.ChatError(2604, admission['reason'], 409, kind='governance_validation_failed')
+                from app.governance.change_index import ChangeIndex
+                index = ChangeIndex(project.root)
+                for cid in links:
+                    record = index.records.get(cid)
+                    reason = index.acceptance_source_reason(record) if record else '关联 Change 不可读取'
+                    if reason:
+                        raise service.ChatError(2604, reason, 409, kind='governance_validation_failed')
             return {'id':full_id,'title':item['title'],'version':snapshot.revision,'content':'','status':item['status'],'path':item['path'],'root':project.root}
     change_item=_require_change_fact_source(snapshot,reader,object_id,name)
     if change_item:
+        if name == 'opsx-archive':
+            from app.governance.archive_admission import change_acceptance
+            admission = change_acceptance(project.root, change_item['id'], source_root=getattr(project, "source_root", None))
+            if not admission['ready']:
+                raise service.ChatError(2604, admission['reason'], 409, kind='governance_validation_failed')
+            from app.governance.change_index import ChangeIndex
+            index = ChangeIndex(project.root)
+            record = index.records.get(change_item['id'])
+            reason = index.acceptance_source_reason(record) if record else '关联 Change 不可读取'
+            if reason:
+                raise service.ChatError(2604, reason, 409, kind='governance_validation_failed')
         return {'id':change_item['id'],'title':change_item['title'],'version':snapshot.revision,'content':'','status':change_item['status'],'path':change_item['path'],'root':project.root}
     return {**relations.resolve_object(db,actor,project.space_id,project.repository_id,object_id),'version':snapshot.revision}
 
@@ -262,9 +314,10 @@ def _latest_object_conversation(db, actor, space_id, repository_id, object_id):
         .outerjoin(latest_message, latest_message.c.conversation_id == conversations.c.id)
         .where(conversations.c.owner_id == actor, conversations.c.space_id == space_id,
             conversations.c.repository_id == repository_id, conversations.c.archived == 0,
-            conversations.c.deleted_at.is_(None), conversations.c.active_turn_id.is_(None),
+            conversations.c.deleted_at.is_(None),
             chat_relations.c.object_id == object_id, chat_relations.c.role == 'primary')
-        .order_by(latest_turn.c.latest_turn_at.is_(None), latest_turn.c.latest_turn_at.desc(),
+        .order_by(conversations.c.active_turn_id.is_(None),
+            latest_turn.c.latest_turn_at.is_(None), latest_turn.c.latest_turn_at.desc(),
             latest_message.c.latest_message_at.is_(None), latest_message.c.latest_message_at.desc(),
             conversations.c.updated_at.desc(), conversations.c.created_at.desc(), conversations.c.id.desc())
         .limit(1)).mappings().first()
@@ -305,6 +358,15 @@ def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',requ
     project=scope.authorize(db,actor,space_id,repository_id,write=True)
     _ensure_executor_snapshot(project)
     store.root()  # Fail before creating a conversation if private storage is unavailable.
+    from app.governance.execution_context import visible_state, reconcile
+    reconcile(db, actor, project)
+    db.commit()
+    resolved = relations.resolve_object(db, actor, space_id, repository_id, object_id)
+    busy = visible_state(db, actor, project, resolved['id'])
+    if not busy['can_send']:
+        return {'preparation_id': None, 'conversation_id': busy.get('view_conversation_id'),
+                'object_id': resolved['id'], 'prompt': '', 'state': 'busy',
+                'reused_conversation': bool(busy.get('view_conversation_id')), **busy}
     spec=action_spec(action)
     reader=ProjectReader(db,actor,project);baseline=reader.snapshot()
     entry=reader.authorize_object(baseline,object_id)[0];object_id=entry['id'];base=entry['path'].rstrip('/')
@@ -320,6 +382,17 @@ def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',requ
     except (KeyError,ValueError): raise service.ChatError(2604,f"{spec['kind_cn']}需处于采集池且 capture、trace 完整",409)
     parent=_latest_object_conversation(db,actor,space_id,repository_id,object_id)
     reused=bool(parent)
+    from app.governance.execution_context import reconcile, visible_state
+    reconcile(db, actor, project)
+    state = visible_state(db, actor, project, object_id)
+    if not state['can_send'] or (parent and parent['active_turn_id']):
+        cid = state.get('view_conversation_id') if not state['can_send'] else parent['id']
+        db.commit()
+        return {'preparation_id': None, 'conversation_id': cid, 'object_id': object_id,
+                'prompt': '', 'state': 'busy', 'reused_conversation': bool(cid),
+                'execution_state': state['execution_state'] if not state['can_send'] else 'running',
+                'can_send': False, 'reason_code': state.get('reason_code') or 'object_running',
+                'view_conversation_id': cid}
     if not parent:
         parent=service.create_conversation(db,actor,space_id,repository_id,f"{object_id} · {spec['title']}")
         relations.set_relations(db,actor,parent['id'],object_id,[])
@@ -353,13 +426,43 @@ def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',requ
 
 def prepare_object_session(db,actor,space_id,repository_id,object_id,action='open-chat',request_id=None,idempotency_key=None):
     action=_action_name(action)
-    if action not in READ_ONLY_OBJECT_ACTIONS | ISSUE_ACTION_RULES.keys() | ISSUE_ACTION_FALLBACKS.keys() | {'req-generate','bug-generate'}:
+    if action not in READ_ONLY_OBJECT_ACTIONS | ISSUE_ACTION_RULES.keys() | ISSUE_ACTION_FALLBACKS.keys() | {'req-generate','bug-generate','sprint-archive'}:
         raise service.ChatError(2604,'该治理命令尚未接入产品链路',422,kind='governance_validation_failed')
     project=scope.authorize(db,actor,space_id,repository_id,write=action not in READ_ONLY_OBJECT_ACTIONS)
+    from app.governance.execution_context import reconcile, visible_state
+    if action not in READ_ONLY_OBJECT_ACTIONS:
+        _ensure_executor_snapshot(project)
+    try:
+        resolved = relations.resolve_object(db, actor, space_id, repository_id, object_id)
+    except service.ChatError:
+        # Preserve the write preflight's actionable fact-source errors. Busy
+        # objects still bypass action-stage validation once identity resolves.
+        if action not in READ_ONLY_OBJECT_ACTIONS:
+            _preflight_object_session(db, actor, project, object_id, action)
+        raise
+    object_id = resolved['id']
+    reconcile(db, actor, project)
+    if object_id.startswith('sprint-'):
+        from app.governance.execution_context import reconcile_external
+        sprint_snapshot = ProjectReader(db, actor, project).snapshot()
+        stage = 'done' if f'iterations/archive/{object_id}/sprint.yaml' in sprint_snapshot.files else 'sprint-planning'
+        reconcile_external(db, project, object_id, stage, sprint_snapshot)
+    state = visible_state(db, actor, project, object_id)
+    if not state['can_send']:
+        from app.governance.observability import trace
+        trace(db, request_id or str(uuid4()), 'conflict', actor=actor, request_id=request_id,
+              metadata={'object_id': object_id, 'action_type': action,
+                        'result': state.get('reason_code') or 'object_busy'})
+        db.commit()
+        return {'conversation_id': state.get('view_conversation_id'),
+                'object_id': object_id, 'action': action,
+                'reused_conversation': bool(state.get('view_conversation_id')), **state}
     item=_preflight_object_session(db,actor,project,object_id,action)
     object_id=item['id']
     parent=_latest_object_conversation(db,actor,space_id,repository_id,object_id)
     reused=bool(parent)
+    if not parent and object_id.startswith('sprint-'):
+        parent = _create_sprint_conversation(db, actor, project, item)
     if not parent:
         token = str(uuid5(NAMESPACE_URL, f'moonbox.object-session.v1:{actor}:{project.key}:{object_id}:{idempotency_key}')) if idempotency_key else None
         parent=service.create_conversation(db,actor,space_id,repository_id,f"{object_id} · {item['title']}",client_request_id=token)
@@ -369,8 +472,43 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
         metadata={'object_id':object_id,'action_type':action,'conversation_id':parent['id'],
             'result':'reused_conversation' if reused else 'new_conversation'})
     db.commit()
-    return {'conversation_id':parent['id'],'object_id':object_id,'object_type':'REQ' if object_id.startswith('REQ-') else 'BUG' if object_id.startswith('BUG-') else 'CHANGE',
-            'title':item['title'],'action':action,'reused_conversation':reused}
+    return {'conversation_id':parent['id'],'object_id':object_id,'object_type':'REQ' if object_id.startswith('REQ-') else 'BUG' if object_id.startswith('BUG-') else 'SPRINT' if object_id.startswith('sprint-') else 'CHANGE',
+            'title':item['title'],'action':action,'reused_conversation':reused,
+            'execution_state':'running' if parent['active_turn_id'] else 'idle',
+            'can_send':not bool(parent['active_turn_id']),
+            'reason_code':'object_running' if parent['active_turn_id'] else None,
+            'view_conversation_id':parent['id'] if parent['active_turn_id'] else None}
+
+
+def _create_sprint_conversation(db, actor, project, item):
+    # The object epoch, not the click key, arbitrates simultaneous preparations.
+    latest = db.execute(select(conversations).join(chat_relations,
+        chat_relations.c.conversation_id == conversations.c.id).where(
+        conversations.c.owner_id == actor, conversations.c.space_id == project.space_id,
+        conversations.c.repository_id == project.repository_id,
+        chat_relations.c.object_id == item['id'], chat_relations.c.role == 'primary')
+        .order_by(conversations.c.created_at.desc(), conversations.c.id.desc()).limit(1)).mappings().first()
+    if latest and not latest['archived'] and not latest['deleted_at']:
+        return dict(latest)
+    latest_id = latest['id'] if latest else 'initial'
+    cid = str(uuid5(NAMESPACE_URL, f'moonbox.sprint-session.v1:{actor}:{project.key}:{item["id"]}:{latest_id}'))
+    row = {**service.identity(), 'id': cid, 'owner_id': actor,
+           'space_id': project.space_id, 'repository_id': project.repository_id,
+           'branch_name': service.normalize_branch(project.repository_id, project.space_id),
+           'title': item['id'] + ' · ' + item['title'], 'pinned': 0, 'archived': 0,
+           'active_turn_id': None, 'generation': 0}
+    try:
+        db.execute(insert(conversations).values(**row))
+        db.execute(insert(chat_relations).values(conversation_id=cid, object_id=item['id'],
+                                               title=item['title'], role='primary'))
+        db.commit()
+        return row
+    except IntegrityError:
+        db.rollback()
+        parent = _latest_object_conversation(db, actor, project.space_id, project.repository_id, item['id'])
+        if parent:
+            return parent
+        raise service.ChatError(2604, '会话状态已变化，请重试', 409) from None
 
 
 def for_conversation(db,cid):
@@ -394,6 +532,11 @@ def check_send(db,actor,parent):
 
 
 def execution_prompt_for_turn(db,parent,stored_prompt):
+    if re.fullmatch(r'/sprint-archive\s+sprint-\d{3}', (stored_prompt or '').strip()):
+        return stored_prompt + '\n\n执行约束：遵循 sprint-archive 技能，重新检查完整范围、权限、验收签署和文档门禁。' \
+            '不得代替用户签署，不得使用 --force；已归档 Change 只核验，不重复合并。' \
+            '完成后运行标准 sync-workflow-status.py --event sprint.archive --sprint 加本次 Sprint ID，' \
+            '等待结构化同步成功；检查或同步失败时保留原成果并如实报告，不宣称成功。'
     if re.fullmatch(r'/opsx-archive\s+(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+', (stored_prompt or '').strip()):
         return stored_prompt + '\n\n归档执行约束：解析真实 Change ID 后，优先运行 bash scripts/archive-change.sh CHANGE_ID --finalize。' \
             '目录迁移禁止使用 Path.rename；跨挂载必须使用 shutil.move 或经过校验的 copy+remove。' \
@@ -418,6 +561,10 @@ def bind_candidate_turn(db,candidate_id,turn_id):
     if not row: return None
     db.execute(update(candidates).where(candidates.c.id==row['id'],candidates.c.state=='prepared',
         candidates.c.prepared_turn_id.is_(None)).values(prepared_turn_id=turn_id,updated_at=service.now()))
+    from app.governance.recovery_schema import operations
+    db.execute(update(operations).where(operations.c.candidate_id == candidate_id,
+        operations.c.origin_turn_id.is_(None)).values(origin_turn_id=turn_id, stage='generation',
+            version=operations.c.version + 1, updated_at=service.now()))
     return row
 
 
@@ -426,7 +573,9 @@ def _write_command(prompt):
     if not parts or not parts[0].startswith('/'):
         return None
     action=parts[0][1:]
-    if action not in {*ISSUE_ACTION_RULES,*ISSUE_ACTION_FALLBACKS,'req-generate','bug-generate'}:
+    if action == 'sprint-archive' and (len(parts) != 2 or not re.fullmatch(r'sprint-\d{3}', parts[1])):
+        raise service.ChatError(2604, '请使用完整的 /sprint-archive sprint-xxx 命令', 422)
+    if action not in {*ISSUE_ACTION_RULES,*ISSUE_ACTION_FALLBACKS,'req-generate','bug-generate','sprint-archive'}:
         return None
     args=[part for part in parts[1:] if part not in ('--req','--bug')]
     if not args:
@@ -438,27 +587,92 @@ def _command_baseline_id(cid,client_id):
     return str(uuid5(NAMESPACE_URL,f'moonbox.command-baseline.v1:{cid}:{client_id}'))
 
 
+def _send_baseline(db, actor, parent, object_id, action):
+    """Retry only read-side races, before creating any durable command record."""
+    last_reason = 'concurrent_update'
+    for attempt in range(3):
+        project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
+        try:
+            item = _preflight_object_session(db, actor, project, object_id, action)
+            reader = ProjectReader(db, actor, project)
+            baseline = reader.snapshot()
+            if item['version'] == baseline.revision:
+                return project, item, reader, baseline
+            last_reason = 'concurrent_update'
+        except service.ChatError as exc:
+            if exc.kind == 'workspace_fact_source_stale' and exc.details.get('reason') == 'manifest_mismatch':
+                last_reason = 'manifest_mismatch'
+            elif exc.kind == 'source_changing':
+                last_reason = 'concurrent_update'
+            else:
+                raise
+    message = ('治理目录与源工作区持续不一致，请同步事实源后重试。'
+               if last_reason == 'manifest_mismatch' else
+               '治理文件持续更新，自动重试后仍未稳定；请等待当前修改完成后重试。')
+    raise service.ChatError(2606, message, 409, kind='workspace_fact_source_stale',
+                            details={'reason': last_reason, 'phase': 'send_preflight', 'attempts': 3})
+
+
 def prepare_command_snapshot(db,actor,parent,prompt,client_id):
     command=_write_command(prompt)
-    if not command or _current_prepared_candidate(db,parent['id']):
+    if not command:
         return
     action,object_id=command
     project=scope.authorize(db,actor,parent['space_id'],parent['repository_id'],write=True)
-    item=_preflight_object_session(db,actor,project,object_id,action)
-    reader=ProjectReader(db,actor,project);baseline=reader.snapshot()
-    if item['version']!=baseline.revision:
-        raise service.ChatError(2606,'治理文件已变化，请重试',409,kind='workspace_fact_source_stale')
+    from app.governance.recovery_service import prepare_explicit_regeneration
+    prepare_explicit_regeneration(db, actor, parent, project, action, object_id, client_id)
+    prepared = _current_prepared_candidate(db, parent['id'])
+    project, item, reader, baseline = _send_baseline(db, actor, parent, object_id, action)
+    if action == 'sprint-archive':
+        primary = db.scalar(select(chat_relations.c.object_id).where(chat_relations.c.conversation_id == parent['id'], chat_relations.c.role == 'primary'))
+        if primary != item['id']:
+            raise service.ChatError(2604, '归档命令必须匹配当前 Sprint 主对象', 409)
+        from app.governance.sprint_object import require_final
+        from .controlled_successor import authority
+        with authority(db, project, actor):
+            require_final(project.root, item['id'])
     if any(not scope.visible(db,actor,project,entry['id']) for entry in reader.entries(baseline)):
         raise service.ChatError(2601,'当前权限不足以准备完整项目治理上下文',403)
-    store.write(_command_baseline_id(parent['id'],client_id),'baseline',{
-        'action':action,'object_id':item['id'],'revision':baseline.revision,
-        'binding_revision':project.binding_revision,
-        'files':{name:body.decode() for name,body in baseline.files.items()}})
-    from app.governance.direct_command_journal import prepare as prepare_direct_journal
-    prepare_direct_journal(parent['id'], client_id, action, item['id'], baseline.revision)
-    if action in ('req-complete','bug-complete','req-review','bug-review'):
+    rid = _command_baseline_id(parent['id'], client_id)
+    expected = {
+        'action': action, 'object_id': item['id'], 'revision': baseline.revision,
+        'binding_revision': project.binding_revision,
+        'files': {name: body.decode() for name, body in baseline.files.items()},
+    }
+    try:
+        if (store.root() / rid).exists():
+            # A failed enqueue can leave durable evidence without a DB turn.
+            # Never replace its baseline when the same request is retried.
+            _check_command_record(parent['id'], client_id, action, item['id'], baseline.revision)
+            if store.read(rid, 'baseline') != expected:
+                raise service.ChatError(2606, '治理基准已变化，保留原操作记录', 409,
+                    kind='direct_command_identity_mismatch', details={'phase': 'preparation'})
+        else:
+            store.write(rid, 'baseline', expected)
+            from app.governance.direct_command_journal import prepare as prepare_direct_journal
+            prepare_direct_journal(parent['id'], client_id, action, item['id'], baseline.revision)
+            _check_command_record(parent['id'], client_id, action, item['id'], baseline.revision)
+    except (OSError, ValueError):
+        raise service.ChatError(2604, '治理操作记录准备失败，已保留现场', 409,
+            kind='direct_command_preparation_failed', details={'phase': 'preparation'}) from None
+    if not prepared and action in ('req-complete','bug-complete','req-review','bug-review'):
         from app.governance.completion_recovery import prepare_completion
         prepare_completion(db,actor,parent,project,item,baseline,client_id,action)
+    if action in ('req-review', 'bug-review'):
+        from app.governance.durable_recovery import create, fingerprint
+        candidate = _current_prepared_candidate(db, parent['id'])
+        create(db, actor=actor, project=project, parent=parent, action=action,
+               object_id=item['id'], request_key=client_id,
+               request_hash=fingerprint({'prompt': prompt, 'revision': baseline.revision}),
+               source_hash=baseline.revision, candidate_id=candidate['id'] if candidate else None)
+
+
+def _check_command_record(cid, client_id, action, object_id, revision):
+    from app.governance.direct_command_journal import record_block_reason
+    reason = record_block_reason(cid, client_id, action=action, object_id=object_id, revision=revision)
+    if reason:
+        raise service.ChatError(2604, '治理操作记录不完整，已保留成果，请核查原执行', 409,
+                                kind=reason, details={'phase': 'preparation'})
 
 
 def _initialize_command_workspace(db,parent,source,workspace):
@@ -538,11 +752,31 @@ def _checkpoint_applied_workspace(db,parent,workspace):
 
 
 def initialize_workspace(db,parent,source,workspace):
+    turn = db.execute(select(turns).where(turns.c.id == parent['active_turn_id'])).mappings().first()
+    command = _write_command(turn['prompt']) if turn else None
+    if command:
+        _check_command_record(parent['id'], turn['client_request_id'], command[0], None, None)
+        from app.governance.recovery_capabilities import require as require_capabilities
+        require_capabilities(command[0])
+        if command[0] in ('req-review', 'bug-review'):
+            from app.governance.recovery_schema import operations
+            operation = db.execute(select(operations).where(operations.c.origin_turn_id == parent['active_turn_id'])).mappings().first()
+            if (not operation or operation['schema_version'] != 1 or operation['action'] != command[0]
+                    or operation['conversation_id'] != parent['id'] or not operation['candidate_id']):
+                raise service.ChatError(2604, '治理持久化记录不完整，生成未开始', 409,
+                                        kind='recovery_operation_incomplete')
     row=_current_workspace_candidate(db,parent['id'],parent['active_turn_id'])
     if not row:
         return _initialize_command_workspace(db,parent,source,workspace)
     if row['state']!='prepared': raise service.ChatError(2604,'治理基准不可重复覆盖',409)
     project=scope.authorize(db,parent['owner_id'],row['space_id'],row['repository_id'],write=True)
+    if command and command[0] in ('req-review', 'bug-review'):
+        if (operation['candidate_id'] != row['id'] or operation['object_id'] != row['object_id']
+                or operation['binding_revision'] != project.binding_revision
+                or operation['source_hash'] != row['baseline_hash']
+                or operation['request_key'] != turn['client_request_id']):
+            raise service.ChatError(2604, '治理持久化身份或绑定不匹配，生成未开始', 409,
+                                    kind='recovery_operation_incomplete')
     baseline=store.read(row['id'],'baseline')
     if stable(project.root).revision!=row['baseline_hash'] or stable(source).revision!=row['baseline_hash']:
         raise service.ChatError(2606,'源仓库与治理目录不一致或基准已过期',409,
@@ -619,19 +853,23 @@ def _verify_source_workflow_sync(project, action, object_id, expected):
         'req-review':'req.review', 'bug-review':'bug.review',
     }[action]
     flag='--req' if object_id.startswith('REQ-') else '--bug'
-    script=project.root/'scripts'/'sync-workflow-status.py'
+    source=getattr(project, 'source_root', None) or project.root
+    script=source/'scripts'/'sync-workflow-status.py'
     with project_lock(project):
-        if read_once(project.root)!=expected:
+        if read_once(project.root)!=expected or read_once(source)!=expected:
             raise service.ChatError(2606,'治理事实源已变化，无法确认候选成果',409,kind='workspace_fact_source_stale')
         if not script.is_file():
             raise service.ChatError(2604,'Workflow Sync 校验不可用，成果未确认',409,kind='governance_validation_failed')
         try:
             result=subprocess.run([sys.executable,str(script),'--event',event,flag,object_id,'--sprint','auto','--check'],
-                cwd=project.root,capture_output=True,timeout=120)
+                cwd=source,capture_output=True,timeout=120)
         except (OSError,subprocess.TimeoutExpired):
             raise service.ChatError(2604,'Workflow Sync 校验失败，成果未确认',409,kind='governance_validation_failed') from None
-        if result.returncode or read_once(project.root)!=expected:
+        if result.returncode or read_once(project.root)!=expected or read_once(source)!=expected:
             raise service.ChatError(2604,'Workflow Sync 校验失败，成果未确认',409,kind='governance_validation_failed')
+
+    from app.governance.snapshot import digest
+    return {'event':event,'object_id':object_id,'source_hash':digest(expected)}
 
 
 def collect(db,parent,turn_id,workspace,terminal):
@@ -642,10 +880,16 @@ def collect(db,parent,turn_id,workspace,terminal):
     current = None
     try:
         actual=db.execute(select(turns).where(turns.c.id==turn_id,turns.c.conversation_id==parent['id'])).mappings().one()
+        if terminal not in ('completed','failed','stopped') or actual['status'] != terminal:
+            # An unknown/stale notification is not permission to validate or
+            # restore source files: the executor may still be writing them.
+            # Keep the candidate for authoritative terminal recovery.
+            return
         baseline=store.read(row['id'],'baseline');before={n:b.encode() for n,b in baseline['files'].items()}
         if row['revision']!=baseline.get('candidate_revision',1):
             raise service.ChatError(2606,'候选版本已变化，成果未确认',409,kind='workspace_fact_source_stale')
-        if terminal!='completed' or actual['status']!='completed': raise service.ChatError(2604,'执行未成功，保留普通差异',409)
+        # A failed/stopped executor can leave valid governed output. Validate
+        # the exact artifacts and sync before recovering; keep its turn status.
         current=code_snapshot(workspace,text_bytes=1024*1024,max_text_bytes=32*1024*1024)
         old=baseline['workspace_manifest']
         changed={n for n in old.keys()|current['files'].keys() if old.get(n)!={k:v for k,v in current['files'].get(n,{}).items() if k in ('kind','sha256','executable')}}
@@ -695,12 +939,13 @@ def collect(db,parent,turn_id,workspace,terminal):
                 raise service.ChatError(2606,'事实源已变化，无法确认无需更新',409)
             db.execute(update(candidates).where(candidates.c.id==row['id']).values(turn_id=turn_id,state='unchanged',manifest_hash=result['manifest_hash'],error_code=None,updated_at=service.now()))
         elif baseline.get('workspace_mode') == 'source':
-            _verify_source_workflow_sync(project,row['action'],row['object_id'],after)
+            sync_proof=_verify_source_workflow_sync(project,row['action'],row['object_id'],after)
             request={'candidate_id':row['id'],'manifest_hash':result['manifest_hash'],'revision':row['revision'],'workspace_mode':'source'}
             app={**service.identity(),'actor_id':parent['owner_id'],'space_id':row['space_id'],'repository_id':row['repository_id'],
                  'scope_key':row['scope_key'],'idempotency_key':hashlib.sha256(f"source-{row['id']}".encode()).hexdigest(),
                  'request_hash':hashlib.sha256(json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest(),
                  'candidate_id':row['id'],'state':'applied','phase':'verified','error_code':None}
+            store.write(app['id'],'operation',{'workflow_sync':sync_proof,'workspace_mode':'source'})
             db.execute(insert(applications).values(**app))
             db.execute(update(candidates).where(candidates.c.id==row['id']).values(turn_id=turn_id,state='applied',manifest_hash=result['manifest_hash'],updated_at=service.now()))
             from app.governance.observability import trace as governance_trace
@@ -709,7 +954,8 @@ def collect(db,parent,turn_id,workspace,terminal):
             db.execute(update(candidates).where(candidates.c.id==row['id']).values(turn_id=turn_id,state='pending',manifest_hash=result['manifest_hash'],updated_at=service.now()))
             from app.governance.writer import apply_candidate
             try:
-                apply_candidate(db,parent['owner_id'],row['id'],result['manifest_hash'],row['revision'],f"auto-{row['id']}",True)
+                if terminal != 'stopped' or row['action'] not in ('req-review', 'bug-review'):
+                    apply_candidate(db,parent['owner_id'],row['id'],result['manifest_hash'],row['revision'],f"auto-{row['id']}",True)
             except service.ChatError as error:
                 db.rollback()
                 code='executor_unavailable' if error.status>=500 else 'governance_validation_failed'
@@ -738,11 +984,15 @@ def collect(db,parent,turn_id,workspace,terminal):
     trace(db,row['id'],state,actor=parent['owner_id'],
         metadata={'object_id':row['object_id'],'action_type':row['action'],'conversation_id':parent['id'],
             'turn_id':turn_id,'candidate_id':row['id'],'result':state,'error_code':error_code})
+    from app.governance.recovery_service import checkpoint
+    checkpoint(db, row['id'], 'validation', terminal=terminal, terminal_at=actual['updated_at'])
     db.commit()
 
 
 def _restore_rejected_source(db,parent,row,workspace,baseline,current):
     """Undo a rejected source-mode turn only while its observed files are unchanged."""
+    if current is None:
+        raise ValueError('unverified_source_observation')
     from app.governance.writer import project_lock, replace_file
     project=scope.authorize(db,parent['owner_id'],row['space_id'],row['repository_id'],write=True)
     if project.binding_revision!=row['binding_revision']:
@@ -771,6 +1021,14 @@ def _restore_rejected_source(db,parent,row,workspace,baseline,current):
 
 
 def collect_error_code(db,turn_id,terminal):
+    original = db.scalar(select(turns.c.error_code).where(turns.c.id == turn_id))
+    if original in {
+        'direct_command_recovery_blocked', 'direct_command_preparation_failed', 'direct_command_operation_missing',
+        'direct_command_operation_invalid', 'direct_command_identity_mismatch',
+        'direct_command_baseline_missing', 'direct_command_baseline_invalid',
+        'archive_recovery_blocked', 'sprint_source_invalid',
+    }:
+        return original
     if terminal!='completed':
         return 'executor_unavailable'
     content='\n'.join(row[0] for row in db.execute(select(messages.c.content).where(messages.c.turn_id==turn_id,messages.c.role=='assistant')).all() if row[0])
@@ -788,6 +1046,8 @@ def list_candidates(db,actor,cid):
         project=scope.authorize(db,actor,row['space_id'],row['repository_id'])
         if not scope.visible(db,actor,project,row['object_id']): raise service.ChatError(2601,'对象不可访问',403)
         public={k:row[k] for k in ('id','object_id','action','state','manifest_hash','revision','error_code','turn_id','prepared_turn_id','created_at','updated_at')}
+        from app.governance.recovery_schema import operations
+        public['recovery_operation_id'] = db.scalar(select(operations.c.id).where(operations.c.candidate_id == row['id']))
         public['current']=row['state']=='prepared' and not row['prepared_turn_id']
         public['files']=store.read(row['id'],'result')['files'] if row['manifest_hash'] else []
         app=db.execute(select(applications).where(applications.c.candidate_id==row['id']).order_by(applications.c.created_at.desc(),applications.c.id).limit(1)).mappings().first()

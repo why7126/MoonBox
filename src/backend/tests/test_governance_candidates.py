@@ -178,9 +178,10 @@ def test_prepare_isolated_uncommitted_and_success_candidate(chat,tmp_path,monkey
         turn=service.identity();db.execute(insert(turns).values(**turn,conversation_id=cid,client_request_id='test',status=terminal,prompt='synthetic'));db.commit()
         collect(db,parent,turn['id'],path,terminal)
         row=db.execute(select(governance_candidates)).mappings().one()
-        assert row['state']==('pending' if terminal=='completed' else 'rejected')
+        assert row['state']=='pending'
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))==terminal
         assert not (source/f'{BASE}/requirement.md').exists()
-        if terminal=='completed':
+        if row['state']=='pending':
             assert store.read(row['id'],'result')['manifest_hash']==row['manifest_hash']
             assert applications and applications[0]['idempotency_key']==f"auto-{row['id']}"
             stored_app=db.execute(select(governance_applications).where(governance_applications.c.candidate_id==row['id'])).mappings().one()
@@ -289,7 +290,7 @@ def test_applied_candidate_does_not_reactivate_older_unbound_preparation(chat,tm
         assert execution_prompt_for_turn(db,parent,f'/req-generate {OID}')==f'/req-generate {OID}'
 
 
-def test_prepare_skips_archived_and_active_object_conversations(chat,tmp_path,monkeypatch):
+def test_prepare_skips_archived_but_returns_active_object_conversation(chat,tmp_path,monkeypatch):
     _,factory=chat;source=tmp_path/'repo';source.mkdir();private=tmp_path/'private';private.mkdir(mode=0o700)
     monkeypatch.setenv('MOONBOX_GOVERNANCE_STATE_ROOT',str(private));bind(monkeypatch,source)
     before,_=contents()
@@ -306,8 +307,10 @@ def test_prepare_skips_archived_and_active_object_conversations(chat,tmp_path,mo
         db.execute(insert(turns).values(**tid,conversation_id=active['id'],client_request_id='active',status='queued',prompt='synthetic'))
         db.execute(update(conversations).where(conversations.c.id==active['id']).values(active_turn_id=tid['id']));db.commit()
         prepared=prepare(db,'alice','space','repo',OID,idempotency_key='fresh')
-        assert prepared['conversation_id'] not in (archived['id'],active['id'])
-        assert prepared['reused_conversation'] is False
+        assert prepared['conversation_id'] == active['id']
+        assert prepared['reused_conversation'] is True
+        assert prepared['can_send'] is False
+        assert prepared['preparation_id'] is None
 
 
 def test_prepare_object_session_supports_change_reuse(chat,tmp_path,monkeypatch):
@@ -439,7 +442,8 @@ def test_projected_governance_root_dirty_source_root_allows_matching_manifest(ch
 @pytest.mark.parametrize('sync_exit,stale_revision,stale_binding',[
     (0,False,False),(2,False,False),(0,True,False),(0,False,True),
 ])
-def test_source_workspace_mode_generate_writes_directly_without_second_apply(chat,tmp_path,monkeypatch,sync_exit,stale_revision,stale_binding):
+@pytest.mark.parametrize('terminal',['completed','failed','stopped','unknown'])
+def test_source_workspace_mode_generate_writes_directly_without_second_apply(chat,tmp_path,monkeypatch,sync_exit,stale_revision,stale_binding,terminal):
     _,factory=chat
     source=tmp_path/'source-repo';source.mkdir()
     private=tmp_path/'private';private.mkdir(mode=0o700)
@@ -467,18 +471,30 @@ def test_source_workspace_mode_generate_writes_directly_without_second_apply(cha
             path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body)
         turn=service.identity()
         db.execute(insert(turns).values(**turn,conversation_id=parent['id'],client_request_id='source-mode',
-            prompt=f'/req-generate {OID}',status='completed'))
+            prompt=f'/req-generate {OID}',status=terminal))
         if stale_revision:
             db.execute(update(governance_candidates).where(governance_candidates.c.id==row['id']).values(revision=2))
             db.commit()
         if stale_binding:
             db.execute(update(governance_candidates).where(governance_candidates.c.id==row['id']).values(binding_revision='stale-binding'))
             db.commit()
-        collect(db,parent,turn['id'],source,'completed')
+        if terminal=='unknown':
+            for notification in ('unknown','completed'):
+                collect(db,parent,turn['id'],source,notification)
+                assert db.scalar(select(governance_candidates.c.state))=='running'
+                assert db.scalar(select(governance_applications.c.id)) is None
+                for name,body in after.items():
+                    assert (source/name).read_bytes()==body
+            # A later authoritative completion may collect the same files;
+            # neither notification above rolled back or claimed success.
+            db.execute(update(turns).where(turns.c.id==turn['id']).values(status='completed'))
+            terminal='completed'
+        collect(db,parent,turn['id'],source,terminal)
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))==terminal
         candidate=db.execute(select(governance_candidates)).mappings().one()
         accepted=sync_exit==0 and not stale_revision and not stale_binding
         assert candidate['state']==('applied' if accepted else 'rejected')
-        if stale_binding:
+        if stale_binding or stale_revision:
             assert candidate['error_code']=='source_recovery_blocked'
             from app.governance import writer
             with pytest.raises(service.ChatError) as blocked:
@@ -488,12 +504,22 @@ def test_source_workspace_mode_generate_writes_directly_without_second_apply(cha
         if accepted:
             assert application['state']=='applied'
             assert application['phase']=='verified'
+            proof=store.read(application['id'],'operation')['workflow_sync']
+            assert proof['object_id']==OID
+            assert proof['source_hash']==stable(source).revision
+            from app.governance.execution_context import recover_source_proof
+            from types import SimpleNamespace
+            project=scope.authorize(db,'alice','space','repo')
+            guard={'action':'req-generate','object_id':OID}
+            assert recover_source_proof(project,guard,application,SimpleNamespace(files={}))=={}
+            recovered=recover_source_proof(project,guard,application,stable(source))
+            assert recovered['workflow_sync']==proof
         else:
             assert application is None
     current=stable(source).files
-    if not accepted and not stale_binding:
+    if not accepted and not (stale_binding or stale_revision):
         assert f'{BASE}/requirement.md' not in current
-    for name,body in (after if accepted or stale_binding else before).items():
+    for name,body in (after if accepted or stale_binding or stale_revision else before).items():
         assert current[name]==body
 
 
@@ -898,6 +924,39 @@ def test_object_session_records_sanitized_observability(chat,tmp_path,monkeypatc
         trace_meta=json.loads(trace['metadata'])
         assert trace_meta['object_id']==OID
         assert trace_meta['action_type']=='req-explore'
+
+
+@pytest.mark.parametrize('kind', ['req', 'bug'])
+def test_all_object_entries_share_busy_guard_and_trace(chat,tmp_path,monkeypatch,kind):
+    client,factory=chat;source=tmp_path/'repo';source.mkdir()
+    private=tmp_path/'private';private.mkdir(mode=0o700)
+    monkeypatch.setenv('MOONBOX_GOVERNANCE_STATE_ROOT',str(private));bind(monkeypatch,source)
+    before,_=contents() if kind=='req' else bug_contents()
+    oid=OID if kind=='req' else BUG_OID
+    for name,body in before.items():
+        path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body)
+    git(source,'init');git(source,'add','.');git(source,'-c','user.name=Test','-c','user.email=test@invalid','commit','-m','baseline')
+    with factory() as db:
+        parent=service.create_conversation(db,'alice','space','repo','busy fixture')
+        relations.set_relations(db,'alice',parent['id'],oid,[])
+        turn=service.identity()
+        db.execute(insert(turns).values(**turn,conversation_id=parent['id'],client_request_id='busy',status='running',prompt='synthetic'))
+        db.execute(update(conversations).where(conversations.c.id==parent['id']).values(active_turn_id=turn['id']))
+        db.commit()
+    actions=[f'{kind}-{name}' for name in ['explore','generate','complete','review','opsx']]+['sprint-propose','opsx-apply','opsx-modify','opsx-archive','open-chat']
+    for action in actions:
+        response=client.post('/api/v1/chat/object-sessions',json={'space_id':'space','repository_id':'repo','object_id':oid,'action':action,'idempotency_key':action})
+        assert response.status_code==200,response.text
+        data=response.json()['data']
+        assert data['conversation_id']==parent['id'] and data['can_send'] is False
+        assert data['execution_state']=='running'
+        with factory() as db:
+            trace=db.execute(select(task_traces).where(task_traces.c.parent_request_id==response.headers['X-Request-ID'])).mappings().one()
+            meta=json.loads(trace['metadata'])
+            assert meta['object_id']==oid and meta['action_type']==action
+            assert meta['result']=='legacy_object_running'
+            assert db.scalar(select(func.count()).select_from(turns))==1
+            assert db.scalar(select(func.count()).select_from(usage_events))==0
 
 
 def test_direct_api_has_no_web_behavior_and_pure_reads_add_no_task_trace(chat,tmp_path,monkeypatch):

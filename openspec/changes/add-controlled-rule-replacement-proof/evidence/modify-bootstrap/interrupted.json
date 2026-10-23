@@ -1,0 +1,33 @@
+{
+  "kind": "real-isolated-bootstrap-repair",
+  "policy": [
+    {
+      "state": "activating",
+      "stage": "synced",
+      "revision": 6,
+      "operation_id": "install-c455cbd45ed443079f58bd4f774150c0",
+      "manifest_hash": "627a03006486f3bd977e87ea2c6d23d68ae353083c429d287eee13543078780f"
+    }
+  ],
+  "spec_hash": "6333f5655907af316f1d651f8b1e33eb0886a21d0cb2567719d2381d300e1176",
+  "archive_count": 1,
+  "archive_identity": "2026-10-22-install-rule-policy",
+  "turn_count": 0,
+  "authorizations": [
+    {
+      "purpose": "bootstrap.ops",
+      "actor_id": "isolated-operations",
+      "revision": 1
+    },
+    {
+      "purpose": "bootstrap.owner",
+      "actor_id": "isolated-owner",
+      "revision": 2
+    }
+  ],
+  "formal_project_written": false,
+  "delta_files": {
+    "governance-command-durable-recovery/spec.md": "daaa37e740fd93d219972316b3581f48465423cf4cbb5e53c0281c9c150ae89d",
+    "controlled-rule-replacement-proof/spec.md": "c0979d187e11c54e122891e1e4794404838c5fd5ac5f89dbfb9bf7a1870bfe5e"
+  }
+}

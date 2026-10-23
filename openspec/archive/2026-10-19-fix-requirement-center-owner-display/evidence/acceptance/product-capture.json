@@ -1,0 +1,29 @@
+{
+  "observed_at": "2026-10-19",
+  "environment": "isolated current-source FastAPI + production Web build + actual governance controller",
+  "browser": "Codex in-app browser",
+  "mock_responses": false,
+  "samples": "synthetic only",
+  "capture": {
+    "draft_id": "b68f1906-e006-47df-9b8d-e93cac267a0e",
+    "candidate_review": "API draft PATCH, no AI organizer claim",
+    "confirmation": "actual API confirmation and controller completed",
+    "issues": [
+      "REQ-0001-capture",
+      "BUG-0001-capture"
+    ],
+    "first_context_and_refresh": "passed; stable owner_key and readable owner/owner_display_name",
+    "persistence": "registry owner remains stable identity; asserted in integration test"
+  },
+  "browser_observation": "Both Capture cards display readable name on initial page load and refresh; text/title consistent",
+  "evidence": [
+    "visual/capture-1440x900.png",
+    "visual/capture-390x844.png",
+    "visual/owner-dom-audit.json"
+  ],
+  "limitations": [
+    "Original deployment at localhost:39002 still on login; not upgraded or claimed tested",
+    "ready-dev and acceptance cards are synthetic fixture stages, not actual workflow transitions",
+    "Original feedback viewport unknown; 390px is supplemental"
+  ]
+}

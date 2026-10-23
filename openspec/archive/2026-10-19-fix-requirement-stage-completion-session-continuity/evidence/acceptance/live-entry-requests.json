@@ -1,0 +1,78 @@
+{
+  "evidence_type": "real_http_during_actual_model_turn",
+  "object": "BUG-9898-stage-live-validation",
+  "turn_id": "7b2e620b-8097-4c45-9cf5-e1399453b25d",
+  "independent_model_completion_per_action": false,
+  "checks": [
+    {
+      "action": "bug-explore",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "bug-generate",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "bug-complete",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "bug-review",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "sprint-propose",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "bug-opsx",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "opsx-apply",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "opsx-modify",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "opsx-archive",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    },
+    {
+      "action": "open-chat",
+      "http_status": 200,
+      "state": "running",
+      "can_send": false,
+      "same_conversation": true
+    }
+  ]
+}

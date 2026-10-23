@@ -14,6 +14,8 @@ def continuous():
 
 
 def publish():
+    from app.governance.recovery_capabilities import publish as publish_capabilities
+    publish_capabilities("controller")
     base = store.root()
     projects = {}
     for entry in repository_catalog():

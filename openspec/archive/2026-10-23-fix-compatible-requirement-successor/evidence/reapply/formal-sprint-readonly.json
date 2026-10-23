@@ -1,0 +1,68 @@
+{
+  "sprint_id": "sprint-012",
+  "verdict": "blocked",
+  "changes": [
+    {
+      "change_id": "fix-direct-command-completion-proof",
+      "location": "archived",
+      "deep_blocked": false,
+      "blocker": null
+    },
+    {
+      "change_id": "fix-cross-entry-continuation-guard",
+      "location": "archived",
+      "deep_blocked": false,
+      "blocker": null
+    },
+    {
+      "change_id": "fix-archive-requirement-scope-conflict",
+      "location": "archived",
+      "deep_blocked": false,
+      "blocker": null
+    },
+    {
+      "change_id": "add-sprint-archive-chat-entry",
+      "location": "archived",
+      "deep_blocked": false,
+      "blocker": null
+    },
+    {
+      "change_id": "fix-compatible-requirement-successor",
+      "location": "active",
+      "deep_blocked": true,
+      "blocker": "fix-compatible-requirement-successor: archive_requirement_conflict: 后继写入前兼容证明未通过"
+    }
+  ],
+  "stale_references": [
+    {
+      "target": "REQ-0049-sprint-archive-chat-entry",
+      "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/business-flow.md",
+      "line": 57,
+      "kind": "issue-subdocument-active-change-path"
+    },
+    {
+      "target": "REQ-0049-sprint-archive-chat-entry",
+      "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/requirement.md",
+      "line": 157,
+      "kind": "issue-subdocument-active-change-path"
+    },
+    {
+      "target": "REQ-0049-sprint-archive-chat-entry",
+      "file": "issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/user-stories.md",
+      "line": 27,
+      "kind": "issue-subdocument-active-change-path"
+    },
+    {
+      "target": "BUG-0060-direct-command-completion-proof-drift",
+      "file": "issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/acceptance.md",
+      "line": 160,
+      "kind": "issue-subdocument-active-change-path"
+    },
+    {
+      "target": "BUG-0060-direct-command-completion-proof-drift",
+      "file": "issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/trace.md",
+      "line": 64,
+      "kind": "issue-subdocument-active-change-path"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "isolated_regression",
+  "command": "PYTHONPATH=src/backend src/backend/.venv/bin/python -m pytest src/backend/tests/test_rule_change_light.py src/backend/tests/test_archive_proof.py src/backend/tests/test_cross_entry_archive_admission.py -q",
+  "result": "133 passed, 1 Starlette deprecation warning",
+  "coverage": [
+    "确认输入变化后失效",
+    "历史证明重复发布与篡改拒绝",
+    "REQ/BUG 跨入口归档准入",
+    "归档合并与并发阻断"
+  ],
+  "limits": [
+    "合成隔离样本，不代表真实页面操作",
+    "不构成正式归档或独立签署",
+    "旧写入口停止来自代码审阅，未作产品操作验证"
+  ]
+}

@@ -25,7 +25,7 @@ def action_spec(action):
     if action in ('req-review', 'bug-review'):
         spec = dict(action_spec('bug-generate' if action == 'bug-review' else 'req-generate'))
         spec.update(skill=action, title='发起评审', command='/'+action,
-            prompt='/'+action+' {object_id}\n遵循评审技能，仅修改目标对象评审记录、主文档、trace及注册表目标条目和索引目标行。通过时迁移目标完整目录到review，保留所有子文档，仅修正迁移路径引用；不得修改其他对象、Sprint、OpenSpec或源码。先dry-run再同步，校验实际差异。AI Usage与治理日志仅回复，不新增文件。模型执行完成不代表项目事实源已应用，最终以后端应用结果为准。')
+            prompt='/'+action+' {object_id}\n遵循评审技能，仅修改目标对象评审记录、主文档、trace及注册表目标条目和索引目标行。通过时迁移目标完整目录到review，保留所有子文档，仅修正迁移路径引用，并允许 Workflow Sync 将 acceptance.md 的 source_event 从 complete 同步为 review（不改验收状态或内容）；不得修改或绕过同步脚本及其检查。不得修改其他对象、Sprint、OpenSpec或源码。先dry-run再同步，校验实际差异。AI Usage与治理日志仅回复，不新增文件。模型执行完成不代表项目事实源已应用，最终以后端应用结果为准。')
         return spec
     if action == 'bug-complete':
         spec = dict(action_spec('bug-generate'))

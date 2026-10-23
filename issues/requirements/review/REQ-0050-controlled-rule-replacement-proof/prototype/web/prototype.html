@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>规则修改说明与安全归档结构原型</title>
+<style>
+:root{font-family:Inter,"Noto Sans SC",sans-serif;color:#202636;background:#F4F6FA;line-height:1.45}*{box-sizing:border-box}body{margin:0;padding:24px}main{max-width:1100px;margin:auto}section,aside{background:#fff;border:1px solid #DDE3EE;border-radius:8px;padding:20px}section{margin:16px 0}button,select,textarea{font:inherit;border:1px solid #DDE3EE;border-radius:6px;padding:10px;background:#fff;color:inherit}button{cursor:pointer}textarea{width:100%;min-height:80px}.muted{color:#677085}.danger{color:#b33333}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.diff{display:grid;grid-template-columns:1fr 1fr;gap:12px}.diff p{overflow-wrap:anywhere}aside{position:fixed;right:0;top:0;height:100vh;width:min(720px,100vw);overflow:auto;box-shadow:0 8px 32px #20263626;z-index:2}aside[hidden]{display:none}aside .actions{position:sticky;bottom:0;background:#fff;padding:12px 0}button:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #B9832E;outline-offset:2px}@media(max-width:767px){body{padding:12px}.diff{grid-template-columns:1fr}aside{width:100vw}}
+</style>
+</head>
+<body>
+<main>
+<p class="muted">结构原型 · 本页不进行真实验收或归档</p>
+<h1>Chat 工作台 · 隔离示例对象</h1>
+<label>预览状态 <select id="state"><option>待检查</option><option>验收未签署</option><option>版本已变化</option><option>权限不足</option><option>加载失败</option><option>可继续</option></select></label>
+<section aria-label="对象归档诊断"><h2>归档检查</h2><p class="danger" id="diagnostic">规则内容已修改，需检查后继续</p><div class="actions"><button data-testid="rule-change-open" id="open">查看修改</button></div><p id="recheck-result" role="status" class="muted">查看差异不会放行；归档仍需独立验收及安全检查。</p></section>
+<section><h2>输入框</h2><textarea aria-label="命令草稿">/opsx-archive REQ-9001-rule-change-sample</textarea><p class="muted">打开抽屉不会修改草稿或附件。</p></section>
+</main>
+<aside id="drawer" data-testid="rule-change-drawer" hidden aria-label="查看规则修改">
+<div class="actions"><h2>这次规则修改</h2><button data-testid="rule-change-close" id="close">返回 Chat</button></div>
+<p id="status">待检查 · 隔离示例对象 · 当前版本</p>
+<details open data-testid="rule-change-diff"><summary>对照原规则与修改后</summary><div class="diff"><section><h3>原规则</h3><p>同一条文被修改时拒绝归档。</p></section><section><h3>修改后</h3><p>当前对象修改了历史规则；是否可归档由现行验收、权限与完整历史检查决定。</p></section></div></details>
+<h3>为什么修改</h3><p>请结合当前对象的关联需求或缺陷说明核对修改原因。</p>
+<h3>仍然禁止</h3><p>验收未签署、权限不足、历史断链、证据篡改或并发变化仍会阻断。</p>
+<h3>受影响验收</h3><p>受影响场景须按现行规则独立测试并签署。</p>
+<div class="actions"><button data-testid="rule-change-recheck" id="recheck">重新检查归档</button></div><p id="drawer-result" role="status" class="muted">重新检查只刷新诊断，不执行归档。</p>
+</aside>
+<script>
+const drawer=document.querySelector('#drawer'),state=document.querySelector('#state');let opener;
+const update=()=>{document.querySelector('#status').textContent=state.value+' · 隔离示例对象 · 当前版本';document.querySelector('#diagnostic').textContent=state.value==='可继续'?'当前检查可继续；归档须另行执行':'规则内容已修改，需检查后继续'};
+document.querySelector('#open').onclick=e=>{opener=e.currentTarget;drawer.hidden=false;document.querySelector('#close').focus()};document.querySelector('#close').onclick=()=>{drawer.hidden=true;opener.focus()};state.onchange=update;
+document.querySelector('#recheck').onclick=()=>{document.querySelector('#drawer-result').textContent='原型演示：仍需真实验收签署与归档前检查；未执行归档。'};
+</script>
+</body>
+</html>

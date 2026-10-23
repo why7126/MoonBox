@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-review-recovery-operation-record-missing",
+  "run_id": "20261019150235058545-7309a3fa",
+  "created_at": "2026-10-19 15:02:35",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "isolated-local-review-validation",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "90955111df2fc7f107c5d8c3f3d5fae94fe25875bb1d2df67e180be7efa3f09e",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "68805038ed998aa5c7581d01a5cec3a04d1693eaf856d41e2f9c9b91934c40a6",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "30d040ac959f27815b249e688f263df5edae9d223598434e56f909078def9c3d",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "212bb2d7d463c254b53e2608dc4aa170d3fc6377f38d20ab0733c3c0d2f06382",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "5e2efc9ce34d730a9e6c53c08faac8f66c88fe812182563e466cb99c26a9d4b7",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "b9a6c545cea1bee7e12d333f9811778cf85d9a1edca8a85b7fabf5ca208c3023",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "635b5af1e694d9c742ccb0a53b78c6357e2750b550e3f8f43b3b78f7ce6d34cc",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "a94566d3d40bda60f593ca103d0a7d2d1a1e09f16bb809f220af6ae2e90cd71a",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "9cef17d56607f21cdfd7e5028e38fab60be47596822aaf68aff636f00d809622",
+      "status": "blocked",
+      "reused": false,
+      "reason": "not-selected",
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 0,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 32,
+    "duration_ms": 121,
+    "blocked": 9,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

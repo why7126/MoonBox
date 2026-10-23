@@ -354,7 +354,7 @@ describe("RequirementCenterPage", () => {
     expect(within(card).getByRole("button", { name: "研发 41/41" })).toBeTruthy();
     expect(within(card).getByRole("button", { name: "测试 37/37" })).toBeTruthy();
     const acceptanceButton = within(card).getByRole("button", { name: "验收 0/2" });
-    expect(acceptanceButton.title).toContain("自动验收结果尚未计入");
+    expect(acceptanceButton.title).toContain("自动证据按版本核验");
     expect(within(card).queryByTestId("acceptance-readiness")).toBeNull();
     expect(within(card).queryByText(/验收未完成：2 项待验证/)).toBeNull();
     expect(within(card).getByRole("button", { name: "acceptance.md" })).toBeTruthy();
@@ -435,7 +435,8 @@ describe("RequirementCenterPage", () => {
     await screen.findByText("BUG-0099");
     const card = within(document.querySelector('[data-issue-id="BUG-0099"]') as HTMLElement);
     expect(card.queryByText("完善中")).toBeNull();
-    expect(card.getByTitle("user_0123456789abcdef0123456789abcdef0123456789abcdef")).toBeTruthy();
+    expect(card.getByTitle("未知用户")).toBeTruthy();
+    expect(card.queryByTitle("user_0123456789abcdef0123456789abcdef0123456789abcdef")).toBeNull();
     expect(card.getByText("根因尚未确认，请按根因分析文档补充可复核证据。")).toBeTruthy();
     for (const name of ["root-cause.md", "workaround.md", "acceptance.md"]) expect(card.getByRole("button", {name})).toBeTruthy();
     expect((card.getByRole("button", {name:"继续完善 →"}) as HTMLButtonElement).disabled).toBe(false);
@@ -1239,7 +1240,7 @@ describe("RequirementCenterPage", () => {
     expect(pageSource).not.toContain(">risk<");
     expect(boardWrap).toContain("overflow-x: auto;");
     expect(boardWrap).toContain("overflow-y: hidden;");
-    expect(board).toContain("grid-template-columns: repeat(9, 320px);");
+    expect(board).toContain("grid-template-columns: repeat(9, 380px);");
     expect(board).toContain("grid-template-rows: auto minmax(260px, 1fr);");
     expect(board).toContain("gap: 10px;");
     expect(board).toContain("row-gap: 6px;");
@@ -1946,6 +1947,82 @@ describe("RequirementCenterPage", () => {
     expect(objectSessionCalls[0]).toMatchObject({ object_id: "REQ-0199", action: "req-explore" });
     expect(sessionStorage.getItem("moonbox.governance.prompt:conv-req-explore")).toBe("/req-explore REQ-0199-capture-analysis");
     expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
+  });
+
+  it.each(["running", "needs_review"])("keeps read-only card actions available while %s and views the original execution", async execution_state => {
+    const fixture = { ...contextFixture, issues: [{
+      id: "BUG-0200", type: "bug", title: "执行门禁", owner: "团队", source: "capture",
+      stage: "capture", documents: ["capture.md", "trace.md"], updated_at: "20:16",
+      can_send: false, execution_state, view_conversation_id: "original-run",
+    }] };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: fixture }) })));
+    sessionStorage.setItem("moonbox.governance.prompt:original-run", "保留的草稿");
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    await screen.findByText("BUG-0200");
+    const card = document.querySelector('[data-issue-id="BUG-0200"]') as HTMLElement;
+    expect(within(card).getByRole("button", { name: "生成 Bug →" }).hasAttribute("disabled")).toBe(true);
+    expect(within(card).getByRole("button", { name: "capture.md" }).hasAttribute("disabled")).toBe(false);
+    fireEvent.click(within(card).getByRole("button", { name: "查看执行" }));
+    expect(new URLSearchParams(location.search).get("conversation_id")).toBe("original-run");
+    expect(sessionStorage.getItem("moonbox.governance.prompt:original-run")).toBe("保留的草稿");
+  });
+
+  it("preserves verified history in every blocked card label", async () => {
+    const fixture = { ...contextFixture, issues: [{
+      id: "REQ-0200", type: "requirement", title: "已核验历史", stage: "approved",
+      documents: ["review.md"], can_send: false, execution_state: "needs_review",
+      historical_result: "verified", verification_reason: "dependency_conflict",
+      view_conversation_id: "original-run",
+    }] };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:fixture})})));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = (await screen.findByText("REQ-0200")).closest("article") as HTMLElement;
+    const details = within(card).getByTestId("requirement-operation-status");
+    expect(details.tagName).toBe("DETAILS");
+    expect(details.hasAttribute("open")).toBe(false);
+    expect(within(card).getAllByText("下一步暂不可执行 · 历史成果保留")).toHaveLength(1);
+    expect(within(card).queryByTestId("governance-execution-state")).toBeNull();
+    expect(within(card).getByText("历史成果已应用并核验")).toBeTruthy();
+    expect(within(card).queryByText("结果待核对")).toBeNull();
+    expect(within(card).getByRole("button", {name:"加入迭代 →"}).title).toBe("下一步暂不可执行 · 历史成果保留");
+  });
+
+  it("keeps development progress readable during an active execution", async () => {
+    const fixture = { ...contextFixture, issues: [{
+      id: "BUG-0200", type: "bug", title: "执行进度", stage: "development",
+      documents: ["proposal.md", "spec.md", "design.md", "trace.md", "tasks.md"],
+      can_send: false, execution_state: "running", view_conversation_id: "original-run",
+      task_progress: [1, 2],
+    }] };
+    stubFetch("fetch", vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:fixture})})));
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    const card = (await screen.findByText("BUG-0200")).closest("article") as HTMLElement;
+    expect(within(card).getByRole("button", {name: "查看进度 →"}).hasAttribute("disabled")).toBe(false);
+  });
+
+  it.each([true, false])("handles a busy preparation race without overwriting drafts (visible=%s)", async visible => {
+    const fixture = { ...contextFixture, issues: [{
+      id: "BUG-0200", type: "bug", title: "执行竞争", owner: "团队", source: "capture",
+      stage: "capture", documents: ["capture.md", "trace.md"], updated_at: "20:16",
+    }] };
+    stubFetch("fetch", vi.fn(input => Promise.resolve({ok:true,status:200,json:async()=>({data:
+      String(input).endsWith("/governance-preparations")
+        ? { conversation_id: visible ? "original-run" : null, view_conversation_id: visible ? "original-run" : null, can_send:false,execution_state:"running",prompt:"" }
+        : fixture
+    })})));
+    sessionStorage.setItem("moonbox.governance.prompt:original-run", "保留的草稿");
+    render(<RequirementCenterPage />);
+    await showAllSprintCards();
+    await screen.findByText("BUG-0200");
+    const card = document.querySelector('[data-issue-id="BUG-0200"]') as HTMLElement;
+    fireEvent.click(within(card).getByRole("button", { name: "生成 Bug →" }));
+    await waitFor(() => expect(screen.getByText("对象正在执行，请查看当前执行")).toBeTruthy());
+    expect(new URLSearchParams(location.search).get("conversation_id")).toBe(visible ? "original-run" : null);
+    expect(sessionStorage.getItem("moonbox.governance.prompt:original-run")).toBe("保留的草稿");
+    expect(sessionStorage.getItem("moonbox.governance.prompt:null")).toBeNull();
   });
 
   it("starts real bug-generate governance preparation for captured bugs", async () => {
@@ -4048,4 +4125,41 @@ describe("stage business title projection", () => {
     expect(await screen.findByRole("button",{name:"阶段来源中文业务主题"})).toBeTruthy();
     expect(screen.queryByRole("button",{name:"错误追溯标题"})).toBeNull();
   });
+});
+
+
+describe("负责人名称与稳定键组件回归", () => {
+  it("同名用户按键筛选且旧响应不展示内部标识", async () => {
+    const issues = [
+      {...contextFixture.issues[0], id:"REQ-9101", owner:"user_alpha", owner_key:"user_alpha", owner_display_name:"同名"},
+      {...contextFixture.issues[0], id:"REQ-9102", owner:"user_beta", owner_key:"user_beta", owner_display_name:"同名"},
+      {...contextFixture.issues[0], id:"REQ-9103", owner:"user_unknown"},
+    ];
+    stubFetch("fetch", () => Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues}})}));
+    render(<RequirementCenterPage />);
+    await screen.findByText("REQ-9101");
+    expect(screen.getByTitle("未知用户")).toBeTruthy();
+    expect(document.querySelector('[title="user_unknown"]')).toBeNull();
+    fireEvent.click(screen.getByLabelText("打开筛选条件"));
+    fireEvent.click(screen.getByTestId("requirement-filter-trigger-owner"));
+    fireEvent.click(screen.getByRole("checkbox",{name:"同名（1）"}));
+    expect(screen.getByText("REQ-9101")).toBeTruthy();
+    expect(screen.queryByText("REQ-9102")).toBeNull();
+    expect(screen.queryByText("REQ-9103")).toBeNull();
+    fireEvent.change(screen.getByPlaceholderText("搜索 ID、标题、文档或负责人"),{target:{value:"同名"}});
+    expect(screen.getByText("REQ-9101")).toBeTruthy();
+  });
+});
+
+it("keeps persistent card tags through all stages without per-card document requests", async () => {
+  const stages = ["capture", "planning", "review-ready", "approved", "sprint-planning", "ready-dev", "development", "acceptance", "done"];
+  const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve({ok:true,status:200,json:async()=>({data:String(input).includes('/documents/')?{name:'root-cause.md',content:'# 根因分析\n已定位缓存问题。'}:{...contextFixture,issues:stages.map((stage,i)=>({...contextFixture.issues[3],id:`BUG-${9100+i}`,stage,documents:['root-cause.md'],root_cause_state:'confirmed',estimated_person_days:0,estimate_status:'available'}))}})}));
+  stubFetch('fetch',fetchMock);
+  render(<RequirementCenterPage/>);
+  await waitFor(()=>expect(screen.getAllByTestId('root-cause-tag')).toHaveLength(9));
+  expect(screen.getAllByTestId('person-days-tag')).toHaveLength(9);
+  expect(fetchMock.mock.calls.filter(([url])=>String(url).includes('/documents/'))).toHaveLength(0);
+  fireEvent.click(screen.getAllByTestId('root-cause-tag')[8]);
+  await waitFor(()=>expect(screen.getByTestId('root-cause-document').textContent).toContain('已定位缓存问题'));
+  expect(fetchMock.mock.calls.filter(([url])=>String(url).includes('/documents/'))).toHaveLength(1);
 });

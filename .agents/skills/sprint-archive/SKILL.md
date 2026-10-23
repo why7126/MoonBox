@@ -1,6 +1,6 @@
 ---
 name: "sprint-archive"
-updated_at: 2026-10-17 16:40:21
+updated_at: 2026-10-23 08:31:02
 description: "批量归档 Sprint 内 OpenSpec Change 并关闭迭代"
 ---
 
@@ -183,3 +183,7 @@ Exit code MUST be `0`; print summary Workflow Sync Report; use `--output detail`
 ## Output
 
 Report archived/skipped/blocked counts, Sprint close status, updated files, validation commands, and exact retry command if paused.
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

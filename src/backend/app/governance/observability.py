@@ -7,13 +7,13 @@ from uuid import uuid4
 from sqlalchemy import insert,select,update,delete
 from app.chat import service
 from app.chat.schema import task_traces,task_trace_spans
-STAGES={'prepared','running','pending','rejected','queued','applying','recovering','applied','conflict','failed','recovery_blocked'}
+STAGES={'retained','released','cleanup_blocked','prepared','running','pending','rejected','queued','applying','recovering','applied','conflict','failed','recovery_blocked'}
 
 
 def _metadata(value):
     result={}
     for key,item in (value or {}).items():
-        if key in ('object_type','object_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item,str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+        if key in ('operation_id','attempt_id','application_id','object_type','object_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item,str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
             result[key]=item
     return json.dumps(result,ensure_ascii=False)
 
@@ -30,7 +30,7 @@ def trace(db,oid,stage,*,actor=None,request_id=None,metadata=None):
             if row:
                 tid=row['task_trace_id']
                 db.execute(update(task_traces).where(task_traces.c.id==row['id']).values(status=stage,updated_at=service.now(),
-                    finished_at=service.now() if stage in ('applied','conflict','failed','rejected') else None))
+                    finished_at=service.now() if stage in ('applied','conflict','failed','rejected','retained','released','cleanup_blocked') else None))
             else:
                 tid=str(uuid4())
                 db.execute(insert(task_traces).values(**service.identity(),task_trace_id=tid,turn_id=identity,parent_request_id=request_id,

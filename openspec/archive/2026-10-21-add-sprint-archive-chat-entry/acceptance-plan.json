@@ -1,0 +1,2830 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "add-sprint-archive-chat-entry",
+  "issue_id": "REQ-0049-sprint-archive-chat-entry",
+  "environment_contract": {
+    "deployment": "isolated-sprint-archive",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic-sprint-099 normal/rejection; synthetic-sprint-098 stopped/recovered; no writes to sprint-012",
+    "authorization_ref": "REQ-0049 opsx-apply design D5",
+    "login_strategy": "existing authorized test session",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "network",
+      "console"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "全范围对象完成、签署缺失，按钮可用；点击进入 Chat，Sprint 状态仍未归档。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "title": "存在任一未完成 REQ、BUG 或关联 Change 时禁用；搜索/筛选/分页隐藏该对象不改变结果。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "title": "空 Sprint、事实源缺失、未知状态分别给出原因，不将空集合或未知状态当作完成。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "title": "容量为零/未知且非空完整范围全部完成时仍可进入；applied 或任务全勾选不能单独当作完成。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "title": "同对象已有可用会话时复用同一 ID，无可用会话时创建且主关联为 SPRINT。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "title": "多个会话按 business-flow 中确定的服务端排序选择；已删除、已归档会话不复用。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "title": "不同空间/仓库同 Sprint ID、不同用户权限的样本不串会话，不泄漏会话标题或消息。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "title": "点击正常路径直接进入 Chat，无归档确认弹窗；请求中切换项目时旧结果不跳转、不预填。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-009",
+      "title": "空输入精确填入 /sprint-archive 加目标完整编号；输入可编辑，消息数/turn 数与执行请求数均未增加。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-010",
+      "title": "输入已是目标命令时只保留一份；无隐藏执行提示词或残留占位编号。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-011",
+      "title": "存在不同草稿时原文默认保留；选择填入才替换文本，选择保留关闭意图；附件/Skill 等输入上下文不被无声清除。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-012",
+      "title": "预填意图按项目和会话隔离且消费一次；刷新、返回、组件重挂载不重复覆盖或发送。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-013",
+      "title": "对象执行中或结果待核对时打开既有执行会话，不替换草稿、不另建会话、不提交新 turn。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-014",
+      "title": "连点、并发准备及超时重试返回一致关联结果，不重复新建；关联失败明确反馈且可安全重试。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "node",
+        "src/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "src/web",
+        "--config",
+        "vitest.config.ts",
+        "src/sprint-archive-intent.test.ts",
+        "src/sprint-archive-draft.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-015",
+      "title": "无权准备或执行时服务端独立拒绝；前端显示原因，无越权写入或敏感响应。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "title": "用户主动发送前范围/权限/归档状态变化时重新校验；旧入口就绪结果不绕过最新门禁。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-017",
+      "title": "发送后缺签署或文档/同步检查失败时展示具体阻塞，不伪造签署或将 Chat 文本当作归档成功。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-018",
+      "title": "真实归档成功后回到需求中心读取最新列表、容量和统计；已归档 Sprint 退出当前迭代区域且历史可追溯。",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "turn_id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "command_contains": "sync-workflow-status.py --event sprint.archive --sprint sprint-099",
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "id": "AC-019",
+      "title": "归档失败、待签署、刷新失败各自反馈，不提前变为成功；已成功副作用不因恢复重复执行。",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "turn_id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "command_contains": "sync-workflow-status.py --event sprint.archive --sprint sprint-099",
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "id": "AC-020",
+      "title": "入口行为、会话准备请求、发送后的任务可用脱敏标识关联；预填不记为归档执行成功，观测失败不阻断主业务。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-021",
+      "title": "日志/事件不保存草稿、完整 Prompt、凭证或本机路径；API 契约改变同步 OpenAPI/客户端，DB 改变覆盖双数据库，否则记录具体 N/A。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "title": "分别保留首次正常归档、失败拒绝、原执行恢复的证据；恢复成功不追认原轮次首次成功。",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "turn_id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "command_contains": "sync-workflow-status.py --event sprint.archive --sprint sprint-099",
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "id": "AC-XCUT-002",
+      "title": "会话准备结果的对象/项目/关联身份与消费端一致；业务成果、轮次终态及读取侧展示分别核对。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_sprint_object.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ]
+    },
+    {
+      "id": "AC-XCUT-003",
+      "title": "实际归档样本隔离且治理写入串行；回读当前态与证据路径可解析，保留原始历史。",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "turn_id": "58a81ee1-3360-44c4-8a65-e7797123b080",
+      "command_contains": "sync-workflow-status.py --event sprint.archive --sprint sprint-099",
+      "collection": {
+        "state": "collected"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "title": "核对 issues/requirements/review/REQ-0049-sprint-archive-chat-entry/prototype/web/context.md 的页面、组件、状态、触发、数据依赖及断点拆解与实现一致。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "title": "实现前完成 UI Skeleton 首轮确认；记录确认事实，不以当前文档齐全替代。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "title": "1440×900 检查容量条图标、提示、Chat 身份、命令输入、草稿选择和加载/禁用状态，记录截图及 computed style。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "title": "768×900、390×844 验证容量区域折行、无遮挡、提示可访问、长命令与输入区域不溢出；键盘可操作。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-005",
+      "title": "按 context 中 selector/动作矩阵逐项核对正常跳转无 modal、草稿 inline 选择、执行保护；采集关键交互证据。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-006",
+      "title": "归档前同步 PRD、流程、故事、验收、trace 和原型，声明真实 API/Mock 边界；视觉通过、命令测试通过和真实执行证据分别报告。",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/chat/policy.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/verify_sprint_archive_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/pages/catalog/sprintArchiveIntent.ts",
+        "src/web/src/components/chat/SprintArchiveDraft.tsx",
+        "src/web/src/components/chat/sprint-archive-draft.css",
+        "src/web/src/components/chat/Composer.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/sprint-archive-draft.test.tsx",
+        "src/web/src/sprint-archive-intent.test.ts"
+      ],
+      "argv": [
+        "python",
+        "src/backend/tests/verify_sprint_archive_evidence.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "隔离产品正常/拒绝/恢复样本、浏览器视觉及对应定向回归分别核对；见 verification.md"
+      },
+      "artifacts": [
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/preparation-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/signoff-rejection.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/live-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-before-send.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/busy-observation.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-interrupt.json",
+        "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/recovery-observation.json"
+      ],
+      "coverage": {
+        "stages": [
+          "default",
+          "disabled",
+          "draft-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "768x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "default",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "default",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "disabled",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/default-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-1440.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "768x900",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-768.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          },
+          {
+            "stage": "draft-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/draft-conflict-390.png",
+              "openspec/changes/add-sprint-archive-chat-entry/evidence/acceptance/ui/computed-styles.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require.resolve('./src/web/node_modules/@playwright/test');"
+        ]
+      ],
+      "collection": {
+        "state": "collected"
+      }
+    }
+  ],
+  "preflight": [
+    [
+      "python",
+      "src/backend/tests/verify_sprint_archive_evidence.py"
+    ]
+  ]
+}

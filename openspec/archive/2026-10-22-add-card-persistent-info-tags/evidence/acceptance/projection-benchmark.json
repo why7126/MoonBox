@@ -1,0 +1,25 @@
+{
+  "without_projection": {
+    "median_ms": 121.25,
+    "samples_ms": [
+      90.27,
+      121.25,
+      115.69,
+      124.03,
+      181.24
+    ],
+    "cards": 100
+  },
+  "with_projection": {
+    "median_ms": 105.32,
+    "samples_ms": [
+      100.8,
+      87.92,
+      111.52,
+      105.32,
+      118.34
+    ],
+    "cards": 100
+  },
+  "boundary": "隔离100卡片，真实ChangeIndex读取；基线只禁用新增投影；不代表部署HTTP性能。浏览器请求数量由页面回归验证。"
+}

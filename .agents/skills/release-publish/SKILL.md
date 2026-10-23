@@ -1,6 +1,6 @@
 ---
 name: "release-publish"
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:31:02
 description: "记录产品版本发布确认结果和最终公告位置"
 ---
 
@@ -134,3 +134,7 @@ python scripts/extract-ai-usage.py \
 - If no Sprint is associated, omit `--sprint`; Sprint snapshot output MUST be `skipped`.
 - Print only the compact hook summary: `status`, `usage_mode`, `command_run_count`, `session_input`, `release_artifact`, `sprint_snapshot`, `warning_count`, and `recommended_action`.
 - If local session input is unavailable, report `usage_mode: unavailable` and the recommended action; do not treat that as parent command failure.
+
+## 面向用户的表达
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-wrapper-workflow-sync-proof",
+  "run_id": "20261020001108498507-4bdb2c3a",
+  "created_at": "2026-10-20 00:11:45",
+  "source_revision": "2d8738dfeb91dcac1503f7e728ad51e2a92077e9",
+  "environment": "local-compose",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "aeb8e6fa8a8f1f818c7cbf7de3eb9df44b00eed769b2c4b349e7d76bdf654dd2",
+      "status": "blocked",
+      "reused": false,
+      "reason": "preflight-failed",
+      "effect_problems": [
+        "local-preflight-failed"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "76d389d37324007230fb1355836581a8f430a4cd3c4bae6fb000cf33b2770969",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 36519,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "01127ee771fba1266122c87ba49d8ac347e43856819f05c02137d1b9630d3bef",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 24,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "db25fb2094ac5172a449d7eba9df0306352b02a2fe059a7f2d57594ac63fa772",
+      "status": "blocked",
+      "reused": false,
+      "reason": "preflight-failed",
+      "effect_problems": [
+        "local-preflight-failed"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "9d500ef7117bd8acfdf2a15a7d5e8d4465fac90bb1ea8b382e268ec5895ba7fd",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-archive-wrapper-workflow-sync-proof/evidence/acceptance/bug0050-recovered-after-restart.json",
+          "sha256": "cc29061d23d35c0a31e39673d6ca8b1ef20c223afeddc206dd39b0e2f8532e4b"
+        }
+      ],
+      "duration_ms": 35,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "054260ddcd4ac10bb04b128463f1ecc45a468674496b2ecdf69015f0eeccb2f6",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 31,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "df0d77aeb18b5c959275950d43bb9eb241b7a90201e8dd148e22ef58f2278256",
+      "status": "blocked",
+      "reused": false,
+      "reason": "preflight-failed",
+      "effect_problems": [
+        "local-preflight-failed"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 3,
+    "reused": 0,
+    "preflight_ms": 91,
+    "duration_ms": 37569,
+    "blocked": 3,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

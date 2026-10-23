@@ -490,13 +490,29 @@ def safe_text(value: Any) -> str:
     return ""
 
 
+def user_message_text(value: dict[str, Any]) -> str:
+    """Read only textual user content; never stringify image/tool metadata."""
+    direct = safe_text(value)
+    if direct:
+        return direct
+    content = value.get("content")
+    if isinstance(content, list):
+        return "\n".join(
+            block["text"] for block in content
+            if isinstance(block, dict)
+            and block.get("type") in {"input_text", "text"}
+            and isinstance(block.get("text"), str)
+        )
+    return ""
+
+
 def user_text(row: dict[str, Any]) -> str:
     payload = row.get("payload") if isinstance(row.get("payload"), dict) else {}
     message = row.get("message") if isinstance(row.get("message"), dict) else {}
     if row.get("role") == "user" or payload.get("role") == "user" or message.get("role") == "user":
-        return safe_text(row) or safe_text(payload) or safe_text(message)
+        return user_message_text(row) or user_message_text(payload) or user_message_text(message)
     if event_type(row) in {"user_message", "user_turn", "input"}:
-        return safe_text(row) or safe_text(payload)
+        return user_message_text(row) or user_message_text(payload)
     return ""
 
 
@@ -1586,6 +1602,7 @@ def post_command_hook(
     warnings = list(parse_warnings)
     if not records:
         warnings.append("no-command-runs")
+        warnings.append("user-message-unrecognized-or-absent")
     if records and not any(int(record.get("model_call_count") or 0) > 0 for record in records):
         warnings.append("token-count-missing")
     if records:
@@ -1601,6 +1618,14 @@ def post_command_hook(
     if records and not dry_run:
         output_paths = write_outputs(records, out_dir, sprint_id, release_version, workflow_event)
         outputs = {key: relative_path(value) for key, value in output_paths.items()}
+        # Derived facts only. This hook runs before host turn completion, so usage
+        # remains provisional and must never finalize a full governance run.
+        try:
+            from governance_feedback import Ledger, import_usage
+            feedback_dir = Path(os.environ.get("GOVERNANCE_FEEDBACK_STORE", "logs/governance-feedback"))
+            import_usage(Ledger(feedback_dir), records, usage_mode)
+        except (ImportError, OSError, ValueError, TypeError, KeyError):
+            warnings.append("governance-feedback-unavailable")
 
     if sprint_id:
         sprint_snapshot = {
@@ -1627,7 +1652,7 @@ def post_command_hook(
             "reason": "no-release",
         }
 
-    status = "ok" if usage_mode == USAGE_MODE_ACTUAL else "warning"
+    status = "ok" if usage_mode == USAGE_MODE_ACTUAL and not warnings else "warning"
     recommended_action = None
     if usage_mode != USAGE_MODE_ACTUAL:
         recommended_action = (
@@ -1635,6 +1660,8 @@ def post_command_hook(
             "`~/.codex/sessions` contain attributable token_count events, and rerun with explicit "
             "`--session-jsonl` if actual usage is required."
         )
+    elif "governance-feedback-unavailable" in warnings:
+        recommended_action = "治理量化台账写入失败；检查本地存储权限后重放Hook，主工作流结果不变。"
     return {
         "status": status,
         "usage_mode": usage_mode,
@@ -1662,6 +1689,7 @@ def compact_post_command_summary(
         "command_run_count": payload.get("command_run_count", 0),
         "sprint_snapshot": payload.get("sprint_snapshot"),
         "warning_count": payload.get("warning_count", 0),
+        "warnings": payload.get("warnings", []),
         "recommended_action": payload.get("recommended_action"),
     }
     if include_release:

@@ -56,6 +56,17 @@ def write_policy(db, actor, parent, *, evidence=None):
             evidence['entry_sha256'] = hashlib.sha256(json.dumps(entry, sort_keys=True, ensure_ascii=False, default=str).encode()).hexdigest()
         if item['id'].startswith(('REQ-', 'BUG-')) and str(entry.get('status') or '') in ('captured', 'exploring'):
             return {**base, 'reason_code': 'analysis_object_read_only'}
+        if oid.startswith('sprint-'):
+            active = db.execute(select(turns).where(turns.c.id == parent.get('active_turn_id'))).mappings().first()
+            if active and active['prompt'].strip() == f'/sprint-archive {oid}':
+                from app.governance.sprint_object import require_final
+                from app.governance.controlled_successor import authority
+                from app.governance import scope
+                project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
+                with authority(db, project, actor):
+                    require_final(item['root'], oid, allow_closing=True)
+                return {'write_scope': WRITE_SCOPE_ARCHIVE, 'reason_code': 'archive_sprint_ready'}
+            return {**base, 'reason_code': 'sprint_command_required'}
         if _archive_ready(db, parent, item, entry):
             return {'write_scope': WRITE_SCOPE_ARCHIVE, 'reason_code': 'archive_change_applied'}
         if _implementation_ready(item, entry, evidence=evidence):
@@ -104,7 +115,7 @@ def _legacy_archive_transition_ready(db, parent, oid, actor):
             entry = entries[0]
             if str(entry.get('status') or '') in ('captured', 'exploring'):
                 return False
-            change = entry.get('related_change')
+            change = _linked_archive_change(root, entry)
             if (not isinstance(change, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,100}', change)
                     or entry.get('iteration') is None):
                 return False
@@ -212,6 +223,24 @@ def _implementation_ready(item, entry, *, evidence=None):
             and item['id'] in lists[1] + lists[2])
 
 
+def _linked_archive_change(root, entry, base=None):
+    from app.governance.archive_admission import linked_changes
+    trace = {}
+    path = base or entry.get('path')
+    try:
+        if isinstance(path, str) and (root / path / 'trace.md').is_file():
+            source = _read_file(root, path.rstrip('/') + '/trace.md')
+            if not source.startswith('---\n'):
+                return None
+            trace = yaml.safe_load(source.split('---', 2)[1])
+            if not isinstance(trace, dict):
+                return None
+        links = linked_changes(entry, trace)
+        return links[0] if len(links) == 1 else None
+    except (service.ChatError, ValueError, TypeError, KeyError, yaml.YAMLError):
+        return None
+
+
 def _archive_ready(db, parent, item, entry):
     try:
         active_turn_id = parent['active_turn_id']
@@ -223,7 +252,7 @@ def _archive_ready(db, parent, item, entry):
     if not re.fullmatch(r'/opsx-archive\s+' + re.escape(item['id']), first):
         return False
     direct_change = item['path'].startswith(('openspec/changes/', 'openspec/archive/'))
-    change = item['id'] if direct_change else entry.get('related_change')
+    change = item['id'] if direct_change else _linked_archive_change(item['root'], entry, item['path'])
     if not isinstance(change, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,100}', change):
         return False
     try:
@@ -245,8 +274,12 @@ def _archive_ready(db, parent, item, entry):
         return False
     if not isinstance(trace, dict):
         return False
-    linked_requirement = trace.get('requirement') or trace.get('requirement_id') or trace.get('source_requirement')
-    linked_bug = trace.get('bug') or trace.get('bug_id') or trace.get('source_bug')
+    try:
+        issue_pattern = r'(?:REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?'
+        linked_requirement = _alias_value(trace, ('requirement', 'requirement_id', 'req_id', 'source_requirement'), issue_pattern)
+        linked_bug = _alias_value(trace, ('bug', 'bug_id', 'source_bug', 'related_bug'), issue_pattern)
+    except GovernanceFieldError:
+        return False
     if direct_change:
         issue_pattern = r'(?:REQ|BUG)-\d{4}(?:-[A-Za-z0-9_-]+)?'
         try:

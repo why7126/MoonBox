@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-direct-command-completion-proof",
+  "environment_contract": {
+    "deployment": "local-compose-and-isolated",
+    "workspace_mode": "isolated",
+    "sample_scope": "two-authorized-req-bug-samples-and-original-bug0055-verification",
+    "authorization_ref": "user-isolated-closeout-req-bug-20261021",
+    "login_strategy": "existing-product-session-and-isolated-test-login",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/req-final.json"
+      ],
+      "turn_id": "d6da6398-a59a-410d-a31f-00565f3112d1",
+      "command_contains": "sync-workflow-status.py",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/req-final.json",
+          "text": "\"chain_verified\": true"
+        }
+      ],
+      "product_db": "req"
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt"
+      ]
+    },
+    {
+      "id": "AC-013",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/web/src/components/chat/DirectCompletion.tsx",
+        "src/web/src/components/chat/TurnActivity.tsx"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-1440.png",
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-narrow.png",
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/computed-style.json"
+      ],
+      "preflight": [
+        [
+          "python3",
+          "-c",
+          "from pathlib import Path;assert Path('openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/computed-style.json').is_file()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "recovery"
+        ],
+        "viewports": [
+          "1440",
+          "narrow"
+        ],
+        "samples": [
+          {
+            "stage": "recovery",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-1440.png",
+              "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/computed-style.json"
+            ]
+          },
+          {
+            "stage": "recovery",
+            "viewport": "narrow",
+            "artifacts": [
+              "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/recovery-narrow.png",
+              "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/computed-style.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-014",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "product_turn",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug-final.json"
+      ],
+      "turn_id": "2f547bf2-233c-46c5-bcb2-9e05473c2ee6",
+      "command_contains": "sync-workflow-status.py",
+      "effects": [
+        {
+          "kind": "contains",
+          "path": "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug-final.json",
+          "text": "\"chain_verified\": true"
+        }
+      ],
+      "product_db": "bug"
+    },
+    {
+      "id": "AC-015",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "python3",
+        "-c",
+        "import json; d=json.load(open('openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug0055-recovery.json')); assert d['state']=='recovered_valid' and d['stage']=='ready-dev' and d['next_action_allowed'] and d['original_steps_unchanged']"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/bug0055-recovery.json"
+      ]
+    },
+    {
+      "id": "AC-016",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/test_direct_completion.py"
+      ],
+      "argv": [
+        "env",
+        "TMPDIR=/private/tmp",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "src/backend/tests/test_completion_proof.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "src/backend/tests/test_ac011_direct_command_journal.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/sqlite-regression.txt",
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/mysql-regression.txt",
+        "openspec/changes/fix-direct-command-completion-proof/evidence/acceptance/implementation/web-regression.txt"
+      ]
+    }
+  ]
+}

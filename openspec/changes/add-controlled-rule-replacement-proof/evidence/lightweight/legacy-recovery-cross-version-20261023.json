@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "historical_real_isolated_recovery_plus_current_synthetic_guard",
+  "historical_same_operation": true,
+  "historical_same_manifest": true,
+  "historical_same_spec_hash": true,
+  "historical_archive_count_before_after": [
+    1,
+    1
+  ],
+  "historical_stages": [
+    "synced",
+    "completed"
+  ],
+  "historical_turn_counts": [
+    0,
+    0
+  ],
+  "current_test_command": "PYTHONPATH=src/backend:tests/unit src/backend/.venv/bin/python -m pytest -q tests/unit/test_replacement_coordinator.py tests/unit/test_replacement_commit.py tests/unit/test_replacement_installation.py src/backend/tests/test_rule_change_light.py",
+  "current_test_result": "40 passed, 1 deprecation warning",
+  "current_route_guard": "prepared legacy proposal rejected; claimed proposal can enter original resume path with stable operation identity; new confirmation count remains zero",
+  "sample_limit": "BUG-0063 was handled in Codex and has no product old in-progress operation; current claimed route test uses synthetic state and a stubbed legacy executor. Historical actual recovery belongs to older isolated policy installation, not BUG-0063."
+}

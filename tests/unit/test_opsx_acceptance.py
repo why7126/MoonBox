@@ -8,7 +8,7 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from opsx_acceptance import fingerprint, read_plan, read_turn, readiness, run_acceptance, validate_report
+from opsx_acceptance import fingerprint, read_plan, read_turn, readiness, run_acceptance, run_product_turn, validate_report
 from workflow_sync.derive import DerivedIssue
 from workflow_sync import constants, issue_subdocuments
 
@@ -132,6 +132,58 @@ def test_product_turn_without_completed_command_fails(tmp_path):
     plan["checks"] = [{"id": "AC-001", "kind": "product_turn", "inputs": ["input.txt"], "turn_id": "turn-1", "command_contains": "archive-change.sh"}]
     plan_path.write_text(json.dumps(plan))
     assert run_acceptance(root, "check-example", db_path)["status"] == "failed"
+
+
+def test_trusted_archive_product_turn_requires_same_turn_events_and_completed_operation(tmp_path):
+    db_path = tmp_path / "chat.db"
+    with sqlite3.connect(db_path) as db:
+        db.executescript("""
+            CREATE TABLE chat_conversations (id TEXT, owner_id TEXT, space_id TEXT, repository_id TEXT);
+            CREATE TABLE chat_turns (id TEXT, conversation_id TEXT, status TEXT, error_code TEXT, prompt TEXT);
+            CREATE TABLE chat_relations (conversation_id TEXT, object_id TEXT, role TEXT);
+            CREATE TABLE governance_archive_operations (change_id TEXT, stage TEXT, actor_id TEXT);
+            CREATE TABLE chat_events (turn_id TEXT, sequence INTEGER, source_id TEXT, event_type TEXT, payload TEXT);
+            INSERT INTO chat_conversations VALUES ('chat-1','alice','space','repo');
+            INSERT INTO chat_turns VALUES ('turn-1','chat-1','completed',NULL,'/sprint-archive sprint-102');
+            INSERT INTO chat_relations VALUES ('chat-1','sprint-102','primary');
+            INSERT INTO governance_archive_operations VALUES ('sprint-102','completed','alice');
+        """)
+        for seq, source, event_type, payload in (
+            (1, "archive:started", "execution.state", {"status": "running", "executor": "trusted_archive"}),
+            (2, "archive:usage", "execution.usage", {"total_tokens": 0, "usage_scope": "trusted_archive_v1", "usage_pending": False}),
+            (3, "archive:terminal", "execution.state", {"status": "completed"}),
+        ):
+            db.execute("INSERT INTO chat_events VALUES (?,?,?,?,?)", ("turn-1", seq, source, event_type, json.dumps(payload)))
+    check = {"turn_id": "turn-1", "command_contains": "/sprint-archive sprint-102",
+             "execution_proof": "trusted_archive_v1", "trusted_archive_object_id": "sprint-102", "timeout_seconds": 1}
+    result = run_product_turn(check, db_path)
+    assert result["status"] == "passed" and result["operation_stage"] == "completed" and result["model_tokens"] == 0
+    with sqlite3.connect(db_path) as db:
+        db.execute("UPDATE governance_archive_operations SET stage='claimed'")
+    assert run_product_turn(check, db_path)["status"] == "failed"
+    with sqlite3.connect(db_path) as db:
+        db.execute("UPDATE governance_archive_operations SET stage='completed'")
+        db.execute("UPDATE chat_events SET payload=? WHERE source_id='archive:usage'", (json.dumps({"total_tokens": 1, "usage_scope": "trusted_archive_v1", "usage_pending": False}),))
+    assert run_product_turn(check, db_path)["status"] == "failed"
+    with sqlite3.connect(db_path) as db:
+        db.execute("UPDATE chat_events SET payload='[]' WHERE source_id='archive:usage'")
+    assert run_product_turn(check, db_path)["status"] == "failed"
+
+
+def test_trusted_archive_plan_binds_exact_sprint_command(tmp_path):
+    import pytest
+    _, change = fixture(tmp_path)
+    path = change / "acceptance-plan.json"
+    plan = json.loads(path.read_text())
+    plan["checks"] = [{"id": "AC-001", "kind": "product_turn", "inputs": ["input.txt"],
+                       "turn_id": "turn-1", "command_contains": "/sprint-archive sprint-102",
+                       "execution_proof": "trusted_archive_v1", "trusted_archive_object_id": "sprint-102"}]
+    path.write_text(json.dumps(plan))
+    assert read_plan(change)["checks"][0]["trusted_archive_object_id"] == "sprint-102"
+    plan["checks"][0]["command_contains"] = "/sprint-archive sprint-103"
+    path.write_text(json.dumps(plan))
+    with pytest.raises(ValueError, match="invalid trusted archive proof"):
+        read_plan(change)
 
 
 def test_product_turn_negative_gate_requires_same_turn_marker(tmp_path):
@@ -371,6 +423,7 @@ def test_archived_evidence_remains_linked_after_change_moves(tmp_path, monkeypat
     run_acceptance(root, change.name, None)
     target = root / "openspec" / "archive" / "2026-10-12-check-example"
     target.parent.mkdir(parents=True)
+    (change / "trace.md").write_text("---\nstatus: archived\nchange_id: check-example\n---\n")
     change.rename(target)
     derived = DerivedIssue(issue_id=issue_dir.name, kind="bug", display_status="done", linked_change="check-example", note="")
     assert issue_subdocuments.acceptance_status_for(derived, "opsx.archive", issue_path=issue_dir, source_change="check-example") == "passed"

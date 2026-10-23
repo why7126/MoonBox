@@ -1,0 +1,40 @@
+{
+  "kind": "real-product-isolated-synthetic-business-data",
+  "turn_id": "875f7258-04e0-4edb-9e43-c2f2e1759ec5",
+  "conversation_id": "329f90b3-f4d6-5fed-b495-38e35490d1c8",
+  "turn_status": "completed",
+  "sprint": "sprint-100",
+  "sprint_status": "completed",
+  "sync_commands": [
+    {
+      "sequence": 168,
+      "exit_code": 0
+    },
+    {
+      "sequence": 260,
+      "exit_code": 0
+    }
+  ],
+  "archived_scope": [
+    "old-change",
+    "next-change"
+  ],
+  "new_change_archives": 0,
+  "repeat_readonly_checks": 2,
+  "repeat_changed_archive_or_specs": false,
+  "total_product_turns": 3,
+  "guards": [
+    {
+      "object": "sprint-099",
+      "state": "needs_review",
+      "reason": "direct_sync_missing"
+    },
+    {
+      "object": "sprint-100",
+      "state": "validated",
+      "reason": null
+    }
+  ],
+  "earlier_sample": "sprint-099两轮受独立文档门禁阻断，保留结果待核验，重发被拒绝；没有手工释放保护",
+  "formal_sprint_mutated": false
+}

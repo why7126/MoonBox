@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-20 19:20:04",
+  "source": "actual-local-deployment-browser",
+  "route": "/requirements",
+  "sample_change": "optimize-governance-feedback-loop",
+  "viewport": [
+    1633,
+    836
+  ],
+  "blocked": {
+    "stale": [
+      "AC-006"
+    ],
+    "reason": "AC-006：验收输入或计划已变化，请重新验收；请查看 Change 验收报告",
+    "disabled": true
+  },
+  "ready": {
+    "status": "ready",
+    "stale": [],
+    "disabled": false,
+    "reason": null,
+    "run_id": "20261020191708090074-a1ace159"
+  },
+  "computed_style": {
+    "card_width": "360px",
+    "overflow": "visible",
+    "white_space": "normal"
+  },
+  "deployed_image": "sha256:a79648f4c1f0c1fed801daef8715c8e4548f489f1444b3ec3860d5e8c3333884",
+  "modules": {
+    "src/backend/app/governance/acceptance_evidence.py": "1d934ed03cdcf8859cda3054c3cac3e8dd5fe2a11982144219a05b8e3e2f0f3f",
+    "src/backend/app/governance/archive_admission.py": "b137219005faba5e6fe7e495ded234afe77e3f3411e330c5adbd03b46eb6cfaf"
+  },
+  "screenshots": {
+    "deployed-blocked.png": "c3c6ee7afb2c3458b53ec52581aee49c07c963f2c20a8777d46f2b1c61e8f6b4",
+    "deployed-ready.png": "726f8e956e77a88f52d0164dbb4c5ffdfb8cf714b71fd0ab64e76e40dd32e3b4"
+  },
+  "archive_executed": false
+}

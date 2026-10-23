@@ -1,5 +1,115 @@
-next_id: 46
+next_id: 53
 entries:
+- id: REQ-0052-stage-spec-reading-center
+  title: "九阶段流转规范查阅与研发规范中心"
+  status: pending_review
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈与同会话 explore 确认
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0052-stage-spec-reading-center/
+  created: '2026-10-23 09:27:39'
+  iteration: null
+  related_change: null
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: null
+- id: REQ-0051-card-persistent-info-tags
+  title: "需求中心卡片常驻根因状态与开发人天标签"
+  status: done
+  priority: P2
+  owner: 产品团队
+  source: 用户反馈与同会话 explore 确认
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0051-card-persistent-info-tags/
+  created: '2026-10-22 13:37:33'
+  iteration: sprint-013
+  related_change: add-card-persistent-info-tags
+  related_changes: []
+  type: feature
+  requester: user
+- id: REQ-0050-controlled-rule-replacement-proof
+  title: "规则修改说明与安全归档"
+  status: in_sprint
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈与同会话 explore
+  lifecycle_stage: review
+  path: issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/
+  created: '2026-10-22 12:57:38'
+  iteration: sprint-013
+  related_change: add-controlled-rule-replacement-proof
+  related_changes: []
+  type: feature
+  requester: user
+  related_requirements:
+  - REQ-0047-governance-command-durable-recovery
+  related_bugs:
+  - BUG-0063-compatible-requirement-successor-blocked
+  - BUG-0062-archive-requirement-scope-conflict
+- id: REQ-0049-sprint-archive-chat-entry
+  title: "迭代归档接入 Sprint 对象会话与命令预填"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/
+  created: '2026-10-21 17:44:51'
+  iteration: sprint-012
+  related_change: add-sprint-archive-chat-entry
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: REQ-0037-current-iteration-archive-entry
+  related_requirements:
+  - REQ-0039-requirement-center-card-chat-session-reuse
+- id: REQ-0048-chat-isolated-acceptance-orchestration
+  title: "Chat 隔离验收环境编排与原操作续接"
+  status: approved
+  priority: P1
+  owner: 产品团队
+  source: 用户确认 BUG-0045 探索拆分
+  lifecycle_stage: review
+  path: issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/
+  created: '2026-10-21 16:24:14'
+  iteration: null
+  related_change: null
+  parent_requirement: REQ-0044-shared-project-verification-environment
+  related_bugs:
+  - BUG-0045-chat-acceptance-runtime-capability-gap
+  related_requirements:
+  - REQ-0047-governance-command-durable-recovery
+- id: REQ-0047-governance-command-durable-recovery
+  title: "治理命令持久化阶段与幂等恢复闭环"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户反馈与本会话 explore
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0047-governance-command-durable-recovery/
+  created: '2026-10-19 14:16:01'
+  iteration: sprint-010
+  related_change: add-governance-command-durable-recovery
+  related_requirements:
+  - REQ-0046-chat-execution-output-status-feedback
+  related_bugs:
+  - BUG-0047-review-recovery-operation-record-missing
+  - BUG-0044-requirement-stage-premature-transition-session-split
+  parent_requirement: REQ-0027-requirement-center-command-chain-realization
+- id: REQ-0046-chat-execution-output-status-feedback
+  title: "Chat 按执行状态优化过程输出提示与结果反馈"
+  status: done
+  priority: P2
+  owner: 产品团队
+  source: 用户反馈及同会话 explore
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0046-chat-execution-output-status-feedback/
+  created: '2026-10-19 11:07:04'
+  iteration: null
+  parent_requirement: REQ-0025-chat-workbench
+  related_change: fix-chat-unified-run-status-verification
 - id: REQ-0045-isolated-acceptance-data-source-label
   title: "隔离验收环境在需求中心显示数据源标识"
   status: approved
@@ -285,7 +395,7 @@ entries:
   lifecycle_stage: archive
   path: issues/requirements/archive/REQ-0027-requirement-center-command-chain-realization/
   created: '2026-09-12 21:11:40'
-  iteration: sprint-008
+  iteration: null
   related_change: add-requirement-center-command-chain-realization
   type: feature
   requester: user

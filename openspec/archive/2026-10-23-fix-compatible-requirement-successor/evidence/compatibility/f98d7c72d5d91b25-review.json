@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "successor": "fix-cross-entry-continuation-guard",
+  "capability": "governance-command-durable-recovery",
+  "requirement": "直接命令状态原因与跨入口验收",
+  "before_sha256": "7faa95c949536b0d6f8e08503986f5958dd1a245bc7f8d2999bfcc2b40042122",
+  "after_sha256": "1ae8204f05bf0d497438bb780ad1dcc2e7f85d192aa39b3ebbe5c9003e631497",
+  "added_scenarios": [
+    "当前交付已推进而旧执行未完成"
+  ],
+  "classification": "compatible_append",
+  "status": "passed",
+  "reviewer": "Codex implementation review",
+  "rationale": "原条文区分运行终态与业务核验；新增 CLI 推进后的当前态独立展示，不将旧执行改为成功，与原验收场景并存。",
+  "contradictions": []
+}

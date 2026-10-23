@@ -44,7 +44,7 @@ app.add_middleware(
     allow_origins=settings.cors_origin_list(),
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["authorization", "content-type"],
+    allow_headers=["authorization", "content-type", "x-chat-client", "x-behavior-event-id", "x-behavior-trace-id"],
 )
 
 app.include_router(health_router)
@@ -59,6 +59,15 @@ app.include_router(catalog_space_applications_router)
 app.include_router(chat_router)
 from app.governance.api import router as governance_router
 app.include_router(governance_router)
+from app.governance.replacement_api import router as replacement_router
+app.include_router(replacement_router)
+from app.governance.rule_change_api import router as rule_change_router
+app.include_router(rule_change_router)
+from app.governance.replacement_policy_api import router as replacement_policy_router
+app.include_router(replacement_policy_router)
+from app.governance.replacement_archive_api import router as replacement_archive_router, command_router as archive_command_router
+app.include_router(replacement_archive_router)
+app.include_router(archive_command_router)
 
 from app.api.v1.capture_drafts import router as capture_drafts_router
 app.include_router(capture_drafts_router)

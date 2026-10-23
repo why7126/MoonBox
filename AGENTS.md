@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-13 16:27:44
+updated_at: 2026-10-23 08:30:47
 owner: MoonBox 产品团队
 ---
 
@@ -129,3 +129,17 @@ Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有�
 Change 创建与归档遵循 [Change 身份唯一性](rules/document-governance.md#change-身份唯一性)，创建前检查活动与归档 ID 占用。
 
 本地 `logs/` 取证目录须被 Git 忽略且不得跟踪，归属和证据转存规则见 `rules/directory-structure.md`；保留现有日志，不因目录存在删除数据。
+
+自动验收与归档编排统一遵循 [连续执行与恢复契约](docs/standards/opsx-acceptance.md)：逐 AC 队列与检查点、局部阻塞隔离、待采集证据自主补齐、精确指纹、命令去重、环境样本契约和归档预演。存在可执行项不得仅输出 diagnostic 后停止；交付、证据与用量分别报告，wrapper 成功不重复收尾。
+
+## 稳定验证编排
+
+遵循 [稳定批次与增量复验契约](docs/standards/opsx-acceptance.md#稳定批次与增量复验契约)：完整入口前置检查、修改稳定后集中验证、受影响范围增量复验和里程碑进度反馈。保留现有正确性门禁；未完成入口验证不提前宣布最终完成。
+
+阶段变化、新发现与阻塞优先反馈；无变化时合并日志与轮询，保留必要状态反馈。复用证据须有当前有效依据，输出精简不减少检查。
+
+## 治理执行量化与授权优化
+
+遵循 [分级闭环](docs/standards/governance-feedback-loop.md)：非只读命令入口使用 `scripts/governance_feedback.py start`，完成门禁后 `finish` 自动复盘；只有明确边界的实测用量参与收益。用户已授权本项目治理范围自动优化，策略见 `rules/governance-feedback-policy.json`，仍保留 Change、Sprint、验证、预算和防递归门禁。只读探索不落盘，优化任务自身计成本，未获授权或业务范围仍只给建议。
+
+面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。

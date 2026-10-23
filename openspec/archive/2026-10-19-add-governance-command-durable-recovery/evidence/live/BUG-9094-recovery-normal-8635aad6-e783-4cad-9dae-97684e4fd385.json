@@ -1,0 +1,31 @@
+{
+  "evidence_kind": "observed_product",
+  "sample": "BUG-9094-recovery-normal",
+  "conversation_id": "d42257af-cda7-5001-b256-d6c664925305",
+  "turn_id": "8635aad6-e783-4cad-9dae-97684e4fd385",
+  "terminal": "completed",
+  "error_code": null,
+  "interrupted": false,
+  "candidate_state": "running",
+  "operation": {
+    "id": "37bce624-1e66-45a8-a2dd-20fca67fc9d6",
+    "object_id": "BUG-9094-recovery-normal",
+    "action": "bug-review",
+    "stage": "validation",
+    "state": "blocked",
+    "version": 4,
+    "execution_terminal": "completed",
+    "reason_code": "artifact_unavailable",
+    "auto_retry_count": 0,
+    "manual_count": 0,
+    "next_retry_at": null,
+    "recovery_expires_at": "2026-10-20T09:09:09+00:00",
+    "candidate_id": "67a0d779-1712-5bf0-b0c7-033e416e0a82",
+    "application_id": null,
+    "allowed_actions": [
+      "refresh",
+      "evidence",
+      "regenerate"
+    ]
+  }
+}

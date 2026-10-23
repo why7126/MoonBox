@@ -192,6 +192,10 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
     server = None; permitted_scope = None; seq = 0; terminal = None; reply = ''; usage = None; metadata_bytes = 0; budget_stop = False; limit_recorded = False; stop_at = None; last_interrupt = 0
     try:
         workspace = trusted_directory(workspace)
+        from app.governance.archive_chat import run as run_trusted_archive
+        archive_result = run_trusted_archive(factory, token, workspace)
+        if archive_result is not None:
+            return archive_result
         with factory() as db:
             row, parent = owned(db, token)
             workspace_id = _workspace_identity(parent, workspace)
@@ -335,13 +339,13 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     if item.get('type') in ('commandExecution','fileChange') and isinstance(item_id,str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}',item_id):
                         payload = tool_payload(item, method.split('/')[1], executor_turn, workspace, tool_started)
                         from app.governance.direct_command_journal import (
-                            is_formal_workflow_sync, observe as observe_direct_command,
+                            is_formal_workflow_sync, workflow_sync_result, observe as observe_direct_command,
                         )
                         observe_direct_command(parent['id'], row['client_request_id'], item_id,
                             method.split('/')[1], workspace,
                             sync=is_formal_workflow_sync(item),
-                            sync_succeeded=(item.get('exitCode') == 0
-                                            and item.get('status') == 'completed'))
+                            sync_succeeded=bool(workflow_sync_result(item)),
+                            sync_result=workflow_sync_result(item))
                         detail_bytes = len(json.dumps(payload,ensure_ascii=False).encode()) + 1024
                         if metadata_bytes+detail_bytes < budget//8:
                             with factory() as db:
@@ -375,13 +379,13 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     if item.get('type') in ('commandExecution', 'fileChange') and isinstance(item.get('id'), str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}', item['id']):
                         payload = tool_payload(item, 'completed', executor_turn, workspace, tool_started)
                         from app.governance.direct_command_journal import (
-                            is_formal_workflow_sync, observe as observe_direct_command,
+                            is_formal_workflow_sync, workflow_sync_result, observe as observe_direct_command,
                         )
                         observe_direct_command(parent['id'], row['client_request_id'], item['id'],
                             'completed', workspace,
                             sync=is_formal_workflow_sync(item),
-                            sync_succeeded=(item.get('exitCode') == 0
-                                            and item.get('status') == 'completed'))
+                            sync_succeeded=bool(workflow_sync_result(item)),
+                            sync_result=workflow_sync_result(item))
                         size = len(json.dumps(payload, ensure_ascii=False).encode()) + 1024
                         if metadata_bytes + size < budget // 8:
                             with factory() as db:

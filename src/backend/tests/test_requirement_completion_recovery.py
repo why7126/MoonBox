@@ -114,6 +114,7 @@ def test_preserved_completion_round_trip(chat,tmp_path,monkeypatch,conflict):
         collect(db,parent,turn['id'],workspace,'completed')
         candidate=db.execute(select(governance_candidates)).mappings().one()
         assert candidate['state']=='pending',dict(candidate)
+        assert store.read(candidate['id'],'baseline')['binding_revision']==project.binding_revision
         application=db.execute(select(governance_applications)).mappings().one()
         assert process(db,application['id'])['state']=='applied'
         assert stable(root).files==after

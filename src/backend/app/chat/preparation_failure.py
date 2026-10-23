@@ -6,6 +6,10 @@ from app.chat.app_server import ExecutorError
 from app.chat.schema import conversations, events, snapshots, turns
 
 PREPARATION_CODES = frozenset({
+    'recovery_capability_unavailable', 'recovery_operation_incomplete',
+    'direct_command_preparation_failed', 'direct_command_operation_missing',
+    'direct_command_operation_invalid', 'direct_command_identity_mismatch',
+    'direct_command_baseline_missing', 'direct_command_baseline_invalid',
     'workspace_unapplied_changes', 'workspace_fact_source_stale',
     'governance_validation_failed', 'workspace_prepare_failed',
     'workspace_binding_mismatch', 'usage_reservation_missing',
@@ -57,6 +61,8 @@ def fail_preparation(factory, token, error, *, recovering=False):
         from app.chat.admission import settle
         # Zero model usage is justified here: this stage never calls start_turn.
         settle(db, tid, 0, size)
+        from app.governance.recovery_service import checkpoint_preparation_failure
+        checkpoint_preparation_failure(db, tid, code)
         db.commit()
     print(json.dumps({'event': 'chat.workspace_prepare_failed', 'turn_id': tid,
         'error_code': code, 'stage': 'workspace_prepare', 'recovered': recovering,

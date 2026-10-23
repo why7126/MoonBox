@@ -12,6 +12,7 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   window.localStorage.clear();
+  window.sessionStorage.clear();
   window.history.replaceState(null, "", "/");
   document.documentElement.removeAttribute("style");
   document.body.removeAttribute("style");
@@ -131,6 +132,11 @@ describe("Chat Skeleton boundary", () => {
     render(<ChatWorkbenchPage />);
     await waitFor(() => expect(fetch.mock.calls.some(([url]) => String(url).includes("/governance-applications/operation"))).toBe(true));
     expect(fetch.mock.calls.some(([url, init]) => String(url).includes("/governance-candidates/candidate/applications") && init?.method === "POST")).toBe(false);
+    fireEvent.change(screen.getByTestId("chat-prompt"), {target:{value:"保留原会话草稿"}});
+    expect(sessionStorage.getItem("moonbox.governance.prompt:conversation")).toBe("保留原会话草稿");
+    cleanup();
+    render(<ChatWorkbenchPage />);
+    await waitFor(() => expect((screen.getByTestId("chat-prompt") as HTMLTextAreaElement).value).toBe("保留原会话草稿"));
     for (const text of ["待应用成果", "查看成果", "审阅治理成果", "确认应用"]) {
       expect(screen.queryByText(text)).toBeNull();
     }

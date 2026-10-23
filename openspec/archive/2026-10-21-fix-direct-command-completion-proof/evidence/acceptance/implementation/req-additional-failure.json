@@ -1,0 +1,26 @@
+{
+  "object_id": "REQ-9603-direct-normal",
+  "action": "req-opsx",
+  "conversation_id": "62488f05-3142-599c-aa92-8491e5de8097",
+  "turn_id": "c25fffd5-69cb-4628-b4c2-4de5fdba5c86",
+  "send_http": 200,
+  "status": "unknown",
+  "error_code": "write_permission_revoked",
+  "context_http": 503,
+  "verification_http": 200,
+  "verification": {
+    "available": true,
+    "state": "running",
+    "version": 3,
+    "reason_code": null,
+    "last_checked_at": null,
+    "can_verify": false,
+    "historical_evidence_missing": false,
+    "differences": []
+  },
+  "chain_verified": false,
+  "failure_classification": "model_generated_invalid_sprint_yaml",
+  "invalid_file": "iterations/change/sprint-013/sprint.yaml",
+  "observed_parser_error": "mapping values are not allowed: line 13",
+  "gate_behavior": "write permission revoked; no successful completion proof"
+}

@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "model_calls": 2,
+  "normal_turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+  "stop_turn_id": "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0",
+  "normal_status": "completed",
+  "stop_status": "stopped",
+  "page_size": 1,
+  "page_count": 28,
+  "unique_message_count": 28,
+  "order": "user,assistant per turn",
+  "streaming_identity_preserved": true,
+  "stop_partial": true,
+  "assistant_counts": {
+    "03457e3d-3426-4748-9a45-55015e28813f": 1,
+    "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0": 1
+  },
+  "samples": [
+    {
+      "id": "e92462f1-7410-4602-9fcc-43e76377bc6a",
+      "turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+      "role": "user",
+      "created_at": "2026-10-21T06:48:47+00:00",
+      "order_key": {
+        "turn_created_at": "2026-10-21T06:48:47+00:00",
+        "turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+        "role_rank": 0,
+        "message_id": "e92462f1-7410-4602-9fcc-43e76377bc6a"
+      },
+      "display_time": "2026-10-21T06:48:47+00:00",
+      "time_source": "message_saved",
+      "output_partial": false
+    },
+    {
+      "id": "assistant-0bdc49286f2ee3435aff168a3367bbc6b772ecd6a94b4ba4",
+      "turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+      "role": "assistant",
+      "created_at": "2026-10-21T06:50:01+00:00",
+      "order_key": {
+        "turn_created_at": "2026-10-21T06:48:47+00:00",
+        "turn_id": "03457e3d-3426-4748-9a45-55015e28813f",
+        "role_rank": 1,
+        "message_id": "assistant-0bdc49286f2ee3435aff168a3367bbc6b772ecd6a94b4ba4"
+      },
+      "display_time": "2026-10-21T06:49:18+00:00",
+      "time_source": "output_event",
+      "output_partial": false
+    },
+    {
+      "id": "cc0c2652-8862-4e14-a082-ca942fc95bcf",
+      "turn_id": "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0",
+      "role": "user",
+      "created_at": "2026-10-21T06:54:57+00:00",
+      "order_key": {
+        "turn_created_at": "2026-10-21T06:54:57+00:00",
+        "turn_id": "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0",
+        "role_rank": 0,
+        "message_id": "cc0c2652-8862-4e14-a082-ca942fc95bcf"
+      },
+      "display_time": "2026-10-21T06:54:57+00:00",
+      "time_source": "message_saved",
+      "output_partial": false
+    },
+    {
+      "id": "assistant-8e3f331a2140218210daf22b44a559cb5ae58ac0d3accf8c",
+      "turn_id": "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0",
+      "role": "assistant",
+      "created_at": "2026-10-21T06:57:34+00:00",
+      "order_key": {
+        "turn_created_at": "2026-10-21T06:54:57+00:00",
+        "turn_id": "f2b21fa6-f78e-45b7-a74b-7fd70dc0c4f0",
+        "role_rank": 1,
+        "message_id": "assistant-8e3f331a2140218210daf22b44a559cb5ae58ac0d3accf8c"
+      },
+      "display_time": "2026-10-21T06:56:28+00:00",
+      "time_source": "output_event",
+      "output_partial": true
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "command_runs": [
+    {
+      "source_session_hash": "ac7b8a7112222f829c2f79b11a84a680e7f5d518d8b849dd115b7b11cc1b8b70",
+      "source_data_file": "~/.codex/sessions/2026/10/23/rollout-2026-10-23T20-57-38-01a168d6-9ef9-70d2-8843-b168d9593cfe.jsonl",
+      "source_line_start": 46,
+      "source_line_end": 247,
+      "turn_hash": "83362cb04c9c4883",
+      "started_at": "2026-10-23T13:01:18.215Z",
+      "ended_at": "2026-10-23T13:08:24.659Z",
+      "command": "opsx.modify",
+      "workflow_event": "opsx.modify",
+      "requirements": [
+        "REQ-0050-controlled-rule-replacement-proof"
+      ],
+      "bugs": [
+        "BUG-0063-compatible-requirement-successor-blocked"
+      ],
+      "changes": [
+        "add-controlled-rule-replacement-proof"
+      ],
+      "sprint_id": null,
+      "release_sprints": [],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "gpt-6-astra",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "none",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 29,
+      "input_tokens": 3435216,
+      "cached_input_tokens": 3341440,
+      "output_tokens": 6956,
+      "reasoning_output_tokens": 373,
+      "total_tokens": 3442172,
+      "tool_call_count": 4,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    },
+    {
+      "source_session_hash": "ac7b8a7112222f829c2f79b11a84a680e7f5d518d8b849dd115b7b11cc1b8b70",
+      "source_data_file": "~/.codex/sessions/2026/10/23/rollout-2026-10-23T20-57-38-01a168d6-9ef9-70d2-8843-b168d9593cfe.jsonl",
+      "source_line_start": 527,
+      "source_line_end": 1152,
+      "turn_hash": "61c1e0a3da02738a",
+      "started_at": "2026-10-23T13:17:28.937Z",
+      "ended_at": "2026-10-23T13:38:32.531Z",
+      "command": "opsx.accept",
+      "workflow_event": "opsx.accept",
+      "requirements": [],
+      "bugs": [
+        "BUG-0063-compatible-requirement-successor-blocked"
+      ],
+      "changes": [
+        "fix-compatible-requirement-successor"
+      ],
+      "sprint_id": "sprint-012",
+      "release_sprints": [],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "gpt-6-astra",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "detailed",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 94,
+      "input_tokens": 14023288,
+      "cached_input_tokens": 13826688,
+      "output_tokens": 16469,
+      "reasoning_output_tokens": 2392,
+      "total_tokens": 14086931,
+      "tool_call_count": 34,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    },
+    {
+      "source_session_hash": "ac7b8a7112222f829c2f79b11a84a680e7f5d518d8b849dd115b7b11cc1b8b70",
+      "source_data_file": "~/.codex/sessions/2026/10/23/rollout-2026-10-23T20-57-38-01a168d6-9ef9-70d2-8843-b168d9593cfe.jsonl",
+      "source_line_start": 1248,
+      "source_line_end": 1264,
+      "turn_hash": "3b693186d5c0f528",
+      "started_at": "2026-10-23T13:45:38.320Z",
+      "ended_at": "2026-10-23T13:46:18.318Z",
+      "command": "opsx.archive",
+      "workflow_event": "opsx.archive",
+      "requirements": [],
+      "bugs": [
+        "BUG-0063-compatible-requirement-successor-blocked"
+      ],
+      "changes": [
+        "archive-change",
+        "archive-evidence",
+        "archive-path",
+        "build-images",
+        "fix-compatible-requirement-successor"
+      ],
+      "sprint_id": "sprint-012",
+      "release_sprints": [],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "gpt-6-astra",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "none",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 3,
+      "input_tokens": 595138,
+      "cached_input_tokens": 585856,
+      "output_tokens": 464,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 595602,
+      "tool_call_count": 0,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

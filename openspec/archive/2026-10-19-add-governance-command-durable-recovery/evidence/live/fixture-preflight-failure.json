@@ -1,0 +1,39 @@
+{
+  "evidence_kind": "observed_product_diagnostic",
+  "passed": false,
+  "attempts": [
+    {
+      "fixture_revision": 1,
+      "turn_id": "c920a329-834f-4968-a5ea-698cbca98c32",
+      "execution_terminal": "completed",
+      "business_state": "blocked",
+      "reason_code": "review_unrelated_document_edit",
+      "diagnosis": "隔离夹具向非主文档注入阶段元数据，正式同步因此改写了评审范围外子文档。原成果已按既有机制保留和恢复。"
+    },
+    {
+      "fixture_revision": 2,
+      "turn_id": "6deb9c4e-2464-4769-b31b-7434275c4e4d",
+      "execution_terminal": "completed",
+      "business_state": "blocked",
+      "reason_code": "review_acceptance_scope",
+      "diagnosis": "复制研发中需求作为待评审夹具时保留 source_event: opsx.progress，评审同步改写超出 req.complete→req.review 的合法范围。"
+    },
+    {
+      "fixture_revision": 3,
+      "turn_id": "97dbef7b-ad0d-44d2-ac08-d93eaf0e8ce1",
+      "execution_terminal": "completed",
+      "business_state": "blocked",
+      "reason_code": "review_acceptance_scope",
+      "diagnosis": "夹具仍带原Change/Sprint验收来源；修正完整关联字段并通过原评审validator预检，未放宽产品边界。"
+    },
+    {
+      "fixture_revision": 3,
+      "turn_id": "8635aad6-e783-4cad-9dae-97684e4fd385",
+      "execution_terminal": "completed",
+      "business_state": "blocked",
+      "reason_code": "review_acceptance_scope",
+      "diagnosis": "夹具仍带原Change/Sprint验收来源；修正完整关联字段并通过原评审validator预检，未放宽产品边界。"
+    }
+  ],
+  "correction": "固定同一组样本标识，修正夹具阶段标记；保留产品校验规则，不将历史失败算作通过。"
+}

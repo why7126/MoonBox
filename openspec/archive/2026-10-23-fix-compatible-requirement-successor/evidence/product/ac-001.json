@@ -1,0 +1,90 @@
+{
+  "kind": "current-repository-readonly",
+  "change": "fix-direct-command-completion-proof",
+  "result": {
+    "ready": true,
+    "mode": "archived",
+    "chain": [
+      {
+        "change_id": "fix-chat-turn-message-order",
+        "baseline_spec_hash": "94d172c6ec165a7b2bfd979177ecf98ec4d10c761816d04ad51c20e1a8607f08",
+        "expected_spec_hash": "05cfa7fa6ea62f80804a2b6793b1c06d93e4bccf18a7f7b25776b5d56c9bda6b",
+        "journal_hash": "a6005a55b2ccb1e1a81722abd573bc8302c0a833ae1a2e3a40f32104d7ff4118",
+        "archive_delta_hash": "7c4cbb0118049b221255b8f82c8a8f289b49171ffc66d78e2cb9ca876fa104c5",
+        "archive_hash": "693c8c3feab0abf092eb0aff3c6b92cbdc768471cec1ec9c7751c3b01e73eb04",
+        "compatibility": []
+      },
+      {
+        "change_id": "fix-cross-entry-continuation-guard",
+        "baseline_spec_hash": "05cfa7fa6ea62f80804a2b6793b1c06d93e4bccf18a7f7b25776b5d56c9bda6b",
+        "expected_spec_hash": "7ad25ea2eb1752a8e046c60c210b2b1a62a86b9c4cf141d5b11f7dd51a72f46f",
+        "journal_hash": "7b6c0e53a547f35c23c3d684a011a0aa20fab6b1c43a71b5a63e8e3be7d3de7e",
+        "archive_delta_hash": "622da477f39eacdc48fce5fea9d591292fab8cd3bb6ee6ed9b2fb4eeb303e853",
+        "archive_hash": "7e817fcf31529feb2224d2abf260c2a241214d8e920a509e57663ad92aa07895",
+        "compatibility": [
+          {
+            "proof_sha256": "b842bd95a880f0d1d33e119fdffe8e827922d78322f76ef1f593a8ab12d91471",
+            "proof_path": "openspec/archive/.compatible-successors/fix-cross-entry-continuation-guard/e20ebd7558a2400ee09bb422fa02d39453076d67c354da1805f43645259cc809.json",
+            "dependencies": [
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/e20ebd7558a2400e-review.json",
+                "sha256": "56ce3e24a6ace61a8ca7b3dafec20404a254b1c62840fad9f2aac03ea5eab854"
+              },
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/e20ebd7558a2400e-regression.json",
+                "sha256": "e0132cfd8cee8768474793f15bc25cc1d5fa8222aa3130e4bc07b32d58e7e44d"
+              }
+            ]
+          },
+          {
+            "proof_sha256": "5b6ac9a1f70d17374bcae18dc1f15c47ecf61fe57462d0cfcfbe8b24f2253130",
+            "proof_path": "openspec/archive/.compatible-successors/fix-cross-entry-continuation-guard/4cd5af22818d44ea1bf98b44dedca7fca23d10f3f15fe4af1927c5ab6ba9d396.json",
+            "dependencies": [
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/4cd5af22818d44ea-review.json",
+                "sha256": "edd6253a8737751af89a9fe4402b9a9a28adb3ea1961d57b769358a3a948509c"
+              },
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/4cd5af22818d44ea-regression.json",
+                "sha256": "e9c6f7f16e0558d8af5cf7525e62fae9f19d7ebc6e901a9db5a50ba803b7ae62"
+              }
+            ]
+          },
+          {
+            "proof_sha256": "0e461f12310425e73fc75d1400cda67a006bc68259c73bd1e34d94d441259d9a",
+            "proof_path": "openspec/archive/.compatible-successors/fix-cross-entry-continuation-guard/f98d7c72d5d91b25bd8ada9aba31c2d6a036f72025215c405c52b150f4672ad7.json",
+            "dependencies": [
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/f98d7c72d5d91b25-review.json",
+                "sha256": "1573d2859407d96e439f6f75858ed2cfdbc61a275ff06543fe9629b866eb2fed"
+              },
+              {
+                "path": "openspec/changes/fix-compatible-requirement-successor/evidence/compatibility/f98d7c72d5d91b25-regression.json",
+                "sha256": "8541e3cd171368c72cbdfd047874bd79a9e75bf84cba28efec470cd9fb27349d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "change_id": "fix-archive-requirement-scope-conflict",
+        "baseline_spec_hash": "7ad25ea2eb1752a8e046c60c210b2b1a62a86b9c4cf141d5b11f7dd51a72f46f",
+        "expected_spec_hash": "df4879f54f1b87f01d240c218478db342706b963dc2ea7158ac218a6db61c5a2",
+        "journal_hash": "b48208e5025909fccce6d66e1fa7a393506a4f5dbe6db7afddd26a9a3a44dffb",
+        "archive_delta_hash": "2c52282318c540c6f3d9d0249399b4b13e3072dbeb1b65db45214750ac43280d",
+        "archive_hash": "eeedbd83924d42e6dde75c4202af5d738389e4fefb7b43eb2fda962802fa6b0e",
+        "compatibility": []
+      },
+      {
+        "change_id": "add-sprint-archive-chat-entry",
+        "baseline_spec_hash": "df4879f54f1b87f01d240c218478db342706b963dc2ea7158ac218a6db61c5a2",
+        "expected_spec_hash": "91ae0357c29c4da0d0a445de22f83fbef335d118ff63e0aeb6d1dd826015b6dc",
+        "journal_hash": "e5d8272bb6b4d35ab4c6e3ecdc74d44e2013d717e2141db8e952f1ac119ed7a1",
+        "archive_delta_hash": "3d6f28a24de62af57d9fe2e38107d6628c78415475f6e9ef0237669ff75e38a7",
+        "archive_hash": "e9878e64e8c899cd2ac6fd34ea6c0d5cdfdc514a77eece72655f2c841cf0336e",
+        "compatibility": []
+      }
+    ]
+  },
+  "historical_records_mutated": false
+}

@@ -77,7 +77,8 @@ def validate_review(before, after, oid, base, action):
                     new_meta, new_text = frontmatter(body)
                     event = 'bug' if bug else 'req'
                     synced_text = old_text.replace(f'source_event: {event}.complete', f'source_event: {event}.review')
-                    if without(old_meta, {'updated_at'}) != without(new_meta, {'updated_at'}) or new_text not in (old_text, synced_text):
+                    # Workflow Sync terminates its generated block with a blank line.
+                    if without(old_meta, {'updated_at'}) != without(new_meta, {'updated_at'}) or new_text.rstrip('\n') not in (old_text.rstrip('\n'), synced_text.rstrip('\n')):
                         raise ValueError('acceptance_scope')
                     continue
                 if body != expected:
@@ -87,7 +88,9 @@ def validate_review(before, after, oid, base, action):
         old_doc, _ = frontmatter(before[f'{base}/{primary}'])
         stage = 'review' if migrated else 'plan'
         for data in (new, doc):
-            if data.get(field) != oid or data.get('status') != result:
+            identity_fields = (field, 'req_id') if data is new and not bug else (field,)
+            identities = [data[key] for key in identity_fields if key in data]
+            if not identities or any(value != oid for value in identities) or data.get('status') != result:
                 raise ValueError('state')
         if new.get('lifecycle_stage') != stage:
             raise ValueError('stage')

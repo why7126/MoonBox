@@ -1,0 +1,893 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-verified-result-execution-guard-convergence",
+  "environment_contract": {
+    "deployment": "local-compose-and-isolated-test",
+    "workspace_mode": "source",
+    "sample_scope": "隔离评审首次成功与原现场正式核验分离",
+    "authorization_ref": "真实评审为已授权历史样本；本次用户另授权 REQ/BUG 各一次隔离归档，首个 REQ 零写入后仅追加一次 REQ；正式对象不归档。",
+    "login_strategy": "复用本地登录与隔离测试身份",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "历史评审、Chat 与恢复样本按原证据复用，不宣称本次重新调用；返修卡片与跨入口归档按 acceptance-fixes.md 和当前证据分别签认。"
+      },
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/verification.md"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_proof.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_proof.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_proof.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_proof.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_proof.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_proof.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_governance_execution_guard.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_governance_execution_guard.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "deduplicate": true,
+      "required_sample": {
+        "status": "passed",
+        "reason": "历史评审、Chat 与恢复样本按原证据复用，不宣称本次重新调用；返修卡片与跨入口归档按 acceptance-fixes.md 和当前证据分别签认。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/verification.md"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/web/src/components/chat/turnStatus.ts",
+        "src/web/src/components/chat/RecoveryOperationPanel.tsx",
+        "src/web/src/components/chat/OperationVerification.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "历史评审、Chat 与恢复样本按原证据复用，不宣称本次重新调用；返修卡片与跨入口归档按 acceptance-fixes.md 和当前证据分别签认。"
+      },
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900-computed.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844-computed.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/verification.md",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-restored.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/current-real-turns.json",
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-1440x900.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-1440x900.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-390x844.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-detail-390x844.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.png",
+        "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.json"
+      ],
+      "coverage": {
+        "stages": [
+          "chat",
+          "detail",
+          "card",
+          "verification-differences"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "chat",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900-computed.json"
+            ]
+          },
+          {
+            "stage": "chat",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844-computed.json"
+            ]
+          },
+          {
+            "stage": "detail",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-1440x900-computed.json"
+            ]
+          },
+          {
+            "stage": "detail",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/final-chat-390x844-computed.json"
+            ]
+          },
+          {
+            "stage": "card",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-1440x900.json"
+            ]
+          },
+          {
+            "stage": "card",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-collapsed-390x844.json"
+            ]
+          },
+          {
+            "stage": "verification-differences",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-1440x900.json"
+            ]
+          },
+          {
+            "stage": "verification-differences",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.png",
+              "openspec/changes/fix-chat-unified-run-status-verification/evidence/modify-card-diff-390x844.json"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import sys,json; from pathlib import Path; sys.path.insert(0,'src/backend'); from app.governance.acceptance_evidence import artifact_path; assert json.loads(artifact_path(Path.cwd(),'openspec/changes/fix-chat-unified-run-status-verification/evidence/browser-capability.json').read_text())['ready']"
+        ]
+      ],
+      "collection": {
+        "state": "collected",
+        "reason": "Chrome真实页面采集；状态矩阵另由synthetic组件样本验证，边界见verification.md"
+      }
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_completion_handoff.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_completion_handoff.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "历史评审、Chat 与恢复样本按原证据复用，不宣称本次重新调用；返修卡片与跨入口归档按 acceptance-fixes.md 和当前证据分别签认。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/original-verification.json",
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/runtime-fingerprints.json"
+      ],
+      "deduplicate": true
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/completion_proof.py",
+        "src/backend/app/governance/completion_handoff.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/recovery_service.py",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/api.py",
+        "src/backend/app/chat/schema.py",
+        "src/backend/tests/test_archive_proof.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/acceptance.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-c",
+        "import tempfile; from pathlib import Path; tempfile.tempdir=str(Path(tempfile.gettempdir()).resolve()); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_archive_proof.py', '-q']))"
+      ],
+      "timeout_seconds": 600,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "历史评审、Chat 与恢复样本按原证据复用，不宣称本次重新调用；返修卡片与跨入口归档按 acceptance-fixes.md 和当前证据分别签认。"
+      },
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "openspec/changes/fix-chat-unified-run-status-verification/verification.md"
+      ]
+    },
+    {
+      "id": "AC-001-REQ",
+      "kind": "product_turn",
+      "turn_id": "94dbb6e3-2ed8-4280-9a1e-52254874f578",
+      "command_contains": "req.review",
+      "inputs": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "timeout_seconds": 15
+    },
+    {
+      "id": "AC-001-BUG",
+      "kind": "product_turn",
+      "turn_id": "175ab702-f7a9-4389-9bc5-ebab564d3a5f",
+      "command_contains": "bug.review",
+      "inputs": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/live-req46-joint-verification.json"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "timeout_seconds": 15
+    },
+    {
+      "id": "AC-013",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/review_successor.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/chat/policy.py",
+        "scripts/archive-change.sh",
+        "src/backend/app/governance/execution_guard.py",
+        "src/backend/app/governance/execution_context.py",
+        "issues/bugs/review/BUG-0052-verified-result-execution-guard-not-released/review.md",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "timeout_seconds": 600,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "product_turn"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "REQ/BUG 隔离真实归档均 wrapper exit 0、Issue 已归档、guard validated/done；首个 REQ 零写入负例保留，未改正式对象。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/cross-entry-archive-verification.json"
+      ]
+    },
+    {
+      "id": "AC-ARCHIVE-PREVIEW-REGRESSION",
+      "kind": "command",
+      "inputs": [
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_archive_preview_result.py",
+        "tests/unit/test_acceptance_orchestration.py",
+        "tests/unit/test_change_identity.py",
+        "scripts/archive-change.sh",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_preview_result.py",
+        "tests/unit/test_acceptance_orchestration.py",
+        "tests/unit/test_change_identity.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-ARCHIVE-PREVIEW-REAL",
+      "kind": "command",
+      "inputs": [
+        "scripts/archive-recovery-guard.py",
+        "openspec/changes/fix-verified-result-execution-guard-convergence/specs",
+        "src/backend/app/governance/archive_recovery.py",
+        "openspec/specs/local-project-governance-loop"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "scripts/archive-recovery-guard.py",
+        "fix-verified-result-execution-guard-convergence",
+        "--preview"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-INPUT-PROJECTION",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_acceptance_input_projection.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-SEND-SNAPSHOT-RACE",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_send_snapshot_race.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "-q"
+      ],
+      "inputs": [
+        "src/backend/app/governance/preparation.py",
+        "src/backend/tests/test_send_snapshot_race.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "AC-ARCHIVE-BASELINE",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "scripts/archive-recovery-guard.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "scripts/opsx_acceptance.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "scripts/archive-change.sh",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "src/backend/app/governance/archive_proof.py",
+        "src/backend/tests/test_archive_proof.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_archive_preview_result.py",
+        "tests/unit/test_issue_acceptance_archive_recovery.py",
+        "src/backend/tests/test_ac012_archive_reentry.py",
+        "src/backend/tests/test_archive_proof.py",
+        "-q"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/reaccept-archive-real-chain.json",
+        "openspec/changes/fix-verified-result-execution-guard-convergence/evidence/cross-day-recovery.json"
+      ]
+    }
+  ]
+}

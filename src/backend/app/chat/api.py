@@ -1,9 +1,11 @@
 from __future__ import annotations
+import re
 
 import json
 import logging
 import time
 from uuid import uuid4
+from typing import Literal
 from fastapi import APIRouter, Depends, Query, Request, Header, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.routing import APIRoute
@@ -32,6 +34,24 @@ def _chat_error_data(exc: service.ChatError, request_id: str):
         value = details.get(key)
         if isinstance(value, list):
             data[key] = [item for item in value if isinstance(item, str) and 0 < len(item) <= 80][:12]
+    blockers = details.get('archive_blockers')
+    if isinstance(blockers, list):
+        from app.schemas.requirement_center import RequirementCenterArchiveReadinessBlocker
+        safe = []
+        for item in blockers[:30]:
+            try:
+                parsed = RequirementCenterArchiveReadinessBlocker.model_validate(item)
+                if not parsed.visible:
+                    continue
+                # Only bounded public diagnostics from governance may leave this route.
+                row = parsed.model_dump()
+                if any(isinstance(v, str) and (len(v) > 1500 or re.search(r'(?:/Users/|/home/|Authorization:|Bearer |[A-Za-z]:\\)', v)) for v in row.values()):
+                    continue
+                safe.append(row)
+            except (ValueError, TypeError):
+                continue
+        if safe:
+            data['archive_blockers'] = safe
     dirty_count = details.get('dirty_count')
     if type(dirty_count) is int and 0 <= dirty_count <= 1000:
         data['dirty_count'] = dirty_count
@@ -75,7 +95,8 @@ class ChatRoute(APIRoute):
                         if request.headers.get('X-Chat-Client')=='web' and getattr(request.state,'chat_actor',None):
                             from app.chat.observability import behavior
                             names={('/api/v1/chat/conversations','POST'):'chat.session_create',('/api/v1/chat/conversations/{cid}','PATCH'):'chat.session_update',('/api/v1/chat/conversations/{cid}','DELETE'):'chat.session_delete',('/api/v1/chat/conversations/{cid}/relations','PUT'):'chat.relations_save',('/api/v1/chat/conversations/{cid}/turns','POST'):'chat.send',('/api/v1/chat/turns/{tid}/interrupt','POST'):'chat.stop',('/api/v1/chat/turns/{tid}/retries','POST'):'chat.retry'}
-                            names.update({('/api/v1/requirement-center/captures','POST'):'governance.capture',
+                            names.update({('/api/v1/chat/governance-operations/{operation_id}/recoveries','POST'):'governance.recovery',
+                                ('/api/v1/requirement-center/captures','POST'):'governance.capture',
                                 ('/api/v1/chat/governance-preparations','POST'):'governance.prepare',
                                 ('/api/v1/chat/object-sessions','POST'):'governance.prepare',
                                 ('/api/v1/chat/governance-candidates/{candidate_id}/applications','POST'):'governance.apply'})
@@ -88,14 +109,15 @@ class ChatRoute(APIRoute):
                                 if success:
                                     # Only successful authorized results may be linked to resource identifiers.
                                     payload=json.loads(response.body).get('data',{})
-                                    if event == 'governance.capture':resource['operation_id']=payload.get('id')
+                                    if event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
+                                    elif event == 'governance.capture':resource['operation_id']=payload.get('id')
                                     elif event == 'governance.prepare':
                                         resource['conversation_id']=payload.get('conversation_id')
                                         resource['candidate_id']=payload.get('preparation_id')
                                         resource['object_id']=payload.get('object_id')
                                         resource['object_type']=payload.get('object_type') or (payload.get('object_id') or '').split('-',1)[0]
                                         resource['action_type']=payload.get('action') or (payload.get('prompt') or '').split(' ',1)[0].lstrip('/')
-                                        resource['result']='reused_conversation' if payload.get('reused_conversation') else 'new_conversation'
+                                        resource['result'] = payload.get('reason_code') or ('reused_conversation' if payload.get('reused_conversation') else 'new_conversation')
                                     elif event in ('chat.send','chat.retry','chat.stop'):
                                         resource['turn_id']=payload.get('id')
                                         resource['image_count']=payload.get('image_count')
@@ -188,6 +210,7 @@ class ConversationPage(BaseModel):
     page_size: int
 
 class TurnRead(BaseModel):
+    direct_action: str | None = None
     id: str
     conversation_id: str
     client_request_id: str
@@ -375,6 +398,13 @@ def verification_evidence(task_id: str, filename: str, uid: str=Depends(actor), 
     from app.verification.tasks import evidence_path
     return FileResponse(evidence_path(db, uid, task_id, filename), media_type='image/png', filename=filename)
 
+class MessageOrderKey(BaseModel):
+    turn_created_at: str
+    turn_id: str
+    role_rank: Literal[0, 1, 2]
+    message_id: str
+
+
 class MessageRead(BaseModel):
     id: str
     turn_id: str
@@ -384,6 +414,9 @@ class MessageRead(BaseModel):
     effective_config: dict = Field(default_factory=dict)
     config_fallback_reason: str | None = None
     materials: list[dict] = Field(default_factory=list)
+    order_key: MessageOrderKey
+    display_time: str | None = Field(default=None, description='可确认的消息保存或输出事件时间；历史不可靠时间为空')
+    time_source: Literal['message_saved', 'output_event', 'legacy_unknown'] = Field(description='message_saved、output_event 或 legacy_unknown；与排序独立')
     output_source: str | None = Field(default=None, description='正文来源：message 为已落库，events 为只读事件投影')
     output_partial: bool = Field(default=False, description='部分输出不代表执行完成')
     output_truncated: bool = Field(default=False, description='输出有序号缺口或超出读取窗口')
@@ -391,20 +424,23 @@ class MessageRead(BaseModel):
 
 class MessagePage(BaseModel):
     items: list[MessageRead]
+    next_cursor: str | None = None
+    has_more: bool = False
     page: int
     page_size: int
 
 
 @router.get('/conversations/{cid}/messages',response_model=ApiResponse[MessagePage],summary='分页读取本人会话消息')
-def conversation_messages(cid: str,page: int=Query(1,ge=1),page_size: int=Query(20,ge=1,le=100),uid: str=Depends(actor),db: Session=Depends(get_db)):
+def conversation_messages(cid: str,before: str | None=Query(None,max_length=1024),page: int=Query(1,ge=1),page_size: int=Query(20,ge=1,le=100),uid: str=Depends(actor),db: Session=Depends(get_db)):
     service.conversation(db,uid,cid)
     from app.chat.assistant_output import message_page
-    items = message_page(db, cid, page, page_size)
+    result = message_page(db, cid, page, page_size, before, with_cursor=True)
+    items = result['items']
     material_map=service.read_turn_materials(db,[row['turn_id'] for row in items if row.get('turn_id')])
     for row in items:
         row['materials']=material_map.get(row.get('turn_id'),[])
         row['effective_config']=service._json_config(row.get('effective_config'))
-    return ApiResponse(data={'items':items,'page':page,'page_size':page_size})
+    return ApiResponse(data={**result,'page':page,'page_size':page_size})
 
 
 @router.get('/skills',response_model=ApiResponse[dict],summary='读取当前仓库Skill候选')

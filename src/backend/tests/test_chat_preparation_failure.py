@@ -92,3 +92,46 @@ def test_claim_toolchain_failure_is_terminal_before_model(chat, tmp_path):
         assert row['executor_turn_id'] is None
         assert db.scalar(select(reservations.c.actual_tokens).where(reservations.c.turn_id == row['id'])) == 0
         assert db.scalar(select(conversations.c.active_turn_id).where(conversations.c.id == token['conversation_id'])) is None
+
+
+@pytest.mark.parametrize('code', [
+    'direct_command_preparation_failed', 'direct_command_operation_missing',
+    'direct_command_operation_invalid', 'direct_command_identity_mismatch',
+    'direct_command_baseline_missing', 'direct_command_baseline_invalid',
+])
+def test_review_record_preflight_retains_reason_and_zero_model_usage(chat, capsys, code):
+    client,factory=chat;token=claimed(client,factory)
+    assert fail_preparation(factory,token,service.ChatError(2604,'记录异常',kind=code))
+    with factory() as db:
+        row=db.execute(select(turns).where(turns.c.id==token['turn_id'])).mappings().one()
+        assert (row['status'],row['error_code'],row['executor_turn_id'])==('failed',code,None)
+        assert db.scalar(select(reservations.c.actual_tokens).where(reservations.c.turn_id==row['id']))==0
+        assert db.scalar(select(conversations.c.active_turn_id).where(conversations.c.id==token['conversation_id'])) is None
+    assert code in capsys.readouterr().out
+
+
+def test_preflight_failure_checkpoints_existing_operation_without_model(chat, monkeypatch):
+    from types import SimpleNamespace
+    from sqlalchemy import insert
+    from app.chat.schema import governance_candidates as candidates
+    from app.governance import durable_recovery as policy
+    from app.governance.recovery_schema import operations
+    client,factory=chat;token=claimed(client,factory)
+    monkeypatch.setenv('MOONBOX_CHAT_RETENTION','{"executor_delete_seconds":86400,"backup_expiry_seconds":86400}')
+    with factory() as db:
+        parent=db.execute(select(conversations).where(conversations.c.id==token['conversation_id'])).mappings().one()
+        candidate={**service.identity(),'actor_id':'alice','space_id':parent['space_id'],'repository_id':parent['repository_id'],
+            'scope_key':'scope','conversation_id':parent['id'],'prepared_turn_id':token['turn_id'],
+            'object_id':'REQ-9000-preflight','action':'req-review','binding_revision':'binding','baseline_hash':'baseline','state':'prepared'}
+        db.execute(insert(candidates).values(**candidate))
+        oid=policy.create(db,actor='alice',project=SimpleNamespace(key='scope',binding_revision='binding'),parent=parent,
+            action='req-review',object_id=candidate['object_id'],request_key='preflight',request_hash='hash',source_hash='baseline',candidate_id=candidate['id'])
+        db.execute(update(operations).where(operations.c.id==oid).values(origin_turn_id=token['turn_id'],stage='generation'));db.commit()
+    assert fail_preparation(factory,token,service.ChatError(2605,'unavailable',kind='recovery_capability_unavailable'))
+    with factory() as db:
+        current=policy.row(db,oid)
+        assert current['state']=='blocked' and current['execution_terminal']=='failed'
+        assert current['reason_code']=='recovery_capability_unavailable' and current['recovery_expires_at']
+        assert db.scalar(select(candidates.c.state).where(candidates.c.id==candidate['id']))=='rejected'
+        assert db.scalar(select(turns.c.executor_turn_id).where(turns.c.id==token['turn_id'])) is None
+        assert current['manual_count']==current['auto_retry_count']==0

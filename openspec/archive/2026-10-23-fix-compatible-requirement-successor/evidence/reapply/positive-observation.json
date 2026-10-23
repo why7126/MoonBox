@@ -1,0 +1,45 @@
+{
+  "sample": "sprint-102",
+  "turn_id": "140f162e-06ad-4b90-9f9f-8c0c6c0cfef6",
+  "turn_status": "completed",
+  "error_code": null,
+  "standard_sync_commands": [
+    {
+      "sequence": 161,
+      "exit_code": 0,
+      "check": false,
+      "dry_run": true
+    },
+    {
+      "sequence": 164,
+      "exit_code": 0,
+      "check": false,
+      "dry_run": true
+    },
+    {
+      "sequence": 258,
+      "exit_code": 0,
+      "check": false,
+      "dry_run": false
+    }
+  ],
+  "guards": [
+    {
+      "state": "validated",
+      "confirmed_stage": "done",
+      "terminal_status": "completed",
+      "reason_code": null
+    }
+  ],
+  "turn_count": 1,
+  "active_exists": false,
+  "archive_exists": true,
+  "protected_trees_unchanged": {
+    "openspec/specs": true,
+    "openspec/archive": true
+  },
+  "formal_project_unchanged": true,
+  "quota_scope": "isolated-only",
+  "monthly_token_cap": 4000000,
+  "unknown_usage_reservation_preserved": true
+}
