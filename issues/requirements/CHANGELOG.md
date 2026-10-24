@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-23 21:01:25
+updated_at: 2026-10-24 20:59:31
 owner: MoonBox 产品团队
 ---
 
@@ -30,7 +30,7 @@ owner: MoonBox 产品团队
 |---|---|---|---|---|---|---|---|---|---|
 | REQ-0052-stage-spec-reading-center | 九阶段流转规范查阅与研发规范中心 | pending_review | plan | P1 | 无 | 无 | 2026-10-23 09:39:10 | `/req-review REQ-0052-stage-spec-reading-center` | `issues/requirements/plan/REQ-0052-stage-spec-reading-center/trace.md` |
 | REQ-0051-card-persistent-info-tags | 需求中心卡片常驻根因状态与开发人天标签 | done | archive | P2 | sprint-013 | add-card-persistent-info-tags | 2026-10-22 20:02:54 | 无 | `issues/requirements/archive/REQ-0051-card-persistent-info-tags/trace.md` |
-| REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | in_sprint | review | P1 | sprint-013 | add-controlled-rule-replacement-proof | 2026-10-23 21:01:25 | `/opsx-archive REQ-0050-controlled-rule-replacement-proof` | `issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/trace.md` |
+| REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | done | archive | P1 | sprint-013 | add-controlled-rule-replacement-proof | 2026-10-24 20:59:31 | 无 | `issues/requirements/archive/REQ-0050-controlled-rule-replacement-proof/trace.md` |
 | REQ-0049-sprint-archive-chat-entry | 迭代归档接入 Sprint 对象会话与命令预填 | done | archive | P1 | sprint-012 | add-sprint-archive-chat-entry | 2026-10-21 22:35:30 | 无 | `issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/trace.md` |
 | REQ-0048-chat-isolated-acceptance-orchestration | Chat 隔离验收环境编排与原操作续接 | approved | review | P1 | 无 | 无 | 2026-10-21 16:55:29 | `/sprint-propose --req REQ-0048-chat-isolated-acceptance-orchestration` | `issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/trace.md` |
 | REQ-0047-governance-command-durable-recovery | 治理命令持久化阶段与幂等恢复闭环 | done | archive | P1 | sprint-010 | add-governance-command-durable-recovery | 2026-10-19 18:28:28 | 无 | `issues/requirements/archive/REQ-0047-governance-command-durable-recovery/trace.md` |

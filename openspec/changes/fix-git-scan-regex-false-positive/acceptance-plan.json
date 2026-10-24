@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-git-scan-regex-false-positive",
+  "environment": "local",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "路径误报消除且真实路径继续阻断",
+      "kind": "command",
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_git_check.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py",
+        "-q"
+      ],
+      "inputs": [
+        "scripts/git-check.py",
+        "tests/unit/test_git_check.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py",
+        "src/backend/app/chat/api.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

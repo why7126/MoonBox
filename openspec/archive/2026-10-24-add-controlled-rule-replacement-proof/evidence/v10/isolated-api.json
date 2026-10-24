@@ -1,0 +1,15 @@
+{
+  "environment": "current-source-isolated-api",
+  "requestIntercepted": false,
+  "before": {"active": true, "archives": 0},
+  "response": {
+    "status": 409,
+    "code": 2606,
+    "message": "归档前的交付证据检查未通过，请查看当前 Change 的验收证据。",
+    "kind": "archive_command_unverified",
+    "reason": "archive_check_failed_validate_change_delivery_evidence",
+    "suggested_action": "review_delivery_evidence"
+  },
+  "after": {"active": true, "archives": 0, "specContainsNewRule": false,
+    "archiveOperationRows": 0, "activeProjectLocks": 0}
+}

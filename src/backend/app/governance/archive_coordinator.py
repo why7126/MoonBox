@@ -129,8 +129,9 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
                 if db.scalar(select(proposals.c.id).where(proposals.c.scope_key==project.key,
                         proposals.c.change_id==change,proposals.c.state=='claimed')):
                     raise ValueError('controlled_proposal_required')
-                if not change_acceptance(project.root,change,source_root=project.source_root)['ready']:
-                    raise ValueError('independent_archive_gate_blocked')
+                admission=change_acceptance(project.root,change,source_root=project.source_root)
+                if not admission['ready']:
+                    raise ValueError(admission.get('recovery_reason') or 'independent_archive_gate_blocked')
                 driver.validate_static(change)
                 folder=project.root/'openspec/changes'/change
                 manifest={'delta':tree_hash(folder/'specs'),'delivery':replacement_delivery_hash(folder),
@@ -150,8 +151,9 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
             row=assert_fence(db,project,operation_id,fence)
             if state=='unmerged':
                 authorize_write(db,project,actor)
-                if observe(project,row)!='unmerged' or not change_acceptance(project.root,change,source_root=project.source_root)['ready']:
-                    raise ValueError('independent_archive_gate_blocked')
+                admission=change_acceptance(project.root,change,source_root=project.source_root)
+                if observe(project,row)!='unmerged' or not admission['ready']:
+                    raise ValueError(admission.get('recovery_reason') or 'independent_archive_gate_blocked')
                 driver.recheck_tools();assert_fence(db,project,operation_id,fence)
                 driver.merge_and_move(change);state=observe(project,row)
             if state=='merged':

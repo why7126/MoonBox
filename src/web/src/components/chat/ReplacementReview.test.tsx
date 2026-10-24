@@ -7,7 +7,7 @@ afterEach(cleanup);
 const sample = { change_id: 'fix-sample', capability: 'archive', requirement: '归档保护',
   before: '原规则', after: '增加明确允许条件', protected_changes: ['old-change'],
   affected_requirements: ['归档保护'], review_reason: null, state: 'blocked',
-  acceptance_ready: false, acceptance_blockers: ['验收尚未签署'],
+  acceptance_ready: false, acceptance_blockers: ['验收证据不完整'],
   archive_ready: false, archive_reason: '规则内容已修改，需检查后继续' };
 beforeEach(() => { request.mockReset(); request.mockResolvedValue(sample); });
 function open() {
@@ -16,14 +16,16 @@ function open() {
   return view;
 }
 describe('规则修改只读检查', () => {
-  it('从阻断项打开，显示完整差异与独立验收缺口', async () => {
+  it('从阻断项打开，显示完整差异与验收证据缺口', async () => {
     const view = render(<ReplacementReview spaceId="space" repositoryId="repo" changeId="fix-sample" openRequest={0} />);
     expect(screen.queryByTestId('rule-change-drawer')).toBeNull();
     view.rerender(<ReplacementReview spaceId="space" repositoryId="repo" changeId="fix-sample" openRequest={1} />);
     expect(await screen.findByText('归档保护')).toBeTruthy();
     fireEvent.click(screen.getByText('查看原规则与修改后全文'));
     expect(screen.getAllByText('原规则')).toHaveLength(2);
-    expect(screen.getByText('验收尚未签署')).toBeTruthy();
+    expect(screen.getByText('验收证据不完整')).toBeTruthy();
+    expect(screen.getByText('验收证据尚未全部就绪；查看修改不能代替测试结果。')).toBeTruthy();
+    expect(screen.queryByText(/独立签署|额外人员签字/)).toBeNull();
     expect(screen.queryByText(/兼容追加证明/)).toBeNull();
     expect(request.mock.calls[0][0]).toContain('change_id=fix-sample');
     expect(screen.queryByTestId('rule-change-confirm')).toBeNull();
@@ -43,5 +45,13 @@ describe('规则修改只读检查', () => {
     expect(await screen.findByText('读取失败')).toBeTruthy();
     expect(screen.queryByTestId('rule-change-recheck')).toBeNull();
     expect(request.mock.calls.every(call => !call[1]?.method)).toBe(true);
+  });
+  it('重新检查失败时不继续展示旧规则内容', async () => {
+    open(); await screen.findByText('归档保护');
+    request.mockRejectedValueOnce(new Error('规则已变化'));
+    fireEvent.click(screen.getByTestId('rule-change-recheck'));
+    expect(await screen.findByText('规则已变化')).toBeTruthy();
+    expect(screen.queryByText('归档保护')).toBeNull();
+    expect(screen.queryByTestId('rule-change-recheck')).toBeNull();
   });
 });

@@ -5,6 +5,35 @@ import yaml
 from app.governance.acceptance_evidence import read_plan, readiness, latest_manifest, readiness_reason, archived_readiness
 
 
+def protected_rule_integrity(root: Path, change: str) -> dict:
+    """Keep archived rule obligations unless the successor only adds scenarios.
+
+    The historical exact exception remains valid, but no old confirmation or
+    newly invented text proof can turn an arbitrary rewrite into an append.
+    """
+    from types import SimpleNamespace
+    from .compatible_successor import append_only
+    from .rule_change import conflicts, supported
+
+    if not (root / 'openspec/changes' / change / 'specs').is_dir():
+        return {'ready': True}
+
+    rejected = []
+    for row in conflicts(SimpleNamespace(root=root), change):
+        allowed = False
+        if row['operation'] == 'MODIFIED':
+            try:
+                allowed = bool(append_only(row['before'], row['after']))
+            except ValueError:
+                allowed = supported(row['before'], row['after'])
+        if not allowed:
+            rejected.append({'capability': row['key'][0], 'requirement': row['key'][1],
+                             'protected_changes': row['protected_changes']})
+    return ({'ready': False, 'reason': '已归档规则的原约束被删除或改写',
+             'recovery_reason': 'archive_requirement_conflict', 'diagnostics': rejected}
+            if rejected else {'ready': True})
+
+
 def metadata(path):
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
@@ -113,6 +142,11 @@ def change_acceptance(root: Path, change: str, *, source_root: Path | None = Non
     if len(archived) + int(active.is_dir()) != 1:
         return dict(ready=False, reason="change_identity_ambiguous")
     folder = active if active.is_dir() else archived[0]
+    def finish(result):
+        if folder != active or not result['ready']:
+            return result
+        protected = protected_rule_integrity(root, change)
+        return {**result, **protected} if not protected['ready'] else result
     try:
         trace = metadata(folder / "trace.md")
         oid = issue_identity(trace)
@@ -127,10 +161,10 @@ def change_acceptance(root: Path, change: str, *, source_root: Path | None = Non
                     return dict(ready=False, reason=readiness_reason(evidence))
                 from app.governance.archive_recovery import recovery_admission
                 recovery = recovery_admission(root, change, source_root=source_root)
-                return {**recovery, "reason": recovery.get("reason")}
+                return finish({**recovery, "reason": recovery.get("reason")})
             from app.governance.archive_recovery import recovery_admission
             recovery = recovery_admission(root, change, source_root=source_root)
-            return {**recovery, 'reason': recovery.get('reason', 'standalone_change')}
+            return finish({**recovery, 'reason': recovery.get('reason', 'standalone_change')})
         if not isinstance(oid, str) or not re.fullmatch(r"(REQ|BUG)-\d{4}-[a-z0-9-]+", oid):
             raise ValueError("issue_identity_invalid")
         domain = "requirements" if oid.startswith("REQ-") else "bugs"
@@ -138,7 +172,7 @@ def change_acceptance(root: Path, change: str, *, source_root: Path | None = Non
         dirs = [p for p in dirs if (p / "acceptance.md").is_file()]
         if len(dirs) != 1:
             return dict(ready=False, reason="issue_acceptance_missing_or_ambiguous")
-        return issue_acceptance(root, dirs[0], [change], source_root=source_root)
+        return finish(issue_acceptance(root, dirs[0], [change], source_root=source_root))
     except (OSError, ValueError, KeyError, TypeError, yaml.YAMLError):
         return dict(ready=False, reason="acceptance_source_invalid")
 
@@ -163,6 +197,6 @@ def noop_archive_retry_ready(root, oid, snapshot, *, source_root=None):
             links = [oid]
         index = ChangeIndex(root)
         return bool(links) and all(change_acceptance(root, cid, source_root=source_root)['ready']
-            and cid in index.records and not index.acceptance_source_reason(index.records[cid]) for cid in links)
+            and cid in index.records and not index.acceptance_source_reason(index.records[cid], source_root=source_root) for cid in links)
     except (OSError, ValueError, KeyError, TypeError, yaml.YAMLError):
         return False

@@ -1,0 +1,34 @@
+{
+  "environment": "当前源代码构建、临时 SQLite、一次性隔离项目；未连接付费 Chat 执行服务",
+  "sample_change": "sample-rule-extension",
+  "checks": {
+    "current_difference": {
+      "status": 200,
+      "same_title": "隔离样本规则",
+      "before_sha256": "e9cc507d5a329af92b8a50400bc3a35cad02324cf6ccd782e5545ddc6bfdf2d0",
+      "after_sha256": "447373e2801607ea585070b1fb0cd20b26690baf3cafcdaa03d5af9620fb3f06",
+      "archive_ready": false,
+      "archive_reason": "验收来源待核实"
+    },
+    "retired_decision": {
+      "status": 409,
+      "confirmation_records": 0
+    },
+    "unauthenticated_read": {
+      "status": 401
+    },
+    "source_change_recheck": {
+      "status": 200,
+      "digest_changed": true
+    },
+    "broken_archive_chain": {
+      "status": 409,
+      "kind": "rule_change_unavailable"
+    },
+    "restored_source": {
+      "status": 200,
+      "digest_restored": true
+    }
+  },
+  "limits": "这些是当前代码真实 HTTP/API 操作；不等于已完成真实 Chat 归档轮次、附件保留或独立人员签署。"
+}

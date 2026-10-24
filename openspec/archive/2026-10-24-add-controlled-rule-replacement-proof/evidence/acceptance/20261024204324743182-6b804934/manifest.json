@@ -1,0 +1,592 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "run_id": "20261024204324743182-6b804934",
+  "created_at": "2026-10-24 20:43:38",
+  "source_revision": "7c18373f9565cf37624291aa400ef080bfe2fda9",
+  "environment": "isolated-current-rule-v6",
+  "scope": "complete",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-L01",
+      "fingerprint": "a310bbaa45a6782f45b90097f7d211dd9915da5f7de161836d6db9ce42a8a13e",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+          "sha256": "df1d8c4f14fed6f99bf295ebff5beaf5bdc911dc77fd4f1624112a93b071eea3"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+          "sha256": "734847bd248c69ca77dbd9e9dc80f8934ef4db8986820bcf638f11b07813cb9d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/no-conflict/no-rule-review-entry.png",
+          "sha256": "b9ded10d1e047d101a1b79333da52b2d6fe62dbaa64b15e8804c3ea1d919e445"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/no-conflict/result.json",
+          "sha256": "0b320fd9765efb9e0c2b8e381b4eaf8d131a81294a3fab012044e67b166f5761"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md",
+          "sha256": "2cb5f9cc4996c1688555775c57035428086dc682e075b74e5cfe0cb22aca1a4d"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L02",
+      "fingerprint": "ce45a4234883bd37ebc099c80cf27d0b432e112e282d7cfdc2f70f171bd3eff6",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+          "sha256": "e19bc84bf9ac56e05e0097da65e0eade3442fb4388430aab0d43986db0667be9"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-escaped.json",
+          "sha256": "acc6127ad703326f6fd59f8d8448a5da2ffdc28f33b3e0ea2bdfeef8ccf06599"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-blocked-after-fix.json",
+          "sha256": "dc2fb319e8c2721b56b4c837a57eb793a7dbc8aea289f7141c3d4ea04d0bedf1"
+        }
+      ],
+      "duration_ms": 596,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L03",
+      "fingerprint": "696d5faa2429117895881a8ccdcba75e6708cbb3a19324ba67ed2cfe978790aa",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+          "sha256": "df1d8c4f14fed6f99bf295ebff5beaf5bdc911dc77fd4f1624112a93b071eea3"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+          "sha256": "734847bd248c69ca77dbd9e9dc80f8934ef4db8986820bcf638f11b07813cb9d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+          "sha256": "4164de3cac41c371bdc2abe6a6bdaba3b77bddff38e51a3df11e3c96178a8978"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+          "sha256": "3072a829d3bb4cc66bc7fd00caebcdb2bafd93301544c5ac737a82c80343d805"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L04",
+      "fingerprint": "9c0931686aeb24a1fc28f20dc953822cf330aee4401aac64fb0e59a4126b24ca",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+          "sha256": "e19bc84bf9ac56e05e0097da65e0eade3442fb4388430aab0d43986db0667be9"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L05",
+      "fingerprint": "e50aa898a88f8797ffe896357a6007029df7de1fc8df4280561d6f912f6497c0",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/legacy-source-blocked.png",
+          "sha256": "5a84e0d5bdce0ee26c238b8b05d0f502110c31d344ede3798f0c61f7d99fe513"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/standalone-admitted.png",
+          "sha256": "4aaa1808f107bb2b41e43f9dfd5611505c753faf24530aeb39707aea6a7283f6"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/README.md",
+          "sha256": "57233e4ee7d108f4c7fb02b6ada565f7cc85b95fe7bd335fcd587fb02455810d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+          "sha256": "e19bc84bf9ac56e05e0097da65e0eade3442fb4388430aab0d43986db0667be9"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+          "sha256": "4164de3cac41c371bdc2abe6a6bdaba3b77bddff38e51a3df11e3c96178a8978"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+          "sha256": "3072a829d3bb4cc66bc7fd00caebcdb2bafd93301544c5ac737a82c80343d805"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json",
+          "sha256": "688462ea6537889dc25e0dac5ca070dcc516fc89a8839b71d7402e9efb453e63"
+        }
+      ],
+      "duration_ms": 8881,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L06",
+      "fingerprint": "182e30b38a0e425ae07493a50089725372d91550397afbca8fcc62d9ee30a119",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json",
+          "sha256": "ba9c71ce935922504e82427d61282291ce16e6bc66b655d0ac696047f3672b18"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+          "sha256": "9e1f5fa10e3feab62cce6c716224b49e5e2bb14dfddf3687b00292ca2a782b09"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json",
+          "sha256": "10f6dd5f30ebb4d68798bdba1ff03cb658d1cc93ce8ea3fa43c3951d887d5e48"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+          "sha256": "1abc12084e7a3b0cbc039151c70908767492f5e29b9681a5fa7abcd3620260d5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json",
+          "sha256": "ed4d5895c97b1b2d0ebd69edbe88cdf7c2e5193a4e1dbd79d5dbe89ebcad2f80"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+          "sha256": "8bfc72bc0ed8fc3fad301b6be0a6632be5675fcbc5ba43cd6ba20097e867c5f2"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json",
+          "sha256": "7771f2240e1f20708bc42c30e44c77dc50b618604eee0b47b232ae34afc9014b"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+          "sha256": "6ce0fe0fc5bf4e36e8eb790b61f137f8cedd19f5e238c2d357c4db8dc7fd5302"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+          "sha256": "734847bd248c69ca77dbd9e9dc80f8934ef4db8986820bcf638f11b07813cb9d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+          "sha256": "df1d8c4f14fed6f99bf295ebff5beaf5bdc911dc77fd4f1624112a93b071eea3"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        }
+      ],
+      "duration_ms": 1481,
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L07",
+      "fingerprint": "18c057e02fb9e07494d33ccb0878085f101e25acfade6e4ba13191730b310a51",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v10/isolated-api.json",
+          "sha256": "d8a8d89c69d2a9154b8de4ff1bba2dd7daf1852367132fede7e156cb2d112fa1"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+          "sha256": "e19bc84bf9ac56e05e0097da65e0eade3442fb4388430aab0d43986db0667be9"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+          "sha256": "4164de3cac41c371bdc2abe6a6bdaba3b77bddff38e51a3df11e3c96178a8978"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+          "sha256": "3072a829d3bb4cc66bc7fd00caebcdb2bafd93301544c5ac737a82c80343d805"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json",
+          "sha256": "688462ea6537889dc25e0dac5ca070dcc516fc89a8839b71d7402e9efb453e63"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-blocked-after-fix.json",
+          "sha256": "dc2fb319e8c2721b56b4c837a57eb793a7dbc8aea289f7141c3d4ea04d0bedf1"
+        }
+      ],
+      "duration_ms": 775,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L08",
+      "fingerprint": "7170bf89086bd1337eb3c4e7a31925556bc099b0cc602b18c0eae19d058f1a44",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+          "sha256": "e19bc84bf9ac56e05e0097da65e0eade3442fb4388430aab0d43986db0667be9"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+          "sha256": "4164de3cac41c371bdc2abe6a6bdaba3b77bddff38e51a3df11e3c96178a8978"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+          "sha256": "3072a829d3bb4cc66bc7fd00caebcdb2bafd93301544c5ac737a82c80343d805"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json",
+          "sha256": "688462ea6537889dc25e0dac5ca070dcc516fc89a8839b71d7402e9efb453e63"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/old-operation-resume.json",
+          "sha256": "cbbd253e9129366059a4492321f654e8a2907106eae99eb6908bdb43e0e7fc05"
+        }
+      ],
+      "duration_ms": 711,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L09",
+      "fingerprint": "7eabb393dd41ac9747369a27d2524450928ed92b34222ab115d3bdc34262038f",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json",
+          "sha256": "ba9c71ce935922504e82427d61282291ce16e6bc66b655d0ac696047f3672b18"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+          "sha256": "9e1f5fa10e3feab62cce6c716224b49e5e2bb14dfddf3687b00292ca2a782b09"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json",
+          "sha256": "10f6dd5f30ebb4d68798bdba1ff03cb658d1cc93ce8ea3fa43c3951d887d5e48"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+          "sha256": "1abc12084e7a3b0cbc039151c70908767492f5e29b9681a5fa7abcd3620260d5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json",
+          "sha256": "ed4d5895c97b1b2d0ebd69edbe88cdf7c2e5193a4e1dbd79d5dbe89ebcad2f80"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+          "sha256": "8bfc72bc0ed8fc3fad301b6be0a6632be5675fcbc5ba43cd6ba20097e867c5f2"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json",
+          "sha256": "7771f2240e1f20708bc42c30e44c77dc50b618604eee0b47b232ae34afc9014b"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+          "sha256": "6ce0fe0fc5bf4e36e8eb790b61f137f8cedd19f5e238c2d357c4db8dc7fd5302"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+          "sha256": "734847bd248c69ca77dbd9e9dc80f8934ef4db8986820bcf638f11b07813cb9d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/long-text.png",
+          "sha256": "205fb63a12c9e19a83901d25ae79ed242f3a07d34bc304b5713499f4adb24c4d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/empty-state.png",
+          "sha256": "a852c98761084a50b8bbd3e50c71b1c99d96631eed838fe830104c4162334310"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/network-error.png",
+          "sha256": "c388b818d99a06c0d5b1f1193532371c9703e006bf584aeada120596437af049"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/result.json",
+          "sha256": "5152b8559bd78bebeea906777fc73ded1c43e68deeba36c44b61838ca2147e6c"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md",
+          "sha256": "2cb5f9cc4996c1688555775c57035428086dc682e075b74e5cfe0cb22aca1a4d"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L10",
+      "fingerprint": "9f02f6d71f57040548e03bf80b088625538b96b762c49096b533dd2535867f67",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/archive-blocked-1440-900-light-styles.json",
+          "sha256": "e923ffe60160ea9fd39dba7909fe6dedcec5c689bfb018e3252e9232d9709089"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-before-rejection.png",
+          "sha256": "7fb6512d0c771f84da95dbc81ac21e4d00bd373ffb4a6451abf3f4930b7da7ee"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-after-rejection.png",
+          "sha256": "3f1b487508a44bfafb4575f63d105c8809d837fee823a11ca3e179c4c8c23483"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-after-close.png",
+          "sha256": "6ae1a4ab5ead2cdcbee4157db42d420282b68df56cd57e6dea1c3e5b254e9298"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/result.json",
+          "sha256": "18b372856d0c8f08bd2650259e8543bea695dc936122a84b924ef1b0a3f1aa77"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/storage-check.json",
+          "sha256": "57fedd1f28433faf68806fa73236db27f851254e384deb606e7b8d4dc86ca126"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+          "sha256": "734847bd248c69ca77dbd9e9dc80f8934ef4db8986820bcf638f11b07813cb9d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md",
+          "sha256": "2cb5f9cc4996c1688555775c57035428086dc682e075b74e5cfe0cb22aca1a4d"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L11",
+      "fingerprint": "2b188e021461dc98ef90140a64704c93523110d82e991d093ff4dfb229f9a706",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+          "sha256": "df1d8c4f14fed6f99bf295ebff5beaf5bdc911dc77fd4f1624112a93b071eea3"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+          "sha256": "abe69888f338020fddb4a373fe5fc3fd8f1da3a89b942b170fe29ad7a9502966"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/old-operation-resume.json",
+          "sha256": "cbbd253e9129366059a4492321f654e8a2907106eae99eb6908bdb43e0e7fc05"
+        }
+      ],
+      "duration_ms": 971,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-L12",
+      "fingerprint": "45f8050ec9059624058d4d0b6df3f2bb4511534dab0bd67d46af0f4c6c06a7ca",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/archived-bug-independent-status.json",
+          "sha256": "c33c80e6118e80f06a2a39d1086b43cc6e355fff393f3dc94367a7e4da0072db"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 6,
+    "deduplicated": 1,
+    "reused": 5,
+    "preflight_ms": 51,
+    "duration_ms": 13511,
+    "blocked": 5,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

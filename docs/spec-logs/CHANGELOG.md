@@ -2,11 +2,13 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-20 19:45:28
+updated_at: 2026-10-24 21:09:27
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-24 21:09:27 · governance · [Git 路径误报修复与警告复核](20261024210927-governance-git-scan-regex.md)：保留真实路径阻断，复核哈希及测试警告。
 
 - 2026-10-22 17:24:02 · governance · [受控规则替代的共同归档边界](20261022172402-governance-controlled-rule-replacement.md)：精确授权、共享围栏、在线 CLI 与同步恢复。
 

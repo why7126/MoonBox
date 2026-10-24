@@ -252,7 +252,12 @@ def transition_chain(root: Path, change: str, start: str, current: str, folder: 
                     # Completed successors are governed by normal acceptance and
                     # immutable journal/delta checks, not a separate certificate.
                     from .compatible_successor import acceptance_binding
-                    acceptance_binding(root, archive)
+                    try:
+                        acceptance_binding(root, archive)
+                    except (OSError, ValueError):
+                        conflicts.extend({'change_id': cid, 'capability': cap, 'requirement': title}
+                                         for cap, title in sorted(overlap))
+                        continue
                     for key in overlap:
                         next_view[key] = operations[key]
                 if record.get('schema_version') == 4 and (record.get('input_projection') != 1
@@ -271,6 +276,8 @@ def transition_chain(root: Path, change: str, start: str, current: str, folder: 
                 try:
                     verify_chain_effects([archive_paths(root, edge['change_id'])[0] for edge in next_chain], root / 'openspec/specs')
                 except (OSError, ValueError, IndexError):
+                    conflicts.extend({'change_id': cid, 'capability': cap, 'requirement': title}
+                                     for cap, title in sorted(overlap))
                     continue
                 if tree_hash(root / 'openspec/specs') != current:
                     raise ValueError('archive recovery specs changed during proof')

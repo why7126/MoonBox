@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from .replacement_proof import strict_json, canonical
+from .archive_diagnostics import SAFE_ARCHIVE_REASONS
 
 
 def configuration(path, repository):
@@ -49,7 +50,18 @@ def request(config, path, payload=None):
     try:
         with build_opener(NoRedirect).open(req, timeout=60) as response:
             result = strict_json(response.read(262145))
-    except (HTTPError, URLError, TimeoutError, OSError):
+    except HTTPError as error:
+        if path == 'archive-commands' and error.code == 409:
+            try:
+                body = strict_json(error.read(8193))
+                data = body.get('data') if isinstance(body, dict) else None
+                reason = data.get('reason') if isinstance(data, dict) else None
+            except (ValueError, OSError, TypeError):
+                reason = None
+            if reason in SAFE_ARCHIVE_REASONS:
+                raise ValueError(reason) from None
+        raise ValueError('online_authority_unavailable_or_request_unverified') from None
+    except (URLError, TimeoutError, OSError):
         raise ValueError('online_authority_unavailable_or_request_unverified') from None
     if result.get('code') != 0 or not isinstance(result.get('data'), dict):
         raise ValueError('invalid_authority_response')

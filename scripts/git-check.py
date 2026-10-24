@@ -221,7 +221,7 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "local-absolute-path",
-        re.compile(r"(?<![\w.-])(?:/" + r"Users/[^ \t\n\"'`]+|/" + r"home/[^ \t\n\"'`]+)"),
+        re.compile(r"(?<![\w.-])(?:/" + r"Users/(?!\|)[^ \t\n\"'`]+|/" + r"home/(?!\|)[^ \t\n\"'`]+)"),
         "error",
     ),
     (
@@ -383,7 +383,7 @@ def print_report(scan_scope: str, scanned_count: int, findings: list[Finding]) -
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run pre-push Git safety checks.")
+    parser = argparse.ArgumentParser(description="Run pre-push Git safety checks; regex directory prefixes are not concrete user paths.")
     parser.add_argument("--all", action="store_true", help="Scan all repository files instead of staged + tracked files.")
     parser.add_argument(
         "--max-file-size-mb",

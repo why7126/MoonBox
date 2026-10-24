@@ -51,7 +51,8 @@ def test_review_cli_delivery_product_admission(writing, chat, monkeypatch, bug, 
         "status": "applied", "bug_id" if bug else "req_id": oid,
         "execution": {"completed_at": "2026-10-20 15:00:00"}})
     current[f"{change}/tasks.md"] = b"# Tasks\n- [x] delivered\n"
-    current[f"{change}/verification.md"] = b"# Synthetic verification\nFixture evidence for admission tests.\n"
+    if failure is not None:
+        current[f"{change}/verification.md"] = b"# Synthetic verification\nFixture evidence for admission tests.\n"
     for name in ("proposal.md", "design.md"):
         current[f"{change}/{name}"] = b"# Delivery\n"
     # Heading-based unchecked Markdown is a projection, not a second auto gate.

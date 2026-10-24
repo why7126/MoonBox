@@ -1,0 +1,70 @@
+{
+  "environment": "current-source-isolated-product",
+  "routeIntercepted": false,
+  "rows": [
+    {
+      "actor": "alice",
+      "login": true,
+      "conflict": {
+        "status": 200,
+        "code": 0,
+        "state": "blocked",
+        "archive_ready": false,
+        "affected": 1,
+        "message": "success"
+      },
+      "noConflict": {
+        "status": 404,
+        "code": 2606,
+        "kind": "rule_change_not_applicable",
+        "message": "当前对象没有需要查看的历史规则修改"
+      },
+      "noConflictObjectSession": {
+        "status": 200,
+        "code": 0,
+        "message": "success"
+      },
+      "retiredDecision": {
+        "status": 409,
+        "code": 2606,
+        "kind": "rule_change_decision_retired",
+        "message": "规则修改无需额外确认；请查看差异并重新检查归档"
+      }
+    },
+    {
+      "actor": "bob",
+      "login": true,
+      "conflict": {
+        "status": 200,
+        "code": 0,
+        "state": "blocked",
+        "archive_ready": false,
+        "affected": 1,
+        "message": "success"
+      },
+      "noConflict": {
+        "status": 404,
+        "code": 2606,
+        "kind": "rule_change_not_applicable",
+        "message": "当前对象没有需要查看的历史规则修改"
+      },
+      "archiveObjectSession": {
+        "status": 403,
+        "code": 2601,
+        "message": "当前成员仅有项目读取权限"
+      },
+      "retiredDecision": {
+        "status": 409,
+        "code": 2606,
+        "kind": "rule_change_decision_retired",
+        "message": "规则修改无需额外确认；请查看差异并重新检查归档"
+      }
+    },
+    {
+      "actor": "anonymous",
+      "conflict": {
+        "status": 401
+      }
+    }
+  ]
+}

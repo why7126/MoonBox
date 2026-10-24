@@ -10,7 +10,9 @@ owner: MoonBox 产品团队
 
 ## 受控规则替代审阅
 
-2026-10-23 起，REQ-0050 当前方案使用 `GET /api/v1/chat/rule-changes` 查看当前未归档对象的原规则、修改后规则以及共享验收/归档状态，不要求独立兼容证明，不新增规则修改确认。旧客户端调用 `POST /api/v1/chat/rule-changes/decision` 只返回 409，不再写入确认、拒绝或撤销记录。原 `replacement-proposals` 与 `replacement-policy` 的新增/批准/启用写入口已停用，仅保留历史查询及原操作恢复。归档仍须独立验收签署和原有权限；下表记录旧版接口历史，不作为新方案操作指引。
+当前活动 Change 的 `/opsx-archive` 发送前检查若识别出受保护条文的后继验收缺口，并且只读差异可安全读取，409 响应的 `archive_blockers` 会提供该活动 Change 的“查看修改”入口；无效后继仍拒绝归档。Sprint 中已归档 Change 的历史链问题只返回历史核验提示，不指向只支持活动 Change 的规则详情 API。该调整没有新增请求字段、写入口或权限。
+
+2026-10-24 起，REQ-0050 当前方案使用 `GET /api/v1/chat/rule-changes` 查看当前未归档对象的原规则、修改后规则以及共享验收/归档状态；返回的可继续状态与归档入口共用当前结构化验收结论，证据已就绪时不重复要求交付验证文档，不要求独立兼容证明、规则修改确认或额外人员签署。旧客户端调用 `POST /api/v1/chat/rule-changes/decision` 只返回 409，不再写入确认、拒绝或撤销记录。原 `replacement-proposals` 与 `replacement-policy` 的新增/批准/启用写入口已停用，仅保留历史查询及原操作恢复。归档仍核对当前逐项验收证据、原有权限、完整历史与输入变化；已归档条文的原约束被删除或改写时，直接归档入口返回安全原因 `archive_requirement_conflict` 和检查修改的处理方向，不暴露内部路径。下表记录旧版接口历史，不作为新方案操作指引。
 
 以下接口使用当前人类登录会话和项目绑定鉴权，响应禁止缓存。项目可写者可准备提案；批准、拒绝和撤销只允许有效空间所有者。平台管理员、空间管理员或执行器身份不会自动取得批准权。
 
@@ -312,7 +314,7 @@ context 既有 sprint_id 字段采用以下解析，不增加响应字段：独�
 
 ## 独立交付验收来源返修（当前结论）
 
-验收中不再固定要求acceptance.md或verification.md：优先校验trace.acceptance_refs声明的Change内相对Markdown路径；显式引用无效、缺失或为空返回具体待核实原因，不回退。未声明时查现有acceptance.md、verification.md，再识别trace中非空“验证记录/验收记录/验证结果/验收结果/验证摘要/Validation Log/实施与验证记录”章节。不得跨Change或通过绝对路径、父路径、符号链接越界读取。没有证据来源提示待核实，不补建文件；本机制定位证据，不自动判断验收通过，applied和tasks全勾、Workflow Sync成功或治理日志均不代替Change内交付验证来源。
+验收来源先核对 `trace.acceptance_refs` 显式声明的 Change 内相对 Markdown 路径；引用无效、缺失或为空仍阻断，不回退。有结构化验收计划时，直接核验当前完整逐项证据；已就绪即无需另交 `acceptance.md` 或 `verification.md`，未就绪也不能靠单独文档绕过。没有结构化计划的旧 Change 沿用已有 `acceptance.md`、`verification.md` 或 trace 中的非空验证记录章节。不得跨 Change 或通过绝对路径、父路径、符号链接越界读取。`applied`、任务全勾、Workflow Sync 成功或治理日志均不代替当前验收结论。
 
 真实仓库样本standardize-sprint-default-capacity以trace验证记录作为来源；unify-issue-classification-metadata使用acceptance.md，两者当前源码均无来源阻塞。后端95项回归通过，包含显式引用、缺失、空源、越界与历史trace来源；浏览器复用真实组件+合成API在1440/390深浅主题验收，证据evidence/action-gates，非部署验收。
 
@@ -472,6 +474,8 @@ Chat 发送拒绝响应沿用原 HTTP 状态与错误码，data 增加可选 arc
 人天取有效 Sprint 的对象总估算，必要时仅对完整 Change 分项求和；0 有效，缺失不填零。BUG 根因有有效分析或证据正文才展示，兼容专用字段、合法 status 和正文状态声明，冲突保守为 pending。根因标签沿用 Issue 文档读取接口及既有请求关联和事件采集；context 不传根因正文，不增加逐卡文档请求。新客户端容忍字段缺失，旧客户端可忽略新增字段。
 
 受控归档共同入口补充：`GET /api/v1/chat/replacement-proposals/{proposal_id}/admission` 返回只读 `decision`、安全 `reason_code/blockers`、提案修订、策略版本、输入指纹及原操作标识。候选预检不生成归档证明。`POST /api/v1/chat/archive-commands` 接收已鉴权项目中的 `object_id` 与显式 `confirmed`，由后台解析 REQ/BUG/Change/Sprint，复用原归档操作与项目围栏；批准仍由独立端点完成。
+
+共同归档入口的 409 `archive_command_unverified` 在已识别的归档前检查失败时，沿用现有错误响应结构，在 `data.reason` 返回稳定的检查类别，在 `data.suggested_action` 返回处理方向；`message` 使用可理解的提示。在线 CLI 仅透传允许公开的稳定原因代码，未知失败仍返回通用类别。响应不回传内部路径、原始子进程输出或数据库异常文本；该补充不改变请求、权限或成功响应。
 
 可信 Chat 归档不调用模型，使用单独的 `trusted_archive_v1` 执行用量来源；只有无模型轮次标识、可信归档启动事件和零 token 回执同时成立时才结算为零。CLI 不伪造浏览器行为事件。
 

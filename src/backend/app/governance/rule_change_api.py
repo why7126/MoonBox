@@ -41,11 +41,15 @@ def describe(db, project, user, change_id):
     first = matches[0]
     from .archive_admission import change_acceptance
     from .archive_recovery import recovery_admission
+    from .change_index import ChangeIndex
     from .controlled_successor import authority
     acceptance = change_acceptance(project.root, change_id, source_root=project.source_root)
+    index = ChangeIndex(project.root)
+    record = index.records.get(change_id)
+    source_reason = index.acceptance_source_reason(record, source_root=project.source_root) if record else '关联 Change 不可读取'
     with authority(db, project, user['id']):
         archive = recovery_admission(project.root, change_id, source_root=project.source_root)
-    ready = acceptance['ready'] and archive['ready']
+    ready = acceptance['ready'] and not source_reason and archive['ready']
     return {'change_id': change_id, 'content_digest': digest(matches),
             'capability': first['key'][0], 'requirement': first['key'][1],
             'before': first['before'], 'after': first['after'],
@@ -54,7 +58,7 @@ def describe(db, project, user, change_id):
             'state': 'ready' if ready else 'blocked',
             'review_reason': None, 'acceptance_ready': acceptance['ready'],
             'acceptance_blockers': acceptance.get('blockers', []) or ([acceptance['reason']] if acceptance.get('reason') else []),
-            'archive_ready': ready, 'archive_reason': None if ready else acceptance.get('reason') or archive.get('reason')}
+            'archive_ready': ready, 'archive_reason': None if ready else acceptance.get('reason') or source_reason or archive.get('reason')}
 
 
 @router.get('', response_model=ApiResponse[dict], summary='查看对象规则修改及检查状态')

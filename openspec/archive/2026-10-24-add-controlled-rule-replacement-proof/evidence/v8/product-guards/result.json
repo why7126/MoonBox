@@ -1,0 +1,38 @@
+{
+  "environment": "current-source-isolated-product",
+  "routeIntercepted": false,
+  "rows": [
+    {
+      "case": "initial-conflict",
+      "status": 409,
+      "code": 2604,
+      "kind": "governance_validation_failed",
+      "blockerCount": 1,
+      "message": "归档后继触及受保护条文"
+    },
+    {
+      "case": "destructive-removal",
+      "status": 409,
+      "code": 2604,
+      "kind": "governance_validation_failed",
+      "blockerCount": 0,
+      "message": "验收证据缺失、过期或未全部通过"
+    },
+    {
+      "case": "changed-after-precheck",
+      "status": 409,
+      "code": 2604,
+      "kind": "governance_validation_failed",
+      "blockerCount": 0,
+      "message": "验收证据缺失、过期或未全部通过"
+    },
+    {
+      "case": "tampered-history",
+      "status": 409,
+      "code": 2604,
+      "kind": "governance_validation_failed",
+      "blockerCount": 1,
+      "message": "归档后继触及受保护条文"
+    }
+  ]
+}

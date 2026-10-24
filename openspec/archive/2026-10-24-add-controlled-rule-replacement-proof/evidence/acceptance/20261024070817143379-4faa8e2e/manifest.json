@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "run_id": "20261024070817143379-4faa8e2e",
+  "created_at": "2026-10-24 07:08:19",
+  "source_revision": "7c18373f9565cf37624291aa400ef080bfe2fda9",
+  "environment": "isolated-current-rule-v5",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-L01",
+      "fingerprint": "1cbce050fc5bb7b8bbe3def1513af0e53828b9437b1aa4ff4490f6bf10558729",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 695,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L02",
+      "fingerprint": "e63d003dbc91477e1ff62ce58aad5ad81366fb746c90a70b04134162e7d27ad4",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L03",
+      "fingerprint": "2508bffba388c042fb9e1bf5bf7f59f1bbdeb22a3fb851af8490e73c8efa360d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L04",
+      "fingerprint": "de07fbfbd5e25030d524648d2b9706e7d2bff0f3430885d256d1d2d2c2560307",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L05",
+      "fingerprint": "cde16f2ad8581b77f587dc0a511e522341559846c45c3c73507427a717878956",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L06",
+      "fingerprint": "35c024026b0561b7e57b93671301403ee5be4d5d79fe42d1284810c7e617dfb0",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-1440-900-dark-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-1440-900-dark.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-1440-900-light-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-1440-900-light.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-390-844-dark-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-390-844-dark.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-390-844-light-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l06-390-844-light.png"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-L07",
+      "fingerprint": "ef28b6a953a99ee6c62b4d36037ae72187b1794e4b85d7a0c56247d79c3e3746",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1194,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L08",
+      "fingerprint": "24f0c8c13122b574c0ec0a27d99942ac168f7e3c5523a66bf77600be63446bc1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L09",
+      "fingerprint": "81b073bd3d5607f78ca0930c460276d81934e195fedb2cffea8b7a3e8fc5b4b9",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-1440-900-dark-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-1440-900-dark.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-1440-900-light-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-1440-900-light.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-390-844-dark-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-390-844-dark.png",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-390-844-light-styles.json",
+        "artifact-missing:openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/ac-l09-390-844-light.png"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-L10",
+      "fingerprint": "3ef305c18a9b808629ae25a762025cbda8bd76e7619670c7c39aa18e54d4e866",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L11",
+      "fingerprint": "ad5b52e418f5950ad91e0bb20633d61a0367a8f167dbe58ea2fe220c6381e27e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L12",
+      "fingerprint": "08a1a53f13df07478c08aaeae3a4c5403dd5f3718bc606d49cdf8ac7815fcb68",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/archived-bug-independent-status.json",
+          "sha256": "c33c80e6118e80f06a2a39d1086b43cc6e355fff393f3dc94367a7e4da0072db"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 7,
+    "reused": 1,
+    "preflight_ms": 35,
+    "duration_ms": 1946,
+    "blocked": 11,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

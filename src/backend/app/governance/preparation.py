@@ -274,7 +274,7 @@ def _preflight_object_session_authorized(db, actor, project, object_id, action):
                 index = ChangeIndex(project.root)
                 for cid in links:
                     record = index.records.get(cid)
-                    reason = index.acceptance_source_reason(record) if record else '关联 Change 不可读取'
+                    reason = index.acceptance_source_reason(record, source_root=getattr(project, 'source_root', None)) if record else '关联 Change 不可读取'
                     if reason:
                         raise service.ChatError(2604, reason, 409, kind='governance_validation_failed')
             return {'id':full_id,'title':item['title'],'version':snapshot.revision,'content':'','status':item['status'],'path':item['path'],'root':project.root}
@@ -284,11 +284,26 @@ def _preflight_object_session_authorized(db, actor, project, object_id, action):
             from app.governance.archive_admission import change_acceptance
             admission = change_acceptance(project.root, change_item['id'], source_root=getattr(project, "source_root", None))
             if not admission['ready']:
-                raise service.ChatError(2604, admission['reason'], 409, kind='governance_validation_failed')
+                details = None
+                if admission.get('recovery_reason') == 'archive_requirement_conflict':
+                    from app.governance.rule_change import conflicts
+                    try:
+                        if conflicts(project, change_item['id']):
+                            details = {'archive_blockers': [{
+                                'type': 'change', 'id': change_item['id'],
+                                'status': 'archive_requirement_conflict',
+                                'message': '规则内容已修改，需检查后继续',
+                                'action_hint': '查看修改并补齐当前验收与历史证据后重新检查归档',
+                                'visible': True,
+                            }]}
+                    except (OSError, ValueError, KeyError, TypeError):
+                        pass
+                raise service.ChatError(2604, admission['reason'], 409,
+                                        kind='governance_validation_failed', details=details)
             from app.governance.change_index import ChangeIndex
             index = ChangeIndex(project.root)
             record = index.records.get(change_item['id'])
-            reason = index.acceptance_source_reason(record) if record else '关联 Change 不可读取'
+            reason = index.acceptance_source_reason(record, source_root=getattr(project, 'source_root', None)) if record else '关联 Change 不可读取'
             if reason:
                 raise service.ChatError(2604, reason, 409, kind='governance_validation_failed')
         return {'id':change_item['id'],'title':change_item['title'],'version':snapshot.revision,'content':'','status':change_item['status'],'path':change_item['path'],'root':project.root}

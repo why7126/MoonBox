@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "run_id": "20261024084811638257-e6a2594c",
+  "created_at": "2026-10-24 08:48:23",
+  "source_revision": "7c18373f9565cf37624291aa400ef080bfe2fda9",
+  "environment": "isolated-current-rule-v6",
+  "scope": "complete",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-L01",
+      "fingerprint": "23980a5536b9c62222a86471b36e16eaed2d2229974c47d82e850ba6a37d034e",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 957,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L02",
+      "fingerprint": "081770d33aea96290a0b0229b2a882deb20f3d9e2555d2760b5c511e8331003d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L03",
+      "fingerprint": "a943c100bfd25c62f0f34bb5d34c19b1b28a1ae2ee6af4e8a7309ea0a30f53b3",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L04",
+      "fingerprint": "b628188dfd4d9cd34ba32ed730cfc3dac2be6b21dd4a2cb4c809a0b600273e40",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L05",
+      "fingerprint": "a7a5a137e4ea3bb6edeff0b7900b7f7435c5c3f5bb1b3769bcb1529f8cb78a3b",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/legacy-source-blocked.png",
+          "sha256": "5a84e0d5bdce0ee26c238b8b05d0f502110c31d344ede3798f0c61f7d99fe513"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/standalone-admitted.png",
+          "sha256": "4aaa1808f107bb2b41e43f9dfd5611505c753faf24530aeb39707aea6a7283f6"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/README.md",
+          "sha256": "57233e4ee7d108f4c7fb02b6ada565f7cc85b95fe7bd335fcd587fb02455810d"
+        }
+      ],
+      "duration_ms": 9463,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L06",
+      "fingerprint": "854e16953cf2bdfc1eb57697515a52dc0616cfd6c1925281eb552e5e6b032ce7",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-dark-styles.json",
+          "sha256": "ba9c71ce935922504e82427d61282291ce16e6bc66b655d0ac696047f3672b18"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-dark.png",
+          "sha256": "9e1f5fa10e3feab62cce6c716224b49e5e2bb14dfddf3687b00292ca2a782b09"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-light-styles.json",
+          "sha256": "10f6dd5f30ebb4d68798bdba1ff03cb658d1cc93ce8ea3fa43c3951d887d5e48"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-light.png",
+          "sha256": "1abc12084e7a3b0cbc039151c70908767492f5e29b9681a5fa7abcd3620260d5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-dark-styles.json",
+          "sha256": "ed4d5895c97b1b2d0ebd69edbe88cdf7c2e5193a4e1dbd79d5dbe89ebcad2f80"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-dark.png",
+          "sha256": "8bfc72bc0ed8fc3fad301b6be0a6632be5675fcbc5ba43cd6ba20097e867c5f2"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-light-styles.json",
+          "sha256": "7771f2240e1f20708bc42c30e44c77dc50b618604eee0b47b232ae34afc9014b"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-light.png",
+          "sha256": "6ce0fe0fc5bf4e36e8eb790b61f137f8cedd19f5e238c2d357c4db8dc7fd5302"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/result.json",
+          "sha256": "7c6d45a88402d0340266610e82ee17e2a077faa6665d9e0d8f9ad357362a7020"
+        }
+      ],
+      "duration_ms": 893,
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L07",
+      "fingerprint": "9f643ff0908065eb16ed4bb1d3839af483a2a42f9ff4105e810ecf554b2effc4",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L08",
+      "fingerprint": "331f702672fdce7eda9cf4a1ff55223fe63fe3c99d9cc9b1061cf95d9c9dd3ee",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L09",
+      "fingerprint": "3a8678a61ba6b543ccb94c301b00d5a8340effe27d0342498bfa42ac39db80da",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-dark-styles.json",
+          "sha256": "ba9c71ce935922504e82427d61282291ce16e6bc66b655d0ac696047f3672b18"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-dark.png",
+          "sha256": "9e1f5fa10e3feab62cce6c716224b49e5e2bb14dfddf3687b00292ca2a782b09"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-light-styles.json",
+          "sha256": "10f6dd5f30ebb4d68798bdba1ff03cb658d1cc93ce8ea3fa43c3951d887d5e48"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-1440-900-light.png",
+          "sha256": "1abc12084e7a3b0cbc039151c70908767492f5e29b9681a5fa7abcd3620260d5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-dark-styles.json",
+          "sha256": "ed4d5895c97b1b2d0ebd69edbe88cdf7c2e5193a4e1dbd79d5dbe89ebcad2f80"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-dark.png",
+          "sha256": "8bfc72bc0ed8fc3fad301b6be0a6632be5675fcbc5ba43cd6ba20097e867c5f2"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-light-styles.json",
+          "sha256": "7771f2240e1f20708bc42c30e44c77dc50b618604eee0b47b232ae34afc9014b"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/review-390-844-light.png",
+          "sha256": "6ce0fe0fc5bf4e36e8eb790b61f137f8cedd19f5e238c2d357c4db8dc7fd5302"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/real-review/result.json",
+          "sha256": "7c6d45a88402d0340266610e82ee17e2a077faa6665d9e0d8f9ad357362a7020"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L10",
+      "fingerprint": "9db4b9c4e2eed23e9f572e51e35e77d9808afec93867eb8c6f1a14cd125afd84",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/archive-blocked-1440-900-light-styles.json",
+          "sha256": "e923ffe60160ea9fd39dba7909fe6dedcec5c689bfb018e3252e9232d9709089"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L11",
+      "fingerprint": "0ac52d744cad4267538926462e8102ab28896f365f0837b876acda0300ec3a2b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L12",
+      "fingerprint": "88dd43a1bc30b90bede9f4a8113b8c6919bda712078c5d41e60b53d0c5b9ae43",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/archived-bug-independent-status.json",
+          "sha256": "c33c80e6118e80f06a2a39d1086b43cc6e355fff393f3dc94367a7e4da0072db"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 3,
+    "deduplicated": 9,
+    "reused": 0,
+    "preflight_ms": 40,
+    "duration_ms": 11398,
+    "blocked": 11,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -34,6 +34,22 @@ def cards(root, visible=lambda _: True):
     with service.using_governance_root(root):
         return service.build_requirement_center_context(visibility=visible)
 
+def test_structured_acceptance_replaces_duplicate_delivery_document(tmp_path, monkeypatch):
+    from app.governance.change_index import ChangeIndex
+    root = fixture_tree(tmp_path)
+    directory = change(root)
+    record = ChangeIndex(root).records['sample-change']
+    assert '未找到交付验证记录' in ChangeIndex(root).acceptance_source_reason(record)
+    write(directory / 'acceptance-plan.json', '{"schema_version": 1}')
+    monkeypatch.setattr('app.governance.acceptance_evidence.readiness', lambda *_args, **_kwargs: {'status': 'ready'})
+    assert ChangeIndex(root).acceptance_source_reason(record) is None
+    monkeypatch.setattr('app.governance.acceptance_evidence.readiness', lambda *_args, **_kwargs: {'status': 'blocked', 'reason': 'manifest-missing'})
+    write(directory / 'verification.md', '# 旧交付记录\n')
+    assert '完整验收记录' in ChangeIndex(root).acceptance_source_reason(record)
+    (directory / 'acceptance-plan.json').write_text('{broken')
+    monkeypatch.setattr('app.governance.acceptance_evidence.readiness', lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError('broken')))
+    assert '逐项验收证据无效' in ChangeIndex(root).acceptance_source_reason(record)
+
 def test_bidirectional_dedup_and_multi_current(tmp_path):
     root = fixture_tree(tmp_path); issue(root, related_change='one'); directory = change(root, 'one', title='追溯元数据标题')
     write(directory / 'proposal.md', '# 中文业务标题\n')

@@ -1,0 +1,12 @@
+{
+  "environment": "current-source-isolated-api",
+  "requestIntercepted": false,
+  "object": "isolated-destructive",
+  "protectedPredecessor": "synthetic-change",
+  "change": "删除已归档规则中的当前验收证据保护",
+  "preflight": {"acceptanceReady": true, "staticChecks": "passed", "archivePreview": "passed"},
+  "before": {"active": true, "archives": 0},
+  "response": {"status": 200, "code": 0, "stage": "completed"},
+  "after": {"active": false, "archives": 1, "specContainsWeakenedRule": true},
+  "conclusion": "当前实现错误放行了破坏性修改；AC-L02 不能通过，须先返修门禁。"
+}

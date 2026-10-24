@@ -74,3 +74,28 @@ def test_local_absolute_path_is_error() -> None:
     assert len(findings) == 1
     assert findings[0].rule == "local-absolute-path"
     assert findings[0].severity == "error"
+
+
+def test_directory_prefix_regex_is_not_a_user_path() -> None:
+    content = "re.search(r'(?:/" + "Users/|/" + "home/|Authorization:|Bearer )', value)"
+    assert git_check.scan_text_content("src/filter.py", content) == []
+
+
+def test_concrete_paths_inside_regex_and_test_files_still_error() -> None:
+    for root in ("Users", "home"):
+        concrete = "/" + root + "/alice/project"
+        for path, content in (
+            ("src/filter.py", "re.search(r'" + concrete + "|other)', value)"),
+            ("tests/test_private.py", concrete),
+            ("docs/context.md", concrete),
+        ):
+            findings = git_check.scan_text_content(path, content)
+            assert len(findings) == 1
+            assert findings[0].rule == "local-absolute-path"
+            assert findings[0].severity == "error"
+            assert concrete not in findings[0].snippet
+
+
+def test_explicit_example_path_uses_existing_placeholder_policy() -> None:
+    content = "/" + "Users/example/secret"
+    assert git_check.scan_text_content("tests/test_fixture.py", content) == []

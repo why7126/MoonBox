@@ -1,10 +1,10 @@
 ---
-note: workflow-sync — workflow-sync 自动同步 — 2/3 Change archived；1 applied；Sprint `planning`
+note: workflow-sync — workflow-sync 自动同步 — 3/4 Change archived；1 applied；Sprint `planning`
 title: 受控规则替代证明迭代规划
 sprint_id: sprint-013
 status: planning
 created_at: '2026-10-22 13:17:23'
-updated_at: 2026-10-23 22:55:16
+updated_at: 2026-10-24 21:09:42
 ---
 
 # 受控规则替代证明迭代规划
@@ -20,10 +20,11 @@ BUG-0063 已归档，生效规则按正常验收处理同条文后继，不再�
 - REQ-0050-controlled-rule-replacement-proof
 - REQ-0051-card-persistent-info-tags
 - product-manager-readable-agent-output
+- fix-git-scan-regex-false-positive
 
 ### REQ-0050-controlled-rule-replacement-proof 要点
 
-REQ `REQ-0050-controlled-rule-replacement-proof`：规则修改说明与安全归档。当前状态 in_sprint，估算 13 人天；apply 34/38；待 archive `add-controlled-rule-replacement-proof`。
+REQ `REQ-0050-controlled-rule-replacement-proof`：规则修改说明与安全归档。当前状态 done，估算 13 人天；archived `add-controlled-rule-replacement-proof`（2026-10-22 13:24:21）。
 
 ### REQ-0051-card-persistent-info-tags 要点
 
@@ -33,20 +34,25 @@ REQ `REQ-0051-card-persistent-info-tags`：需求中心卡片常驻根因状态�
 
 Change `product-manager-readable-agent-output`：product manager readable agent output。当前状态 archived，估算 0.5 人天；archived `product-manager-readable-agent-output`（2026-10-23 23:59:59）。
 
+### fix-git-scan-regex-false-positive 要点
+
+Change `fix-git-scan-regex-false-positive`：fix git scan regex false positive。当前状态 applied，估算 0.5 人天；apply 3/3；待 archive `fix-git-scan-regex-false-positive`。
+
 ## 2. Scope
 
 | 类型 | 编号 | 标题 | 状态 | 估算 | 说明 |
 |---|---|---|---|---:|---|
-| REQ | REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | in_sprint | 13 人天 | apply 34/38；待 archive `add-controlled-rule-replacement-proof` |
+| REQ | REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | done | 13 人天 | archived `add-controlled-rule-replacement-proof`（2026-10-22 13:24:21） |
 | REQ | REQ-0051-card-persistent-info-tags | 需求中心卡片常驻根因状态与开发人天标签 | done | 3 人天 | archived `add-card-persistent-info-tags`（2026-10-22 20:02:47） |
 | Change | product-manager-readable-agent-output | product manager readable agent output | archived | 0.5 人天 | archived `product-manager-readable-agent-output`（2026-10-23 23:59:59） |
+| Change | fix-git-scan-regex-false-positive | fix git scan regex false positive | applied | 0.5 人天 | apply 3/3；待 archive `fix-git-scan-regex-false-positive` |
 
 ### 包含需求
 
 <!-- workflow-sync:scope-requirements:start -->
 | 编号 | 名称 | 优先级 | 状态 | 说明 |
 |---|---|---|---|---|
-| REQ-0050 | 规则修改说明与安全归档 | P1 | in_sprint | apply 34/38；待 archive `add-controlled-rule-replacement-proof` |
+| REQ-0050 | 规则修改说明与安全归档 | P1 | done | archived `add-controlled-rule-replacement-proof`（2026-10-22 13:24:21） |
 | REQ-0051 | 需求中心卡片常驻根因状态与开发人天标签 | P2 | done | archived `add-card-persistent-info-tags`（2026-10-22 20:02:47） |
 <!-- workflow-sync:scope-requirements:end -->
 
@@ -62,14 +68,15 @@ Change `product-manager-readable-agent-output`：product manager readable agent 
 <!-- workflow-sync:scope-changes:start -->
 | Change ID | 关联需求 | 状态 | Sprint 目标 |
 |---|---|---|---|
-| `add-controlled-rule-replacement-proof` | REQ-0050-controlled-rule-replacement-proof | applied | apply 34/38；待 archive `add-controlled-rule-replacement-proof` |
+| `add-controlled-rule-replacement-proof` | REQ-0050-controlled-rule-replacement-proof | archived | archived `add-controlled-rule-replacement-proof`（2026-10-22 13:24:21） |
 | `add-card-persistent-info-tags` | REQ-0051-card-persistent-info-tags | archived | archived `add-card-persistent-info-tags`（2026-10-22 20:02:47） |
 | `product-manager-readable-agent-output` | — | archived | archived `product-manager-readable-agent-output`（2026-10-23 23:59:59） |
+| `fix-git-scan-regex-false-positive` | — | applied | apply 3/3；待 archive `fix-git-scan-regex-false-positive` |
 <!-- workflow-sync:scope-changes:end -->
 
 REQ：`REQ-0050`、`REQ-0051` 已纳入正式范围；BUG：无 已纳入正式范围，优先级高于新增体验能力；当前完成度与验收风险以 Scope 表状态、关联 Change 和 acceptance-report 为准。
 
-Change：已回填 2 个范围项关联 Change，另有 1 个纯 Change；2 archived，1 applied，0 in_progress，0 proposed。所有已纳入范围项均已关联 Change；执行开发与归档时以 Scope 表逐项状态为准。
+Change：已回填 2 个范围项关联 Change，另有 2 个纯 Change；3 archived，1 applied，0 in_progress，0 proposed。所有已纳入范围项均已关联 Change；执行开发与归档时以 Scope 表逐项状态为准。
 
 ## 3. 工作量与容量
 
@@ -77,11 +84,11 @@ Change：已回填 2 个范围项关联 Change，另有 1 个纯 Change；2 arch
 | 指标 | 数值 | 说明 |
 |---|---:|---|
 | Sprint 容量 | 30 人天 | 来自 `sprint.yaml:capacity_person_days` |
-| 估算人天 | 16.5 人天 | 汇总 `scope_estimates[].estimated_person_days` |
-| Story Points | 17 SP | 汇总 `scope_estimates[].story_points` |
-| 容量占用率 | 55.00% | `estimated_person_days / capacity_person_days` |
-| Fix 缓冲 | 13.5 人天 | 剩余可用容量，低于 0 时按 0 展示 |
-| Fix 缓冲率 | 45.00% | `fix_buffer_person_days / capacity_person_days` |
+| 估算人天 | 17 人天 | 汇总 `scope_estimates[].estimated_person_days` |
+| Story Points | 18 SP | 汇总 `scope_estimates[].story_points` |
+| 容量占用率 | 56.67% | `estimated_person_days / capacity_person_days` |
+| Fix 缓冲 | 13 人天 | 剩余可用容量，低于 0 时按 0 展示 |
+| Fix 缓冲率 | 43.33% | `fix_buffer_person_days / capacity_person_days` |
 | 容量门禁 | pass：未超过容量 | Workflow Sync 派生判断 |
 <!-- workflow-sync:sprint-capacity-section:end -->
 ## 4. 里程碑
@@ -90,22 +97,22 @@ Change：已回填 2 个范围项关联 Change，另有 1 个纯 Change；2 arch
 | 节点 | 目标日期 | 完成口径 | 当前状态 |
 |---|---|---|---|
 | Sprint 启动 | 2026-10-22 13:17:23 | 四件套创建并纳入正式范围 | planning |
-| 范围实现完成 | 2026-11-05 18:00:00 | `changes[]` 全部 apply 完成 | 3/3 已 apply 或 archive |
-| 归档收口 | 2026-11-05 18:00:00 | `changes[]` 全部 archive，验收报告完成 sign-off | 2/3 已 archive，1 待归档 |
+| 范围实现完成 | 2026-11-05 18:00:00 | `changes[]` 全部 apply 完成 | 4/4 已 apply 或 archive |
+| 归档收口 | 2026-11-05 18:00:00 | `changes[]` 全部 archive，验收报告完成 sign-off | 3/4 已 archive，1 待归档 |
 <!-- workflow-sync:sprint-milestones-section:end -->
 ## 5. 风险与缓冲
 
 <!-- workflow-sync:sprint-risks-section:start -->
 | 风险 | 等级 | 证据 | 处理建议 |
 |---|---|---|---|
-| 待归档积压 | low | applied 1/3 | 完成验收后批量或逐项 `/opsx-archive` |
+| 待归档积压 | low | applied 1/4 | 完成验收后批量或逐项 `/opsx-archive` |
 <!-- workflow-sync:sprint-risks-section:end -->
 ## 6. 知识库承接
 
 <!-- workflow-sync:sprint-knowledge-section:start -->
 | 承接项 | 触发条件 | 建议事实源 | 当前状态 |
 |---|---|---|---|
-| Sprint 复盘 | Sprint close 或集中归档前 | `docs/knowledge-base/retrospectives/sprint-013-retrospective.md` | 2/3 Change archived |
+| Sprint 复盘 | Sprint close 或集中归档前 | `docs/knowledge-base/retrospectives/sprint-013-retrospective.md` | 3/4 Change archived |
 | 最佳实践 | 验收中出现可复用规则、脚本或 UI/API/DB 经验 | `docs/knowledge-base/best-practices/` | 由 `/sprint-exps` 基于证据生成或更新 |
 | 事故与缺陷经验 | BUG 根因、返修或发布风险具备复用价值 | `docs/knowledge-base/incidents/` | 由 `/sprint-exps` 或后续治理命令按证据沉淀 |
 <!-- workflow-sync:sprint-knowledge-section:end -->

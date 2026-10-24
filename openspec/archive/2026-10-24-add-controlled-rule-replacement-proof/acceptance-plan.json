@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "issue_id": "REQ-0050-controlled-rule-replacement-proof",
+  "orchestration_version": 1,
+  "environment": "isolated-current-rule-v6",
+  "checks": [
+    {
+      "id": "AC-L01",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/no-conflict/no-rule-review-entry.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/no-conflict/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v8 当前产品已覆盖有同条文修改时真实阻断项与差异，无同条文修改且其他验收阻断时页面不出现查看修改；API 同步返回不适用。"
+      }
+    },
+    {
+      "id": "AC-L02",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/tests/test_protected_rule_integrity.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_protected_rule_integrity.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-escaped.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-blocked-after-fix.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "收敛验收：隔离产品已分别完成关联对象正常归档、删除原约束明确拒绝且无写入；针对性回归核对兼容追加与移除条文。其他破坏性变体仍由当前归档门禁保护，不逐类重复真实归档。"
+      }
+    },
+    {
+      "id": "AC-L03",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v8 真实页面无额外确认动作；旧确认接口 409 且零确认写入。查看者准备归档 403；有权者直接进入共同归档入口，失败原因是隔离可信工具检查而非额外人员批准。聚焦回归覆盖旧记录只读。"
+      }
+    },
+    {
+      "id": "AC-L04",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/tests/test_protected_rule_integrity.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "收敛验收：隔离产品预检后修改交付输入得到 409；当前版本/权限/历史变化使用针对性回归核对，不逐类重复产品归档。旧判断不得覆盖新输入。"
+      }
+    },
+    {
+      "id": "AC-L05",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/tests/test_protected_rule_integrity.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_change_visibility.py::test_structured_acceptance_replaces_duplicate_delivery_document",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/legacy-source-blocked.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/standalone-admitted.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/README.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v11 当前源码隔离产品直接归档关联 REQ 成功：同一请求完成、活动对象移除、唯一归档、生效规则新增、持久操作与历史回读通过；v7/v8 负例保留，无重复交付验证文档。"
+      }
+    },
+    {
+      "id": "AC-L06",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/web/src/components/chat/ReplacementReview.test.tsx",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "src/web/node_modules/.bin/vitest",
+        "run",
+        "src/components/chat/ReplacementReview.test.tsx",
+        "--root",
+        "src/web"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "收敛验收：v8 当前产品完成规则阻断→查看修改→重新检查，另有验收分项、无权角色拒绝与多视口页面证据；其他门禁分类复用产品 API 与组件回归，不逐类重复页面截图。"
+      },
+      "coverage": {
+        "stages": [
+          "规则修改审阅"
+        ],
+        "viewports": [
+          "1440x900-light",
+          "1440x900-dark",
+          "390x844-light",
+          "390x844-dark"
+        ],
+        "samples": [
+          {
+            "stage": "规则修改审阅",
+            "viewport": "1440x900-light",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "1440x900-dark",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "390x844-light",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "390x844-dark",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-L07",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/replacement_executor.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/web/src/components/chat/ReplacementReview.test.tsx",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v10/isolated-api.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/destructive-blocked-after-fix.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "收敛验收：隔离产品成功归档与破坏性规则修改 409 拒绝已取得；写入边界针对性回归在预检后修改输入并确认 archive_inputs_changed、活动目录保留及零归档；安全错误和跨入口回归覆盖其余类别。并发注入证据为自动化回归，不冒充新的产品归档请求。"
+      }
+    },
+    {
+      "id": "AC-L08",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/web/src/components/chat/ReplacementReview.test.tsx",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/preparation.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_durable_recovery.py",
+        "src/backend/tests/test_archive_command_diagnostics.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_archive_proof.py",
+        "src/backend/tests/test_durable_recovery.py",
+        "src/backend/tests/test_archive_command_diagnostics.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/direct-archive-trusted/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/linked-req-positive.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/old-operation-resume.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "收敛验收：隔离产品已证实唯一成功归档和同身份旧操作恢复；断链、重复条文与并发认领复用归档证明及持久恢复回归，不逐类生成新的产品归档。"
+      }
+    },
+    {
+      "id": "AC-L09",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/web/src/components/chat/ReplacementReview.tsx",
+        "src/web/src/components/chat/ReplacementReview.test.tsx",
+        "src/web/src/components/chat/Composer.tsx"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "src/web/node_modules/.bin/vitest",
+        "run",
+        "src/components/chat/ReplacementReview.test.tsx",
+        "src/components/chat/ArchiveBlockers.test.tsx",
+        "--root",
+        "src/web"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/long-text.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/empty-state.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/network-error.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/states/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v8 当前产品在修正后构建中完成四组视口/主题、长文、无匹配与断网错误实测；截图与样式记录均可核对。"
+      },
+      "coverage": {
+        "stages": [
+          "规则修改审阅"
+        ],
+        "viewports": [
+          "1440x900-light",
+          "1440x900-dark",
+          "390x844-light",
+          "390x844-dark"
+        ],
+        "samples": [
+          {
+            "stage": "规则修改审阅",
+            "viewport": "1440x900-light",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-light-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "1440x900-dark",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-1440-900-dark-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "390x844-light",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-light-styles.json"
+            ]
+          },
+          {
+            "stage": "规则修改审阅",
+            "viewport": "390x844-dark",
+            "artifacts": [
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark.png",
+              "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/review-390-844-dark-styles.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-L10",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/web/src/components/chat/ReplacementReview.tsx",
+        "src/web/src/components/chat/ReplacementReview.test.tsx",
+        "src/web/src/components/chat/Composer.tsx"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "src/web/node_modules/.bin/vitest",
+        "run",
+        "src/components/chat/ReplacementReview.test.tsx",
+        "src/components/chat/ArchiveBlockers.test.tsx",
+        "--root",
+        "src/web"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/archive-blocked-1440-900-light-styles.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-before-rejection.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-after-rejection.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/uploaded-after-close.png",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/attachment/storage-check.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/real-review/result.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/README.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v8 隔离产品成功上传至独立对象存储，归档拒绝后草稿与附件保留；关闭抽屉后附件仍在且焦点返回，存储内容和零轮次只读核对通过。"
+      }
+    },
+    {
+      "id": "AC-L11",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-api/access-and-retired-decision.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v8/product-guards/no-write.json",
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v11/old-operation-resume.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "v11 经用户授权构造旧进行中隔离样本，同一归档操作从 synced 恢复为 completed，唯一归档且项目锁释放；v8 旧确认入口仍拒绝，旧记录只读。该证据仅代表隔离旧操作恢复。"
+      }
+    },
+    {
+      "id": "AC-L12",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md",
+        "openspec/changes/add-controlled-rule-replacement-proof/specs/controlled-rule-replacement-proof/spec.md",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_rule_change_light.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/archived-bug-independent-status.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前 BUG-0063 已归档、REQ-0050 仍在活动 Change；只读登记、目录和生效规则可独立核对。"
+      }
+    }
+  ],
+  "environment_contract": {
+    "deployment": "本地当前构建与一次性独立 SQLite 产品服务",
+    "workspace_mode": "isolated",
+    "sample_scope": "当前未归档隔离对象正反例；已归档 BUG-0063 只读核对历史；正式项目只读",
+    "authorization_ref": "REQ-0050 实施及本轮验收授权",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "隔离种子测试账号，凭证保留在私有临时目录",
+    "retry_limit": 1,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "network"
+    ]
+  },
+  "preflight": [
+    [
+      "sh",
+      "-c",
+      "test -f src/web/node_modules/@playwright/test/package.json && test -f src/web/node_modules/vitest/vitest.mjs"
+    ]
+  ],
+  "sample_scope": "当前未归档隔离对象正反例；已归档 BUG-0063 仅核对历史读取；正式项目只读"
+}

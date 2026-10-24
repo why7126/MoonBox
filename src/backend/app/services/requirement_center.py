@@ -1007,7 +1007,8 @@ def _sprint_archive_blockers(sprint_id: str, sprint: dict[str, Any]) -> list[Req
                     diagnostic_message += '；涉及条文：' + '、'.join(missing_titles)
                 blockers.append(RequirementCenterArchiveReadinessBlocker(
                     type="change", id=change_id,
-                    status=deep.get('recovery_reason') or 'acceptance_not_ready',
+                    status=('archive_history_conflict' if deep.get('recovery_reason') == 'archive_requirement_conflict'
+                            else deep.get('recovery_reason') or 'acceptance_not_ready'),
                     message=diagnostic_message,
                     action_hint=f"核验 {change_id} 的归档记录、规格基线与后继验收；保留历史记录，证据完整后重新核验",
                 ))

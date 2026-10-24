@@ -83,7 +83,7 @@ def test_retired_decision_does_not_write_confirmation(monkeypatch):
 
 
 def test_difference_view_follows_shared_admission_without_extra_proof(monkeypatch):
-    from app.governance import rule_change_api as api, archive_admission, archive_recovery
+    from app.governance import rule_change_api as api, archive_admission, archive_recovery, change_index
     project = SimpleNamespace(root=ROOT, source_root=ROOT, key='test-scope',
         binding_revision='test-binding', space_id='space', repository_id='repo')
     monkeypatch.setattr(api, 'conflicts', lambda *_: [{'key': ('cap', '规则一'),
@@ -91,6 +91,8 @@ def test_difference_view_follows_shared_admission_without_extra_proof(monkeypatc
         'protected_changes': ['original'], 'supported': False}])
     monkeypatch.setattr(archive_admission, 'change_acceptance', lambda *_args, **_kwargs: {'ready': True})
     monkeypatch.setattr(archive_recovery, 'recovery_admission', lambda *_args, **_kwargs: {'ready': True})
+    monkeypatch.setattr(change_index, 'ChangeIndex', lambda _root: SimpleNamespace(
+        records={'new-unarchived-change': object()}, acceptance_source_reason=lambda _record, **_kwargs: None))
     engine = create_engine('sqlite://')
     with Session(engine) as db:
         view = api.describe(db, project, {'id': 'owner'}, 'new-unarchived-change')
@@ -100,19 +102,39 @@ def test_difference_view_follows_shared_admission_without_extra_proof(monkeypatc
 
 
 def test_difference_view_keeps_acceptance_blocker(monkeypatch):
-    from app.governance import rule_change_api as api, archive_admission, archive_recovery
+    from app.governance import rule_change_api as api, archive_admission, archive_recovery, change_index
     project = SimpleNamespace(root=ROOT, source_root=ROOT, key='test-scope',
         binding_revision='test-binding', space_id='space', repository_id='repo')
     monkeypatch.setattr(api, 'conflicts', lambda *_: [{'key': ('cap', '规则一'),
         'operation': 'MODIFIED', 'before': '原文', 'after': '修改后',
         'protected_changes': ['original']}])
     monkeypatch.setattr(archive_admission, 'change_acceptance', lambda *_args, **_kwargs:
-                        {'ready': False, 'reason': '验收未签署'})
+                        {'ready': False, 'reason': '验收证据不完整'})
     monkeypatch.setattr(archive_recovery, 'recovery_admission', lambda *_args, **_kwargs: {'ready': True})
+    monkeypatch.setattr(change_index, 'ChangeIndex', lambda _root: SimpleNamespace(
+        records={'new-unarchived-change': object()}, acceptance_source_reason=lambda _record, **_kwargs: None))
     engine = create_engine('sqlite://')
     with Session(engine) as db:
         view = api.describe(db, project, {'id': 'owner'}, 'new-unarchived-change')
-    assert view['archive_ready'] is False and view['archive_reason'] == '验收未签署'
+    assert view['archive_ready'] is False and view['archive_reason'] == '验收证据不完整'
+
+
+def test_difference_view_keeps_delivery_source_blocker(monkeypatch):
+    from app.governance import rule_change_api as api, archive_admission, archive_recovery, change_index
+    project = SimpleNamespace(root=ROOT, source_root=ROOT, key='test-scope',
+        binding_revision='test-binding', space_id='space', repository_id='repo')
+    monkeypatch.setattr(api, 'conflicts', lambda *_: [{'key': ('cap', '规则一'),
+        'operation': 'MODIFIED', 'before': '原文', 'after': '修改后',
+        'protected_changes': ['original']}])
+    monkeypatch.setattr(archive_admission, 'change_acceptance', lambda *_args, **_kwargs: {'ready': True})
+    monkeypatch.setattr(archive_recovery, 'recovery_admission', lambda *_args, **_kwargs: {'ready': True})
+    monkeypatch.setattr(change_index, 'ChangeIndex', lambda _root: SimpleNamespace(
+        records={'new-unarchived-change': object()},
+        acceptance_source_reason=lambda _record, **_kwargs: '验收来源待核实：未找到交付验证记录'))
+    with Session(create_engine('sqlite://')) as db:
+        view = api.describe(db, project, {'id': 'owner'}, 'new-unarchived-change')
+    assert view['archive_ready'] is False
+    assert view['archive_reason'] == '验收来源待核实：未找到交付验证记录'
 
 
 def test_existing_v2_archived_proof_remains_readable(tmp_path, monkeypatch):

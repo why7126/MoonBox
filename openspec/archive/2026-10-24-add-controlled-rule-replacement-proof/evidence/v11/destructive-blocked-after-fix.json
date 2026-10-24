@@ -1,0 +1,26 @@
+{
+  "environment": "current-source-isolated-api",
+  "requestIntercepted": false,
+  "object": "isolated-standalone",
+  "protectedPredecessor": "old-change",
+  "preflight": {
+    "ready": false,
+    "recoveryReason": "archive_requirement_conflict",
+    "protectedRequirement": "样本规则"
+  },
+  "before": {"active": true, "archives": 0},
+  "response": {
+    "status": 409,
+    "code": 2606,
+    "kind": "archive_command_unverified",
+    "reason": "archive_requirement_conflict",
+    "message": "本次修改删除或改写了已归档规则的原约束，请先调整规则及验收证据。"
+  },
+  "after": {
+    "active": true,
+    "archives": 0,
+    "specContainsWeakenedRule": false,
+    "archiveOperationRows": 0,
+    "activeProjectLocks": 0
+  }
+}

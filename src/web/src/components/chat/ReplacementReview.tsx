@@ -36,6 +36,7 @@ export function ReplacementReview({ spaceId, repositoryId, changeId, openRequest
   }, [openRequest]);
   async function refresh() {
     const current = ++generation.current;
+    setRow(null);
     const query = new URLSearchParams({ space_id: spaceId, repository_id: repositoryId, change_id: changeId });
     const value = await chatRequest<RuleChange>(`/rule-changes?${query}`);
     if (current === generation.current) setRow(value);
@@ -67,7 +68,7 @@ export function ReplacementReview({ spaceId, repositoryId, changeId, openRequest
       <details data-testid="rule-change-diff"><summary>查看原规则与修改后全文</summary><div className="replacement-diff-columns"><section><h4>原规则</h4><pre>{readableRule(row.before)}</pre></section><section><h4>修改后</h4><pre>{readableRule(row.after)}</pre></section></div></details>
       <section><h3>为什么修改</h3><p>请结合本对象关联的需求或缺陷说明核对修改原因；此处展示原规则与修改结果。</p></section>
       <section><h3>仍然禁止</h3><p>验收未完成、无权归档、历史记录不完整、内容被篡改或检查后发生变化，仍会阻断归档。</p></section>
-      <section><h3>受影响验收</h3><p>{row.acceptance_ready ? '当前验收已就绪；最终归档仍单独检查。' : '验收尚未全部就绪；查看修改不能代替签署。'}</p>{row.acceptance_blockers.length > 0 && <p>{row.acceptance_blockers.join('、')}</p>}</section>
+      <section><h3>受影响验收</h3><p>{row.acceptance_ready ? '当前验收证据已就绪；最终归档仍单独检查。' : '验收证据尚未全部就绪；查看修改不能代替测试结果。'}</p>{row.acceptance_blockers.length > 0 && <p>{row.acceptance_blockers.join('、')}</p>}</section>
       <section><h3>归档检查</h3><p>{row.archive_ready ? '规则修改已通过当前检查；归档仍需单独执行。' : row.archive_reason || '归档尚未就绪。'}</p></section>
       {row.review_reason && <p role="alert">{row.review_reason}</p>}
     </>}

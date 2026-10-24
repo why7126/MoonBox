@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "change_id": "add-controlled-rule-replacement-proof",
+  "run_id": "20261024084010010175-6cb51f82",
+  "created_at": "2026-10-24 08:40:21",
+  "source_revision": "7c18373f9565cf37624291aa400ef080bfe2fda9",
+  "environment": "isolated-current-rule-v6",
+  "scope": "complete",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-L01",
+      "fingerprint": "3a0a0f3f68e4ad23ffca3c87d21a53ccf4684e796de35586fa45d7aa5113a6d6",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 943,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L02",
+      "fingerprint": "9461bc85b7ba86f1849541360088c5b51c945cc0119ab6423e581eeb9e111aff",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L03",
+      "fingerprint": "36cb5c9b24192cc9b3c88516b8139a4d19e98b6d8ab1026dfa7dfc16e4cc04cb",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L04",
+      "fingerprint": "5f45b05af11d0749f0be4323c94f318e3676df8260557d50c435a46c586041d0",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L05",
+      "fingerprint": "7a5bc0f708644ed41f8a20880cc17b27ca09163972bba8d2762b91352ea55a2e",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/legacy-source-blocked.png",
+          "sha256": "5a84e0d5bdce0ee26c238b8b05d0f502110c31d344ede3798f0c61f7d99fe513"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/live-gate/standalone-admitted.png",
+          "sha256": "4aaa1808f107bb2b41e43f9dfd5611505c753faf24530aeb39707aea6a7283f6"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/README.md",
+          "sha256": "9b6e7a818cb2cb705d2ab3d892e6acc0275730a75d468042b2a1c5d26769cc7e"
+        }
+      ],
+      "duration_ms": 9328,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L06",
+      "fingerprint": "af1d18a0e4af548c25ae916d8f264fad1767c5bcfb3442140da67c145d303cfa",
+      "reused": false,
+      "deduplicated": false,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-dark-styles.json",
+          "sha256": "fb277a4139b96bb8cf4c9fc33da08b17c96ab745a28e5f3dc4401cf68b52693a"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-dark.png",
+          "sha256": "9b620b131debb5aedbb994a8b0341b7480b4379d0cff6214570bfc775b19f7b4"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-light-styles.json",
+          "sha256": "b83f744a49e91a30d816c37df9b81a8cc7880072b8d036f4ace83e4ad4f01f45"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-light.png",
+          "sha256": "2c361f78f12fd6a87a989703d382d1048dd91f48fa39422e9a6272d74166b97d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-dark-styles.json",
+          "sha256": "a0715e572e25d49461c8c6967a01a43a268100aae78c93525271a468f92139df"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-dark.png",
+          "sha256": "21020b0fbcd6ee3acd80c733bb4b71ee0a33d2c962ad466a003e95739f838d70"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-light-styles.json",
+          "sha256": "209c57ac3e9a2e3200c2ad3ab138db6eefd91d1230db94ea10ce418a70a96290"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-light.png",
+          "sha256": "2cf431ec307564b48c3089045ff1c517094e589ea2aedf1a0ccedb06223271e8"
+        }
+      ],
+      "duration_ms": 1122,
+      "evidence_kinds": [
+        "command",
+        "visual",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L07",
+      "fingerprint": "cbb87129cbbbe0dc32a497991e44d70e79cb364c183033a1401da73dca78f4d2",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L08",
+      "fingerprint": "01f01aa8dfb9ba0532309415343430d9bbbcd2fb3e065d03a0ea59e977d58d4c",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/invalidation.json",
+          "sha256": "25b840b4395248e87bda88e83d0b0e0eaf7453605639e60455c5de0a831b581c"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L09",
+      "fingerprint": "04abbb02fd844954eb4dbc5805fdb956aacb0327ce7a0c8b6ad73a65bcbbe673",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-dark-styles.json",
+          "sha256": "fb277a4139b96bb8cf4c9fc33da08b17c96ab745a28e5f3dc4401cf68b52693a"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-dark.png",
+          "sha256": "9b620b131debb5aedbb994a8b0341b7480b4379d0cff6214570bfc775b19f7b4"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-light-styles.json",
+          "sha256": "b83f744a49e91a30d816c37df9b81a8cc7880072b8d036f4ace83e4ad4f01f45"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-1440-900-light.png",
+          "sha256": "2c361f78f12fd6a87a989703d382d1048dd91f48fa39422e9a6272d74166b97d"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-dark-styles.json",
+          "sha256": "a0715e572e25d49461c8c6967a01a43a268100aae78c93525271a468f92139df"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-dark.png",
+          "sha256": "21020b0fbcd6ee3acd80c733bb4b71ee0a33d2c962ad466a003e95739f838d70"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-light-styles.json",
+          "sha256": "209c57ac3e9a2e3200c2ad3ab138db6eefd91d1230db94ea10ce418a70a96290"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v7/visual-fixture/ac-l09-390-844-light.png",
+          "sha256": "2cf431ec307564b48c3089045ff1c517094e589ea2aedf1a0ccedb06223271e8"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L10",
+      "fingerprint": "22c6bb19f879d7a11e03ccbf37242aca94cd0596359cdd2b53507ef2b54c2a1b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/archive-blocked-1440-900-light-styles.json",
+          "sha256": "e923ffe60160ea9fd39dba7909fe6dedcec5c689bfb018e3252e9232d9709089"
+        },
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/no-write.json",
+          "sha256": "fe14ea6d07d7c6d1f65f1260e2269a262b159b52fb297856072dbce825e340b5"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L11",
+      "fingerprint": "9bfbf4596a42adb4d387aa89b255b476378922c1295ff100b3ee2a9dae6ea301",
+      "reused": false,
+      "deduplicated": true,
+      "status": "blocked",
+      "reason": "sample-incomplete",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/api-and-page.json",
+          "sha256": "1e9cab3193fab43b3a0179ef1794cb8b439e407ec57772abb91ec0208e7a198d"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-L12",
+      "fingerprint": "f40de0f5461ae30ba3b7ff415b6cb777ce6cea25dbed5bf88f3b4f3483270d3b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-controlled-rule-replacement-proof/evidence/v5/archived-bug-independent-status.json",
+          "sha256": "c33c80e6118e80f06a2a39d1086b43cc6e355fff393f3dc94367a7e4da0072db"
+        }
+      ],
+      "duration_ms": 1,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 3,
+    "deduplicated": 9,
+    "reused": 0,
+    "preflight_ms": 43,
+    "duration_ms": 11473,
+    "blocked": 11,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

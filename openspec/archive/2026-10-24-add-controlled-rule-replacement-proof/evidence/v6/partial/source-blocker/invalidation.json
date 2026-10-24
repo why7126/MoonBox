@@ -1,0 +1,23 @@
+{
+  "environment": "current-source-isolated-sqlite-fixture-worker",
+  "checks": {
+    "baseline": {
+      "status": 200,
+      "digest": "4dc13d573a855105c2ec1847dd4c74760c68e49a38f1d84f4543d880b55e8d75",
+      "kind": "blocked",
+      "reason": "验收来源待核实：未找到交付验证记录"
+    },
+    "changedBaseline": {
+      "status": 200,
+      "digestChanged": true
+    },
+    "brokenHistory": {
+      "status": 409,
+      "kind": "rule_change_unavailable"
+    },
+    "restored": {
+      "status": 200,
+      "digestRestored": true
+    }
+  }
+}

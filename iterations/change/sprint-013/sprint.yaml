@@ -2,7 +2,7 @@ sprint_id: sprint-013
 status: planning
 lifecycle_stage: change
 created_at: '2026-10-22 13:17:23'
-updated_at: '2026-10-23 08:30:13'
+updated_at: '2026-10-24 21:07:52'
 start_date: 2026-10-22 13:17:23
 end_date: 2026-11-05 18:00:00
 capacity_person_days: 30
@@ -13,8 +13,8 @@ requirements:
   - REQ-0050-controlled-rule-replacement-proof
   - REQ-0051-card-persistent-info-tags
 bugs: []
-estimated_story_points: 17
-estimated_person_days: 16.5
+estimated_story_points: 18
+estimated_person_days: 17
 scope_estimates:
   - id: REQ-0050-controlled-rule-replacement-proof
     change: add-controlled-rule-replacement-proof
@@ -36,6 +36,12 @@ scope_estimates:
     story_points: 1
     estimated_person_days: 0.5
     rationale: 统一产品经理视角沟通，降低术语理解成本
+  - id: fix-git-scan-regex-false-positive
+    change: fix-git-scan-regex-false-positive
+    size: S
+    story_points: 1
+    estimated_person_days: 0.5
+    rationale: 用户明确授权修复 Git 扫描误报，保留真实路径安全门禁并继续同步
 knowledge_intake:
 - action_id: S10-A002
   scope: 本需求首次成功、失败拒绝及中断恢复分层验收，隔离样本串行执行，不声称关闭通用行动。
@@ -43,14 +49,15 @@ knowledge_intake:
 - action_id: S11-A001
   scope: 容量硬阻断后经用户选择拆至sprint-013，保留17人天缓冲及sprint-012外部关闭依赖。
   source: docs/knowledge-base/retrospectives/sprint-011-retrospective.md
-capacity_usage: 0.55
-fix_buffer_person_days: 13.5
-fix_buffer_ratio: 0.45
+capacity_usage: 0.5667
+fix_buffer_person_days: 13
+fix_buffer_ratio: 0.4333
 changes:
   - add-controlled-rule-replacement-proof
   - add-card-persistent-info-tags
 
   - product-manager-readable-agent-output
+  - fix-git-scan-regex-false-positive
 requirement_knowledge_intake:
   REQ-0051-card-persistent-info-tags:
     sources:

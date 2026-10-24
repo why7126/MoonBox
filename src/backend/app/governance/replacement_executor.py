@@ -43,8 +43,9 @@ class ArchiveDriver:
         from .replacement_proof import canonical
         from .replacement_tool_context import SCRIPTS
         context = _authority.get()
+        check_name = Path(args[1]).name if args[0] == sys.executable and len(args) > 1 else None
         read_fd = None
-        if context and args[0] == sys.executable and Path(args[1]).name in SCRIPTS:
+        if context and check_name in SCRIPTS:
             _, project, actor, operation_id, fence = context
             if project.key != self.project.key or Path(root) != project.root:
                 raise ValueError('tool_project_changed')
@@ -59,7 +60,9 @@ class ArchiveDriver:
                     str(read_fd), Path(args[1]).name, *args[2:]]
         try:
             result=subprocess.run(args,cwd=root,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=180,
-                pass_fds=() if read_fd is None else (read_fd,))
+                pass_fds=() if read_fd is None else (read_fd,),
+                env={**os.environ, 'PYTHONPATH': os.pathsep.join(filter(None, (
+                    str(Path(__file__).resolve().parents[2]), os.environ.get('PYTHONPATH'))))})
         except subprocess.TimeoutExpired:
             raise ValueError('archive_tool_timeout') from None
         finally:
@@ -67,6 +70,14 @@ class ArchiveDriver:
         self.recheck_tools()
         output=result.stdout+'\n'+result.stderr
         if result.returncode or re.search(r'(?im)^(?:Aborted\.|.*(?:MODIFIED|ADDED|REMOVED|RENAMED) failed\b|Error:)',output):
+            if "No module named 'app'" in result.stderr:
+                raise ValueError('archive_tool_runtime_unavailable')
+            if check_name in {
+                    'validate-change-delivery-evidence.py', 'validate-change-identity.py',
+                    'validate-directory-structure.py', 'validate-openspec-language.py',
+                    'validate-env-ignore-policy.py'}:
+                check=Path(check_name).stem.replace('-', '_')
+                raise ValueError(f'archive_check_failed_{check}')
             raise ValueError('archive_tool_failed')
 
     def preview(self,change):

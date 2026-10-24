@@ -200,7 +200,7 @@ class ChangeIndex:
             capability=legacy.compute_document_capability(issue_type='change', stage=record.stage,
                 document_name=name, path_category='change', exists=True)) for name in names]
 
-    def acceptance_source_reason(self, record: ChangeRecord) -> str | None:
+    def acceptance_source_reason(self, record: ChangeRecord, *, source_root: Path | None = None) -> str | None:
         """Locate delivery evidence; never infer test success from file presence."""
         directory = record.directory
         if directory is None:
@@ -219,6 +219,18 @@ class ChangeIndex:
                     return '验收来源待核实：声明的证据文件缺失'
                 if not target.read_text(encoding='utf-8').strip():
                     return '验收来源待核实：声明的证据文件为空'
+        plan = directory / 'acceptance-plan.json'
+        if plan.exists() or plan.is_symlink():
+            if plan.is_symlink() or not plan.is_file():
+                return '验收来源待核实：逐项验收计划无效'
+            from app.governance.acceptance_evidence import archived_readiness, readiness, readiness_reason
+            try:
+                evidence = (readiness(self.root, record.id, source_root=source_root)
+                            if directory.parent.name == 'changes' else archived_readiness(self.root, directory))
+            except (OSError, ValueError, KeyError, TypeError):
+                return '验收来源待核实：逐项验收证据无效'
+            return readiness_reason(evidence)
+        if explicit is not None:
             return None
         for name in ('acceptance.md', 'verification.md'):
             target = directory / name

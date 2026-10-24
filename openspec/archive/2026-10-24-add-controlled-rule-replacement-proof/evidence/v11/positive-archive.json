@@ -1,0 +1,21 @@
+{
+  "environment": "current-source-isolated-api",
+  "requestIntercepted": false,
+  "sample": "isolated-standalone",
+  "preflight": {
+    "acceptanceReady": true,
+    "staticChecks": "passed",
+    "archivePreview": "passed"
+  },
+  "before": {"active": true, "archives": 0},
+  "response": {"status": 200, "code": 0, "stage": "completed"},
+  "after": {
+    "active": false,
+    "archives": 1,
+    "archiveOperationStage": "completed",
+    "archiveOperationRevision": 5,
+    "recoveryJournalExists": true,
+    "readOnlyHistoryAdmission": "ready:archived",
+    "specContainsNewRule": true
+  }
+}
