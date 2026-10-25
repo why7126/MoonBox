@@ -1,7 +1,7 @@
 ---
 title: Git 扫描修复追溯
 created_at: 2026-10-24 21:07:52
-updated_at: 2026-10-24 21:09:42
+updated_at: 2026-10-24 21:28:22
 change_id: fix-git-scan-regex-false-positive
 status: applied
 sprint: sprint-013
@@ -30,4 +30,4 @@ execution:
 
 ## 自动验收
 
-完整自动验收 AC-001 通过，12 项回归测试形成命令证据；证据入口 evidence/acceptance/20261024211957043396-c1ac578f/。readiness 为 ready，无过期项。本次未授权归档此治理 Change，保持 applied。
+完整自动验收 AC-001 通过，12 项回归测试形成命令证据；证据入口 evidence/acceptance/20261024211957043396-c1ac578f/。readiness 为 ready，无过期项。此前同步时未授权归档，保持 applied；用户现已明确执行本 Change 的 opsx-archive。

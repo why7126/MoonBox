@@ -1,10 +1,10 @@
 ---
-note: workflow-sync — 3/4 Change 已 archive；1 applied；待人工 sign-off
+note: workflow-sync — 4/4 Change 已 archive；0 applied；待人工 sign-off
 title: 受控规则替代证明迭代验收报告
 sprint_id: sprint-013
 status: planning
 created_at: '2026-10-22 13:17:23'
-updated_at: 2026-10-24 21:09:42
+updated_at: 2026-10-24 21:28:24
 ---
 
 # 受控规则替代证明迭代验收报告
