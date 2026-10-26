@@ -77,6 +77,10 @@ audit = Table('chat_request_logs', metadata, *identity(),
 CHAT_TABLES = [conversations, turns, events, messages, turn_materials, uploaded_materials, snapshots, diffs, audit]
 
 def migrate(engine):
+    from app.chat.content_schema import TABLES as content_tables
+    for table in content_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     from app.governance.completion_handoff import handoffs
     if handoffs not in CHAT_TABLES:
         CHAT_TABLES.append(handoffs)

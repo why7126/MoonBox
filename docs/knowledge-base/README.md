@@ -6,7 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-10-23 22:51:31
+updated_at: 2026-10-26 11:28:36
 ---
 
 # 知识库使用说明
@@ -58,6 +58,7 @@ updated_at: 2026-10-23 22:51:31
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-013 | [Sprint-013 经验复盘](retrospectives/sprint-013-retrospective.md) | active | 8（含6项前序承接） |
 | sprint-012 | [Sprint-012 经验复盘](retrospectives/sprint-012-retrospective.md) | active | 6（含5项前序承接） |
 | sprint-011 | [Sprint-011 经验复盘](retrospectives/sprint-011-retrospective.md) | active | 5（含4项前序承接） |
 | sprint-010 | [Sprint-010 经验复盘](retrospectives/sprint-010-retrospective.md) | active | 4 |
@@ -94,3 +95,5 @@ updated_at: 2026-10-23 22:51:31
 - [归档条文冲突与验收进度](incidents/20261021-archive-requirement-scope-conflict.md)：BUG-0062，条文级冲突、有效验收进度与恢复准入分离；sprint-012修复解除sprint-011关闭阻塞。
 
 - [同条文兼容追加与显式替代边界](incidents/20261022-compatible-requirement-successor.md)：BUG-0063，独立证明、逐边完整链、候选预检及原约束保留。
+
+- [规格末尾空行与归档断链补证](incidents/20261026-archive-newline-proof.md)：完整目录双端锚定、末尾LF限定、原记录保留及当前引用修复。

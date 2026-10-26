@@ -44,6 +44,9 @@ def claim(db, worker_id):
         db.rollback();return None
     generation=db.scalar(select(conversations.c.generation).where(conversations.c.id==cid))
     db.execute(update(turns).where(turns.c.id==tid).values(generation=generation))
+    from app.chat.content_schema import prepare_attempts
+    db.execute(update(prepare_attempts).where(prepare_attempts.c.turn_id == tid,
+        prepare_attempts.c.state == 'queued').values(state='connecting', updated_at=service.now()))
     from app.chat.observability import trace
     trace(db,tid,'connecting')
     db.commit()
@@ -74,11 +77,18 @@ def record_event(db, claim_token, source_id, event_type, payload, terminal=None)
         db.rollback();return False
     from sqlalchemy import func
     seq=(db.scalar(select(func.max(events.c.sequence)).where(events.c.turn_id==token['turn_id'])) or 0)+1
-    db.execute(insert(events).values(**service.identity(),turn_id=token['turn_id'],sequence=seq,
+    identity = service.identity()
+    if db.scalar(select(turns.c.reserved_bytes).where(turns.c.id == token['turn_id'])) == 0:
+        from app.chat.content_store import charge_metadata
+        charge_metadata(db, token['conversation_id'], identity['id'], len(encoded.encode()))
+    db.execute(insert(events).values(**identity,turn_id=token['turn_id'],sequence=seq,
         source_id=source_id,event_type=event_type,payload=encoded))
     if not terminal and event_type == 'execution.state' and payload.get('status') == 'running':
         db.execute(update(turns).where(t.id==token['turn_id'],t.status=='connecting').values(status='running'))
     if terminal:
+        from app.chat.content_schema import prepare_attempts
+        db.execute(update(prepare_attempts).where(prepare_attempts.c.turn_id == token['turn_id'],
+            prepare_attempts.c.state.in_(('queued', 'connecting'))).values(state=terminal, updated_at=service.now()))
         from app.governance.execution_guard import terminal as guard_terminal
         guard_terminal(db, token['turn_id'], terminal)
         db.execute(update(turns).where(t.id==token['turn_id']).values(status=terminal))

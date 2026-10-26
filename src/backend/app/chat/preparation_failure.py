@@ -6,6 +6,8 @@ from app.chat.app_server import ExecutorError
 from app.chat.schema import conversations, events, snapshots, turns
 
 PREPARATION_CODES = frozenset({
+    'operating_quota_exceeded', 'container_memory_exhausted', 'container_terminated',
+    'workspace_resource_exhausted', 'result_persistence_failed', 'protocol_resource_limit',
     'recovery_capability_unavailable', 'recovery_operation_incomplete',
     'direct_command_preparation_failed', 'direct_command_operation_missing',
     'direct_command_operation_invalid', 'direct_command_identity_mismatch',
@@ -28,6 +30,9 @@ def fail_preparation(factory, token, error, *, recovering=False):
     kind = error.code if isinstance(error, ExecutorError) else getattr(error, 'kind', None)
     code = kind if kind in PREPARATION_CODES else 'workspace_prepare_failed'
     with factory() as db:
+        if db.scalar(select(events.c.id).where(events.c.turn_id == token['turn_id'],
+            events.c.source_id == 'runner:start-requested')):
+            return False
         filters = [turns.c.id == token['turn_id'], turns.c.worker_id == token['worker_id'],
                    turns.c.generation == token['generation'], turns.c.executor_turn_id.is_(None)]
         if recovering:
@@ -49,7 +54,12 @@ def fail_preparation(factory, token, error, *, recovering=False):
         sequence = (db.scalar(select(func.max(events.c.sequence)).where(events.c.turn_id == tid)) or 0) + 1
         payload = {'status': 'failed', 'error_code': code, 'stage': 'workspace_prepare'}
         db.execute(insert(events).values(**service.identity(), turn_id=tid, sequence=sequence,
-            source_id='workspace-prepare-failed', event_type='execution.state', payload=json.dumps(payload)))
+            source_id='workspace-prepare-failed' if not db.scalar(select(events.c.id).where(events.c.turn_id == tid,
+                events.c.source_id == 'workspace-prepare-failed')) else f"workspace-prepare-failed:{token['generation']}",
+            event_type='execution.state', payload=json.dumps(payload)))
+        from app.chat.content_schema import prepare_attempts
+        db.execute(update(prepare_attempts).where(prepare_attempts.c.turn_id == tid,
+            prepare_attempts.c.state.in_(('queued', 'connecting'))).values(state='failed', updated_at=service.now()))
         db.execute(update(conversations).where(conversations.c.id == token['conversation_id'],
             conversations.c.active_turn_id == tid, conversations.c.generation == token['generation'])
             .values(active_turn_id=None, updated_at=service.now()))
@@ -58,6 +68,9 @@ def fail_preparation(factory, token, error, *, recovering=False):
         prompt = db.scalar(select(turns.c.prompt).where(turns.c.id == tid))
         size = len(prompt.encode()) + sum(len(s.encode()) for s in db.scalars(
             select(snapshots.c.content).where(snapshots.c.turn_id == tid)))
+        if not db.scalar(select(turns.c.reserved_bytes).where(turns.c.id == tid)):
+            from app.chat.accounting import stored_metadata_bytes
+            size = stored_metadata_bytes(db, tid)
         from app.chat.admission import settle
         # Zero model usage is justified here: this stage never calls start_turn.
         settle(db, tid, 0, size)

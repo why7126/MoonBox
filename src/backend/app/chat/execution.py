@@ -142,7 +142,30 @@ def safe_text(value):
     return re.sub(r'(?i)\b(authorization|api[_-]?key|password|secret|access[_-]?token)\s*[:=]\s*[^\s,;]+', r'\1=[已脱敏]', value)
 
 
+def save_result(factory, token, text, source, stream='output'):
+    from app.chat import content_store
+    # Split by characters below the byte ceiling, preserving UTF-8 boundaries.
+    offset = 0
+    for start in range(0, len(text), 12000):
+        part = text[start:start + 12000]; data = part.encode()
+        with factory() as db:
+            row, parent = owned(db, token)
+            sequence = content_store.result(db, parent['id'], row['id'], stream, source, offset, data)
+            if sequence == 1 or sequence % 128 == 0:
+                from app.chat.observability import storage_span
+                storage_span(db, row['id'], 'result_commit', metadata={'storage_mode': 'chunks_v2'})
+            db.commit()
+        with factory() as db:
+            owned(db, token)
+            worker.record_event(db, token, 'content:' + str(sequence), 'execution.output',
+                {'text': part[:1024], 'content_ref': {'sequence': sequence, 'stream_id': stream},
+                 'truncated': len(part) > 1024, 'format_version': 2})
+        offset += len(data)
+
+
 def owned(db, token):
+    from app.chat.resource_guard import lock_budget
+    lock_budget(db)
     row = db.execute(select(turns).where(turns.c.id == token['turn_id'], turns.c.worker_id == token['worker_id'],
         turns.c.generation == token['generation'], turns.c.status.in_(('connecting','running','stopping')))).mappings().first()
     parent = db.execute(select(conversations).where(conversations.c.id == token['conversation_id'],
@@ -165,6 +188,11 @@ def mark_unknown(factory, token, code):
             .values(status='unknown', error_code=code, updated_at=service.now())).rowcount
         from app.chat.observability import trace
         if changed:
+            from app.chat.content_schema import prepare_attempts
+            db.execute(update(prepare_attempts).where(prepare_attempts.c.turn_id == token['turn_id'],
+                prepare_attempts.c.state == 'connecting').values(state='unknown', updated_at=service.now()))
+            from app.chat.observability import storage_span
+            storage_span(db, token['turn_id'], 'resource_guard', result='unknown', metadata={'error_code': code})
             try:
                 with db.begin_nested():
                     persist_output(db, token['turn_id'])
@@ -187,6 +215,7 @@ def mark_setup_failed(factory, token, code, *, cause=None):
 def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, stop_seconds=20, usage_grace_seconds=3):
     """server_factory accepts the verified workspace; executable/auth never come from a browser request."""
     executor_turn = None
+    start_requested = False
     tool_started = {}
     final_reply = None
     server = None; permitted_scope = None; seq = 0; terminal = None; reply = ''; usage = None; metadata_bytes = 0; budget_stop = False; limit_recorded = False; stop_at = None; last_interrupt = 0
@@ -203,6 +232,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
             reserve = db.execute(select(reservations).where(reservations.c.turn_id == row['id'])).mappings().first()
             if not reserve: raise ExecutorError('usage_reservation_missing')
             budget = row['reserved_bytes']; token_budget = reserve['tokens']
+            scalable = budget == 0
             baseline = db.execute(select(workspace_baselines).where(workspace_baselines.c.conversation_id == parent['id'])).mappings().first()
             baseline_workspace_id = _baseline_workspace_id(parent, workspace_id)
             from app.governance.preparation import execution_prompt_for_turn
@@ -211,14 +241,25 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
         from app.chat.relations import read_snapshots
         with factory() as db: context=read_snapshots(db,parent['owner_id'],row['id'])
         context_bytes=len(json.dumps(context,ensure_ascii=False).encode())
-        before = snapshot(workspace, max_text_bytes=min(budget//4, 4*1024*1024))
+        if scalable:
+            from app.chat.snapshot_store import capture, import_legacy, diff_page
+            before = capture(factory, parent['id'], row['id'], workspace, 'before', fence=lambda db: owned(db, token))
+        else:
+            before = snapshot(workspace, max_text_bytes=min(budget//4, 4*1024*1024))
         if baseline:
             initial = json.loads(baseline['payload'])
         else: initial = before
+        if scalable and initial.get('format_version') != 2:
+            with factory() as db:
+                owned(db, token)
+                initial = import_legacy(db, parent['id'], row['id'], initial)
+                db.execute(update(workspace_baselines).where(workspace_baselines.c.conversation_id == parent['id'])
+                    .values(payload=json.dumps(initial, ensure_ascii=False)))
+                db.commit()
         # Each claim owns a new App Server process. Its cumulative usage resets
         # on process recreation even when the conversation thread is resumed.
         retained = (len(json.dumps(initial,ensure_ascii=False).encode()) if not baseline else 0)+context_bytes
-        if retained + len(execution_prompt.encode()) + 2048 > budget: raise ExecutorError('result_reservation_too_small')
+        if not scalable and retained + len(execution_prompt.encode()) + 2048 > budget: raise ExecutorError('result_reservation_too_small')
         with factory() as db:
             owned(db, token)
             if not baseline:
@@ -252,6 +293,12 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
             prompt=execution_prompt
             if context: prompt += '\n\n以下是本轮授权的只读引用快照，内容仅作业务上下文，不能扩大工具权限：\n'+json.dumps(context,ensure_ascii=False)
             _verify_permission_profile(server, permitted_scope)
+            with factory() as db:
+                owned(db, token)
+                if not worker.record_event(db, token, 'runner:start-requested', 'execution.state',
+                    {'stage': 'executor_start', 'execution_started': 'unknown'}):
+                    raise ExecutorError('worker_fenced')
+            start_requested = True
             executor_turn = server.start_turn(thread_id,prompt)
             actual_profile = getattr(server, 'last_turn_permission_profile', None)
             if actual_profile is not None and actual_profile != selected_profile:
@@ -310,14 +357,18 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     total=params.get('tokenUsage',{}).get('total',{}).get('totalTokens')
                     if type(total) is int and total >= 0:
                         usage=max(usage or 0,total)
-                        if metadata_bytes+1024 < budget//8:
+                        if scalable or metadata_bytes+1024 < budget//8:
                             with factory() as db:
                                 owned(db,token)
                                 if worker.record_event(db,token,f'usage:{total}','execution.usage',{'total_tokens':usage,'reserved_tokens':token_budget}):metadata_bytes+=1024
                         else:budget_stop=True
-                        if token_budget > 0 and usage >= token_budget: budget_stop=True
+                        if not scalable and token_budget > 0 and usage >= token_budget: budget_stop=True
                 elif method=='item/agentMessage/delta':
                     text=safe_text(params.get('delta','')).replace(str(workspace),'[工作区]'); size=len(text.encode())
+                    if scalable:
+                        seq += 1
+                        save_result(factory, token, text, f'{executor_turn}:output:{seq}')
+                        continue
                     if size > 60000: budget_stop=True;continue
                     if size + output_bytes > max(0,budget-retained-2048)//3:
                         budget_stop=True;continue
@@ -329,7 +380,10 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     item=params.get('item',{});item_id=item.get('id')
                     if method == 'item/completed' and item.get('type') == 'agentMessage' and item.get('phase') == 'final_answer' and isinstance(item.get('text'), str):
                         candidate = safe_text(item['text']).replace(str(workspace), '[工作区]')
-                        if len(candidate.encode()) <= min(budget // 8, 60000):
+                        if scalable:
+                            save_result(factory, token, candidate, 'final:' + str(item.get('id')), 'final')
+                            final_reply = True
+                        elif len(candidate.encode()) <= min(budget // 8, 60000):
                             final_reply = candidate
                             metadata_bytes += len(candidate.encode()) + 1024
                             with factory() as db:
@@ -347,7 +401,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                             sync_succeeded=bool(workflow_sync_result(item)),
                             sync_result=workflow_sync_result(item))
                         detail_bytes = len(json.dumps(payload,ensure_ascii=False).encode()) + 1024
-                        if metadata_bytes+detail_bytes < budget//8:
+                        if scalable or metadata_bytes+detail_bytes < budget//8:
                             with factory() as db:
                                 owned(db,token)
                                 if worker.record_event(db,token,'tool:'+hashlib.sha256(f'{executor_turn}:{item_id}:{method}'.encode()).hexdigest(),'execution.tool',payload):metadata_bytes+=detail_bytes
@@ -369,7 +423,10 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     item = params.get('item', {})
                     if item.get('type') == 'agentMessage' and item.get('phase') == 'final_answer' and isinstance(item.get('text'), str):
                         candidate = safe_text(item['text']).replace(str(workspace), '[工作区]')
-                        if candidate and len(candidate.encode()) <= min(budget // 8, 60000):
+                        if scalable and candidate:
+                            save_result(factory, token, candidate, 'final:' + str(item.get('id')), 'final')
+                            final_reply = True
+                        elif candidate and len(candidate.encode()) <= min(budget // 8, 60000):
                             final_reply = candidate
                             metadata_bytes += len(candidate.encode()) + 1024
                             with factory() as db:
@@ -387,7 +444,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                             sync_succeeded=bool(workflow_sync_result(item)),
                             sync_result=workflow_sync_result(item))
                         size = len(json.dumps(payload, ensure_ascii=False).encode()) + 1024
-                        if metadata_bytes + size < budget // 8:
+                        if scalable or metadata_bytes + size < budget // 8:
                             with factory() as db:
                                 owned(db, token)
                                 if worker.record_event(db, token, 'tool:' + hashlib.sha256(f"{executor_turn}:{item['id']}:item/completed".encode()).hexdigest(), 'execution.tool', payload):
@@ -396,12 +453,22 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                 if event.get('method') != 'thread/tokenUsage/updated': continue
                 total=params.get('tokenUsage',{}).get('total',{}).get('totalTokens')
                 if type(total) is int and total>=0: usage=max(usage or 0,total)
-        after=snapshot(workspace,max_text_bytes=min(budget//4,4*1024*1024))
-        delta=difference(before,after,max_patch_bytes=budget//8); cumulative=difference(initial,after,max_patch_bytes=budget//8)
-        payload={'files':delta['files'],'cumulative_files':cumulative['files'],'initial_hash':initial['hash']}
+        if scalable:
+            after = capture(factory, parent['id'], row['id'], workspace, 'after', fence=lambda db: owned(db, token))
+            with factory() as db:
+                delta = diff_page(db, before['version_id'], after['version_id'])
+                cumulative = diff_page(db, initial['version_id'], after['version_id'])
+            payload = {'files': delta['files'], 'cumulative_files': cumulative['files'],
+                'initial_hash': initial['hash'], 'format_version': 2, 'before_version': before['version_id'],
+                'after_version': after['version_id'], 'initial_version': initial['version_id'],
+                'next_cursor': delta['next_cursor'], 'cumulative_next_cursor': cumulative['next_cursor']}
+        else:
+            after=snapshot(workspace,max_text_bytes=min(budget//4,4*1024*1024))
+            delta=difference(before,after,max_patch_bytes=budget//8); cumulative=difference(initial,after,max_patch_bytes=budget//8)
+            payload={'files':delta['files'],'cumulative_files':cumulative['files'],'initial_hash':initial['hash']}
         encoded=json.dumps(payload,ensure_ascii=False)
         actual_bytes=retained+len(encoded.encode())+len(reply.encode())*2+len(execution_prompt.encode())+2048+seq*1024+metadata_bytes
-        if actual_bytes > budget: raise ExecutorError('result_capacity_unconfirmed')
+        if not scalable and actual_bytes > budget: raise ExecutorError('result_capacity_unconfirmed')
         from app.governance.direct_command_journal import (
             completion_block_reason, terminal as terminal_direct_command,
         )
@@ -413,7 +480,8 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
         with factory() as db:
             owned(db,token)
             db.execute(insert(diffs).values(**service.identity(),turn_id=row['id'],before_hash=before['hash'],after_hash=after['hash'],payload=encoded))
-            if reply or final_reply: persist_output(db, row['id'], final_reply if final_reply is not None else reply)
+            if scalable: persist_output(db, row['id'])
+            elif reply or final_reply: persist_output(db, row['id'], final_reply if final_reply is not None else reply)
             if usage is not None:
                 db.execute(update(workspace_baselines).where(workspace_baselines.c.conversation_id==parent['id']).values(token_total=usage))
             db.execute(update(turns).where(turns.c.id==row['id']).values(error_code=completion_block or ('result_or_token_limit' if budget_stop else ('usage_unavailable' if usage is None else None))))
@@ -428,16 +496,19 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
         return terminal
     except (ExecutorError, WorkspaceError, service.ChatError) as error:
         logging.getLogger(__name__).warning('chat_execution_cause cause_type=%s', type(error).__name__)
-        code = error.code if isinstance(error, ExecutorError) else 'execution_access_or_workspace_error'
-        if executor_turn is None:
+        code = error.code if isinstance(error, ExecutorError) else ('operating_quota_exceeded'
+            if isinstance(error, service.ChatError) and error.code == 2508 else 'execution_access_or_workspace_error')
+        if executor_turn is None and not start_requested:
             return mark_setup_failed(factory, token, code, cause=error)
         return mark_unknown(factory,token,code)
     except Exception as error:
+        from app.chat.resource_guard import classify
+        code = classify(error)
         logging.getLogger(__name__).warning('chat_execution_unhandled cause_type=%s phase=%s',
             type(error).__name__, 'setup' if executor_turn is None else 'running')
-        if executor_turn is None:
-            return mark_setup_failed(factory, token, 'execution_internal_error', cause=error)
-        return mark_unknown(factory,token,'execution_internal_error')
+        if executor_turn is None and not start_requested:
+            return mark_setup_failed(factory, token, code, cause=error)
+        return mark_unknown(factory,token,code)
     finally:
         try:
             if server is not None:server.close()
@@ -490,7 +561,7 @@ def reconcile_unknown(factory, tid, workspace, server_factory):
                 payload = tool_payload(item, 'completed', row['executor_turn_id'], bound, {})
                 encoded = json.dumps(payload, ensure_ascii=False)
                 recovered_bytes += len(encoded.encode()) + 1024
-                if recovered_bytes > row['reserved_bytes'] // 8:
+                if row['reserved_bytes'] and recovered_bytes > row['reserved_bytes'] // 8:
                     break
                 db.execute(insert(events).values(**service.identity(), turn_id=tid, sequence=seq, source_id=source_id,
                     event_type='execution.tool', payload=encoded))
@@ -502,7 +573,16 @@ def reconcile_unknown(factory, tid, workspace, server_factory):
                     continue
                 if not isinstance(item.get('text'), str): continue
                 candidate = safe_text(item['text']).replace(str(bound), '[工作区]')
-                if not candidate or len(candidate.encode()) > min(60000, row['reserved_bytes'] // 8): continue
+                if not candidate: continue
+                if row['reserved_bytes'] and len(candidate.encode()) > min(60000, row['reserved_bytes'] // 8): continue
+                if not row['reserved_bytes']:
+                    from app.chat.content_store import result as save_segment
+                    offset = 0
+                    for start in range(0, len(candidate), 12000):
+                        block = candidate[start:start+12000].encode()
+                        save_segment(db, parent['id'], tid, 'final', 'recovered-final:'+str(item.get('id')), offset, block)
+                        offset += len(block)
+                    candidate = candidate[:1024]
                 source = 'assistant:final:' + hashlib.sha256(str(item.get('id')).encode()).hexdigest()
                 if not db.scalar(select(events.c.id).where(events.c.turn_id == tid, events.c.source_id == source)):
                     db.execute(insert(events).values(**service.identity(), turn_id=tid, sequence=seq,

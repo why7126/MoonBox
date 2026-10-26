@@ -1,11 +1,11 @@
 ---
 change_id: add-chat-workbench-codex
 type: add
-status: applied
+status: archived
 requirement: REQ-0025-chat-workbench
 sprint: sprint-004
 created_at: '2026-09-08 12:15:12'
-updated_at: 2026-09-14 00:03:14
+updated_at: 2026-10-26 10:22:28
 source_requirement: issues/requirements/archive/REQ-0025-chat-workbench/
 knowledge_base_refs:
 - docs/knowledge-base/best-practices/prototype-driven-ui-gate.md
@@ -455,3 +455,8 @@ Chat移除顶部空间工具栏和项目连接栏；会话标题行仅承接原�
 验证：Composer 6项测试、TypeScript和生产构建通过。1440×900及390×844深浅主题截图已在浏览器工具观察；正常态hint节点不存在，右边界差0px，无横向溢出。真实组件配合合成API，未触发真实执行。
 
 部署：本地Web已更新，构建资产index-DqDXCzWu.js，HTTP冒烟通过；后端无需变更。全仓中文校验受其他Change fix-requirement-center-apply-lifecycle-sync的6处英文标题影响，本Change严格校验通过，未修改其他Change。
+
+
+## 历史归档状态核验（2026-10-26）
+
+本次仅纠正当前状态投影 applied → archived，不改变历史正文、任务、规格或验收结论，不补写 execution 时间。归档身份唯一，46/46任务已完成；提交217d84c2e89583daccb84d11bb3967ad481695f5已于2026-09-14收录该归档目录，sprint-004验收报告明确11/11 Change归档、142/142任务完成，REQ-0025 trace为done且lifecycle_stage为archive。原路径为openspec/archive/2026-09-13-add-chat-workbench-codex，ID保持add-chat-workbench-codex。目录日期不推定为精确归档时间。本次依据rules/document-governance.md历史状态纠正规则核验，不重做归档。

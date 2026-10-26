@@ -5,19 +5,21 @@ import yaml
 from app.governance.acceptance_evidence import read_plan, readiness, latest_manifest, readiness_reason, archived_readiness
 
 
-def protected_rule_integrity(root: Path, change: str) -> dict:
-    """Keep archived rule obligations unless the successor only adds scenarios.
+def protected_rule_integrity(root: Path, change: str, *, source_root: Path | None = None) -> dict:
+    """Validate current evidence for same-rule evolution, never authorize writes.
 
-    The historical exact exception remains valid, but no old confirmation or
-    newly invented text proof can turn an arbitrary rewrite into an append.
+    REQ-0050 v6 uses ordinary acceptance and history, not exact-text exceptions
+    or an additional signer. Destructive/unknown operations remain unsupported.
     """
     from types import SimpleNamespace
     from .compatible_successor import append_only
-    from .rule_change import conflicts, supported
+    from .rule_change import conflicts
+    from .acceptance_evidence import input_path
 
     if not (root / 'openspec/changes' / change / 'specs').is_dir():
         return {'ready': True}
 
+    replacements = []
     rejected = []
     for row in conflicts(SimpleNamespace(root=root), change):
         allowed = False
@@ -25,11 +27,29 @@ def protected_rule_integrity(root: Path, change: str) -> dict:
             try:
                 allowed = bool(append_only(row['before'], row['after']))
             except ValueError:
-                allowed = supported(row['before'], row['after'])
+                pass
         if not allowed:
-            rejected.append({'capability': row['key'][0], 'requirement': row['key'][1],
-                             'protected_changes': row['protected_changes']})
-    return ({'ready': False, 'reason': '已归档规则的原约束被删除或改写',
+            detail = {'capability': row['key'][0], 'requirement': row['key'][1],
+                      'protected_changes': row['protected_changes']}
+            (replacements if row['operation'] == 'MODIFIED' else rejected).append(detail)
+    if replacements:
+        folder = root / 'openspec/changes' / change
+        try:
+            plan = read_plan(folder)
+            evidence = readiness(root, change, source_root=source_root)
+            # Section-only inputs cannot attest to the entire replacement.
+            inputs = [input_path(root, path, source_root=source_root)
+                      for check in plan['checks'] for path in check['inputs']
+                      if not check.get('input_sections', {}).get(path)]
+            for row in replacements:
+                delta = folder / 'specs' / row['capability'] / 'spec.md'
+                covered = any(path == delta or path.is_dir() and delta.is_relative_to(path)
+                              for path in inputs)
+                if evidence['status'] != 'ready' or not covered:
+                    rejected.append(row)
+        except (OSError, ValueError, KeyError, TypeError):
+            rejected.extend(replacements)
+    return ({'ready': False, 'reason': '规则修改缺少当前有效的完整验收覆盖，或包含不支持的删除操作',
              'recovery_reason': 'archive_requirement_conflict', 'diagnostics': rejected}
             if rejected else {'ready': True})
 
@@ -145,7 +165,7 @@ def change_acceptance(root: Path, change: str, *, source_root: Path | None = Non
     def finish(result):
         if folder != active or not result['ready']:
             return result
-        protected = protected_rule_integrity(root, change)
+        protected = protected_rule_integrity(root, change, source_root=source_root)
         return {**result, **protected} if not protected['ready'] else result
     try:
         trace = metadata(folder / "trace.md")

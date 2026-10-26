@@ -87,7 +87,7 @@ def main():
     recover_copies()
     recover_interrupted(factory)
     recover_preparation_failures(factory)
-    running=True;job=None;token=None;maintenance_at=0;backup_at=time.monotonic()+86400
+    running=True;job=None;token=None;maintenance_at=0;gc_cursor='';backup_at=time.monotonic()+86400
     capture_job=None
     def stop(*_):
         nonlocal running
@@ -127,6 +127,15 @@ def main():
                 from app.governance.direct_command_journal import reconcile_terminal_commands
                 reconcile_terminal_commands(factory, workspace)
                 if time.monotonic()>=maintenance_at:
+                    from app.chat.content_store import collect_orphans
+                    with factory() as db:
+                        idle_ids = list(db.scalars(select(conversations.c.id).where(
+                            conversations.c.active_turn_id.is_(None), conversations.c.deleted_at.is_(None),
+                            conversations.c.id > gc_cursor).order_by(conversations.c.id).limit(10)))
+                        gc_cursor = idle_ids[-1] if idle_ids else ''
+                        for cid in idle_ids:
+                            collect_orphans(db, cid)
+                            db.commit()
                     from app.governance.completion_recovery import checkpoint_applied_completions
                     checkpoint_applied_completions(factory,workspace)
                     def purge(job):

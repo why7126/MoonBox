@@ -1,6 +1,6 @@
 ---
 name: "image-prepare"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "生成或校验发布镜像构建计划"
 ---
 
@@ -87,8 +87,8 @@ docs/08-production-image-release.md
 ## Command
 
 ```bash
-python scripts/validate-image-build.py prepare --release <version>
-python scripts/validate-image-build.py validate-plan --release <version>
+bash scripts/project-python.sh scripts/validate-image-build.py prepare --release <version>
+bash scripts/project-python.sh scripts/validate-image-build.py validate-plan --release <version>
 ```
 
 ## Output Contract（MUST）
@@ -115,7 +115,7 @@ Report compact summary only:
 After the command completes or records blockers, run:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event image.prepare \
   --release <version> \

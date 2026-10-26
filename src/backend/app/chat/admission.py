@@ -66,10 +66,12 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
             if limits[f'{kind}_concurrency'] is not None:
                 capacity_conditions.append(usage_accounts.c.active_runs < limits[f'{kind}_concurrency'])
             if limits[f'{kind}_storage_bytes'] is not None:
-                capacity_conditions.append(usage_accounts.c.used_bytes + usage_accounts.c.reserved_bytes + reserve_bytes <= limits[f'{kind}_storage_bytes'])
+                used = usage_accounts.c.used_bytes + usage_accounts.c.reserved_bytes
+                capacity_conditions.append(used < limits[f'{kind}_storage_bytes'] if reserve_bytes == 0 else used + reserve_bytes <= limits[f'{kind}_storage_bytes'])
             budget_conditions = [usage_accounts.c.id == f'{base}:{period}']
             if limits[f'{kind}_monthly_tokens'] is not None:
-                budget_conditions.append(usage_accounts.c.used_tokens + usage_accounts.c.reserved_tokens + reserve_tokens <= limits[f'{kind}_monthly_tokens'])
+                used = usage_accounts.c.used_tokens + usage_accounts.c.reserved_tokens
+                budget_conditions.append(used < limits[f'{kind}_monthly_tokens'] if reserve_tokens == 0 else used + reserve_tokens <= limits[f'{kind}_monthly_tokens'])
             capacity = db.execute(update(usage_accounts).where(*capacity_conditions)
                 .values(active_runs=usage_accounts.c.active_runs+1, reserved_bytes=usage_accounts.c.reserved_bytes+reserve_bytes)).rowcount
             budget = db.execute(update(usage_accounts).where(*budget_conditions)
@@ -91,7 +93,7 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
         context = copy_for_retry(db, actor, retry_of, tid) if retry_of else capture_for_turn(db, actor, row, tid)
         material_bytes = len(json.dumps(materials,ensure_ascii=False).encode())
         prompt_for_budget = budget_prompt if budget_prompt is not None else prompt
-        if len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt_for_budget.encode()) + material_bytes >= reserve_bytes:
+        if reserve_bytes and len(json.dumps(context,ensure_ascii=False).encode()) + len(prompt_for_budget.encode()) + material_bytes >= reserve_bytes:
             raise service.ChatError(2508, '引用快照超过本轮存储预留')
         db.execute(insert(messages).values(**service.identity(), turn_id=tid, role='user', content=service.material_message(prompt, materials)))
         from app.chat.observability import trace
@@ -134,7 +136,7 @@ def release_concurrency(db, tid):
     return True
 
 
-def settle(db, tid, actual_tokens, actual_bytes):
+def settle(db, tid, actual_tokens, actual_bytes, *, revised_receipt=False):
     """Keep unknown/running reservations. Settlement requires a persisted confirmed terminal state."""
     if type(actual_tokens) is not int or type(actual_bytes) is not int or min(actual_tokens, actual_bytes) < 0:
         raise ValueError('nonnegative usage required')
@@ -142,8 +144,26 @@ def settle(db, tid, actual_tokens, actual_bytes):
     if state not in service.TERMINAL:
         raise service.ChatError(2506, '原运行终态尚未确认，不能释放预留')
     release_concurrency(db, tid)
-    row = db.execute(select(reservations).where(reservations.c.turn_id == tid)).mappings().first()
+    row = db.execute(select(reservations).where(reservations.c.turn_id == tid).with_for_update()).mappings().first()
     if not row: return False
+    if row['status'] == 'settled':
+        if not revised_receipt: return False
+        # Trusted cumulative receipts may arrive late; only their positive delta is charged.
+        token_delta = max(0, actual_tokens - (row['actual_tokens'] or 0))
+        byte_delta = max(0, actual_bytes - (row['actual_bytes'] or 0))
+        if not token_delta and not byte_delta: return False
+        won = db.execute(update(reservations).where(reservations.c.id == row['id'],
+            reservations.c.actual_tokens == row['actual_tokens'], reservations.c.actual_bytes == row['actual_bytes'])
+            .values(actual_tokens=(row['actual_tokens'] or 0)+token_delta,
+                actual_bytes=(row['actual_bytes'] or 0)+byte_delta, updated_at=service.now())).rowcount
+        if won != 1: db.rollback(); return False
+        for kind, identifier in [('space', row['space_id']), ('user', row['owner_id'])]:
+            base = f'{kind}:{identifier}'
+            db.execute(update(usage_accounts).where(usage_accounts.c.id == base).values(
+                used_bytes=usage_accounts.c.used_bytes+byte_delta))
+            db.execute(update(usage_accounts).where(usage_accounts.c.id == f"{base}:{row['period']}").values(
+                used_tokens=usage_accounts.c.used_tokens+token_delta))
+        db.commit(); return True
     won = db.execute(update(reservations).where(reservations.c.turn_id == tid, reservations.c.status == 'reserved')
         .values(status='settled', actual_tokens=actual_tokens, actual_bytes=actual_bytes, updated_at=service.now())).rowcount
     if won != 1:

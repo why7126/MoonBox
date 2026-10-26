@@ -1,6 +1,6 @@
 ---
 name: "release-prepare"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "执行发布前校验并生成或更新公开公告源文件"
 ---
 
@@ -103,10 +103,10 @@ When release scope includes backend runtime, Web build output, Dockerfile, Compo
 Required structural and safety validation:
 
 ```bash
-python scripts/validate-release.py --release-dir releases/<version> --stage prepare
-python scripts/validate-image-build.py validate-plan --release <version>
-python scripts/generate-mintlify-docs.py --version latest
-python scripts/validate-mintlify-docs.py
+bash scripts/project-python.sh scripts/validate-release.py --release-dir releases/<version> --stage prepare
+bash scripts/project-python.sh scripts/validate-image-build.py validate-plan --release <version>
+bash scripts/project-python.sh scripts/generate-mintlify-docs.py --version latest
+bash scripts/project-python.sh scripts/validate-mintlify-docs.py
 ```
 
 Run additional checks according to release scope. Common commands:
@@ -114,10 +114,10 @@ Run additional checks according to release scope. Common commands:
 ```bash
 uv run pytest
 pnpm --dir src/web test -- --run
-python scripts/validate-api-standard.py
+bash scripts/project-python.sh scripts/validate-api-standard.py
 ./scripts/generate-openapi-client.sh
 docker compose config --quiet
-python scripts/check-mysql-schema-drift.py --database-url "$DATABASE_URL"
+bash scripts/project-python.sh scripts/check-mysql-schema-drift.py --database-url "$DATABASE_URL"
 ```
 
 Only run expensive or environment-dependent checks when they match release scope or user requested full validation. If a command cannot run locally, record the blocker; do not invent evidence.
@@ -138,8 +138,8 @@ Announcement MUST include version, release time, related Sprint, new features, b
 When the release commits to fresh install, adjacent upgrade or cross-version upgrade support, generate and validate an upgrade plan before publish:
 
 ```bash
-python scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
-python scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
+bash scripts/project-python.sh scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
+bash scripts/project-python.sh scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
 ```
 
 Upgrade planning MUST NOT automatically execute production upgrade, modify real env, run DB restore, or write object storage maintenance tasks.
@@ -167,7 +167,7 @@ Report version, gate status summary, commands run, updated files, blockers, and 
 After release preparation completes or records blockers, run:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event release.prepare \
   --release <version> \

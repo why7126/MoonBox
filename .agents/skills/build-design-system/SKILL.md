@@ -1,6 +1,6 @@
 ---
 name: "build-design-system"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "基于 rules/ui-design.md 建设可执行 Design System（Token / 组件 / 校验）"
 ---
 
@@ -109,7 +109,7 @@ templates → business → shared/ui → components/ui
 ## Step 4 — 预览与校验
 
 - `/design-system` 路由可展示 Token 与组件
-- 运行 `python scripts/validate-design-system.py`
+- 运行 `bash scripts/project-python.sh scripts/validate-design-system.py`
 
 ---
 

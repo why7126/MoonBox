@@ -1,6 +1,6 @@
 ---
 name: "sprint-apply"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "按 Sprint 依赖与优先级编排 OpenSpec Change 开发"
 ---
 
@@ -146,7 +146,7 @@ Report completed changes, skipped/blocked items, tests/checks, Sprint progress, 
 Run:
 
 ```bash
-python scripts/sync-workflow-status.py --event sprint.apply --sprint <sprint-id>
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event sprint.apply --sprint <sprint-id>
 ```
 
 - Exit code MUST be `0`。

@@ -480,3 +480,15 @@ Chat 发送拒绝响应沿用原 HTTP 状态与错误码，data 增加可选 arc
 可信 Chat 归档不调用模型，使用单独的 `trusted_archive_v1` 执行用量来源；只有无模型轮次标识、可信归档启动事件和零 token 回执同时成立时才结算为零。CLI 不伪造浏览器行为事件。
 
 首次可信启用补全：`POST /api/v1/chat/replacement-policy/preview` 接收 space_id、repository_id、mechanism_change，返回精确 manifest、manifest_hash、绑定的条文前后全文、不可豁免义务和证据摘要；生成/临时预演均只读。当前人须具备项目及对象写权限，不接收文件系统路径。已有操作仅回读原清单，不创建第二次安装。`GET /api/v1/chat/replacement-policy` 增加 can_prepare、review、stage、blockers，呈现完整审阅及恢复状态。原 prepare 接口接收最多 16 KiB 独立运维收据，确认和恢复继续复用原 revision/hash 门禁。OpenAPI 和 Orval 客户端同步生成；本轮不增加数据库表或权限角色。沿用 ReplacementRoute 的脱敏请求/行为/链路采集，不记录私钥或完整收据正文。
+
+## Chat 持续保存与分页读取（REQ-0053）
+
+新增 `GET /api/v1/chat/turns/{tid}/results`，按 `stream_id=output|final` 读取已提交正文段，返回 `committed_sequence`、`next_cursor`、`resume_cursor`、`has_final` 与完整性说明。单页正文不超过 256 KiB；末页游标可继续检查新提交内容。执行输出与最终答复独立展示。
+
+新增 `GET /api/v1/chat/turns/{tid}/files`，使用 `scope=turn|cumulative` 和游标分页；`GET /api/v1/chat/turns/{tid}/files/{file_id}/content` 使用 `side=before|after` 读取保存的文件正文。二进制、仅元数据与历史未保存正文分别返回明确状态，不把未加载视为无变化。游标绑定轮次、内容流或比较范围；每次访问重新执行会话及历史引用授权。
+
+新增 `POST /api/v1/chat/turns/{tid}/recovery`，请求含 `mode=check|resume_prepare` 和 `idempotency_key`。只在持久化证据证明执行启动请求尚未发出时续接准备，保留原轮次与历史失败，返回新 attempt；排队成功不等于执行完成。未知状态只核验，不重发。既有显式新轮次重试继续使用 retries 接口。
+
+新格式 Diff 响应携带 `format_version=2`；旧格式继续可读。请求审计只保存路由、身份、状态和耗时，不记录正文或游标内容。Web 分页及恢复行为关联可信请求标识，直接 API 不生成假浏览器事件。
+
+`GET /turns/{tid}/files/{file_id}/blocks` 复用逐次鉴权，按数据库块摘要分页比较，两侧各最多101个索引、返回最多100块。`scope` 区分本轮/累计，重命名传入列表给出的 `before_file_id`；游标绑定这些参数。结果为精确变化块，不伪装为行级补丁。正文端点同样支持 `scope`，重命名的执行前正文使用 `before_file_id`。结果页另含 `storage_status`：阶段、稳定错误码、启动确认程度、已保存序号、完整性、恢复动作与原请求ID。

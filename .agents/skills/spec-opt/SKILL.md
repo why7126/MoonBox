@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
@@ -134,9 +134,9 @@ YYYYMMDDhhmmss-governance-xxx.md
 完成前按影响范围运行：
 
 ```bash
-python scripts/validate-agent-context-budget.py
-python scripts/validate-openspec-language.py
-python scripts/validate-directory-structure.py
+bash scripts/project-python.sh scripts/validate-agent-context-budget.py
+bash scripts/project-python.sh scripts/validate-openspec-language.py
+bash scripts/project-python.sh scripts/validate-directory-structure.py
 openspec validate <change-id>
 ```
 
@@ -149,7 +149,7 @@ openspec validate <change-id>
 若 `/spec-opt` 通过 `/opsx-apply` 落地 active Change，完成前运行：
 
 ```bash
-python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
 ```
 
 - 对无 REQ/BUG 来源的纯治理 Change，Sprint skipped/unresolved MUST 视为阻塞；必须先通过 `/sprint-propose` 或 `scripts/add-sprint-scope-item.py --change <change-id>` 纳入 Sprint。
@@ -173,7 +173,7 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 
 ## Change 身份门禁
 
-遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `bash scripts/project-python.sh scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `bash scripts/project-python.sh scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
 
 ## 面向用户的表达
 

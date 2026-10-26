@@ -31,7 +31,7 @@ def test_terminal_grace_preserves_command_completion(chat,tmp_path):
         row=enqueue(db,'alice',cid,'late-command','test',LIMITS);token=worker.claim(db,'worker')
     assert run_claim(factory,token,path,lambda _:Peer())=='completed'
     with factory() as db:
-        payloads=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.turn_id==row['id'],events.c.event_type=='execution.tool'))]
+        payloads=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.turn_id==row['id'],events.c.event_type=='execution.tool').order_by(events.c.sequence))]
         assert [value['phase'] for value in payloads]==['started','completed']
         assert payloads[-1]['exit_code']==0
         assert db.scalar(select(reservations.c.actual_tokens))==7
@@ -60,7 +60,7 @@ def test_unknown_terminal_reconciliation_settles_persisted_receipt(chat,tmp_path
         assert db.scalar(select(reservations.c.status))=='settled'
         assert db.scalar(select(reservations.c.actual_tokens))==17
         assert db.scalar(select(turns.c.error_code)) is None
-        recovered=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.event_type=='execution.tool'))]
+        recovered=[json.loads(value) for value in db.scalars(select(events.c.payload).where(events.c.event_type=='execution.tool').order_by(events.c.sequence))]
         assert len(recovered)==1 and recovered[0]['exit_code']==0
         terminal=json.loads(db.scalar(select(events.c.payload).where(events.c.source_id=='reconcile:terminal')))
         assert terminal['usage_pending'] is False

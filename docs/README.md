@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 owner: MoonBox 产品团队
 ---
 
@@ -10,6 +10,7 @@ owner: MoonBox 产品团队
 
 | 文档 | 用途 |
 |---|---|
+| [治理脚本执行说明](../scripts/README.md) | Python 统一入口、环境预检和子进程继承 |
 | `00-product-overview.md` | 产品定位、用户、问题、能力 |
 | `01-architecture.md` | 架构、模块和数据流 |
 | `02-deployment.md` | docker-compose、本地端口、环境变量 |

@@ -5,6 +5,24 @@ from app.chat.schema import events, reservations, turns
 from app.chat.admission import settle, release_concurrency
 
 
+def stored_metadata_bytes(db, tid):
+    """Count persisted UTF-8 payloads, independent of DB pages, WAL and indexes."""
+    from sqlalchemy import func, cast, LargeBinary
+    from app.chat.schema import messages, snapshots, diffs
+    total = 0
+    for table, column in ((messages, messages.c.content),
+                          (snapshots, snapshots.c.content), (diffs, diffs.c.payload)):
+        length = func.octet_length(column) if db.get_bind().dialect.name == 'mysql' else func.length(cast(column, LargeBinary))
+        total += db.scalar(select(func.coalesce(func.sum(length), 0)).where(table.c.turn_id == tid)) or 0
+    # Preparing the same turn again does not duplicate its prompt/reference rows.
+    # Earlier attempts already settled these bytes; charge only the new remainder.
+    from app.chat.content_schema import prepare_attempts
+    prior = db.scalar(select(func.coalesce(func.sum(prepare_attempts.c.prior_bytes), 0))
+        .where(prepare_attempts.c.turn_id == tid)) or 0
+    # MySQL SUM(BigInteger) returns Decimal; this is an exact integer byte count.
+    return max(0, int(total)-int(prior))
+
+
 def reconcile_usage(db, tid):
     row=db.execute(select(turns).where(turns.c.id==tid)).mappings().first()
     if not row or row['status'] not in ('completed','failed','stopped'):return False
@@ -28,7 +46,8 @@ def reconcile_usage(db, tid):
         ).values(error_code='usage_unavailable'))
         db.commit();return False
     if data.get('total_tokens') is None:return False
-    changed=settle(db,tid,data['total_tokens'],data['actual_bytes'])
+    actual_bytes = stored_metadata_bytes(db, tid) if row['reserved_bytes'] == 0 else data['actual_bytes']
+    changed=settle(db,tid,data['total_tokens'],actual_bytes,revised_receipt=True)
     if changed:
         if row['error_code'] in ('usage_unavailable','reconciled_usage_pending'):
             db.execute(update(turns).where(turns.c.id==tid).values(error_code=None))

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "change_id": "support-reviewed-spec-evolution",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "title": "同名修改及完整规格覆盖",
+      "argv": [
+        "env",
+        "PYTHONPATH=src/backend:src/backend/tests",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "openspec/changes/support-reviewed-spec-evolution/specs",
+        "openspec/changes/support-reviewed-spec-evolution/design.md",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "title": "无效证据与历史拒绝",
+      "argv": [
+        "env",
+        "PYTHONPATH=src/backend:src/backend/tests",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "openspec/changes/support-reviewed-spec-evolution/specs",
+        "openspec/changes/support-reviewed-spec-evolution/design.md",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "title": "产品与共享入口一致性",
+      "argv": [
+        "env",
+        "PYTHONPATH=src/backend:src/backend/tests",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "openspec/changes/support-reviewed-spec-evolution/specs",
+        "openspec/changes/support-reviewed-spec-evolution/design.md",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "title": "权限及写前并发保护",
+      "argv": [
+        "env",
+        "PYTHONPATH=src/backend:src/backend/tests",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "inputs": [
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "openspec/changes/support-reviewed-spec-evolution/specs",
+        "openspec/changes/support-reviewed-spec-evolution/design.md",
+        "src/backend/tests/test_reviewed_spec_evolution.py",
+        "src/backend/tests/test_protected_rule_integrity.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_rule_change_light.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_deployed_acceptance_diagnostics.py",
+        "src/backend/tests/test_archive_blocker_diagnostics.py"
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

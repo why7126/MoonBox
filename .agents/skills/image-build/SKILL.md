@@ -1,6 +1,6 @@
 ---
 name: "image-build"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "基于发布镜像构建计划执行镜像构建并生成 manifest"
 ---
 
@@ -61,9 +61,9 @@ scripts/validate-image-build.py
 ## Command
 
 ```bash
-python scripts/validate-image-build.py validate-plan --release <version>
-python scripts/validate-image-build.py build --release <version>
-python scripts/validate-image-build.py validate-manifest --release <version>
+bash scripts/project-python.sh scripts/validate-image-build.py validate-plan --release <version>
+bash scripts/project-python.sh scripts/validate-image-build.py build --release <version>
+bash scripts/project-python.sh scripts/validate-image-build.py validate-manifest --release <version>
 ```
 
 ## Output Contract（MUST）
@@ -91,7 +91,7 @@ Report compact summary only:
 After the command completes or records blockers, run:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event image.build \
   --release <version> \

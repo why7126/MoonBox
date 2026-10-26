@@ -2,7 +2,7 @@
 name: "git-sync"
 description: "按交付范围安全暂存、提交、创建正式发布标签并同步远程 Git 仓库"
 created_at: 2026-10-09 10:20:05
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # git-sync
@@ -35,10 +35,10 @@ updated_at: 2026-10-23 08:31:02
 
 ## 阶段 2：排除与暂存
 
-1. 用 `git check-ignore -v`、`git ls-files`、现有 `.gitignore` 和 `python scripts/validate-env-ignore-policy.py` 区分未跟踪、被忽略、已跟踪文件。`/git-check` 的 error 为阻断项。
+1. 用 `git check-ignore -v`、`git ls-files`、现有 `.gitignore` 和 `bash scripts/project-python.sh scripts/validate-env-ignore-policy.py` 区分未跟踪、被忽略、已跟踪文件。`/git-check` 的 error 为阻断项。
 2. 对确属本地运行数据的新类型，按最小匹配范围更新 `.gitignore`；不要忽略同目录下的示例、模板或需提交的验证证据。已跟踪文件不会因 `.gitignore` 自动移出索引；需要移出时先确认归属和历史泄漏风险，再用精确路径执行 `git rm --cached --`，保留本地文件。绝不自动删除本地数据或改写 Git 历史。
 3. 用精确路径或交互式 hunk 选择暂存；检查 `git diff --cached --name-status`、`git diff --cached --stat`、必要的聚焦 diff 和 `git diff --cached --check`。重复查看实际暂存内容，避免把混合文件的无关 hunk 纳入本次提交。
-4. 运行 `python scripts/git-check.py`。如扫描器不能覆盖本次新增文件或待推送的历史提交，补做对应范围检查；真实凭证或客户数据一旦进入待推送历史，停止推送并报告清理与轮换需求。warning 记录处置结论，error 修复后重跑。
+4. 运行 `bash scripts/project-python.sh scripts/git-check.py`。如扫描器不能覆盖本次新增文件或待推送的历史提交，补做对应范围检查；真实凭证或客户数据一旦进入待推送历史，停止推送并报告清理与轮换需求。warning 记录处置结论，error 修复后重跑。
 
 ## 阶段 3：提交
 

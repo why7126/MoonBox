@@ -35,13 +35,36 @@ def test_long_turn_default_has_no_wall_clock_deadline(chat,tmp_path,monkeypatch,
         assert db.scalar(select(turns.c.status).where(turns.c.id==row['id']))==expected
 
 
-@pytest.mark.parametrize('response,oversize,accepted',[(True,False,True),(False,False,False),(True,True,False)])
-def test_history_response_bound_preserves_stream_event_limit(response,oversize,accepted):
-    value={'id':1,'result':'x'*(5*1024*1024 if oversize else 300000)} if response else {'method':'event','params':'x'*300000}
+@pytest.mark.parametrize('response,oversize,accepted',[(True,False,True),(False,False,True),(True,True,False),(False,True,False)])
+def test_deployment_frame_boundary_applies_to_responses_and_events(response,oversize,accepted):
+    size=9*1024*1024 if oversize else 300000
+    value={'id':1,'result':'x'*size} if response else {'method':'event','params':'x'*size}
     server=AppServer.__new__(AppServer)
     server.process=SimpleNamespace(stdout=io.BytesIO((json.dumps(value)+'\n').encode()))
     server.incoming=queue.Queue();server.failure=None
     server.closed = False
     server._read()
     assert (not server.incoming.empty())==accepted
-    assert server.failure==('executor_disconnected' if accepted else 'executor_frame_limit')
+    assert server.failure==('executor_disconnected' if accepted else 'protocol_resource_limit')
+
+
+@pytest.mark.parametrize('size,response', [(262144,False),(1048576,False),(4194304,True),(7340032,True),(8388608,True),(8388609,False)])
+def test_exact_protocol_frame_matrix(size, response):
+    value = {'id':1,'result':''} if response else {'method':'event','params':''}
+    key = 'result' if response else 'params'
+    overhead = len((json.dumps(value)+'\n').encode())
+    value[key] = 'x' * (size-overhead)
+    payload = (json.dumps(value)+'\n').encode(); assert len(payload) == size
+    server = AppServer.__new__(AppServer); server.process = SimpleNamespace(stdout=io.BytesIO(payload))
+    server.incoming = queue.Queue(); server.failure = None; server.closed = False
+    server._read()
+    assert (not server.incoming.empty()) == (size <= 8388608)
+    assert server.failure == ('executor_disconnected' if size <= 8388608 else 'protocol_resource_limit')
+
+
+@pytest.mark.parametrize('payload',[b'{"text":"unfinished',b'{"text":"\xff"}\n',b'{"ok":true}'])
+def test_malformed_or_incomplete_frames_are_not_published(payload):
+    server = AppServer.__new__(AppServer); server.process = SimpleNamespace(stdout=io.BytesIO(payload))
+    server.incoming = queue.Queue(); server.failure = None; server.closed = False
+    server._read()
+    assert server.incoming.empty() and server.failure == 'executor_invalid_frame'

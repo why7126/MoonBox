@@ -2,7 +2,7 @@
 requirement_id: REQ-0050-controlled-rule-replacement-proof
 title: 规则修改说明与安全归档验收标准
 created_at: '2026-10-22 13:11:21'
-updated_at: 2026-10-24 20:59:30
+updated_at: 2026-10-26 11:12:34
 acceptance_status: passed
 ---
 
@@ -55,24 +55,25 @@ acceptance_status: passed
 
 ## 2026-10-24 v6 逐项复验
 
-当前隔离产品补充了交付验证来源缺失的真实页面拒绝、草稿保留、四种视口/主题、规则差异 API 的未登录与旧确认拒绝，以及规则正文变化和历史断链的失效检查；见 `openspec/changes/add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/`。这些均为部分证据，未覆盖完整差异抽屉、成功附件上传后保留、成功归档和跨入口并发，不能将 AC-L01—L11 判为通过。
+当前隔离产品补充了交付验证来源缺失的真实页面拒绝、草稿保留、四种视口/主题、规则差异 API 的未登录与旧确认拒绝，以及规则正文变化和历史断链的失效检查；见 `openspec/archive/2026-10-24-add-controlled-rule-replacement-proof/evidence/v6/partial/source-blocker/`。这些均为部分证据，未覆盖完整差异抽屉、成功附件上传后保留、成功归档和跨入口并发，不能将 AC-L01—L11 判为通过。
 
-额外人员签署已取消，但仍需当前逐项证据。复验 `20261024072344290104-75c04839`：AC-L12 通过，AC-L01—L11 因真实样本不完整而阻断；AC-L06/L09 还缺本版视觉截图与样式。功能失败 0 项，完整验收与归档准入尚未通过。证据见 `openspec/changes/add-controlled-rule-replacement-proof/evidence/acceptance/20261024072344290104-75c04839/summary.md`。Sprint 最终关闭的验收报告仍按 Sprint 自身规则处理。
+额外人员签署已取消，但仍需当前逐项证据。复验 `20261024072344290104-75c04839`：AC-L12 通过，AC-L01—L11 因真实样本不完整而阻断；AC-L06/L09 还缺本版视觉截图与样式。功能失败 0 项，完整验收与归档准入尚未通过。证据见 `openspec/archive/2026-10-24-add-controlled-rule-replacement-proof/evidence/acceptance/20261024072344290104-75c04839/summary.md`。Sprint 最终关闭的验收报告仍按 Sprint 自身规则处理。
 
 ## 2026-10-23 v5 增量诊断（历史）
 
-AC-L12 的当前历史与独立交付状态检查通过；AC-L01—L11 仍缺本版完整产品证据，其中 AC-L06/L09 缺当前页面截图及计算样式。诊断入口为 `openspec/changes/add-controlled-rule-replacement-proof/evidence/acceptance/20261023225114357767-f44e70ec/`。完整验收尚未通过，以下 `acceptance_status` 保持 pending。
+AC-L12 的当前历史与独立交付状态检查通过；AC-L01—L11 仍缺本版完整产品证据，其中 AC-L06/L09 缺当前页面截图及计算样式。诊断入口为 `openspec/archive/2026-10-24-add-controlled-rule-replacement-proof/evidence/acceptance/20261023225114357767-f44e70ec/`。完整验收尚未通过，以下 `acceptance_status` 保持 pending。
 
 ## 验收结果回填
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-24 20:59:30
+accepted_at: 2026-10-26 11:12:34
 accepted_by: workflow-sync
 source_change: add-controlled-rule-replacement-proof
 source_sprint: sprint-013
 evidence: [openspec/archive/2026-10-24-add-controlled-rule-replacement-proof/evidence/acceptance/20261024205509535541-da469c98/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
+

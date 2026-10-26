@@ -1,6 +1,6 @@
 ---
 name: "usage-docs-update"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "更新 MoonBox Mintlify 产品手册页面并保持公开安全校验"
 ---
 
@@ -53,8 +53,8 @@ Then read only impacted pages.
 5. 运行：
 
 ```bash
-python scripts/generate-mintlify-docs.py --version <version>
-python scripts/validate-mintlify-docs.py
+bash scripts/project-python.sh scripts/generate-mintlify-docs.py --version <version>
+bash scripts/project-python.sh scripts/validate-mintlify-docs.py
 ```
 
 6. 若改动源自 release 公告，确认 `releases/vX.Y.Z/announcement.mdx` 仍是发布事实源，Mintlify 只是投影。

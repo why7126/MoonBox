@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: 2026-10-20 18:27:28
+updated_at: 2026-10-25 22:25:00
 owner: MoonBox 产品团队
 ---
 
@@ -43,21 +43,23 @@ owner: MoonBox 产品团队
 - `/req-review <REQ-full-id>` 无 flag 时默认评审通过，下一步 MUST 是 `/sprint-propose --req <REQ-full-id>`；`/bug-review <BUG-full-id>` 同理，下一步 MUST 是 `/sprint-propose --bug <BUG-full-id>`。`--approve` 仅作为兼容别名，拒绝或延后必须显式使用反向 flag。
 - `/req-opsx` 和 `/bug-opsx` 遇到 `status: approved` 但尚未 `in_sprint` 时 MUST 停止，并提示先运行对应 `/sprint-propose`。
 - `/req-opsx` / `/bug-opsx` 完成后 MUST 运行 Workflow Sync，把新 Change 回填到同一个 Sprint 的 `changes[]` 与 `scope_estimates[].change`。
-- `/req-opsx` / `/bug-opsx` 生成 Change 后 MUST 运行 `python scripts/validate-openspec-language.py --change <change-id> --residual-report`；当前 Change 中文优先问题阻断当前链路，其他 active Change 残留只进入分离报告和复盘 warning。
+- `/req-opsx` / `/bug-opsx` 生成 Change 后 MUST 运行 `bash scripts/project-python.sh scripts/validate-openspec-language.py --change <change-id> --residual-report`；当前 Change 中文优先问题阻断当前链路，其他 active Change 残留只进入分离报告和复盘 warning。
 - 如果 REQ/BUG 已经纳入 Sprint，但 `/opsx-apply --dry-run` 仍解析不到 Sprint，优先修复 `sprint.yaml` 机器事实源，不要求用户重复口头确认。
 - Workflow Sync 读取 Sprint 范围时接受合法的同级无缩进 YAML 列表；`sprint.yaml` 语法无效时返回错误，不得以部分解析结果报告同步成功。修正文件后重新运行原事件并核对 REQ/Change 与 Sprint 双向范围。
 
 ## Apply / Modify / Archive
 
-- `/opsx-apply` 前 MUST 通过 `python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` 确认目标 Change 位于 Sprint scope。
+- `/opsx-apply` 前 MUST 通过 `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` 确认目标 Change 位于 Sprint scope。
 - `/opsx-modify` 只用于 `/opsx-apply` 之后、`/opsx-archive` 之前的验收返修；超出原 Change 范围时应创建新 REQ/BUG 或新 Change。
 - `/opsx-accept` 在 apply 完成后自动续接，按 `docs/standards/opsx-acceptance.md` 生成逐 AC 证据包与归档就绪结论；返修后只重跑过期项。用户没有授权归档时停在可归档状态。
 - `/opsx-modify` 执行返修期间用户可见阶段展示为“研发中”；返修完成、验证和 Workflow Sync 通过后自动回到“验收中 / 待复验”。该展示属于返修投影语义，不得用普通 `in_progress` 覆盖 Change 的 `applied` 事实或首次 apply 的 `execution.completed_at`。
 - `/opsx-archive` 只能归档已完成 tasks 且 artifact 完整的 Change。
-- 有 `acceptance-plan.json` 的 Change 在归档前必须通过 `python scripts/opsx_acceptance.py --change <change-id> --readiness`；历史 Change 不因缺新计划而倒填通过结论。
+- 有 `acceptance-plan.json` 的 Change 在归档前必须通过 `bash scripts/project-python.sh scripts/opsx_acceptance.py --change <change-id> --readiness`；历史 Change 不因缺新计划而倒填通过结论。
 - 归档步骤必须严格串行：归档脚本或 OpenSpec archive → 目录校验 → env ignore 校验 → archive evidence → Workflow Sync → Issue promote → AI Usage。
 
 ## Apply 连续执行契约
+
+所有持久化治理步骤前先执行 `bash scripts/project-python.sh --check`；Python 脚本通过该入口运行，解释器选择、CI/容器配置、错误处理和子进程继承见 [治理脚本执行说明](../scripts/README.md)。环境预检失败时不开始文档写入或工作流同步。
 
 本节是 `opsx-apply` 与 `openspec-apply-change` 的共同事实源；两份技能 MUST 读取本节。连续执行不豁免 Sprint、根因证据、UI Skeleton 首轮人工确认、权限、安全及必要验收门禁。
 
@@ -104,24 +106,24 @@ OpenSpec CLI 的动态提示（包括 Pause if you hit blockers or need clarific
 
 ### 行为验收
 
-按 [Apply行为验收](standards/apply-behavior-acceptance.md) 记录最小脱敏轨迹并用 `python scripts/validate-apply-behavior.py --trace` 校验；脚本完整用法见该标准。`--self-test` 是合成正反例，真实会话必须标记observed并保留可复核证据。静态契约、合成回归、真实行为观察分别报告；不得把脚本通过等同于Agent全部场景通过。
+按 [Apply行为验收](standards/apply-behavior-acceptance.md) 记录最小脱敏轨迹并用 `bash scripts/project-python.sh scripts/validate-apply-behavior.py --trace` 校验；脚本完整用法见该标准。`--self-test` 是合成正反例，真实会话必须标记observed并保留可复核证据。静态契约、合成回归、真实行为观察分别报告；不得把脚本通过等同于Agent全部场景通过。
 
 ### 契约校验
 
-`python scripts/validate-agent-context-budget.py` 检查两份技能对本节及四个子契约的引用，阻断已知宽泛暂停、仅任务完成即归档和自检切换 modify 文案回退。脚本级回归测试覆盖删除引用与恢复旧文案的反例；静态校验不替代真实 Agent 任务运行观察。
+`bash scripts/project-python.sh scripts/validate-agent-context-budget.py` 检查两份技能对本节及四个子契约的引用，阻断已知宽泛暂停、仅任务完成即归档和自检切换 modify 文案回退。脚本级回归测试覆盖删除引用与恢复旧文案的反例；静态校验不替代真实 Agent 任务运行观察。
 
 ## 治理脚本门禁矩阵
 
 | 变更触达面 | 必跑或优先校验 | 说明 |
 |---|---|---|
-| `.agents/skills/**`、`rules/agent-context-budget.md` | `python scripts/validate-agent-context-budget.py` | 校验 Skill 是否保留上下文预算、执行复盘、下一步输出等共享契约。 |
+| `.agents/skills/**`、`rules/agent-context-budget.md` | `bash scripts/project-python.sh scripts/validate-agent-context-budget.py` | 校验 Skill 是否保留上下文预算、执行复盘、下一步输出等共享契约。 |
 | OpenSpec Change 文档 | `bash scripts/validate-openspec.sh --change <change-id> --residual-report` | 当前 Change 中文优先与结构校验；其他 active Change 残留只作为分离报告，归档前还需校验合并后的正式规格。 |
-| 目录边界、ignore、临时证据 | `python scripts/validate-directory-structure.py`、必要时 `python scripts/validate-env-ignore-policy.py` | 校验顶层目录、legacy 路径、运行时数据和环境变量 ignore 策略。 |
-| Sprint scope | `python scripts/validate-sprint-scope.py --sprint <sprint-id>` | 校验 `sprint.yaml`、派生表和范围估算一致性。 |
-| Workflow Sync 行为 | `python scripts/sync-workflow-status.py --event <event> ... --dry-run`，必要时运行 focused pytest | 先 dry-run 定位派生影响，再执行写入；脚本变更必须跑对应测试或自检。 |
+| 目录边界、ignore、临时证据 | `bash scripts/project-python.sh scripts/validate-directory-structure.py`、必要时 `bash scripts/project-python.sh scripts/validate-env-ignore-policy.py` | 校验顶层目录、legacy 路径、运行时数据和环境变量 ignore 策略。 |
+| Sprint scope | `bash scripts/project-python.sh scripts/validate-sprint-scope.py --sprint <sprint-id>` | 校验 `sprint.yaml`、派生表和范围估算一致性。 |
+| Workflow Sync 行为 | `bash scripts/project-python.sh scripts/sync-workflow-status.py --event <event> ... --dry-run`，必要时运行 focused pytest | 先 dry-run 定位派生影响，再执行写入；脚本变更必须跑对应测试或自检。 |
 | REQ/BUG 文档质量 | Workflow Sync 聚焦命令、`--scan-issue-subdocuments` 或对应根因证据校验 | 恢复 trace、registry、CHANGELOG、验收和子文档一致性，不手工编辑派生 marker。 |
-| 产品手册/Mintlify | `python scripts/validate-mintlify-docs.py` | 仅在触达 `mintlify/` 或产品手册投影时必跑。 |
-| 发布产物与构建记录 | `/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` 对应校验，必要时 `python scripts/validate-release.py` 或 `python scripts/validate-release-upgrade.py` | 校验 release input、manifest、input hash、产物摘要、外部证据和发布写入边界。 |
+| 产品手册/Mintlify | `bash scripts/project-python.sh scripts/validate-mintlify-docs.py` | 仅在触达 `mintlify/` 或产品手册投影时必跑。 |
+| 发布产物与构建记录 | `/release-prepare`、`/image-prepare`、`/image-build`、`/release-publish` 对应校验，必要时 `bash scripts/project-python.sh scripts/validate-release.py` 或 `bash scripts/project-python.sh scripts/validate-release-upgrade.py` | 校验 release input、manifest、input hash、产物摘要、外部证据和发布写入边界。 |
 | 慢测试、覆盖率、浏览器验收或 Docker smoke 调度 | 聚焦测试命令、分区/worker 配置说明、失败分区摘要和必要 CI 补跑命令 | 串行高风险用例先跑；并行池必须可复跑，不得降低断言或隐藏受影响文件。 |
 
 若某项校验因当前变更不触达对应面而不适用，最终回复、trace、学习报告或治理日志 MUST 明确说明“不适用原因”；若校验失败但属于既有工作区漂移，MUST 记录失败摘要和本次未处理范围。

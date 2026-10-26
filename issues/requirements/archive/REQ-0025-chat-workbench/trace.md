@@ -3,7 +3,7 @@ requirement_id: REQ-0025-chat-workbench
 title: 实现 Chat 工作台功能
 status: done
 created_at: 2026-09-08 08:50:32
-updated_at: 2026-10-21 16:24:33
+updated_at: 2026-10-26 10:23:49
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-09-08 08:50:32
@@ -15,7 +15,7 @@ iteration: sprint-004
 openspec_changes:
   - change_id: add-chat-workbench-codex
     type: add
-    status: proposed
+    status: archived
 related_requirements:
 - REQ-0020-requirement-center-card-document-actions-ai-chat
 - REQ-0023-product-workbench-modern-ops-visual-system

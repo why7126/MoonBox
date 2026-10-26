@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 name: workflow-sync
 description: Sync REQ/BUG/Sprint/OpenSpec workflow status after req/bug/sprint/opsx commands
 ---
@@ -25,7 +25,7 @@ After any workflow command that changes REQ, BUG, Change, or Sprint scope/status
 ## Command
 
 ```bash
-python scripts/sync-workflow-status.py \
+bash scripts/project-python.sh scripts/sync-workflow-status.py \
   --event <event> \
   [--sprint auto|sprint-xxx] \
   [--change <change-id>] \
@@ -38,7 +38,7 @@ python scripts/sync-workflow-status.py \
 After a `/req-*`, `/bug-*`, `/opsx-*`, or `/sprint-*` workflow command finishes its main work and the Workflow Sync command above exits with code `0`, run the unified AI usage hook or report why it is skipped:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event <event> \
   [--req <REQ-id>] \
@@ -120,7 +120,7 @@ For `opsx.apply`, sprint sync skipped/unresolved is a **blocking precondition fa
 When issue archive promotion is blocked by residual `status` fields in issue subdocuments, do not hand-edit files in bulk. Use workflow sync reconcile mode:
 
 ```bash
-python scripts/sync-workflow-status.py \
+bash scripts/project-python.sh scripts/sync-workflow-status.py \
   --event req.archive \
   --req REQ-xxxx-slug \
   --sprint auto \
@@ -129,7 +129,7 @@ python scripts/sync-workflow-status.py \
 ```
 
 ```bash
-python scripts/sync-workflow-status.py \
+bash scripts/project-python.sh scripts/sync-workflow-status.py \
   --event req.archive \
   --req REQ-xxxx-slug \
   --sprint auto \

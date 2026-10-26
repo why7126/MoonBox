@@ -1,6 +1,6 @@
 ---
 name: "upgrade-validate"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "校验版本部署升级与回滚计划"
 ---
 
@@ -41,7 +41,7 @@ rules/agent-context-budget.md
 ## Command
 
 ```bash
-python scripts/validate-release-upgrade.py validate-plan --plan <path>
+bash scripts/project-python.sh scripts/validate-release-upgrade.py validate-plan --plan <path>
 ```
 
 ## Boundaries

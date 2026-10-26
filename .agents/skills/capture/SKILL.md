@@ -1,6 +1,6 @@
 ---
 name: "capture"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "智能收集 - 自动区分需求与缺陷，按需拆分并分别走 req-capture / bug-capture 落盘"
 ---
 
@@ -112,10 +112,10 @@ Read `.agents/skills/workflow-sync/SKILL.md`.对每条创建的 REQ / BUG：
 
 ```bash
 for req in REQ-xxxx-slug ...; do
-  python scripts/sync-workflow-status.py --event req.capture --req "$req" --sprint auto || exit 1
+  bash scripts/project-python.sh scripts/sync-workflow-status.py --event req.capture --req "$req" --sprint auto || exit 1
 done
 for bug in BUG-xxxx-slug ...; do
-  python scripts/sync-workflow-status.py --event bug.capture --bug "$bug" --sprint auto || exit 1
+  bash scripts/project-python.sh scripts/sync-workflow-status.py --event bug.capture --bug "$bug" --sprint auto || exit 1
 done
 ```
 

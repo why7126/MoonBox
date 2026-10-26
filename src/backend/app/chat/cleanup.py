@@ -68,6 +68,8 @@ def delete_history(db,actor,cid,expected_hash=None):
         'backup_due_at':(stamp+timedelta(seconds=limits['backup_expiry_seconds'])).isoformat(timespec='seconds') if limits and limits['backup_expiry_seconds'] is not None else None}
     # Accounted bytes include the baseline once; audit/trace records are retained separately.
     used=db.scalar(select(func.coalesce(func.sum(reservations.c.actual_bytes),0)).where(reservations.c.turn_id.in_(ids)))
+    from app.chat.content_store import purge_conversation
+    used += purge_conversation(db, cid)
     for key in (f'user:{actor}',f"space:{parent['space_id']}"):
         row=db.execute(select(usage_accounts).where(usage_accounts.c.id==key)).mappings().first()
         if row:db.execute(update(usage_accounts).where(usage_accounts.c.id==key).values(used_bytes=max(0,row['used_bytes']-used)))

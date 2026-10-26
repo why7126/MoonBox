@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 from app.chat.workspace import trusted_directory
+from app.chat.protocol_buffer import ByteQueue, FRAME_BYTES, QUEUE_BYTES, validate_depth
 
 class ExecutorError(RuntimeError):
     """Only stable codes leave this adapter; never forward raw protocol errors or stderr."""
@@ -35,7 +36,7 @@ class AppServer:
         self.write_scope = self._normalize_write_scope(write_scope if write_scope is not None else ('implementation_write' if write else 'read_only'))
         self.permission_profile = permission_profile or self.permission_profile_for_scope(self.write_scope)
         self.timeout = timeout; self.write = write; self.seq = 0
-        self.incoming = queue.Queue(maxsize=128); self.pending = deque(); self.failure = None; self.closed = False
+        self.incoming = ByteQueue(); self.pending = deque(); self.failure = None; self.closed = False
         self.env = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': str(self.home), 'CODEX_HOME': str(self.codex_home)}
         version = subprocess.run(self.version_command(executable), capture_output=True, env=self.env,
                                  timeout=self.version_timeout())
@@ -77,23 +78,27 @@ class AppServer:
     def _read(self):
         try:
             while True:
-                # Thread recovery responses include history; streamed events keep the smaller bound.
-                line = self.process.stdout.readline(4 * 1024 * 1024 + 1)
+                # Both notifications and recovery responses share the deployment frame bound.
+                line = self.process.stdout.readline(FRAME_BYTES + 1)
                 if not line: self.failure = 'executor_disconnected'; return
-                if len(line) > 4 * 1024 * 1024: self.failure = 'executor_frame_limit'; return
+                if len(line) > FRAME_BYTES or not validate_depth(line): self.failure = 'protocol_resource_limit'; return
+                if not line.endswith(b'\n'):
+                    self.failure = 'executor_frame_limit' if len(line) > 262144 else 'executor_invalid_frame'
+                    return
                 try: value = json.loads(line)
                 except (ValueError, UnicodeDecodeError):
                     self.failure = 'executor_frame_limit' if len(line) > 262144 else 'executor_invalid_frame'
                     return
                 if not isinstance(value, dict): self.failure = 'executor_invalid_frame'; return
-                if len(line) > 262144 and not ('id' in value and ('result' in value or 'error' in value)):
-                    self.failure = 'executor_frame_limit'; return
                 # Bound memory while allowing the durable consumer to lag behind a burst.
+                blocked_at = time.monotonic()
                 while not self.closed:
                     try:
                         self.incoming.put(value, timeout=.2)
                         break
                     except queue.Full:
+                        if time.monotonic()-blocked_at > 30:
+                            self.failure = 'result_backpressure_timeout'; return
                         continue
                 if self.closed:
                     return
@@ -131,7 +136,8 @@ class AppServer:
                 if 'error' in value: raise ExecutorError('executor_rpc_rejected')
                 if not isinstance(value.get('result'), dict): raise ExecutorError('executor_invalid_result')
                 return value['result']
-            if len(self.pending) >= 128: raise ExecutorError('executor_buffer_limit')
+            if len(self.pending) >= 128 or sum(len(json.dumps(item).encode()) for item in self.pending) + len(json.dumps(value).encode()) > QUEUE_BYTES:
+                raise ExecutorError('executor_buffer_limit')
             self.pending.append(value)
 
     def connect(self, thread_id=None):

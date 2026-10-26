@@ -336,10 +336,10 @@ def test_branch_catalog_and_uploaded_file_material_are_revalidated(chat,tmp_path
         assert 'object_key' not in stored_material['metadata']
 
 
-def test_limits_are_explicit_and_fail_closed(monkeypatch):
+def test_limits_default_unlimited_and_invalid_fail_closed(monkeypatch):
     from app.chat.settings import execution_limits
     monkeypatch.delenv('MOONBOX_CHAT_LIMITS', raising=False)
-    assert execution_limits() is None
+    assert execution_limits()['user_monthly_tokens'] is None
     monkeypatch.setenv('MOONBOX_CHAT_LIMITS', '{"user_concurrency":true}')
     assert execution_limits() is None
 
@@ -427,7 +427,7 @@ def test_diff_marks_workspace_snapshot_status(chat,governance,tmp_path,monkeypat
     assert all('current_sha256' not in item for item in data['files'])
 
 
-def test_execution_setup_failure_is_failed_and_releases_reservation(chat,tmp_path):
+def test_start_request_without_ack_keeps_unknown_and_reservation(chat,tmp_path):
     from app.chat.admission import enqueue
     from app.chat.execution import run_claim
     from app.chat.app_server import ExecutorError
@@ -440,12 +440,12 @@ def test_execution_setup_failure_is_failed_and_releases_reservation(chat,tmp_pat
         def start_turn(self,*_):raise ExecutorError('executor_disconnected')
         def close(self):pass
     with factory() as db:turn=enqueue(db,'alice',cid,'request','synthetic',limits);token=worker.claim(db,'executor')
-    assert run_claim(factory,token,path,lambda _:Peer())=='failed'
+    assert run_claim(factory,token,path,lambda _:Peer())=='unknown'
     with factory() as db:
-        assert db.scalar(select(conversations.c.active_turn_id)) is None
-        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='failed'
+        assert db.scalar(select(conversations.c.active_turn_id)) == turn['id']
+        assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='unknown'
         assert db.scalar(select(turns.c.error_code).where(turns.c.id==turn['id']))=='executor_disconnected'
-        assert db.scalar(select(reservations.c.status))=='settled'
+        assert db.scalar(select(reservations.c.status))=='reserved'
 
 
 def test_run_claim_accepts_source_workspace_identity(chat,tmp_path,monkeypatch):

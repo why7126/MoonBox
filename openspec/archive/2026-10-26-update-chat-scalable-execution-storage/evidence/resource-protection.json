@@ -1,0 +1,20 @@
+{
+  "synthetic_identity": true,
+  "api": "isolated production API route with SQLite",
+  "cpu": 1,
+  "memory_gib": 1,
+  "swap_gib": 0,
+  "pids_limit": 128,
+  "tmpfs_mib": 64,
+  "sample_period_seconds": 1,
+  "sample_count": 105,
+  "healthy_fraction": 1.0,
+  "oom_killed": true,
+  "container_exit_code": 137,
+  "diagnostic": "container_memory_exhausted",
+  "max_read_seconds": 0.0879,
+  "source_hashes": {
+    "src/backend/tests/chat_resource_probe.py": "4bccf85f035d369fc08693d624f9a4ec8f03ba95caa3dada000c9c51ac335bc8",
+    "src/backend/app/chat/container_server.py": "0186eb6ca9610a236f4176f3ad882ca8821f6bacfdca93154079ca0ca97c4cda"
+  }
+}

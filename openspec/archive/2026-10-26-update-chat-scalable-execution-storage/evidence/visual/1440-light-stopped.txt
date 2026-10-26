@@ -1,0 +1,67 @@
+Browser tab: 603238031, Title: "响应式验收画布", URL: "http://127.0.0.1:39058/frame.html?width=1440&state=stopped&theme=light".
+1 AXWebArea 响应式验收画布, URL: 127.0.0.1:39058/frame.html?width=1440&state=stopped&theme=light
+	2 container
+		3 AXWebArea Chat 隔离界面验收, URL: 127.0.0.1:39058/?state=stopped&theme=light
+			4 container root
+				5 container
+					6 text 隔离界面验收 · 合成状态 / 真实 API ·  stopped
+				7 container 执行与保存状态
+					8 heading 执行已中断, Value: 3
+						9 text 执行已中断
+					10 text 已确认保存至第 1 段；当前只加载最近四页。末尾完整性尚未确认。
+					11 button 查看已保存内容
+					12 container
+						13 text 读取内容 
+						14 pop up button (collapsed, settable) Description: 读取内容, Value: 执行输出, Secondary Actions: Expand
+							15 menu
+								16 (selected) 执行输出
+								17 最终答复
+					61 text 已保存内容：这是一段用于界面验收的合成文字，来自真实分页 API。中断后仍然可以按需读取。
+					62 button 检查新保存内容
+				18 container
+					19 text 暂无活动运行
+					20 button (disabled) 停止当前运行
+						21 image
+						22 text 停止当前运行
+					23 text 执行轮次
+					24 pop up button (collapsed, settable) 执行轮次, Value: 已停止 · 2026/10/26 09:59:35, Secondary Actions: Expand
+						25 menu
+							26 (disabled) 已停止 · 2026/10/26 09:59:35
+					27 image
+					28 text 重试将复用原轮次的引用快照
+					29 button 重试原轮次
+					30 text 所选轮次当前状态： 已停止 当前窗口  1  条已读取事件（每窗口最多 1000 条），连续文字已合并；历史状态不代表当前状态。
+					31 toolbar 轨迹工具栏
+						32 checkbox 收起内容, Value: 0
+						33 checkbox 事件顺序, Value: 0
+						34 text field (settable) 搜索轨迹
+					35 container 轨迹概览
+						36 button Description: 定位事件 1, Help: 状态 · 历史状态：已停止
+					37 content list 轨迹事件
+						38 container
+							39 button 查看事件 1 详情
+								40 text 状态
+								41 text  · 
+								42 text 1
+							43 text 历史状态：已停止
+					44 button (collapsed) 查看原始事件（1 条）, Secondary Actions: Expand
+						45 text 查看原始事件（
+						46 text 1
+						47 text  条）
+					48 heading 本轮引用快照, Value: 3
+						49 text 本轮引用快照
+					50 text 此轮没有引用快照。
+					51 heading 文件变更, Value: 3
+						52 text 文件变更
+					53 container
+						54 text 比较范围
+						55 pop up button (collapsed, settable) Description: Diff 比较范围, Value: 本轮执行快照, Secondary Actions: Expand
+							56 menu
+								57 (selected) 本轮执行快照
+								58 会话累计快照
+					59 text 尚无可信差异快照
+				60 button 采样样式
+				63 text {"viewport":1440,"overflow":false,"padding":"24px","radius":"6px","fontSize":"14px","background":"rgb(255, 255, 255)","color":"rgb(32, 38, 54)","panelWidth":960}
+		64 text 内容加载完成
+
+The focused UI element is 60 button 采样样式

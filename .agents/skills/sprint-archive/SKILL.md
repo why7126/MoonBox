@@ -1,6 +1,6 @@
 ---
 name: "sprint-archive"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "批量归档 Sprint 内 OpenSpec Change 并关闭迭代"
 ---
 
@@ -67,8 +67,8 @@ iterations/change/<sprint-id>/sprint.md（依赖/Scope 片段）
 
 ```bash
 openspec list --json
-python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
-python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --summary
+bash scripts/project-python.sh scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
+bash scripts/project-python.sh scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --summary
 ```
 
 Before reading raw Sprint/Issue/Change documents in detail, use the Sprint Fact Sheet as the compact read-first source. Only expand `sprint.md`、`acceptance-report.md`、Issue trace、Change `tasks.md` or `trace.md` when readiness blockers, stale scan warnings, missing evidence, or user focus requires it.
@@ -76,7 +76,7 @@ Before reading raw Sprint/Issue/Change documents in detail, use the Sprint Fact 
 For single change mode:
 
 ```bash
-python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id> --change <change-id>
+bash scripts/project-python.sh scripts/validate-sprint-archive-readiness.py --sprint <sprint-id> --change <change-id>
 ```
 
 Readiness distinguishes active and archived Change semantics: active Changes are checked for directory/tasks completion; archived Changes are additionally checked for `trace.md`. If an archived Change lacks `trace.md`, `proposal.md`、`design.md` or `tasks.md` MUST contain a complete `## 归档验证摘要` covering validation command/result, acceptance verdict, Issue/Sprint status, and archive path/time evidence.
@@ -84,7 +84,7 @@ Readiness distinguishes active and archived Change semantics: active Changes are
 Before any issue package is moved to `issues/**/archive/`, the promote step MUST pass the issue subdocument status gate:
 
 ```bash
-python scripts/promote-issues-for-archive.py --sprint <sprint-id>
+bash scripts/project-python.sh scripts/promote-issues-for-archive.py --sprint <sprint-id>
 ```
 
 If scoped REQ/BUG child Markdown files still contain non-closed frontmatter or fenced YAML `status` values such as `draft`、`pending_review`、`in_sprint`、`applied`、`todo`、`open`, keep the Sprint close blocked until those documents are reconciled.
@@ -112,7 +112,7 @@ Queue Report MUST include Sprint, mode, readiness verdict, each change action (`
 Before the final close step, check the Sprint AI usage snapshot through the Fact Sheet:
 
 ```bash
-python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
+bash scripts/project-python.sh scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
 ```
 
 Inspect `ai_usage_snapshot.snapshot_status`、`ai_usage_snapshot.ai_usage_mode`、`generated_at`、`coverage`、`warnings` and `recommended_action`.
@@ -123,7 +123,7 @@ Inspect `ai_usage_snapshot.snapshot_status`、`ai_usage_snapshot.ai_usage_mode`�
 When the operator provides a known session file, use:
 
 ```bash
-python scripts/extract-ai-usage.py --session-jsonl <local-session.jsonl> --sprint <sprint-id> --json
+bash scripts/project-python.sh scripts/extract-ai-usage.py --session-jsonl <local-session.jsonl> --sprint <sprint-id> --json
 ```
 
 - If local session input is unavailable after automatic discovery, or generation fails, continue only with an explicit warning in the close report: `ai_usage_mode: estimated_fallback`, reason, impact, and recommended_action. Do not state that real token usage was used.
@@ -142,9 +142,9 @@ For each `ARCHIVE NEXT`:
 Unless `--no-sprint-close`, close only when all Sprint changes are archived and readiness passes without `--force`:
 
 ```bash
-python scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
-python scripts/validate-env-ignore-policy.py
-python scripts/check-sprint-close-stale-scan.py --sprint <sprint-id>
+bash scripts/project-python.sh scripts/validate-sprint-archive-readiness.py --sprint <sprint-id>
+bash scripts/project-python.sh scripts/validate-env-ignore-policy.py
+bash scripts/project-python.sh scripts/check-sprint-close-stale-scan.py --sprint <sprint-id>
 ```
 
 Then update the four-piece as needed:
@@ -169,7 +169,7 @@ Move directory with `git mv iterations/change/<sprint-id> iterations/archive/<sp
 ## Final Step — Workflow Sync（MUST）
 
 ```bash
-python scripts/sync-workflow-status.py --event sprint.archive --sprint <sprint-id>
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event sprint.archive --sprint <sprint-id>
 ```
 
 Exit code MUST be `0`; print summary Workflow Sync Report; use `--output detail` only for debugging.

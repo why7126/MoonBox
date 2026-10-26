@@ -1,6 +1,6 @@
 ---
 name: "build-test-framework"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "建立 Testing Governance（pytest / vitest / E2E / CI / 映射）"
 ---
 
@@ -112,7 +112,7 @@ REQ-xxxx:
 ## Step 4 — 校验
 
 ```bash
-python scripts/validate-test-framework.py
+bash scripts/project-python.sh scripts/validate-test-framework.py
 cd src/backend && uv run pytest
 cd src/web && pnpm exec vitest run
 ```

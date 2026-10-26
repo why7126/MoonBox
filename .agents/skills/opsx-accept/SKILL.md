@@ -1,13 +1,13 @@
 ---
 name: opsx-accept
 description: 在 apply 后自动执行逐 AC 验收、采集脱敏产品证据并生成归档就绪结论
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 ## 验收收尾后的归档准入
 
 验收报告、trace、Workflow Sync 和 AI Usage 收尾完成后，执行
-`python scripts/opsx_acceptance.py --change <change-id> --archive-readiness`。
+`bash scripts/project-python.sh scripts/opsx_acceptance.py --change <change-id> --archive-readiness`。
 仅该共享产品/CLI 门禁返回 ready 后才推荐归档；AC passed、证据 readiness
 和规格合并预演不能替代最终准入。阻断时保留已通过的验收证据，报告具体
 `recovery_reason`，不得把旧记录过期或交付输入变化描述成规格基线变化。
@@ -44,9 +44,9 @@ updated_at: 2026-10-23 08:31:02
 
 1. 解析目标 Change 与关联 Sprint，检查 applied、全部任务、交付证据和 `acceptance-plan.json`。缺计划时根据 Issue AC 与 Change 验收目标生成逐项计划；每项声明 `inputs`、检查方式、必要效果、产品轮次要求和超时。逐 AC 核对证据类型与样本覆盖范围；视觉 AC 在 `coverage.samples` 中逐项映射阶段×视口到脱敏文件，确实不适用的组合写明原因，并声明检查浏览器依赖的计划级 `preflight`。负向归档用例须写预期退出码、专属门禁标记和保持原状态的效果，并先排除更早的任务或规格阻断。
 2. 遵循 `docs/standards/opsx-acceptance.md` 的“连续执行与恢复契约”：先运行 `--queue`，区分公共环境预检与逐 AC 前置条件；局部阻塞不停止独立项。缺少应生成的证据标记 pending_collection 并自主采集，不能只输出诊断后结束。有可执行项就继续，只有真实硬阻塞才请求必要输入。对有产品轮次要求的 AC，先在授权产品对象 Chat 发起对应动作，记下 turn ID，再用只读产品数据源核对同轮终态、目标命令完成和效果。浏览器截图只存必要脱敏画面；命令成功不能替代视觉观察。
-3. 运行 `python scripts/opsx_acceptance.py --change <change-id> [--db <authorized-local-sqlite>]`。命令检查按显式 argv 运行；失败或受阻立即记录原因。`--only` 是单项诊断入口；若其他 AC 无有效可复用证据，生成的诊断清单不参与整体 readiness，须补一次完整运行。仅对明确声明安全的瞬态命令最多重试两次；有副作用产品动作不自动原样重试。
+3. 运行 `bash scripts/project-python.sh scripts/opsx_acceptance.py --change <change-id> [--db <authorized-local-sqlite>]`。命令检查按显式 argv 运行；失败或受阻立即记录原因。`--only` 是单项诊断入口；若其他 AC 无有效可复用证据，生成的诊断清单不参与整体 readiness，须补一次完整运行。仅对明确声明安全的瞬态命令最多重试两次；有副作用产品动作不自动原样重试。
 4. 证据写入 `openspec/changes/<change-id>/evidence/acceptance/<run-id>/`。报告经结构校验后发布；核对 `manifest.json` 的 `scope` 与 `summary.md` 的标题、逐 AC 状态、检查来源、证据类型、入口、缺口及结论；视觉文件的语义由验收者目视签认，不因路径存在自动宣称产品视觉通过。不保存聊天原文、prompt、原始事件、密钥、数据库或未脱敏日志。Issue `acceptance.md` 保存逐 AC 结论及相对证据入口；Change trace 保存摘要与入口。
-5. 全部 AC 通过后按标准运行归档临时副本 `--preview`；预演不构成正式归档授权。随后运行 `python scripts/opsx_acceptance.py --change <change-id> --readiness`，再运行 `python scripts/sync-workflow-status.py --event opsx.accept --change <change-id> --sprint auto`。复核 Issue 验收状态。执行 AI Usage hook；无可归因输入只记 warning。
+5. 全部 AC 通过后按标准运行归档临时副本 `--preview`；预演不构成正式归档授权。随后运行 `bash scripts/project-python.sh scripts/opsx_acceptance.py --change <change-id> --readiness`，再运行 `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.accept --change <change-id> --sprint auto`。复核 Issue 验收状态。执行 AI Usage hook；无可归因输入只记 warning。
 6. 失败时在原 Change 范围内用 `/opsx-modify` 自修并重验受影响 AC；超范围变化走新 Issue/Change。环境或权限硬阻塞集中提出 1–3 个结构化决策，推荐项和补充说明齐全。不得无限循环创建验收样本。
 
 ## 输出

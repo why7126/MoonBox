@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "files": 12000,
+  "snapshot_bytes": 629148000,
+  "snapshot_seconds": 67.912,
+  "output_bytes": 33554432,
+  "save_seconds": 9.856,
+  "page_p95_seconds": 0.0034,
+  "peak_rss_bytes": 59334656,
+  "free_bytes_at_start": 343628976128,
+  "sqlite_version": "3.46.1",
+  "environment": {
+    "cpu": 4,
+    "worker_memory_gib": 1,
+    "worker_swap_gib": 0,
+    "host_memory_gib": 8,
+    "network": "none",
+    "database": "isolated SQLite"
+  },
+  "source_hashes": {
+    "src/backend/app/chat/snapshot_store.py": "afa98df69255a6e9b4b7f0298767f60628832c2341b9d090ac773ab5024beefc",
+    "src/backend/app/chat/content_store.py": "c9475d1ce1c465e8dbfa0009dce3fc573524bc1349149570040231ddf712e230",
+    "src/backend/app/chat/content_schema.py": "f5678241a624fe3445d5c92324d375ab999d14ce3e50a6402ff2be8835908fa5",
+    "src/backend/app/chat/resource_guard.py": "320a2b56251df0ef7f89532d8541b1047625d5957f1e0c04298810ede0e8117d",
+    "src/backend/app/chat/result_reader.py": "6b87ff5506986c8956c85bb53f5991f48bba3bb566bcd7a0124f8ccf421af0c4",
+    "src/backend/tests/chat_capacity_probe.py": "88951d1d8a0657f31755533aa947fe625abbefc3495d0148b1da97051b7ce100"
+  }
+}

@@ -1,5 +1,20 @@
-next_id: 53
+next_id: 54
 entries:
+- id: REQ-0053-chat-scalable-execution-storage
+  title: "Chat 无默认运营配额与大规模工作区持续执行"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户确认与同会话 explore
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0053-chat-scalable-execution-storage/
+  created: '2026-10-25 21:50:52'
+  iteration: sprint-013
+  related_change: update-chat-scalable-execution-storage
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: REQ-0025-chat-workbench
 - id: REQ-0052-stage-spec-reading-center
   title: "九阶段流转规范查阅与研发规范中心"
   status: pending_review
@@ -429,7 +444,7 @@ entries:
   target_iteration: null
   related_changes: []
   parent_requirement: null
-  iteration: null
+  iteration: sprint-004
   related_change: add-chat-workbench-codex
 - id: REQ-0024-markdown-editor-human-edit-permission-matrix
   title: Markdown 编辑器按治理阶段扩展人工编辑权限矩阵

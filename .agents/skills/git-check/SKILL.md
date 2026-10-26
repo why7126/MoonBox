@@ -1,6 +1,6 @@
 ---
 name: "git-check"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "推送前 Git 安全检测 - 检查 staged/tracked 文件中的隐私数据、真实环境文件、运行时数据、数据库文件、大文件、密钥/Token/连接串、本机绝对路径和不应进入 Git 的本地数据"
 ---
 
@@ -44,13 +44,13 @@ Use this skill when the user asks to run `/git-check`, perform a pre-push Git sa
 默认运行：
 
 ```bash
-python scripts/git-check.py
+bash scripts/project-python.sh scripts/git-check.py
 ```
 
 深度复核时可运行：
 
 ```bash
-python scripts/git-check.py --all
+bash scripts/project-python.sh scripts/git-check.py --all
 ```
 
 ## Scope

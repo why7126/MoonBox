@@ -1,6 +1,6 @@
 ---
 name: "release-publish"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "记录产品版本发布确认结果和最终公告位置"
 ---
 
@@ -62,7 +62,7 @@ src/shared/product-version.ts
 
 Publish MUST be blocked unless:
 
-- `python scripts/validate-release.py --release-dir releases/<version> --stage publish` exits `0`.
+- `bash scripts/project-python.sh scripts/validate-release.py --release-dir releases/<version> --stage publish` exits `0`.
 - Every required gate is `pass` or correctly justified as `na`.
 - Formal-scope Changes are archived.
 - Public announcement is safe for external publication.
@@ -77,7 +77,7 @@ Publish MUST be blocked unless:
 
 1. Validate release metadata and announcement safety.
 2. Validate image manifest when `image_required=true`:
-   - `python scripts/validate-image-build.py validate-manifest --release <version>`
+   - `bash scripts/project-python.sh scripts/validate-image-build.py validate-manifest --release <version>`
    - Confirm manifest `version`, `image_tag`, `source_plan` and `input_hashes` match current inputs.
    - If external build evidence is used, confirm evidence source, platform, digest or tarball sha256, validation method, owner confirmation and risk statement.
 3. Confirm publish-time fields:
@@ -116,7 +116,7 @@ Report version, publish status, announcement file/URL, validation command result
 After publish confirmation is recorded or publish is blocked with a documented reason, run:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event release.publish \
   --release <version> \

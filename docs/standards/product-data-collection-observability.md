@@ -285,3 +285,7 @@ phase 区分 selected、acknowledged、unknown。selected_profile 仅表示选�
 ## 治理恢复映射（REQ-0047）
 
 product_data_collection_observability: applicable；affected_layers: api、db、request_logs、usage_events、task_traces、task_trace_spans、web。恢复POST沿ChatRoute写可信request_id；显式Web入口记录governance.recovery，直接API不伪造行为事件。操作/尝试/application关联使用不透明标识，Task Trace沿governance.operation记录queued及原writer阶段。恢复不调用模型、不产生新增模型用量。metadata白名单不含原文、token、主机路径。验证覆盖权限过滤、重复请求、直接API与Web行为区分、SQLite/MySQL事务和90天恢复诊断清理；其余保留策略不扩大。
+
+### Chat 持续保存与恢复
+
+REQ-0053 新增行为 `chat.result_page`、`chat.file_page`、`chat.file_content`（含内容块比较）、`chat.recovery`。沿用服务端请求 ID 与可信客户端类型判定；直接 API 不伪装 Web 行为。worker 记录 `chat.snapshot_scan`、`chat.result_commit`（首段及每128段检查点）、`chat.resource_guard`、`chat.recovery_check`，关联原 task_trace，不以存储 span 改写运行终态。元数据仅含存储格式与稳定错误码，不记录正文、文件路径、游标、凭证或连接串；观测失败通过独立告警降级，不替换已提交结果。

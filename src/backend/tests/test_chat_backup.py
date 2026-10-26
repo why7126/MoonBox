@@ -183,3 +183,26 @@ def test_interrupted_expiry_reconciles_file_and_ledger(chat, tmp_path):
         db.execute('DELETE FROM backups WHERE id=?', (bid,))
     assert store.inventory() == []
     assert not stage.exists()
+
+
+def test_v2_deleted_content_cannot_return_through_backup(chat, tmp_path, monkeypatch):
+    from app.chat import content_store
+    from app.chat.content_schema import objects, segments
+    client, factory = chat; store, source = setup_store(chat, tmp_path)
+    cid = create(client); tid = queued(factory, cid)
+    with factory() as db:
+        content_store.result(db, cid, tid, 'final', 'synthetic', 0, b'persisted v2')
+        db.commit()
+    client.post(f'/api/v1/chat/turns/{tid}/interrupt')
+    backup_id = store.create(source)
+    monkeypatch.setenv('MOONBOX_CHAT_BACKUP_ROOT', str(store.root))
+    monkeypatch.setenv('MOONBOX_CHAT_RETENTION', json.dumps({'executor_delete_seconds':60,'backup_expiry_seconds':120}))
+    response = client.delete(f'/api/v1/chat/conversations/{cid}')
+    assert response.status_code == 200, response.text
+    restored = tmp_path / 'v2-restored.sqlite'
+    store.restore(backup_id, restored)
+    with sqlite3.connect(restored) as db:
+        assert db.execute('SELECT COUNT(*) FROM chat_content_objects').fetchone()[0] == 0
+        assert db.execute('SELECT COUNT(*) FROM chat_content_chunks').fetchone()[0] == 0
+        assert db.execute('SELECT COUNT(*) FROM chat_result_segments').fetchone()[0] == 0
+    assert client.get(f'/api/v1/chat/turns/{tid}/results').status_code in (403, 404)

@@ -42,24 +42,22 @@ def repository_catalog():
 
 
 def execution_limits():
-    """Explicit unlimited is distinct from missing configuration; bytes bound processing."""
+    """V2 operating defaults; deprecated turn reservations never cap new turns."""
     keys = ('user_concurrency', 'space_concurrency', 'user_monthly_tokens', 'space_monthly_tokens',
             'user_storage_bytes', 'space_storage_bytes', 'turn_reserved_tokens', 'turn_reserved_bytes')
     try:
         value = json.loads(os.environ.get('MOONBOX_CHAT_LIMITS', '{}'))
         if not isinstance(value, dict): return None
-        result = {}
+        result = {'policy_version': 2}
         for key in keys:
-            item = value.get(key)
-            if item == 'unlimited' and key != 'turn_reserved_bytes':
+            item = value.get(key, 'unlimited')
+            if item == 'unlimited' or item is None:
                 result[key] = None
             elif type(item) is int and 0 < item <= 10**15:
                 result[key] = item
             else: return None
-        for resource, reservation in (('monthly_tokens','turn_reserved_tokens'),('storage_bytes','turn_reserved_bytes')):
-            for kind in ('user','space'):
-                cap = result[f'{kind}_{resource}']; amount = result[reservation]
-                if cap is not None and (amount is None or amount > cap): return None
+        result['turn_reserved_tokens'] = None
+        result['turn_reserved_bytes'] = 0
         return result
     except (ValueError, TypeError):
         return None

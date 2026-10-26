@@ -1,6 +1,6 @@
 ---
 name: "bug-complete"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "缺陷完善 - 补齐 root-cause、workaround、acceptance、trace"
 ---
 
@@ -72,7 +72,7 @@ Ready：bug + root-cause + acceptance + trace + root-cause evidence gate 通过
 - 只有 `status: confirmed` 且 `## 证据链` 至少包含一条可复核证据时，才允许将 `trace.md` 推进到 `pending_review` 并输出 `/bug-review <BUG-full-id> --approve`。
 - 生成或更新 `root-cause.md` 后若状态仍非 `confirmed`，MUST 按 `rules/root-cause-evidence.md` §2.1 在同一命令内继续自主补证并回填证据链、排除假设、状态与缺口；文档已落盘不构成停止条件。证据足够时更新为 `confirmed` 并运行根因证据校验；仍不足时明确已尝试路径和阻碍，保持非确认状态。
 - 证据不足时，MUST 保持 `exploring` 或 `enriching`，先在已有权限内通过浏览器自主取证；仍缺关键证据时再输出人工补证清单、已尝试路径、操作步骤、返回字段、脱敏要求和返回格式；不得把推测写成已确认根因。
-- 成功补齐后 MUST 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；失败时先修正文档或继续补证，不得进入 review。
+- 成功补齐后 MUST 运行 `bash scripts/project-python.sh scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；失败时先修正文档或继续补证，不得进入 review。
 
 ## Next
 
@@ -99,7 +99,7 @@ Ready：bug + root-cause + acceptance + trace + root-cause evidence gate 通过
 Read `.agents/skills/workflow-sync/SKILL.md` and run:
 
 ```bash
-python scripts/sync-workflow-status.py --event bug.complete --bug <BUG-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event bug.complete --bug <BUG-id> --sprint auto
 ```
 
 - Exit code **MUST** be `0` before ending this command.
@@ -110,7 +110,7 @@ python scripts/sync-workflow-status.py --event bug.complete --bug <BUG-id> --spr
 
 本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
 
-在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
+在完成态 Workflow Sync 之前，对本次产物执行 `bash scripts/project-python.sh scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
 
 ## 面向用户的表达
 

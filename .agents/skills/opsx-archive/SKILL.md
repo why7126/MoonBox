@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # opsx-archive
@@ -90,7 +90,7 @@ openspec status --change "<change-id>" --json
 | MODIFIED title | matching `openspec/specs/<capability>/spec.md` requirement title MUST exist |
 | Documentation sync | before archive, affected long-lived docs / README / `.env.example` / API index / DB design / Orval notes / release or deployment docs MUST be checked and updated or explicitly marked not applicable |
 | Delivery evidence source | every applied Change MUST keep a Requirement Center-readable evidence source inside the Change; pure governance Changes do not require `acceptance.md` or `verification.md`, but must have a non-empty trace verification heading, valid `trace.acceptance_refs`, or another accepted Markdown evidence entry |
-| 自动验收证据 | 若 Change 有 `acceptance-plan.json`，MUST 在目录迁移前运行 `python scripts/opsx_acceptance.py --change <change-id> --readiness`，仅 ready 可继续；历史 Change 无新计划时沿用原门禁，不伪造通过 |
+| 自动验收证据 | 若 Change 有 `acceptance-plan.json`，MUST 在目录迁移前运行 `bash scripts/project-python.sh scripts/opsx_acceptance.py --change <change-id> --readiness`，仅 ready 可继续；历史 Change 无新计划时沿用原门禁，不伪造通过 |
 | Acceptance-fix ledger | if `/opsx-modify` ran after apply, `acceptance-fixes.md` SHOULD contain the full ledger; legacy `tasks.md` ledgers are accepted, but new Changes MUST keep full ledger in `acceptance-fixes.md` and `tasks.md` as summary/link only |
 | Product data observability | API / DB / audit log / usage event / Task Trace / Web/admin request wrapper / object storage / Agent Workflow observability changes MUST have `product_data_collection_observability` status, `affected_layers`, N/A reason and validation evidence; read `docs/standards/product-data-collection-observability.md` |
 | Prototype final consistency | if linked REQ or Change has `prototype/**`, `prototype_refs`, `AC-PROTOTYPE-*`, or UI Skeleton, linked REQ `requirement.md` / `acceptance.md` / `trace.md` MUST match final Change design, implementation evidence and 1440px visual acceptance |
@@ -112,7 +112,7 @@ openspec status --change "<change-id>" --json
 4. Before moving or merging the Change, complete documentation sync:
    - inspect `tasks.md`, `acceptance-fixes.md` when present, `trace.md`, delta spec headings, and implementation notes to identify affected docs;
    - verify the applied Change has a readable delivery evidence source inside the Change. Do not require `acceptance.md` or `verification.md` for pure governance Changes; accept non-empty trace verification headings or valid `trace.acceptance_refs`;
-   - run `python scripts/validate-change-delivery-evidence.py --change <change-id>` before archive to reuse the same delivery evidence source check as Requirement Center;
+   - run `bash scripts/project-python.sh scripts/validate-change-delivery-evidence.py --change <change-id>` before archive to reuse the same delivery evidence source check as Requirement Center;
    - if acceptance fixes were recorded, verify the full ledger, trace summary, Issue acceptance projection, and tasks summary/link are consistent; BLOCK archive when the ledger is missing, evidence is stale after `/opsx-modify`, or the trace summary contradicts the ledger;
    - update required long-lived docs according to `rules/document-governance.md` and task-specific rules, including `docs/03-api-index.md` / Orval notes for API changes, `docs/04-database-design.md` for DB changes, deployment / release docs and `.env.example` for environment or Docker changes, and README or compatibility docs when affected;
    - do not read, print, copy, or archive real env file contents; local `.env`、`.env.*`、`deploy/**/*.env`、`scripts/build-images.env` are allowed to exist when Git ignore policy covers them;
@@ -141,11 +141,11 @@ openspec status --change "<change-id>" --json
 Run these commands strictly sequentially. Do not use parallel execution or `multi_tool_use.parallel` for directory validation, Workflow Sync and issue promotion: each step depends on the files written by the previous step, and issue promotion depends on the files written by Workflow Sync.
 
 ```bash
-python scripts/validate-directory-structure.py
-python scripts/validate-env-ignore-policy.py
-python scripts/validate-archive-evidence.py --change <change-id> --archive-path openspec/archive/YYYY-MM-DD-<change-id>
-python scripts/sync-workflow-status.py --event opsx.archive --change <change-id> --sprint auto
-python scripts/promote-issues-for-archive.py --change <change-id> --reason "/opsx-archive <change-id>"
+bash scripts/project-python.sh scripts/validate-directory-structure.py
+bash scripts/project-python.sh scripts/validate-env-ignore-policy.py
+bash scripts/project-python.sh scripts/validate-archive-evidence.py --change <change-id> --archive-path openspec/archive/YYYY-MM-DD-<change-id>
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.archive --change <change-id> --sprint auto
+bash scripts/project-python.sh scripts/promote-issues-for-archive.py --change <change-id> --reason "/opsx-archive <change-id>"
 ```
 
 - All exit codes MUST be `0`.
@@ -166,7 +166,7 @@ python scripts/promote-issues-for-archive.py --change <change-id> --reason "/ops
 仅在手动恢复且 wrapper 尚未运行本 hook 时，Workflow Sync 和 issue promotion 均为0后执行；wrapper 成功则复用其摘要，不重复执行：
 
 ```bash
-python scripts/extract-ai-usage.py --post-command-hook --workflow-event opsx.archive --change <change-id> --sprint <resolved-sprint-id> [--req <linked-REQ-id>] [--bug <linked-BUG-id>] --json
+bash scripts/project-python.sh scripts/extract-ai-usage.py --post-command-hook --workflow-event opsx.archive --change <change-id> --sprint <resolved-sprint-id> [--req <linked-REQ-id>] [--bug <linked-BUG-id>] --json
 ```
 
 - If the archived change has `source_requirement` / `source_bug` or an issue trace link, pass the linked REQ/BUG explicitly. The extractor must also enrich `opsx.archive` from active or archived change trace/proposal and issue traces before writing usage facts.
@@ -186,7 +186,7 @@ Report change id, archive path, documentation sync status, spec sync status, war
 
 ## Change 身份门禁
 
-遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `python scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `python scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
+遵循 `rules/document-governance.md` 的“Change 身份唯一性”：新建前运行 `bash scripts/project-python.sh scripts/validate-change-identity.py --new-id <change-id>`；复用活动 Change 或归档前运行 `bash scripts/project-python.sh scripts/validate-change-identity.py`。失败时先处理冲突，不得复用已归档 ID 或按日期自动取最新。
 
 ## 稳定验证编排
 

@@ -587,6 +587,11 @@ def read_diff(db, actor, tid):
 
 
 def _attach_workspace_status(db, row_turn, result):
+    if result.get('format_version') == 2:
+        # Reading a stored page must not rescan the complete live workspace.
+        for key in ('files', 'cumulative_files'):
+            result[key] = [{**item, 'workspace_status': 'unknown'} for item in result.get(key, [])]
+        return result
     try:
         parent = db.execute(select(conversations).where(conversations.c.id == row_turn['conversation_id'])).mappings().one()
         from app.chat.settings import repository_binding

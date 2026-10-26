@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 name: "bug-generate"
 description: "缺陷生成 - 仅生成 bug.md"
 ---
@@ -95,7 +95,7 @@ related_change:
 Read `.agents/skills/workflow-sync/SKILL.md` and run:
 
 ```bash
-python scripts/sync-workflow-status.py --event bug.generate --bug <BUG-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event bug.generate --bug <BUG-id> --sprint auto
 ```
 
 - Exit code **MUST** be `0` before ending this command.
@@ -108,7 +108,7 @@ python scripts/sync-workflow-status.py --event bug.generate --bug <BUG-id> --spr
 
 本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
 
-在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
+在完成态 Workflow Sync 之前，对本次产物执行 `bash scripts/project-python.sh scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
 
 ## 面向用户的表达
 

@@ -222,6 +222,9 @@ class LocalBackupStore:
                             candidate_ids=list(db.scalars(select(governance_candidates.c.id).where(governance_candidates.c.conversation_id==cid)))
                             db.execute(delete(governance_applications).where(governance_applications.c.candidate_id.in_(candidate_ids)))
                             db.execute(delete(governance_candidates).where(governance_candidates.c.id.in_(candidate_ids)))
+                        if inspect(db.get_bind()).has_table('chat_content_objects'):
+                            from app.chat.content_store import purge_conversation
+                            purge_conversation(db, cid)
                         turn_ids = list(db.scalars(select(turns.c.id).where(turns.c.conversation_id == cid)))
                         for table in (events, messages, snapshots, diffs, reservations):
                             db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))

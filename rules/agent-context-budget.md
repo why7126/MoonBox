@@ -4,13 +4,15 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-10-23 08:30:47
+updated_at: 2026-10-25 22:25:00
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
 # Agent 上下文预算治理
 
 ## 1. 目标
+
+治理执行先通过 `bash scripts/project-python.sh --check`，包括 Agent 直接修改治理文档前。脚本经统一入口执行，选择顺序与依赖错误处理见 `scripts/README.md`；子命令继承 `sys.executable` / `PYTHON_BIN`，不得临时安装全局依赖。技能示例不得回退到裸 Python 调用治理脚本，校验器持续检查此约束。
 
 浏览器运行态取证按 `rules/root-cause-evidence.md` §5.0 执行最小失败重试；本规则的输出预算不构成一次工具超时后停止取证的理由。
 
@@ -123,7 +125,7 @@ Agent 命令技能 SHOULD：
 - 对 REQ/BUG 当前态看板索引，`issues/requirements/CHANGELOG.md` 与 `issues/bugs/CHANGELOG.md` SHOULD 作为目录级当前状态入口；需要确认单条状态、验收、Sprint 或 Change 事实时，MUST 继续读取 `_registry.yaml`、目标 Issue `trace.md`、Sprint 四件套或 OpenSpec Change，不得用看板索引替代事实源。
 - 对 `/capture`、`/req-capture` 与 `/bug-capture` 创建前重复/相似 Issue 检查，MUST 先读取对应 `CHANGELOG.md` 与 `_registry.yaml` 建候选清单；候选不清晰时只读取疑似候选 `capture.md` / `trace.md` 的标题、Frontmatter、摘要、状态、关联 Sprint/Change 和下一步，不得为判重全量展开无关 Issue、历史归档大目录、截图、日志或生成物。
 - 对 REQ/BUG 评审后的下一步，MUST 先输出 `/sprint-propose --req <REQ-full-id>` 或 `/sprint-propose --bug <BUG-full-id>`；只有 Workflow Sync 将 Issue 同步为 `in_sprint` 后，才能输出或执行 `/req-opsx` / `/bug-opsx`。
-- 对 `/req-opsx` 与 `/bug-opsx` 生成后的 OpenSpec 中文优先校验，MUST 使用当前 Change 聚焦口径：`python scripts/validate-openspec-language.py --change <change-id> --residual-report`。当前 Change 失败阻断当前链路；其他 active Change 的残留只进入全仓残留分离报告和复盘 warning，不得作为当前 REQ/BUG 链路失败结论。
+- 对 `/req-opsx` 与 `/bug-opsx` 生成后的 OpenSpec 中文优先校验，MUST 使用当前 Change 聚焦口径：`bash scripts/project-python.sh scripts/validate-openspec-language.py --change <change-id> --residual-report`。当前 Change 失败阻断当前链路；其他 active Change 的残留只进入全仓残留分离报告和复盘 warning，不得作为当前 REQ/BUG 链路失败结论。
 - 对 `/req-opsx` 与 `/bug-opsx` 生成的 Change trace frontmatter，MUST 固化 `execution.schema_version: 1`，并带 `started_at: null`、`completed_at: null` 和来源命令 `last_event` 初始字段；`/req-opsx` 使用 `last_event: req.opsx`，`/bug-opsx` 使用 `last_event: bug.opsx`；后续 `opsx.start` 与 `opsx.apply` 由 Workflow Sync 维护真实启动和完成事实，不得在创建阶段伪造实施时间。
 - 对 `/req-opsx` 与 `/bug-opsx` 使用 OpenSpec CLI `instructions` 生成 Change 文档时，MUST 将 CLI template 的英文脚手架标题改写为项目中文标题，例如 `Why` → `背景`、`What Changes` → `变更内容`、`Capabilities` → `能力影响`、`Impact` → `影响范围`、`Implementation` / `Testing` / `Documentation` → `实施任务` / `验证任务` / `文档同步`；不得把 HTML 注释、尖括号占位符或英文说明原样落盘。
 - 对下一步可执行命令，MUST 保留完整链路身份：REQ 链路使用完整 `REQ-xxxx-slug`，BUG 链路使用完整 `BUG-xxxx-slug`；即使命令进入 `/opsx-apply`、`/opsx-accept`、`/opsx-modify` 或 `/opsx-archive`，也不得把来源于 REQ/BUG 的下一步参数降级为 `<change-id>`。只有非 REQ/BUG 的纯治理 Change 才使用 `<change-id>`。
@@ -147,7 +149,7 @@ Apply结束前复用任务依赖与授权摘要执行停止前决策，不因压
 如项目提供上下文预算校验脚本，推荐命名为：
 
 ```bash
-python scripts/validate-agent-context-budget.py
+bash scripts/project-python.sh scripts/validate-agent-context-budget.py
 ```
 
 该脚本用于检查 Agent 技能是否引用本规则，并阻止常见宽泛读取模式回退。

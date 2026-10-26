@@ -1,7 +1,7 @@
 ---
 name: "opsx-modify"
 description: "验收返修：在 OpenSpec Change 已 opsx-apply、未 archive 前，根据验收反馈调整实现并同步文档、验证和 AI Usage"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # opsx-modify
@@ -122,7 +122,7 @@ iterations/change|archive/<sprint>/sprint.yaml
 Run preflight:
 
 ```bash
-python scripts/sync-workflow-status.py --event opsx.modify --change <change-id> --sprint auto --dry-run
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.modify --change <change-id> --sprint auto --dry-run
 ```
 
 If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sprint trace/scope first.
@@ -132,7 +132,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 - MUST 遵守 `rules/root-cause-evidence.md`。
 - 当验收反馈属于“效果不如预期”、UI 视觉偏差、交互异常、API/数据结果不符、测试失败或疑似 BUG 时，MUST 先记录偏差证据：期望、实际、复现条件、影响范围和证据来源。
 - 证据不足时，先按 `rules/root-cause-evidence.md` 第 5 节通过浏览器自主取证（优先复用 Codex 侧边浏览器，无需用户二次确认）；仍不足时 MUST 输出人工补证操作步骤，包括证据名称、为什么需要、已尝试的自主取证路径、操作步骤、需要返回字段、脱敏要求和返回格式；不得直接猜测根因或修复方向。
-- BUG 来源 Change 返修前 SHOULD 运行 `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；如果返修反馈改变或推翻原根因，MUST 先更新 linked BUG `root-cause.md` 或输出补证阻塞。
+- BUG 来源 Change 返修前 SHOULD 运行 `bash scripts/project-python.sh scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`；如果返修反馈改变或推翻原根因，MUST 先更新 linked BUG `root-cause.md` 或输出补证阻塞。
 
 ## Workflow
 
@@ -217,7 +217,7 @@ If sprint cannot resolve for a REQ/BUG-sourced Change, BLOCKED and ask to fix Sp
 5. **Workflow Sync**
 
 ```bash
-python scripts/sync-workflow-status.py --event opsx.modify --change <change-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.modify --change <change-id> --sprint auto
 ```
 
 - Exit code MUST be `0`.
@@ -230,7 +230,7 @@ python scripts/sync-workflow-status.py --event opsx.modify --change <change-id> 
 After successful workflow sync, run the post-command hook:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event opsx.modify \
   --change <change-id> \

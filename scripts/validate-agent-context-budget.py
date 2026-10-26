@@ -650,6 +650,12 @@ def validate_pm_readable_output(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def validate_python_entry(path: Path) -> list[str]:
+    if re.search(r'(?<![\w/.-])python(?:3)?\s+scripts/[\w-]+\.py', path.read_text()):
+        return [f"{path.name}: 治理脚本须使用 bash scripts/project-python.sh"]
+    return []
+
+
 def main() -> int:
     all_skill_paths = sorted(SKILLS_DIR.glob("*/SKILL.md"))
     skill_paths = [path for path in all_skill_paths if is_command_skill(path)]
@@ -662,6 +668,7 @@ def main() -> int:
         errors.extend(validate_skill(path))
         errors.extend(validate_command_skill_review_hook_reference(path))
     for path in all_skill_paths:
+        errors.extend(validate_python_entry(path))
         errors.extend(validate_browser_evidence_contract(path))
         errors.extend(validate_bug_cause_continuation_contract(path))
         errors.extend(validate_explore_product_evidence_contract(path))

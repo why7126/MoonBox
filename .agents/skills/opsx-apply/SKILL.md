@@ -1,7 +1,7 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # opsx-apply
@@ -108,7 +108,7 @@ docs/knowledge-base/best-practices/<matched>.md
 For every BUG-sourced Change, before editing `src/`, running implementation checks, or marking tasks complete:
 
 1. Read `rules/root-cause-evidence.md` and the linked BUG `root-cause.md`.
-2. Run `python scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`.
+2. Run `bash scripts/project-python.sh scripts/validate-root-cause-evidence.py --bug <BUG-full-id>`.
 3. BLOCKED if root cause status is not `confirmed`, evidence chain is missing, or the script exits non-zero.
 4. If BLOCKED, first use the browser within existing permissions to gather available product evidence. If the gap remains, output the missing evidence, attempted path, and 人工补证操作步骤; then rerun `/bug-complete <BUG-full-id>` before `/opsx-apply`.
 
@@ -121,7 +121,7 @@ Before editing `src/`, running implementation checks, or marking any task comple
 For every Change linked to a REQ/BUG:
 
 1. Identify linked `REQ-*` / `BUG-*` from Change trace, proposal/design, tasks, or Issue `trace.md` `openspec_changes[]`.
-2. Confirm `python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` resolves a Sprint and does not report sprint skipped/unresolved.
+2. Confirm `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto --dry-run` resolves a Sprint and does not report sprint skipped/unresolved.
 3. Read the resolved `iterations/change|archive/<sprint>/sprint.yaml` snippet and confirm:
    - `changes[]` contains `<change-id>`.
    - `requirements[]` contains linked `REQ-*` and/or `bugs[]` contains linked `BUG-*`.
@@ -239,7 +239,7 @@ Only after the shared 完成门禁 passes, report change id, schema, total progr
 完成态同步前 MUST 确认 Change 内存在需求中心可识别的交付验证来源。允许的来源包括非空 `acceptance.md`、非空 `verification.md`、`trace.acceptance_refs` 指向的 Change 内 Markdown，或 Change `trace.md` 中非空 `## 验证记录` / `## 验证摘要` / `## 验证结果` / `## 验收记录` / `## 验收结果` / `## Validation Log` / `## 实施与验证记录` 章节。纯治理 Change 不强制生成 `acceptance.md` 或 `verification.md`，但不得只依赖最终回复、治理日志、tasks 全勾或 Workflow Sync 成功作为交付验证来源。
 
 ```bash
-python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
 ```
 
 - Exit code MUST be `0`。
@@ -253,7 +253,7 @@ python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> -
 
 ## 研发启动与进度同步
 
-实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `python scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
+实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
 
 完成门禁通过后才执行opsx.apply；全勾选不替代完成门禁。重复启动不重置时间，中断保留启动事实，不宣称Agent进程在线。CLI和后端共用执行事实判定，所有写入串行，冲突或中断后重跑修复投影；closed/archived Issue不重开。用户命令保留完整REQ/BUG身份。
 

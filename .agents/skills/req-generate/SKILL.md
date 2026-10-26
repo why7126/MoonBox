@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 name: "req-generate"
 description: "需求生成 - 仅生成 requirement.md（PRD）"
 ---
@@ -83,7 +83,7 @@ parent_requirement:
 
 成功生成 `requirement.md` 后，MUST 在 `issues/requirements/CHANGELOG.md` 更新对应 REQ 当前态行。普通文案润色、格式调整或错别字修复 MAY 不更新。
 
-`req.generate` 的 CHANGELOG 刷新 MUST 通过 Workflow Sync 派生完成；命令结束前必须确认 `python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --sprint auto` 报告中 `issues/requirements/CHANGELOG.md` 对目标 REQ 为 `Updated` 或明确 `Skipped (no delta)`。不得只手工修改 `requirement.md` / `trace.md` 后跳过当前态看板刷新。
+`req.generate` 的 CHANGELOG 刷新 MUST 通过 Workflow Sync 派生完成；命令结束前必须确认 `bash scripts/project-python.sh scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --sprint auto` 报告中 `issues/requirements/CHANGELOG.md` 对目标 REQ 为 `Updated` 或明确 `Skipped (no delta)`。不得只手工修改 `requirement.md` / `trace.md` 后跳过当前态看板刷新。
 
 ## Output Contract（MUST）
 
@@ -100,7 +100,7 @@ parent_requirement:
 Read `.agents/skills/workflow-sync/SKILL.md` and run:
 
 ```bash
-python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --sprint auto
 ```
 
 - Exit code **MUST** be `0` before ending this command.
@@ -114,7 +114,7 @@ python scripts/sync-workflow-status.py --event req.generate --req <REQ-id> --spr
 
 本次生成或重生成的所有 Markdown 必须包含中文业务 Frontmatter `title` 与一致的唯一一级标题，辅助文档标题包含业务主题及用途；不得只有 ID、英文模板或文档类别。Issue 主文档的业务 title 同步注册表，Change proposal 标题不得覆盖 Issue 标题。保留 OpenSpec 解析关键字。
 
-在完成态 Workflow Sync 之前，对本次产物执行 `python scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
+在完成态 Workflow Sync 之前，对本次产物执行 `bash scripts/project-python.sh scripts/validate-document-titles.py` 并传入明确文件路径或当前 `--req` / `--bug` / `--change`；失败先修正，不宣称完成、不推进状态。不批量修复无关历史文档。
 
 ## 面向用户的表达
 

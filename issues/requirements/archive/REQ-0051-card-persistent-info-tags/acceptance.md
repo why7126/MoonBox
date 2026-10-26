@@ -3,7 +3,7 @@ requirement_id: REQ-0051-card-persistent-info-tags
 title: 卡片常驻信息标签验收标准
 acceptance_status: passed
 created_at: "2026-10-22 13:44:14"
-updated_at: 2026-10-22 20:02:51
+updated_at: 2026-10-26 11:12:29
 ---
 
 # 卡片常驻信息标签验收标准
@@ -53,13 +53,13 @@ updated_at: 2026-10-22 20:02:51
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-22 20:02:51
+accepted_at: 2026-10-26 11:12:29
 accepted_by: workflow-sync
 source_change: add-card-persistent-info-tags
 source_sprint: sprint-013
 evidence: [openspec/archive/2026-10-22-add-card-persistent-info-tags/evidence/acceptance/20261022191809580956-9179f514/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

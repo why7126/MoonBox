@@ -1,0 +1,126 @@
+---
+note: workflow-sync — 8/8 Change 已 archive；0 applied；人工 sign-off 已完成
+title: 受控规则替代证明迭代验收报告
+sprint_id: sprint-013
+status: completed
+created_at: '2026-10-22 13:17:23'
+updated_at: '2026-10-26 11:14:21'
+sign_off: approved
+sign_off_basis: 用户明确授权验证通过后继续归档；本轮校验通过
+signed_off_at: '2026-10-26 11:12:06'
+---
+
+# 受控规则替代证明迭代验收报告
+
+## 最终关闭结论（2026-10-26 11:12:06）
+
+验收结论：通过。8/8 Change 已归档，105/105 项任务完成；REQ-0050、REQ-0051、REQ-0053 均已关闭并位于归档目录。本次修复 Change 为 repair-archive-newline-proof，原有7项没有重复归档。
+
+| Change | 完成任务 | 归档证据 |
+|---|---:|---|
+| add-controlled-rule-replacement-proof | 46/46 | `openspec/archive/2026-10-24-add-controlled-rule-replacement-proof` |
+| add-card-persistent-info-tags | 17/17 | `openspec/archive/2026-10-22-add-card-persistent-info-tags` |
+| product-manager-readable-agent-output | 3/3 | `openspec/archive/2026-10-23-product-manager-readable-agent-output` |
+| fix-git-scan-regex-false-positive | 3/3 | `openspec/archive/2026-10-24-fix-git-scan-regex-false-positive` |
+| unify-governance-python-entry | 4/4 | `openspec/archive/2026-10-25-unify-governance-python-entry` |
+| update-chat-scalable-execution-storage | 24/24 | `openspec/archive/2026-10-26-update-chat-scalable-execution-storage` |
+| support-reviewed-spec-evolution | 4/4 | `openspec/archive/2026-10-26-support-reviewed-spec-evolution` |
+| repair-archive-newline-proof | 4/4 | `openspec/archive/2026-10-26-repair-archive-newline-proof` |
+
+关闭授权依据：用户本轮明确要求“修复上述规格基线证明和失效引用问题，验证通过后继续归档 sprint-013”；条件已由严格预检、有效验收证据及收尾校验满足。此记录承接用户的条件式关闭授权，不宣称用户亲自执行测试或另有独立人员复验。
+
+## 验证与证据
+
+归档 readiness、Issue 子文档门禁、目录结构、环境忽略策略、陈旧扫描通过；原三项基线阻断由独立完整哈希补证解释，四处失效引用已修正。修复 Change 联合189项回归及结构化验收通过，保留原 journal/manifest。历史材料中的 active 路径是原执行记录；当前 Issue 验收引用均已指向真实归档位置。
+
+产品数据采集与链路观测复核：product_data_collection_observability: applicable；affected_layers: web、api、db、usage_events、request_logs、task_traces、task_trace_spans。REQ-0050 当前 AC-L01—L12、REQ-0051 AC-007/009/011及原型证据、REQ-0053 AC-018/019及27项完整验收均由对应归档清单通过。validation: 八项 Change 深层 readiness 与各自有效验收；本次静态证明修复不新增事件、请求、链路或存储字段，采集变更 N/A。
+
+AI 用量：关闭前快照 present/actual，requirements、bugs、changes 覆盖均 pass。关闭后 sprint.archive Hook 为 estimated_fallback，原因 token-count-missing，warning_count=1；自动发现已执行，当前命令缺少可归属实测 Token，因此不用于精确成本或收益判断。路径 data/ai-usage/sprints/sprint-013.json；若需精确审计，可待会话产生完整 token_count 后重跑用量 Hook。此限制不影响验收或归档结果。
+
+保留事项：目录检查存在既有 legacy SQLite 路径警告，未迁移运行数据。Sprint 估算33/30人天，无返修缓冲；未改容量。本次代码验证在本地和隔离测试完成，未升级运行容器、未发布产品版本、未推送 Git。归档 wrapper 首次因 shell 选错解释器缺少依赖而停止，显式使用项目虚拟环境重跑后完整成功。
+
+
+## 规划与执行历史（保留原始阶段事实）
+
+以下为历史规划、返修和阶段性验收记录，不代表当前待办；当前结论以上方最终报告及有效归档证据为准。
+
+2026-10-24 v8：REQ-0050 已在当前隔离产品中完成有/无同条文修改的入口对照、抽屉长文、无匹配和网络错误状态，以及真实附件上传后归档拒绝仍保留附件与草稿的证据；对应 AC-L01、AC-L03、AC-L09、AC-L10 进入逐项复验。权限、旧确认入口和预检后修改也有部分反例。直接归档尝试被隔离服务的可信工具检查拒绝；完整成功归档、跨入口并发、历史篡改独立归因及实际旧进行中操作恢复仍未完成。Sprint 最终签署与关闭状态不因这批局部证据改变。证据见关联 Change `evidence/v8/README.md`。
+
+## 2026-10-24 交付记录去重口径
+
+v7 隔离产品已补充去重门禁正反例，并真实走通规则冲突阻断→查看修改→重新检查及四组页面；证据边界见 REQ-0050 Change 的 `evidence/v7/README.md`。关联对象的完成轮次、成功归档与其他受影响场景仍未齐备；不能据此更新 Sprint 最终签署或关闭状态。
+
+REQ-0050 的当前结构化逐项验收证据已就绪时，不再额外要求一份相同结论的交付验证文档；未就绪证据、已声明引用断链、旧交付无可追溯验证记录仍阻断。Sprint 最终关闭的验收报告及其当前签署状态不受本次 Change 级去重影响。当前 AC-L01—L12 须按修订后标准重新复验。
+
+## 2026-10-24 REQ-0050 验收口径修订
+
+REQ-0050 不再要求规则修改另由独立人员签署，改核对当前版本逐项测试结果与证据；缺失、失败或过期仍阻断。已通过的产品方案复评见 REQ `review.md` REV-REQ-0050-004。此调整不改变 sprint-013 最终关闭的验收报告签署要求，该事项仍为 `sign_off: pending`。下方旧段落是原规划和历史方案，涉及 REQ-0050 独立人员签署时以本节为准。当前 AC-L01—L12 仍待重新复验，不因门禁文字修订自动通过。
+
+## REQ-0050 v5 逐项诊断
+
+归档事实校正后，AC-L12 的历史独立性检查通过；AC-L01—L11 尚需当前产品样本、视觉或独立签署证据。完整入口仍为诊断态，Sprint 人工 sign-off 保持 pending，不得将单项通过计为整体可归档。
+
+## 2026-10-23 当前 REQ-0050 验收口径
+
+BUG-0063 已归档，其已生效规则不要求独立兼容证明；REQ-0050 改用当前未归档隔离对象验证差异展示、正常验收与归档门禁，BUG-0063 仅用于旧历史可读检查。原运维审批、规则确认和候选证明样本不计入当前 AC-L01—L12。独立验收签署仍待完成。下方旧规划与历史证据不作为本版通过结论。
+
+## 验收计划
+
+REQ-0050为原正式范围，20项功能、4项附件横切、4项原型要求均未开始，详见issues/requirements/review/REQ-0050-controlled-rule-replacement-proof/acceptance.md。REQ-0050已关联Change，当前不据此宣称实现通过；以Change当前有效验收证据为准。
+
+## 必须覆盖的证据
+
+可信身份与权限矩阵、精确版本批准、撤销/到期/并发竞争、首次启用信任根及循环拒绝、通用正反例、混合多跳链、隔离实际首次归档和中断恢复、部署版本及真实UI/CLI。原型Skeleton确认与1440/390深浅主题、computed style、附件上传成功后保留不能由组件回归代替。
+
+## 历史与正式现场边界
+
+BUG-0063既有18项通过仅作为依赖事实，不计本迭代通过数；正式BUG和sprint-012默认只读核验。机制交付不代表样本替代或旧Sprint已获授权关闭。原AC有效性、具体授权、人工签署和最终准入分别记录。
+
+## 人工签署
+
+sign_off: pending。尚无签署人、签署时间或通过结论；本规划不代签。
+
+## REQ-0050 最小闭环验收口径（2026-10-23）
+
+保留 AC-L01—L12 追溯编号，按精确差异、有权确认、独立验收、写入前复核、历史安全五类结论复用同一批有效证据，不为每项重复搭建样本。BUG-0063 只有 Codex 会话，没有产品内旧进行中操作；不以它作为旧流程恢复验收样本。已完成历史记录仍须可读，旧入口不得绕过新门禁，已有中断恢复路径不得退化。独立验收签署及当前版本逐项复验仍待完成，本段不改变现有 sign_off: pending。
+
+## 观测
+
+product_data_collection_observability: applicable；affected_layers: 授权审计、API、Web、Task Trace与恢复；validation: AC-003/004/019/020，脱敏采集且授权事实独立于遥测。本轮未改实现。
+
+## 追加验收范围
+
+REQ-0051-card-persistent-info-tags：11项功能、3项横切、4项原型验收均未开始，见 issues/requirements/review/REQ-0051-card-persistent-info-tags/acceptance.md。覆盖四种标签组合、根因双字段兼容、人天去重、跨阶段及归档读取、权限错误、键盘操作、1440/390深浅主题和computed style。不得把原型或本次规划检查计为产品通过证据。
+
+## 卡片人天展示优化
+
+人天按有效非负值d分档：S为0≤d≤1，M为1<d≤3，L为3<d≤5，XL为5<d≤10，XXL为d>10；显示“档位·数值人天”（如“M·3人天”），不含“开发”前缀。S青、M蓝、L紫、XL橙、XXL玫红，保留精确值和“档位 · 预估开发数值人天”提示；缺失/非法值隐藏。新旧标签共用字体、10px字号、1.2行高、3px 8px内边距、20px圆角且无描边；根因保留状态色、点击与focus-visible提示。
+
+分隔点展示细则：去除两侧普通空格，使用独立分隔点左右各2px固定间距；其余标签样式及根因交互保持不变。
+
+## REQ-0050 首次启用返修
+
+补齐部署预检、精确清单生成/导出、独立离线运维签发和导入、所有者转换详情、结果与恢复入口。隔离真实页面已执行当前规格副本的首次归档，并在 synced 中断、后端重启后恢复同一操作；规格未重复合并，模型轮次为零。正式项目可信启用授权仍独立处理，不代签 Sprint。完整证据见关联 Change acceptance-fixes.md 和 evidence/modify-bootstrap。
+
+## REQ-0050 Chat 治理入口位置返修
+
+审阅入口从输入区移至项目操作区；兼容证明阻断项增加打开同一抽屉的快捷操作。新会话首次启用仍可达，批准、签署、归档门禁不变。源码与组件回归已更新；返修后正式页浅色及隔离页深浅主题 1440×900、390×844 页面、抽屉与 computed style 均已采集，详见 Change `acceptance-fixes.md`，未以旧证据宣布 ready。
+
+本轮完整验收重跑 24 项通过、4 项视觉预检受隔离服务离线阻断，0 项失败；正式项目首次可信启用的独立授权与归档门禁照常保留。
+
+隔离视觉环境恢复后，当前 UI 的 1440×900/390×844 深浅主题、计算样式、抽屉与关闭焦点均已存证；完整验收 28/28 passed（run `20261022221747288100-4ea3ff82`）。正式项目授权与归档准入仍单独核对。
+## REQ-0050 归档入口诊断返修（2026-10-24）
+
+隔离归档入口的通用 409 已定位到归档前检查子进程无法导入服务模块。当前返修在原 Change 中修正启动路径，给已识别的检查失败提供可定位且脱敏的原因；验收、权限、历史和并发门禁未放宽。聚焦及跨入口回归通过，当前源码隔离 API 已返回具体交付证据检查原因且未改写项目。最终完整逐项复验 `20261024195907754740-9c8bf481` 为 5/12 通过、7 项缺样本；REQ-0050 仍待验收，不计入 Sprint 关闭。
+## REQ-0050 2026-10-24 v11 增量复验
+
+2026-10-24 验收采样收敛：REQ-0050 的产品安全结果不变，重复的逐类别真实归档样本改由已有代表性产品证据与针对性回归共同证明；AC-L07 写入前并发保护在取得对应回归前仍阻断。历史验收报告不追改，最新状态以新的完整验收清单为准。Sprint 自身关闭门禁不变。
+
+收敛后 AC-L07 的写入边界注入回归通过；REQ-0050 本轮完整验收 12/12 通过，Change 共享归档准入 ready。Sprint 本身仍未关闭，不能把 Change 通过直接当作 Sprint 签署或关闭事实。
+
+关联需求归档与旧操作恢复已在当前源码的隔离产品完成；破坏性规则修改曾误放行，修复后实际归档入口返回 409 且不改写生效规则。定向回归 110 项通过。完整验收 7/12 通过、5 项待产品样本，REQ-0050 和 sprint-013 均不得据此归档。证据见 Change `evidence/v11/` 和 `evidence/acceptance/20261024204324743182-6b804934/`。
+
+
+## REQ-0053-chat-scalable-execution-storage 追加规划
+
+新增20项功能、3项横切、4项原型AC，全部未开始。重点覆盖超过旧规模边界、增量正确性、长输出保存、资源有界、故障恢复、历史迁移与删除保护；RC-001至004先由Change设计关闭。证据来源：issues/requirements/review/REQ-0053-chat-scalable-execution-storage/acceptance.md。合成压力、真实首次执行、原轮次恢复及视觉证据分别验收，不改既有范围的通过结论或签署。

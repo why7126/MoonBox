@@ -11,7 +11,7 @@ ARCHIVE_FAILURES = {
     'archive_check_failed_validate_openspec_language': ('归档前的规格文档检查未通过，请核对 Change 文档。', 'review_change_documents'),
     'archive_check_failed_validate_env_ignore_policy': ('归档前的环境文件检查未通过，请联系项目管理员。', 'contact_project_admin'),
     'independent_archive_gate_blocked': ('当前验收证据或归档历史未通过检查，请查看对象阻断项。', 'review_archive_blockers'),
-    'archive_requirement_conflict': ('本次修改删除或改写了已归档规则的原约束，请先调整规则及验收证据。', 'review_rule_change'),
+    'archive_requirement_conflict': ('规则修改缺少当前有效的完整验收覆盖，或包含不支持的删除操作，请查看差异及验收证据。', 'review_rule_change'),
     'archive_inputs_changed': ('归档期间项目内容发生变化，请重新检查后再试。', 'refresh_archive_check'),
     'archive_history_changed': ('既有归档记录发生变化，请核对历史后再处理。', 'review_archive_history'),
     'archive_policy_changed': ('归档执行规则发生变化，请回读原操作并联系项目管理员。', 'contact_project_admin'),

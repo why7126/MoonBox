@@ -1,6 +1,6 @@
 ---
 name: "usage-docs-generate"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "生成或刷新 MoonBox Mintlify 产品手册元数据与公开站点投影"
 ---
 
@@ -58,8 +58,8 @@ scripts/validate-mintlify-docs.py
 2. 运行：
 
 ```bash
-python scripts/generate-mintlify-docs.py --version <version>
-python scripts/validate-mintlify-docs.py
+bash scripts/project-python.sh scripts/generate-mintlify-docs.py --version <version>
+bash scripts/project-python.sh scripts/validate-mintlify-docs.py
 ```
 
 3. 若存在 `releases/vX.Y.Z/announcement.mdx`，生成脚本会投影到 `mintlify/releases/vX.Y.Z/announcement.mdx` 并刷新导航。
@@ -75,7 +75,7 @@ MOONBOX_DEPLOY_ENV_FILE=self-storage-sqlite.env.example docker compose --env-fil
 8. 如涉及发布准备，继续运行对应 release 门禁：
 
 ```bash
-python scripts/validate-release.py --release-dir releases/<version> --stage prepare
+bash scripts/project-python.sh scripts/validate-release.py --release-dir releases/<version> --stage prepare
 ```
 
 仅当 `<version>` 对应真实 release 目录时运行 release 校验。

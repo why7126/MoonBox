@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 name: "sprint-propose"
 description: "提议并创建新 Sprint 迭代规划（四件套）"
 ---
@@ -62,7 +62,7 @@ Use this skill when the user asks to run `/sprint-propose` or create/update a Sp
 - 命令在选择或创建 Sprint 前 MUST 运行：
 
 ```bash
-python scripts/validate-sprint-selection.py [--sprint <sprint-id>]
+bash scripts/project-python.sh scripts/validate-sprint-selection.py [--sprint <sprint-id>]
 ```
 
 - 当用户未指定 Sprint ID 且当前没有 `iterations/change/sprint-xxx/` 进行中迭代时，MAY 自动创建下一个 Sprint。
@@ -224,7 +224,7 @@ openspec/changes/<change>/trace.md（若存在）
 Run:
 
 ```bash
-python scripts/sync-workflow-status.py --event sprint.propose --sprint <sprint-id>
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event sprint.propose --sprint <sprint-id>
 ```
 
 - Exit code MUST be `0`。
@@ -237,7 +237,7 @@ python scripts/sync-workflow-status.py --event sprint.propose --sprint <sprint-i
 - Sprint 默认容量为 **30 人天**，事实源为 `sprint.yaml` 顶层 `capacity_person_days`。新建或缺失时写入30；有效显式值优先，不从 developers/testers 或日期隐式重算。
 - 已有显式容量保留，只有用户明确调整才覆盖；本规则不批量修改其他 active 或归档 Sprint。
 - 零、负数、空值、非数字或非有限数均为非法值，不能回退为默认值。估算仍需明确。
-- 调整使用 `python scripts/add-sprint-scope-item.py --sprint sprint-005 --capacity-person-days 30 --rationale "用户确认容量纠正"`；随后 Workflow Sync 刷新四件套，复核并清理目标 Sprint 中过时的容量风险说明。
+- 调整使用 `bash scripts/project-python.sh scripts/add-sprint-scope-item.py --sprint sprint-005 --capacity-person-days 30 --rationale "用户确认容量纠正"`；随后 Workflow Sync 刷新四件套，复核并清理目标 Sprint 中过时的容量风险说明。
 - 修改容量后重新计算占用、剩余缓冲及120%硬门禁；默认30不豁免门禁，低于30%缓冲仍提示风险。
 
 ## 面向用户的表达

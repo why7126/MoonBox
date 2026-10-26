@@ -181,6 +181,87 @@ export interface ApiResponseTurnRead {
   data: TurnRead;
 }
 
+export interface BlockChangeRead {
+  block: number;
+  before_bytes: number;
+  after_bytes: number;
+  before_sha256: string | null;
+  after_sha256: string | null;
+}
+
+export interface BlockDiffRead {
+  status: string;
+  items: BlockChangeRead[];
+  next_cursor: string | null;
+}
+
+export interface ApiResponseBlockDiffRead {
+  code?: number;
+  message?: string;
+  data: BlockDiffRead;
+}
+
+export interface ResultSegmentRead {
+  sequence: number;
+  text: string;
+  byte_count: number;
+}
+
+export interface StorageStatusRead {
+  stage: string;
+  code: string | null;
+  execution_started: string;
+  saved_through: number;
+  completeness: string;
+  recovery_action: string;
+  request_id: string | null;
+}
+
+export interface ResultPageRead {
+  items: ResultSegmentRead[];
+  next_cursor: string | null;
+  resume_cursor: string;
+  committed_sequence: number;
+  has_final: boolean;
+  completeness: string;
+  format_version: number;
+  storage_status: StorageStatusRead;
+}
+
+export interface ApiResponseResultPageRead {
+  code?: number;
+  message?: string;
+  data: ResultPageRead;
+}
+
+export type FilePageReadFilesItem = { [key: string]: unknown };
+
+export interface FilePageRead {
+  files: FilePageReadFilesItem[];
+  next_cursor: string | null;
+  available: boolean;
+  format_version?: number;
+}
+
+export interface ApiResponseFilePageRead {
+  code?: number;
+  message?: string;
+  data: FilePageRead;
+}
+
+export interface FileContentRead {
+  status: string;
+  text: string | null;
+  next_cursor: string | null;
+  byte_count?: number | null;
+}
+
+export interface ApiResponseFileContentRead {
+  code?: number;
+  message?: string;
+  data: FileContentRead;
+}
+
 export type DiffReadFilesItem = { [key: string]: unknown };
 
 export type DiffReadCumulativeFilesItem = { [key: string]: unknown };
@@ -193,6 +274,9 @@ export interface DiffRead {
   initial_hash?: string | null;
   files?: DiffReadFilesItem[];
   cumulative_files?: DiffReadCumulativeFilesItem[];
+  format_version?: number;
+  next_cursor?: string | null;
+  cumulative_next_cursor?: string | null;
 }
 
 export interface ApiResponseDiffRead {
@@ -302,6 +386,27 @@ export interface ApiResponseListDict {
   data: ApiResponseListDictDataItem[];
 }
 
+export interface RecoveryCreate {
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  idempotency_key: string;
+  /** @pattern ^(check|resume_prepare)$ */
+  mode: string;
+}
+
+export interface RecoveryRead {
+  turn_id: string;
+  attempt_id: string | null;
+  eligibility: boolean;
+  state: string;
+  reason: string | null;
+}
+
+export interface ApiResponseRecoveryRead {
+  code?: number;
+  message?: string;
+  data: RecoveryRead;
+}
+
 export interface RetryCreate {
   /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
   client_request_id: string;
@@ -370,6 +475,43 @@ export type StreamApiV1ChatTurnsTidEventsGetParams = {
  * @minimum 0
  */
 after?: number;
+};
+
+export type FileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetParams = {
+before_file_id?: string | null;
+/**
+ * @pattern ^(turn|cumulative)$
+ */
+scope?: string;
+cursor?: string | null;
+};
+
+export type ResultPageApiV1ChatTurnsTidResultsGetParams = {
+/**
+ * @pattern ^(output|final)$
+ */
+stream_id?: string;
+cursor?: string | null;
+};
+
+export type FilePageApiV1ChatTurnsTidFilesGetParams = {
+cursor?: string | null;
+/**
+ * @pattern ^(turn|cumulative)$
+ */
+scope?: string;
+};
+
+export type FileContentApiV1ChatTurnsTidFilesFileIdContentGetParams = {
+/**
+ * @pattern ^(before|after)$
+ */
+side?: string;
+cursor?: string | null;
+/**
+ * @pattern ^(turn|cumulative)$
+ */
+scope?: string;
 };
 
 export type VerificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetParams = {
@@ -1466,6 +1608,326 @@ export const streamApiV1ChatTurnsTidEventsGet = async (tid: string,
 
 
 
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse200 = {
+  data: ApiResponseBlockDiffRead
+  status: 200
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponseSuccess = (fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse200) & {
+  headers: Headers;
+};
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponseError = (fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse403 | fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse404 | fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse409 | fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse422 | fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse503) & {
+  headers: Headers;
+};
+
+export type fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse = (fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponseSuccess | fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponseError)
+
+export const getFileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetUrl = (tid: string,
+    fileId: string,
+    params?: FileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/turns/${tid}/files/${fileId}/blocks?${stringifiedParams}` : `/api/v1/chat/turns/${tid}/files/${fileId}/blocks`
+}
+
+/**
+ * @summary 按索引分批比较快照内容块
+ */
+export const fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGet = async (tid: string,
+    fileId: string,
+    params?: FileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetParams, options?: RequestInit): Promise<fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse> => {
+
+  const res = await fetch(getFileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetUrl(tid,fileId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as fileBlocksApiV1ChatTurnsTidFilesFileIdBlocksGetResponse
+}
+
+
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse200 = {
+  data: ApiResponseResultPageRead
+  status: 200
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponseSuccess = (resultPageApiV1ChatTurnsTidResultsGetResponse200) & {
+  headers: Headers;
+};
+export type resultPageApiV1ChatTurnsTidResultsGetResponseError = (resultPageApiV1ChatTurnsTidResultsGetResponse403 | resultPageApiV1ChatTurnsTidResultsGetResponse404 | resultPageApiV1ChatTurnsTidResultsGetResponse409 | resultPageApiV1ChatTurnsTidResultsGetResponse422 | resultPageApiV1ChatTurnsTidResultsGetResponse503) & {
+  headers: Headers;
+};
+
+export type resultPageApiV1ChatTurnsTidResultsGetResponse = (resultPageApiV1ChatTurnsTidResultsGetResponseSuccess | resultPageApiV1ChatTurnsTidResultsGetResponseError)
+
+export const getResultPageApiV1ChatTurnsTidResultsGetUrl = (tid: string,
+    params?: ResultPageApiV1ChatTurnsTidResultsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/turns/${tid}/results?${stringifiedParams}` : `/api/v1/chat/turns/${tid}/results`
+}
+
+/**
+ * @summary 分段读取已提交回复
+ */
+export const resultPageApiV1ChatTurnsTidResultsGet = async (tid: string,
+    params?: ResultPageApiV1ChatTurnsTidResultsGetParams, options?: RequestInit): Promise<resultPageApiV1ChatTurnsTidResultsGetResponse> => {
+
+  const res = await fetch(getResultPageApiV1ChatTurnsTidResultsGetUrl(tid,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: resultPageApiV1ChatTurnsTidResultsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as resultPageApiV1ChatTurnsTidResultsGetResponse
+}
+
+
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse200 = {
+  data: ApiResponseFilePageRead
+  status: 200
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type filePageApiV1ChatTurnsTidFilesGetResponseSuccess = (filePageApiV1ChatTurnsTidFilesGetResponse200) & {
+  headers: Headers;
+};
+export type filePageApiV1ChatTurnsTidFilesGetResponseError = (filePageApiV1ChatTurnsTidFilesGetResponse403 | filePageApiV1ChatTurnsTidFilesGetResponse404 | filePageApiV1ChatTurnsTidFilesGetResponse409 | filePageApiV1ChatTurnsTidFilesGetResponse422 | filePageApiV1ChatTurnsTidFilesGetResponse503) & {
+  headers: Headers;
+};
+
+export type filePageApiV1ChatTurnsTidFilesGetResponse = (filePageApiV1ChatTurnsTidFilesGetResponseSuccess | filePageApiV1ChatTurnsTidFilesGetResponseError)
+
+export const getFilePageApiV1ChatTurnsTidFilesGetUrl = (tid: string,
+    params?: FilePageApiV1ChatTurnsTidFilesGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/turns/${tid}/files?${stringifiedParams}` : `/api/v1/chat/turns/${tid}/files`
+}
+
+/**
+ * @summary 分页读取工作区差异文件
+ */
+export const filePageApiV1ChatTurnsTidFilesGet = async (tid: string,
+    params?: FilePageApiV1ChatTurnsTidFilesGetParams, options?: RequestInit): Promise<filePageApiV1ChatTurnsTidFilesGetResponse> => {
+
+  const res = await fetch(getFilePageApiV1ChatTurnsTidFilesGetUrl(tid,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: filePageApiV1ChatTurnsTidFilesGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as filePageApiV1ChatTurnsTidFilesGetResponse
+}
+
+
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse200 = {
+  data: ApiResponseFileContentRead
+  status: 200
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponseSuccess = (fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse200) & {
+  headers: Headers;
+};
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponseError = (fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse403 | fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse404 | fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse409 | fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse422 | fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse503) & {
+  headers: Headers;
+};
+
+export type fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse = (fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponseSuccess | fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponseError)
+
+export const getFileContentApiV1ChatTurnsTidFilesFileIdContentGetUrl = (tid: string,
+    fileId: string,
+    params?: FileContentApiV1ChatTurnsTidFilesFileIdContentGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/turns/${tid}/files/${fileId}/content?${stringifiedParams}` : `/api/v1/chat/turns/${tid}/files/${fileId}/content`
+}
+
+/**
+ * @summary 按需读取快照全文
+ */
+export const fileContentApiV1ChatTurnsTidFilesFileIdContentGet = async (tid: string,
+    fileId: string,
+    params?: FileContentApiV1ChatTurnsTidFilesFileIdContentGetParams, options?: RequestInit): Promise<fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse> => {
+
+  const res = await fetch(getFileContentApiV1ChatTurnsTidFilesFileIdContentGetUrl(tid,fileId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as fileContentApiV1ChatTurnsTidFilesFileIdContentGetResponse
+}
+
+
+
 export type diffApiV1ChatTurnsTidDiffGetResponse200 = {
   data: ApiResponseDiffRead
   status: 200
@@ -2489,6 +2951,83 @@ export const getContextApiV1ChatTurnsTidContextGet = async (tid: string, options
 
   const data: getContextApiV1ChatTurnsTidContextGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getContextApiV1ChatTurnsTidContextGetResponse
+}
+
+
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse200 = {
+  data: ApiResponseRecoveryRead
+  status: 200
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponseSuccess = (recoverTurnApiV1ChatTurnsTidRecoveryPostResponse200) & {
+  headers: Headers;
+};
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponseError = (recoverTurnApiV1ChatTurnsTidRecoveryPostResponse403 | recoverTurnApiV1ChatTurnsTidRecoveryPostResponse404 | recoverTurnApiV1ChatTurnsTidRecoveryPostResponse409 | recoverTurnApiV1ChatTurnsTidRecoveryPostResponse422 | recoverTurnApiV1ChatTurnsTidRecoveryPostResponse503) & {
+  headers: Headers;
+};
+
+export type recoverTurnApiV1ChatTurnsTidRecoveryPostResponse = (recoverTurnApiV1ChatTurnsTidRecoveryPostResponseSuccess | recoverTurnApiV1ChatTurnsTidRecoveryPostResponseError)
+
+export const getRecoverTurnApiV1ChatTurnsTidRecoveryPostUrl = (tid: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${tid}/recovery`
+}
+
+/**
+ * @summary 核验或续接尚未启动执行的准备失败轮次
+ */
+export const recoverTurnApiV1ChatTurnsTidRecoveryPost = async (tid: string,
+    recoveryCreate: RecoveryCreate, options?: RequestInit): Promise<recoverTurnApiV1ChatTurnsTidRecoveryPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getRecoverTurnApiV1ChatTurnsTidRecoveryPostUrl(tid),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recoveryCreate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: recoverTurnApiV1ChatTurnsTidRecoveryPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as recoverTurnApiV1ChatTurnsTidRecoveryPostResponse
 }
 
 

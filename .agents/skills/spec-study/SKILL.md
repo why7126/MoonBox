@@ -2,7 +2,7 @@
 name: "spec-study"
 description: "跨项目 Harness 学习应用 - 学习其他项目治理工程，并经用户确认后应用到本项目治理资产"
 created_at: 2026-08-07 09:06:21
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # spec-study
@@ -137,9 +137,9 @@ Phase 1 默认 MUST NOT 修改本项目文件；除非用户在同一命令中�
 完成应用阶段前按影响范围运行：
 
 ```bash
-python scripts/validate-agent-context-budget.py
-python scripts/validate-openspec-language.py
-python scripts/validate-directory-structure.py
+bash scripts/project-python.sh scripts/validate-agent-context-budget.py
+bash scripts/project-python.sh scripts/validate-openspec-language.py
+bash scripts/project-python.sh scripts/validate-directory-structure.py
 openspec validate <change-id>
 ```
 
@@ -150,7 +150,7 @@ openspec validate <change-id>
 若 `/spec-study apply` 通过 active Change 落地治理变更，完成前运行：
 
 ```bash
-python scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change <change-id> --sprint auto
 ```
 
 - 对无 REQ/BUG 来源的纯治理 Change，Sprint skipped/unresolved MUST 视为阻塞；必须先通过 `/sprint-propose` 或 `scripts/add-sprint-scope-item.py --change <change-id>` 纳入 Sprint。

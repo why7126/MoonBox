@@ -222,11 +222,17 @@ def transition_chain(root: Path, change: str, start: str, current: str, folder: 
         except (OSError, ValueError, TypeError):
             continue  # An invalid unrelated journal is not usable evidence.
     queue = [(start, [], frozenset((start,)), delta_operations(folder))]
+    from .spec_normalization import transitions, recheck as recheck_normalization
+    normalizations = transitions(root)
     examined = 0
     conflicts = []
     while queue and examined < MAX_CHAIN:
         node, chain, seen, protected_view = queue.pop(0)
         examined += 1
+        for edge in normalizations:
+            target = edge['expected_spec_hash']
+            if edge['baseline_spec_hash'] == node and target not in seen:
+                queue.append((target, chain + [edge], seen | {target}, protected_view))
         for record, path, journal_hash in edges.get(node, []):
             after = record['expected_spec_hash']
             if after in seen:
@@ -274,7 +280,7 @@ def transition_chain(root: Path, change: str, start: str, current: str, folder: 
             next_chain = chain + [evidence]
             if after == current:
                 try:
-                    verify_chain_effects([archive_paths(root, edge['change_id'])[0] for edge in next_chain], root / 'openspec/specs')
+                    verify_chain_effects([archive_paths(root, edge['change_id'])[0] for edge in next_chain if 'change_id' in edge], root / 'openspec/specs')
                 except (OSError, ValueError, IndexError):
                     conflicts.extend({'change_id': cid, 'capability': cap, 'requirement': title}
                                      for cap, title in sorted(overlap))
@@ -282,6 +288,9 @@ def transition_chain(root: Path, change: str, start: str, current: str, folder: 
                 if tree_hash(root / 'openspec/specs') != current:
                     raise ValueError('archive recovery specs changed during proof')
                 for edge in next_chain:
+                    if 'normalization' in edge:
+                        recheck_normalization(root, edge)
+                        continue
                     raw = journal_path(root, edge['change_id']).read_bytes()
                     matches = archive_paths(root, edge['change_id'])
                     if (len(matches) != 1 or (root / 'openspec/changes' / edge['change_id']).exists()
@@ -339,7 +348,7 @@ def _recovery_state(root: Path, change: str, archive_date: str | None = None) ->
             raise merge_error
         raise RecoveryBlocked('archive_spec_baseline_changed',
                               '归档规格基线变化缺少完整证明，请核验关联归档记录') from error
-    verify_chain_effects([folder] + [archive_paths(root, edge['change_id'])[0] for edge in chain], root / 'openspec/specs')
+    verify_chain_effects([folder] + [archive_paths(root, edge['change_id'])[0] for edge in chain if 'change_id' in edge], root / 'openspec/specs')
     return {'mode': 'move-only' if active.is_dir() else 'archived', 'chain': chain}
 
 
@@ -355,11 +364,16 @@ def recovery_state(root: Path, change: str, archive_date: str | None = None) -> 
                 journal.read_bytes() if journal.exists() else None,
                 tree_hash(root / 'openspec/archive/.compatible-successors'),
                 tree_hash(root / 'openspec/archive/.controlled-successors'),
-                tree_hash(root / 'openspec/archive/.rule-confirmations'))
+                tree_hash(root / 'openspec/archive/.rule-confirmations'),
+                tree_hash(root / 'openspec/archive/.spec-normalizations'),
+                tree_hash(root / 'openspec/archive/.archive-recovery'))
     before = snapshot()
     result = _recovery_state(root, change, archive_date)
     from .compatible_successor import recheck
     for edge in result.get('chain', []):
+        if 'normalization' in edge:
+            from .spec_normalization import recheck as recheck_normalization
+            recheck_normalization(root, edge)
         for certificate in edge.get('compatibility', []):
             recheck(root, certificate)
     if snapshot() != before:

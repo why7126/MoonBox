@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-23 08:30:47
+updated_at: 2026-10-25 22:25:00
 owner: MoonBox 产品团队
 ---
 
@@ -78,7 +78,7 @@ rules/agent-context-budget.md
 - 跨项目学习使用 `/spec-study`；学习对象必须全程只读，学习报告统一放入 `docs/spec-logs/YYYYMMDDhhmmss-study-xxx.md`，本地学习对象持久化时必须脱敏为项目名或占位符。
 - 规范优化使用 `/spec-opt`；规范、技能、脚本、目录边界或校验规则迭代日志统一放入 `docs/spec-logs/YYYYMMDDhhmmss-governance-xxx.md`，不得写入隐私、密钥、未脱敏日志、学习对象源码、本机绝对路径、系统用户名或用户主目录。
 - Sprint ID 必须使用 `sprint-xxx` 三位数字递增格式；自动创建 Sprint 时扫描 `iterations/change/` 与 `iterations/archive/` 后取最大编号加一。
-- `/sprint-propose` 选择或创建 Sprint 前必须运行 `python scripts/validate-sprint-selection.py [--sprint <sprint-id>]`；无 active Sprint 默认下一个连续编号，一个 active Sprint 默认当前 Sprint，两个及以上 active Sprint 必须显式指定。
+- `/sprint-propose` 选择或创建 Sprint 前必须运行 `bash scripts/project-python.sh scripts/validate-sprint-selection.py [--sprint <sprint-id>]`；无 active Sprint 默认下一个连续编号，一个 active Sprint 默认当前 Sprint，两个及以上 active Sprint 必须显式指定。
 - 发布升级与回滚计划使用 `/upgrade-plan` 与 `/upgrade-validate`；命令只生成和校验计划，不自动执行生产升级、真实 env 修改、DB restore 或对象存储写入维护。
 - 命令最终输出不得泄漏尖括号占位模板、通用示例或 `MUST/SHOULD` 规范语气；「下一步」与「待用户决策/处理」必须去重。
 - 下一步可执行命令必须保留链路身份：REQ 链路的 `/req-*` 与后续 `/opsx-*` 使用完整 `REQ-xxxx-slug`，BUG 链路的 `/bug-*` 与后续 `/opsx-*` 使用完整 `BUG-xxxx-slug`，非 REQ/BUG Change 才使用 `<change-id>`。
@@ -106,16 +106,18 @@ rules/agent-context-budget.md
 
 ## 工作流同步
 
+治理命令及任何治理文档写入前，先运行 `bash scripts/project-python.sh --check`。Python 治理脚本统一经 `bash scripts/project-python.sh scripts/脚本名.py` 调用；解释器选择与依赖准备见 `scripts/README.md`。CI/容器显式配置 `PYTHON_BIN`，无有效环境时先修复环境，不回退系统 Python。Python 子命令使用 `sys.executable`，shell 子命令继承 `PYTHON_BIN`。
+
 状态变化后运行：
 
 ```bash
-python scripts/sync-workflow-status.py --event <event> [--req REQ-xxxx] [--bug BUG-xxxx] [--change change-id] [--sprint sprint-xxx|auto]
+bash scripts/project-python.sh scripts/sync-workflow-status.py --event <event> [--req REQ-xxxx] [--bug BUG-xxxx] [--change change-id] [--sprint sprint-xxx|auto]
 ```
 
 归档涉及 Issue 阶段迁移时继续运行：
 
 ```bash
-python scripts/promote-issue-stage.py --to archive [--change change-id] [--sprint sprint-xxx] --reason "<event>"
+bash scripts/project-python.sh scripts/promote-issue-stage.py --to archive [--change change-id] [--sprint sprint-xxx] --reason "<event>"
 ```
 
 ## 回复要求

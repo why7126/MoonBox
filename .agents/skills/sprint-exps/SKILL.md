@@ -1,6 +1,6 @@
 ---
 name: "sprint-exps"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "Sprint 经验复盘 - 总结整迭代流程、需求、开发与质量经验，沉淀到 docs/knowledge-base"
 ---
 
@@ -55,7 +55,7 @@ Use this skill when the user asks to run the migrated source command `sprint-exp
 
 1. 运行或读取自动 Sprint Fact Sheet：
    ```bash
-   python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
+   bash scripts/project-python.sh scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json
    ```
 2. 优先基于 Fact Sheet 构建 Sprint 概况、Scope、Change tasks、Issue 状态、验收摘要与 evidence hints。
 3. 仅当 Fact Sheet 标记 `warnings`、`needs_detail`、缺失/不一致项，或用户指定 `--focus` 时，按 evidence hints 分段回读对应原文片段。
@@ -77,7 +77,7 @@ Use this skill when the user asks to run the migrated source command `sprint-exp
 - MUST NOT 默认全文读取 sprint 四件套、全部 REQ/BUG/Change trace、review/root-cause/tasks。
 - MUST NOT 在复盘中复制原始 trace、tasks、acceptance-report、OpenAPI、Orval generated 或测试日志全文；需要证据时只引用路径、聚合计数或短片段。
 - MAY 按 Fact Sheet 的 `warnings` / `needs_detail` / `evidence_hints` 回读对应文件片段，例如缺失 trace、状态残留、tasks 未完成、acceptance 结论不清晰。
-- SHOULD 使用 `python scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json` 做结构化核对，尤其是 `scope.counts`、`changes[].tasks`、`warnings`、`token_risks`、`evidence_hints`。
+- SHOULD 使用 `bash scripts/project-python.sh scripts/generate-sprint-fact-sheet.py --sprint <sprint-id> --json` 做结构化核对，尤其是 `scope.counts`、`changes[].tasks`、`warnings`、`token_risks`、`evidence_hints`。
 
 ## 分析要点
 

@@ -96,6 +96,11 @@ class ChatRoute(APIRoute):
                             from app.chat.observability import behavior
                             names={('/api/v1/chat/conversations','POST'):'chat.session_create',('/api/v1/chat/conversations/{cid}','PATCH'):'chat.session_update',('/api/v1/chat/conversations/{cid}','DELETE'):'chat.session_delete',('/api/v1/chat/conversations/{cid}/relations','PUT'):'chat.relations_save',('/api/v1/chat/conversations/{cid}/turns','POST'):'chat.send',('/api/v1/chat/turns/{tid}/interrupt','POST'):'chat.stop',('/api/v1/chat/turns/{tid}/retries','POST'):'chat.retry'}
                             names.update({('/api/v1/chat/governance-operations/{operation_id}/recoveries','POST'):'governance.recovery',
+                                ('/api/v1/chat/turns/{tid}/results','GET'):'chat.result_page',
+                                ('/api/v1/chat/turns/{tid}/files','GET'):'chat.file_page',
+                                ('/api/v1/chat/turns/{tid}/files/{file_id}/content','GET'):'chat.file_content',
+                                ('/api/v1/chat/turns/{tid}/files/{file_id}/blocks','GET'):'chat.file_content',
+                                ('/api/v1/chat/turns/{tid}/recovery','POST'):'chat.recovery',
                                 ('/api/v1/requirement-center/captures','POST'):'governance.capture',
                                 ('/api/v1/chat/governance-preparations','POST'):'governance.prepare',
                                 ('/api/v1/chat/object-sessions','POST'):'governance.prepare',
@@ -109,7 +114,9 @@ class ChatRoute(APIRoute):
                                 if success:
                                     # Only successful authorized results may be linked to resource identifiers.
                                     payload=json.loads(response.body).get('data',{})
-                                    if event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
+                                    if event in ('chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'):
+                                        resource['turn_id'] = request.path_params.get('tid')
+                                    elif event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
                                     elif event == 'governance.capture':resource['operation_id']=payload.get('id')
                                     elif event == 'governance.prepare':
                                         resource['conversation_id']=payload.get('conversation_id')
@@ -336,6 +343,92 @@ class DiffRead(BaseModel):
     initial_hash: str | None = None
     files: list[dict] = Field(default_factory=list)
     cumulative_files: list[dict] = Field(default_factory=list)
+    format_version: int = 1
+    next_cursor: str | None = None
+    cumulative_next_cursor: str | None = None
+
+
+class ResultSegmentRead(BaseModel):
+    sequence: int
+    text: str
+    byte_count: int
+
+
+class StorageStatusRead(BaseModel):
+    stage: str
+    code: str | None
+    execution_started: str
+    saved_through: int
+    completeness: str
+    recovery_action: str
+    request_id: str | None
+
+
+class ResultPageRead(BaseModel):
+    items: list[ResultSegmentRead]
+    next_cursor: str | None
+    resume_cursor: str
+    committed_sequence: int
+    has_final: bool
+    completeness: str
+    format_version: int
+    storage_status: StorageStatusRead
+
+
+class FilePageRead(BaseModel):
+    files: list[dict]
+    next_cursor: str | None
+    available: bool
+    format_version: int = 2
+
+
+class FileContentRead(BaseModel):
+    status: str
+    text: str | None
+    next_cursor: str | None
+    byte_count: int | None = None
+
+
+class BlockChangeRead(BaseModel):
+    block: int
+    before_bytes: int
+    after_bytes: int
+    before_sha256: str | None
+    after_sha256: str | None
+
+
+class BlockDiffRead(BaseModel):
+    status: str
+    items: list[BlockChangeRead]
+    next_cursor: str | None
+
+
+@router.get('/turns/{tid}/files/{file_id}/blocks', response_model=ApiResponse[BlockDiffRead], summary='按索引分批比较快照内容块')
+def file_blocks(tid: str, file_id: str, before_file_id: str|None=Query(None,max_length=64),
+                scope: str=Query('turn',pattern='^(turn|cumulative)$'), cursor: str|None=Query(None,max_length=1024),
+                uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.block_diff import read
+    return ApiResponse(data=read(db,uid,tid,file_id,before_file_id,scope,cursor))
+
+
+@router.get('/turns/{tid}/results', response_model=ApiResponse[ResultPageRead], summary='分段读取已提交回复')
+def result_page(tid: str, stream_id: str=Query('output',pattern='^(output|final)$'),
+                cursor: str|None=Query(None,max_length=1024), uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.result_reader import results
+    return ApiResponse(data=results(db,uid,tid,stream_id,cursor))
+
+
+@router.get('/turns/{tid}/files', response_model=ApiResponse[FilePageRead], summary='分页读取工作区差异文件')
+def file_page(tid: str, cursor: str|None=Query(None,max_length=1024), scope: str=Query('turn',pattern='^(turn|cumulative)$'), uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.result_reader import files
+    return ApiResponse(data=files(db,uid,tid,cursor,scope))
+
+
+@router.get('/turns/{tid}/files/{file_id}/content', response_model=ApiResponse[FileContentRead], summary='按需读取快照全文')
+def file_content(tid: str, file_id: str, side: str=Query('after',pattern='^(before|after)$'),
+                 cursor: str|None=Query(None,max_length=1024), scope: str=Query('turn',pattern='^(turn|cumulative)$'), uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.result_reader import content
+    return ApiResponse(data=content(db,uid,tid,file_id,side,cursor,scope))
 
 
 @router.get('/turns/{tid}/diff',response_model=ApiResponse[DiffRead],summary='读取可信差异快照')
@@ -484,6 +577,26 @@ def get_context(tid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
 
 class RetryCreate(BaseModel):
     client_request_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+
+
+class RecoveryCreate(BaseModel):
+    idempotency_key: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+    mode: str = Field(pattern=r'^(check|resume_prepare)$')
+
+
+class RecoveryRead(BaseModel):
+    turn_id: str
+    attempt_id: str | None
+    eligibility: bool
+    state: str
+    reason: str | None
+
+
+@router.post('/turns/{tid}/recovery', response_model=ApiResponse[RecoveryRead], summary='核验或续接尚未启动执行的准备失败轮次')
+def recover_turn(tid: str, payload: RecoveryCreate, request: Request, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.governance.prepare_recovery import request as recover
+    return ApiResponse(data=recover(db, uid, tid, payload.mode, payload.idempotency_key,
+                                   request_id=request.state.chat_request_id))
 
 @router.post('/turns/{tid}/retries',response_model=ApiResponse[TurnRead],summary='幂等重试已确认失败或停止的轮次（执行门禁未通过时拒绝）')
 def retry_turn(tid: str,payload: RetryCreate,request: Request,uid: str=Depends(actor),db: Session=Depends(get_db)):

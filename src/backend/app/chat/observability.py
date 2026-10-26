@@ -9,6 +9,7 @@ from app.chat import service
 from app.chat.schema import audit,usage_events,task_traces,task_trace_spans
 EVENTS={'governance.recovery','governance.capture','governance.prepare','governance.apply','governance.document_save','chat.send','chat.stop','chat.retry','chat.session_create','chat.session_update','chat.session_delete','chat.relations_save','chat.image_add','chat.image_remove','chat.file_add','chat.file_remove','chat.skill_select','chat.skill_remove','chat.config_select'}
 EVENTS.update({'capture.upload','capture.organize','capture.review_save','capture.confirm','capture.retry'})
+EVENTS.update({'chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'})
 STAGES={'queued','connecting','running','completed','failed','stopped','unknown','stopping'}
 
 
@@ -61,6 +62,18 @@ def trace(db,tid,stage,*,actor=None,request_id=None,metadata=None):
             db.execute(insert(task_trace_spans).values(**service.identity(),task_trace_id=trace_id,
                 span_name='chat.'+stage,status=stage,metadata=meta))
     except Exception:logging.getLogger('moonbox.chat').warning('chat.trace_unavailable')
+
+
+def storage_span(db, tid, name, *, result='complete', metadata=None):
+    """Bounded milestones only; never record paths, text, cursors or credentials."""
+    if name not in ('snapshot_scan', 'result_commit', 'resource_guard', 'recovery_check'): return
+    try:
+        with db.begin_nested():
+            trace_id = db.scalar(select(task_traces.c.task_trace_id).where(task_traces.c.turn_id == tid))
+            if not trace_id: return
+            db.execute(insert(task_trace_spans).values(**service.identity(), task_trace_id=trace_id,
+                span_name='chat.'+name, status=result, metadata=_metadata(metadata)))
+    except Exception: logging.getLogger('moonbox.chat').warning('chat.storage_trace_unavailable')
 
 
 def prune(db):

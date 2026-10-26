@@ -7,7 +7,7 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.3.1"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 
@@ -88,7 +88,7 @@ MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、B
 
    Every Change, including pure governance, must be formally included in a `sprint-xxx`; linked REQ/BUG also requires Issue trace consistency.
 
-   - Run `python scripts/sync-workflow-status.py --event opsx.apply --change "<name>" --sprint auto --dry-run`.
+   - Run `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.apply --change "<name>" --sprint auto --dry-run`.
    - Confirm sprint resolution succeeds; skipped/unresolved sprint is blocking.
    - Confirm the resolved `iterations/change|archive/<sprint>/sprint.yaml` contains the change in `changes[]` and the linked issue in `requirements[]` or `bugs[]`.
    - Confirm linked issue `trace.md` has `iteration: <sprint-id>` and status `in_sprint` or a later delivery state.
@@ -122,7 +122,7 @@ MUST 同时遵守 `.agents/skills/opsx-apply/SKILL.md` 的 Target Resolution、B
 
 ## 研发启动与进度同步
 
-实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `python scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
+实施前根因、Sprint与授权门禁通过后，正式实现前串行执行 `bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.start --change <change-id> --sprint auto`；启动失败先修复，dry-run不算启动。启动事实使0/N进入研发中。每批任务实现和验证后以相同参数执行opsx.progress，不触发完成验收回填。
 
 完成门禁通过后才执行opsx.apply；全勾选不替代完成门禁。重复启动不重置时间，中断保留启动事实，不宣称Agent进程在线。CLI和后端共用执行事实判定，所有写入串行，冲突或中断后重跑修复投影；closed/archived Issue不重开。用户命令保留完整REQ/BUG身份。
 

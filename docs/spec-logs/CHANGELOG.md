@@ -2,11 +2,13 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-24 21:09:27
+updated_at: 2026-10-26 10:37:24
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-26 10:37:24 · governance · [已验收规格演进准入修复](20261026103724-governance-reviewed-spec-evolution.md)：复用当前验收、全文覆盖与完整历史，保留权限及并发门禁。
 
 - 2026-10-24 21:09:27 · governance · [Git 路径误报修复与警告复核](20261024210927-governance-git-scan-regex.md)：保留真实路径阻断，复核哈希及测试警告。
 
@@ -157,3 +159,5 @@ owner: MoonBox 产品团队
 - 2026-10-21：[跨日归档恢复修正](20261021084000-governance-cross-day-archive-recovery.md)，关联 BUG-0052 / REQ-0046。
 
 - 2026-10-23 governance：[后继兼容证明取消硬门禁](20261023211000-governance-successor-proof-optional.md)。
+
+- 2026-10-26 11:09:08：[归档规格末尾空行补证](20261026110908-governance-archive-newline-proof.md)，修复 sprint-013 历史证明与引用，保留原记录。

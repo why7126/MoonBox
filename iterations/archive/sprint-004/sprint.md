@@ -4,7 +4,7 @@ sprint_id: sprint-004
 status: completed
 lifecycle_stage: archive
 created_at: 2026-08-31 08:39:23
-updated_at: 2026-09-14 00:12:29
+updated_at: 2026-10-26 10:23:49
 ---
 
 # sprint-004 迭代规划
@@ -41,7 +41,7 @@ REQ `REQ-0025-chat-workbench`：Chat 工作台与 Codex 持续对话执行。当
 
 ### add-ui-reference-replication-governance 要点
 
-Change `add-ui-reference-replication-governance`：add ui reference replication governance。当前状态 archived，估算 1 人天；archived `add-ui-reference-replication-governance`（2026-09-13 23:47:08）。
+Change `add-ui-reference-replication-governance`：add ui reference replication governance。当前状态 archived，估算 1 人天；archived `add-ui-reference-replication-governance`（2026-09-01 23:59:59）。
 
 ### enforce-css-content-ascii-escape 要点
 
@@ -78,7 +78,7 @@ Change `enhance-ui-reference-replication-action-matrix`：enhance ui reference r
 | REQ | REQ-0023-product-workbench-modern-ops-visual-system | MoonBox 产品工作台全面升级为现代 Ops 视觉系统 | done | 8 人天 | archived `update-product-workbench-modern-ops-visual-system`（2026-09-03 21:47:10） |
 | REQ | REQ-0024-markdown-editor-human-edit-permission-matrix | Markdown 编辑器按治理阶段扩展人工编辑权限矩阵 | done | 3 人天 | archived `update-markdown-editor-human-edit-permission-matrix`（2026-09-04 08:51:35） |
 | REQ | REQ-0025-chat-workbench | Chat 工作台与 Codex 持续对话执行 | done | 13 人天 | archived `add-chat-workbench-codex`（2026-09-08 14:16:34） |
-| Change | add-ui-reference-replication-governance | add ui reference replication governance | archived | 1 人天 | archived `add-ui-reference-replication-governance`（2026-09-13 23:47:08） |
+| Change | add-ui-reference-replication-governance | add ui reference replication governance | archived | 1 人天 | archived `add-ui-reference-replication-governance`（2026-09-01 23:59:59） |
 | Change | enforce-css-content-ascii-escape | enforce css content ascii escape | archived | 1 人天 | archived `enforce-css-content-ascii-escape`（2026-09-03 09:45:40） |
 | Change | optimize-workflow-sync-observability-status-boundary | optimize workflow sync observability status boundary | archived | 1 人天 | archived `optimize-workflow-sync-observability-status-boundary`（2026-09-04 08:14:54） |
 | Change | apply-tilesfst-local-session-jsonl-governance | apply tilesfst local session jsonl governance | archived | 1 人天 | archived `apply-tilesfst-local-session-jsonl-governance`（2026-09-04 16:05:54） |
@@ -104,7 +104,7 @@ Change `enhance-ui-reference-replication-action-matrix`：enhance ui reference r
 | Change ID | 关联需求 | 状态 | Sprint 目标 |
 |---|---|---|---|
 | `update-product-workbench-modern-ops-visual-system` | REQ-0023-product-workbench-modern-ops-visual-system | archived | archived `update-product-workbench-modern-ops-visual-system`（2026-09-03 21:47:10） |
-| `add-ui-reference-replication-governance` | REQ-0023-product-workbench-modern-ops-visual-system | archived | archived `add-ui-reference-replication-governance`（2026-09-13 23:47:08） |
+| `add-ui-reference-replication-governance` | — | archived | archived `add-ui-reference-replication-governance`（2026-09-01 23:59:59） |
 | `enforce-css-content-ascii-escape` | — | archived | archived `enforce-css-content-ascii-escape`（2026-09-03 09:45:40） |
 | `optimize-workflow-sync-observability-status-boundary` | — | archived | archived `optimize-workflow-sync-observability-status-boundary`（2026-09-04 08:14:54） |
 | `update-markdown-editor-human-edit-permission-matrix` | REQ-0024-markdown-editor-human-edit-permission-matrix | archived | archived `update-markdown-editor-human-edit-permission-matrix`（2026-09-04 08:51:35） |
@@ -204,7 +204,6 @@ REQ-0022 本地项目导入：非前置依赖
 ## 迭代关闭记录
 
 2026-09-14 00:05:53：11个 Change 全部归档，142项任务完成，3个 REQ 全部闭环。归档前修复证据路径、正文状态块及历史描述误报，验收结论见 acceptance-report.md。AI 用量采用 estimated_fallback，自动发现无可归因记录，真实用量覆盖不足。容量保持30人天、估算32人天的既有规划告警，不倒改容量或实际人天。
-
 
 ## 经验复盘回链
 

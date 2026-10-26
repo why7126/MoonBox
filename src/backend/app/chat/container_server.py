@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import time
 import uuid
 
 from app.chat.app_server import AppServer, ExecutorError
@@ -51,6 +52,7 @@ class ContainerAppServer(AppServer):
             raise ExecutorError('container_mount_overlap')
         trusted_directory(workspace / '.git')
         self.container_name = 'moonbox-chat-session-' + uuid.uuid4().hex
+        self.created_epoch = int(time.time())
         self.mounts = ['--mount', f'type=bind,src={workspace},dst=/work',
                        '--mount', f'type=bind,src={workspace / ".git"},dst=/work/.git,readonly',
                        '--mount', f'type=bind,src={runtime},dst=/runtime']
@@ -63,7 +65,7 @@ class ContainerAppServer(AppServer):
         return ['--read-only','--log-driver','none','--user',f'{os.getuid()}:{os.getgid()}','--cap-drop','ALL',
                 '--security-opt','no-new-privileges:true',
                 '--security-opt','seccomp='+str(Path(__file__).parents[2]/'container/seccomp-codex.json'),'--pids-limit','128',
-                '--memory','1g','--cpus','1','--tmpfs','/tmp:rw,nosuid,size=64m',
+                '--memory','1g','--memory-swap','1g','--cpus','1','--tmpfs','/tmp:rw,nosuid,size=64m',
                 '--workdir','/work','--env','HOME=/runtime','--env','CODEX_HOME=/runtime', *self.mounts]
 
     def version_command(self, executable):
@@ -83,6 +85,23 @@ class ContainerAppServer(AppServer):
             if params['cwd'] != str(self.workspace):raise ExecutorError('container_workspace_mismatch')
             params={**params,'cwd':'/work'}
         return super().rpc(method, params)
+
+    def _next(self, deadline):
+        try: return super()._next(deadline)
+        except ExecutorError as error:
+            if error.code != 'executor_disconnected': raise
+            # --rm stays enabled. Docker's bounded event history can still prove
+            # an OOM after removal; absence is not proof of a different cause.
+            try:
+                evidence = subprocess.run([self.docker, 'events', '--since', str(self.created_epoch),
+                    '--until', str(int(time.time())+1), '--filter', 'container='+self.container_name,
+                    '--filter', 'event=oom', '--format', '{{.Action}}'],
+                    capture_output=True, text=True, timeout=3)
+                if evidence.returncode == 0 and 'oom' in evidence.stdout.splitlines():
+                    raise ExecutorError('container_memory_exhausted') from None
+            except (OSError, subprocess.TimeoutExpired): pass
+            if self.process.poll() == 137: raise ExecutorError('container_terminated') from None
+            raise
 
     def _verify_thread(self, thread, expected):
         if thread.get('cwd') != '/work':raise ExecutorError('executor_workspace_mismatch')

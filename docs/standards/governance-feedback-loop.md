@@ -1,7 +1,7 @@
 ---
 title: 治理执行量化与分级优化闭环
 created_at: 2026-10-20 18:26:00
-updated_at: 2026-10-20 19:44:04
+updated_at: 2026-10-25 22:25:00
 ---
 
 # 治理执行量化与分级优化闭环
@@ -14,7 +14,7 @@ updated_at: 2026-10-20 19:44:04
 
 ## 运行事实与指标
 
-统一入口 `python scripts/governance_feedback.py --help`，仅使用 Python 标准库。运行环境需先核对：治理 CLI 无需 PyYAML；现有 Workflow Sync、AI Usage 使用带 PyYAML 的项目 Python，优先已有 `src/backend/.venv/bin/python`。Hook 依赖缺失只降级，禁止临时修改全局环境。
+统一入口 `bash scripts/project-python.sh scripts/governance_feedback.py --help`。治理 CLI 实现仅使用标准库，但统一入口仍检查 Python >=3.12 和公共依赖 PyYAML，确保后续 Workflow Sync 与 AI Usage 使用同一环境。任何治理写入前先运行入口 `--check`；环境选择与 CI/容器配置见 `scripts/README.md`。Hook 不可归因只降级，禁止临时修改全局环境。
 
 调用入口执行 start，结束执行 finish（失败、中断也记录），finish 自动 review。保留返回的 run ID；相同 ID 重放 finish 不改结束时间，晚到的精确用量可补齐，冲突数值拒绝覆盖。不得事后补造开始时间。本次机制首次安装只能覆盖启用后的执行区间，应说明覆盖缺口。
 
@@ -75,7 +75,7 @@ prune 默认清理超过30天、没有被候选或效果记录引用的已结束
 
 `scripts/validate-agent-context-budget.py` 检查中央入口引用和策略基础字段；完整行为由测试覆盖。合成收益用例只证明计算逻辑，CLI生命周期实测只证明采集路径，不代表真实项目效率已经提升。
 
-采集入口开销可用 `python scripts/benchmark-governance-feedback.py --iterations 20` 测量，输出真实本地中位数、P95和样本数，临时台账自动清理；不据此宣称历史任务收益。plan --problem 使用稳定问题分类，同组/文件集/问题去重，未解决候选复用，终态候选在冷却期内不重复生成。
+采集入口开销可用 `bash scripts/project-python.sh scripts/benchmark-governance-feedback.py --iterations 20` 测量，输出真实本地中位数、P95和样本数，临时台账自动清理；不据此宣称历史任务收益。plan --problem 使用稳定问题分类，同组/文件集/问题去重，未解决候选复用，终态候选在冷却期内不重复生成。
 
 ## 归档与桌面会话用量兼容
 

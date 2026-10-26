@@ -18,14 +18,13 @@ def governance_snapshot(root,*,max_text_bytes):
     an Agent workspace do not describe that root; archive diffs cover only the
     trees this controller is allowed to mutate.
     """
-    files={};remaining_text=max_text_bytes;remaining_bytes=512*1024*1024
+    files={};remaining_text=max_text_bytes
     for name in ('openspec','issues','iterations'):
         folder=root/name
         if not folder.exists():continue
-        result=snapshot(folder,max_files=10000-len(files),max_total_bytes=remaining_bytes,max_text_bytes=remaining_text)
+        result=snapshot(folder,max_text_bytes=remaining_text)
         for path,value in result['files'].items():
             files[name+'/'+path]=value
-            remaining_bytes-=value['size']
             if value.get('text') is not None:remaining_text-=len(value['text'].encode())
     digest=hashlib.sha256(json.dumps(files,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
     return {'files':files,'hash':digest}
@@ -54,9 +53,15 @@ def run(factory,token,workspace):
         if not worker.record_event(db,token,'archive:started','execution.state',{'status':'running','executor':'trusted_archive'}):
             raise service.ChatError(2606,'执行租约已变化',409)
     budget=row['reserved_bytes'];before=None;after=None
+    def capture_phase(phase):
+        if budget:
+            return governance_snapshot(project.root,max_text_bytes=min(budget//4,4*1024*1024))
+        from app.chat.snapshot_store import capture
+        return capture(factory,parent['id'],row['id'],project.root,phase,
+            fence=lambda db:owned(db,token),roots=('openspec','issues','iterations'))
     terminal='completed';reply='归档已完成，已核验规格、迁移和同步结果。';code=None
     try:
-        before=governance_snapshot(project.root,max_text_bytes=min(budget//4,4*1024*1024))
+        before=capture_phase('before')
         from .archive_dispatch import execute_object
         with factory() as db:
             owned(db,token)
@@ -68,12 +73,24 @@ def run(factory,token,workspace):
         terminal='failed';code='trusted_archive_unverified'
         reply='归档尚未确认完成。请核验当前阻断后重试同一对象命令，系统将回读原操作；不要手动重做合并。'
     try:
-        if before is not None:after=governance_snapshot(project.root,max_text_bytes=min(budget//4,4*1024*1024))
+        if before is not None:after=capture_phase('after')
     except Exception:
         terminal='failed';code='trusted_archive_evidence_unavailable'
         reply='归档结果的差异证据暂不可用。请重试同一对象命令回读原操作，不要手动重新合并。'
-    delta=difference(before,after,max_patch_bytes=budget//8) if before is not None and after is not None else None
-    encoded=json.dumps({'files':delta['files'],'cumulative_files':delta['files'],'initial_hash':before['hash']},ensure_ascii=False) if delta is not None else None
+    if before is not None and after is not None and not budget:
+        from app.chat.snapshot_store import diff_page
+        with factory() as db: delta=diff_page(db,before['version_id'],after['version_id'])
+        payload={'files':delta['files'],'cumulative_files':delta['files'],'initial_hash':before['hash'],
+            'format_version':2,'before_version':before['version_id'],'after_version':after['version_id'],
+            'initial_version':before['version_id'],'next_cursor':delta['next_cursor'],
+            'cumulative_next_cursor':delta['next_cursor']}
+        encoded=json.dumps(payload,ensure_ascii=False)
+    else:
+        delta=difference(before,after,max_patch_bytes=budget//8) if before is not None and after is not None else None
+        encoded=json.dumps({'files':delta['files'],'cumulative_files':delta['files'],'initial_hash':before['hash']},ensure_ascii=False) if delta is not None else None
+    if not budget:
+        from app.chat.execution import save_result
+        save_result(factory,token,reply,'trusted-archive-final','final')
     from .direct_command_journal import observe,terminal as finish_journal
     from .controlled_successor import authority
     with factory() as db:

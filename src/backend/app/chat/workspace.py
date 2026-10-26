@@ -35,7 +35,7 @@ def git(repo, *args):
     return result.stdout
 
 
-def prepare_workspace(source, root, conversation_id, max_bytes=512*1024*1024, max_files=10000):
+def prepare_workspace(source, root, conversation_id, max_bytes=None, max_files=None):
     """Copy only the configured repository's committed tree; never import hooks/config/untracked secrets."""
     try: identifier = str(UUID(conversation_id))
     except (ValueError, TypeError, AttributeError): raise WorkspaceError('会话标识无效')
@@ -58,7 +58,8 @@ def prepare_workspace(source, root, conversation_id, max_bytes=512*1024*1024, ma
                 destination = target.joinpath(*path.parts)
                 if member.isdir(): destination.mkdir(parents=True, exist_ok=True); continue
                 count += 1; total += member.size
-                if count > max_files or total > max_bytes: raise WorkspaceError('仓库超过工作区初始化边界')
+                if (max_files is not None and count > max_files) or (max_bytes is not None and total > max_bytes):
+                    raise WorkspaceError('仓库超过显式工作区初始化策略')
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 stream = archive.extractfile(member)
                 with destination.open('xb') as output:
@@ -109,12 +110,12 @@ def _git_snapshot_names(root):
     return sorted(set(names))
 
 
-def snapshot(path, *, max_files=10000, max_total_bytes=512*1024*1024, text_bytes=65536, max_text_bytes=4*1024*1024):
+def snapshot(path, *, max_files=None, max_total_bytes=None, text_bytes=65536, max_text_bytes=4*1024*1024):
     """Use dir-fd/O_NOFOLLOW reads. Links are metadata only, and are never traversed."""
     root = trusted_directory(path); files = {}; total = 0; text_total = 0
     def record(fd, name, relative):
         nonlocal total, text_total
-        if len(files) >= max_files: raise WorkspaceError('工作区文件数量超过快照边界')
+        if max_files is not None and len(files) >= max_files: raise WorkspaceError('工作区文件数量超过快照边界')
         try:
             info = os.stat(name, dir_fd=fd, follow_symlinks=False)
         except FileNotFoundError:
@@ -130,7 +131,7 @@ def snapshot(path, *, max_files=10000, max_total_bytes=512*1024*1024, text_bytes
             before = os.fstat(item)
             if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1: raise WorkspaceError('文件类型或硬链接不安全')
             total += before.st_size
-            if total > max_total_bytes: raise WorkspaceError('工作区超过快照容量边界')
+            if max_total_bytes is not None and total > max_total_bytes: raise WorkspaceError('工作区超过快照容量边界')
             digest = hashlib.sha256(); chunks = []; read = 0
             while block := os.read(item, 65536):
                 read += len(block)

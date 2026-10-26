@@ -1,10 +1,10 @@
 ---
-note: 11/11 Change 已归档，Sprint 关闭验收通过；AI 用量采用估算回退。
+note: workflow-sync — 11/11 Change 已 archive；0 applied；待人工 sign-off
 sprint_id: sprint-004
 status: passed
 lifecycle_stage: archive
 created_at: 2026-08-31 08:39:23
-updated_at: 2026-09-14 00:07:19
+updated_at: 2026-10-26 10:23:49
 ---
 
 # sprint-004 Acceptance Report

@@ -1,0 +1,26 @@
+{
+  "database": "MySQL 8.2 isolated disposable database",
+  "status": "passed",
+  "validation": "incremental",
+  "runs": [
+    {
+      "suite": "content_store + scalable + prepare_recovery",
+      "passed": 23,
+      "failed": 2,
+      "reason": "MySQL SUM returns Decimal; precise integer normalization required"
+    },
+    {
+      "suite": "prepare_recovery + late receipt + accounting",
+      "passed": 14,
+      "failed": 1,
+      "reason": "test query omitted ORDER BY; event facts were correct"
+    },
+    {
+      "suite": "terminal_grace_preserves_command_completion",
+      "passed": 1,
+      "failed": 0,
+      "reason": "read by durable event sequence"
+    }
+  ],
+  "closure": "Both failures fixed and affected checks passed. No relaxed assertions or reduced budgets."
+}

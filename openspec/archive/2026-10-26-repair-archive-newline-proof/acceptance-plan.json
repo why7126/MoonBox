@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "change_id": "repair-archive-newline-proof",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "空行补证及拒绝路径和共享入口回归",
+      "kind": "command",
+      "argv": [
+        "env",
+        "PYTHONPATH=src/backend:src/backend/tests",
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "src/backend/tests/test_spec_normalization.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py"
+      ],
+      "inputs": [
+        "src/backend/app/governance/spec_normalization.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/tests/test_spec_normalization.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_archive_requirement_scope.py",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "openspec/changes/repair-archive-newline-proof/specs",
+        "openspec/changes/repair-archive-newline-proof/design.md",
+        "openspec/archive/.spec-normalizations/req-0050-eof-newline.json"
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -5154,6 +5154,632 @@
         }
       }
     },
+    "/api/v1/chat/turns/{tid}/files/{file_id}/blocks": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "按索引分批比较快照内容块",
+        "operationId": "file_blocks_api_v1_chat_turns__tid__files__file_id__blocks_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          },
+          {
+            "name": "before_file_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before File Id"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(turn|cumulative)$",
+              "default": "turn",
+              "title": "Scope"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_BlockDiffRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/results": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "分段读取已提交回复",
+        "operationId": "result_page_api_v1_chat_turns__tid__results_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "stream_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(output|final)$",
+              "default": "output",
+              "title": "Stream Id"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ResultPageRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/files": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "分页读取工作区差异文件",
+        "operationId": "file_page_api_v1_chat_turns__tid__files_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(turn|cumulative)$",
+              "default": "turn",
+              "title": "Scope"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_FilePageRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/files/{file_id}/content": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "按需读取快照全文",
+        "operationId": "file_content_api_v1_chat_turns__tid__files__file_id__content_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          },
+          {
+            "name": "side",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(before|after)$",
+              "default": "after",
+              "title": "Side"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(turn|cumulative)$",
+              "default": "turn",
+              "title": "Scope"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_FileContentRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chat/turns/{tid}/diff": {
       "get": {
         "tags": [
@@ -6817,6 +7443,133 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse_list_dict__"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/recovery": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "核验或续接尚未启动执行的准备失败轮次",
+        "operationId": "recover_turn_api_v1_chat_turns__tid__recovery_post",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_RecoveryRead_"
                 }
               }
             }
@@ -12630,6 +13383,28 @@
         ],
         "title": "ApiResponse[ArchiveOperationResponse]"
       },
+      "ApiResponse_BlockDiffRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BlockDiffRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[BlockDiffRead]"
+      },
       "ApiResponse_CapabilitiesResult_": {
         "properties": {
           "code": {
@@ -12871,6 +13646,50 @@
           "data"
         ],
         "title": "ApiResponse[DraftResult]"
+      },
+      "ApiResponse_FileContentRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FileContentRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[FileContentRead]"
+      },
+      "ApiResponse_FilePageRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FilePageRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[FilePageRead]"
       },
       "ApiResponse_GovernancePreparationResponse_": {
         "properties": {
@@ -13136,6 +13955,28 @@
         ],
         "title": "ApiResponse[RecoveryOperationResponse]"
       },
+      "ApiResponse_RecoveryRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecoveryRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[RecoveryRead]"
+      },
       "ApiResponse_ReplacementAdmissionResponse_": {
         "properties": {
           "code": {
@@ -13245,6 +14086,28 @@
           "data"
         ],
         "title": "ApiResponse[RequirementCenterContext]"
+      },
+      "ApiResponse_ResultPageRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResultPageRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ResultPageRead]"
       },
       "ApiResponse_SourceResult_": {
         "properties": {
@@ -13677,6 +14540,86 @@
           "event_name"
         ],
         "title": "BehaviorEventCreate"
+      },
+      "BlockChangeRead": {
+        "properties": {
+          "block": {
+            "type": "integer",
+            "title": "Block"
+          },
+          "before_bytes": {
+            "type": "integer",
+            "title": "Before Bytes"
+          },
+          "after_bytes": {
+            "type": "integer",
+            "title": "After Bytes"
+          },
+          "before_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before Sha256"
+          },
+          "after_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "block",
+          "before_bytes",
+          "after_bytes",
+          "before_sha256",
+          "after_sha256"
+        ],
+        "title": "BlockChangeRead"
+      },
+      "BlockDiffRead": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BlockChangeRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "items",
+          "next_cursor"
+        ],
+        "title": "BlockDiffRead"
       },
       "Body_upload_api_v1_requirement_center_capture_drafts__draft_id__materials_post": {
         "properties": {
@@ -14508,6 +15451,33 @@
             },
             "type": "array",
             "title": "Cumulative Files"
+          },
+          "format_version": {
+            "type": "integer",
+            "title": "Format Version",
+            "default": 1
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "cumulative_next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cumulative Next Cursor"
           }
         },
         "type": "object",
@@ -14810,6 +15780,93 @@
           "sha256"
         ],
         "title": "Evidence"
+      },
+      "FileContentRead": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "byte_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Byte Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "text",
+          "next_cursor"
+        ],
+        "title": "FileContentRead"
+      },
+      "FilePageRead": {
+        "properties": {
+          "files": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "format_version": {
+            "type": "integer",
+            "title": "Format Version",
+            "default": 2
+          }
+        },
+        "type": "object",
+        "required": [
+          "files",
+          "next_cursor",
+          "available"
+        ],
+        "title": "FilePageRead"
       },
       "GovernancePreparationResponse": {
         "properties": {
@@ -16209,6 +17266,26 @@
         ],
         "title": "RecoveryAttemptResponse"
       },
+      "RecoveryCreate": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Idempotency Key"
+          },
+          "mode": {
+            "type": "string",
+            "pattern": "^(check|resume_prepare)$",
+            "title": "Mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "idempotency_key",
+          "mode"
+        ],
+        "title": "RecoveryCreate"
+      },
       "RecoveryDispositionRequest": {
         "properties": {
           "expected_version": {
@@ -16416,6 +17493,53 @@
           "allowed_actions"
         ],
         "title": "RecoveryOperationResponse"
+      },
+      "RecoveryRead": {
+        "properties": {
+          "turn_id": {
+            "type": "string",
+            "title": "Turn Id"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "eligibility": {
+            "type": "boolean",
+            "title": "Eligibility"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "turn_id",
+          "attempt_id",
+          "eligibility",
+          "state",
+          "reason"
+        ],
+        "title": "RecoveryRead"
       },
       "RecoveryRequest": {
         "properties": {
@@ -18049,6 +19173,86 @@
         ],
         "title": "RequirementCenterWorkspace"
       },
+      "ResultPageRead": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResultSegmentRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "resume_cursor": {
+            "type": "string",
+            "title": "Resume Cursor"
+          },
+          "committed_sequence": {
+            "type": "integer",
+            "title": "Committed Sequence"
+          },
+          "has_final": {
+            "type": "boolean",
+            "title": "Has Final"
+          },
+          "completeness": {
+            "type": "string",
+            "title": "Completeness"
+          },
+          "format_version": {
+            "type": "integer",
+            "title": "Format Version"
+          },
+          "storage_status": {
+            "$ref": "#/components/schemas/StorageStatusRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "resume_cursor",
+          "committed_sequence",
+          "has_final",
+          "completeness",
+          "format_version",
+          "storage_status"
+        ],
+        "title": "ResultPageRead"
+      },
+      "ResultSegmentRead": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "byte_count": {
+            "type": "integer",
+            "title": "Byte Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence",
+          "text",
+          "byte_count"
+        ],
+        "title": "ResultSegmentRead"
+      },
       "RetryCreate": {
         "properties": {
           "client_request_id": {
@@ -18173,6 +19377,63 @@
           "content"
         ],
         "title": "SourceResult"
+      },
+      "StorageStatusRead": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "execution_started": {
+            "type": "string",
+            "title": "Execution Started"
+          },
+          "saved_through": {
+            "type": "integer",
+            "title": "Saved Through"
+          },
+          "completeness": {
+            "type": "string",
+            "title": "Completeness"
+          },
+          "recovery_action": {
+            "type": "string",
+            "title": "Recovery Action"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stage",
+          "code",
+          "execution_started",
+          "saved_through",
+          "completeness",
+          "recovery_action",
+          "request_id"
+        ],
+        "title": "StorageStatusRead"
       },
       "TurnCreate": {
         "properties": {

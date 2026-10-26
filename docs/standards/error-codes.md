@@ -270,3 +270,7 @@ tests/
 - 认证、权限、业务规则、参数校验、上传、外部依赖或异步任务新增错误场景。
 - 后端异常处理、前端错误处理、OpenAPI 契约或测试命令变化。
 - 发布兼容策略、SDK、Webhook、第三方集成对错误码有新增要求。
+
+## Chat 持续保存诊断
+
+数值响应继续沿用 Chat 域错误；`storage_status.code` 与轮次 `error_code` 提供稳定诊断：`operating_quota_exceeded` 表示显式运营额度不足，`workspace_resource_exhausted` 表示磁盘等部署资源不足，`result_persistence_failed` 表示持久化失败，`protocol_resource_limit` 表示协议帧或深度超保护，`result_backpressure_timeout` 表示持续保存背压，`container_memory_exhausted` 仅在Docker OOM事件确认后返回，`container_terminated` 表示容器被终止但具体原因未确认。连接断开仍使用 `executor_disconnected`，不推断成功或可安全重发。所有分类保留已提交内容；启动已请求且终态未明时保持 unknown。

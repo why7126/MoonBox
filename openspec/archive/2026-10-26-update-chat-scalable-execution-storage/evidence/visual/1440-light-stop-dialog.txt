@@ -1,0 +1,72 @@
+Browser tab: 603238031, Title: "响应式验收画布", URL: "http://127.0.0.1:39058/frame.html?width=1440&state=running&theme=light".
+1 AXWebArea 响应式验收画布, URL: 127.0.0.1:39058/frame.html?width=1440&state=running&theme=light
+	2 container
+		3 AXWebArea Chat 隔离界面验收, URL: 127.0.0.1:39058/?state=running&theme=light
+			4 container root
+				5 container
+					6 text 隔离界面验收 · 合成状态 / 真实 API ·  running
+				7 container 执行与保存状态
+					8 heading 执行中，结果持续保存, Value: 3
+						9 text 执行中，结果持续保存
+					10 text 可按需读取已经保存的内容。执行中断不会清空已保存结果。
+					11 button 查看已保存内容
+					12 container
+						13 text 读取内容 
+						14 pop up button (collapsed, settable) Description: 读取内容, Value: 执行输出, Secondary Actions: Expand
+							15 menu
+								16 (selected) 执行输出
+								17 最终答复
+				18 container
+					19 text 执行中
+					20 button 停止当前运行
+						21 image
+						22 text 停止当前运行
+					23 text 执行轮次
+					24 pop up button (collapsed, settable) 执行轮次, Value: 执行中 · 2026/10/26 08:57:59, Secondary Actions: Expand
+						25 menu
+							26 (selected) 执行中 · 2026/10/26 08:57:59
+					27 image
+					28 text 所选轮次当前状态： 执行中 当前窗口  1  条已读取事件（每窗口最多 1000 条），连续文字已合并；历史状态不代表当前状态。
+					29 toolbar 轨迹工具栏
+						30 checkbox 收起内容, Value: 0
+						31 checkbox 事件顺序, Value: 0
+						32 text field (settable) 搜索轨迹
+					33 container 轨迹概览
+						34 button Description: 定位事件 1, Help: 状态 · 历史状态：执行中
+					35 content list 轨迹事件
+						36 container
+							37 button 查看事件 1 详情
+								38 text 状态
+								39 text  · 
+								40 text 1
+							41 text 历史状态：执行中
+					42 button (collapsed) 查看原始事件（1 条）, Secondary Actions: Expand
+						43 text 查看原始事件（
+						44 text 1
+						45 text  条）
+					46 heading 本轮引用快照, Value: 3
+						47 text 本轮引用快照
+					48 text 此轮没有引用快照。
+					49 heading 文件变更, Value: 3
+						50 text 文件变更
+					51 container
+						52 text 比较范围
+						53 pop up button (collapsed, settable) Description: Diff 比较范围, Value: 本轮执行快照, Secondary Actions: Expand
+							54 menu
+								55 (selected) 本轮执行快照
+								56 会话累计快照
+					57 text 尚无可信差异快照
+				59 container 停止当前运行
+					60 container
+						61 heading 停止当前运行, Value: 2
+							62 text 停止当前运行
+						63 button 关闭停止当前运行
+							64 image
+					65 text 将向当前活动运行发送停止请求。已产生的代码变更会保留；收到执行端确认后才解除运行锁。
+					66 container
+						67 button 取消
+						68 button 确认停止
+				58 button 采样样式
+		69 text 界面就绪
+
+The focused UI element is 59 container 停止当前运行

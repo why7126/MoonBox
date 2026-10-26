@@ -171,7 +171,7 @@ OBJECT_STORAGE_DEPLOYMENT_MODE=external-minio DATABASE_DEPLOYMENT_MODE=external-
 
 `MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT` 缺省为 `2`，正整数表示未受保护自动快照数量上限；`0` 停止启动与周期自动创建，不清除既有副本、手动备份或独立删除日志。空值、负数、小数和非数字均阻止平台就绪。API/Worker 配置指纹不一致时保持未就绪。启动和约 24 小时周期的新快照先经完整性、摘要与账本登记验证，再按账本登记顺序逐份受控过期。治理成套备份引用和手动副本保留；旧账本中来源不明的条目不参与自动清理。
 
-根 `.env.example` 只列常用部署输入。启用常驻 Chat 时，部署者设置执行模式、仓库 ID、空间 ID 和源仓库目录；私有根目录、单文件认证来源、Docker socket 组、治理 Capture 模式与快照上限按需覆盖。`scripts/docker-up.sh` 从这些输入生成 `MOONBOX_CHAT_REPOSITORIES`、`MOONBOX_CHAT_REPOSITORY_BINDINGS`，并注入默认 `MOONBOX_CHAT_LIMITS`、`MOONBOX_CHAT_RETENTION`；不要把旧示例的 `[]` 或 `{}` 复制到真实 `.env`，否则会覆盖部署脚本生成的有效配置。测试端口、控制 socket、临时配置和容器内状态路径属于测试启动器或 Compose 内部参数，无需在常规 `.env` 填写。
+根 `.env.example` 只列常用部署输入。启用常驻 Chat 时，部署者设置执行模式、仓库 ID、空间 ID 和源仓库目录；私有根目录、单文件认证来源、Docker socket 组、治理 Capture 模式与快照上限按需覆盖。`scripts/docker-up.sh` 从这些输入生成 `MOONBOX_CHAT_REPOSITORIES`、`MOONBOX_CHAT_REPOSITORY_BINDINGS`，并注入默认 `MOONBOX_CHAT_LIMITS`、`MOONBOX_CHAT_RETENTION`；不要把仓库列表空示例 `[]` 复制到真实 `.env`；配额字段的空对象 `{}` 则明确表示无限运营配额。测试端口、控制 socket、临时配置和容器内状态路径属于测试启动器或 Compose 内部参数，无需在常规 `.env` 填写。
 
 历史快照先用 `PYTHONPATH=src/backend python -m app.chat.backup --root 私有备份目录 inventory` 盘点来源、引用、摘要有效性和占用。迁移前恢复点需保全，来源不明的旧副本经人工核对后才逐份使用现有 `expire --backup` 入口清理；不要按文件名或修改时间批量删除。独立删除日志 `deletions.sqlite` 永不随轮转清理，旧快照离线恢复继续重放删除意图。具体目录归属见 `data/README.md`。
 - 需求中心治理事实源只读挂载到 `/app/governance`，仅用于读取 REQ、BUG、Sprint、OpenSpec 和长期文档状态，不得写回容器内挂载目录。
@@ -285,7 +285,7 @@ SQLite本地恢复进程使用deploy/local/compose.chat-recovery.yml；从仓库
 
 本地39002已接通空间、会话列表、搜索、新建、重命名、置顶、归档/恢复及空会话删除。仓库目录仍必须由服务端显式配置，未配置时新建禁用，不从浏览器接受路径。恢复容器继续只执行unknown核对，无模型进程。
 
-`MOONBOX_CHAT_LIMITS`接受JSON对象，八个必填正整数字段：`user_concurrency`、`space_concurrency`、`user_monthly_tokens`、`space_monthly_tokens`、`user_storage_bytes`、`space_storage_bytes`、`turn_reserved_tokens`、`turn_reserved_bytes`。空对象、缺项、布尔值或预留超过总额均不就绪。没有生产默认数值；测试显式给小额度。配置正确本身不会打开发送，仍须接入并验证平台执行worker、权限上下文、结果容量硬停止与清理时限。
+`MOONBOX_CHAT_LIMITS` 接受 JSON 对象，缺省或空对象默认无运营配额；用户/空间的并发、月度 Token、存储字段可单独配置正整数，`null` 或 `unlimited` 表示无限。非法类型、零或负值不就绪。旧单轮预留字段仅供兼容解析，不为新轮次设置预算；部署保护独立保留。
 
 增量迁移新增usage_accounts和usage_reservations两表；并发/容量在全局账户计量，Token使用UTC月份账户，终态幂等结算。SQLite与临时MySQL 8.2.0的13例均通过，临时数据库已清理。该版本仅部署本地环境，不等同生产发布。
 
@@ -442,10 +442,10 @@ Chat executor 内置 Python、Git、Bash、rg，以及 Node 22.22.0（含 npm/np
 用户确认不设运营上限，对应 `MOONBOX_CHAT_LIMITS`：
 
 ```json
-{"user_concurrency":"unlimited","space_concurrency":"unlimited","user_monthly_tokens":"unlimited","space_monthly_tokens":"unlimited","user_storage_bytes":"unlimited","space_storage_bytes":"unlimited","turn_reserved_tokens":"unlimited","turn_reserved_bytes":16777216}
+{}
 ```
 
-`turn_reserved_bytes` 是单轮结果处理缓冲（16 MiB），不限制用户累计存储；协议消息、快照和容器资源仍有技术安全边界。Token 零预留后按可信实际数结算，不用大整数伪装无限。不限制用户/空间入队数；单机 Worker 一次处理一轮，其他轮次持久排队，同会话依旧互斥。上游账号自身的可用额度不受 MoonBox 配置改变。
+新轮次不再使用 `turn_reserved_bytes` 总量预留；内容按块持续提交，内存窗口、协议消息和容器资源仍有部署保护。Token 零预留后按可信实际数结算，不用大整数伪装无限。不限制用户/空间入队数；单机 Worker 一次处理一轮，其他轮次持久排队，同会话依旧互斥。上游账号自身的可用额度不受 MoonBox 配置改变。
 
 `MOONBOX_CHAT_RETENTION` 配置为 `{"executor_delete_seconds":"unlimited","backup_expiry_seconds":"unlimited"}`。聊天、引用和 Diff 不自动过期，主动删除清理主数据及执行线程，备份先记录独立删除日志并在恢复时重放。没有固定副本删除截止时间；旧备份保留至运维显式 expire，物理清除前不标记备份已清理。Worker 启动时和运行中约每24小时创建自动快照，并按 `MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT` 轮转未受保护副本；保留审计和代码。该本地备份不提供整机损坏后的异机灾备。
 
@@ -457,7 +457,7 @@ bash scripts/docker-up.sh self-storage-sqlite --chat-platform
 bash scripts/docker-down.sh self-storage-sqlite --chat-platform
 ```
 
-显式模式不覆盖 `.env`；原来的空 `{}` 仍表示尚未配置，必须按上方策略填写。Worker 预检目录、提交基准、备份日志、本机认证、固定执行镜像及真实嵌套沙箱后才发布就绪心跳。停止保留业务DB、工作区和备份；不从排队或未知状态推断旧执行已经完成。
+显式模式不覆盖 `.env`；空 `{}` 表示默认无限运营配额。Worker 预检目录、提交基准、备份日志、本机认证、固定执行镜像及真实嵌套沙箱后才发布就绪心跳。停止保留业务DB、工作区和备份；不从排队或未知状态推断旧执行已经完成。
 
 Compose 控制器为非root用户，单独持有 Docker socket 权限；此控制器属于受信任部署边界。API没有 socket 或认证挂载，模型执行容器没有业务DB、socket、其他会话工作区或宿主认证目录。Linux 部署需确保 `MOONBOX_CHAT_DOCKER_GID` 和持久目录权限允许部署用户访问；不得通过给执行容器挂载 socket 来修复。所选源仓库只读挂载给 Chat 后端用于比较当前治理文件 manifest/revision；在本地 source 工作区模式下，Chat worker 对 `source_root` 使用宿主可写挂载，以便授权命令直接更新真实仓库。执行容器实际可写范围仍由 `moonbox-read`、`moonbox-governance`、`moonbox-archive` 或 `moonbox-write` sandbox profile 决定，不能把 worker 可写挂载等同于无限制写权限。本地常驻部署默认在仓库绑定中声明 `workspace_mode: "source"`，让执行器直接使用 `source_root` 当前工作树；无需为每次治理命令提交 Git 或重启部署。显式隔离副本模式仍可通过将绑定改为 `workspace_mode: "copy"` 使用：执行控制器从已提交树初始化独立 Git 基线，再同步经过授权和版本校验的当前治理文件与命令技能，支持未提交治理修改，且不导入源仓库 hooks/config、环境凭证或任意未跟踪文件。
 
@@ -616,3 +616,13 @@ BUG-0063 增加归档只读证明消费者与 Chat 分项诊断，部署需同�
 6. 页面显示归档身份及原操作号后，刷新需求中心。首次启用只完成清单中机制 Change；BUG-0063 的替代提案批准、其他对象验收及 Sprint 独立签署仍分别处理。
 
 恢复处理：请求中断或重启后先“查看启用条件”，读取同一 operation 与检查点；authorized/activating 状态使用“继续原转换”，不重复合并或创建新清单。prepared/authorized 授权过期时，导出原清单重新独立审阅并导入新收据，随后所有者再次确认；不改变原 operation。若规格、证据、绑定或受信制品变化，保持阻断并核对原操作，禁止删除检查点、伪造完成证据或直接修改数据库 active。撤销签名信任仍阻断恢复；独立签署缺失也不会因运维授权而跳过。
+
+## Chat 运营配额与部署保护（REQ-0053）
+
+`MOONBOX_CHAT_LIMITS` 缺省时，用户/空间月度 Token 与 Chat 存储不限运营额度；已有显式正整数配置继续生效。非法类型、零或负数拒绝配置，不静默转为无限。旧 `turn_reserved_tokens` 与 `turn_reserved_bytes` 不再为新轮次设定预算；升级前排空或核验旧活动轮次，旧预留记录仍按原格式结算。
+
+不限运营额度不表示物理资源无限。内容块、分页窗口和字节队列保持有界；协议单帧 8 MiB、嵌套深度 64、队列 4 MiB（单个已验证帧可独占队列），背压超过 30 秒进入明确失败/核验路径。容器保持 1 CPU、1 GiB、128 进程及 64 MiB 临时盘保护。SQLite 写入检查至少 256 MiB 可用磁盘余量；远程 MySQL 由部署监控及数据库错误反馈保护。上述参数属于部署保护，不进入运营配置。
+
+容量与失败恢复验收结果以对应 Change 的验证记录为准。数据库文件、WAL、执行器和备份的实际占用须独立监控；不要把业务字节账本当成磁盘余量。资源不足时先释放或扩容部署资源，再核验原轮次是否可续接，不能直接清空活动运行锁。
+
+执行容器将内存及内存加交换空间均设为 1 GiB，不依赖宿主交换空间扩大预算；Chat 写事务的锁等待为 5 秒，连接归还池时恢复原值，不改变其他模块的连接配置。

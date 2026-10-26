@@ -108,7 +108,7 @@ if [[ "$CHAT_PLATFORM" = true ]]; then
   # JSON由Python编码，路径和标识从不当作shell代码执行。
   MOONBOX_CHAT_REPOSITORIES="$(PYTHONPATH=src/backend "$PYTHON_BIN" -m app.chat.platform_deployment catalog)"; export MOONBOX_CHAT_REPOSITORIES
   MOONBOX_CHAT_REPOSITORY_BINDINGS="$(PYTHONPATH=src/backend "$PYTHON_BIN" -m app.chat.platform_deployment bindings)"; export MOONBOX_CHAT_REPOSITORY_BINDINGS
-  export MOONBOX_CHAT_LIMITS="$(config_value MOONBOX_CHAT_LIMITS '{"user_concurrency":"unlimited","space_concurrency":"unlimited","user_monthly_tokens":"unlimited","space_monthly_tokens":"unlimited","user_storage_bytes":"unlimited","space_storage_bytes":"unlimited","turn_reserved_tokens":"unlimited","turn_reserved_bytes":16777216}')"
+  export MOONBOX_CHAT_LIMITS="$(config_value MOONBOX_CHAT_LIMITS '{}')"
   export MOONBOX_CHAT_RETENTION="$(config_value MOONBOX_CHAT_RETENTION '{"executor_delete_seconds":"unlimited","backup_expiry_seconds":"unlimited"}')"
   COMPOSE+=(-f "$ROOT_DIR/deploy/docker-compose.chat-platform.yml")
   SERVICES+=(chat-worker)

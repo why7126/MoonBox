@@ -2,7 +2,7 @@
 name: "explore"
 description: "通用探索模式 - 面向问题、需求或话题的只读分析与方案探讨，不改代码、不落盘"
 created_at: 2026-08-06 00:00:00
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 ---
 
 # explore
@@ -233,7 +233,7 @@ Use this skill when the user asks to run the workflow command `explore`, or want
 通用探索默认不改变 Workflow 状态；如脚本支持通用事件，结束前优先以 dry-run 模式运行 AI Usage Hook：
 
 ```bash
-python scripts/extract-ai-usage.py --post-command-hook --workflow-event explore --dry-run --json
+bash scripts/project-python.sh scripts/extract-ai-usage.py --post-command-hook --workflow-event explore --dry-run --json
 ```
 
 - 如果脚本不支持 `explore`，不得为了生成 usage 数据而强行推进状态。

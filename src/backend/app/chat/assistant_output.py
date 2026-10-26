@@ -20,6 +20,25 @@ def message_id(tid):
 
 
 def saved_output(db, tid):
+    # V2 previews read authoritative committed content, not truncated event text.
+    from app.chat.content_schema import segments
+    from app.chat import content_store
+    final_exists = db.scalar(select(segments.c.id).where(segments.c.turn_id == tid,
+        segments.c.stream_id == 'final').limit(1))
+    stream = 'final' if final_exists else 'output'
+    rows_v2 = db.execute(select(segments.c.object_id).where(segments.c.turn_id == tid,
+        segments.c.stream_id == stream).order_by(segments.c.sequence).limit(21)).scalars()
+    preview = []; size_v2 = 0; truncated_v2 = False
+    for oid in rows_v2:
+        data, _ = content_store.read_page(db, oid)
+        text_v2 = data.decode('utf-8')
+        remaining = MAX_CHARS - size_v2
+        preview.append(text_v2[:remaining]); size_v2 += min(len(text_v2), remaining)
+        if len(text_v2) > remaining or len(preview) == 21:
+            truncated_v2 = True; break
+    if preview:
+        return {'content': ''.join(preview), 'partial': not final_exists or truncated_v2,
+                'truncated': truncated_v2}
     # Read sequence metadata for all event types to detect retained-history gaps,
     # but never load tool payloads into the assistant projection.
     relevant = (events.c.event_type == 'execution.output') | events.c.source_id.startswith('assistant:final:')

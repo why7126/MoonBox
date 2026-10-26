@@ -55,12 +55,13 @@ def test_unlimited_token_does_not_interrupt_zero_reservation(chat, tmp_path, mon
     with factory() as db: assert db.scalar(select(reservations.c.actual_tokens)) == 1000000
 
 
-def test_missing_null_and_mixed_budget_fail_closed(monkeypatch):
-    for value in ({}, {'user_concurrency':None}, {'user_concurrency':True}):
-        monkeypatch.setenv('MOONBOX_CHAT_LIMITS',json.dumps(value)); assert execution_limits() is None
+def test_missing_null_and_explicit_operating_budget(monkeypatch):
+    for value in ({}, {'user_concurrency':None}):
+        monkeypatch.setenv('MOONBOX_CHAT_LIMITS',json.dumps(value)); assert execution_limits()['user_concurrency'] is None
+    monkeypatch.setenv('MOONBOX_CHAT_LIMITS',json.dumps({'user_concurrency':True})); assert execution_limits() is None
     unlimited(monkeypatch)
     value=json.loads(__import__('os').environ['MOONBOX_CHAT_LIMITS']); value['user_monthly_tokens']=100
-    monkeypatch.setenv('MOONBOX_CHAT_LIMITS',json.dumps(value)); assert execution_limits() is None
+    monkeypatch.setenv('MOONBOX_CHAT_LIMITS',json.dumps(value)); assert execution_limits()['user_monthly_tokens'] == 100
 
 
 def test_unbounded_deletion_keeps_pending_copies(chat, monkeypatch):

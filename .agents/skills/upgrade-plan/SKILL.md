@@ -1,6 +1,6 @@
 ---
 name: "upgrade-plan"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "生成版本首次部署、相邻升级或跨版本升级与回滚计划"
 ---
 
@@ -43,8 +43,8 @@ releases/<to-version>/release.json
 ## Command
 
 ```bash
-python scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
-python scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
+bash scripts/project-python.sh scripts/validate-release-upgrade.py plan --from <fresh|version> --to <version>
+bash scripts/project-python.sh scripts/validate-release-upgrade.py validate-plan --plan releases/<version>/upgrade-plans/<from>-to-<version>.json
 ```
 
 ## Boundaries

@@ -1,6 +1,6 @@
 ---
 name: "release-propose"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "创建或更新产品版本发布计划"
 ---
 
@@ -121,7 +121,7 @@ For propose, unknown gates MAY remain `na` with clear `rationale`, or `blocked` 
 Run after writing:
 
 ```bash
-python scripts/validate-release.py --release-dir releases/<version>
+bash scripts/project-python.sh scripts/validate-release.py --release-dir releases/<version>
 ```
 
 If validation fails because expected publish-time evidence is still missing, report the gaps clearly and keep the release as a draft plan. Structural errors, invalid JSON, missing required keys, or public-safety failures MUST be fixed before ending.
@@ -149,7 +149,7 @@ Report version, selected Sprint / REQ / BUG / Change counts, created/updated pat
 After the release plan is written and validation has been attempted, run:
 
 ```bash
-python scripts/extract-ai-usage.py \
+bash scripts/project-python.sh scripts/extract-ai-usage.py \
   --post-command-hook \
   --workflow-event release.propose \
   --release <version> \

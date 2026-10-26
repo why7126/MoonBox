@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-24 20:59:31
+updated_at: 2026-10-26 10:45:33
 owner: MoonBox 产品团队
 ---
 
@@ -28,6 +28,7 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| REQ-0053-chat-scalable-execution-storage | Chat 无默认运营配额与大规模工作区持续执行 | done | archive | P1 | sprint-013 | update-chat-scalable-execution-storage | 2026-10-26 10:45:33 | 无 | `issues/requirements/archive/REQ-0053-chat-scalable-execution-storage/trace.md` |
 | REQ-0052-stage-spec-reading-center | 九阶段流转规范查阅与研发规范中心 | pending_review | plan | P1 | 无 | 无 | 2026-10-23 09:39:10 | `/req-review REQ-0052-stage-spec-reading-center` | `issues/requirements/plan/REQ-0052-stage-spec-reading-center/trace.md` |
 | REQ-0051-card-persistent-info-tags | 需求中心卡片常驻根因状态与开发人天标签 | done | archive | P2 | sprint-013 | add-card-persistent-info-tags | 2026-10-22 20:02:54 | 无 | `issues/requirements/archive/REQ-0051-card-persistent-info-tags/trace.md` |
 | REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | done | archive | P1 | sprint-013 | add-controlled-rule-replacement-proof | 2026-10-24 20:59:31 | 无 | `issues/requirements/archive/REQ-0050-controlled-rule-replacement-proof/trace.md` |

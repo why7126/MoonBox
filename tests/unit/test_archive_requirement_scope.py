@@ -39,7 +39,9 @@ def test_same_title_conflict_has_safe_identity(tmp_path, kind):
     # The active baseline is a merge candidate; expected-state fallback must retain
     # the real overlap diagnosis when neither candidate proves safe.
     assert not result['ready']
-    assert result['recovery_reason']=='archive_spec_baseline_changed'
+    assert result['recovery_reason']=='archive_requirement_conflict'
+    assert result['diagnostics'] == [{'change_id': 'other-change',
+                                     'capability': 'own-cap', 'requirement': '自身能力'}]
     assert str(tmp_path) not in json.dumps(result)
 
 

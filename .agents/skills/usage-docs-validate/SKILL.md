@@ -1,6 +1,6 @@
 ---
 name: "usage-docs-validate"
-updated_at: 2026-10-23 08:31:02
+updated_at: 2026-10-25 22:25:00
 description: "校验 MoonBox Mintlify 产品手册、导航、manifest 和公开安全"
 ---
 
@@ -34,13 +34,13 @@ Use this skill when the user asks `/usage-docs-validate <version>` or wants to v
 Run:
 
 ```bash
-python scripts/validate-mintlify-docs.py
+bash scripts/project-python.sh scripts/validate-mintlify-docs.py
 ```
 
 When validating release readiness and the matching release directory exists, also run:
 
 ```bash
-python scripts/validate-release.py --release-dir releases/<version> --stage prepare
+bash scripts/project-python.sh scripts/validate-release.py --release-dir releases/<version> --stage prepare
 ```
 
 ## Validation Scope
