@@ -9,7 +9,9 @@ import time
 from sqlalchemy import select, update, or_
 from app.chat import worker, service
 from app.chat.accounting import pending, reconcile_usage
-from app.chat.execution import run_claim, reconcile_unknown, mark_unknown
+from app.chat.execution import run_claim, mark_unknown
+from app.chat.recovery_worker import RecoverySlot
+from app.chat.settings import recovery_policy
 from app.chat.isolated import configuration
 from app.chat.local_probe import persistent_local_server
 from app.chat.schema import conversations, turns, cleanup_jobs
@@ -36,6 +38,7 @@ def main():
     def execute(claim,path):
         try:run_claim(factory,claim,path,server,max_seconds=180)
         except Exception:mark_unknown(factory,claim,'local_worker_setup_failed')
+    recovery_slot = RecoverySlot(factory, lambda cid: (None, root/'workspaces'/cid), server, recovery_policy(), docker=config.get('executor')=='container')
     try:
         while running:
             from app.governance.recovery_capabilities import publish as publish_capabilities
@@ -48,10 +51,6 @@ def main():
                 with factory() as db:
                     worker.mark_stale_unknown(db,stale_seconds=10)
                     for row in pending(db):reconcile_usage(db,row['id'])
-                    unknown=list(db.execute(select(turns.c.id,turns.c.conversation_id).where(turns.c.status=='unknown')).all())
-                for tid,cid in unknown:
-                    path=root/'workspaces'/cid
-                    if path.is_dir():reconcile_unknown(factory,tid,path,server)
                 from app.governance.candidate_recovery import reconcile_terminal_candidates
                 reconcile_terminal_candidates(factory, lambda cid: (None, root/'workspaces'/cid))
                 from app.governance.direct_command_journal import reconcile_terminal_commands
@@ -80,8 +79,10 @@ def main():
                         trusted_directory(path)
                         job=threading.Thread(target=execute,args=(token,path));job.start()
                     except Exception:mark_unknown(factory,token,'local_workspace_unavailable')
+            recovery_slot.tick()
             time.sleep(.25)
     finally:
+        recovery_slot.close()
         (root/'worker-ready.json').unlink(missing_ok=True)
         if job and job.is_alive():
             with factory() as db:

@@ -82,6 +82,8 @@ updated_at: 2026-10-26 11:28:36
 
 ## 治理恢复与归档验收
 
+- [需求中心快照读取性能与安全复用](incidents/requirement-context-read-cost.md)：BUG-0056，请求内索引、完整字节验证、有界缓存及冷暖测量边界。
+
 - [治理恢复与归档验收证据分层实践](best-practices/governance-recovery-archive-evidence.md)：生产消费契约、首次成功与恢复分层、串行样本及历史证据保留。
 
 - [完成证明与执行保护交接故障](incidents/20261020-completion-proof-guard-convergence.md)：BUG-0052，历史证明与当前准入分离、持久交接和有界核验。
@@ -97,3 +99,11 @@ updated_at: 2026-10-26 11:28:36
 - [同条文兼容追加与显式替代边界](incidents/20261022-compatible-requirement-successor.md)：BUG-0063，独立证明、逐边完整链、候选预检及原约束保留。
 
 - [规格末尾空行与归档断链补证](incidents/20261026-archive-newline-proof.md)：完整目录双端锚定、末尾LF限定、原记录保留及当前引用修复。
+
+- [Chat 最终答案身份与自动核验状态经验](incidents/chat-answer-identity-and-verification.md)：BUG-0065/0066，跨路径幂等、历史投影与有界状态跟进。
+
+- [Chat 流式片段不等于正文长度](incidents/chat-stream-preview-budget.md)：BUG-0067 读取预算与证据边界。
+
+- [Chat 数据库锁竞争与核验事务隔离](incidents/chat-database-lock-verification.md)：BUG-0068，线程证据、零行更新及提交未知边界。
+
+- [无旧成功证明的中断接续复发](incidents/20261027-interrupted-successor-proof.md)：BUG-0069，可信启动基线、独立后继收据、完整差异覆盖与历史保留。

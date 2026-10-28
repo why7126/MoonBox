@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import sqlite3
+import time
 import uuid
 
 from sqlalchemy import create_engine, delete, insert, select, update
@@ -13,6 +14,13 @@ from sqlalchemy.orm import Session
 from app.chat import service
 from app.chat.schema import conversations, turns, events, messages, snapshots, diffs, relations, reservations, workspace_baselines, cleanup_jobs
 from app.chat.workspace import trusted_directory
+
+
+class BackupBusy(TimeoutError):
+    """Automatic copy could not finish within its live-database work budget."""
+
+
+AUTOMATIC_COPY_SECONDS = 60
 
 
 def identifier(value):
@@ -115,7 +123,18 @@ class LocalBackupStore:
                 fd = os.open(output, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
                 os.close(fd)
                 with sqlite3.connect(source.as_uri() + '?mode=ro', uri=True) as live, sqlite3.connect(output) as copy:
-                    live.backup(copy)
+                    # Release the source read lock between bounded steps so
+                    # request-audit and worker writes can commit during backup.
+                    # sleep= only handles BUSY; successful steps also yield.
+                    started = time.monotonic()
+                    def progress(status, remaining, total):
+                        # Other writers can restart an incremental backup. Do
+                        # not keep worker startup stuck indefinitely under load.
+                        if origin == 'automatic' and remaining and time.monotonic() - started >= AUTOMATIC_COPY_SECONDS:
+                            raise BackupBusy('automatic backup copy deferred')
+                        if status == sqlite3.SQLITE_OK and remaining:
+                            time.sleep(.001)
+                    live.backup(copy, pages=256, progress=progress, sleep=.01)
                     if copy.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
                         raise ValueError('backup integrity failure')
                 with output.open('rb') as stream:
@@ -228,6 +247,10 @@ class LocalBackupStore:
                         turn_ids = list(db.scalars(select(turns.c.id).where(turns.c.conversation_id == cid)))
                         for table in (events, messages, snapshots, diffs, reservations):
                             db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))
+                        from app.chat.recovery_schema import recoveries, resumes
+                        for table in (resumes, recoveries):
+                            if inspect(db.get_bind()).has_table(table.name):
+                                db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))
                         db.execute(delete(turns).where(turns.c.conversation_id == cid))
                         for table in (relations, workspace_baselines):
                             db.execute(delete(table).where(table.c.conversation_id == cid))

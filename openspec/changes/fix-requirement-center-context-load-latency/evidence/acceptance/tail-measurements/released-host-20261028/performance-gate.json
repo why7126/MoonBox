@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "validator": "verify_live_windows",
+  "reason": "HTTP P95 exceeds 3000 ms; see all four window summaries.",
+  "complete_samples_validated_separately": true,
+  "trace": "Traceback (most recent call last):\n  File \"<stdin>\", line 28, in <module>\n  File \"[project]/src/backend/tests/verify_context_evidence.py\", line 51, in verify_live_windows\n    assert p95(rows, 'context_ms') <= 3000\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-27 09:21:56
 name: workflow-sync
 description: Sync REQ/BUG/Sprint/OpenSpec workflow status after req/bug/sprint/opsx commands
 ---
@@ -218,3 +218,5 @@ opsx.start和opsx.progress为Change事件，同样要求Sprint范围与Issue门�
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+生命周期阶段同步与残留修复遵循 `rules/issues-lifecycle.md` 第9节：以目录为准，仅处理 trace、主文档和 capture 中已有的 Frontmatter 阶段；预览后在授权范围内修复，非法值阻断，保留历史正文及其他语义状态，不重跑归档。

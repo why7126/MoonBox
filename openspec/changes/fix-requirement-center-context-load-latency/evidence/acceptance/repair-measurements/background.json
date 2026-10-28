@@ -1,0 +1,65 @@
+{
+  "automatic_snapshot": {
+    "created_at": "2026-10-27T11:57:36+00:00",
+    "finished_at": "2026-10-27T11:58:48+00:00",
+    "status": "rotated"
+  },
+  "overlapping_context_handler_samples": [
+    {
+      "request_id": "f31da235-b92b-4d60-94b2-7db31d80bd30",
+      "created_at": "2026-10-27T11:58:26+00:00",
+      "duration_ms": 44134,
+      "status_code": 200
+    }
+  ],
+  "duration_boundary": "request log duration excludes final audit commit; not browser SLA evidence",
+  "reference_query_plan": [
+    "SEARCH o USING INDEX ix_chat_content_lookup (conversation_id=?)",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SEARCH e USING COVERING INDEX ix_chat_snapshot_object (object_id=?)",
+    "CORRELATED SCALAR SUBQUERY 2",
+    "SEARCH s USING COVERING INDEX ix_chat_segment_object (object_id=?)"
+  ],
+  "executed_source_sha256": {
+    "src/backend/app/governance/reader.py": "cfdb3cb538a8ca3d46014bed227444687fb6301ea55acf86760120d72d6d6c51",
+    "src/backend/app/governance/execution_context.py": "1ed7c3100977e2fbf390fe22532ef38fdb886527ce3ce0e76a99c84c1f7d57d5",
+    "src/backend/app/governance/read_memo.py": "b1eda7103be37be900410f76d94dacb39e722da861ff665d8575a8726146cd68",
+    "src/backend/app/governance/read_snapshot.py": "0c394e0d124f8b38350e8e20ad7a95431f0fe93672e0b01de3c413480727e511",
+    "src/backend/app/governance/direct_command_journal.py": "08958f7dc9b8d46342fa80e8071e18e7f2083d5ee9ad0bd4a95d0e70b8ba3565",
+    "src/backend/app/chat/backup.py": "7b79799bcb06afef20f59b17c94a92e1e711fe16d7326b657a64a02a7b913d04",
+    "src/backend/app/chat/platform_worker.py": "4afe216066371022510cfc6368a87aef9440304e39c8a24d006f9ea872008cd8",
+    "src/backend/app/chat/content_schema.py": "af26af56e5d2349410c1026db3a49ec1dee616f79a3a21b3b21ca25c6443635e",
+    "src/backend/app/services/requirement_center.py": "8df1cf69f73e55ab0faaf9a7d4b3f0a2449522964ae602a7ce9de815c350de4b",
+    "src/backend/app/governance/snapshot.py": "d0357859b21f0689d4aae5edb06cda5b5f40bc549506125c8879429c8c3782a1",
+    "src/backend/app/governance/change_index.py": "7531cc447c1c5ccd307427e9af8bbad803e5880f5bb5e80fcecb313925d7df0e",
+    "src/backend/app/governance/titles.py": "5ac2aabe7d01861c196bac9e000568cf10395ef07387cb15c63eef1282ee4225",
+    "src/backend/app/api/v1/requirement_center.py": "846cda2bfa21308c7717515d3c366801ed874298093d7893ce46d78fa2d5f1c8",
+    "src/backend/app/chat/api.py": "1851a926eae83db34d751ccd5e270ecdd257b31db3455c39752a7c0557217c71"
+  },
+  "mysql_failed": 0,
+  "sqlite_failed": 0,
+  "reference_indexes_present": true,
+  "orphan_reference_full_scans": 0,
+  "automatic_backup_bounded": true,
+  "sqlite_passed": 22,
+  "mysql_incremental_passed": 22,
+  "boundary": "backup overlap is under extra stress and not SLA evidence; index plans and regression verify mechanism",
+  "current_deployed_source_sha256": {
+    "src/backend/app/governance/reader.py": "cfdb3cb538a8ca3d46014bed227444687fb6301ea55acf86760120d72d6d6c51",
+    "src/backend/app/governance/execution_context.py": "74158a6dbd82ca7ca14c9f4055c89da0a1d03677c3c836bbda87085c83207636",
+    "src/backend/app/governance/verification_transaction.py": "4f0e624aa34e2293076e4035283ab132e7b8884fccc85b7f54eb600ad947ad19",
+    "src/backend/app/governance/execution_validation.py": "9be5a10da68f27ccf8c83589f6387e4b8eba209f30f652fe7f126038152d5f94",
+    "src/backend/app/governance/read_memo.py": "b1eda7103be37be900410f76d94dacb39e722da861ff665d8575a8726146cd68",
+    "src/backend/app/governance/read_snapshot.py": "0c394e0d124f8b38350e8e20ad7a95431f0fe93672e0b01de3c413480727e511",
+    "src/backend/app/governance/direct_command_journal.py": "08958f7dc9b8d46342fa80e8071e18e7f2083d5ee9ad0bd4a95d0e70b8ba3565",
+    "src/backend/app/chat/backup.py": "7b79799bcb06afef20f59b17c94a92e1e711fe16d7326b657a64a02a7b913d04",
+    "src/backend/app/chat/platform_worker.py": "4afe216066371022510cfc6368a87aef9440304e39c8a24d006f9ea872008cd8",
+    "src/backend/app/chat/content_schema.py": "af26af56e5d2349410c1026db3a49ec1dee616f79a3a21b3b21ca25c6443635e",
+    "src/backend/app/services/requirement_center.py": "af41919cb4f3621651af0d95d450d41cd0fee90c72c1551d4b0634b344223c2e",
+    "src/backend/app/governance/snapshot.py": "77a8b3afbfebc216a93883e1ce35e65d59cf38c19839415ea7c3581677627c1c",
+    "src/backend/app/governance/change_index.py": "7531cc447c1c5ccd307427e9af8bbad803e5880f5bb5e80fcecb313925d7df0e",
+    "src/backend/app/governance/titles.py": "5ac2aabe7d01861c196bac9e000568cf10395ef07387cb15c63eef1282ee4225",
+    "src/backend/app/api/v1/requirement_center.py": "846cda2bfa21308c7717515d3c366801ed874298093d7893ce46d78fa2d5f1c8",
+    "src/backend/app/chat/api.py": "1851a926eae83db34d751ccd5e270ecdd257b31db3455c39752a7c0557217c71"
+  }
+}

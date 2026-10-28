@@ -1,5 +1,5 @@
 import type { RecoveryOperationResponse } from '../../api/generated/governance';
-export type RunFacts = {status?:string; operation?:RecoveryOperationResponse|null; business?:boolean; rejected?:boolean; loading?:boolean; error?:boolean; hasBody?:boolean; truncated?:boolean; partial?:boolean};
+export type RunFacts = {status?:string; operation?:RecoveryOperationResponse|null; business?:boolean; rejected?:boolean; loading?:boolean; error?:boolean; hasBody?:boolean; truncated?:boolean; truncationReason?:string|null; partial?:boolean};
 export function projectRunStatus(f:RunFacts) {
  const op=f.operation; const terminal=['completed','failed','stopped'].includes(f.status||'');
  let label=({queued:'排队中',connecting:'准备中',running:'执行中',stopping:'停止中',completed:'已完成',failed:'执行失败',stopped:'已停止',unknown:'结果待确认'} as Record<string,string>)[f.status||'']||'正在读取状态';
@@ -16,7 +16,7 @@ export function projectRunStatus(f:RunFacts) {
  const notes:string[]=[];
  if(f.error) notes.push(f.status||op?'上次确认，更新失败；写操作暂不可用':'状态暂不可用');
  if(!f.status&&!op&&f.error) label='状态暂不可用';
- if(f.truncated) notes.push('输出内容不完整');
+ if(f.truncated) notes.push(['preview_limit','read_window'].includes(f.truncationReason||'')?'仅展示部分输出':['history_gap','invalid_payload'].includes(f.truncationReason||'')?'部分历史输出不可用':'输出内容不完整');
  else if(terminal&&f.partial) notes.push(f.hasBody?'未收到最终答复，以下为已保留的过程输出':'未收到最终答复');
  else if(['failed','stopped'].includes(f.status||'')) notes.push(f.hasBody?'已保留过程输出':'未收到可展示的输出');
  return {label,detail,notes};

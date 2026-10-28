@@ -230,3 +230,29 @@ def test_legacy_unscoped_receipt_cannot_auto_settle(chat):
         assert db.scalar(select(reservations.c.status))=='reserved'
         assert db.scalar(select(reservations.c.actual_tokens)) is None
         assert db.scalar(select(usage_accounts.c.active_runs).where(usage_accounts.c.id=='user:alice'))==0
+
+
+def test_missing_receipt_repeat_has_no_database_mutation(chat):
+    from sqlalchemy import event
+    from app.chat.schema import turns
+    client, factory = chat
+    cid = create(client)
+    with factory() as db:
+        row = enqueue(db, 'alice', cid, 'missing-repeat', 'test', LIMITS)
+        db.execute(update(turns).where(turns.c.id == row['id']).values(status='stopped'))
+        db.commit()
+        assert not reconcile_usage(db, row['id'])
+        assert db.scalar(select(reservations.c.concurrency_released)) == 1
+        writes = []
+        def capture(conn, cursor, statement, *args):
+            if statement.lstrip().upper().startswith(('UPDATE', 'INSERT', 'DELETE')):
+                writes.append(statement)
+        event.listen(db.get_bind(), 'before_cursor_execute', capture)
+        try:
+            for _ in range(3):
+                assert not reconcile_usage(db, row['id'])
+            assert not writes
+            assert db.scalar(select(reservations.c.status)) == 'reserved'
+            assert db.scalar(select(reservations.c.actual_tokens)) is None
+        finally:
+            event.remove(db.get_bind(), 'before_cursor_execute', capture)

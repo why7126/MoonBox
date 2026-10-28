@@ -2,7 +2,7 @@
 purpose: 验收项与测试映射
 content: REQ/BUG acceptance 与自动化测试的追踪索引
 created_at: 2026-07-29 23:10:00
-updated_at: 2026-07-29 23:10:00
+updated_at: '2026-10-26 19:09:24'
 owner: MoonBox 产品团队
 ---
 
@@ -74,3 +74,16 @@ REQ-0000-build-test-standard:
 | 横切与原型 | evidence/product 截图、样式、真实附件 ready 后拒绝保留；逐 AC 计划记录样本边界 |
 
 逐项执行命令及指纹以 add-controlled-rule-replacement-proof/acceptance-plan.json 为准。
+
+## Chat 回答去重与核验刷新回归
+- BUG-0065：src/backend/tests/test_chat_final_answer.py、test_chat_content_store.py、test_chat_assistant_output.py，SQLite/MySQL验证来源幂等、完整版本、历史投影及分页隔离。
+- BUG-0066：src/backend/tests/test_direct_completion.py、src/web/src/direct-completion-auto.test.tsx、direct-completion.test.tsx，覆盖队列归属、请求预算、取消与人工版本保护。
+- 联合浏览器：src/backend/tests/test_chat_fixes_browser.py（CHAT_BROWSER_TEST=1），真实HTTP/控制器/Chromium，隔离合成数据，不冒充真实模型执行。需CHAT_BROWSER_EVIDENCE指定脱敏证据输出目录；e2e/chat-fixes为测试夹具，不打包生产页面。
+
+## BUG-0067 流式预览
+
+关联 fix-chat-stream-preview-premature-truncation。后端 test_chat_preview.py 覆盖 AC-001/002/003/004/006/007；test_chat_final_answer.py 覆盖 AC-005；前端 full-output.test.tsx、unified-run-status.test.tsx、chat-assistant-output.test.tsx 覆盖范围提示、复制、分页与竞态；AC-008 的隔离浏览器阶段×视口证据见 Change evidence/acceptance/visual。真实 Agent 轮次单独记录，不由合成数据代替。
+
+## BUG-0068 治理核验事务与锁恢复
+
+`fix-chat-database-lock-execution-interruption`映射到test_verification_transaction.py、test_direct_completion.py、test_archive_proof.py、test_completion_handoff.py及test_verification_live.py。AC-001至009的命令、双库、真实执行器与隔离浏览器证据分别归属Change/evidence；原生产部署不因源码验收而更新。

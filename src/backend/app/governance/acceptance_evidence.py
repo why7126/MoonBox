@@ -176,13 +176,15 @@ SOURCE_INPUT_FILES = {"AGENTS.md", ".gitignore"}
 
 
 def input_path(root: Path, relative: str, *, source_root: Path | None = None) -> Path:
-    path = within(root, relative)
     # Explicit source inputs only; never fall back for missing governance facts.
+    # Select the authorized root before resolving. An unused projection path
+    # supplies no evidence about the source path that will actually be read.
+    parts = Path(relative).parts
     if source_root is not None and (
-        Path(relative).parts[0] in SOURCE_INPUT_ROOTS or relative in SOURCE_INPUT_FILES
+        (parts and parts[0] in SOURCE_INPUT_ROOTS) or relative in SOURCE_INPUT_FILES
     ):
-        path = within(source_root, relative)
-    return path
+        return within(source_root, relative)
+    return within(root, relative)
 
 
 def input_bytes(root: Path, check: dict, relative: str, *, source_root: Path | None = None) -> bytes:

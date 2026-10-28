@@ -2,7 +2,7 @@
 purpose: 数据库设计
 content: MoonBox SQLite 初始数据域与迁移治理
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-21 14:28:59
+updated_at: "2026-10-27 19:34:50"
 owner: MoonBox 产品团队
 ---
 
@@ -297,3 +297,33 @@ SPRINT 使用既有 `chat_relations.object_id` 字符串保存规范 ID，类型
 空闲会话按有限批次清理无引用块，活动执行不回收；主动删除及备份恢复删除重放同步清理新增索引和正文。历史快照逐会话转入新索引，未保存的历史全文保持不可用。回滚先停止新发送、排空或核验活动轮次，保留所有表及内容，只回退到能够读取 v1/v2 的兼容应用版本；不能回退到只理解旧 JSON 的版本后宣称历史结果完整。
 
 旧基线采用逐会话回填入口 `app.chat.content_migration`：每批最多100个会话，活动或已删除会话跳过，内容发布与指针切换同一事务，失败保留旧读取；扫描游标只表示遍历进度，完成一轮后可从头补扫被跳过对象。历史未保存正文不从当前磁盘补造。数据库块、WAL、索引的物理占用与用户保存字节分开计量；迁移增加的内容对象同样受显式存储额度约束。
+
+
+## Chat 未知轮次恢复账本（BUG-0064）
+
+`chat_turn_recoveries`以turn_id唯一关联chat_turns，保存waiting/leased/paused/resolved、generation、attempt_count、first_attempt_at、next_retry_at、last_result、lease_token、lease_expires_at、updated_at；state/next_retry_at索引支持到期选择。该状态不替代业务turn.status。`chat_recovery_resumes`以request_id唯一记录显式续接的turn、前代、操作者摘要、受限原因和前代预算摘要。
+
+由chat.schema.migrate增量create_all及索引检查创建，重复执行不改历史业务终态。UTC字符串保持现有时间类型惯例；领取CAS与终态事务围栏兼容SQLite/MySQL，事务不跨Docker调用。旧unknown惰性登记，不伪造历史尝试次数。恢复明细不保存prompt、凭据或路径；活动/暂停记录随业务生命周期保留以维持预算，不能按遥测过期删除后重新激活。Task Trace/span仍沿用既有90天策略，运维续接摘要保留至业务记录依法清理；无新增用户行为事件或HTTP请求日志。
+
+已获授权的会话历史删除与SQLite离线备份删除重放，均先删除恢复及续接记录，再删除turn；旧备份无新表时跳过该表，不复活被删预算。
+
+## Chat 最终答案提交与读投影
+BUG-0065：沿用chat_events与chat_result_segments，不新增物理表。正常及恢复路径共用final:item身份摘要，偏移按UTF-8字节去重；完成后禁止追加冲突。answer:begin/complete事件记录不含正文的来源摘要，完整标记随轮次围栏写入。预览与分页选择最后完整版本，游标绑定来源；已保存消息读取时应用同一投影，不删除历史消息。旧记录仅在恢复事件和连续完整来源组摘要相等时折叠，证据不足保留原内容并标partial。SQLite/MySQL使用相同参数化查询与现有唯一约束，原始计量及清理不变。
+
+## Chat 输出读取预算（BUG-0067）
+
+本次无表、索引或迁移。读取已提交结果的元数据后批量读取 chunk 0，并验证长度、摘要、UTF-8；缺失对象/块不静默跳过。预览每批 512 段、最多 4096 段 / 1 MiB，含最终版本选择不超过 20 次查询。SQLite/MySQL 共用实现。读取不重放执行、不修改业务状态；已有完整助手正文不会被受限预览覆盖。
+
+## 治理核验事务边界（BUG-0068）
+
+核验先读取标量事实并结束读取事务，再在无写事务时扫描文件和核验完成证明。VerificationPlan仅记录guard与观测DML，应用前重新授权并检查项目代次、完整guard原值与执行终态；条件写获得短写围栏后应用全部计划。过时计划回滚并保持保护，外部扫描不进入持锁区间。reconcile拥有事务收尾边界，调用方此前需要持久化的意图在入口提交；不得把未批准的业务副作用混入核验会话。
+
+不变终态及不变失败原因不重复UPDATE。SQLite使用200ms短锁等待，MySQL使用最小1秒锁等待；连接归池恢复原设置。仅已确认回滚的锁冲突最多3次尝试、50/150ms退避并受1秒启动预算约束；MySQL单次数据库等待可能消耗整个预算。提交不明不重试，后续按原身份读取权威guard。无schema迁移，不调整WAL或全局连接超时。
+
+### 无旧证明的后继核验（BUG-0069）
+
+无表、列或迁移变更。final_verification.successor沿用schema v1，新增basis=startup_baseline或sync_manifest及baseline_revision；无旧同步步骤时从私有启动基线重算摘要并绑定原操作版本。旧steps、Chat终态及事件保持，pending_confirmation与既有版本围栏继续支持提交前后中断恢复。SQLite与MySQL独立连接覆盖源变更、版本竞争、权限/绑定撤回及幂等；文件扫描不进入写事务。
+
+## 需求中心后台并发返修（BUG-0056）
+
+在既有chat_snapshot_entries.object_id和chat_result_segments.object_id上分别增加ix_chat_snapshot_object、ix_chat_segment_object索引。用于空闲内容维护的相关NOT EXISTS引用判定，避免每个内容对象全表扫描；无新表、字段、约束或数据重写。chat.schema.migrate对旧表补索引且重复运行安全，SQLite/MySQL共用SQLAlchemy定义。回滚应用保留索引，不删除历史内容；正式升级应在低峰创建索引并核对查询计划。

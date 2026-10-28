@@ -24,7 +24,7 @@ def parse(text):
     if text.startswith('---\n'):
         pieces = text.split('---', 2)
         if len(pieces) == 3:
-            metadata = yaml.safe_load(pieces[1]) or {}
+            metadata = yaml.load(pieces[1], Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader)) or {}
             body = pieces[2]
     if not isinstance(metadata, dict):
         raise ValueError('标题元数据格式错误')
@@ -46,6 +46,17 @@ def parse(text):
 
 
 def read_title(path: Path):
+    from app.services.requirement_center import _READ_MEMO
+    memo = _READ_MEMO.get()
+    if memo is None:
+        return _read_title(path)
+    key = ('business_title', path)
+    if key not in memo:
+        memo[key] = _read_title(path)
+    return memo[key]
+
+
+def _read_title(path: Path):
     try:
         metadata, headings = parse(path.read_text(encoding='utf-8'))
         # Only missing metadata permits legacy H1 fallback; invalid explicit titles do not.

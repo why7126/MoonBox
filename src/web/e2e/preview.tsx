@@ -1,0 +1,10 @@
+import React, {useEffect,useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {ConversationMessages} from '../src/components/chat/ConversationMessages';
+import '../src/styles/globals.css';
+import '../src/styles/tokens.generated.css';
+import '../src/styles/workbench.css';
+import '../src/styles/chat-workbench.css';
+localStorage.setItem('moonbox.session',JSON.stringify({username:'isolated-test',access_token:'isolated-fixture-only'}));
+function Preview(){const [scenes,setScenes]=useState<Record<string,{cid:string}>>({});const [mode,setMode]=useState('short');useEffect(()=>{fetch('/api/fixture/scenes').then(r=>r.json()).then(setScenes)},[]);return <main className="requirement-center" style={{display:"block",maxWidth:1100,margin:'auto',padding:20}}><h1>流式输出验收 · 隔离测试数据</h1><nav style={{position:'sticky',top:0,zIndex:5,background:'#fff',display:'flex',gap:12,flexWrap:'wrap'}}>{Object.keys(scenes).map(key=><button key={key} onClick={()=>setMode(key)}>{key}</button>)}</nav><section className="chat-workbench">{scenes[mode]&&<ConversationMessages key={mode} conversationId={scenes[mode].cid} onTrace={()=>{}}/>}</section></main>};
+createRoot(document.getElementById('root')!).render(<Preview/>);

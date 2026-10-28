@@ -719,8 +719,17 @@ describe("RequirementCenterPage", () => {
     expect(screen.getByTestId("current-iteration-capacity").textContent).toContain("sprint-006");
   });
 
-  it("uses archive readiness before entering current iteration archive confirmation", async () => {
-    stubFetch("fetch", vi.fn(() => Promise.resolve({ ok: true, status: 200, json: async () => ({ data: contextFixture }) })));
+  it("uses archive readiness before opening the current iteration Chat confirmation", async () => {
+    const archiveCalls: unknown[] = [];
+    stubFetch("fetch", vi.fn((input, init) => {
+      if (String(input).endsWith('/object-sessions')) {
+        archiveCalls.push(JSON.parse(String(init?.body)));
+        return Promise.resolve({ok: true, status: 200, json: async () => ({data: {
+          object_id: 'sprint-007', conversation_id: 'chat-sprint-007', can_send: true,
+        }})});
+      }
+      return Promise.resolve({ok: true, status: 200, json: async () => ({data: contextFixture})});
+    }));
     render(<RequirementCenterPage />);
 
     expect(await screen.findByText("REQ-0012")).toBeTruthy();
@@ -743,12 +752,15 @@ describe("RequirementCenterPage", () => {
 
     fireEvent.click(archiveButtons[0]);
     expect(screen.queryByTestId("archive-sprint-confirm-dialog")).toBeNull();
+    expect(archiveCalls).toHaveLength(0);
 
     fireEvent.click(archiveButtons[1]);
-    const dialog = await screen.findByTestId("archive-sprint-confirm-dialog");
-    expect(dialog.textContent).toContain("sprint-007");
-    expect(dialog.textContent).toContain("Workflow Sync 校验");
-    expect((within(dialog).getByTestId("archive-sprint-confirm") as HTMLButtonElement).disabled).toBe(false);
+    await waitFor(() => expect(window.location.pathname).toBe('/chat'));
+    expect(archiveCalls).toHaveLength(1);
+    expect(archiveCalls[0]).toMatchObject({object_id: 'sprint-007', action: 'sprint-archive'});
+    expect(window.location.search).toContain('conversation_id=chat-sprint-007');
+    expect(JSON.parse(sessionStorage.getItem('moonbox.sprintArchive.intent:chat-sprint-007') || '{}'))
+      .toMatchObject({sprintId: 'sprint-007', conversationId: 'chat-sprint-007'});
   });
 
   it("shows standalone stage actions, fails closed for writes and opens progress read-only", async () => {

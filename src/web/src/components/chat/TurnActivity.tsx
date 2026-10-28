@@ -1,3 +1,4 @@
+import { FullOutput } from "./FullOutput";
 import {DirectCompletion} from "./DirectCompletion";
 import { RecoveryOperationPanel, type RecoveryOperation } from "./RecoveryOperationPanel";
 import { projectRunStatus } from "./turnStatus";
@@ -23,7 +24,8 @@ function durationLabel(ms?: number) {
  if (seconds < 60) return `${seconds}秒`;
  return `${Math.floor(seconds / 60)}分钟${seconds % 60}秒`;
 }
-export function TurnActivity({turnId,onTrace,hasBody=false,partial=false,truncated=false,candidate,onDraft=()=>{},draftText=""}:{turnId:string;onTrace:(id:string)=>void;hasBody?:boolean;partial?:boolean;truncated?:boolean;candidate?:GovernanceCandidate;onDraft?:(text:string)=>void;draftText?:string}) {
+export function TurnActivity({turnId,onTrace,hasBody=false,partial=false,truncated=false,truncationReason,candidate,onDraft=()=>{},draftText="",autoFollow=false}:{autoFollow?:boolean;turnId:string;onTrace:(id:string)=>void;hasBody?:boolean;partial?:boolean;truncated?:boolean;truncationReason?:string|null;candidate?:GovernanceCandidate;onDraft?:(text:string)=>void;draftText?:string}) {
+ const [fullOutput,setFullOutput]=useState(false);
  const [directState,setDirectState]=useState('');
  const [expanded,setExpanded]=useState(false),[operation,setOperation]=useState<RecoveryOperation|null>(null),[operationError,setOperationError]=useState(false);
  const [events,setEvents]=useState<ChatEvent[]>([]),[turn,setTurn]=useState<TurnRead|null>(null),[error,setError]=useState("");
@@ -39,14 +41,16 @@ export function TurnActivity({turnId,onTrace,hasBody=false,partial=false,truncat
  const processOutput=String(nodes.filter(n=>n.type==="execution.output").slice(-1)[0]?.payload.text||"");
  const usage = events.filter(event => event.type === "execution.usage").map(event => event.payload as UsagePayload).filter(Boolean).slice(-1)[0];
  const reasoningDuration = durationLabel(usage?.reasoning_duration_ms ?? usage?.thinking_duration_ms);
- const projected=projectRunStatus({status:turn?.status,operation,business:!!candidate,rejected:candidate?.state==='rejected',error:!!error||operationError,hasBody,partial,truncated});
- const statusText=preparationError?'执行前阻断':directState==='needs_review'?'结果待核验':['validated','recovered_valid'].includes(directState)&&turn?.status==='completed'?'成果已核验':projected.label;
+ const projected=projectRunStatus({status:turn?.status,operation,business:!!candidate,rejected:candidate?.state==='rejected',error:!!error||operationError,hasBody,partial,truncated,truncationReason});
+ const statusText=preparationError?'执行前阻断':directState==='verification_waiting'?'核验状态更新中':directState==='auto_checking'?'自动核验中':directState==='verification_blocked'?'核验待处理':directState==='needs_review'?'结果待核验':['validated','recovered_valid'].includes(directState)&&turn?.status==='completed'?'成果已核验':projected.label;
  return <div className="chat-turn-activity" data-testid="turn-status-root" data-turn-id={turnId}>
  <button className="chat-tool-summary" data-testid="turn-status-trigger" aria-expanded={expanded} aria-controls={`turn-detail-${turnId}`} onClick={()=>setExpanded(v=>!v)}><span className="status-dot"/><strong>{statusText}</strong>{projected.detail&&<span>{projected.detail}</span>}{tools.length>0&&<span>{tools.length} 次工具调用</span>}<ChevronRight size={13}/>{config&&<span className="chat-effective-config" data-testid="chat-effective-config">{executionConfigLabel(config)}{turn?.config_fallback_reason?` · ${turn.config_fallback_reason}`:""}{reasoningDuration?` · 思考 ${reasoningDuration}`:''}</span>}</button>
  <div data-testid="turn-status-feedback" role="status" aria-live="polite">{projected.notes.map(note=><p key={note}>{note}</p>)}{preparationError&&<p>{preparationError}</p>}{error&&<p>{error}</p>}</div>
+ {truncated&&['preview_limit','read_window'].includes(truncationReason||'')&&<button type="button" className="chat-full-output-open" onClick={()=>setFullOutput(true)}>查看完整输出</button>}
+ {fullOutput&&<FullOutput key={turnId} turnId={turnId} preferFinal={!partial} onClose={()=>setFullOutput(false)}/>}
  {active&&!hasBody&&<p data-testid="turn-process-output" aria-live="off">{processOutput||"正在等待执行结果…"}</p>}
  <div hidden={!expanded} id={`turn-detail-${turnId}`} data-testid="turn-execution-detail"><button onClick={()=>onTrace(turnId)}>查看本轮轨迹</button></div>
- {turn?.direct_action&&!candidate?.recovery_operation_id&&['completed','failed','stopped'].includes(turn.status)&&<DirectCompletion key={turnId} turnId={turnId} expanded={expanded} onState={setDirectState}/>}
+ {turn?.direct_action&&!candidate?.recovery_operation_id&&['completed','failed','stopped'].includes(turn.status)&&<DirectCompletion key={turnId} turnId={turnId} autoFollow={autoFollow} expanded={expanded} onState={setDirectState}/>}
  {candidate?.recovery_operation_id&&<RecoveryOperationPanel key={candidate.recovery_operation_id} operationId={candidate.recovery_operation_id} refreshKey={`${turn?.status||''}:${candidate.state}`} onDraft={onDraft} draftText={draftText} collapsed={!expanded} writesDisabled={!!error || (!!operation && operation.historical_result==='verified' && !!turn && ['running','stopping'].includes(turn.status))} onOperation={setOperation} onReadError={setOperationError}/>}
  </div>;
 }

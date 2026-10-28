@@ -9,6 +9,7 @@ from app.chat.container_server import ContainerAppServer
 @pytest.mark.parametrize('event,exit_code,expected',[('oom\n',137,'container_memory_exhausted'),('',137,'container_terminated'),('',1,'executor_disconnected')])
 def test_container_diagnostics_require_real_oom_evidence(monkeypatch,event,exit_code,expected):
     server=ContainerAppServer.__new__(ContainerAppServer)
+    server.recovery_context=None
     server.incoming=queue.Queue();server.failure='executor_disconnected'
     server.created_epoch=1;server.container_name='synthetic';server.docker='docker'
     server.process=SimpleNamespace(poll=lambda:exit_code)

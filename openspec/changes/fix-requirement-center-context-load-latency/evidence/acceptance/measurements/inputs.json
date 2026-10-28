@@ -1,0 +1,41 @@
+{
+  "snapshot_revision": "5bc3a3b6e5f618556fe9b01c9726733364c008fce7480dc62e242d29eccd4a6b",
+  "files": 6265,
+  "bytes": 18454665,
+  "authorized_cards": 213,
+  "default_sprint_cards": 28,
+  "source_sha256": {
+    "src/backend/app/governance/reader.py": "95c793541d15e833684664f9a5b143e49cf90e11b5c6d4e0fbea24a8c29a919e",
+    "src/backend/app/governance/snapshot.py": "d0357859b21f0689d4aae5edb06cda5b5f40bc549506125c8879429c8c3782a1",
+    "src/backend/app/governance/read_snapshot.py": "bb0d5b0378b60aebc153a9617057f7bfc0e15b0b0fc934769acef7b5bb8e6c94",
+    "src/backend/app/governance/execution_context.py": "a5f7cbcf7c508affc6895152b06619641d16a9a45ca99c01cf0a198bb19e5e6e",
+    "src/backend/app/governance/change_index.py": "7531cc447c1c5ccd307427e9af8bbad803e5880f5bb5e80fcecb313925d7df0e",
+    "src/backend/app/governance/titles.py": "5ac2aabe7d01861c196bac9e000568cf10395ef07387cb15c63eef1282ee4225",
+    "src/backend/app/services/requirement_center.py": "bdad6808f9c51006b0bd75c1d3e3594d35af1a2c7b162ad064fc45b54774e3c7",
+    "src/backend/app/api/v1/requirement_center.py": "846cda2bfa21308c7717515d3c366801ed874298093d7893ce46d78fa2d5f1c8",
+    "src/backend/app/chat/api.py": "1851a926eae83db34d751ccd5e270ecdd257b31db3455c39752a7c0557217c71",
+    "src/web/src/pages/catalog/RequirementCenterPage.tsx": "eff5a95daf62779b57da0ee94a80dc02a3a5f7ee644a7215a84c04a4494ca541",
+    "src/web/e2e/context-performance.tsx": "be69ee07958911e7c851e96ee635fad2d3d29c93af92068de2ba3e3e2303bdb9",
+    "src/web/e2e/context-performance.config.ts": "4cdbc22d7bcda870bf168969459f588aa98e874f6245411eb585bbf908d8de19",
+    "src/web/e2e/context-performance.html": "493f9a9340c6ebecf8468ee6353d98d6891bcbebde8c493bae11c34947cc6574",
+    "src/backend/tests/context_browser_fixture.py": "9892777935a779843fef25d833a525b5af49e8caccecd3b2b49f33f960f5a6a3"
+  },
+  "environment": {
+    "backend": "Python 3.12 Linux temporary container",
+    "latency_limits": "2 vCPU / 4 GiB ceiling (previous diagnostic runs used 2 GiB); same container, no resource stress during latency samples",
+    "resource_limits": "shared 4 vCPU / 8 GiB, eight isolated processes (same per-process allocation as planned two four-process rounds)",
+    "resource_rounds": "concurrency 1 and 4, baseline/optimized, reference/expanded in parallel; each timed for at least 1800 seconds",
+    "filesystem": "frozen source in tmpfs; private materialization and synthetic DB in container temporary storage",
+    "browser": "Chrome production Vite build; actual RequirementCenterPage, isolated test identity",
+    "os_page_cache_cleared": false
+  },
+  "baseline_sha256": {
+    "requirement_center.py": "c12205d30a5a141e35970b5fb8023d32c965e41e0819a1716fd96446c597bb60",
+    "change_index.py": "41d1521bea1e94e318bd199b13126d1657c012578955bd497e4e924b633f306e",
+    "titles.py": "8a32a6160647eb94d9371843077f2ee50554c629bc2454fbe4c4c34d1b305495",
+    "reader.py": "c1c0e65d92c3cdef741a55b190a7953ba0906f48ee0c10555cacaca3667bbcc6",
+    "execution_context.py": "3b302446e59186eb00f38728429cbd5942206bf7575e9597f09055af16bb82b0",
+    "snapshot.py": "4b981468cd5f1830373618f41ee60992a2320746ba3d6a764b121cc3e12105d4"
+  },
+  "expanded_expected_cards": 1458
+}

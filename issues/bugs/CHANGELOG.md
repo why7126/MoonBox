@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-23 21:46:23
+updated_at: 2026-10-27 18:44:34
 owner: MoonBox 产品团队
 ---
 
@@ -28,14 +28,20 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| BUG-0069-chat-interrupted-successor-proof-missing | Chat 中断缺少旧同步证明导致外部接续完成后仍受限 | high | done | archive | sprint-014 | fix-chat-interrupted-successor-proof | 2026-10-27 18:44:34 | 无 | `issues/bugs/archive/BUG-0069-chat-interrupted-successor-proof-missing/trace.md` |
+| BUG-0068-chat-database-lock-execution-interruption | Chat 执行期间数据库锁竞争导致持久化失败与任务中断 | high | done | archive | sprint-014 | fix-chat-database-lock-execution-interruption | 2026-10-27 09:09:48 | 无 | `issues/bugs/archive/BUG-0068-chat-database-lock-execution-interruption/trace.md` |
+| BUG-0067-chat-stream-preview-premature-truncation | Chat 流式正文预览过早截断并误导提示输出不完整 | medium | done | archive | sprint-014 | fix-chat-stream-preview-premature-truncation | 2026-10-27 09:10:25 | 无 | `issues/bugs/archive/BUG-0067-chat-stream-preview-premature-truncation/trace.md` |
+| BUG-0066-chat-auto-verification-status-stale | Chat 自动核验状态未持续刷新导致结果待核验提示滞留 | medium | done | archive | sprint-014 | fix-chat-auto-verification-status-stale | 2026-10-26 19:55:11 | 无 | `issues/bugs/archive/BUG-0066-chat-auto-verification-status-stale/trace.md` |
+| BUG-0065-chat-final-answer-duplicate-concatenation | Chat 最终回答相同内容重复保存并拼接展示 | medium | done | archive | sprint-014 | fix-chat-final-answer-duplicate-concatenation | 2026-10-26 19:54:50 | 无 | `issues/bugs/archive/BUG-0065-chat-final-answer-duplicate-concatenation/trace.md` |
+| BUG-0064-chat-unknown-recovery-container-churn | Chat 未知轮次无界恢复导致执行容器持续重复创建 | high | done | archive | sprint-014 | fix-chat-unknown-recovery-container-churn | 2026-10-26 14:41:27 | 无 | `issues/bugs/archive/BUG-0064-chat-unknown-recovery-container-churn/trace.md` |
 | BUG-0063-compatible-requirement-successor-blocked | 同条文兼容追加被归档后继冲突门禁拒绝 | high | done | archive | sprint-012 | fix-compatible-requirement-successor | 2026-10-23 21:46:23 | 无 | `issues/bugs/archive/BUG-0063-compatible-requirement-successor-blocked/trace.md` |
 | BUG-0062-archive-requirement-scope-conflict | 归档恢复按模块误判冲突导致验收进度失真与迭代关闭受阻 | high | done | archive | sprint-012 | fix-archive-requirement-scope-conflict | 2026-10-21 19:11:21 | 无 | `issues/bugs/archive/BUG-0062-archive-requirement-scope-conflict/trace.md` |
-| BUG-0061-cross-entry-continuation-guard-convergence | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | high | done | archive | sprint-012 | fix-cross-entry-continuation-guard | 2026-10-21 17:25:22 | 无 | `issues/bugs/archive/BUG-0061-cross-entry-continuation-guard-convergence/trace.md` |
+| BUG-0061-cross-entry-continuation-guard-convergence | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | high | done | archive | sprint-012 | fix-cross-entry-continuation-guard | 2026-10-27 16:03:11 | 无 | `issues/bugs/archive/BUG-0061-cross-entry-continuation-guard-convergence/trace.md` |
 | BUG-0060-direct-command-completion-proof-drift | Chat 治理命令同步后完成证明失效导致卡片滞留旧阶段 | high | done | archive | sprint-012 | fix-direct-command-completion-proof | 2026-10-21 14:09:30 | 无 | `issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/trace.md` |
 | BUG-0059-chat-governance-command-submit-latency | 聊天治理命令同步准备导致消息提交等待过长缺陷记录 | high | captured | plan | 无 | 无 | 2026-10-21 08:50:24 | `/bug-generate BUG-0059-chat-governance-command-submit-latency` | `issues/bugs/plan/BUG-0059-chat-governance-command-submit-latency/trace.md` |
 | BUG-0058-chat-history-status-replay-request-amplification | 聊天历史状态重建与重复读取导致加载迟缓 | high | approved | review | 无 | 无 | 2026-10-21 09:16:09 | `/sprint-propose --bug BUG-0058-chat-history-status-replay-request-amplification` | `issues/bugs/review/BUG-0058-chat-history-status-replay-request-amplification/trace.md` |
 | BUG-0057-requirement-card-chat-navigation-latency | 需求卡片动作准备会话导致进入聊天工作台等待过长 | high | enriching | plan | 无 | 无 | 2026-10-21 09:23:24 | `/bug-complete BUG-0057-requirement-card-chat-navigation-latency` | `issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md` |
-| BUG-0056-requirement-center-context-load-latency | 需求中心首屏聚合请求耗时约二十七秒 | high | approved | review | 无 | 无 | 2026-10-21 09:16:02 | `/sprint-propose --bug BUG-0056-requirement-center-context-load-latency` | `issues/bugs/review/BUG-0056-requirement-center-context-load-latency/trace.md` |
+| BUG-0056-requirement-center-context-load-latency | 需求中心首屏聚合请求耗时约二十七秒 | high | in_sprint | review | sprint-014 | fix-requirement-center-context-load-latency | 2026-10-27 12:38:49 | `/opsx-archive BUG-0056-requirement-center-context-load-latency` | `issues/bugs/review/BUG-0056-requirement-center-context-load-latency/trace.md` |
 | BUG-0055-chat-turn-message-order-inversion | Chat 同轮助手回复排在用户提问之前 | medium | done | archive | sprint-011 | fix-chat-turn-message-order | 2026-10-21 17:13:04 | 无 | `issues/bugs/archive/BUG-0055-chat-turn-message-order-inversion/trace.md` |
 | BUG-0053-deployed-acceptance-input-resolution | 部署态验收输入解析不完整导致纯 Change 归档误阻塞 | high | done | archive | sprint-011 | fix-deployed-acceptance-input-resolution | 2026-10-20 19:36:08 | 无 | `issues/bugs/archive/BUG-0053-deployed-acceptance-input-resolution/trace.md` |
 | BUG-0054-change-card-blocked-reason-missing | 纯 Change 卡片验收阻塞缺少具体原因 | medium | done | archive | sprint-011 | fix-change-card-blocked-reason | 2026-10-20 19:36:45 | 无 | `issues/bugs/archive/BUG-0054-change-card-blocked-reason-missing/trace.md` |

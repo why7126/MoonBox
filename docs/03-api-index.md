@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-21 14:28:59
+updated_at: "2026-10-27 23:32:32"
 owner: MoonBox 产品团队
 ---
 
@@ -492,3 +492,38 @@ Chat 发送拒绝响应沿用原 HTTP 状态与错误码，data 增加可选 arc
 新格式 Diff 响应携带 `format_version=2`；旧格式继续可读。请求审计只保存路由、身份、状态和耗时，不记录正文或游标内容。Web 分页及恢复行为关联可信请求标识，直接 API 不生成假浏览器事件。
 
 `GET /turns/{tid}/files/{file_id}/blocks` 复用逐次鉴权，按数据库块摘要分页比较，两侧各最多101个索引、返回最多100块。`scope` 区分本轮/累计，重命名传入列表给出的 `before_file_id`；游标绑定这些参数。结果为精确变化块，不伪装为行级补丁。正文端点同样支持 `scope`，重命名的执行前正文使用 `before_file_id`。结果页另含 `storage_status`：阶段、稳定错误码、启动确认程度、已保存序号、完整性、恢复动作与原请求ID。
+
+## Chat 自动核验与最终结果兼容补充
+BUG-0066：GET/POST /api/v1/chat/turns/{turn_id}/completion-verification 新增可选auto_verification，包含state（pending/checking/confirmed/blocked/unavailable）及reason_code。只投影匹配当前操作者、项目、对象、轮次和保护版本的队列，GET无业务写入。旧客户端忽略新字段；新客户端缺字段有限查询，不声称后台队列运行。OpenAPI/Orval已同步。手动POST继续使用expected_version，不调用模型。
+BUG-0065：final结果分页游标绑定所选完整答案，版本变化返回422要求重新加载；结果响应结构保持兼容，原始段与消息不删除。
+
+## Chat 正文预览（BUG-0067）
+
+消息响应新增可空 output_truncation_reason：preview_limit、read_window、history_gap、invalid_payload。前两者表示展示预算，不表示执行失败；后两者保留历史不可用反馈。结果分页仍使用授权 GET /chat/turns/{id}/results，单页最多 512 段 / 256 KiB，游标绑定轮次、流和选定最终版本。正文预览最多 200000 字符、4096 段、1 MiB；查询保持有界。OpenAPI 与 Web/管理端客户端已重新生成。
+
+## 治理读取与执行持久化诊断（BUG-0068）
+
+需求中心读取的核验计算不持有数据库写事务，提交阶段重验授权、项目代次和对象版本。接口响应及客户端契约保持不变。服务日志区分数据库驱动细分码、核验阶段、事务耗时、尝试数和operation/turn关联；运行异常只记录应用函数名，禁止SQL文本、参数、凭据和原始正文。观测出口失败不阻断终态处理，提交结果不明不自动重跑业务命令。
+
+
+## BUG-0056 需求中心读取性能与分段观测
+
+context和Markdown接口的响应正文、授权、错误码、项目绑定及写入围栏保持原契约；无需数据库迁移或客户端生成。读取适配器仅缓存纯文件字节，新增缓存按Python对象及正文保守计费，最多两个项目/绑定版本、64MiB；授权、执行占用和完成核验每次重算。写入服务继续完整双遍读取。首遍复用仅为候选，第二遍完整安全读取并比较字节，不以时间戳替代验证。
+
+既有Server-Timing新增snapshot、fences_exclusive、reconcile、external_reconcile、card_projection_exclusive、projection_commit、document_projection和reader_orchestration。snapshot与fences_exclusive属于snapshot_and_fences，其他Reader阶段互斥；total为Reader总时长，不重复求和。HTTP层dependencies、response_finalize、request_audit及route_total用于关联服务端request_id；response_finalize包含响应校验、序列化及线程返回调度，不标称纯序列化CPU。日志仅记录标识和数值，不保存正文、账号或文件路径。沿用既有请求日志与保留策略；直接API不伪造行为事件。本次高频同步读没有新增持久Task Trace span，阶段排障由同request_id的计时日志承担。
+
+权限策略、DB结构、对象存储及部署拓扑无变化；Web保留projects确定授权项目后读取context的依赖顺序，以及单页不重叠刷新、取消和旧响应丢弃。性能效果以本Change固定版本证据为准，单次探针不代表P95达标。
+
+BUG-0056计时口径补充：materialize包括不可变读取上下文的注册表准备；fences_exclusive包括快照前后围栏、授权及读事务切换。reader_orchestration为未单列的Reader组装开销，按同次请求总时长扣除互斥阶段计算；HTTP总时长不等于浏览器网络/首卡时间。
+
+需求中心当前沿用ChatRoute的chat_request_logs审计表；新增计时日志与该表以request_id关联。本轮未新增或迁移日志表，HTTP回归同时验证成功请求的审计记录存在。
+
+### 无旧同步证明的独立后继核验（BUG-0069）
+
+沿用完成核验GET/POST及expected_version。仅终止的apply/modify、原操作/绑定匹配且可信启动基线摘要完整时提供核验入口；GET不解除保护。POST验证原轮开始时间、后继完成时间和正式opsx.accept收据时间、当前完整验收和所有变化输入覆盖；30条差异展示上限不限制授权计算。新增direct_successor_available、direct_successor_verified、direct_successor_baseline_invalid、direct_successor_time_invalid原因。旧有证明路径及review/archive专用协议保留。
+
+DirectVerificationResponse增加可选successor_evidence（默认空映射）：已确认的Change ID到验收run ID，供详情展开定位报告；只返回安全标识，不返回私有日志正文，待提交记录不暴露。OpenAPI及Web Orval客户端同步生成。历史停止状态不改写，新请求仍经过当前准入。
+
+BUG-0056 持续负载返修：context的对象可见性仅在请求内聚合，并在结束读事务后重新查询、重新授权项目及绑定；构建中撤权返回原有403，绑定或只读状态变化返回409，结果不跨请求保留。卡片执行状态批量查询仍只用于展示，发送保留实时事务准入。ChatRoute审计等待工作线程完成落库后返回，事件字段、失败观测和request_id语义保持不变；不以取消审计换取低延迟。API schema、客户端生成及对象存储不变。
+
+需求中心读取审计：响应前保留请求摘要持久化，未改变的metadata不重复更新；需补充行为字段时按本次审计记录主键更新，避免随历史请求数量增长的全表扫描。请求字段、错误和采集口径不变。

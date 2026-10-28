@@ -3,7 +3,7 @@ purpose: 目录结构规范
 content: 约束 AI 与开发人员遵循当前项目目录边界、文件归属和新增文件规则
 update_method: 目录结构调整时由架构负责人确认后更新；AI 只能提出建议，不得擅自放宽规则
 created_at: 2026-06-13 00:00:00
-updated_at: '2026-10-26 11:05:14'
+updated_at: 2026-10-26 12:09:32
 note: AGENTS.md 必须引用本文档；用于防止 AI 随意新增目录或把文件放错位置
 ---
 
@@ -279,3 +279,5 @@ src/infrastructure/
 治理量化台账使用已忽略的 `logs/governance-feedback/`，仅存脱敏指标与仓库相对路径哈希。保留及清理遵循 [治理分级闭环](../docs/standards/governance-feedback-loop.md)，长期结论转存 Change evidence，禁止提交原始会话。
 
 归档规格末尾 LF 差异的独立完整哈希补证归属 `openspec/archive/.spec-normalizations/`，只保存公开规格文本与文件哈希，不改写历史恢复记录或验收清单。验证契约见 `docs/standards/opsx-acceptance.md`。
+
+临时 Docker 资源登记台账位于已忽略的 `logs/temporary-docker/`，保存随机 run、Change、用途、daemon 哈希、期限和关闭事实；不保存凭据、完整 inspect 或真实挂载路径，不提交原始台账。长期结果转存 Change 脱敏验证摘要。

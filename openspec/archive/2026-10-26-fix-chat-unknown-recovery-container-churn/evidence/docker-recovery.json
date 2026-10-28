@@ -1,0 +1,38 @@
+{
+  "input_fingerprint": "a203ea66c747e7a21e7800ddbc8d22fbbd680a2b262620b6594b7a32b59f22b6",
+  "environment": "isolated-real-docker",
+  "model_calls": 0,
+  "attempts": [
+    {
+      "state": "waiting",
+      "attempt_count": 1,
+      "last_result": "rpc_rejected"
+    },
+    {
+      "state": "paused",
+      "attempt_count": 2,
+      "last_result": "rpc_rejected"
+    }
+  ],
+  "quiet_seconds": 330,
+  "quiet_creates": 0,
+  "attempt_containers_created": 6,
+  "attempt_containers_destroyed": 6,
+  "close_cases": [
+    "success",
+    "failure",
+    "cancel"
+  ],
+  "interrupted_cleanup": true,
+  "runtime": "current-host-source",
+  "image_id": "sha256:3a1aa38e7c49c687fb4148bdd79cd8f07b2dc18863e83f022fcca57e9b49c49a",
+  "source_sha256": {
+    "recovery_worker.py": "4fa0fe8439f936a5b07dcfe96daa52841d7fda9c60e5a1ab03b79eee974b6077",
+    "recovery_runtime.py": "892f229a087303308ae9777c2c7485720489ec2ee61194ceb74cd6e3aa8a594a",
+    "recovery.py": "825577d05b1fddc16a63a554dbb2e1b47ba9c513cffaba7a38188f14bc5514d2",
+    "recovery_observability.py": "11b527a36d28401a43fa28ca225dc7f1ac60275438a3b6365b4b8b705a788a84",
+    "recovery_hint.py": "ae0269a510ea19885984a7757daea1d732e3b81c2b8bd2e2d10e319f7ad937dc",
+    "recovery_cli.py": "a9958796628812fe22a1d95acdc2ee4b60a79acfac83750658a71879fa300bbd",
+    "recovery_schema.py": "73dff91aabe1c3b67cb4a8672101f819d616cd14164ad96fb0a62605e30aa32d"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "change_id": "improve-explore-feedback-loop",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "scripts/test_explore_feedback_contract.py",
+        "scripts/validate-agent-context-budget.py",
+        ".agents/skills/explore/SKILL.md",
+        ".agents/skills/explore/evals/cases.md",
+        "docs/standards/governance-feedback-loop.md",
+        ".agents/skills/spec-opt/SKILL.md",
+        "AGENTS.md",
+        "rules/agent-context-budget.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_explore_feedback_contract.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/improve-explore-feedback-loop/evidence/contract-review.md"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        ".agents/skills",
+        "AGENTS.md",
+        "rules/agent-context-budget.md",
+        "docs/standards/governance-feedback-loop.md",
+        "docs/08-command-execution-order.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/improve-explore-feedback-loop/proposal.md",
+        "openspec/changes/improve-explore-feedback-loop/design.md",
+        "openspec/changes/improve-explore-feedback-loop/specs"
+      ],
+      "argv": [
+        "openspec",
+        "validate",
+        "improve-explore-feedback-loop"
+      ],
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

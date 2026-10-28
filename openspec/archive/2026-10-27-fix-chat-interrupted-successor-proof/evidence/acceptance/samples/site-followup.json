@@ -1,0 +1,29 @@
+{
+  "turn_id": "df697c8f-0b35-4c8c-a69d-d1422282cf8b",
+  "turn_status": "stopped",
+  "guard_state": "idle",
+  "version": 528,
+  "steps_sha256": "39bb632762aa6a781ace9f732ce39c7c4c07ec64fb8e894591bc43c12b37501b",
+  "events_sha256": "af4e42f82983b7f42e97a571fbcea8e6f8e92aca252fa22ff10a9c73a7e6236c",
+  "step_count": 27,
+  "successful_syncs": 0,
+  "admission": {
+    "execution_state": "idle",
+    "can_send": true,
+    "reason_code": null
+  },
+  "policy": {
+    "write_scope": "governance_write",
+    "reason_code": "governance_object_writable"
+  },
+  "platform": "worker_starting",
+  "successor_evidence": {
+    "fix-requirement-center-context-load-latency": "20261027175902791281-7c0a13c2"
+  },
+  "task_proofs": [
+    "fix-requirement-center-context-load-latency"
+  ],
+  "dependency_proofs": [
+    "rules/issues-lifecycle.md"
+  ]
+}

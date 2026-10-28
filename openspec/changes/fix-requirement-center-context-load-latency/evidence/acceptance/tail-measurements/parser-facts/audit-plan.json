@@ -1,0 +1,7 @@
+{
+  "audit_rows": 328129,
+  "request_id_update_plan": "SCAN chat_request_logs",
+  "primary_key_update_plan": "SEARCH chat_request_logs USING INDEX sqlite_autoindex_chat_request_logs_1 (id=?)",
+  "mutation_executed": false,
+  "finding": "unchanged metadata updated redundantly on every request; updates use unindexed correlation field"
+}

@@ -194,3 +194,19 @@ def retention_limits():
             else: return None
         return result
     except (ValueError,TypeError):return None
+
+
+def recovery_policy():
+    """Finite deployment limits; malformed settings fail worker startup."""
+    defaults = {'attempts': 6, 'base_seconds': 30, 'cap_seconds': 300, 'budget_seconds': 1800}
+    ranges = {'attempts': (1, 10), 'base_seconds': (10, 60),
+              'cap_seconds': (60, 300), 'budget_seconds': (300, 3600)}
+    for key, (low, high) in ranges.items():
+        raw = os.environ.get('MOONBOX_CHAT_RECOVERY_' + key.upper(), str(defaults[key]))
+        if not raw.isdecimal() or not low <= int(raw) <= high:
+            raise ValueError('invalid_recovery_' + key)
+        defaults[key] = int(raw)
+    enabled = os.environ.get('MOONBOX_CHAT_RECOVERY_ENABLED', 'true')
+    if enabled not in ('true', 'false'): raise ValueError('invalid_recovery_enabled')
+    defaults['enabled'] = enabled == 'true'
+    return defaults

@@ -25,24 +25,29 @@ def decode(cursor, tid, stream, default):
 
 def results(db, actor, tid, stream='output', cursor=None):
     turn = service.turn(db, actor, tid)
-    after = decode(cursor,tid,stream,0)
+    from app.chat.final_answer import selection
+    selected, final_complete = selection(db, tid)
+    cursor_stream = stream + ':' + selected if stream == 'final' and selected else stream
+    after = decode(cursor,tid,cursor_stream,0)
     if type(after) is not int or after < 0 or stream not in ('output','final'):
         raise service.ChatError(2504,'读取参数无效',422)
-    rows = db.execute(select(segments).where(segments.c.turn_id == tid,
-        segments.c.stream_id == stream, segments.c.sequence > after).order_by(segments.c.sequence).limit(6)).mappings()
-    items=[]; size=0; last=after
-    for row in rows:
-        payload, _ = content_store.read_page(db,row['object_id'])
-        if items and size+len(payload)>content_store.CHUNK_BYTES: break
-        size += len(payload); last=row['sequence']
-        items.append({'sequence':last,'text':payload.decode('utf-8'),'byte_count':len(payload)})
-    maximum = db.scalar(select(func.max(segments.c.sequence)).where(segments.c.turn_id==tid,segments.c.stream_id==stream)) or 0
+    from app.chat.output_window import read_batch
+    try:
+        items, _, _ = read_batch(db, tid, stream, after, selected if stream == 'final' else None)
+    except (ValueError, UnicodeError):
+        raise service.ChatError(2504, '部分历史输出不可用', 409) from None
+    last = items[-1]['sequence'] if items else after
+    maximum = db.scalar(select(func.max(segments.c.sequence)).where(segments.c.turn_id==tid,segments.c.stream_id==stream,
+        *([segments.c.source_event_id == selected] if stream == 'final' and selected else []))) or 0
+    if not items and not maximum and db.scalar(select(events.c.id).where(
+        events.c.turn_id == tid, events.c.event_type == 'execution.output').limit(1)) is not None:
+        raise service.ChatError(2504, '此历史轮次未保存可分页正文，请查看本轮轨迹', 409)
     has_final = db.scalar(select(segments.c.id).where(segments.c.turn_id==tid,segments.c.stream_id=='final').limit(1)) is not None
     submitted = bool(turn['executor_turn_id']) or db.scalar(select(events.c.id).where(
         events.c.turn_id==tid, events.c.source_id=='runner:start-requested').limit(1)) is not None
-    complete = turn['status']=='completed' and has_final
-    return {'items':items,'next_cursor':encode(tid,stream,last) if last<maximum else None,
-        'resume_cursor':encode(tid,stream,last),'committed_sequence':maximum,'has_final':has_final,
+    complete = turn['status']=='completed' and final_complete
+    return {'items':items,'next_cursor':encode(tid,cursor_stream,last) if last<maximum else None,
+        'resume_cursor':encode(tid,cursor_stream,last),'committed_sequence':maximum,'has_final':has_final,
         'completeness':'complete' if complete else 'unknown_tail', 'format_version':2,
         'storage_status': {'stage':turn['status'], 'code':turn['error_code'],
             'execution_started': 'confirmed' if turn['executor_turn_id'] else 'unknown' if submitted else 'not_confirmed',

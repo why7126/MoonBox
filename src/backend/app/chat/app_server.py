@@ -38,8 +38,10 @@ class AppServer:
         self.timeout = timeout; self.write = write; self.seq = 0
         self.incoming = ByteQueue(); self.pending = deque(); self.failure = None; self.closed = False
         self.env = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': str(self.home), 'CODEX_HOME': str(self.codex_home)}
+        self.env.update(self.transport_environment())
+        from app.chat.recovery_runtime import timeout as recovery_timeout
         version = subprocess.run(self.version_command(executable), capture_output=True, env=self.env,
-                                 timeout=self.version_timeout())
+                                 timeout=recovery_timeout(self.version_timeout()))
         if version.returncode or version.stdout.decode().strip() != self.VERSION:
             raise ExecutorError('unsupported_executor_version')
         self.process = subprocess.Popen([sys.executable, str(Path(__file__).with_name('process_guard.py')), *self.launch_command(executable)],
@@ -50,6 +52,9 @@ class AppServer:
             self._send({'method': 'initialized'})
         except Exception:
             self.close(); raise
+
+    def transport_environment(self):
+        return {}
 
     def version_command(self, executable):
         return [str(executable), '--version']
@@ -123,7 +128,8 @@ class AppServer:
         # One owning worker serializes RPCs; no browser-supplied method names.
         self.seq += 1; request_id = self.seq
         self._send({'id': request_id, 'method': method, 'params': params})
-        deadline = time.monotonic()+self.timeout
+        from app.chat.recovery_runtime import timeout as recovery_timeout
+        deadline = time.monotonic()+recovery_timeout(self.timeout)
         while True:
             try: value = self._next(deadline)
             except ExecutorError as error:

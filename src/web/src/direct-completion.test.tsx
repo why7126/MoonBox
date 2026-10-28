@@ -2,9 +2,30 @@ import {render,screen,fireEvent,waitFor} from '@testing-library/react';
 import {afterEach,expect,it,vi} from 'vitest';
 import {cleanup} from '@testing-library/react';
 import {DirectCompletion} from './components/chat/DirectCompletion';
-vi.mock('./components/workbench/governanceApi',()=>({governanceRequest:vi.fn()}));
+import {OperationVerification} from './components/chat/OperationVerification';
+vi.mock('./components/workbench/governanceApi',async(importOriginal)=>({...await importOriginal<typeof import('./components/workbench/governanceApi')>(),governanceRequest:vi.fn()}));
 import {governanceRequest} from './components/workbench/governanceApi';
 afterEach(()=>{cleanup();vi.resetAllMocks();});
+it('card details use the original turn verifier when no durable review operation exists',async()=>{
+ vi.mocked(governanceRequest).mockResolvedValue({available:true,state:'needs_review',reason_code:'direct_successor_available',version:4,can_verify:true,auto_verification:{state:'blocked',reason_code:'direct_sync_missing'}});
+ render(<OperationVerification facts={{view_turn_id:'stopped',verification_reason:'direct_sync_missing'}} onRefresh={()=>{}}/>);
+ expect(governanceRequest).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByText('状态详情'));
+ expect(await screen.findByTestId('direct-completion-verify')).toBeTruthy();
+ expect(governanceRequest).toHaveBeenCalledWith('/api/v1/chat/turns/stopped/completion-verification',expect.anything());
+ expect(screen.queryByText('缺少正式同步成功证明。')).toBeNull();
+});
+it('offers independent successor verification and preserves the stopped history wording',async()=>{
+ const request=vi.mocked(governanceRequest);
+ request.mockResolvedValueOnce({available:true,state:'needs_review',reason_code:'direct_successor_available',version:4,can_verify:true})
+ .mockResolvedValueOnce({available:true,state:'recovered_valid',reason_code:'direct_successor_verified',version:4,can_verify:false});
+ render(<DirectCompletion turnId="interrupted" expanded onState={()=>{}}/>);
+ expect(await screen.findByText('原执行缺少同步证明，可核验独立的后续完成证据。')).toBeTruthy();
+ fireEvent.click(screen.getByTestId('direct-completion-verify'));
+ expect(await screen.findByText('已由后续执行完成，原执行历史保留。')).toBeTruthy();
+ expect(screen.queryByTestId('direct-completion-verify')).toBeNull();
+ expect(request).toHaveBeenCalledTimes(2);
+});
 it('revalidates original turn at the server version without replaying its command',async()=>{
  const request=vi.mocked(governanceRequest);
  request.mockResolvedValueOnce({state:'needs_review',version:3,can_verify:true,historical_evidence_missing:true}).mockResolvedValueOnce({state:'recovered_valid',version:3,can_verify:false});
@@ -12,7 +33,7 @@ it('revalidates original turn at the server version without replaying its comman
  const button=await screen.findByTestId('direct-completion-verify');fireEvent.click(button);fireEvent.click(button);
  await waitFor(()=>expect(state).toHaveBeenLastCalledWith('recovered_valid'));
  expect(request).toHaveBeenCalledTimes(2);
- expect(request.mock.calls[1][1]).toEqual({method:'POST',body:JSON.stringify({expected_version:3})});
+ expect(request.mock.calls[1][1]).toEqual(expect.objectContaining({method:'POST',body:JSON.stringify({expected_version:3}),signal:expect.any(AbortSignal)}));
  expect(screen.queryByTestId('direct-completion-verify')).toBeNull();
 });
 it('retains failed proof and offers a read retry',async()=>{

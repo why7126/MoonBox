@@ -1,0 +1,642 @@
+{
+  "backend_services": [
+    "backend",
+    "chat-worker",
+    "governance-controller"
+  ],
+  "background_services_running": true,
+  "additional_stress_running": false,
+  "service_health": [
+    {
+      "name": "backend",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "chat-worker",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "governance-controller",
+      "health": "healthy",
+      "restarts": 0
+    }
+  ],
+  "health_start": [
+    "/moonbox-backend healthy 0",
+    "/moonbox-chat-worker healthy 0",
+    "/moonbox-governance-controller healthy 0"
+  ],
+  "default_sprint_cards": 29,
+  "navigation": [
+    {
+      "first_card_ms": 1685,
+      "visible_cards": 29,
+      "context_ms": 1206.800000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "b7890438-cab1-4f8b-a2a5-7653ff31c15b",
+      "server_timing": "snapshot_and_fences;dur=582.51, snapshot;dur=580.90, fences_exclusive;dur=1.61, materialize;dur=0.84, object_authorization;dur=0.00, parse;dur=300.23, cleanup;dur=15.94, reconcile;dur=95.43, external_reconcile;dur=7.86, card_projection_exclusive;dur=99.34, projection_commit;dur=0.07, document_projection;dur=1.35, reader_orchestration;dur=0.50, total;dur=1104.07, dependencies;dur=7.62, response_finalize;dur=4.74, request_audit;dur=82.16, route_total;dur=1198.74",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1724.8999999985099,
+      "visible_cards": 29,
+      "context_ms": 1349.300000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "70cd1648-4c6c-4ec3-aa48-6d9697cc66bd",
+      "server_timing": "snapshot_and_fences;dur=605.77, snapshot;dur=603.95, fences_exclusive;dur=1.82, materialize;dur=0.87, object_authorization;dur=0.00, parse;dur=302.18, cleanup;dur=16.94, reconcile;dur=121.55, external_reconcile;dur=49.86, card_projection_exclusive;dur=133.71, projection_commit;dur=0.07, document_projection;dur=1.47, reader_orchestration;dur=0.49, total;dur=1232.91, dependencies;dur=2.03, response_finalize;dur=5.58, request_audit;dur=95.85, route_total;dur=1336.42",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1775.5,
+      "visible_cards": 29,
+      "context_ms": 1398.199999999255,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "e0395efa-cd67-49ee-b5c2-0df117e9e1ba",
+      "server_timing": "snapshot_and_fences;dur=715.25, snapshot;dur=713.48, fences_exclusive;dur=1.77, materialize;dur=0.93, object_authorization;dur=0.00, parse;dur=323.62, cleanup;dur=18.38, reconcile;dur=116.50, external_reconcile;dur=8.42, card_projection_exclusive;dur=112.59, projection_commit;dur=0.07, document_projection;dur=1.39, reader_orchestration;dur=0.42, total;dur=1297.57, dependencies;dur=7.87, response_finalize;dur=4.60, request_audit;dur=79.39, route_total;dur=1389.46",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1600.7999999970198,
+      "visible_cards": 29,
+      "context_ms": 1205.5999999977648,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "048b17ff-333c-4b3e-94dd-d7106e686412",
+      "server_timing": "snapshot_and_fences;dur=563.37, snapshot;dur=561.72, fences_exclusive;dur=1.65, materialize;dur=0.78, object_authorization;dur=0.00, parse;dur=315.02, cleanup;dur=16.65, reconcile;dur=95.34, external_reconcile;dur=7.60, card_projection_exclusive;dur=119.30, projection_commit;dur=0.06, document_projection;dur=1.28, reader_orchestration;dur=0.51, total;dur=1119.91, dependencies;dur=1.94, response_finalize;dur=4.27, request_audit;dur=71.58, route_total;dur=1197.74",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1778.5,
+      "visible_cards": 29,
+      "context_ms": 1358.6000000014901,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "8f6369ab-2553-4e5d-822f-7cbe0fde22e0",
+      "server_timing": "snapshot_and_fences;dur=678.50, snapshot;dur=676.50, fences_exclusive;dur=2.00, materialize;dur=0.80, object_authorization;dur=0.00, parse;dur=318.93, cleanup;dur=17.53, reconcile;dur=97.86, external_reconcile;dur=12.35, card_projection_exclusive;dur=102.56, projection_commit;dur=0.06, document_projection;dur=1.34, reader_orchestration;dur=0.48, total;dur=1230.41, dependencies;dur=15.75, response_finalize;dur=4.64, request_audit;dur=94.93, route_total;dur=1345.78",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1549.5,
+      "visible_cards": 29,
+      "context_ms": 1095.1000000014901,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "2fee7c7e-35c6-432b-850d-82d7d06a7a9c",
+      "server_timing": "snapshot_and_fences;dur=538.75, snapshot;dur=537.25, fences_exclusive;dur=1.50, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=273.16, cleanup;dur=15.06, reconcile;dur=87.97, external_reconcile;dur=6.76, card_projection_exclusive;dur=91.98, projection_commit;dur=0.06, document_projection;dur=1.31, reader_orchestration;dur=0.41, total;dur=1016.17, dependencies;dur=5.15, response_finalize;dur=3.94, request_audit;dur=63.16, route_total;dur=1088.47",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1505.5,
+      "visible_cards": 29,
+      "context_ms": 1122,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "188350c2-1a63-40be-9377-3a24e0dd71d4",
+      "server_timing": "snapshot_and_fences;dur=540.74, snapshot;dur=539.26, fences_exclusive;dur=1.48, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=280.83, cleanup;dur=15.04, reconcile;dur=90.98, external_reconcile;dur=6.97, card_projection_exclusive;dur=107.67, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.36, total;dur=1044.62, dependencies;dur=5.60, response_finalize;dur=4.07, request_audit;dur=61.53, route_total;dur=1115.87",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1579.800000000745,
+      "visible_cards": 29,
+      "context_ms": 1133.800000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "5085c95f-a28b-492d-a95b-1bf413b73199",
+      "server_timing": "snapshot_and_fences;dur=534.04, snapshot;dur=532.56, fences_exclusive;dur=1.48, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=254.83, cleanup;dur=17.05, reconcile;dur=88.84, external_reconcile;dur=7.20, card_projection_exclusive;dur=141.75, projection_commit;dur=0.07, document_projection;dur=1.31, reader_orchestration;dur=0.50, total;dur=1046.33, dependencies;dur=2.15, response_finalize;dur=5.51, request_audit;dur=73.22, route_total;dur=1127.24",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1499.699999999255,
+      "visible_cards": 29,
+      "context_ms": 1101,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "d644c5ed-9aaa-4480-986e-ef9ee01a4c15",
+      "server_timing": "snapshot_and_fences;dur=548.56, snapshot;dur=546.98, fences_exclusive;dur=1.58, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=274.70, cleanup;dur=14.83, reconcile;dur=87.90, external_reconcile;dur=6.93, card_projection_exclusive;dur=92.46, projection_commit;dur=0.05, document_projection;dur=1.23, reader_orchestration;dur=0.41, total;dur=1027.80, dependencies;dur=2.16, response_finalize;dur=3.99, request_audit;dur=60.60, route_total;dur=1094.59",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1488.5999999977648,
+      "visible_cards": 29,
+      "context_ms": 1104.199999999255,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "4e24b3da-6452-42f3-b967-8fb0e70e4d72",
+      "server_timing": "snapshot_and_fences;dur=530.67, snapshot;dur=529.23, fences_exclusive;dur=1.44, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=272.54, cleanup;dur=14.93, reconcile;dur=84.94, external_reconcile;dur=7.08, card_projection_exclusive;dur=108.91, projection_commit;dur=0.06, document_projection;dur=1.19, reader_orchestration;dur=0.42, total;dur=1021.46, dependencies;dur=5.18, response_finalize;dur=3.92, request_audit;dur=60.69, route_total;dur=1091.28",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1496.6000000014901,
+      "visible_cards": 29,
+      "context_ms": 1071.4000000022352,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "cf40943e-d154-4b15-b6e5-900f7a33a09c",
+      "server_timing": "snapshot_and_fences;dur=532.13, snapshot;dur=530.76, fences_exclusive;dur=1.37, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=251.98, cleanup;dur=14.98, reconcile;dur=85.57, external_reconcile;dur=7.10, card_projection_exclusive;dur=91.58, projection_commit;dur=0.06, document_projection;dur=1.21, reader_orchestration;dur=0.37, total;dur=985.71, dependencies;dur=1.69, response_finalize;dur=3.96, request_audit;dur=70.20, route_total;dur=1061.60",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1480.699999999255,
+      "visible_cards": 29,
+      "context_ms": 1103.300000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "50a11cc0-7c1c-42dc-99bd-928f23528e48",
+      "server_timing": "snapshot_and_fences;dur=542.81, snapshot;dur=541.31, fences_exclusive;dur=1.50, materialize;dur=0.78, object_authorization;dur=0.00, parse;dur=280.62, cleanup;dur=15.17, reconcile;dur=86.36, external_reconcile;dur=6.88, card_projection_exclusive;dur=90.19, projection_commit;dur=0.06, document_projection;dur=1.27, reader_orchestration;dur=0.37, total;dur=1024.51, dependencies;dur=7.63, response_finalize;dur=4.01, request_audit;dur=61.15, route_total;dur=1097.33",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1476.1000000014901,
+      "visible_cards": 29,
+      "context_ms": 1095.5,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "f6b53617-a5fe-45a2-ac0c-01eac2b1d063",
+      "server_timing": "snapshot_and_fences;dur=536.85, snapshot;dur=535.42, fences_exclusive;dur=1.43, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=281.98, cleanup;dur=15.05, reconcile;dur=84.81, external_reconcile;dur=6.83, card_projection_exclusive;dur=94.52, projection_commit;dur=0.06, document_projection;dur=1.21, reader_orchestration;dur=0.43, total;dur=1022.47, dependencies;dur=4.23, response_finalize;dur=4.00, request_audit;dur=58.36, route_total;dur=1089.11",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1489.2999999970198,
+      "visible_cards": 29,
+      "context_ms": 1077.3999999985099,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "33b21cf9-9c9f-415f-a7f9-90f80752e244",
+      "server_timing": "snapshot_and_fences;dur=517.04, snapshot;dur=515.69, fences_exclusive;dur=1.35, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=269.98, cleanup;dur=14.92, reconcile;dur=85.27, external_reconcile;dur=7.10, card_projection_exclusive;dur=92.05, projection_commit;dur=0.05, document_projection;dur=1.28, reader_orchestration;dur=0.38, total;dur=988.83, dependencies;dur=1.44, response_finalize;dur=3.99, request_audit;dur=76.21, route_total;dur=1070.50",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1567.5,
+      "visible_cards": 29,
+      "context_ms": 1150.199999999255,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "553fe1df-36b4-4d21-876c-d31765d2b958",
+      "server_timing": "snapshot_and_fences;dur=571.85, snapshot;dur=570.32, fences_exclusive;dur=1.53, materialize;dur=0.78, object_authorization;dur=0.00, parse;dur=258.56, cleanup;dur=15.22, reconcile;dur=92.11, external_reconcile;dur=6.87, card_projection_exclusive;dur=115.78, projection_commit;dur=0.06, document_projection;dur=1.19, reader_orchestration;dur=0.38, total;dur=1062.80, dependencies;dur=4.02, response_finalize;dur=4.15, request_audit;dur=67.61, route_total;dur=1138.64",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1525.699999999255,
+      "visible_cards": 29,
+      "context_ms": 1080.699999999255,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "dc4839da-c94c-4b57-b1e5-3fae82ac415c",
+      "server_timing": "snapshot_and_fences;dur=530.30, snapshot;dur=528.87, fences_exclusive;dur=1.43, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=274.48, cleanup;dur=15.30, reconcile;dur=89.47, external_reconcile;dur=7.15, card_projection_exclusive;dur=89.77, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.44, total;dur=1008.88, dependencies;dur=2.91, response_finalize;dur=3.90, request_audit;dur=58.56, route_total;dur=1074.29",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1467.199999999255,
+      "visible_cards": 29,
+      "context_ms": 1098.9000000022352,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "60873668-5d88-4cba-b2d4-d14baa2969fb",
+      "server_timing": "snapshot_and_fences;dur=541.27, snapshot;dur=539.74, fences_exclusive;dur=1.53, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=272.60, cleanup;dur=15.13, reconcile;dur=94.13, external_reconcile;dur=6.90, card_projection_exclusive;dur=91.71, projection_commit;dur=0.05, document_projection;dur=1.24, reader_orchestration;dur=0.37, total;dur=1024.14, dependencies;dur=4.58, response_finalize;dur=3.95, request_audit;dur=59.63, route_total;dur=1092.34",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1472.2000000029802,
+      "visible_cards": 29,
+      "context_ms": 1098.5,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "5b736ca4-9cfe-43d7-a6e4-4a2b28cfe7aa",
+      "server_timing": "snapshot_and_fences;dur=536.88, snapshot;dur=535.52, fences_exclusive;dur=1.36, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=255.14, cleanup;dur=15.02, reconcile;dur=88.57, external_reconcile;dur=33.26, card_projection_exclusive;dur=92.63, projection_commit;dur=0.06, document_projection;dur=1.18, reader_orchestration;dur=0.37, total;dur=1023.84, dependencies;dur=3.98, response_finalize;dur=4.01, request_audit;dur=60.21, route_total;dur=1092.07",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1474,
+      "visible_cards": 29,
+      "context_ms": 1075.300000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "0dd75a13-5353-482c-99a4-c92cc80a802f",
+      "server_timing": "snapshot_and_fences;dur=523.78, snapshot;dur=522.41, fences_exclusive;dur=1.37, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=252.16, cleanup;dur=14.99, reconcile;dur=87.89, external_reconcile;dur=7.01, card_projection_exclusive;dur=108.12, projection_commit;dur=0.06, document_projection;dur=1.23, reader_orchestration;dur=0.38, total;dur=996.33, dependencies;dur=4.73, response_finalize;dur=5.11, request_audit;dur=59.19, route_total;dur=1065.40",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1501.300000000745,
+      "visible_cards": 29,
+      "context_ms": 1139.300000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "c21bf865-d6d7-4190-95a4-eae854b2c91e",
+      "server_timing": "snapshot_and_fences;dur=575.71, snapshot;dur=574.34, fences_exclusive;dur=1.37, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=270.74, cleanup;dur=15.07, reconcile;dur=88.56, external_reconcile;dur=6.89, card_projection_exclusive;dur=104.41, projection_commit;dur=0.06, document_projection;dur=1.29, reader_orchestration;dur=0.42, total;dur=1063.86, dependencies;dur=1.25, response_finalize;dur=4.09, request_audit;dur=62.82, route_total;dur=1132.07",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1472.800000000745,
+      "visible_cards": 29,
+      "context_ms": 1159.6000000014901,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "951fc9d5-8ad7-456a-bb3d-d18822a767cd",
+      "server_timing": "snapshot_and_fences;dur=567.71, snapshot;dur=566.34, fences_exclusive;dur=1.37, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=276.38, cleanup;dur=15.03, reconcile;dur=89.16, external_reconcile;dur=6.88, card_projection_exclusive;dur=91.69, projection_commit;dur=0.05, document_projection;dur=1.26, reader_orchestration;dur=0.36, total;dur=1049.23, dependencies;dur=4.90, response_finalize;dur=4.01, request_audit;dur=95.09, route_total;dur=1153.28",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1500.5,
+      "visible_cards": 29,
+      "context_ms": 1091.8999999985099,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "92660827-0946-41e3-ad2b-c7d6bd748eb2",
+      "server_timing": "snapshot_and_fences;dur=519.26, snapshot;dur=517.86, fences_exclusive;dur=1.40, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=249.11, cleanup;dur=14.77, reconcile;dur=87.28, external_reconcile;dur=6.73, card_projection_exclusive;dur=124.04, projection_commit;dur=0.07, document_projection;dur=1.21, reader_orchestration;dur=0.38, total;dur=1003.56, dependencies;dur=4.85, response_finalize;dur=4.03, request_audit;dur=69.04, route_total;dur=1081.53",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1489.5,
+      "visible_cards": 29,
+      "context_ms": 1082.7000000029802,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "a45f619b-62e8-4351-9fc8-7747b6f1a039",
+      "server_timing": "snapshot_and_fences;dur=550.84, snapshot;dur=549.31, fences_exclusive;dur=1.53, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=248.89, cleanup;dur=15.55, reconcile;dur=87.05, external_reconcile;dur=6.82, card_projection_exclusive;dur=89.32, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.42, total;dur=1000.91, dependencies;dur=1.76, response_finalize;dur=4.02, request_audit;dur=70.43, route_total;dur=1077.17",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1485.800000000745,
+      "visible_cards": 29,
+      "context_ms": 1120.699999999255,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "2c8986ce-b701-461c-8920-d2ed6341d00f",
+      "server_timing": "snapshot_and_fences;dur=568.45, snapshot;dur=567.02, fences_exclusive;dur=1.43, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=277.70, cleanup;dur=15.08, reconcile;dur=85.03, external_reconcile;dur=6.92, card_projection_exclusive;dur=89.45, projection_commit;dur=0.05, document_projection;dur=1.21, reader_orchestration;dur=0.45, total;dur=1045.09, dependencies;dur=4.82, response_finalize;dur=3.96, request_audit;dur=60.65, route_total;dur=1114.57",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1497.699999999255,
+      "visible_cards": 29,
+      "context_ms": 1088.800000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "1f92b692-b5a5-4745-9a6e-d93a50b6b198",
+      "server_timing": "snapshot_and_fences;dur=521.43, snapshot;dur=520.11, fences_exclusive;dur=1.32, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=278.12, cleanup;dur=15.05, reconcile;dur=89.33, external_reconcile;dur=6.90, card_projection_exclusive;dur=89.20, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.41, total;dur=1002.45, dependencies;dur=3.40, response_finalize;dur=3.98, request_audit;dur=70.39, route_total;dur=1080.25",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1491.300000000745,
+      "visible_cards": 29,
+      "context_ms": 1113.3999999985099,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "36c5324c-cc23-43bc-9647-de58769e25f3",
+      "server_timing": "snapshot_and_fences;dur=516.38, snapshot;dur=515.06, fences_exclusive;dur=1.32, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=309.72, cleanup;dur=14.94, reconcile;dur=84.46, external_reconcile;dur=6.77, card_projection_exclusive;dur=90.49, projection_commit;dur=0.06, document_projection;dur=1.23, reader_orchestration;dur=0.39, total;dur=1025.16, dependencies;dur=4.28, response_finalize;dur=4.15, request_audit;dur=70.67, route_total;dur=1104.30",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1495.199999999255,
+      "visible_cards": 29,
+      "context_ms": 1136.5,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "4db9c232-bd59-491d-bb10-2c128a102136",
+      "server_timing": "snapshot_and_fences;dur=575.24, snapshot;dur=573.77, fences_exclusive;dur=1.47, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=277.24, cleanup;dur=15.15, reconcile;dur=89.33, external_reconcile;dur=6.87, card_projection_exclusive;dur=89.08, projection_commit;dur=0.05, document_projection;dur=1.21, reader_orchestration;dur=0.40, total;dur=1055.28, dependencies;dur=6.20, response_finalize;dur=4.14, request_audit;dur=59.77, route_total;dur=1125.44",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1500.1000000014901,
+      "visible_cards": 29,
+      "context_ms": 1118.800000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "a3f9c50f-d97c-44d4-a3f0-094059283748",
+      "server_timing": "snapshot_and_fences;dur=548.30, snapshot;dur=546.26, fences_exclusive;dur=2.04, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=280.70, cleanup;dur=15.31, reconcile;dur=86.59, external_reconcile;dur=6.83, card_projection_exclusive;dur=89.24, projection_commit;dur=0.05, document_projection;dur=1.26, reader_orchestration;dur=0.45, total;dur=1029.48, dependencies;dur=3.44, response_finalize;dur=3.96, request_audit;dur=69.56, route_total;dur=1106.48",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1487.5999999977648,
+      "visible_cards": 29,
+      "context_ms": 1102.300000000745,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "9b2bedf9-815c-4212-8fe7-02d1d3e3953a",
+      "server_timing": "snapshot_and_fences;dur=521.71, snapshot;dur=520.29, fences_exclusive;dur=1.42, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=257.42, cleanup;dur=15.68, reconcile;dur=89.50, external_reconcile;dur=39.46, card_projection_exclusive;dur=94.39, projection_commit;dur=0.07, document_projection;dur=1.31, reader_orchestration;dur=0.47, total;dur=1020.75, dependencies;dur=5.19, response_finalize;dur=4.36, request_audit;dur=64.02, route_total;dur=1094.37",
+      "status": 200
+    },
+    {
+      "first_card_ms": 1487.2000000029802,
+      "visible_cards": 29,
+      "context_ms": 1069.5,
+      "cold": false,
+      "first_card_in_viewport": true,
+      "viewport_width": 1470,
+      "viewport_height": 753,
+      "os_page_cache_cleared": false,
+      "request_id": "a5c6328b-37c2-4f00-baa0-54f3e64bc95d",
+      "server_timing": "snapshot_and_fences;dur=529.47, snapshot;dur=528.07, fences_exclusive;dur=1.40, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=259.08, cleanup;dur=15.17, reconcile;dur=92.46, external_reconcile;dur=7.13, card_projection_exclusive;dur=89.05, projection_commit;dur=0.05, document_projection;dur=1.20, reader_orchestration;dur=0.50, total;dur=994.86, dependencies;dur=3.94, response_finalize;dur=4.19, request_audit;dur=60.58, route_total;dur=1063.62",
+      "status": 200
+    }
+  ],
+  "refresh": [
+    {
+      "context_ms": 1068.60000000149,
+      "request_id": "c90c107d-d70e-4c9a-bba5-6fb97aec900e",
+      "server_timing": "snapshot_and_fences;dur=506.60, snapshot;dur=505.17, fences_exclusive;dur=1.43, materialize;dur=0.78, object_authorization;dur=0.00, parse;dur=279.27, cleanup;dur=15.03, reconcile;dur=90.25, external_reconcile;dur=6.90, card_projection_exclusive;dur=92.44, projection_commit;dur=0.06, document_projection;dur=1.29, reader_orchestration;dur=0.39, total;dur=993.01, dependencies;dur=4.33, response_finalize;dur=4.01, request_audit;dur=60.05, route_total;dur=1061.43",
+      "status": 200
+    },
+    {
+      "context_ms": 1065.7999999970198,
+      "request_id": "6d3bc39f-c599-47fb-a120-a23e4931f1c0",
+      "server_timing": "snapshot_and_fences;dur=505.99, snapshot;dur=504.49, fences_exclusive;dur=1.50, materialize;dur=0.70, object_authorization;dur=0.00, parse;dur=277.66, cleanup;dur=14.87, reconcile;dur=86.95, external_reconcile;dur=7.19, card_projection_exclusive;dur=92.90, projection_commit;dur=0.07, document_projection;dur=1.29, reader_orchestration;dur=0.46, total;dur=988.08, dependencies;dur=4.26, response_finalize;dur=4.09, request_audit;dur=63.08, route_total;dur=1059.55",
+      "status": 200
+    },
+    {
+      "context_ms": 1100.199999999255,
+      "request_id": "4971ce96-2bde-4a58-899c-5f59acff6768",
+      "server_timing": "snapshot_and_fences;dur=535.24, snapshot;dur=533.89, fences_exclusive;dur=1.35, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=251.30, cleanup;dur=14.75, reconcile;dur=88.38, external_reconcile;dur=6.96, card_projection_exclusive;dur=116.80, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.35, total;dur=1015.81, dependencies;dur=3.37, response_finalize;dur=3.91, request_audit;dur=63.31, route_total;dur=1086.44",
+      "status": 200
+    },
+    {
+      "context_ms": 1030.10000000149,
+      "request_id": "ed95fdf8-cab7-4b24-b833-e699647595cc",
+      "server_timing": "snapshot_and_fences;dur=499.86, snapshot;dur=498.47, fences_exclusive;dur=1.39, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=252.32, cleanup;dur=14.83, reconcile;dur=85.28, external_reconcile;dur=6.93, card_projection_exclusive;dur=88.60, projection_commit;dur=0.05, document_projection;dur=1.27, reader_orchestration;dur=0.34, total;dur=950.21, dependencies;dur=7.43, response_finalize;dur=3.97, request_audit;dur=60.69, route_total;dur=1022.34",
+      "status": 200
+    },
+    {
+      "context_ms": 1051.39999999851,
+      "request_id": "7c5d839f-1a72-45e7-b305-a85198448e24",
+      "server_timing": "snapshot_and_fences;dur=493.95, snapshot;dur=492.55, fences_exclusive;dur=1.40, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=272.43, cleanup;dur=14.82, reconcile;dur=85.78, external_reconcile;dur=7.10, card_projection_exclusive;dur=93.26, projection_commit;dur=0.06, document_projection;dur=1.28, reader_orchestration;dur=0.39, total;dur=969.81, dependencies;dur=3.67, response_finalize;dur=4.00, request_audit;dur=60.85, route_total;dur=1038.37",
+      "status": 200
+    },
+    {
+      "context_ms": 1103.5999999977648,
+      "request_id": "5345d1f6-e03b-4a55-bad0-4b341faabd3e",
+      "server_timing": "snapshot_and_fences;dur=537.64, snapshot;dur=536.35, fences_exclusive;dur=1.29, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=274.54, cleanup;dur=15.67, reconcile;dur=85.17, external_reconcile;dur=7.02, card_projection_exclusive;dur=100.07, projection_commit;dur=0.06, document_projection;dur=1.26, reader_orchestration;dur=0.47, total;dur=1022.62, dependencies;dur=3.37, response_finalize;dur=3.97, request_audit;dur=65.48, route_total;dur=1095.48",
+      "status": 200
+    },
+    {
+      "context_ms": 1084.300000000745,
+      "request_id": "d98b75b6-8b13-464b-9383-da1f153af590",
+      "server_timing": "snapshot_and_fences;dur=493.27, snapshot;dur=491.82, fences_exclusive;dur=1.45, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=268.15, cleanup;dur=15.69, reconcile;dur=87.04, external_reconcile;dur=33.65, card_projection_exclusive;dur=92.40, projection_commit;dur=0.06, document_projection;dur=1.21, reader_orchestration;dur=0.51, total;dur=992.75, dependencies;dur=8.63, response_finalize;dur=3.97, request_audit;dur=72.82, route_total;dur=1078.21",
+      "status": 200
+    },
+    {
+      "context_ms": 1078.10000000149,
+      "request_id": "164f681a-9c7b-4d9c-9f43-2f856297cf21",
+      "server_timing": "snapshot_and_fences;dur=531.00, snapshot;dur=529.61, fences_exclusive;dur=1.39, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=255.17, cleanup;dur=15.40, reconcile;dur=95.19, external_reconcile;dur=6.83, card_projection_exclusive;dur=87.86, projection_commit;dur=0.06, document_projection;dur=1.18, reader_orchestration;dur=0.40, total;dur=993.85, dependencies;dur=11.06, response_finalize;dur=3.92, request_audit;dur=59.93, route_total;dur=1068.80",
+      "status": 200
+    },
+    {
+      "context_ms": 1098.300000000745,
+      "request_id": "818e83e4-a319-4ed0-9e12-8b8e4b41e66f",
+      "server_timing": "snapshot_and_fences;dur=523.87, snapshot;dur=522.57, fences_exclusive;dur=1.30, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=276.78, cleanup;dur=15.04, reconcile;dur=89.68, external_reconcile;dur=7.07, card_projection_exclusive;dur=102.95, projection_commit;dur=0.06, document_projection;dur=1.22, reader_orchestration;dur=0.39, total;dur=1017.79, dependencies;dur=3.24, response_finalize;dur=4.02, request_audit;dur=62.00, route_total;dur=1087.09",
+      "status": 200
+    },
+    {
+      "context_ms": 1106.89999999851,
+      "request_id": "c67e8be6-3f7a-4441-be2c-8830159b397d",
+      "server_timing": "snapshot_and_fences;dur=496.76, snapshot;dur=495.39, fences_exclusive;dur=1.37, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=317.91, cleanup;dur=15.19, reconcile;dur=87.36, external_reconcile;dur=6.99, card_projection_exclusive;dur=88.44, projection_commit;dur=0.05, document_projection;dur=1.22, reader_orchestration;dur=0.43, total;dur=1015.10, dependencies;dur=6.37, response_finalize;dur=3.93, request_audit;dur=68.73, route_total;dur=1094.16",
+      "status": 200
+    },
+    {
+      "context_ms": 1057,
+      "request_id": "e85d6090-9ce6-4cbd-9dd3-ecdc05169f3b",
+      "server_timing": "snapshot_and_fences;dur=498.18, snapshot;dur=496.86, fences_exclusive;dur=1.32, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=277.36, cleanup;dur=15.15, reconcile;dur=87.56, external_reconcile;dur=6.86, card_projection_exclusive;dur=90.64, projection_commit;dur=0.06, document_projection;dur=1.30, reader_orchestration;dur=0.44, total;dur=978.28, dependencies;dur=3.22, response_finalize;dur=4.07, request_audit;dur=63.88, route_total;dur=1049.49",
+      "status": 200
+    },
+    {
+      "context_ms": 1045.800000000745,
+      "request_id": "c3685566-6f22-4955-9794-e1714b74c31a",
+      "server_timing": "snapshot_and_fences;dur=502.97, snapshot;dur=501.60, fences_exclusive;dur=1.37, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=257.55, cleanup;dur=15.01, reconcile;dur=86.71, external_reconcile;dur=6.92, card_projection_exclusive;dur=94.02, projection_commit;dur=0.06, document_projection;dur=1.23, reader_orchestration;dur=0.41, total;dur=965.62, dependencies;dur=5.45, response_finalize;dur=4.10, request_audit;dur=63.99, route_total;dur=1039.20",
+      "status": 200
+    },
+    {
+      "context_ms": 1111.10000000149,
+      "request_id": "ea2e9139-6914-40be-8381-de83c7db9d87",
+      "server_timing": "snapshot_and_fences;dur=528.17, snapshot;dur=526.48, fences_exclusive;dur=1.69, materialize;dur=0.88, object_authorization;dur=0.00, parse;dur=283.04, cleanup;dur=14.98, reconcile;dur=89.13, external_reconcile;dur=7.06, card_projection_exclusive;dur=91.68, projection_commit;dur=0.06, document_projection;dur=1.27, reader_orchestration;dur=0.45, total;dur=1016.72, dependencies;dur=4.00, response_finalize;dur=4.16, request_audit;dur=71.97, route_total;dur=1096.89",
+      "status": 200
+    },
+    {
+      "context_ms": 1049.89999999851,
+      "request_id": "b146895d-9d53-42c0-961d-ad0c7141600c",
+      "server_timing": "snapshot_and_fences;dur=492.63, snapshot;dur=491.28, fences_exclusive;dur=1.35, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=278.64, cleanup;dur=14.75, reconcile;dur=86.23, external_reconcile;dur=6.98, card_projection_exclusive;dur=88.11, projection_commit;dur=0.05, document_projection;dur=1.26, reader_orchestration;dur=0.38, total;dur=969.80, dependencies;dur=9.07, response_finalize;dur=4.12, request_audit;dur=58.85, route_total;dur=1041.87",
+      "status": 200
+    },
+    {
+      "context_ms": 1051.7999999970198,
+      "request_id": "a43bcde1-8491-4b28-a712-52d266e0b1dc",
+      "server_timing": "snapshot_and_fences;dur=488.19, snapshot;dur=486.86, fences_exclusive;dur=1.33, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=275.39, cleanup;dur=15.51, reconcile;dur=85.34, external_reconcile;dur=6.95, card_projection_exclusive;dur=94.11, projection_commit;dur=0.06, document_projection;dur=1.29, reader_orchestration;dur=0.45, total;dur=968.01, dependencies;dur=1.19, response_finalize;dur=4.19, request_audit;dur=70.04, route_total;dur=1043.46",
+      "status": 200
+    },
+    {
+      "context_ms": 1082.199999999255,
+      "request_id": "6cadcca2-fe33-4d09-8ade-1b8106a9ec3d",
+      "server_timing": "snapshot_and_fences;dur=507.21, snapshot;dur=505.75, fences_exclusive;dur=1.46, materialize;dur=0.83, object_authorization;dur=0.00, parse;dur=258.95, cleanup;dur=15.44, reconcile;dur=95.77, external_reconcile;dur=7.20, card_projection_exclusive;dur=107.75, projection_commit;dur=0.06, document_projection;dur=1.20, reader_orchestration;dur=0.42, total;dur=994.83, dependencies;dur=3.56, response_finalize;dur=4.02, request_audit;dur=71.73, route_total;dur=1074.18",
+      "status": 200
+    },
+    {
+      "context_ms": 1070.699999999255,
+      "request_id": "acfce774-a9ef-4ede-bdb5-758cefd7ab34",
+      "server_timing": "snapshot_and_fences;dur=507.70, snapshot;dur=506.27, fences_exclusive;dur=1.43, materialize;dur=0.85, object_authorization;dur=0.00, parse;dur=279.17, cleanup;dur=14.77, reconcile;dur=91.35, external_reconcile;dur=6.82, card_projection_exclusive;dur=88.29, projection_commit;dur=0.06, document_projection;dur=1.24, reader_orchestration;dur=0.42, total;dur=990.67, dependencies;dur=3.51, response_finalize;dur=4.05, request_audit;dur=60.14, route_total;dur=1058.41",
+      "status": 200
+    },
+    {
+      "context_ms": 1071.5,
+      "request_id": "c4b3c9a6-be1e-4b32-8dba-05455a18959f",
+      "server_timing": "snapshot_and_fences;dur=495.82, snapshot;dur=494.48, fences_exclusive;dur=1.34, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=283.88, cleanup;dur=15.45, reconcile;dur=88.20, external_reconcile;dur=7.01, card_projection_exclusive;dur=95.36, projection_commit;dur=0.06, document_projection;dur=1.28, reader_orchestration;dur=0.48, total;dur=988.27, dependencies;dur=7.89, response_finalize;dur=4.09, request_audit;dur=63.35, route_total;dur=1063.64",
+      "status": 200
+    },
+    {
+      "context_ms": 1022.3000000007452,
+      "request_id": "af5cc711-cda4-407d-8e1b-cdbc67c47f90",
+      "server_timing": "snapshot_and_fences;dur=484.71, snapshot;dur=483.39, fences_exclusive;dur=1.32, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=250.63, cleanup;dur=14.97, reconcile;dur=90.16, external_reconcile;dur=7.19, card_projection_exclusive;dur=94.70, projection_commit;dur=0.07, document_projection;dur=1.31, reader_orchestration;dur=0.40, total;dur=944.85, dependencies;dur=3.20, response_finalize;dur=4.08, request_audit;dur=60.74, route_total;dur=1012.91",
+      "status": 200
+    },
+    {
+      "context_ms": 1062,
+      "request_id": "176e6d09-6a37-4487-8dff-42ba3518153c",
+      "server_timing": "snapshot_and_fences;dur=509.78, snapshot;dur=508.49, fences_exclusive;dur=1.29, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=272.43, cleanup;dur=15.10, reconcile;dur=86.94, external_reconcile;dur=6.89, card_projection_exclusive;dur=88.91, projection_commit;dur=0.06, document_projection;dur=1.27, reader_orchestration;dur=0.41, total;dur=982.50, dependencies;dur=3.29, response_finalize;dur=4.18, request_audit;dur=58.12, route_total;dur=1048.14",
+      "status": 200
+    },
+    {
+      "context_ms": 1059.39999999851,
+      "request_id": "55a430e6-1781-440a-a999-af7260bda700",
+      "server_timing": "snapshot_and_fences;dur=487.25, snapshot;dur=485.84, fences_exclusive;dur=1.41, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=276.21, cleanup;dur=15.37, reconcile;dur=90.70, external_reconcile;dur=7.11, card_projection_exclusive;dur=92.43, projection_commit;dur=0.06, document_projection;dur=1.22, reader_orchestration;dur=0.43, total;dur=971.51, dependencies;dur=14.71, response_finalize;dur=3.96, request_audit;dur=61.17, route_total;dur=1051.39",
+      "status": 200
+    },
+    {
+      "context_ms": 1119.5,
+      "request_id": "6267a911-78b9-4eaf-804d-d056b0e31f85",
+      "server_timing": "snapshot_and_fences;dur=540.70, snapshot;dur=539.41, fences_exclusive;dur=1.29, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=251.33, cleanup;dur=15.27, reconcile;dur=99.18, external_reconcile;dur=35.24, card_projection_exclusive;dur=91.92, projection_commit;dur=0.07, document_projection;dur=1.26, reader_orchestration;dur=0.43, total;dur=1036.15, dependencies;dur=5.27, response_finalize;dur=4.23, request_audit;dur=65.60, route_total;dur=1111.29",
+      "status": 200
+    },
+    {
+      "context_ms": 1099.5,
+      "request_id": "3b1fd3b4-d636-4946-b177-3979351d9ef8",
+      "server_timing": "snapshot_and_fences;dur=551.02, snapshot;dur=549.62, fences_exclusive;dur=1.40, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=254.40, cleanup;dur=15.18, reconcile;dur=89.11, external_reconcile;dur=7.69, card_projection_exclusive;dur=97.12, projection_commit;dur=0.06, document_projection;dur=1.33, reader_orchestration;dur=0.39, total;dur=1017.06, dependencies;dur=5.89, response_finalize;dur=4.27, request_audit;dur=65.13, route_total;dur=1092.38",
+      "status": 200
+    },
+    {
+      "context_ms": 1050.5,
+      "request_id": "9ae997be-6834-4f30-9248-4ae881d3e418",
+      "server_timing": "snapshot_and_fences;dur=490.50, snapshot;dur=489.18, fences_exclusive;dur=1.32, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=273.36, cleanup;dur=14.82, reconcile;dur=86.49, external_reconcile;dur=7.00, card_projection_exclusive;dur=93.28, projection_commit;dur=0.06, document_projection;dur=1.33, reader_orchestration;dur=0.36, total;dur=967.92, dependencies;dur=3.66, response_finalize;dur=4.07, request_audit;dur=59.77, route_total;dur=1035.46",
+      "status": 200
+    },
+    {
+      "context_ms": 1053.800000000745,
+      "request_id": "cf137b66-c525-4fa1-9494-c58a5d728ed3",
+      "server_timing": "snapshot_and_fences;dur=493.42, snapshot;dur=492.04, fences_exclusive;dur=1.38, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=282.66, cleanup;dur=15.05, reconcile;dur=86.29, external_reconcile;dur=6.92, card_projection_exclusive;dur=89.77, projection_commit;dur=0.06, document_projection;dur=1.24, reader_orchestration;dur=0.48, total;dur=976.64, dependencies;dur=3.36, response_finalize;dur=4.05, request_audit;dur=60.52, route_total;dur=1044.61",
+      "status": 200
+    },
+    {
+      "context_ms": 1042.199999999255,
+      "request_id": "f099b29e-13b0-4c40-a3bf-7acd74c8a7ac",
+      "server_timing": "snapshot_and_fences;dur=507.80, snapshot;dur=506.44, fences_exclusive;dur=1.36, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=251.34, cleanup;dur=15.05, reconcile;dur=87.19, external_reconcile;dur=7.30, card_projection_exclusive;dur=88.34, projection_commit;dur=0.06, document_projection;dur=1.27, reader_orchestration;dur=0.38, total;dur=959.48, dependencies;dur=4.96, response_finalize;dur=4.08, request_audit;dur=67.08, route_total;dur=1035.64",
+      "status": 200
+    },
+    {
+      "context_ms": 1046.300000000745,
+      "request_id": "1858bdf7-e56a-496a-8665-ea92b2098fc1",
+      "server_timing": "snapshot_and_fences;dur=492.00, snapshot;dur=490.64, fences_exclusive;dur=1.36, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=274.03, cleanup;dur=14.91, reconcile;dur=90.33, external_reconcile;dur=7.30, card_projection_exclusive;dur=89.79, projection_commit;dur=0.11, document_projection;dur=1.19, reader_orchestration;dur=0.38, total;dur=970.76, dependencies;dur=3.39, response_finalize;dur=4.03, request_audit;dur=59.59, route_total;dur=1037.80",
+      "status": 200
+    },
+    {
+      "context_ms": 1052.9000000022352,
+      "request_id": "3cec597c-afba-45b4-b4cb-839c6bc255fa",
+      "server_timing": "snapshot_and_fences;dur=498.54, snapshot;dur=497.19, fences_exclusive;dur=1.35, materialize;dur=0.73, object_authorization;dur=0.00, parse;dur=275.83, cleanup;dur=14.95, reconcile;dur=85.53, external_reconcile;dur=6.88, card_projection_exclusive;dur=94.22, projection_commit;dur=0.06, document_projection;dur=1.26, reader_orchestration;dur=0.37, total;dur=978.37, dependencies;dur=3.82, response_finalize;dur=4.16, request_audit;dur=60.40, route_total;dur=1046.79",
+      "status": 200
+    },
+    {
+      "context_ms": 1051.5999999977648,
+      "request_id": "68ced949-973e-4f5a-95a3-141660fcf93a",
+      "server_timing": "snapshot_and_fences;dur=493.45, snapshot;dur=492.02, fences_exclusive;dur=1.43, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=253.32, cleanup;dur=14.88, reconcile;dur=111.56, external_reconcile;dur=6.66, card_projection_exclusive;dur=88.23, projection_commit;dur=0.06, document_projection;dur=1.23, reader_orchestration;dur=0.36, total;dur=970.47, dependencies;dur=6.85, response_finalize;dur=4.12, request_audit;dur=60.44, route_total;dur=1041.91",
+      "status": 200
+    },
+    {
+      "context_ms": 1028.5,
+      "request_id": "cdef457b-cb45-48cb-bad7-249d41a9d175",
+      "server_timing": "snapshot_and_fences;dur=490.73, snapshot;dur=489.40, fences_exclusive;dur=1.33, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=254.36, cleanup;dur=14.95, reconcile;dur=85.97, external_reconcile;dur=6.90, card_projection_exclusive;dur=94.71, projection_commit;dur=0.06, document_projection;dur=1.24, reader_orchestration;dur=0.42, total;dur=950.08, dependencies;dur=4.40, response_finalize;dur=4.00, request_audit;dur=59.24, route_total;dur=1017.76",
+      "status": 200
+    }
+  ],
+  "initialization": {
+    "first_card_ms": 8620,
+    "visible_cards": 29,
+    "context_ms": 7177.39999999851,
+    "cold": false,
+    "first_card_in_viewport": true,
+    "viewport_width": 1470,
+    "viewport_height": 753,
+    "os_page_cache_cleared": false,
+    "request_id": "603fbde6-ed19-42f9-9a97-7cfb549e6bd2",
+    "server_timing": "snapshot_and_fences;dur=2695.99, snapshot;dur=2685.18, fences_exclusive;dur=10.81, materialize;dur=333.91, object_authorization;dur=0.00, parse;dur=730.58, cleanup;dur=29.37, reconcile;dur=221.21, external_reconcile;dur=2842.41, card_projection_exclusive;dur=166.25, projection_commit;dur=0.09, document_projection;dur=1.66, reader_orchestration;dur=6.96, total;dur=7028.43, dependencies;dur=18.33, response_finalize;dur=7.40, request_audit;dur=115.04, route_total;dur=7169.27",
+    "status": 200
+  },
+  "initialization_boundary": "Single first opening after service restart and changed source version; 8.62s first card, reported separately, not a warm navigation or application-cold controlled sample.",
+  "environment": "Actual bound project, actual state database, production RequirementCenterPage build, same-origin HTTP; no mocked product response.",
+  "summary": {
+    "navigation": {
+      "context_ms": {
+        "median_ms": 1103.75,
+        "p95_ms": 1358.6000000014901,
+        "max_ms": 1398.199999999255
+      },
+      "first_card_ms": {
+        "median_ms": 1497.1500000003725,
+        "p95_ms": 1775.5,
+        "max_ms": 1778.5
+      }
+    },
+    "refresh": {
+      "context_ms": {
+        "median_ms": 1060.699999999255,
+        "p95_ms": 1111.10000000149,
+        "max_ms": 1119.5
+      }
+    }
+  }
+}

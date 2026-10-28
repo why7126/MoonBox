@@ -17,7 +17,7 @@ def resolve(root, sprint_id):
     base = present[0]
     content = _read_file(root, base + '/sprint.yaml')
     try:
-        plan = yaml.safe_load(content)
+        plan = yaml.load(content, Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader))
         if not isinstance(plan, dict) or plan.get('sprint_id') != sprint_id:
             raise ValueError()
         if plan.get('status') not in ('planning', 'active', 'in_progress', 'completed', 'closed', 'archived'):
@@ -66,7 +66,8 @@ def preparation_reason(root, sprint_id, plan, *, resolved_scope=None):
         for kind in ('requirements', 'bugs'):
             if not members[kind]:
                 continue
-            registry = yaml.safe_load(_read_file(root, f'issues/{kind}/_registry.yaml'))
+            registry = yaml.load(_read_file(root, f'issues/{kind}/_registry.yaml'),
+                                 Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader))
             for oid in members[kind]:
                 matches = [e for e in registry['entries'] if isinstance(e, dict) and e.get('id') == oid]
                 if len(matches) != 1:

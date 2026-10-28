@@ -332,6 +332,19 @@ export const MessageReadTimeSource = {
   legacy_unknown: 'legacy_unknown',
 } as const;
 
+/**
+ * 预览受限或历史缺口原因；兼容旧客户端
+ */
+export type MessageReadOutputTruncationReason = typeof MessageReadOutputTruncationReason[keyof typeof MessageReadOutputTruncationReason] | null;
+
+
+export const MessageReadOutputTruncationReason = {
+  preview_limit: 'preview_limit',
+  read_window: 'read_window',
+  history_gap: 'history_gap',
+  invalid_payload: 'invalid_payload',
+} as const;
+
 export type MessageReadEffectiveConfig = { [key: string]: unknown };
 
 export type MessageReadMaterialsItem = { [key: string]: unknown };
@@ -356,6 +369,8 @@ export interface MessageRead {
   output_partial?: boolean;
   /** 输出有序号缺口或超出读取窗口 */
   output_truncated?: boolean;
+  /** 预览受限或历史缺口原因；兼容旧客户端 */
+  output_truncation_reason?: MessageReadOutputTruncationReason;
 }
 
 export interface MessagePage {

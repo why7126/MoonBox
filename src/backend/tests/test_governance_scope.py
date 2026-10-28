@@ -146,3 +146,56 @@ def test_change_read_materializes_once_and_logs_safe_timings(chat, tmp_path, mon
     log = next(r.message for r in caplog.records if 'read_timing' in r.message)
     assert 'snapshot_and_fences_ms' in log and 'object_authorization_ms' in log
     assert 'private-body' not in log and str(root) not in log
+
+
+def test_request_visibility_matches_point_checks_and_rejects_mid_read_changes(chat, tmp_path, monkeypatch):
+    from sqlalchemy import insert, update
+    from app.chat.schema import object_access
+    from app.governance.scope import RequestVisibility
+    _, factory = chat
+    bind(monkeypatch, fixture_tree(tmp_path / 'repo'))
+    with factory() as db:
+        project = authorize(db, 'alice', 'space', 'repo')
+        db.execute(insert(object_access), [
+            dict(space_id='space', repository_id='repo', object_id='denied', user_id='bob', can_read=1),
+            dict(space_id='space', repository_id='repo', object_id='allowed', user_id='alice', can_read=1),
+            dict(space_id='space', repository_id='other', object_id='open', user_id='bob', can_read=1)])
+        db.commit()
+        view = RequestVisibility(db, 'alice', project)
+        for oid in ('open', 'allowed', 'denied'):
+            assert view.visible(oid) == visible(db, 'alice', project, oid)
+        db.commit(); view.assert_current(db)
+        db.commit()
+        with factory() as other:
+            other.execute(update(object_access).where(object_access.c.object_id == 'allowed').values(can_read=0))
+            other.commit()
+        with pytest.raises(ChatError) as error:
+            view.assert_current(db)
+        assert error.value.status == 403
+        assert not RequestVisibility(db, 'alice', project).visible('allowed')
+        db.execute(text("UPDATE admin_spaces SET status='FROZEN' WHERE id='space'")); db.commit()
+        with pytest.raises(ChatError) as error:
+            view.assert_current(db)
+        assert error.value.status == 409
+
+
+def test_context_rejects_permission_revoked_after_card_construction(chat, tmp_path, monkeypatch):
+    from sqlalchemy import insert
+    from app.chat.schema import object_access
+    from app.services import requirement_center as legacy
+    from test_context_resources import database_columns
+    client, factory = chat
+    database_columns(factory)
+    root = fixture_tree(tmp_path / 'repo'); bind(monkeypatch, root)
+    original = legacy.build_requirement_center_context
+    def revoked(*args, **kwargs):
+        result = original(*args, **kwargs)
+        with factory() as other:
+            other.execute(insert(object_access).values(space_id='space', repository_id='repo',
+                object_id='BUG-0001-test', user_id='alice', can_read=0))
+            other.commit()
+        return result
+    monkeypatch.setattr(legacy, 'build_requirement_center_context', revoked)
+    response = client.get('/api/v1/requirement-center/context', params={'space_id':'space','repository_id':'repo'})
+    assert response.status_code == 403
+    assert response.json()['data'] is None

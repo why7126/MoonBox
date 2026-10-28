@@ -1,0 +1,326 @@
+{
+  "operation": "context",
+  "revision": "b79d91012498d2f3cc0d269f39fea01177227108ce0bc8e13c347176932a543e",
+  "samples": {
+    "baseline": [
+      {
+        "ms": 1462.004622000677,
+        "request_id": "a8d244e3-09c7-49de-91a9-ac015d68afa0",
+        "timings": "snapshot_and_fences;dur=197.42, materialize;dur=0.18, object_authorization;dur=0.00, parse;dur=600.81, cleanup;dur=0.79, total;dur=1444.36, dependencies;dur=1.93, response_finalize;dur=4.77, request_audit;dur=8.79, route_total;dur=1459.90"
+      },
+      {
+        "ms": 1552.9907960008131,
+        "request_id": "3d78e29e-c6be-48cb-880a-2f604782e8e5",
+        "timings": "snapshot_and_fences;dur=176.91, materialize;dur=0.17, object_authorization;dur=0.00, parse;dur=608.39, cleanup;dur=0.56, total;dur=1534.77, dependencies;dur=1.53, response_finalize;dur=4.27, request_audit;dur=10.49, route_total;dur=1551.13"
+      },
+      {
+        "ms": 1501.1338450021867,
+        "request_id": "e59c3af8-03df-4747-9f4b-1fb01e4a5e51",
+        "timings": "snapshot_and_fences;dur=194.85, materialize;dur=0.24, object_authorization;dur=0.00, parse;dur=619.59, cleanup;dur=0.67, total;dur=1483.32, dependencies;dur=1.72, response_finalize;dur=4.27, request_audit;dur=9.91, route_total;dur=1499.27"
+      },
+      {
+        "ms": 1413.0394810017606,
+        "request_id": "91bc621f-0e2b-44bf-b0d2-d05d656d3e5a",
+        "timings": "snapshot_and_fences;dur=157.93, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=571.53, cleanup;dur=0.80, total;dur=1394.13, dependencies;dur=1.49, response_finalize;dur=5.04, request_audit;dur=10.25, route_total;dur=1410.95"
+      },
+      {
+        "ms": 1538.3404509993852,
+        "request_id": "b0a19b0e-18e6-4944-b67b-1ec5628f806f",
+        "timings": "snapshot_and_fences;dur=171.08, materialize;dur=0.18, object_authorization;dur=0.00, parse;dur=694.59, cleanup;dur=0.74, total;dur=1521.34, dependencies;dur=1.81, response_finalize;dur=4.20, request_audit;dur=9.33, route_total;dur=1536.72"
+      },
+      {
+        "ms": 1474.3962899992766,
+        "request_id": "bae12197-8463-40ae-865e-6b0dd11caa67",
+        "timings": "snapshot_and_fences;dur=213.28, materialize;dur=0.22, object_authorization;dur=0.00, parse;dur=593.70, cleanup;dur=0.66, total;dur=1457.83, dependencies;dur=1.43, response_finalize;dur=4.15, request_audit;dur=9.17, route_total;dur=1472.62"
+      },
+      {
+        "ms": 1545.5007909986307,
+        "request_id": "601fcdc0-78e0-498a-9c46-e1f2a2d4a0d9",
+        "timings": "snapshot_and_fences;dur=183.18, materialize;dur=0.17, object_authorization;dur=0.00, parse;dur=625.75, cleanup;dur=0.80, total;dur=1529.10, dependencies;dur=1.40, response_finalize;dur=4.04, request_audit;dur=9.06, route_total;dur=1543.64"
+      },
+      {
+        "ms": 1416.152339999826,
+        "request_id": "e64843d8-4b44-478b-8205-0d97fd7c4605",
+        "timings": "snapshot_and_fences;dur=176.30, materialize;dur=0.15, object_authorization;dur=0.00, parse;dur=579.55, cleanup;dur=0.79, total;dur=1399.46, dependencies;dur=1.34, response_finalize;dur=4.42, request_audit;dur=9.36, route_total;dur=1414.65"
+      },
+      {
+        "ms": 1359.702236000885,
+        "request_id": "ae12b4c4-76ed-417b-88ad-8ae2b0958766",
+        "timings": "snapshot_and_fences;dur=139.25, materialize;dur=0.18, object_authorization;dur=0.00, parse;dur=572.86, cleanup;dur=0.59, total;dur=1342.65, dependencies;dur=1.39, response_finalize;dur=4.23, request_audit;dur=9.94, route_total;dur=1358.25"
+      },
+      {
+        "ms": 1441.397094000422,
+        "request_id": "de07241f-6d42-4b19-b097-ffc7d07e3050",
+        "timings": "snapshot_and_fences;dur=155.25, materialize;dur=0.20, object_authorization;dur=0.00, parse;dur=624.81, cleanup;dur=0.58, total;dur=1425.26, dependencies;dur=1.63, response_finalize;dur=4.19, request_audit;dur=8.86, route_total;dur=1439.98"
+      },
+      {
+        "ms": 1408.5071529989364,
+        "request_id": "8661511e-4a5d-4e52-a7e6-2b3f2b47eb90",
+        "timings": "snapshot_and_fences;dur=155.36, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=601.14, cleanup;dur=0.59, total;dur=1391.59, dependencies;dur=1.76, response_finalize;dur=4.54, request_audit;dur=9.06, route_total;dur=1406.99"
+      },
+      {
+        "ms": 1494.6654790001048,
+        "request_id": "c4d0c13b-ae89-4abd-a638-b4049cfc1110",
+        "timings": "snapshot_and_fences;dur=142.19, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=606.58, cleanup;dur=0.87, total;dur=1476.30, dependencies;dur=1.59, response_finalize;dur=4.36, request_audit;dur=10.24, route_total;dur=1492.53"
+      },
+      {
+        "ms": 1415.209312002844,
+        "request_id": "41d586b1-d558-4e20-b69f-f7e79bc0d67f",
+        "timings": "snapshot_and_fences;dur=179.93, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=583.42, cleanup;dur=0.57, total;dur=1398.41, dependencies;dur=1.37, response_finalize;dur=4.10, request_audit;dur=9.61, route_total;dur=1413.52"
+      },
+      {
+        "ms": 1490.5301470025734,
+        "request_id": "9b73f9b2-e524-4b93-a212-d4c96b1bc024",
+        "timings": "snapshot_and_fences;dur=190.05, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=593.39, cleanup;dur=0.57, total;dur=1473.12, dependencies;dur=1.35, response_finalize;dur=4.27, request_audit;dur=10.12, route_total;dur=1488.91"
+      },
+      {
+        "ms": 1418.0244790004508,
+        "request_id": "0cee4aea-8d94-4b10-851b-0efe8a759814",
+        "timings": "snapshot_and_fences;dur=153.21, materialize;dur=0.17, object_authorization;dur=0.00, parse;dur=594.11, cleanup;dur=0.61, total;dur=1390.88, dependencies;dur=1.85, response_finalize;dur=6.57, request_audit;dur=16.55, route_total;dur=1415.89"
+      },
+      {
+        "ms": 1440.0316790015495,
+        "request_id": "5648b1bd-40cb-40b8-a50e-1ef6bfc8c7b7",
+        "timings": "snapshot_and_fences;dur=220.69, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=557.24, cleanup;dur=0.70, total;dur=1422.21, dependencies;dur=2.51, response_finalize;dur=4.04, request_audit;dur=8.77, route_total;dur=1437.56"
+      },
+      {
+        "ms": 1551.329882000573,
+        "request_id": "3a48c1e4-fca2-47e5-810b-fa080f2ea564",
+        "timings": "snapshot_and_fences;dur=209.73, materialize;dur=0.18, object_authorization;dur=0.00, parse;dur=639.91, cleanup;dur=0.67, total;dur=1534.47, dependencies;dur=1.41, response_finalize;dur=4.07, request_audit;dur=9.59, route_total;dur=1549.58"
+      },
+      {
+        "ms": 1465.4419380021864,
+        "request_id": "99864ec9-b78f-4633-8d0a-be7fe9475119",
+        "timings": "snapshot_and_fences;dur=191.83, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=597.92, cleanup;dur=0.68, total;dur=1448.75, dependencies;dur=1.39, response_finalize;dur=4.14, request_audit;dur=9.28, route_total;dur=1463.60"
+      },
+      {
+        "ms": 1467.1605319999799,
+        "request_id": "1b5b8783-496a-4b3b-a399-c2918d5a5a3e",
+        "timings": "snapshot_and_fences;dur=142.89, materialize;dur=0.15, object_authorization;dur=0.00, parse;dur=594.01, cleanup;dur=0.64, total;dur=1446.53, dependencies;dur=2.12, response_finalize;dur=4.92, request_audit;dur=11.37, route_total;dur=1465.00"
+      },
+      {
+        "ms": 1441.2317980022635,
+        "request_id": "2c5a8853-0438-4e56-8c1d-9e3fb2e8dc95",
+        "timings": "snapshot_and_fences;dur=160.37, materialize;dur=0.15, object_authorization;dur=0.00, parse;dur=602.60, cleanup;dur=0.82, total;dur=1424.39, dependencies;dur=1.80, response_finalize;dur=4.08, request_audit;dur=8.94, route_total;dur=1439.26"
+      },
+      {
+        "ms": 1526.009373999841,
+        "request_id": "3a9e8df6-ccdf-4e5b-8aba-5ac5f549f016",
+        "timings": "snapshot_and_fences;dur=147.60, materialize;dur=0.18, object_authorization;dur=0.00, parse;dur=595.99, cleanup;dur=0.63, total;dur=1505.39, dependencies;dur=1.46, response_finalize;dur=5.11, request_audit;dur=12.34, route_total;dur=1524.36"
+      },
+      {
+        "ms": 1718.0477000001702,
+        "request_id": "63e4a7c0-e764-4394-b678-540867eb7272",
+        "timings": "snapshot_and_fences;dur=149.28, materialize;dur=0.17, object_authorization;dur=0.00, parse;dur=787.83, cleanup;dur=0.81, total;dur=1700.08, dependencies;dur=1.94, response_finalize;dur=4.52, request_audit;dur=9.49, route_total;dur=1716.08"
+      },
+      {
+        "ms": 1722.854217998247,
+        "request_id": "e7962c1d-25c2-4544-a279-a1e555dd6846",
+        "timings": "snapshot_and_fences;dur=256.10, materialize;dur=0.17, object_authorization;dur=0.00, parse;dur=640.06, cleanup;dur=1.07, total;dur=1696.71, dependencies;dur=1.41, response_finalize;dur=8.71, request_audit;dur=13.92, route_total;dur=1720.87"
+      },
+      {
+        "ms": 1924.8108400024648,
+        "request_id": "389446a4-6bfa-40a5-af6d-76f09bb67c6d",
+        "timings": "snapshot_and_fences;dur=310.72, materialize;dur=0.19, object_authorization;dur=0.00, parse;dur=830.24, cleanup;dur=0.78, total;dur=1904.86, dependencies;dur=2.49, response_finalize;dur=5.29, request_audit;dur=9.73, route_total;dur=1922.42"
+      },
+      {
+        "ms": 1506.0266100008448,
+        "request_id": "afc374ed-6671-4f8b-9f72-53d5db674b5a",
+        "timings": "snapshot_and_fences;dur=196.44, materialize;dur=0.25, object_authorization;dur=0.00, parse;dur=595.62, cleanup;dur=1.02, total;dur=1488.41, dependencies;dur=1.46, response_finalize;dur=5.09, request_audit;dur=9.51, route_total;dur=1504.52"
+      },
+      {
+        "ms": 1847.618572999636,
+        "request_id": "4e50c746-0945-412e-8c0a-15d8949ac0cd",
+        "timings": "snapshot_and_fences;dur=173.77, materialize;dur=0.19, object_authorization;dur=0.00, parse;dur=732.54, cleanup;dur=1.35, total;dur=1829.22, dependencies;dur=1.46, response_finalize;dur=4.60, request_audit;dur=10.11, route_total;dur=1845.45"
+      },
+      {
+        "ms": 1534.2855800008692,
+        "request_id": "b1e9d274-e013-48e0-895e-8e2d291aea57",
+        "timings": "snapshot_and_fences;dur=149.39, materialize;dur=0.19, object_authorization;dur=0.00, parse;dur=661.70, cleanup;dur=0.69, total;dur=1517.40, dependencies;dur=1.53, response_finalize;dur=4.36, request_audit;dur=9.36, route_total;dur=1532.70"
+      },
+      {
+        "ms": 1696.5984749986092,
+        "request_id": "cbed5881-7c7a-4401-bcbd-dd27ed3b9fb7",
+        "timings": "snapshot_and_fences;dur=206.26, materialize;dur=0.16, object_authorization;dur=0.00, parse;dur=670.42, cleanup;dur=0.75, total;dur=1675.15, dependencies;dur=1.55, response_finalize;dur=5.99, request_audit;dur=11.82, route_total;dur=1694.55"
+      },
+      {
+        "ms": 1903.130565999163,
+        "request_id": "4212a18e-6a08-417e-9efa-c094679abfff",
+        "timings": "snapshot_and_fences;dur=203.09, materialize;dur=0.27, object_authorization;dur=0.00, parse;dur=724.12, cleanup;dur=0.96, total;dur=1881.26, dependencies;dur=1.49, response_finalize;dur=5.83, request_audit;dur=12.64, route_total;dur=1901.28"
+      },
+      {
+        "ms": 2116.225104997284,
+        "request_id": "4307d7b6-9eef-4e52-a712-dee0fa0183d5",
+        "timings": "snapshot_and_fences;dur=187.05, materialize;dur=0.21, object_authorization;dur=0.00, parse;dur=835.13, cleanup;dur=0.81, total;dur=2084.20, dependencies;dur=2.15, response_finalize;dur=6.96, request_audit;dur=17.85, route_total;dur=2111.22"
+      }
+    ],
+    "optimized": [
+      {
+        "ms": 212.69618399674073,
+        "request_id": "628a88a4-3968-4da1-9c62-d191815d3902",
+        "timings": "snapshot_and_fences;dur=55.81, snapshot;dur=54.63, fences_exclusive;dur=1.18, materialize;dur=0.71, object_authorization;dur=0.00, parse;dur=106.03, cleanup;dur=21.81, reconcile;dur=0.50, external_reconcile;dur=6.84, card_projection_exclusive;dur=1.97, projection_commit;dur=0.41, document_projection;dur=1.42, reader_orchestration;dur=0.53, total;dur=196.03, dependencies;dur=1.42, response_finalize;dur=4.51, request_audit;dur=8.74, route_total;dur=210.75"
+      },
+      {
+        "ms": 243.5762290006096,
+        "request_id": "badf16d6-3697-4491-a71b-9ef15d347065",
+        "timings": "snapshot_and_fences;dur=70.43, snapshot;dur=69.15, fences_exclusive;dur=1.28, materialize;dur=0.96, object_authorization;dur=0.00, parse;dur=120.37, cleanup;dur=22.43, reconcile;dur=0.47, external_reconcile;dur=6.93, card_projection_exclusive;dur=2.46, projection_commit;dur=0.45, document_projection;dur=1.22, reader_orchestration;dur=0.43, total;dur=226.15, dependencies;dur=1.94, response_finalize;dur=4.22, request_audit;dur=9.24, route_total;dur=241.59"
+      },
+      {
+        "ms": 241.07855799957179,
+        "request_id": "c477fe3b-0fbe-443c-9d69-b7a248a5b310",
+        "timings": "snapshot_and_fences;dur=65.95, snapshot;dur=64.12, fences_exclusive;dur=1.83, materialize;dur=1.08, object_authorization;dur=0.00, parse;dur=117.69, cleanup;dur=23.92, reconcile;dur=0.54, external_reconcile;dur=7.75, card_projection_exclusive;dur=2.58, projection_commit;dur=0.47, document_projection;dur=1.35, reader_orchestration;dur=0.59, total;dur=221.92, dependencies;dur=1.41, response_finalize;dur=4.94, request_audit;dur=10.76, route_total;dur=239.07"
+      },
+      {
+        "ms": 242.64988000140875,
+        "request_id": "1380136e-49f6-44e9-b6bb-26a631a0c556",
+        "timings": "snapshot_and_fences;dur=71.48, snapshot;dur=70.17, fences_exclusive;dur=1.31, materialize;dur=0.91, object_authorization;dur=0.00, parse;dur=114.24, cleanup;dur=24.06, reconcile;dur=0.58, external_reconcile;dur=8.05, card_projection_exclusive;dur=2.52, projection_commit;dur=0.51, document_projection;dur=1.44, reader_orchestration;dur=0.64, total;dur=224.43, dependencies;dur=1.77, response_finalize;dur=4.78, request_audit;dur=9.53, route_total;dur=240.54"
+      },
+      {
+        "ms": 270.76813700114144,
+        "request_id": "b75c47d9-baba-482c-ba75-e179feceb8a7",
+        "timings": "snapshot_and_fences;dur=102.84, snapshot;dur=101.54, fences_exclusive;dur=1.30, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=111.74, cleanup;dur=22.60, reconcile;dur=0.42, external_reconcile;dur=7.34, card_projection_exclusive;dur=2.34, projection_commit;dur=0.43, document_projection;dur=1.29, reader_orchestration;dur=0.46, total;dur=250.23, dependencies;dur=1.72, response_finalize;dur=4.62, request_audit;dur=11.45, route_total;dur=268.05"
+      },
+      {
+        "ms": 253.43295200218563,
+        "request_id": "d3258fc3-67d7-43a0-8fa4-2ecbe5e8a750",
+        "timings": "snapshot_and_fences;dur=54.93, snapshot;dur=53.89, fences_exclusive;dur=1.04, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=105.05, cleanup;dur=24.14, reconcile;dur=0.40, external_reconcile;dur=46.81, card_projection_exclusive;dur=2.17, projection_commit;dur=0.44, document_projection;dur=1.22, reader_orchestration;dur=0.44, total;dur=236.37, dependencies;dur=1.61, response_finalize;dur=4.20, request_audit;dur=9.34, route_total;dur=251.55"
+      },
+      {
+        "ms": 261.2860619992716,
+        "request_id": "e506a667-760b-40e0-9385-1e6e5e67f9fb",
+        "timings": "snapshot_and_fences;dur=91.75, snapshot;dur=90.24, fences_exclusive;dur=1.51, materialize;dur=2.92, object_authorization;dur=0.00, parse;dur=110.52, cleanup;dur=24.01, reconcile;dur=0.43, external_reconcile;dur=7.52, card_projection_exclusive;dur=2.21, projection_commit;dur=0.47, document_projection;dur=1.53, reader_orchestration;dur=0.68, total;dur=242.04, dependencies;dur=1.65, response_finalize;dur=5.06, request_audit;dur=10.11, route_total;dur=258.94"
+      },
+      {
+        "ms": 210.59875499850023,
+        "request_id": "71b0a6e0-c4ae-46f5-bc6c-9b85a0f1aa62",
+        "timings": "snapshot_and_fences;dur=57.41, snapshot;dur=56.31, fences_exclusive;dur=1.10, materialize;dur=0.79, object_authorization;dur=0.00, parse;dur=103.22, cleanup;dur=21.15, reconcile;dur=0.42, external_reconcile;dur=6.72, card_projection_exclusive;dur=1.97, projection_commit;dur=0.39, document_projection;dur=1.32, reader_orchestration;dur=0.49, total;dur=193.88, dependencies;dur=1.70, response_finalize;dur=4.15, request_audit;dur=9.34, route_total;dur=209.11"
+      },
+      {
+        "ms": 250.70287099879351,
+        "request_id": "d6f3ba4c-5cf0-429e-80d8-7083d500504d",
+        "timings": "snapshot_and_fences;dur=56.48, snapshot;dur=55.42, fences_exclusive;dur=1.06, materialize;dur=0.84, object_authorization;dur=0.00, parse;dur=143.08, cleanup;dur=21.63, reconcile;dur=0.40, external_reconcile;dur=6.81, card_projection_exclusive;dur=2.20, projection_commit;dur=0.43, document_projection;dur=1.81, reader_orchestration;dur=0.45, total;dur=234.13, dependencies;dur=1.42, response_finalize;dur=4.03, request_audit;dur=8.91, route_total;dur=248.53"
+      },
+      {
+        "ms": 212.63239899781183,
+        "request_id": "e594d6f5-f725-4274-8606-bb5e8f7f5bec",
+        "timings": "snapshot_and_fences;dur=57.26, snapshot;dur=56.03, fences_exclusive;dur=1.23, materialize;dur=0.84, object_authorization;dur=0.00, parse;dur=103.27, cleanup;dur=23.35, reconcile;dur=0.41, external_reconcile;dur=6.94, card_projection_exclusive;dur=2.28, projection_commit;dur=0.43, document_projection;dur=1.37, reader_orchestration;dur=0.39, total;dur=196.54, dependencies;dur=1.45, response_finalize;dur=4.42, request_audit;dur=8.75, route_total;dur=211.19"
+      },
+      {
+        "ms": 251.23217800137354,
+        "request_id": "3b9577b2-297d-4b78-970c-31e3389017ed",
+        "timings": "snapshot_and_fences;dur=96.87, snapshot;dur=95.71, fences_exclusive;dur=1.16, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=104.56, cleanup;dur=21.02, reconcile;dur=0.66, external_reconcile;dur=6.93, card_projection_exclusive;dur=2.08, projection_commit;dur=0.44, document_projection;dur=1.50, reader_orchestration;dur=0.47, total;dur=235.27, dependencies;dur=1.38, response_finalize;dur=4.17, request_audit;dur=8.91, route_total;dur=249.75"
+      },
+      {
+        "ms": 269.366677999642,
+        "request_id": "6feb712d-0036-4089-82a8-c5dfda7551d4",
+        "timings": "snapshot_and_fences;dur=73.82, snapshot;dur=72.17, fences_exclusive;dur=1.65, materialize;dur=0.99, object_authorization;dur=0.00, parse;dur=136.47, cleanup;dur=23.45, reconcile;dur=0.51, external_reconcile;dur=8.96, card_projection_exclusive;dur=3.29, projection_commit;dur=0.61, document_projection;dur=1.51, reader_orchestration;dur=0.62, total;dur=250.23, dependencies;dur=1.62, response_finalize;dur=4.82, request_audit;dur=10.94, route_total;dur=267.66"
+      },
+      {
+        "ms": 262.86602500113077,
+        "request_id": "05bfebb4-bb63-42d4-92b2-e69db863c6a8",
+        "timings": "snapshot_and_fences;dur=102.22, snapshot;dur=101.04, fences_exclusive;dur=1.18, materialize;dur=0.74, object_authorization;dur=0.00, parse;dur=106.62, cleanup;dur=24.19, reconcile;dur=0.45, external_reconcile;dur=7.75, card_projection_exclusive;dur=2.08, projection_commit;dur=0.46, document_projection;dur=1.48, reader_orchestration;dur=0.45, total;dur=246.44, dependencies;dur=1.60, response_finalize;dur=4.03, request_audit;dur=8.56, route_total;dur=260.66"
+      },
+      {
+        "ms": 275.10368400180596,
+        "request_id": "ebf1ebf7-984c-4ba8-a8c6-0b0a3be29b00",
+        "timings": "snapshot_and_fences;dur=58.12, snapshot;dur=56.99, fences_exclusive;dur=1.13, materialize;dur=2.44, object_authorization;dur=0.00, parse;dur=116.35, cleanup;dur=62.79, reconcile;dur=1.28, external_reconcile;dur=9.14, card_projection_exclusive;dur=2.49, projection_commit;dur=0.57, document_projection;dur=1.59, reader_orchestration;dur=1.16, total;dur=255.93, dependencies;dur=1.36, response_finalize;dur=4.87, request_audit;dur=10.68, route_total;dur=272.88"
+      },
+      {
+        "ms": 284.0200739992724,
+        "request_id": "0bbbc427-1ad6-4a84-a120-b1229a9dbd11",
+        "timings": "snapshot_and_fences;dur=65.52, snapshot;dur=63.17, fences_exclusive;dur=2.35, materialize;dur=0.75, object_authorization;dur=0.00, parse;dur=164.64, cleanup;dur=22.46, reconcile;dur=0.48, external_reconcile;dur=7.28, card_projection_exclusive;dur=2.10, projection_commit;dur=0.41, document_projection;dur=1.33, reader_orchestration;dur=0.52, total;dur=265.49, dependencies;dur=1.49, response_finalize;dur=4.36, request_audit;dur=10.48, route_total;dur=281.86"
+      },
+      {
+        "ms": 246.07777400160558,
+        "request_id": "d5242dd9-505d-46d3-98dd-e72a9332bd9d",
+        "timings": "snapshot_and_fences;dur=57.22, snapshot;dur=56.16, fences_exclusive;dur=1.06, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=138.77, cleanup;dur=21.29, reconcile;dur=0.75, external_reconcile;dur=6.87, card_projection_exclusive;dur=1.93, projection_commit;dur=0.39, document_projection;dur=1.28, reader_orchestration;dur=0.45, total;dur=229.71, dependencies;dur=1.39, response_finalize;dur=4.11, request_audit;dur=8.99, route_total;dur=244.23"
+      },
+      {
+        "ms": 228.4746229997836,
+        "request_id": "3397b6c1-2be6-4689-89dc-36c26a723357",
+        "timings": "snapshot_and_fences;dur=57.65, snapshot;dur=56.49, fences_exclusive;dur=1.16, materialize;dur=0.78, object_authorization;dur=0.00, parse;dur=118.58, cleanup;dur=22.63, reconcile;dur=0.44, external_reconcile;dur=6.74, card_projection_exclusive;dur=2.23, projection_commit;dur=0.45, document_projection;dur=1.33, reader_orchestration;dur=0.49, total;dur=211.32, dependencies;dur=1.69, response_finalize;dur=4.61, request_audit;dur=9.09, route_total;dur=226.75"
+      },
+      {
+        "ms": 259.96443899930455,
+        "request_id": "4abfdb10-d305-418b-aa35-f33b40c61808",
+        "timings": "snapshot_and_fences;dur=57.80, snapshot;dur=56.62, fences_exclusive;dur=1.18, materialize;dur=0.76, object_authorization;dur=0.00, parse;dur=147.90, cleanup;dur=21.79, reconcile;dur=0.45, external_reconcile;dur=6.97, card_projection_exclusive;dur=2.29, projection_commit;dur=0.41, document_projection;dur=1.33, reader_orchestration;dur=0.49, total;dur=240.19, dependencies;dur=1.78, response_finalize;dur=4.44, request_audit;dur=10.88, route_total;dur=257.32"
+      },
+      {
+        "ms": 222.6205309998477,
+        "request_id": "22537bf0-f314-4b63-9843-5d653d54d146",
+        "timings": "snapshot_and_fences;dur=58.90, snapshot;dur=57.66, fences_exclusive;dur=1.24, materialize;dur=0.82, object_authorization;dur=0.00, parse;dur=113.73, cleanup;dur=21.40, reconcile;dur=0.45, external_reconcile;dur=6.99, card_projection_exclusive;dur=1.98, projection_commit;dur=0.41, document_projection;dur=1.33, reader_orchestration;dur=0.51, total;dur=206.52, dependencies;dur=1.39, response_finalize;dur=4.19, request_audit;dur=8.76, route_total;dur=220.90"
+      },
+      {
+        "ms": 228.66317000080016,
+        "request_id": "588d2df8-91bd-4203-a898-b16de116fe79",
+        "timings": "snapshot_and_fences;dur=64.09, snapshot;dur=62.96, fences_exclusive;dur=1.13, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=108.48, cleanup;dur=22.56, reconcile;dur=0.51, external_reconcile;dur=7.39, card_projection_exclusive;dur=2.42, projection_commit;dur=0.48, document_projection;dur=1.78, reader_orchestration;dur=0.59, total;dur=209.07, dependencies;dur=1.57, response_finalize;dur=5.41, request_audit;dur=10.78, route_total;dur=226.88"
+      },
+      {
+        "ms": 245.20745600239024,
+        "request_id": "4a4fad2e-270b-446d-ab15-f5f65e8e7290",
+        "timings": "snapshot_and_fences;dur=89.88, snapshot;dur=88.68, fences_exclusive;dur=1.20, materialize;dur=0.72, object_authorization;dur=0.00, parse;dur=104.43, cleanup;dur=22.39, reconcile;dur=0.53, external_reconcile;dur=6.95, card_projection_exclusive;dur=1.94, projection_commit;dur=0.38, document_projection;dur=1.27, reader_orchestration;dur=0.50, total;dur=228.99, dependencies;dur=1.53, response_finalize;dur=4.05, request_audit;dur=9.01, route_total;dur=243.62"
+      },
+      {
+        "ms": 286.0912619980809,
+        "request_id": "814a6515-3f55-4004-9197-4ca796ae48f4",
+        "timings": "snapshot_and_fences;dur=67.99, snapshot;dur=66.65, fences_exclusive;dur=1.34, materialize;dur=0.81, object_authorization;dur=0.00, parse;dur=158.45, cleanup;dur=26.53, reconcile;dur=0.67, external_reconcile;dur=7.62, card_projection_exclusive;dur=2.51, projection_commit;dur=0.48, document_projection;dur=1.36, reader_orchestration;dur=0.56, total;dur=266.98, dependencies;dur=1.56, response_finalize;dur=4.81, request_audit;dur=10.61, route_total;dur=284.00"
+      },
+      {
+        "ms": 228.7642560004315,
+        "request_id": "f06c9ec2-8c26-4ba0-aecf-7768d4990e0e",
+        "timings": "snapshot_and_fences;dur=63.86, snapshot;dur=62.54, fences_exclusive;dur=1.32, materialize;dur=0.86, object_authorization;dur=0.00, parse;dur=108.30, cleanup;dur=25.83, reconcile;dur=0.40, external_reconcile;dur=7.25, card_projection_exclusive;dur=2.40, projection_commit;dur=0.53, document_projection;dur=1.55, reader_orchestration;dur=0.50, total;dur=211.48, dependencies;dur=1.69, response_finalize;dur=4.74, request_audit;dur=9.18, route_total;dur=227.12"
+      },
+      {
+        "ms": 296.83945800206857,
+        "request_id": "fbd6e8bd-06e8-4624-b3a3-1af5d06173c5",
+        "timings": "snapshot_and_fences;dur=75.13, snapshot;dur=74.00, fences_exclusive;dur=1.13, materialize;dur=0.88, object_authorization;dur=0.00, parse;dur=160.44, cleanup;dur=25.59, reconcile;dur=0.60, external_reconcile;dur=8.05, card_projection_exclusive;dur=2.59, projection_commit;dur=0.56, document_projection;dur=1.69, reader_orchestration;dur=0.87, total;dur=276.40, dependencies;dur=1.32, response_finalize;dur=5.97, request_audit;dur=11.08, route_total;dur=294.81"
+      },
+      {
+        "ms": 253.695585000969,
+        "request_id": "8f6acc6f-c3e3-4223-bb92-bff497eb5c22",
+        "timings": "snapshot_and_fences;dur=65.62, snapshot;dur=64.10, fences_exclusive;dur=1.52, materialize;dur=0.89, object_authorization;dur=0.00, parse;dur=128.98, cleanup;dur=24.57, reconcile;dur=0.64, external_reconcile;dur=7.30, card_projection_exclusive;dur=2.32, projection_commit;dur=0.44, document_projection;dur=1.40, reader_orchestration;dur=0.58, total;dur=232.74, dependencies;dur=1.60, response_finalize;dur=5.22, request_audit;dur=12.35, route_total;dur=251.94"
+      },
+      {
+        "ms": 295.168199998443,
+        "request_id": "d7710520-ca63-4210-b9db-1bab62ec416d",
+        "timings": "snapshot_and_fences;dur=77.77, snapshot;dur=76.52, fences_exclusive;dur=1.25, materialize;dur=0.77, object_authorization;dur=0.00, parse;dur=159.88, cleanup;dur=25.28, reconcile;dur=0.70, external_reconcile;dur=7.46, card_projection_exclusive;dur=2.71, projection_commit;dur=0.49, document_projection;dur=1.34, reader_orchestration;dur=0.68, total;dur=277.08, dependencies;dur=1.49, response_finalize;dur=4.53, request_audit;dur=10.00, route_total;dur=293.14"
+      },
+      {
+        "ms": 250.86670899690944,
+        "request_id": "a0c8ade6-dd63-4259-8f98-3b46f8579528",
+        "timings": "snapshot_and_fences;dur=72.46, snapshot;dur=71.10, fences_exclusive;dur=1.36, materialize;dur=0.81, object_authorization;dur=0.00, parse;dur=119.45, cleanup;dur=26.11, reconcile;dur=0.43, external_reconcile;dur=7.52, card_projection_exclusive;dur=2.40, projection_commit;dur=0.55, document_projection;dur=1.53, reader_orchestration;dur=0.61, total;dur=231.87, dependencies;dur=2.08, response_finalize;dur=4.98, request_audit;dur=10.20, route_total;dur=249.19"
+      },
+      {
+        "ms": 308.9997380011482,
+        "request_id": "f65e43d2-7ba6-4648-b12e-a6849e3e860a",
+        "timings": "snapshot_and_fences;dur=70.25, snapshot;dur=69.03, fences_exclusive;dur=1.22, materialize;dur=0.88, object_authorization;dur=0.00, parse;dur=180.43, cleanup;dur=25.81, reconcile;dur=0.63, external_reconcile;dur=7.66, card_projection_exclusive;dur=2.35, projection_commit;dur=0.50, document_projection;dur=1.53, reader_orchestration;dur=0.67, total;dur=290.71, dependencies;dur=1.56, response_finalize;dur=4.86, request_audit;dur=9.40, route_total;dur=306.57"
+      },
+      {
+        "ms": 252.0732869998028,
+        "request_id": "cba629fb-c0fc-41dc-85c2-ca0f93fd7ab4",
+        "timings": "snapshot_and_fences;dur=70.47, snapshot;dur=68.81, fences_exclusive;dur=1.66, materialize;dur=0.93, object_authorization;dur=0.00, parse;dur=120.41, cleanup;dur=25.84, reconcile;dur=0.50, external_reconcile;dur=8.09, card_projection_exclusive;dur=2.56, projection_commit;dur=0.49, document_projection;dur=1.40, reader_orchestration;dur=0.51, total;dur=231.20, dependencies;dur=2.97, response_finalize;dur=4.61, request_audit;dur=11.14, route_total;dur=249.95"
+      },
+      {
+        "ms": 353.92587300157174,
+        "request_id": "39dbdc2d-dadb-4db9-979d-ce671e5bb35a",
+        "timings": "snapshot_and_fences;dur=96.01, snapshot;dur=94.26, fences_exclusive;dur=1.75, materialize;dur=1.19, object_authorization;dur=0.00, parse;dur=165.68, cleanup;dur=32.73, reconcile;dur=0.90, external_reconcile;dur=13.28, card_projection_exclusive;dur=6.53, projection_commit;dur=1.07, document_projection;dur=3.59, reader_orchestration;dur=0.98, total;dur=321.96, dependencies;dur=2.33, response_finalize;dur=9.29, request_audit;dur=16.60, route_total;dur=350.25"
+      }
+    ]
+  },
+  "scheme": "30 alternating-order pairs after one warm-up per variant",
+  "summary": {
+    "baseline": {
+      "n": 30,
+      "median_ms": 1497.8996620011458,
+      "p95_ms": 1924.8108400024648,
+      "max_ms": 2116.225104997284
+    },
+    "optimized": {
+      "n": 30,
+      "median_ms": 251.65273250058817,
+      "p95_ms": 308.9997380011482,
+      "max_ms": 353.92587300157174
+    }
+  },
+  "improvement": 0.8394648806109423
+}

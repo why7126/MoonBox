@@ -1,7 +1,7 @@
 ---
 name: "opsx-apply"
 description: "Implement tasks from an OpenSpec change"
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:09:45
 ---
 
 # opsx-apply
@@ -264,3 +264,7 @@ bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.appl
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 临时 Docker 资源门禁
+
+遵循 `docs/standards/temporary-docker-lifecycle.md`；使用 `scripts/temporary_docker.py` 在创建前登记并为所有临时容器和专属网络加标签，入口 reap 扫描，任务结束 cleanup --apply 后 check 零残留。中断续接先核对原 run；保留现场必须说明理由、期限和回收动作，不得把任务完成等同容器已删除。不删除历史未登记资源、共享服务或数据卷。

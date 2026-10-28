@@ -1,0 +1,48 @@
+{
+  "command_runs": [
+    {
+      "source_session_hash": "cd02a3207c4352ae0132147ceb1fff0db3ecc6a4b5f5d6c4cfcf11be71b0657d",
+      "source_data_file": "~/.codex/sessions/2026/10/27/rollout-2026-10-27T18-20-31-01a17ce0-3536-7661-b3a4-902a438a6834.jsonl",
+      "source_line_start": 48,
+      "source_line_end": 56,
+      "turn_hash": "d0a67d19edc2d0cf",
+      "started_at": "2026-10-27T10:21:42.092Z",
+      "ended_at": "2026-10-27T10:21:45.704Z",
+      "command": "opsx.accept",
+      "workflow_event": "opsx.accept",
+      "requirements": [],
+      "bugs": [
+        "BUG-0056-requirement-center-context-load-latency",
+        "BUG-0069-chat-interrupted-successor-proof-missing"
+      ],
+      "changes": [
+        "fix-chat-interrupted-successor-proof"
+      ],
+      "sprint_id": "sprint-014",
+      "release_sprints": [
+        "sprint-014"
+      ],
+      "release_version": null,
+      "attribution_confidence": "high",
+      "model_name": "codex-auto-review",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "none",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 1,
+      "input_tokens": 28776,
+      "cached_input_tokens": 26624,
+      "output_tokens": 266,
+      "reasoning_output_tokens": 164,
+      "total_tokens": 29042,
+      "tool_call_count": 0,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

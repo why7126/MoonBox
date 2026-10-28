@@ -2,17 +2,17 @@
 bug_id: BUG-0056-requirement-center-context-load-latency
 title: 需求中心首屏聚合请求耗时约二十七秒
 severity: high
-status: approved
+status: in_sprint
 owner: 产品团队
 created_at: '2026-10-21 09:02:26'
-updated_at: 2026-10-21 09:16:02
+updated_at: 2026-10-27 10:09:18
 discovered_at: '2026-10-21'
 environment: local docker chrome
 related_requirement: null
 related_bug: BUG-0016-capture
-related_change: null
+related_change: fix-requirement-center-context-load-latency
 root_cause_status: confirmed
-lifecycle_stage: plan
+lifecycle_stage: review
 ---
 
 # 需求中心首屏聚合请求耗时约二十七秒
@@ -115,4 +115,4 @@ product_data_collection_observability:
 
 ## 当前交付状态
 
-已补齐 [根因分析](root-cause.md)、[临时规避](workaround.md) 和 [验收标准](acceptance.md)，根因证据与中文标题门禁已通过，评审通过后状态为 approved。三个瓶颈机制已确认，剩余证据边界保留；[评审已通过](review.md)，尚未纳入 Sprint、创建 OpenSpec Change 或实施修复。
+已补齐 [根因分析](root-cause.md)、[临时规避](workaround.md) 和 [验收标准](acceptance.md)，根因证据与中文标题门禁已通过，已评审通过并纳入 sprint-014，当前状态为 in_sprint。三个瓶颈机制已确认，剩余证据边界保留；已创建 [修复Change](../../../../openspec/changes/fix-requirement-center-context-load-latency/proposal.md)，尚未实施修复或完成验收。

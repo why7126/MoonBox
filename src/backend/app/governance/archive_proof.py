@@ -61,8 +61,8 @@ def _archive(files, oid):
     else:
         cid = oid
     _require(isinstance(cid, str) and re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', cid), 'archive_identity_invalid')
-    bases = [n[:-len('/trace.md')] for n in files if re.fullmatch(
-        rf'openspec/archive/\d{{4}}-\d{{2}}-\d{{2}}-{re.escape(cid)}/trace.md', n)]
+    archive_trace = re.compile(rf'openspec/archive/\d{{4}}-\d{{2}}-\d{{2}}-{re.escape(cid)}/trace.md')
+    bases = [n[:-len('/trace.md')] for n in files if archive_trace.fullmatch(n)]
     _require(len(bases) == 1 and not any(n.startswith(f'openspec/changes/{cid}/') for n in files),
              'archive_location_invalid')
     return cid, bases[0]
@@ -110,16 +110,20 @@ def _verify(project, guard, turn, operation, snapshot):
              'archive_execution_mismatch')
     _require(guard['scope_key'] == project.key, 'archive_scope_mismatch')
     rid = record_id(turn['conversation_id'], turn['client_request_id'])
+    records = {}
     _require(record_block_reason(turn['conversation_id'], turn['client_request_id'], action='opsx-archive',
-                                object_id=guard['object_id'], revision=guard['baseline_revision']) is None,
+                                object_id=guard['object_id'], revision=guard['baseline_revision'], records=records) is None,
              'archive_record_invalid')
     _require(operation.get('phase') == 'terminal' and operation.get('terminal_status') == 'completed',
              'archive_terminal_invalid')
-    baseline = store.read(rid, 'baseline')
+    baseline = records['baseline']
     _require(baseline.get('binding_revision') == project.binding_revision, 'archive_binding_changed')
+    cid, archived = _archive(snapshot.files, guard['object_id'])
+    # An absent required baseline can only reject. Do this before copying and
+    # hashing thousands of unrelated historical files; success keeps all checks.
+    _require(f'openspec/changes/{cid}/trace.md' in baseline['files'], 'archive_baseline_missing')
     before = {n: b.encode() for n, b in baseline['files'].items()}
     _require(digest(before) == guard['baseline_revision'], 'archive_baseline_invalid')
-    cid, archived = _archive(snapshot.files, guard['object_id'])
     validate_merge(before, snapshot.files, cid, archived)
     _require(validate_result(snapshot.files, guard['object_id'], 'opsx-archive'), 'archive_business_invalid')
     source = project.source_root or project.root

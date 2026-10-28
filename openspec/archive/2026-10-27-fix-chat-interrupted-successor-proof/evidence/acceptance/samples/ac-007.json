@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "original_turn_id": "4058ab2f-87e6-4ee3-8a71-88bb639b8a15",
+  "followup_turn_id": "69396b43-842d-4607-8067-fe65fb78e34a",
+  "original_status": "stopped",
+  "original_queued_interruption": true,
+  "original_model_started": false,
+  "external_standard_cli": true,
+  "verification_http": 200,
+  "send_http": 200,
+  "followup_status": "completed",
+  "real_executor": true,
+  "history_preserved": true,
+  "temporary_auth_removed": true,
+  "database": "sqlite",
+  "successor_evidence": {
+    "fix-sample": "20261027175249172176-d63e6941"
+  },
+  "inputs": {
+    "src/backend/app/governance/direct_completion.py": "2cb8249048908f8aef80bc3d47d052029eae2cfe93257a2ead47f69495118680",
+    "src/backend/app/governance/successor_completion.py": "1fe4f73e6c175c39fd2cd3f2e4ec768c15d2b5b9889dbddf08203062f37e3f3c",
+    "src/backend/app/governance/workflow_receipt.py": "9b6de2af521fd23faac98ae77fbf5d2d00a47e2054cae909c67983c927061a70",
+    "src/backend/app/governance/verification_transaction.py": "68564c63415bd488235d0de150712e47162c218dd44dda05525cad8567ed434b",
+    "src/backend/tests/test_interrupted_successor.py": "0df2b927c24eadb7c277db01542fa26323de73a6697bfd6ee2a93bff4a4dda42",
+    "src/backend/tests/interrupted_evidence.py": "14c6df716a849d229dac33bedc034781b48942ad4fca1f6197f63580fbc459c4",
+    "src/backend/tests/test_interrupted_live.py": "7d73b04c433f46dfc7bbcc718f2a6c3d09f599dd07cf6765447a7bda7317b163",
+    "src/backend/app/governance/successor_dependencies.py": "0f02981cbd9fd8a64a63817295908379a26ea62a62c442d87185ec9829eceee7"
+  },
+  "source_test": "src/backend/tests/test_interrupted_live.py",
+  "test_sha256": "7d73b04c433f46dfc7bbcc718f2a6c3d09f599dd07cf6765447a7bda7317b163",
+  "mysql_live": {
+    "passed": true,
+    "original_turn_id": "46d21fb0-8086-4bc2-a8d4-0a22606cfcd4",
+    "followup_turn_id": "cf234189-bfe1-4516-b2d5-6124cca8b1be",
+    "original_status": "stopped",
+    "original_queued_interruption": true,
+    "original_model_started": false,
+    "external_standard_cli": true,
+    "verification_http": 200,
+    "send_http": 200,
+    "followup_status": "completed",
+    "real_executor": true,
+    "history_preserved": true,
+    "temporary_auth_removed": true,
+    "database": "mysql",
+    "successor_evidence": {
+      "fix-sample": "20261027174930030819-2090ad22"
+    }
+  }
+}

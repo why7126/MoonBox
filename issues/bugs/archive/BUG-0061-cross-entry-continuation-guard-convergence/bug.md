@@ -3,7 +3,7 @@ bug_id: BUG-0061-cross-entry-continuation-guard-convergence
 title: 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断
 status: done
 created_at: '2026-10-21 15:43:58'
-updated_at: 2026-10-21 17:25:20
+updated_at: 2026-10-27 16:15:21
 severity: high
 environment: local docker
 related_requirement: null
@@ -130,3 +130,9 @@ validation: 后续验证原操作/后继记录关联、判定原因、差异分�
 ## 完善文档入口
 
 根因和历史边界见[root-cause.md](root-cause.md)，临时处理见[workaround.md](workaround.md)，14项待执行标准见[acceptance.md](acceptance.md)，状态与关联见[trace.md](trace.md)。
+
+## 2026-10-27 复发完善摘要
+
+本次现场为BUG-0056：外部接续后验收8/8，旧已停止轮次缺少正式同步证明，卡片仍结果待核对。已确认现有核验入口、恢复分支与后继验证器依赖旧成功同步证明，属于历史修复未覆盖分支；两份部署后端核验文件与工作区哈希一致。
+
+详细证据、排除项和安全修复方向见[root-cause.md](root-cause.md)的2026-10-27章节；临时处理见[workaround.md](workaround.md)；新增RC-001至RC-008均未执行，见[acceptance.md](acceptance.md)。历史验收与归档事实保留，不将本次复发声明为已修复。严重度仍为high，影响为合法后续动作受限及重复执行风险，无数据丢失证据。

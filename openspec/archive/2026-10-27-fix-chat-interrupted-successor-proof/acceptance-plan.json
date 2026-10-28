@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-interrupted-successor-proof",
+  "issue_id": "BUG-0069-chat-interrupted-successor-proof-missing",
+  "environment": "bug0069-isolated",
+  "environment_contract": {
+    "deployment": "isolated-http-and-database",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic REQ/BUG; BUG-0056 separately authorized source observation",
+    "authorization_ref": "user opsx-apply and prior verify-successor-and-release instruction",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "isolated fixture actor; existing product session",
+    "retry_limit": 0,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "1"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "双库真实连接，合成前置；历史保留、负例与并发围栏回归通过"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-001.json"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "2"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "双库真实连接，合成前置；历史保留、负例与并发围栏回归通过"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-002.json"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "3"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "双库真实连接，合成前置；历史保留、负例与并发围栏回归通过"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-003.json"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "4"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "双库真实连接，合成前置；历史保留、负例与并发围栏回归通过"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-004.json"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "5"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "双库真实连接，合成前置；历史保留、负例与并发围栏回归通过"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-005.json"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/web/src/components/chat/DirectCompletion.tsx",
+        "src/web/src/components/chat/directVerificationReasons.ts",
+        "src/web/src/components/chat/useDirectVerification.ts",
+        "src/backend/app/governance/api.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/web/src/components/chat/OperationVerification.tsx",
+        "src/backend/tests/interrupted_browser_fixture.py",
+        "src/web/e2e/interrupted.tsx",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "6"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实HTTP接口；合成前置；卡片和执行详情四态双视口截图、样式及旧停止状态已核验"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-006.json",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/available-1440.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/available-390.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/busy-1440.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/busy-390.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/success-1440.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/success-390.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/failure-1440.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/failure-390.png"
+      ],
+      "preflight": [
+        [
+          "bash",
+          "scripts/project-python.sh",
+          "src/backend/tests/interrupted_evidence.py",
+          "preflight"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "available",
+          "busy",
+          "success",
+          "failure"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "available",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/available-1440.png"
+            ]
+          },
+          {
+            "stage": "available",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/available-390.png"
+            ]
+          },
+          {
+            "stage": "busy",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/busy-1440.png"
+            ]
+          },
+          {
+            "stage": "busy",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/busy-390.png"
+            ]
+          },
+          {
+            "stage": "success",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/success-1440.png"
+            ]
+          },
+          {
+            "stage": "success",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/success-390.png"
+            ]
+          },
+          {
+            "stage": "failure",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/failure-1440.png"
+            ]
+          },
+          {
+            "stage": "failure",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/failure-390.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/tests/test_interrupted_live.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "7"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "实际HTTP排队中断、标准CLI完成/验收、核验、真实模型后续发送completed；原轮未启动模型。双库兼容性由独立回归覆盖。"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-007.json",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/live-mysql.json"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/direct_completion.py",
+        "src/backend/app/governance/successor_completion.py",
+        "src/backend/app/governance/workflow_receipt.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_interrupted_successor.py",
+        "src/backend/tests/interrupted_evidence.py",
+        "src/backend/app/governance/successor_dependencies.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/interrupted_evidence.py",
+        "8"
+      ],
+      "evidence_kinds": [
+        "command",
+        "product_turn",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "BUG-0056真实POST成功、共享can_send=true、执行服务ready；旧停止与27步骤摘要保留，未归档"
+      },
+      "artifacts": [
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/ac-008.json",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/site-card-success.png",
+        "openspec/changes/fix-chat-interrupted-successor-proof/evidence/acceptance/samples/deployment.json"
+      ]
+    }
+  ]
+}

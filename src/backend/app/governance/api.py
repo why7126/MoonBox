@@ -177,7 +177,14 @@ class DirectVerificationDifference(BaseModel):
     kind: str
 
 
+class AutoVerificationStatus(BaseModel):
+    state: Literal['pending', 'checking', 'confirmed', 'blocked', 'unavailable']
+    reason_code: str | None = None
+
+
 class DirectVerificationResponse(BaseModel):
+    successor_evidence: dict[str, str] = Field(default_factory=dict)
+    auto_verification: AutoVerificationStatus | None = None
     available: bool
     state: str
     version: int | None

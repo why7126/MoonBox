@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import collect
 from .derive import DerivedIssue
+from .issue_stage import scan_stage_drift, replace_stage
 from .timefmt import now_shanghai, touch_frontmatter
 
 CLOSED_STATUSES = frozenset({"done", "archived", "resolved", "closed", "completed"})
@@ -271,6 +272,9 @@ def scan_issue_subdocuments(
 ) -> tuple[list[SubdocumentFinding], int]:
     target = derived.display_status if derived else (issue.trace_status or "done")
     findings: list[SubdocumentFinding] = []
+    findings.extend(SubdocumentFinding(issue.issue_id, d.file, "frontmatter.lifecycle_stage",
+        d.current, d.target, "safe_sync" if d.safe else "blocker", d.safe,
+        "physical Issue directory defines lifecycle_stage") for d in scan_stage_drift(issue.path))
     checked = 0
     if not issue.path.is_dir():
         return findings, checked
@@ -328,10 +332,15 @@ def sync_issue_subdocuments(
     result = SubdocumentSyncResult(issue_id=issue.issue_id, checked_files=checked, findings=findings)
     changed_files: set[Path] = set()
     target_status = derived.display_status
+    stage_drifts = {d.file: d for d in scan_stage_drift(issue.path)}
+    if any(not d.safe for d in stage_drifts.values()):
+        return result
 
     for path in sorted(issue.path.glob("*.md")):
         text = collect.read_text(path)
         original = text
+        if path in stage_drifts:
+            text = replace_stage(text, stage_drifts[path].target)
         if path.name == primary_doc_name(issue):
             text, _ = replace_frontmatter_key(text, "status", target_status)
         elif path.name == ACCEPTANCE_DOC:

@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-database-lock-execution-interruption",
+  "run_id": "20261027090443095634-888712c4",
+  "created_at": "2026-10-27 09:04:43",
+  "source_revision": "8ba1475de486cd628e89b7cf6be2ea8ae2a84374",
+  "environment": "isolated-source",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "7a2e2e8fd89ea6d2260723d347d12e5c4cc39a15c67d91a35c5a4539dd3b55ad",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 92,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "3c1ea3fb5389a687b738fc3649fc4711800f87994ab2e682b71a245f2f9e5b31",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "275d1280017f1b5c976edd021035fa56aa288c6fe35612eb22f3abac879f5a9e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "67ad7a89897ac6d0c730195506898c5e1d56efd15169841c0a648df9bf94ed8f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "a2aeefcece7d8513ec93c760e58fced2f70ac013bdc9e9e95e3bb29d200a9d1d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "657548afac97615266fa064d25e5d8d7b7aac25ff77b788163e92f2f0d31313f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "b16d91a502b56f1406a9efb9fb868b82b655c5fb7e186263844cc0fdf3729121",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "63fd953ba05eb7cf709dd0eceaebf6526e86e8652213c5b0252d71c427d62ec5",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "5543d23d26280991fa581e2c55d19ca108e077c09cd26324a37fd9d7158710f4",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/verification.json",
+          "sha256": "7bca59cd4cd9e39c601538f0df5febf95507efd8fabbdd4367091c1ea63a28c6"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/live.json",
+          "sha256": "5b8cb53ea3d7a3be7a57ccc1cdefe034d82df91955b49037877e56c14676f6da"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/concurrency.json",
+          "sha256": "9d76efd64c154ea8eedd7c9de71cd7997c46a74720d6443e7fe744793c549177"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.json",
+          "sha256": "d9ba9e19567bd8bbf25dffb5ac586cc6af1b2a3d3c14f312e08b6e6d0bf43e19"
+        },
+        {
+          "path": "openspec/changes/fix-chat-database-lock-execution-interruption/evidence/browser.png",
+          "sha256": "d8bf94623393083f4c99ff9c9cb7bd818e6b6ec1cde87083b5e0b54469f55738"
+        }
+      ],
+      "duration_ms": 4,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 8,
+    "reused": 0,
+    "preflight_ms": 427,
+    "duration_ms": 593,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

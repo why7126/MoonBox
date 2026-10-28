@@ -8,7 +8,7 @@ import { SafeMarkdown } from "./SafeMarkdown";
 import { ChatApiError, normalizeChatError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef, type TurnRead } from "./chatApi";
 import { readChatEvents, type ChatEvent } from "./chatEvents";
 import { executionConfigLabel } from "./executionLabels";
-type Message = OrderedMessage & Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
+type Message = OrderedMessage & Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source" | "output_truncation_reason"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
 type UsagePayload = {
   total_tokens?: number;
   input_tokens?: number;
@@ -241,7 +241,7 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
             {!!attachments.length && <div className="chat-message-attachments" data-testid="chat-message-attachments">
               {attachments.map((item,index)=><button type="button" key={`${item.kind}-${item.ref_id || item.name}-${index}`} className={`chat-message-attachment ${item.kind==="image"?"is-image":"is-file"}`} title={`${item.name} · ${item.size_bytes || 0} bytes`} aria-label={`查看附件 ${item.name}`} onClick={()=>setPreview({...item, preview_url: materialPreviewUrl(item)})}><MaterialThumbnail item={item}/></button>)}
             </div>}
-            {row.role!=="user"&&row.turn_id&&onTrace&&!rows.slice(0,rowIndex).some(other=>other.role!=="user"&&other.turn_id===row.turn_id)&&<TurnActivity turnId={row.turn_id} onTrace={onTrace} hasBody={!!displayContent} partial={!!row.output_partial} truncated={!!row.output_truncated} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/>}
+            {row.role!=="user"&&row.turn_id&&onTrace&&!rows.slice(0,rowIndex).some(other=>other.role!=="user"&&other.turn_id===row.turn_id)&&<TurnActivity autoFollow={!rows.slice(rowIndex+1).some(other=>other.turn_id&&other.turn_id!==row.turn_id)} turnId={row.turn_id} onTrace={onTrace} hasBody={!!displayContent} partial={!!row.output_partial} truncated={!!row.output_truncated} truncationReason={row.output_truncation_reason} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/>}
 
             <div className="chat-message-bubble">
               {row.role==="user"
@@ -262,7 +262,7 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
         <div className="chat-message-block turn-assistant" data-testid="chat-pending-assistant">
           <article className="chat-message">
             <span className="chat-assistant-avatar" aria-hidden="true"><Box size={15}/></span>
-            <div className="chat-assistant-col"><TurnActivity turnId={row.turn_id} onTrace={onTrace} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/></div>
+            <div className="chat-assistant-col"><TurnActivity autoFollow={!rows.slice(rowIndex+1).some(other=>other.turn_id&&other.turn_id!==row.turn_id)} turnId={row.turn_id} onTrace={onTrace} candidate={candidates.find(c => (c.turn_id || c.prepared_turn_id) === row.turn_id)} onDraft={onDraft} draftText={draftText}/></div>
           </article>
         </div>}
       </Fragment>;

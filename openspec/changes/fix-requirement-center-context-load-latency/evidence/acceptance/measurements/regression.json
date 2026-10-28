@@ -1,0 +1,25 @@
+{
+  "passed": 162,
+  "failed": 0,
+  "subtests": 6,
+  "incremental": {
+    "passed": 20,
+    "failed": 0,
+    "scope": "final EOF fast path, short-read/growth and snapshot/index isolation"
+  },
+  "mysql": {
+    "passed": 83,
+    "failed": 0,
+    "scope": "scope/read cache/verification transaction/direct completion; DB logic unchanged by later pure-read refinements"
+  },
+  "commands": [
+    "pytest test_context_read_indexes test_context_snapshot_reuse test_context_timing test_context_limits test_governance_read_cache test_governance_scope test_governance_execution_guard test_verification_transaction test_direct_completion test_document_titles",
+    "pytest test_context_snapshot_reuse test_context_timing test_context_limits test_governance_read_cache"
+  ],
+  "boundary": "isolated synthetic accounts and databases; does not assert production deployment updated",
+  "audit_incremental": {
+    "passed": 1,
+    "failed": 0,
+    "scope": "same request_id in timing header, safe log and persisted chat_request_logs row"
+  }
+}

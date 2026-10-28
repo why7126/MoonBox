@@ -1,0 +1,22 @@
+{
+  "runner": "src/backend/tests/run_context_resources.py",
+  "executed_runner_sha256": "70cd5ca6d9a161d2f72cfe752c5933b1e4ad04d06b0478937d9d34618e5e5b04",
+  "duration_seconds_per_workload": 1800,
+  "workloads": 8,
+  "container_cpu_limit": 4,
+  "container_memory_bytes": 8589934592,
+  "swap_bytes_above_memory": 0,
+  "independence": "Each workload process has a separate source copy, synthetic SQLite DB, baseline/optimized selection and concurrency pool. Baseline and optimized share the same aggregate stress envelope.",
+  "warmup": "One initial request then one full batch at the target concurrency before timing; startup/concurrency warm-up included in peak RSS",
+  "latency": "Measured separately with resources stopped, 2 CPU / 4 GiB.",
+  "memory_sampling": "Independent 5-second sampler throughout timed run; first and last 5-minute medians. Never inferred from request completion cadence.",
+  "diagnostic": "Previous request-completion-only RSS sampler missed first 5 minutes for the slowest expanded concurrency workload; interrupted and excluded.",
+  "control_result": "Expanded concurrency-4 historical baseline completed 1812.79 seconds and 40 successful complete responses, but exceeded the 32 MiB growth threshold (80.28 MiB); original exit 1 retained. All four optimized workloads passed the unchanged delivery budget.",
+  "assertion_scope": "The delivery RSS-growth budget applies to optimized implementation; historical control results remain measured even when outside it. Only this post-measurement assertion was corrected after collection; requests, timing and raw memory samples are unchanged.",
+  "counter_windows": {
+    "cpu_and_file_yaml_counters": "timed interval after initial and concurrency warm-up",
+    "sql": "includes initialization and concurrency warm-up; reported as raw total, not a timed per-request rate",
+    "peak_rss": "entire process including initialization and warm-up",
+    "rss_growth": "independent samples during timed interval"
+  }
+}

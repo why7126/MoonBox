@@ -33,7 +33,7 @@ def test_directory_links_fail_closed(tmp_path,outside):
     target.mkdir();(folder/'link').symlink_to(target,target_is_directory=True)
     with pytest.raises(ValueError):fingerprint(tmp_path,{'inputs':['specs']})
 
-@pytest.mark.parametrize('relative', ['../secret','/tmp/secret','tests/../../secret'])
+@pytest.mark.parametrize('relative', ['', '.', '../secret','/tmp/secret','tests/../../secret'])
 def test_untrusted_paths_rejected(tmp_path,relative):
     with pytest.raises(ValueError):input_bytes(tmp_path,{},relative,source_root=tmp_path)
 
@@ -51,3 +51,17 @@ def test_directory_order_and_workspace_location_do_not_affect_hash(tmp_path):
     for name in ['z','a']:(first/name).write_text(name)
     for name in ['a','z']:(second/name).write_text(name)
     assert input_bytes(tmp_path,{},'a')==input_bytes(tmp_path,{},'b')
+
+
+def test_source_inputs_validate_the_selected_root_not_an_unused_projection(tmp_path):
+    source, projection, outside = (tmp_path / name for name in ('source', 'projection', 'outside'))
+    for path in (source / 'src', projection, outside): path.mkdir(parents=True)
+    (outside / 'a.py').write_text('outside')
+    (projection / 'src').symlink_to(outside, target_is_directory=True)
+    target = source / 'src/a.py'
+    target.write_text('authorized source')
+    assert input_bytes(projection, {}, 'src/a.py', source_root=source) == b'authorized source'
+    target.unlink()
+    target.symlink_to(outside / 'a.py')
+    with pytest.raises(ValueError):
+        input_bytes(projection, {}, 'src/a.py', source_root=source)

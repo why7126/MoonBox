@@ -1,0 +1,603 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-requirement-center-context-load-latency",
+  "environment": "isolated-and-live-background-context-performance",
+  "environment_contract": {
+    "deployment": "temporary-linux-backend-and-production-web",
+    "workspace_mode": "isolated",
+    "sample_scope": "固定副本6408文件18666379字节；上限10000文件/32MiB；正式页面自然与额外2CPU负载各30次打开及刷新，三个后台服务持续运行",
+    "authorization_ref": "用户opsx-modify授权真实后台并发返修，承接本地更新及当前固定副本授权",
+    "login_strategy": "隔离测试账号，无真实客户或认证数据",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "network",
+      "console"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/e2e/context-performance.tsx",
+        "src/backend/tests/test_context_paired_latency.py",
+        "src/backend/tests/context_browser_fixture.py",
+        "src/web/e2e/context-performance.config.ts",
+        "src/web/e2e/context-performance.html",
+        "src/web/src/styles/globals.css",
+        "src/web/src/styles/workbench.css",
+        "openspec/changes/fix-requirement-center-context-load-latency/specs/web-catalog-requirement-center-real-data/spec.md",
+        "src/backend/app/governance/read_memo.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/chat/errors.py",
+        "src/backend/app/chat/polling.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/accounting.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/tests/test_context_evidence_contract.py",
+        "src/backend/tests/test_governance_polling.py",
+        "src/web/e2e/context-formal-performance.html",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/web/e2e/context-isolated-batch.html",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read",
+        "--ac",
+        "AC-001"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/paired-context.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/paired-md.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/browser.json"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_limits.py",
+        "openspec/changes/fix-requirement-center-context-load-latency/specs/web-catalog-requirement-center-real-data/spec.md",
+        "src/backend/app/governance/read_memo.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/chat/errors.py",
+        "src/backend/app/chat/polling.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/accounting.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/tests/test_context_evidence_contract.py",
+        "src/backend/tests/test_governance_polling.py",
+        "src/web/e2e/context-formal-performance.html",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read",
+        "--ac",
+        "AC-002"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression-safety.txt",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression-boundaries.txt"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/tests/test_context_read_indexes.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read",
+        "--ac",
+        "AC-003"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/indexes.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "最终源码身份与归档等价、解析/扫描次数及隔离回归8项通过"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/tests/test_context_read_indexes.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read",
+        "--ac",
+        "AC-004"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/indexes.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "最终源码身份与归档等价、解析/扫描次数及隔离回归8项通过"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/e2e/context-performance.tsx",
+        "src/web/src/requirement-center.test.tsx",
+        "src/web/src/governance.test.tsx",
+        "src/web/src/requirement-center-errors.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements",
+        "--ac",
+        "AC-005"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/frontend.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/browser-functional.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/executed-source-sha256.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "本轮交付源码与固定样本已采齐，原失败批次保留diagnostics；真实后台30次导航和30次刷新成功"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/tests/test_context_timing.py",
+        "src/backend/app/governance/read_memo.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/chat/errors.py",
+        "src/backend/app/chat/polling.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/accounting.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/tests/test_context_evidence_contract.py",
+        "src/backend/tests/test_governance_polling.py",
+        "src/web/e2e/context-formal-performance.html",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/web/e2e/context-isolated-batch.html",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read",
+        "--ac",
+        "AC-006"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/regression.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/final-read/browser.json"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/tests/test_context_resources.py",
+        "src/backend/tests/test_context_limits.py",
+        "src/backend/tests/run_context_resources.py",
+        "src/backend/tests/test_context_expanded_latency.py",
+        "src/backend/app/governance/read_memo.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/chat/errors.py",
+        "src/backend/app/chat/polling.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/accounting.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/tests/test_context_evidence_contract.py",
+        "src/backend/tests/test_governance_polling.py",
+        "src/web/e2e/context-formal-performance.html",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements",
+        "--ac",
+        "AC-007"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-reference-1-baseline.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-reference-1-optimized.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-reference-4-baseline.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-reference-4-optimized.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-expanded-1-baseline.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-expanded-1-optimized.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-expanded-4-baseline.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-expanded-4-optimized.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-execution.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/executed-source-sha256.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/expanded-latency.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-exits.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/resource-summary.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/runtime-cleanup.json"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/snapshot.py",
+        "src/backend/app/governance/read_snapshot.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/governance/titles.py",
+        "src/backend/app/services/requirement_center.py",
+        "src/backend/app/api/v1/requirement_center.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/verify_context_evidence.py",
+        "docs/03-api-index.md",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements",
+        "--ac",
+        "AC-008"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/inputs.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/governance.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/repair-measurements/executed-source-sha256.json"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "rules/issues-lifecycle.md",
+        "openspec/archive/2026-10-27-fix-issue-lifecycle-stage-sync/proposal.md",
+        "openspec/archive/2026-10-27-fix-issue-lifecycle-stage-sync/design.md",
+        "openspec/archive/2026-10-27-fix-issue-lifecycle-stage-sync/tasks.md",
+        "openspec/archive/2026-10-27-fix-issue-lifecycle-stage-sync/trace.md",
+        "issues/bugs/review/BUG-0056-requirement-center-context-load-latency/acceptance.md",
+        "issues/bugs/review/BUG-0056-requirement-center-context-load-latency/bug.md",
+        "issues/bugs/review/BUG-0056-requirement-center-context-load-latency/capture.md",
+        "openspec/changes/fix-requirement-center-context-load-latency/design.md",
+        "openspec/changes/fix-requirement-center-context-load-latency/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-requirement-center-context-load-latency/verification.md",
+        "scripts/workflow_sync/issue_stage.py",
+        "scripts/workflow_sync/issue_subdocuments.py",
+        "scripts/workflow_sync/issue_status_residuals.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/promote-issue-stage.py",
+        "scripts/promote-issues-for-archive.py",
+        "tests/unit/test_issue_lifecycle_stage.py",
+        "openspec/changes/fix-requirement-center-context-load-latency/tasks.md",
+        "openspec/changes/fix-requirement-center-context-load-latency/proposal.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main([\"tests/unit/test_issue_lifecycle_stage.py\", \"-q\"]))"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/execution_context.py",
+        "src/backend/app/governance/read_memo.py",
+        "src/backend/app/governance/direct_command_journal.py",
+        "src/backend/app/chat/backup.py",
+        "src/backend/app/chat/platform_worker.py",
+        "src/backend/app/chat/content_schema.py",
+        "src/backend/tests/test_chat_backup.py",
+        "src/backend/tests/test_chat_content_store.py",
+        "src/web/e2e/context-performance.tsx",
+        "src/backend/tests/verify_context_evidence.py",
+        "src/backend/app/governance/verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/app/governance/execution_validation.py",
+        "src/backend/app/chat/errors.py",
+        "src/backend/app/chat/polling.py",
+        "src/backend/app/chat/accounting.py",
+        "src/backend/app/governance/controller.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/tests/test_context_evidence_contract.py",
+        "src/backend/tests/test_governance_polling.py",
+        "src/web/e2e/context-formal-performance.html",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "src/backend/tests/test_acceptance_input_projection.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_context_evidence.py",
+        "--evidence",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements",
+        "--ac",
+        "AC-010"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/live-browser.json",
+        "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/tail-measurements/background.json"
+      ],
+      "required_sample": {
+        "status": "pending",
+        "reason": "用户确认释放其他应用后，正式400样本已采齐且四组性能均失败；详见released-host-20261028。仍需返修及当前版本完整隔离/资源证据，不生成ready。"
+      },
+      "collection": {
+        "state": "pending"
+      }
+    }
+  ],
+  "successor_dependency_proofs": [
+    {
+      "schema_version": 1,
+      "path": "rules/issues-lifecycle.md",
+      "source_change": "fix-issue-lifecycle-stage-sync",
+      "operation_id": "df697c8f-0b35-4c8c-a69d-d1422282cf8b",
+      "baseline_revision": "207ae1eb3cd92713466167511369605e7fd0a6cd388851a0a798183594868cb5",
+      "before_sha256": "6f8b396a2999e92c6766ff268dfad3d4d08d7c88b4d4d77736dbf0b7f5bfc8d6",
+      "after_sha256": "834ab837cf16e35972bb93288f1870d835780875f1974ca23fcd3a2fb2ff3576",
+      "check_ids": [
+        "AC-009"
+      ]
+    }
+  ],
+  "successor_task_proofs": [
+    {
+      "schema_version": 1,
+      "change_id": "fix-requirement-center-context-load-latency",
+      "operation_id": "df697c8f-0b35-4c8c-a69d-d1422282cf8b",
+      "baseline_revision": "207ae1eb3cd92713466167511369605e7fd0a6cd388851a0a798183594868cb5",
+      "before_sha256": "aed7c71e58d8116e5b0b3bfc22ca0dff03302df09f15ee20d850d231c70f9e01",
+      "after_sha256": "90e6ed7aaf850ed03570ca620f5374fbfd1e7b89da29395909f8cbfc72b962ba",
+      "check_ids": [
+        "AC-007",
+        "AC-009"
+      ]
+    }
+  ],
+  "issue_id": "BUG-0056-requirement-center-context-load-latency"
+}

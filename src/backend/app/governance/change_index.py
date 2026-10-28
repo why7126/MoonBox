@@ -6,6 +6,7 @@ reclassified as independent objects, and archived copies never fill active gaps.
 from app.governance.card_metadata import estimate_metadata, root_cause_metadata
 from app.governance.titles import read_title, project_title
 from dataclasses import dataclass, field
+from copy import deepcopy
 from pathlib import Path
 import re
 from collections.abc import Callable
@@ -54,6 +55,15 @@ def chinese_title(directory: Path, trace: dict) -> str | None:
     return read_title(directory / 'proposal.md')
 
 
+@legacy._memoized_read
+def _root_cause_fields(issue_dir: Path) -> dict:
+    """Pure document facts, shared only inside a verified immutable snapshot."""
+    path = issue_dir / 'root-cause.md'
+    if path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(issue_dir.resolve()):
+        return root_cause_metadata(path.read_text(encoding='utf-8'), legacy._frontmatter(path))
+    return {}
+
+
 class ChangeIndex:
     def __init__(self, root: Path):
         self.root = root
@@ -77,7 +87,11 @@ class ChangeIndex:
                         if isinstance(cid, str):
                             self.sprint_memberships.setdefault(cid, set()).add(sid)
         for folder, kind in (('requirements', 'requirement'), ('bugs', 'bug')):
-            registry = yaml.load((root / 'issues' / folder / '_registry.yaml').read_text(), Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader))
+            registry_path = root / 'issues' / folder / '_registry.yaml'
+            # Only immutable adapters have validated and seeded registry data.
+            memo = legacy._READ_MEMO.get()
+            registry = (legacy._read_yaml(registry_path) if memo is not None and ('_read_yaml', (registry_path,)) in memo
+                        else yaml.load(registry_path.read_text(), Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader)))
             for entry in registry['entries']:
                 self.entries[entry['id']] = (kind, entry)
         for location in ('changes', 'archive'):
@@ -185,9 +199,9 @@ class ChangeIndex:
         sprint_id = self.sprint_id(record)
         if sprint_id is None:
             return None
-        directory = self.sprint_directories[sprint_id].resolve()
-        target = (directory / document_name).resolve()
-        return target if target.is_file() and target.is_relative_to(directory) else None
+        directory = legacy._snapshot_resolve(self.sprint_directories[sprint_id])
+        target = legacy._snapshot_resolve(directory / document_name)
+        return target if legacy._snapshot_is_file(target) and target.is_relative_to(directory) else None
 
     def documents(self, record: ChangeRecord) -> list[RequirementCenterDocument]:
         if not record.directory:
@@ -275,7 +289,8 @@ class ChangeIndex:
                 status = 'unknown' if 'unknown' in states else aggregate_states(states)
             card = legacy._build_issue(kind, entry, changes_override=[current.id] if current else [], status_override=status)
             card.related_changes = [self.summary(r) for r in related]
-            card.current_change = self.summary(current) if current else None
+            # Each projection is independently mutable (URLs gain scope later).
+            card.current_change = deepcopy(card.related_changes[0]) if current else None
             card.change_warning = '多个 Change，当前项待核实' if len(related) > 1 else None
             if current:
                 # Keep terminal Issue facts; otherwise Change status is explicit.
@@ -316,13 +331,11 @@ class ChangeIndex:
     def apply_card_metadata(self, card, object_id, sprint_id, changes, issue_dir):
         directory = self.sprint_directories.get(sprint_id) if isinstance(sprint_id, str) else None
         if directory:
-            sprint = legacy._read_yaml(directory / 'sprint.yaml')
+            sprint = legacy._borrow_yaml(directory / 'sprint.yaml')
             key = {'requirement': 'requirements', 'bug': 'bugs', 'change': 'changes'}[card.type]
             if object_id in (sprint.get(key) or []):
                 for name, value in estimate_metadata(sprint.get('scope_estimates'), object_id, changes).items():
                     setattr(card, name, value)
         if card.type == 'bug' and issue_dir:
-            path = issue_dir / 'root-cause.md'
-            if path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(issue_dir.resolve()):
-                for name, value in root_cause_metadata(path.read_text(encoding='utf-8'), legacy._frontmatter(path)).items():
-                    setattr(card, name, value)
+            for name, value in _root_cause_fields(issue_dir).items():
+                setattr(card, name, value)

@@ -35,7 +35,47 @@ def replay(db, actor, parent, prompt, client_id, materials, config):
     return result
 
 
-def canonical_id(snapshot, oid):
+class IdentityIndex:
+    """Pure identity lookup for one trusted snapshot; never an authorization cache."""
+
+    def __init__(self, snapshot):
+        self.snapshot = snapshot
+        self.registries = {}
+        self.matches = {}
+
+    def registry(self, folder, *, parsed=None):
+        if folder not in self.registries:
+            validated = getattr(self.snapshot, 'registries', None)
+            data = (validated[folder] if validated is not None else parsed if parsed is not None
+                    else safe_load(self.snapshot.files[f'issues/{folder}/_registry.yaml']))
+            entries = data['entries']
+            lookup = {}
+            for entry in entries:
+                full = entry['id']
+                # A full ID can itself be a short ID. Preserve the original OR
+                # predicate, including ambiguities, without counting it twice.
+                for key in {full, '-'.join(full.split('-')[:2])}:
+                    lookup.setdefault(key, []).append(full)
+            self.matches[folder] = lookup
+            self.registries[folder] = data
+        return self.registries[folder]
+
+    def resolve(self, oid):
+        if not oid.startswith(('REQ-', 'BUG-')):
+            return oid
+        folder = 'requirements' if oid.startswith('REQ-') else 'bugs'
+        self.registry(folder)
+        matches = self.matches[folder].get(oid, [])
+        if len(matches) != 1:
+            raise service.ChatError(2604, '对象身份不唯一或已变化', 409, kind='governance_validation_failed')
+        return matches[0]
+
+
+def canonical_id(snapshot, oid, index=None):
+    if index is not None:
+        if index.snapshot is not snapshot:
+            raise ValueError('identity snapshot mismatch')
+        return index.resolve(oid)
     if oid.startswith(('REQ-', 'BUG-')):
         folder = 'requirements' if oid.startswith('REQ-') else 'bugs'
         matches = [entry['id'] for entry in safe_load(snapshot.files[f'issues/{folder}/_registry.yaml'])['entries']
@@ -47,9 +87,10 @@ def canonical_id(snapshot, oid):
 
 
 def stage_map(snapshot):
+    identities = IdentityIndex(snapshot)
     with cached_materialize(snapshot, ('execution-guard', snapshot.revision)) as root:
-        with legacy.using_governance_root(root, immutable=True):
-            result = {canonical_id(snapshot, item.id): item.stage for item in legacy.build_requirement_center_context().issues}
+        with legacy.using_governance_root(root, immutable=True, registry_index=identities):
+            result = {canonical_id(snapshot, item.id, identities): item.stage for item in legacy.build_requirement_center_context().issues}
             import re
             for name, body in snapshot.files.items():
                 match = re.fullmatch(r'iterations/(change|archive)/(sprint-\d{3})/sprint.yaml', name)
@@ -82,7 +123,7 @@ def prepare(db, actor, parent, prompt, client_id=None):
         ids += [entry['id'] for entry in reader.authorize_object(snapshot, oid, change=True, write=True)]
     stages = stage_map(snapshot)
     for key in sorted(set(ids)):
-        reconcile_external(db, project, key, stages.get(key, 'unknown'), snapshot)
+        reconcile_external(db, project, key, stages.get(key, 'unknown'), snapshot, actor=actor)
     db.commit()
     if client_id:
         from app.governance.direct_command_journal import prepare as prepare_journal
@@ -151,7 +192,84 @@ def visible_state(db, actor, project, oid):
     return result
 
 
-def reconcile(db, actor, project, *, operation_id=None):
+def visible_states(db, actor, project, object_ids):
+    """Fresh request-local display projection; never used for send admission."""
+    ids = list(dict.fromkeys(object_ids))
+    result = {}
+    # Bound SQL parameters and temporary rows. Permissions were checked by the
+    # reader; actual send still uses the single-object transactional fence.
+    for offset in range(0, len(ids), 256):
+        batch = ids[offset:offset + 256]
+        rows = {row['object_id']: row for row in db.execute(select(guards.execution_guards).where(
+            guards.execution_guards.c.scope_key == project.key,
+            guards.execution_guards.c.object_id.in_(batch))).mappings()}
+        states = {oid: guards.public_state(rows.get(oid), actor) for oid in batch}
+        idle = [oid for oid in batch if states[oid]['can_send']]
+        if idle:
+            busy = db.execute(select(conversations, relations.c.object_id.label('related_object_id')).join(
+                relations, relations.c.conversation_id == conversations.c.id).where(
+                    conversations.c.space_id == project.space_id,
+                    conversations.c.repository_id == project.repository_id,
+                    conversations.c.active_turn_id.is_not(None),
+                    relations.c.object_id.in_(idle), relations.c.role == 'primary').order_by(
+                        conversations.c.owner_id != actor, conversations.c.updated_at.desc())).mappings()
+            for row in busy:
+                oid = row['related_object_id']
+                if states[oid]['can_send']:
+                    states[oid] = {'execution_state': 'running', 'can_send': False,
+                        'reason_code': 'legacy_object_running',
+                        'view_conversation_id': row['id'] if row['owner_id'] == actor else None}
+        idle = [oid for oid in batch if states[oid]['can_send']]
+        if idle:
+            for row in db.execute(select(governance_candidates).where(
+                    governance_candidates.c.scope_key == project.key,
+                    governance_candidates.c.object_id.in_(idle),
+                    governance_candidates.c.state == 'pending')).mappings():
+                oid = row['object_id']
+                if states[oid]['can_send']:
+                    states[oid] = {'execution_state': 'needs_review', 'can_send': False,
+                        'reason_code': 'pending_governance_candidate',
+                        'view_conversation_id': row['conversation_id'] if row['actor_id'] == actor else None}
+        for oid, state in states.items():
+            cid = state.get('view_conversation_id')
+            if cid:
+                try:
+                    parent = service.conversation(db, actor, cid)
+                    if parent['archived'] or parent['deleted_at']:
+                        state['view_conversation_id'] = None
+                except service.ChatError:
+                    state['view_conversation_id'] = None
+            result[oid] = (rows.get(oid), state)
+    return result
+
+
+def reconcile(db, actor, project, *, operation_id=None, snapshot=None):
+    """Own the reconciliation boundary; never keep file work in a write transaction."""
+    from app.governance.verification_transaction import VerificationPlan
+    db.commit()
+    from app.governance.writer import epoch
+    before_epoch = epoch(db, project)
+    query = select(guards.execution_guards).where(
+        guards.execution_guards.c.scope_key == project.key,
+        guards.execution_guards.c.owner_id == actor,
+        guards.execution_guards.c.state.in_(('running', 'needs_review')))
+    if operation_id:
+        query = query.where(guards.execution_guards.c.operation_id == operation_id)
+    rows = [dict(row) for row in db.execute(query).mappings()]
+    db.rollback()
+    for row in rows:
+        plan = VerificationPlan(db)
+        turn = plan.execute(select(turns).where(turns.c.id == row['operation_id'])).mappings().first()
+        if not turn or turn['status'] not in ('completed', 'failed', 'stopped', 'unknown'):
+            continue
+        _reconcile_plan(plan, actor, project, operation_id=row['operation_id'], object_id=row['object_id'], snapshot=snapshot)
+        if snapshot is not None and plan.statements and stable(project.root).revision != snapshot.revision:
+            raise service.ChatError(2603, '项目文件已变化，请重新读取完整快照', 503)
+        plan.apply(actor=actor, project=project,
+                   expected={'object_id': row['object_id'], '_row': row}, turn=turn, expected_epoch=before_epoch)
+
+
+def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None, snapshot=None):
     """Recheck terminal outcomes; never execute/retry a governance command here."""
     from app.governance.execution_validation import validate_result
     from app.governance.direct_command_journal import record_id
@@ -161,15 +279,17 @@ def reconcile(db, actor, project, *, operation_id=None):
         guards.execution_guards.c.state.in_(('running', 'needs_review')))).mappings())
     if not rows:
         return
-    snapshot = None
     stages = None
     for row in rows:
         if operation_id and row['operation_id'] != operation_id:
             continue
+        if object_id and row['object_id'] != object_id:
+            continue
         turn = db.execute(select(turns).where(turns.c.id == row['operation_id'])).mappings().first()
         if not turn or turn['status'] not in ('completed', 'failed', 'stopped', 'unknown'):
             continue
-        guards.terminal(db, row['operation_id'], turn['status'])
+        if row['state'] == 'running' or row['terminal_status'] != turn['status']:
+            guards.terminal(db, row['operation_id'], turn['status'])
         if turn['status'] == 'unknown':
             continue
         try:
@@ -227,6 +347,8 @@ def reconcile(db, actor, project, *, operation_id=None):
                         raise DirectProofError('direct_binding_changed')
                     direct_manifest = verify_direct(record, snapshot.files, row['object_id'], row['action'])
                 except DirectProofError as error:
+                    if row['reason_code'] == str(error):
+                        continue
                     g = guards.execution_guards.c
                     db.execute(update(guards.execution_guards).where(
                         g.operation_id == row['operation_id'], g.version == row['version'],
@@ -267,6 +389,8 @@ def reconcile(db, actor, project, *, operation_id=None):
                                             store.read(candidate['id'], 'result'), proof,
                                             snapshot.files, row['object_id'], row['action'])
                         except ProofError as error:
+                            if row['reason_code'] == str(error):
+                                continue
                             g = guards.execution_guards.c
                             db.execute(update(guards.execution_guards).where(
                                 g.scope_key == project.key, g.object_id == row['object_id'],
@@ -279,6 +403,8 @@ def reconcile(db, actor, project, *, operation_id=None):
                     verify(project, row, turn, record, snapshot)
                     synced = True
                 except ArchiveProofError as error:
+                    if row['reason_code'] == str(error):
+                        continue
                     # Preserve the lifecycle and expose a bounded verification failure.
                     g = guards.execution_guards.c
                     db.execute(update(guards.execution_guards).where(
@@ -315,7 +441,79 @@ def reconcile(db, actor, project, *, operation_id=None):
             continue
 
 
-def reconcile_external(db, project, oid, stage, snapshot):
+def reconcile_external(db, project, oid, stage, snapshot, *, actor=None):
+    if actor is None:
+        # Legacy callers retain their transaction contract; readers supply actor.
+        return _reconcile_external_plan(db, project, oid, stage, snapshot)
+    from app.governance.verification_transaction import VerificationPlan
+    db.commit()
+    from app.governance.writer import epoch
+    before_epoch = epoch(db, project)
+    db.rollback()
+    plan = VerificationPlan(db)
+    row = guards.read(plan, project.key, oid)
+    _reconcile_external_plan(plan, project, oid, stage, snapshot)
+    try:
+        plan.apply(actor=actor, project=project,
+                   expected={'object_id': oid, '_row': dict(row) if row else None}, expected_epoch=before_epoch)
+    except IntegrityError:
+        db.rollback()  # Concurrent admission wins; do not overwrite it.
+
+
+def reconcile_external_batch(db, project, items, snapshot, *, actor):
+    """Skip proven no-op projections in one read, never cache admission decisions.
+
+    Plain external projections share bounded commits, retaining every object's
+    fresh authorization and compare-and-swap. Historical operations keep their
+    original verification path. Callers read current admission again afterwards.
+    """
+    db.commit()
+    rows = {row['object_id']: row for row in db.execute(select(guards.execution_guards).where(
+        guards.execution_guards.c.scope_key == project.key)).mappings()}
+    db.rollback()
+    ordinary = []
+    for oid, stage in items:
+        row = rows.get(oid)
+        review = row and row['action'] in ('req-review', 'bug-review')
+        if row and not review:
+            if row['operation_id'] and row['state'] in ('running', 'needs_review'):
+                continue
+            if row['result_revision'] == snapshot.revision and row['state'] in ('idle', 'validated', 'recovered_valid'):
+                continue
+        if not row or (not row['operation_id'] and row['action'] == 'external-sync'):
+            ordinary.append((oid, stage))
+        else:
+            reconcile_external(db, project, oid, stage, snapshot, actor=actor)
+    if not ordinary:
+        return
+    from app.governance.verification_transaction import VerificationPlan
+    from app.governance.writer import epoch
+    before_epoch = epoch(db, project)
+    db.rollback()
+    batches = []
+    for offset in range(0, len(ordinary), 64):
+        plan, expected = VerificationPlan(db), []
+        for oid, stage in ordinary[offset:offset + 64]:
+            row = guards.read(plan, project.key, oid)
+            # A newly acquired or reclassified guard belongs to its original
+            # verifier, never this external-only batch.
+            if row and (row['operation_id'] or row['action'] != 'external-sync'):
+                continue
+            expected.append({'object_id': oid, '_row': dict(row) if row else None})
+            _reconcile_external_plan(plan, project, oid, stage, snapshot)
+        if plan.statements:
+            batches.append((plan, expected))
+    if batches and stable(project.root).revision != snapshot.revision:
+        raise service.ChatError(2603, '项目文件已变化，请重新读取完整快照', 503)
+    for plan, expected in batches:
+        try:
+            plan.apply(actor=actor, project=project, expected=expected[0],
+                       expected_batch=expected, expected_epoch=before_epoch)
+        except IntegrityError:
+            db.rollback()  # Concurrent insertion wins; never overwrite it.
+
+
+def _reconcile_external_plan(db, project, oid, stage, snapshot):
     """External facts use structural governance validation, never a fake Chat turn."""
     from app.governance.execution_validation import validate_external
     g = guards.execution_guards.c
@@ -347,6 +545,8 @@ def reconcile_external(db, project, oid, stage, snapshot):
                   client_request_id=None, request_fingerprint=None,
                   action='external-sync', reason_code=None if valid else 'external_result_unverified',
                   updated_at=service.now())
+    if row and all(row[key] == value for key, value in values.items() if key != 'updated_at'):
+        return  # Invalid external facts were rechecked; unchanged state needs no write.
     if row:
         db.execute(update(guards.execution_guards).where(g.scope_key==project.key, g.object_id==oid,
             g.version==row['version'], g.state==row['state'], g.operation_id==row['operation_id']).values(

@@ -18,6 +18,11 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from workflow_sync.issue_stage import scan_stage_drift, replace_stage
+from workflow_sync.timefmt import touch_frontmatter
+
 
 ISSUE_TYPES = {
     "req": ("issues/requirements", "REQ"),
@@ -285,6 +290,10 @@ def build_promotions(root: Path, candidates: list[IssueCandidate], args: argpars
         rel = issue.path.relative_to(root).as_posix()
         base = root / ISSUE_TYPES[issue.kind][0]
         current_stage = issue.path.parent.name if issue.path.parent.name in STAGES else "legacy"
+        invalid = [d for d in scan_stage_drift(issue.path, args.to) if not d.safe]
+        if invalid:
+            report.blocked.extend(f"{rel}/{d.file.name}: invalid lifecycle_stage {d.current}" for d in invalid)
+            continue
         if args.to == "review":
             if issue.path.parent.name == "review":
                 report.skipped.append(f"{rel} (already in review)")
@@ -323,7 +332,7 @@ def build_promotions(root: Path, candidates: list[IssueCandidate], args: argpars
 
 def diff_trace(promotion: Promotion, root: Path) -> str:
     rel = promotion.issue.trace_path.relative_to(root).as_posix()
-    return "".join(
+    trace_diff = "".join(
         difflib.unified_diff(
             promotion.trace_before.splitlines(True),
             promotion.trace_after.splitlines(True),
@@ -331,6 +340,16 @@ def diff_trace(promotion: Promotion, root: Path) -> str:
             tofile=f"b/{rel}",
         )
     )
+
+    for drift in scan_stage_drift(promotion.issue.path, promotion.target.parent.name):
+        if drift.file == promotion.issue.trace_path:
+            continue
+        before = read_text(drift.file)
+        after = replace_stage(before, drift.target)
+        rel = drift.file.relative_to(root).as_posix()
+        trace_diff += "".join(difflib.unified_diff(before.splitlines(True), after.splitlines(True),
+            fromfile=f"a/{rel}", tofile=f"b/{rel}"))
+    return trace_diff
 
 
 def apply_promotions(root: Path, promotions: list[Promotion], args: argparse.Namespace, report: Report) -> int:
@@ -350,6 +369,15 @@ def apply_promotions(root: Path, promotions: list[Promotion], args: argparse.Nam
         return 0
 
     for promotion in promotions:
+        drifts = scan_stage_drift(promotion.issue.path, promotion.target.parent.name)
+        if any(not d.safe for d in drifts):
+            report.blocked.append("invalid lifecycle_stage before migration")
+            return 1
+        for drift in drifts:
+            if drift.file != promotion.issue.trace_path:
+                text = replace_stage(read_text(drift.file), drift.target)
+                text, _ = touch_frontmatter(text, bump_updated=True)
+                write_text(drift.file, text)
         if promotion.trace_before != promotion.trace_after:
             write_text(promotion.issue.trace_path, promotion.trace_after)
         promotion.target.parent.mkdir(parents=True, exist_ok=True)

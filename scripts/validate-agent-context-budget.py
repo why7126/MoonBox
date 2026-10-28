@@ -634,6 +634,41 @@ def validate_governance_feedback_contract(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def validate_explore_feedback_contract(root: Path = ROOT) -> list[str]:
+    """Check routing and essential boundaries; this is not a model behavior evaluation."""
+    requirements = {
+        ".agents/skills/explore/SKILL.md": (
+            "## 持续改进试点", "只读不落盘", "项目事实", "局部偏好", "执行遗漏",
+            "环境问题", "通用方法缺陷", "重复问题合并候选", "当前任务固定版本",
+            "新任务重新读取", "未运行旧版/候选版对照", "无问题不制造候选",
+            "docs/standards/governance-feedback-loop.md", ".agents/skills/explore/evals/cases.md",
+        ),
+        "docs/standards/governance-feedback-loop.md": (
+            "## 探索反馈与统一维护交接", "不扩展 CLI schema", "适用与不适用场景",
+            "已有规则未执行不直接追加", "plan/decide", "一票否决", "内容哈希",
+            "同任务保持已加载版本", "回退仅撤回本次差异",
+        ),
+        ".agents/skills/spec-opt/SKILL.md": ("## explore 维护交接", "候选去重", "版本生效"),
+        "AGENTS.md": ("## explore 持续改进试点", "默认只读不落盘"),
+        "rules/agent-context-budget.md": ("## explore 反馈与维护预算", "维护时才读取"),
+        ".agents/skills/explore/evals/cases.md": (
+            "## 执行协议", "旧版/候选版对照", "证据不足", "硬失败", "未执行",
+            "E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10",
+        ),
+    }
+    errors = []
+    for name, terms in requirements.items():
+        path = root / name
+        if not path.is_file():
+            errors.append(f"{name}: 缺少探索改进契约文件")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for term in terms:
+            if term not in text:
+                errors.append(f"{name}: 缺少探索改进契约 {term}")
+    return errors
+
+
 def validate_pm_readable_output(root: Path = ROOT) -> list[str]:
     """检查产品经理沟通规则和技能引用，不评价自然语言回复质量。"""
     errors = []
@@ -650,10 +685,53 @@ def validate_pm_readable_output(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def validate_governance_shell_python(root: Path = ROOT) -> list[str]:
+    """Focused lexical guard for managed archive shell, backed by execution tests."""
+    path = root / "scripts/archive-change.sh"
+    if not path.is_file():
+        return ["归档 Shell 缺失"]
+    text = path.read_text(encoding="utf-8")
+    errors = []
+    if 'bash "$archive_python_entry" -c' not in text or "export PYTHON_BIN" not in text:
+        errors.append("归档 Shell 缺少统一入口或解释器导出")
+    heredoc = None
+    for number, line in enumerate(text.splitlines(), 1):
+        if heredoc:
+            if line.strip() == heredoc:
+                heredoc = None
+            continue
+        if line.lstrip().startswith("#"):
+            continue
+        # Command positions, including substitution and pipe; not arbitrary prose.
+        if re.search(r"(?:^|[;|&()]|\b(?:then|do|exec|env)\s+)\s*[\"']?python(?:3(?:\.\d+)?)?[\"']?(?=\s|$)", line):
+            errors.append(f"scripts/archive-change.sh:{number}: 裸 Python 调用绕过统一入口")
+        match = re.search(r"<<-?\s*['\"]?([A-Za-z_][A-Za-z_0-9]*)", line)
+        if match:
+            heredoc = match.group(1)
+    return errors
+
+
 def validate_python_entry(path: Path) -> list[str]:
     if re.search(r'(?<![\w/.-])python(?:3)?\s+scripts/[\w-]+\.py', path.read_text()):
         return [f"{path.name}: 治理脚本须使用 bash scripts/project-python.sh"]
     return []
+
+
+def validate_temporary_docker_contract() -> list[str]:
+    root = SKILLS_DIR.parents[1]
+    errors = []
+    paths = ["AGENTS.md", "rules/environment.md", "rules/agent-context-budget.md",
+             "docs/08-command-execution-order.md", "docs/standards/opsx-acceptance.md"]
+    paths += [f".agents/skills/{name}/SKILL.md" for name in
+              ("opsx-apply", "openspec-apply-change", "opsx-modify", "opsx-accept", "spec-opt")]
+    for name in paths:
+        if "temporary-docker-lifecycle.md" not in (root / name).read_text():
+            errors.append(f"{name}: 缺少临时 Docker 生命周期契约")
+    for name in ("docs/standards/temporary-docker-lifecycle.md", "scripts/temporary_docker.py",
+                 "scripts/test_temporary_docker.py"):
+        if not (root / name).is_file():
+            errors.append(f"缺少临时 Docker 门禁文件: {name}")
+    return errors
 
 
 def main() -> int:
@@ -683,7 +761,10 @@ def main() -> int:
     errors.extend(validate_governance_privacy_boundaries())
     errors.extend(validate_command_execution_review_hook())
     errors.extend(validate_governance_feedback_contract())
+    errors.extend(validate_explore_feedback_contract())
     errors.extend(validate_pm_readable_output())
+    errors.extend(validate_temporary_docker_contract())
+    errors.extend(validate_governance_shell_python())
 
     if errors:
         print("Agent 上下文预算校验失败：")

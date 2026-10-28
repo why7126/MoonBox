@@ -105,9 +105,13 @@ def terminal(db, operation_id, status):
     if status not in ('completed', 'failed', 'stopped', 'unknown'):
         raise ValueError('unsupported terminal state')
     g = execution_guards.c
-    return db.execute(update(execution_guards).where(
-        g.operation_id == operation_id,
-        or_(g.state == 'running', and_(g.state == 'needs_review', g.terminal_status == 'unknown'))).values(
+    eligible = (g.operation_id == operation_id,
+        or_(g.state == 'running', and_(g.state == 'needs_review',
+                                     g.terminal_status == 'unknown', g.terminal_status != status)))
+    # Even an UPDATE matching zero rows starts a SQLite write transaction.
+    if db.execute(select(g.operation_id).where(*eligible).limit(1)).first() is None:
+        return 0
+    return db.execute(update(execution_guards).where(*eligible).values(
             state='needs_review', terminal_status=status,
             reason_code='execution_unknown' if status == 'unknown' else 'result_unverified',
             updated_at=service.now())).rowcount

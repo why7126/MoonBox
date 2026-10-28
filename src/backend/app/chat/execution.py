@@ -7,7 +7,7 @@ import time
 import logging
 import os
 from pathlib import Path
-from sqlalchemy import insert, select, update
+from sqlalchemy import func, insert, select, update
 from app.chat import service, worker
 from app.chat.assistant_output import persist_output
 from app.chat.admission import settle
@@ -142,8 +142,17 @@ def safe_text(value):
     return re.sub(r'(?i)\b(authorization|api[_-]?key|password|secret|access[_-]?token)\s*[:=]\s*[^\s,;]+', r'\1=[已脱敏]', value)
 
 
+from app.chat.final_answer import source as final_source
+
+
 def save_result(factory, token, text, source, stream='output'):
     from app.chat import content_store
+    from app.chat.final_answer import mark
+    if stream == 'final':
+        with factory() as db:
+            row, _ = owned(db, token)
+            mark(db, row['id'], source, 'begin')
+            db.commit()
     # Split by characters below the byte ceiling, preserving UTF-8 boundaries.
     offset = 0
     for start in range(0, len(text), 12000):
@@ -161,6 +170,12 @@ def save_result(factory, token, text, source, stream='output'):
                 {'text': part[:1024], 'content_ref': {'sequence': sequence, 'stream_id': stream},
                  'truncated': len(part) > 1024, 'format_version': 2})
         offset += len(data)
+
+    if stream == 'final':
+        with factory() as db:
+            row, _ = owned(db, token)
+            mark(db, row['id'], source, 'complete')
+            db.commit()
 
 
 def owned(db, token):
@@ -381,7 +396,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     if method == 'item/completed' and item.get('type') == 'agentMessage' and item.get('phase') == 'final_answer' and isinstance(item.get('text'), str):
                         candidate = safe_text(item['text']).replace(str(workspace), '[工作区]')
                         if scalable:
-                            save_result(factory, token, candidate, 'final:' + str(item.get('id')), 'final')
+                            save_result(factory, token, candidate, final_source(item.get('id')), 'final')
                             final_reply = True
                         elif len(candidate.encode()) <= min(budget // 8, 60000):
                             final_reply = candidate
@@ -424,7 +439,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     if item.get('type') == 'agentMessage' and item.get('phase') == 'final_answer' and isinstance(item.get('text'), str):
                         candidate = safe_text(item['text']).replace(str(workspace), '[工作区]')
                         if scalable and candidate:
-                            save_result(factory, token, candidate, 'final:' + str(item.get('id')), 'final')
+                            save_result(factory, token, candidate, final_source(item.get('id')), 'final')
                             final_reply = True
                         elif candidate and len(candidate.encode()) <= min(budget // 8, 60000):
                             final_reply = candidate
@@ -504,8 +519,14 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
     except Exception as error:
         from app.chat.resource_guard import classify
         code = classify(error)
-        logging.getLogger(__name__).warning('chat_execution_unhandled cause_type=%s phase=%s',
-            type(error).__name__, 'setup' if executor_turn is None else 'running')
+        from app.chat.resource_guard import database_failure_details
+        try:
+            logging.getLogger(__name__).warning(
+                'chat_execution_unhandled cause_type=%s phase=%s turn_id=%s diagnostic=%s',
+                type(error).__name__, 'setup' if executor_turn is None else 'running',
+                row['id'], database_failure_details(error))
+        except Exception:
+            pass  # A failed diagnostic sink must not interrupt terminal handling.
         if executor_turn is None and not start_requested:
             return mark_setup_failed(factory, token, code, cause=error)
         return mark_unknown(factory,token,code)
@@ -519,28 +540,48 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     logging.getLogger(__name__).warning('workspace_forbidden_tool_dir_postrun')
 
 
-def reconcile_unknown(factory, tid, workspace, server_factory):
+def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease=None, outcome=None):
     """Read the exact external turn; never restart it or infer termination from elapsed time."""
     server=None
+    def report(value):
+        if outcome is not None: outcome["result"] = value
+    report("no_terminal")
     try:
         with factory() as db:
             row=db.execute(select(turns).where(turns.c.id==tid)).mappings().first()
             if not row or row['status']!='unknown':return False
             parent=service.conversation(db,row_owner(db,row['conversation_id']),row['conversation_id'])
-            if parent['active_turn_id']!=tid or not parent['thread_id'] or not row['executor_turn_id']:return False
+            if parent['active_turn_id']!=tid or not parent['thread_id'] or not row['executor_turn_id']:
+                report('record_missing');return False
             bound=trusted_directory(workspace)
-            if _workspace_identity(parent, bound) != parent['workspace_id']:return False
+            if _workspace_identity(parent, bound) != parent['workspace_id']:
+                report('workspace_identity');return False
+        signature = None
+        if recovery_lease is not None:
+            from app.chat.recovery_hint import fingerprint, unchanged, remember
+            signature = fingerprint(server_factory, bound, parent['thread_id'])
+            if unchanged(tid, signature):
+                report('unchanged');return False
         server=server_factory(bound);server.write=False
         result=server.read_turn(parent['thread_id'],row['executor_turn_id'])
         terminal={'completed':'completed','failed':'failed','interrupted':'stopped'}.get((result or {}).get('status'))
-        if terminal is None:return False
+        if terminal is None:
+            if recovery_lease is not None and result is not None:
+                remember(tid, signature, fingerprint(server_factory, bound, parent['thread_id']))
+            report('record_missing' if result is None else 'no_terminal');return False
         from app.governance.direct_command_journal import completion_block_reason
         completion_block = (completion_block_reason(parent['id'], row['client_request_id'], bound)
                             if terminal == 'completed' else None)
         if completion_block:
             terminal = 'failed'
         with factory() as db:
-            service.conversation(db,parent['owner_id'],parent['id'])
+            current_parent = service.conversation(db,parent['owner_id'],parent['id'])
+            if current_parent['active_turn_id'] != tid or current_parent['thread_id'] != parent['thread_id']:
+                report('workspace_identity');return False
+            if recovery_lease is not None:
+                from app.chat.recovery import fence
+                if not fence(db, recovery_lease):
+                    db.rollback();report('lease_lost');return False
             won=db.execute(update(turns).where(turns.c.id==tid,turns.c.status=='unknown',turns.c.generation==row['generation'],turns.c.executor_turn_id==row['executor_turn_id']).values(status=terminal,error_code=completion_block or (row['error_code'] or 'reconciled_usage_pending'),updated_at=service.now())).rowcount
             if not won:db.rollback();return False
             db.execute(update(conversations).where(conversations.c.id==parent['id'],conversations.c.active_turn_id==tid).values(active_turn_id=None,updated_at=service.now()))
@@ -568,7 +609,7 @@ def reconcile_unknown(factory, tid, workspace, server_factory):
                 seq += 1
             # Only a bounded, sanitized authoritative final answer may replace
             # accumulated commentary. The terminal update above serializes recovery.
-            for item in (result or {}).get('items', []):
+            for item in reversed((result or {}).get('items', [])):
                 if not isinstance(item, dict) or item.get('type') != 'agentMessage' or item.get('phase') != 'final_answer':
                     continue
                 if not isinstance(item.get('text'), str): continue
@@ -577,11 +618,16 @@ def reconcile_unknown(factory, tid, workspace, server_factory):
                 if row['reserved_bytes'] and len(candidate.encode()) > min(60000, row['reserved_bytes'] // 8): continue
                 if not row['reserved_bytes']:
                     from app.chat.content_store import result as save_segment
+                    from app.chat.final_answer import mark
+                    answer_source = final_source(item.get('id'))
+                    mark(db, tid, answer_source, 'begin')
                     offset = 0
                     for start in range(0, len(candidate), 12000):
                         block = candidate[start:start+12000].encode()
-                        save_segment(db, parent['id'], tid, 'final', 'recovered-final:'+str(item.get('id')), offset, block)
+                        save_segment(db, parent['id'], tid, 'final', answer_source, offset, block)
                         offset += len(block)
+                    mark(db, tid, answer_source, 'complete')
+                    seq = (db.scalar(select(func.max(events.c.sequence)).where(events.c.turn_id == tid)) or 0) + 1
                     candidate = candidate[:1024]
                 source = 'assistant:final:' + hashlib.sha256(str(item.get('id')).encode()).hexdigest()
                 if not db.scalar(select(events.c.id).where(events.c.turn_id == tid, events.c.source_id == source)):
@@ -601,8 +647,11 @@ def reconcile_unknown(factory, tid, workspace, server_factory):
         from app.governance.direct_command_journal import terminal as terminal_direct_command
         terminal_direct_command(parent['id'], row['client_request_id'], terminal, bound)
         # Usage reservation remains until authoritative billing is available; no zero-cost assumption.
+        report("terminal_" + terminal)
         return True
-    except (service.ChatError,ExecutorError,WorkspaceError):return False
+    except (service.ChatError,ExecutorError,WorkspaceError) as error:
+        from app.chat.recovery import classify
+        report(classify(error));return False
     finally:
         if server is not None:server.close()
 

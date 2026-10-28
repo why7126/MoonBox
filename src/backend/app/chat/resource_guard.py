@@ -8,8 +8,8 @@ from app.chat.app_server import ExecutorError
 DISK_RESERVE_BYTES = 256 * 1024 * 1024
 
 
-def lock_budget(db):
-    """Apply a worker-only five-second lock wait; restore pooled connections."""
+def lock_budget(db, *, seconds=5):
+    """Apply a bounded lock wait; restore pooled connections on checkin."""
     from sqlalchemy import event
     connection = db.connection()
     engine = connection.engine
@@ -21,8 +21,9 @@ def lock_budget(db):
     query = 'PRAGMA busy_timeout' if dialect == 'sqlite' else 'SELECT @@SESSION.innodb_lock_wait_timeout'
     previous = int(connection.exec_driver_sql(query).scalar())
     connection.info['chat_lock_restore'] = (dialect, previous)
-    connection.exec_driver_sql('PRAGMA busy_timeout=5000' if dialect == 'sqlite'
-                              else 'SET SESSION innodb_lock_wait_timeout=5')
+    milliseconds = max(1, min(5000, int(seconds * 1000)))
+    connection.exec_driver_sql(f'PRAGMA busy_timeout={milliseconds}' if dialect == 'sqlite'
+                              else f'SET SESSION innodb_lock_wait_timeout={max(1, milliseconds // 1000)}')
 
 
 def _restore_lock_budget(connection, record):
@@ -53,3 +54,20 @@ def classify(error):
     if isinstance(error, OperationalError):
         return 'result_persistence_failed'
     return 'execution_internal_error'
+
+
+def database_failure_details(error):
+    """Safe diagnosis only: no SQL, driver message, parameters, or file paths."""
+    original = getattr(error, 'orig', None)
+    code = getattr(original, 'sqlite_errorcode', None)
+    args = getattr(original, 'args', ())
+    if code is None and args and isinstance(args[0], int):
+        code = args[0]
+    frames = []
+    traceback = error.__traceback__
+    while traceback:
+        module = traceback.tb_frame.f_globals.get('__name__', '')
+        if module.startswith('app.'):
+            frames.append(module + '.' + traceback.tb_frame.f_code.co_name)
+        traceback = traceback.tb_next
+    return {'database_code': code, 'frames': frames[-8:]}

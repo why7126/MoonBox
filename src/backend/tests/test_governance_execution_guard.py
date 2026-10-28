@@ -324,7 +324,7 @@ class AdmissionTests(unittest.TestCase):
                         target.write_text('---\ntitle: 阶段门禁测试缺陷\nstatus: in_sprint\niteration: sprint-010\n---\n# 阶段门禁测试缺陷\n')
                     project = SimpleNamespace(root=root, key='project', space_id='space', repository_id='repo', binding_revision='test', readonly=False)
                     reader = ProjectReader(db, 'alice', project)
-                    with patch.object(reader, 'snapshot', return_value=stable(root)):
+                    with patch.object(reader, 'snapshot', return_value=stable(root)), patch('app.governance.scope.authorize', return_value=project):
                         card = reader.call('build_requirement_center_context').issues[0]
                     self.assertEqual(card.stage, 'approved')
                     self.assertEqual(card.execution_state, 'needs_review')

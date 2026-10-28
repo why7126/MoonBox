@@ -1,0 +1,118 @@
+sprint_id: sprint-014
+status: planning
+lifecycle_stage: change
+created_at: '2026-10-26 12:06:37'
+updated_at: '2026-10-27 16:38:59'
+start_date: '2026-10-26 12:06:37'
+end_date: '2026-11-09 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements: []
+bugs: []
+changes: []
+estimated_story_points: 37
+estimated_person_days: 33
+scope_estimates: []
+knowledge_intake:
+- action_id: S13-resource-lifecycle
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 承接隔离证据与真实环境边界，新增临时资源清理验证，不宣称关闭历史行动。
+changes:
+  - add-temporary-docker-lifecycle
+  - improve-explore-feedback-loop
+  - fix-archive-python-entry
+  - fix-chat-unknown-recovery-container-churn
+  - fix-chat-final-answer-duplicate-concatenation
+  - fix-chat-auto-verification-status-stale
+  - fix-requirement-center-context-load-latency
+  - fix-chat-stream-preview-premature-truncation
+  - fix-chat-database-lock-execution-interruption
+  - fix-issue-lifecycle-stage-sync
+  - fix-chat-interrupted-successor-proof
+scope_estimates:
+  - id: add-temporary-docker-lifecycle
+    change: add-temporary-docker-lifecycle
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 用户明确授权临时Docker资源治理，脚本与规则及验证1人天，保留29人天缓冲
+  - id: improve-explore-feedback-loop
+    change: improve-explore-feedback-loop
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 探索只读反馈与统一治理维护试点，含契约、案例及验证，估算1人天
+  - id: fix-archive-python-entry
+    change: fix-archive-python-entry
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 补齐已交付Python入口的归档接入及隔离回归，估算1人天
+  - id: BUG-0064-chat-unknown-recovery-container-churn
+    change: fix-chat-unknown-recovery-container-churn
+    bug: BUG-0064-chat-unknown-recovery-container-churn
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 已批准high缺陷；恢复调度与持久化2人天、预检优化和观测1人天、SQLite/MySQL回归及真实Docker验证2人天；追加后8/30人天，保留22人天缓冲，原执行终态不伪造
+  - id: BUG-0056-requirement-center-context-load-latency
+    change: fix-requirement-center-context-load-latency
+    bug: BUG-0056-requirement-center-context-load-latency
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 已批准high缺陷；索引与解析优化2人天、快照一致性及请求观测1人天、冷暖性能及权限并发回归2人天；追加后13/30人天，保留17人天缓冲；量化目标以AC-001至008为准，估算不是性能承诺
+  - id: BUG-0065-chat-final-answer-duplicate-concatenation
+    change: fix-chat-final-answer-duplicate-concatenation
+    bug: BUG-0065-chat-final-answer-duplicate-concatenation
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 统一正常完成与恢复的回答身份、历史兼容及分块幂等回归，估算3人天
+  - id: BUG-0066-chat-auto-verification-status-stale
+    change: fix-chat-auto-verification-status-stale
+    bug: BUG-0066-chat-auto-verification-status-stale
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 自动核验有界刷新、取消与失效响应保护、真实浏览器时序验收，估算3人天
+  - id: BUG-0067-chat-stream-preview-premature-truncation
+    change: fix-chat-stream-preview-premature-truncation
+    bug: BUG-0067-chat-stream-preview-premature-truncation
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 已批准medium缺陷；有界正文读取与截断原因1人天、前端提示及完整内容入口0.5人天、边界兼容性能与真实浏览器验证1.5人天；合计22/30人天，剩余8人天26.7%，低于30%缓冲建议，后续追加优先延期或替换范围
+  - id: BUG-0068-chat-database-lock-execution-interruption
+    change: fix-chat-database-lock-execution-interruption
+    bug: BUG-0068-chat-database-lock-execution-interruption
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 已批准high缺陷；治理核验事务边界与并发条件保护2人天、持久化失败恢复和脱敏诊断1人天、SQLite/MySQL并发及真实运行回归2人天；总量27/30人天，剩余3人天10%，低于30%缓冲建议，后续新增范围优先延期或替换；与BUG-0056共享reader路径须集成验证，不重跑原apply
+  - id: fix-issue-lifecycle-stage-sync
+    change: fix-issue-lifecycle-stage-sync
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 显式授权阶段同步及校验修复，隔离回归与两字段定向维护，预计1人天
+  - id: BUG-0069-chat-interrupted-successor-proof-missing
+    change: fix-chat-interrupted-successor-proof
+    bug: BUG-0069-chat-interrupted-successor-proof-missing
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 用户授权关联复发修复；独立后继证明与原子保护2人天、UI观测1人天、数据库兼容并发及真实链路2人天；追加后33/30人天110%，未达120%硬上限但无剩余缓冲，后续新增范围延期或替换；复用BUG-0061证据不继承历史通过，先稳定输入再集中验证
+capacity_usage: 1.1
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+bugs:
+  - BUG-0064-chat-unknown-recovery-container-churn
+  - BUG-0056-requirement-center-context-load-latency
+  - BUG-0065-chat-final-answer-duplicate-concatenation
+  - BUG-0066-chat-auto-verification-status-stale
+  - BUG-0067-chat-stream-preview-premature-truncation
+  - BUG-0068-chat-database-lock-execution-interruption
+  - BUG-0069-chat-interrupted-successor-proof-missing

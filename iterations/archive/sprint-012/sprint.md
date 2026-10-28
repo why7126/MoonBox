@@ -4,7 +4,7 @@ title: 直接命令完成证明与安全恢复迭代规划
 sprint_id: sprint-012
 status: completed
 created_at: '2026-10-21 11:39:09'
-updated_at: '2026-10-23 22:51:31'
+updated_at: 2026-10-27 16:18:36
 ---
 
 # 直接命令完成证明与安全恢复迭代规划
@@ -35,7 +35,7 @@ BUG `BUG-0060-direct-command-completion-proof-drift`：Chat 治理命令同步�
 
 ### BUG-0061-cross-entry-continuation-guard-convergence 要点
 
-BUG `BUG-0061-cross-entry-continuation-guard-convergence`：产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断。当前状态 done，估算 8 人天；archived `fix-cross-entry-continuation-guard`（2026-10-21 17:25:20）。
+BUG `BUG-0061-cross-entry-continuation-guard-convergence`：产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断。当前状态 done，估算 8 人天；archived `fix-cross-entry-continuation-guard`（2026-10-27 16:18:35）。
 
 ### BUG-0062-archive-requirement-scope-conflict 要点
 
@@ -51,7 +51,7 @@ BUG `BUG-0063-compatible-requirement-successor-blocked`：同条文兼容追加�
 |---|---|---|---|---:|---|
 | REQ | REQ-0049-sprint-archive-chat-entry | 迭代归档接入 Sprint 对象会话与命令预填 | done | 5 人天 | archived `add-sprint-archive-chat-entry`（2026-10-21 18:34:08） |
 | BUG | BUG-0060-direct-command-completion-proof-drift | Chat 治理命令同步后完成证明失效导致卡片滞留旧阶段 | done | 8 人天 | archived `fix-direct-command-completion-proof`（2026-10-21 14:09:29） |
-| BUG | BUG-0061-cross-entry-continuation-guard-convergence | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | done | 8 人天 | archived `fix-cross-entry-continuation-guard`（2026-10-21 17:25:20） |
+| BUG | BUG-0061-cross-entry-continuation-guard-convergence | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | done | 8 人天 | archived `fix-cross-entry-continuation-guard`（2026-10-27 16:18:35） |
 | BUG | BUG-0062-archive-requirement-scope-conflict | 归档恢复按模块误判冲突导致验收进度失真与迭代关闭受阻 | done | 5 人天 | archived `fix-archive-requirement-scope-conflict`（2026-10-21 19:11:19） |
 | BUG | BUG-0063-compatible-requirement-successor-blocked | 同条文兼容追加被归档后继冲突门禁拒绝 | done | 8 人天 | archived `fix-compatible-requirement-successor`（2026-10-23 21:46:21） |
 
@@ -69,7 +69,7 @@ BUG `BUG-0063-compatible-requirement-successor-blocked`：同条文兼容追加�
 | 编号 | 名称 | 严重度 | 状态 | 说明 |
 |---|---|---|---|---|
 | BUG-0060 | Chat 治理命令同步后完成证明失效导致卡片滞留旧阶段 | high | done | archived `fix-direct-command-completion-proof`（2026-10-21 14:09:29） |
-| BUG-0061 | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | high | done | archived `fix-cross-entry-continuation-guard`（2026-10-21 17:25:20） |
+| BUG-0061 | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | high | done | archived `fix-cross-entry-continuation-guard`（2026-10-27 16:18:35） |
 | BUG-0062 | 归档恢复按模块误判冲突导致验收进度失真与迭代关闭受阻 | high | done | archived `fix-archive-requirement-scope-conflict`（2026-10-21 19:11:19） |
 | BUG-0063 | 同条文兼容追加被归档后继冲突门禁拒绝 | high | done | archived `fix-compatible-requirement-successor`（2026-10-23 21:46:21） |
 <!-- workflow-sync:scope-bugs:end -->
@@ -80,7 +80,7 @@ BUG `BUG-0063-compatible-requirement-successor-blocked`：同条文兼容追加�
 | Change ID | 关联需求 | 状态 | Sprint 目标 |
 |---|---|---|---|
 | `fix-direct-command-completion-proof` | BUG-0060-direct-command-completion-proof-drift | archived | archived `fix-direct-command-completion-proof`（2026-10-21 14:09:29） |
-| `fix-cross-entry-continuation-guard` | BUG-0061-cross-entry-continuation-guard-convergence | archived | archived `fix-cross-entry-continuation-guard`（2026-10-21 17:25:20） |
+| `fix-cross-entry-continuation-guard` | BUG-0061-cross-entry-continuation-guard-convergence | archived | archived `fix-cross-entry-continuation-guard`（2026-10-27 16:18:35） |
 | `fix-archive-requirement-scope-conflict` | BUG-0062-archive-requirement-scope-conflict | archived | archived `fix-archive-requirement-scope-conflict`（2026-10-21 19:11:19） |
 | `add-sprint-archive-chat-entry` | REQ-0049-sprint-archive-chat-entry | archived | archived `add-sprint-archive-chat-entry`（2026-10-21 18:34:08） |
 | `fix-compatible-requirement-successor` | BUG-0063-compatible-requirement-successor-blocked | archived | archived `fix-compatible-requirement-successor`（2026-10-23 21:46:21） |

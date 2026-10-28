@@ -4,7 +4,7 @@ content: plan / review / archive 三阶段目录职责、准入条件、迁移�
 source: 项目团队确认
 update_method: 需求/BUG 流程或目录边界变化时同步更新
 created_at: 2026-06-27 22:24:39
-updated_at: 2026-08-31 08:36:34
+updated_at: 2026-10-27 09:21:37
 note: REQ 与 BUG 共用；registry 与 _registry.yaml 仍位于 issues/* 根下
 ---
 
@@ -139,3 +139,11 @@ lifecycle_stage: plan | review | archive
 □ CHANGELOG.md 是否仍在 issues 根目录，且对应 Issue 当前态行已按需更新？
 □ 是否运行 sync-workflow-status.py？
 ```
+
+## 9. 生命周期阶段镜像一致性
+
+物理 plan/review/archive 目录是 lifecycle_stage 的事实源。迁移时以目标目录同步 trace.md、capture.md、对应 requirement.md 或 bug.md 中已有的 Frontmatter lifecycle_stage；缺失镜像不自动新增，不修改正文历史 YAML、根因 status、review_result 或 acceptance_status。未知值和重复字段阻断自动同步。
+
+共享实现位于 scripts/workflow_sync/issue_stage.py。阶段迁移 dry-run 展示主文档与 capture 的补丁；Workflow Sync 子文档同步和残留扫描覆盖阶段差异。已归档定向修复使用既有 --reconcile-issue-status-residuals 入口，先 --dry-run --output detail，再在已授权范围内 --apply-reconcile；此模式提前返回，不执行归档、目录迁移或普通事件投影。仅更新选中文档字段和 updated_at，保留历史证据及 created_at。
+
+回归入口：tests/unit/test_issue_lifecycle_stage.py；覆盖迁移、只读预览、非法值阻断、正文保护和重复执行无变化。

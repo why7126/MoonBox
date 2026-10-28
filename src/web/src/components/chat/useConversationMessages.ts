@@ -4,7 +4,7 @@ import { ChatApiError, chatRequest, normalizeChatError } from "./chatApi";
 
 // Optional fields allow a clear compatibility state during a rolling deployment.
 export type OrderedMessage = Pick<MessageRead, "id" | "role" | "content" | "created_at"> &
-  Partial<Pick<MessageRead, "turn_id" | "order_key" | "display_time" | "time_source" | "output_partial" | "output_truncated" | "output_source">>;
+  Partial<Pick<MessageRead, "turn_id" | "order_key" | "display_time" | "time_source" | "output_partial" | "output_truncated" | "output_source" | "output_truncation_reason">>;
 type Page<T> = { items: T[]; next_cursor?: string | null; has_more?: boolean };
 const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 export function compareMessages(a: OrderedMessage, b: OrderedMessage) {

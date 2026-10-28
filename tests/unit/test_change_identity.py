@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+from unittest.mock import patch
 import tempfile
 import unittest
 
@@ -15,6 +17,9 @@ spec.loader.exec_module(module)
 
 class IdentityTests(unittest.TestCase):
     def setUp(self):
+        self.environment = patch.dict(os.environ, {"PYTHON_BIN": sys.executable})
+        self.environment.start()
+        self.addCleanup(self.environment.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
@@ -71,6 +76,8 @@ class IdentityTests(unittest.TestCase):
         archived = self.change('archive/2026-09-01-add-governance')
         scripts = self.root / 'scripts'
         scripts.mkdir()
+        for entry in ("project-python.sh", "project_python_preflight.py"):
+            shutil.copy(ROOT / "scripts" / entry, scripts)
         for name in ('archive-change.sh', 'archive-recovery-guard.py', 'validate-change-identity.py', 'change_identity.py',
                      'validate-issue-acceptance-ready.py'):
             shutil.copy(ROOT / 'scripts' / name, scripts)
@@ -91,6 +98,8 @@ class IdentityTests(unittest.TestCase):
     def archive_fixture(self, fail_validation=False):
         scripts = self.root / 'scripts'
         scripts.mkdir()
+        for entry in ("project-python.sh", "project_python_preflight.py"):
+            shutil.copy(ROOT / "scripts" / entry, scripts)
         shutil.copytree(ROOT / 'scripts/workflow_sync', scripts / 'workflow_sync')
         backend = self.root / 'src/backend'
         backend.mkdir(parents=True)
@@ -187,10 +196,13 @@ class IdentityTests(unittest.TestCase):
 
     def test_merge_completed_before_move_retries_with_skip_specs(self):
         self.archive_fixture()
-        self.change('changes/add-governance', 'add-governance')
+        active = self.change('changes/add-governance', 'add-governance')
+        delta = active / 'specs/example/spec.md'
+        delta.parent.mkdir(parents=True)
+        delta.write_text('## MODIFIED Requirements\n\n### Requirement: 基础\nbase\nmerged\n')
         specs = self.root / 'openspec/specs/example'
         specs.mkdir(parents=True)
-        (specs / 'spec.md').write_text('base\n')
+        (specs / 'spec.md').write_text('### Requirement: 基础\nbase\n')
         binary = self.root / 'bin'
         binary.mkdir()
         cli = binary / 'openspec'
@@ -217,20 +229,23 @@ shutil.move(source, target)
         command = ['bash', 'scripts/archive-change.sh', 'add-governance', '2026-09-01']
         first = subprocess.run(command, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertNotEqual(first.returncode, 0)
-        self.assertEqual((specs / 'spec.md').read_text(), 'base\nmerged\n')
+        self.assertEqual((specs / 'spec.md').read_text(), '### Requirement: 基础\nbase\nmerged\n', first.stdout + first.stderr)
         self.assertTrue((self.root / 'openspec/changes/add-governance').is_dir())
         retry = subprocess.run(command, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertEqual(retry.returncode, 0, retry.stdout + retry.stderr)
         self.assertIn('--skip-specs', (self.root / 'retry-args').read_text())
-        self.assertEqual((specs / 'spec.md').read_text(), 'base\nmerged\n')
+        self.assertEqual((specs / 'spec.md').read_text(), '### Requirement: 基础\nbase\nmerged\n', first.stdout + first.stderr)
         self.assertTrue((self.root / 'openspec/archive/2026-09-01-add-governance').is_dir())
 
     def test_unknown_edit_after_merge_blocks_and_preserves_files(self):
         self.archive_fixture()
-        self.change('changes/add-governance', 'add-governance')
+        active = self.change('changes/add-governance', 'add-governance')
+        delta = active / 'specs/example/spec.md'
+        delta.parent.mkdir(parents=True)
+        delta.write_text('## MODIFIED Requirements\n\n### Requirement: 基础\nbase\nmerged\n')
         specs = self.root / 'openspec/specs/example'
         specs.mkdir(parents=True)
-        (specs / 'spec.md').write_text('base\n')
+        (specs / 'spec.md').write_text('### Requirement: 基础\nbase\n')
         binary = self.root / 'bin'
         binary.mkdir()
         cli = binary / 'openspec'
@@ -251,11 +266,11 @@ shutil.move(source, target)
         command = ['bash', 'scripts/archive-change.sh', 'add-governance', '2026-09-01']
         first = subprocess.run(command, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertNotEqual(first.returncode, 0)
-        (specs / 'spec.md').write_text('base\nmerged\nexternal\n')
+        (specs / 'spec.md').write_text('### Requirement: 基础\nbase\nmerged\nexternal\n')
         retry = subprocess.run(command, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertNotEqual(retry.returncode, 0)
         self.assertIn('ARCHIVE_RECOVERY_BLOCKED', retry.stderr)
-        self.assertEqual((specs / 'spec.md').read_text(), 'base\nmerged\nexternal\n')
+        self.assertEqual((specs / 'spec.md').read_text(), '### Requirement: 基础\nbase\nmerged\nexternal\n')
         self.assertTrue((self.root / 'openspec/changes/add-governance').is_dir())
         self.assertTrue((self.root / 'openspec/archive/.archive-recovery/add-governance.json').is_file())
 

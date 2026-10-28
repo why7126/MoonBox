@@ -47,3 +47,12 @@ MoonBox 生产环境使用 MySQL，开发环境和快速测试保留 SQLite。My
 - SQLite 本地快速测试覆盖连接、初始化和基础 CRUD。
 - MySQL 发布前或 CI 测试覆盖连接、迁移、基础 CRUD、约束校验和事务行为。
 - MySQL 测试可通过 `docker compose --profile mysql up -d mysql` 启动。
+
+
+## Chat 恢复预算兼容性
+
+BUG-0064新增chat_turn_recoveries和chat_recovery_resumes，采用通用字符串时间、整数代次、唯一请求键及条件UPDATE；无需数据库专属锁语法。覆盖重复迁移、预算/暂停持久化、并发CAS、过期租约、终态围栏与续接幂等。数据库时钟使用SQLite CURRENT_TIMESTAMP、MySQL UTC_TIMESTAMP；运行验证见对应Change证据，不把SQLite结果视为MySQL证明。
+
+## BUG-0068 核验锁竞争
+
+核验读事务在文件计算前结束，避免REPEATABLE READ隐藏并发事实。提交阶段重新授权、检查项目代次/guard原值并条件写，拒绝旧计划；锁等待设置最小1秒后归池恢复。驱动1205/1213仅在已回滚且无外部副作用时允许有界重试，提交不明不重试。需真实MySQL回归，SQLite不能替代。

@@ -11,7 +11,7 @@ fail() {
 }
 
 safe_move() {
-  python - "$1" "$2" <<'PY'
+  "$PYTHON_BIN" - "$1" "$2" <<'PY'
 import pathlib
 import shutil
 import sys
@@ -24,7 +24,7 @@ PY
 
 run_language_gate() {
   if [[ -f "scripts/validate-openspec-language.py" ]]; then
-    python scripts/validate-openspec-language.py
+    "$PYTHON_BIN" scripts/validate-openspec-language.py
   fi
 }
 
@@ -148,6 +148,12 @@ if [[ ! "$archive_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
   fail "archive date must use YYYY-MM-DD: $archive_date"
 fi
 
+# Resolve and validate once through the existing entry before any workflow writes.
+archive_python_entry="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/project-python.sh"
+PYTHON_BIN="$(bash "$archive_python_entry" -c 'import os; print(os.environ["PYTHON_BIN"])')" || exit "$?"
+export PYTHON_BIN
+export PYTHONDONTWRITEBYTECODE=1
+
 project_root="$(pwd)"
 if [[ -e "$project_root/openspec/archive/.controlled-successors" ]]; then
   fail "受控归档项目须通过在线共同提交入口执行；使用 scripts/controlled-archive.py，保留原对象与操作身份。离线脚本不能领取授权。"
@@ -158,25 +164,25 @@ active_dir="$project_root/openspec/changes/$change_id"
 target_dir="$canonical_root/$archive_date-$change_id"
 legacy_target_dir="$legacy_root/$archive_date-$change_id"
 
-python scripts/validate-issue-acceptance-ready.py "$change_id" || fail "Issue acceptance gate blocked archive for $change_id"
-python scripts/validate-change-delivery-evidence.py --change "$change_id" || fail "Change delivery evidence gate blocked archive for $change_id"
+"$PYTHON_BIN" scripts/validate-issue-acceptance-ready.py "$change_id" || fail "Issue acceptance gate blocked archive for $change_id"
+"$PYTHON_BIN" scripts/validate-change-delivery-evidence.py --change "$change_id" || fail "Change delivery evidence gate blocked archive for $change_id"
 
 if [[ -f "$active_dir/acceptance-plan.json" ]]; then
-  python scripts/opsx_acceptance.py --change "$change_id" --readiness || fail "automated acceptance evidence is missing or stale for $change_id"
+  "$PYTHON_BIN" scripts/opsx_acceptance.py --change "$change_id" --readiness || fail "automated acceptance evidence is missing or stale for $change_id"
 fi
 
-python scripts/validate-change-identity.py
+"$PYTHON_BIN" scripts/validate-change-identity.py
 run_language_gate
 relocate_legacy_archives "$canonical_root" "$legacy_root"
 
 mkdir -p "$canonical_root"
 if [[ -d "$active_dir" ]]; then
   [[ ! -e "$target_dir" ]] || fail "archive target already exists"
-  python scripts/validate-directory-structure.py
-  recovery_mode="$(python scripts/archive-recovery-guard.py "$change_id" "$archive_date")" || fail "archive recovery guard blocked $change_id"
+  "$PYTHON_BIN" scripts/validate-directory-structure.py
+  recovery_mode="$("$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date")" || fail "archive recovery guard blocked $change_id"
   run_openspec_archive "$change_id" "$recovery_mode"
 else
-  python scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
+  "$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
   shopt -s nullglob
   matches=("$canonical_root"/????-??-??-"$change_id")
   shopt -u nullglob
@@ -204,16 +210,16 @@ archive_date="${archive_date:0:10}"
 
 [[ -d "$target_dir" ]] || fail "canonical archive target missing after archive: openspec/archive/$archive_date-$change_id"
 [[ ! -e "$active_dir" ]] || fail "active change still exists after archive: openspec/changes/$change_id"
-python scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
+"$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
 
-python scripts/validate-directory-structure.py
-python scripts/validate-env-ignore-policy.py
-python scripts/validate-archive-evidence.py --change "$change_id" --archive-path "$target_dir"
+"$PYTHON_BIN" scripts/validate-directory-structure.py
+"$PYTHON_BIN" scripts/validate-env-ignore-policy.py
+"$PYTHON_BIN" scripts/validate-archive-evidence.py --change "$change_id" --archive-path "$target_dir"
 
 if (( finalize )); then
-  python scripts/sync-workflow-status.py --event opsx.archive --change "$change_id" --sprint auto
-  python scripts/promote-issues-for-archive.py --change "$change_id" --reason "/opsx-archive $change_id"
-  resolved_sprint="$(python - "$change_id" <<'PYTHON'
+  "$PYTHON_BIN" scripts/sync-workflow-status.py --event opsx.archive --change "$change_id" --sprint auto
+  "$PYTHON_BIN" scripts/promote-issues-for-archive.py --change "$change_id" --reason "/opsx-archive $change_id"
+  resolved_sprint="$("$PYTHON_BIN" - "$change_id" <<'PYTHON'
 import sys
 sys.path.insert(0, 'scripts')
 from workflow_sync.collect import resolve_sprint_id
@@ -223,7 +229,7 @@ PYTHON
 )"
   usage_arguments=(--post-command-hook --workflow-event opsx.archive --change "$change_id")
   if [[ -n "$resolved_sprint" ]]; then usage_arguments+=(--sprint "$resolved_sprint"); fi
-  python scripts/extract-ai-usage.py "${usage_arguments[@]}" --json | python -c '
+  "$PYTHON_BIN" scripts/extract-ai-usage.py "${usage_arguments[@]}" --json | "$PYTHON_BIN" -c '
 import json, sys
 data = json.load(sys.stdin)
 keys = ("status", "usage_mode", "command_run_count", "sprint_snapshot", "warning_count", "warnings", "recommended_action")

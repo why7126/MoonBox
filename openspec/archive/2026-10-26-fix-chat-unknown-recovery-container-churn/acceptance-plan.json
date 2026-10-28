@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-unknown-recovery-container-churn",
+  "checks": [
+    {
+      "id": "AC-01",
+      "title": "永久无终态预算暂停",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "title": "瞬态与权威终态映射",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "title": "双库重启与中断租约",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "title": "公平调度与并发防重",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "title": "预检缓存安全失效",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "title": "暂停受控续接",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-07",
+      "title": "分类观测与隐私",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "title": "真实Docker清理与版本",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app",
+        "src/backend/tests/test_chat_unknown_recovery.py",
+        "src/backend/tests/test_chat_recovery_cache.py",
+        "src/backend/tests/test_chat_recovery_docker.py",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "src/backend/container/seccomp-codex.json",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_accounting.py",
+        "src/backend/tests/test_chat_container_failure.py",
+        "src/backend/tests/test_chat_toolchain.py",
+        "src/backend/tests/test_chat_scalable.py",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/design.md",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/specs/codex-session-execution/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/chat_recovery_evidence.py",
+        "--verify"
+      ],
+      "deduplicate": true,
+      "artifacts": [
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+        "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/resource-cleanup.json"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    }
+  ],
+  "environment_contract": {
+    "deployment": "bug0064-isolated-docker",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic-unknown-turns-and-disposable-mysql",
+    "authorization_ref": "BUG-0064 opsx-apply及隔离验证授权",
+    "login_strategy": "synthetic-credentials-no-model-call",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": []
+  }
+}

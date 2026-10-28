@@ -1,0 +1,55 @@
+{
+  "passed": 245,
+  "failed": 0,
+  "incremental": [
+    {
+      "passed": 22,
+      "failed": 0,
+      "scope": "backup deadline, index migration and worker behavior"
+    },
+    {
+      "passed": 5,
+      "failed": 0,
+      "scope": "latest context memo, no-op and stale snapshot"
+    }
+  ],
+  "mysql": {
+    "initial_passed": 24,
+    "initial_failed": 1,
+    "cause": "test tried dropping FK-required index; fixture corrected",
+    "rerun_passed": 9,
+    "rerun_failed": 0,
+    "latest_stale_snapshot_passed": 1
+  },
+  "boundary": "synthetic SQLite/MySQL accounts; not browser or production turn evidence",
+  "final_batch": {
+    "passed": 207,
+    "failed": 1,
+    "subtests": 6,
+    "environment_failure": "macOS symlink temporary directory; same test passed with TMPDIR=/private/tmp",
+    "rerun_passed": 1
+  },
+  "final_equivalence_and_admission": {
+    "passed": 96,
+    "failed": 0,
+    "subtests": 6
+  },
+  "mysql_batch": {
+    "passed": 22,
+    "failed": 0
+  },
+  "candidate_snapshot": {
+    "passed": 30,
+    "failed": 0,
+    "skipped": 1
+  },
+  "candidate_safety": {
+    "passed": 110,
+    "failed": 0
+  },
+  "registry_reuse": {
+    "passed": 31,
+    "failed": 0,
+    "skipped": 1
+  }
+}

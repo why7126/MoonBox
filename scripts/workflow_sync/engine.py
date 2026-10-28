@@ -43,6 +43,7 @@ from .patch import (
     patch_sprint_yaml_scope,
 )
 from .classification import sync_classification
+from .issue_stage import scan_stage_drift
 from .constants import ROOT
 
 
@@ -420,6 +421,9 @@ class SyncEngine:
         if event and event.startswith("sprint.") and sprint:
             classification_ids.update(iid for iid in issue_ids if iid in issues)
         for iid in classification_ids:
+            for drift in scan_stage_drift(issues[iid].path):
+                if not drift.safe:
+                    report.errors.append(f"{iid}/{drift.file.name}: invalid lifecycle_stage `{drift.current}`")
             if issues[iid].classification_error:
                 report.errors.append(issues[iid].classification_error)
         if report.errors:

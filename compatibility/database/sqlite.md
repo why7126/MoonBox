@@ -334,3 +334,12 @@ AI Agent 在处理 SQLite 相关变更时必须：
 - `docker-compose.yml`
 - `.gitignore`
 - `MoonBox` 下的实际 migration 文件
+
+
+## Chat 恢复预算兼容性
+
+BUG-0064新增chat_turn_recoveries和chat_recovery_resumes，采用通用字符串时间、整数代次、唯一请求键及条件UPDATE；无需数据库专属锁语法。覆盖重复迁移、预算/暂停持久化、并发CAS、过期租约、终态围栏与续接幂等。数据库时钟使用SQLite CURRENT_TIMESTAMP、MySQL UTC_TIMESTAMP；运行验证见对应Change证据，不把SQLite结果视为MySQL证明。
+
+## BUG-0068 核验锁竞争
+
+无效UPDATE也可能持有SQLite写事务，不能以rowcount=0推断没有锁。文件核验期间禁止持有写事务；短事务条件更新与失败回滚、200ms等待及连接归池恢复由隔离连接测试覆盖。不以启用WAL或无限超时代替事务修复。

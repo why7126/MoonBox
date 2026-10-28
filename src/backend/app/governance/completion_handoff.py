@@ -217,7 +217,7 @@ def verify_operation(db, actor, operation_id):
         from app.governance.snapshot import stable
         snapshot = stable(project.root)
         reconcile_external(db, project, operation['object_id'],
-                           stage_map(snapshot).get(operation['object_id'], 'unknown'), snapshot)
+                           stage_map(snapshot).get(operation['object_id'], 'unknown'), snapshot, actor=actor)
         db.commit()
     guard = db.execute(select(guards).where(guards.c.scope_key == project.key,
         guards.c.object_id == operation['object_id'])).mappings().first()

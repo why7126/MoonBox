@@ -3,7 +3,7 @@ bug_id: BUG-0056-requirement-center-context-load-latency
 title: 需求中心首屏聚合请求耗时约二十七秒缺陷记录
 status: captured
 created_at: '2026-10-21 08:50:06'
-updated_at: '2026-10-21 08:50:06'
+updated_at: 2026-10-27 10:09:18
 severity: high
 environment: local
 owner: 产品团队
@@ -11,7 +11,7 @@ source: 用户授权与同会话 explore 证据
 related_requirement: null
 related_bug: BUG-0016-capture
 root_cause_status: probable
-lifecycle_stage: plan
+lifecycle_stage: review
 ---
 
 # 需求中心首屏聚合请求耗时约二十七秒缺陷记录

@@ -1,0 +1,14 @@
+{
+  "passed": 173,
+  "failed": 0,
+  "command": "NODE_OPTIONS=--no-experimental-webstorage vitest run requirement-owner governance requirement-center-errors requirement-center --maxWorkers=1 --minWorkers=1 --testTimeout=30000 --hookTimeout=30000",
+  "broader_suite": {
+    "passed": 442,
+    "failed": 10,
+    "files": [
+      "capture-persistence.test.tsx",
+      "chat-rendering.test.tsx"
+    ],
+    "boundary": "outside this repair; not claimed as full-suite pass"
+  }
+}

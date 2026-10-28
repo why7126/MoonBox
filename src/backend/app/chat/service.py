@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from app.chat.errors import ChatError
+
 import json
 import hashlib
 import re
@@ -37,11 +39,6 @@ def identity():
     stamp = now()
     return {'id': str(uuid4()), 'created_at': stamp, 'updated_at': stamp}
 
-class ChatError(Exception):
-    def __init__(self, code: int, message: str, status: int = 409, *, kind: str | None = None, details: dict | None = None):
-        self.code, self.message, self.status = code, message, status
-        self.kind = kind
-        self.details = details or {}
 
 
 def authorize_space(db: Session, actor: str, space_id: str):

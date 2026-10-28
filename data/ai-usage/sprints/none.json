@@ -4,9 +4,10 @@
   "source_data_files": [
     "~/.codex/sessions/2026/08/08/rollout-2026-08-08T20-15-41-019fe14c-e79d-7222-83b8-4b4e52b759ac.jsonl",
     "~/.codex/sessions/2026/08/14/rollout-2026-08-14T21-56-14-01a0008f-1dbe-7560-94c4-962af7d19a37.jsonl",
-    "~/.codex/sessions/2026/10/21/rollout-2026-10-21T17-31-09-01a15dcc-db33-7a61-8e2f-d26dee14fdbf.jsonl"
+    "~/.codex/sessions/2026/10/21/rollout-2026-10-21T17-31-09-01a15dcc-db33-7a61-8e2f-d26dee14fdbf.jsonl",
+    "~/.codex/sessions/2026/10/26/rollout-2026-10-26T17-30-52-01a1778c-655e-7cd0-889e-88976359a905.jsonl"
   ],
-  "generated_at": "2026-10-21T09:45:50.570701Z",
+  "generated_at": "2026-10-26T10:02:26.485735Z",
   "estimated": false,
   "coverage": {
     "requirements": [
@@ -15,7 +16,8 @@
     ],
     "bugs": [
       "BUG-0013-workflow-sync-bug-sprint-propose-changelog-iteration-drift",
-      "BUG-0062-archive-requirement-scope-conflict"
+      "BUG-0062-archive-requirement-scope-conflict",
+      "BUG-0066-chat-auto-verification-status-stale"
     ],
     "changes": []
   },
@@ -49,28 +51,28 @@
     }
   ],
   "totals": {
-    "input_tokens": 8979806,
-    "cached_input_tokens": 8587776,
-    "output_tokens": 37705,
-    "reasoning_output_tokens": 2292,
-    "total_tokens": 9039905,
-    "command_run_count": 8,
-    "model_call_count": 74,
+    "input_tokens": 10456338,
+    "cached_input_tokens": 10038912,
+    "output_tokens": 41168,
+    "reasoning_output_tokens": 2334,
+    "total_tokens": 10519900,
+    "command_run_count": 9,
+    "model_call_count": 82,
     "tool_call_count": 145,
     "tool_output_chars": 0,
     "retry_count": 0
   },
   "by_workflow_event": {
     "bug.capture": {
-      "command_run_count": 2,
-      "model_call_count": 11,
+      "command_run_count": 3,
+      "model_call_count": 19,
       "tool_call_count": 13,
       "retry_count": 0,
-      "input_tokens": 1945923,
-      "cached_input_tokens": 1876224,
-      "output_tokens": 6394,
-      "reasoning_output_tokens": 200,
-      "total_tokens": 1952317
+      "input_tokens": 3422455,
+      "cached_input_tokens": 3327360,
+      "output_tokens": 9857,
+      "reasoning_output_tokens": 242,
+      "total_tokens": 3432312
     },
     "bug.complete": {
       "command_run_count": 1,
@@ -159,13 +161,13 @@
       "total_tokens": 6493805
     },
     "gpt-6-astra|low|": {
-      "command_run_count": 1,
-      "model_call_count": 5,
-      "input_tokens": 789672,
-      "cached_input_tokens": 755712,
-      "output_tokens": 3239,
-      "reasoning_output_tokens": 18,
-      "total_tokens": 792911
+      "command_run_count": 2,
+      "model_call_count": 13,
+      "input_tokens": 2266204,
+      "cached_input_tokens": 2206848,
+      "output_tokens": 6702,
+      "reasoning_output_tokens": 60,
+      "total_tokens": 2272906
     }
   },
   "usage_matrices": {
@@ -277,7 +279,7 @@
         "metrics": {
           "total_tokens": {
             "Capture": 0,
-            "BUG-Capture": 1952317,
+            "BUG-Capture": 3432312,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -302,7 +304,7 @@
           },
           "input_tokens": {
             "Capture": 0,
-            "BUG-Capture": 1945923,
+            "BUG-Capture": 3422455,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -327,7 +329,7 @@
           },
           "output_tokens": {
             "Capture": 0,
-            "BUG-Capture": 6394,
+            "BUG-Capture": 9857,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -352,7 +354,7 @@
           },
           "model_call_count": {
             "Capture": 0,
-            "BUG-Capture": 11,
+            "BUG-Capture": 19,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -408,7 +410,7 @@
         "metrics": {
           "total_tokens": {
             "Capture": 0,
-            "BUG-Capture": 1952317,
+            "BUG-Capture": 3432312,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -433,7 +435,7 @@
           },
           "input_tokens": {
             "Capture": 0,
-            "BUG-Capture": 1945923,
+            "BUG-Capture": 3422455,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -458,7 +460,7 @@
           },
           "output_tokens": {
             "Capture": 0,
-            "BUG-Capture": 6394,
+            "BUG-Capture": 9857,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -483,7 +485,7 @@
           },
           "model_call_count": {
             "Capture": 0,
-            "BUG-Capture": 11,
+            "BUG-Capture": 19,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,
@@ -1008,6 +1010,137 @@
           "model_call_count": {
             "Capture": 0,
             "BUG-Capture": 5,
+            "REQ-Capture": 0,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 0,
+            "BUG-Generate": 0,
+            "REQ-Complete": 0,
+            "BUG-Complete": 0,
+            "REQ-Review": 0,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Accept": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          }
+        },
+        "cell_status": {
+          "Capture": "unknown",
+          "BUG-Capture": "observed",
+          "REQ-Capture": "unknown",
+          "BUG-Explore": "unknown",
+          "REQ-Explore": "unknown",
+          "REQ-Generate": "unknown",
+          "BUG-Generate": "unknown",
+          "REQ-Complete": "unknown",
+          "BUG-Complete": "unknown",
+          "REQ-Review": "unknown",
+          "BUG-Review": "unknown",
+          "REQ-Opsx": "unknown",
+          "BUG-Opsx": "unknown",
+          "Opsx-Explore": "unknown",
+          "Opsx-Propose": "unknown",
+          "Opsx-Apply": "unknown",
+          "Opsx-Modify": "unknown",
+          "Opsx-Accept": "unknown",
+          "Opsx-Archive": "unknown",
+          "Sprint-Propose": "unknown",
+          "Sprint-Explore": "unknown",
+          "Sprint-Apply": "unknown",
+          "Sprint-Archive": "unknown"
+        }
+      },
+      {
+        "object_type": "bug",
+        "object_id": "BUG-0066-chat-auto-verification-status-stale",
+        "metrics": {
+          "total_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 1479995,
+            "REQ-Capture": 0,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 0,
+            "BUG-Generate": 0,
+            "REQ-Complete": 0,
+            "BUG-Complete": 0,
+            "REQ-Review": 0,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Accept": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "input_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 1476532,
+            "REQ-Capture": 0,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 0,
+            "BUG-Generate": 0,
+            "REQ-Complete": 0,
+            "BUG-Complete": 0,
+            "REQ-Review": 0,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Accept": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "output_tokens": {
+            "Capture": 0,
+            "BUG-Capture": 3463,
+            "REQ-Capture": 0,
+            "BUG-Explore": 0,
+            "REQ-Explore": 0,
+            "REQ-Generate": 0,
+            "BUG-Generate": 0,
+            "REQ-Complete": 0,
+            "BUG-Complete": 0,
+            "REQ-Review": 0,
+            "BUG-Review": 0,
+            "REQ-Opsx": 0,
+            "BUG-Opsx": 0,
+            "Opsx-Explore": 0,
+            "Opsx-Propose": 0,
+            "Opsx-Apply": 0,
+            "Opsx-Modify": 0,
+            "Opsx-Accept": 0,
+            "Opsx-Archive": 0,
+            "Sprint-Propose": 0,
+            "Sprint-Explore": 0,
+            "Sprint-Apply": 0,
+            "Sprint-Archive": 0
+          },
+          "model_call_count": {
+            "Capture": 0,
+            "BUG-Capture": 8,
             "REQ-Capture": 0,
             "BUG-Explore": 0,
             "REQ-Explore": 0,

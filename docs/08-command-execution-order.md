@@ -2,7 +2,7 @@
 purpose: 命令执行顺序速查
 content: MoonBox REQ/BUG、Sprint、OpenSpec、发布、镜像与产品手册命令的推荐顺序、串行门禁和执行复盘 Hook
 created_at: 2026-08-07 23:20:00
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:57:16
 owner: MoonBox 产品团队
 ---
 
@@ -217,3 +217,11 @@ Sprint容量遵循 `rules/iterations-lifecycle.md`：默认30人天，已有有�
 ## 治理量化闭环接续
 
 按 [治理分级闭环](standards/governance-feedback-loop.md) 在命令入口 start、结束 finish/review，中央入口为 `scripts/governance_feedback.py`。自动优化在有效治理授权内接续 spec-opt → Change/Sprint 门禁 → plan/decide → 修复验证 → 后续 evaluate；业务 follow-up 仍遵守原门禁。计入优化自身成本、防递归、保留只读探索边界，不把暂态会话用量充当完整调用。
+
+## 临时 Docker 验证资源收尾
+
+所有创建临时 Docker 验证环境的 apply、modify、accept、测试和排障命令遵守 [临时 Docker 资源生命周期](standards/temporary-docker-lifecycle.md)。入口扫描到期登记，创建前登记并加标签，停止创建后保存证据、清理及零残留复查。完成门禁包含资源收尾状态；局部清理失败不阻断独立验证，但最终不能声明全部完成。中断续接先查原 run，再决定复用或回收，禁止每次盲建新环境。
+
+## 归档解释器入口
+
+归档 wrapper 在门禁和目录写入前经 `project-python.sh` 取得并导出已验证的 `PYTHON_BIN`，所有内部 Python 调用继承该值。不得依赖调用会话临时修改 PATH 修复环境；无效环境先失败，不继续迁移或同步。隔离验证见 `scripts/test_archive_python_entry.py`，不重复真实归档获取测试证据。

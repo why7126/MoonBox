@@ -1,0 +1,14 @@
+{
+  "git_commit": "8ba1475de486cd628e89b7cf6be2ea8ae2a84374",
+  "patch": "baseline-overlay.patch",
+  "files": {
+    "src/backend/app/governance/snapshot.py": "4b981468cd5f1830373618f41ee60992a2320746ba3d6a764b121cc3e12105d4",
+    "src/backend/app/governance/reader.py": "c1c0e65d92c3cdef741a55b190a7953ba0906f48ee0c10555cacaca3667bbcc6",
+    "src/backend/app/governance/execution_context.py": "3b302446e59186eb00f38728429cbd5942206bf7575e9597f09055af16bb82b0",
+    "src/backend/app/governance/change_index.py": "41d1521bea1e94e318bd199b13126d1657c012578955bd497e4e924b633f306e",
+    "src/backend/app/governance/titles.py": "8a32a6160647eb94d9371843077f2ee50554c629bc2454fbe4c4c34d1b305495",
+    "src/backend/app/services/requirement_center.py": "c12205d30a5a141e35970b5fb8023d32c965e41e0819a1716fd96446c597bb60"
+  },
+  "usage": "Reconstruct saved baseline files from this commit plus patch, then provide the six files to BUG_READ_BASELINE_DIR. The benchmark overlays those helpers on the same current app and synthetic fixture as the optimized variant.",
+  "boundary": "This is read-path control evidence; it includes pre-existing transaction fixes and is not a full historical release or deployment."
+}

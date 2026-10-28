@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "authorized": true,
+  "verification_state": "recovered_valid",
+  "admission_ready": true,
+  "reason_code": "direct_successor_verified",
+  "protected_changes": [
+    "rules/issues-lifecycle.md"
+  ],
+  "sample": "authorized BUG-0056 real product verification; not recovered",
+  "inputs": {
+    "src/backend/app/governance/direct_completion.py": "2cb8249048908f8aef80bc3d47d052029eae2cfe93257a2ead47f69495118680",
+    "src/backend/app/governance/successor_completion.py": "1fe4f73e6c175c39fd2cd3f2e4ec768c15d2b5b9889dbddf08203062f37e3f3c",
+    "src/backend/app/governance/workflow_receipt.py": "9b6de2af521fd23faac98ae77fbf5d2d00a47e2054cae909c67983c927061a70",
+    "src/backend/app/governance/verification_transaction.py": "68564c63415bd488235d0de150712e47162c218dd44dda05525cad8567ed434b",
+    "src/backend/tests/test_interrupted_successor.py": "0df2b927c24eadb7c277db01542fa26323de73a6697bfd6ee2a93bff4a4dda42",
+    "src/backend/tests/interrupted_evidence.py": "14c6df716a849d229dac33bedc034781b48942ad4fca1f6197f63580fbc459c4",
+    "src/backend/app/governance/successor_dependencies.py": "0f02981cbd9fd8a64a63817295908379a26ea62a62c442d87185ec9829eceee7"
+  },
+  "history_preserved": true,
+  "history_basis": "Original stopped state, 27 steps and all 167 original event rows retained. Pre-run event SHA256 uses ensure_ascii=true; identical full-column serialization matches exactly.",
+  "before": {
+    "turn_id": "df697c8f-0b35-4c8c-a69d-d1422282cf8b",
+    "turn_status": "stopped",
+    "guard_state": "needs_review",
+    "version": 524,
+    "action": "opsx-apply",
+    "steps_sha256": "39bb632762aa6a781ace9f732ce39c7c4c07ec64fb8e894591bc43c12b37501b",
+    "events_sha256": "d7d0adbf3073c2801f1e94d42b484a9c008a7ad01f1d9b9970665a2d58132edb",
+    "step_count": 27,
+    "successful_syncs": 0
+  },
+  "after": {
+    "turn_id": "df697c8f-0b35-4c8c-a69d-d1422282cf8b",
+    "turn_status": "stopped",
+    "guard_state": "recovered_valid",
+    "version": 524,
+    "steps_sha256": "39bb632762aa6a781ace9f732ce39c7c4c07ec64fb8e894591bc43c12b37501b",
+    "events_sha256": "d7d0adbf3073c2801f1e94d42b484a9c008a7ad01f1d9b9970665a2d58132edb",
+    "step_count": 27,
+    "successful_syncs": 0,
+    "admission": {
+      "execution_state": "recovered_valid",
+      "can_send": true,
+      "reason_code": null
+    },
+    "policy": {
+      "write_scope": "governance_write",
+      "reason_code": "governance_object_writable"
+    },
+    "platform": "ready",
+    "successor_evidence": {
+      "fix-requirement-center-context-load-latency": "20261027175902791281-7c0a13c2"
+    },
+    "task_proofs": [
+      "fix-requirement-center-context-load-latency"
+    ],
+    "dependency_proofs": [
+      "rules/issues-lifecycle.md"
+    ],
+    "events_export_ensure_ascii_false_sha256": "af4e42f82983b7f42e97a571fbcea8e6f8e92aca252fa22ff10a9c73a7e6236c",
+    "events_hash_serialization": {
+      "ensure_ascii": true,
+      "sort_keys": true,
+      "compact": false,
+      "full_columns": true
+    }
+  },
+  "event_hash_comparison": {
+    "events_unchanged": true,
+    "matching_serialization": [
+      {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "turn_id",
+          "sequence",
+          "source_id",
+          "event_type",
+          "payload"
+        ],
+        "shape": "dict",
+        "ensure_ascii": true,
+        "compact": false
+      }
+    ],
+    "event_count": 167
+  },
+  "formal_archive_executed": false
+}

@@ -2,12 +2,41 @@
 import hashlib
 import json
 import pytest
+from contextlib import nullcontext
+from types import SimpleNamespace
 
 from app.governance.direct_command_journal import (
     archive_completion_blocked, completion_block_reason, is_formal_workflow_sync,
     observe, prepare, terminal,
 )
 from app.governance.snapshot import digest, read_once
+
+
+def test_restart_scan_skips_finished_history_but_finishes_pending(tmp_path, monkeypatch):
+    from app.governance import direct_command_journal as journal
+    private = tmp_path / 'private'; private.mkdir(mode=0o700)
+    monkeypatch.setenv('MOONBOX_GOVERNANCE_STATE_ROOT', str(private))
+    rows = [('conversation', name, 'stopped') for name in ('finished', 'pending', 'missing')]
+    for name in ('finished', 'pending'):
+        journal.store.write(journal.record_id('conversation', name), 'operation',
+                            {'phase': 'terminal' if name == 'finished' else 'prepared'})
+    original = journal.store.read
+    def read(rid, name):
+        assert name == 'operation', 'idle scanner must not decode historical baseline'
+        return original(rid, name)
+    monkeypatch.setattr(journal.store, 'read', read)
+    seen = []
+    monkeypatch.setattr(journal, 'terminal', lambda cid, key, status, root: seen.append(key))
+    factory = lambda: nullcontext(SimpleNamespace(execute=lambda query: SimpleNamespace(all=lambda: rows)))
+    journal.reconcile_terminal_commands(factory, lambda cid: (None, tmp_path))
+    assert seen == ['pending']
+    assert original(journal.record_id('conversation', 'finished'), 'operation') == {'phase': 'terminal'}
+
+
+def test_restart_scan_without_private_storage_does_not_open_database(monkeypatch):
+    from app.governance.direct_command_journal import reconcile_terminal_commands
+    monkeypatch.delenv('MOONBOX_GOVERNANCE_STATE_ROOT', raising=False)
+    reconcile_terminal_commands(lambda: pytest.fail('unconfigured scanner'), None)
 
 
 @pytest.mark.parametrize('action', [

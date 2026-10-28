@@ -12,11 +12,13 @@ from uuid import uuid4
 from sqlalchemy import select, update, or_
 from app.chat import worker, service
 from app.chat.accounting import pending, reconcile_usage
-from app.chat.backup import LocalBackupStore
+from app.chat.backup import LocalBackupStore, BackupBusy
 from app.chat.snapshot_observability import record as record_snapshot
 from app.chat.cleanup import process_copies
 from app.chat.container_server import persistent_container_server, ContainerAppServer
-from app.chat.execution import run_claim, mark_unknown, reconcile_unknown
+from app.chat.execution import run_claim, mark_unknown
+from app.chat.recovery_worker import RecoverySlot
+from app.chat.settings import recovery_policy
 from app.chat.platform import configured
 from app.chat.heartbeat import worker_heartbeat
 from app.chat.preparation_failure import fail_preparation, recover_preparation_failures
@@ -45,7 +47,28 @@ def selected_workspace_mode(binding):
     return mode
 
 
+def initial_snapshot_delay(factory, store, database, snapshot_limit):
+    try:
+        automatic_snapshot(factory, store, database, snapshot_limit)
+    except BackupBusy:
+        import logging
+        logging.getLogger('moonbox.chat').warning('local_snapshot.copy_deferred')
+        return 300
+    return 86400
+
+
+def reconcile_idle_history(factory, workspace):
+    with factory() as db:
+        for row in pending(db):
+            reconcile_usage(db, row['id'])
+    from app.governance.candidate_recovery import reconcile_terminal_candidates
+    reconcile_terminal_candidates(factory, workspace)
+    from app.governance.direct_command_journal import reconcile_terminal_commands
+    reconcile_terminal_commands(factory, workspace)
+
+
 def main():
+    policy = recovery_policy()
     factory=get_session_factory()
     with factory() as db:
         if not configured(db): raise RuntimeError('platform_configuration_unavailable')
@@ -74,7 +97,7 @@ def main():
     subprocess.run(['docker','image','inspect',ContainerAppServer.IMAGE],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=120)
     store=LocalBackupStore(backup_root())
     snapshot_limit=local_snapshot_limit()
-    automatic_snapshot(factory,store,database,snapshot_limit)
+    snapshot_delay = initial_snapshot_delay(factory,store,database,snapshot_limit)
     # Verify nested sandbox with a disposable workspace before publishing readiness.
     import tempfile
     with tempfile.TemporaryDirectory(prefix='preflight-',dir=runtime) as folder:
@@ -87,7 +110,7 @@ def main():
     recover_copies()
     recover_interrupted(factory)
     recover_preparation_failures(factory)
-    running=True;job=None;token=None;maintenance_at=0;gc_cursor='';backup_at=time.monotonic()+86400
+    running=True;job=None;token=None;maintenance_at=0;gc_cursor='';backup_at=time.monotonic()+snapshot_delay
     capture_job=None
     def stop(*_):
         nonlocal running
@@ -95,6 +118,8 @@ def main():
         capture_stop.set()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     def server(path): return persistent_container_server(path,runtime,auth)
+    server.recovery_runtime_root = runtime
+    server.recovery_auth_source = auth
     def execute(claim,path):
         try: run_claim(factory,claim,path,server)
         except Exception: mark_unknown(factory,claim,'platform_execution_setup_failed')
@@ -102,12 +127,15 @@ def main():
         with factory() as db: parent=db.execute(select(conversations).where(conversations.c.id==cid)).mappings().one()
         source,root,mode=roots[(parent['space_id'],parent['repository_id'])]
         return source,source if mode=='source' else root/cid
+    recovery_slot = RecoverySlot(factory, workspace, server, policy)
+    from app.chat.polling import Periodic
+    capabilities, history = Periodic(5), Periodic(5)
     heartbeat=worker_heartbeat(state)
     heartbeat.__enter__()
     try:
         while running:
             from app.governance.recovery_capabilities import publish as publish_capabilities
-            publish_capabilities("worker")
+            capabilities.run(publish_capabilities, "worker")
             if capture_job is None or not capture_job.is_alive():
                 capture_job=threading.Thread(target=capture_tick,args=(factory,),daemon=True)
                 capture_job.start()
@@ -115,17 +143,7 @@ def main():
                 job=None
                 with factory() as db:
                     worker.mark_stale_unknown(db,stale_seconds=10)
-                    for row in pending(db): reconcile_usage(db,row['id'])
-                    unknown=list(db.execute(select(turns.c.id,turns.c.conversation_id).where(turns.c.status=='unknown')).all())
-                for tid,cid in unknown:
-                    try:
-                        _,path=workspace(cid)
-                        if path.is_dir(): reconcile_unknown(factory,tid,path,server)
-                    except (KeyError,ValueError): continue
-                from app.governance.candidate_recovery import reconcile_terminal_candidates
-                reconcile_terminal_candidates(factory, workspace)
-                from app.governance.direct_command_journal import reconcile_terminal_commands
-                reconcile_terminal_commands(factory, workspace)
+                history.run(reconcile_idle_history, factory, workspace)
                 if time.monotonic()>=maintenance_at:
                     from app.chat.content_store import collect_orphans
                     with factory() as db:
@@ -170,8 +188,10 @@ def main():
                         trusted_directory(path)
                         job=threading.Thread(target=execute,args=(token,path));job.start()
                     except Exception as error: fail_preparation(factory,token,error)
+            recovery_slot.tick()
             time.sleep(.25)
     finally:
+        recovery_slot.close()
         heartbeat.__exit__(None,None,None)
         capture_stop.set()
         if capture_job and capture_job.is_alive():capture_job.join(timeout=25)

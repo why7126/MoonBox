@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:57:16
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -175,3 +175,15 @@ Change 身份排查使用 `scripts/validate-change-identity.py` 的冲突路径�
 ## 用户可理解性
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。 规则复用中央定义，不为解释术语扩读无关文档；校验脚本检查所有技能引用完整性。
+
+## 临时 Docker 资源契约
+
+涉及临时 Docker 验证时只读取 `docs/standards/temporary-docker-lifecycle.md` 与本次 run 摘要；入口 `scripts/temporary_docker.py reap`，结束 cleanup 和 check。不得输出完整 docker inspect、环境变量、凭据或全机资源列表。登记、清理失败和到期保留分别报告，不将未连接 daemon 当作零残留。
+
+## explore 反馈与维护预算
+
+explore 持续改进遵循 `docs/standards/governance-feedback-loop.md` 的“探索反馈与统一维护交接”：反馈分类、候选去重、行为评测、维护交接、版本生效；默认只读不落盘。普通探索只读 Skill 短入口，维护时才读取 `.agents/skills/explore/evals/cases.md` 和相关反馈证据，不加载全部历史。使用会话版本摘要；内容变化或显式版本切换才补读。静态契约、合成回归与真实行为证据分开，原有权限和预算不放宽。
+
+## 归档 Shell 统一解释器
+
+`archive-change.sh` 必须在治理副作用前通过既有 `scripts/project-python.sh` 选取并预检解释器，导出 `PYTHON_BIN`；内部脚本、命令替换、管道和 heredoc 均使用该解释器，禁止裸 python/python3 回退。中央校验对纳管归档脚本执行词法检查，行为证明由 `scripts/test_archive_python_entry.py` 提供。此门禁不宣称已迁移或完整解析其他 shell。统一入口支持 `-c` 与 `-`，不新增第二套选择逻辑。

@@ -1,0 +1,79 @@
+{
+  "status": "failed",
+  "samples": 400,
+  "http_errors": 0,
+  "snapshot_revision": "71f0779833e069f1a8a1d7d6df4c1ee2bd518eed37f362c4ec7fce1a4a73c83a",
+  "unique_request_ids": 400,
+  "authorized_cards": 214,
+  "visible_cards": 29,
+  "targets": {
+    "http_p95_ms": 3000,
+    "first_card_p95_ms": 4000
+  },
+  "windows": [
+    {
+      "window": "natural",
+      "action": "navigation",
+      "samples": 100,
+      "http_p95_ms": 10811,
+      "http_median_ms": 3383.0,
+      "http_max_ms": 20704,
+      "first_card_p95_ms": 12040,
+      "first_card_max_ms": 22750,
+      "over_3000ms": 61,
+      "passed": false
+    },
+    {
+      "window": "natural",
+      "action": "refresh",
+      "samples": 100,
+      "http_p95_ms": 6757,
+      "http_median_ms": 2555.0,
+      "http_max_ms": 11490,
+      "first_card_p95_ms": null,
+      "first_card_max_ms": null,
+      "over_3000ms": 35,
+      "passed": false
+    },
+    {
+      "window": "loaded",
+      "action": "navigation",
+      "samples": 100,
+      "http_p95_ms": 10608,
+      "http_median_ms": 4667.0,
+      "http_max_ms": 19881,
+      "first_card_p95_ms": 11620,
+      "first_card_max_ms": 21689,
+      "over_3000ms": 85,
+      "passed": false
+    },
+    {
+      "window": "loaded",
+      "action": "refresh",
+      "samples": 100,
+      "http_p95_ms": 22488,
+      "http_median_ms": 5651.5,
+      "http_max_ms": 39700,
+      "first_card_p95_ms": null,
+      "first_card_max_ms": null,
+      "over_3000ms": 99,
+      "passed": false
+    }
+  ],
+  "source_modules_matched": 24,
+  "regression_reuse": {
+    "passed": 286,
+    "executed_this_window": false,
+    "reason": "Deployed 24 module hashes match previously tested proof-read version.",
+    "evidence": [
+      "../proof-read/regression-archive.txt",
+      "../proof-read/regression-boundaries.txt"
+    ]
+  },
+  "observations": [
+    "All services healthy with zero restarts at every recorded checkpoint.",
+    "Natural host load rose again after the user released other applications. No unrelated applications or services were stopped by the agent.",
+    "Snapshot reads and parsing remain costly; host contention alone is not a confirmed explanation."
+  ],
+  "ready": false
+}

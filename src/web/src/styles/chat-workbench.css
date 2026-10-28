@@ -1884,3 +1884,11 @@ select.round-select.small {
 .chat-archive-blockers p { margin: 8px 0 0; color: var(--rc-muted); white-space: pre-wrap; }
 .chat-archive-blockers summary { margin-top: 8px; cursor: pointer; color: var(--rc-text); }
 .chat-archive-blockers summary:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 3px; }
+
+/* Bounded reply reader: wrap long text without hiding pagination controls. */
+.chat-full-output-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 55vh; overflow-y: auto; font: inherit; line-height: 1.6; }
+
+.chat-full-output-open, [data-testid="turn-full-output"] button { font: inherit; color: var(--rc-text); background: var(--rc-panel); border: 1px solid var(--rc-border); border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+.chat-full-output-open { align-self: flex-start; width: fit-content; }
+[data-testid="turn-full-output"] button:disabled { opacity: .45; cursor: default; }
+.chat-full-output-open:focus-visible, [data-testid="turn-full-output"] button:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 2px; }

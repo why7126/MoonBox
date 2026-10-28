@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:57:16
 owner: MoonBox 产品团队
 ---
 
@@ -145,3 +145,13 @@ Change 创建与归档遵循 [Change 身份唯一性](rules/document-governance.
 遵循 [分级闭环](docs/standards/governance-feedback-loop.md)：非只读命令入口使用 `scripts/governance_feedback.py start`，完成门禁后 `finish` 自动复盘；只有明确边界的实测用量参与收益。用户已授权本项目治理范围自动优化，策略见 `rules/governance-feedback-policy.json`，仍保留 Change、Sprint、验证、预算和防递归门禁。只读探索不落盘，优化任务自身计成本，未获授权或业务范围仍只给建议。
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 临时 Docker 验证环境门禁
+
+创建临时 Docker 验证环境前读取 `docs/standards/temporary-docker-lifecycle.md`，使用 `scripts/temporary_docker.py` 登记 run、用途、Change、daemon 和到期时间；容器与专属网络均设置登记返回的三标签。任务结束清理后必须 check 零残留；异常保留报告原因、期限与恢复命令。治理任务入口执行 reap 到期扫描，跨 daemon、未知资源、卷、共享网络及到期仍运行资源均不自动删除。脚本不提供后台定时执行，不能承诺 Codex 退出后自行唤醒。
+
+## explore 持续改进试点
+
+`/explore` 按 `docs/standards/governance-feedback-loop.md` 的“探索反馈与统一维护交接”在会话中分类反馈；默认只读不落盘、不自动维护。明确切换 `/spec-opt` 后复用统一候选去重、评测及版本生效规则，项目知识与通用方法分开。维护时按需读取 `.agents/skills/explore/evals/cases.md`，不把静态校验宣称为真实行为改善。
+
+归档 Shell 的 Python 接入覆盖脚本、命令替换、管道和内联代码；统一入口、继承与隔离回归见 `scripts/README.md` 的“归档 Shell 解释器继承”。

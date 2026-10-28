@@ -1,0 +1,14 @@
+{
+  "boundary": "one initial navigation into a new synthetic database; not part of warmed-state application-cache samples",
+  "note": "Creates execution verification state for the first time. This single initialization observation is retained and not claimed fixed.",
+  "sample": {
+    "first_card_ms": 12758.90000000596,
+    "visible_cards": 28,
+    "context_ms": 11520.59999999404,
+    "cold": false,
+    "os_page_cache_cleared": false,
+    "request_id": "f86cdbbf-341e-41a7-b8a6-da288e9b0bcb",
+    "server_timing": "snapshot_and_fences;dur=1282.22, snapshot;dur=1266.64, fences_exclusive;dur=15.58, materialize;dur=643.37, object_authorization;dur=0.00, parse;dur=935.82, cleanup;dur=1.01, reconcile;dur=4.15, external_reconcile;dur=8260.98, card_projection_exclusive;dur=286.73, projection_commit;dur=0.05, document_projection;dur=2.37, reader_orchestration;dur=9.02, total;dur=11425.72, dependencies;dur=19.72, response_finalize;dur=9.06, request_audit;dur=23.08, route_total;dur=11477.75",
+    "status": 200
+  }
+}

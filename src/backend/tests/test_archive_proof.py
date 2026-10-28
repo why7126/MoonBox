@@ -75,7 +75,10 @@ def verifier(tmp_path, monkeypatch):
     turn=dict(id='turn',status='completed',conversation_id='c',client_request_id='request')
     operation=dict(phase='terminal',terminal_status='completed',steps=[{'sync_succeeded':False}])
     baseline=dict(binding_revision='binding',files={n:b.decode() for n,b in before.items()})
-    monkeypatch.setattr(module,'record_block_reason',lambda *a,**k:None)
+    def checked_records(*args, **kwargs):
+        kwargs['records']['baseline'] = baseline
+        return None
+    monkeypatch.setattr(module,'record_block_reason',checked_records)
     monkeypatch.setattr(module.store,'read',lambda *a:baseline)
     monkeypatch.setattr(module,'_archive',lambda *a:(CID,ARCHIVE))
     monkeypatch.setattr(module,'validate_result',lambda *a:True)
@@ -100,6 +103,42 @@ def test_success_records_new_proof_without_forging_original_steps(verifier):
     assert cmd[0][-1]==CID
     assert 'archive-change.sh' not in ' '.join(cmd[0])
     assert verify(p,g,t,o,s)==proof
+
+
+def test_missing_baseline_rejects_before_digest_without_reopening_records(verifier, monkeypatch):
+    m,p,g,t,o,s,w,cmd=verifier
+    def checked_records(*args, **kwargs):
+        kwargs['records']['baseline'] = {'binding_revision': 'binding', 'files': {}}
+    monkeypatch.setattr(m, 'record_block_reason', checked_records)
+    def unexpected(*args, **kwargs):
+        pytest.fail('missing baseline must reject before duplicate read or digest')
+    monkeypatch.setattr(m.store, 'read', unexpected)
+    monkeypatch.setattr(m, 'digest', unexpected)
+    with pytest.raises(ArchiveProofError, match='archive_baseline_missing'):
+        verify(p,g,t,o,s)
+    assert not w and not cmd
+
+
+def test_record_handoff_is_fresh_and_only_populated_after_validation(tmp_path, monkeypatch):
+    from app.governance import direct_command_journal as journal
+    rid = journal.record_id('conversation', 'request')
+    (tmp_path / rid).mkdir()
+    monkeypatch.setattr(journal.store, 'root', lambda: tmp_path)
+    operation = dict(schema_version=1, action='opsx-archive', object_id=CID,
+                     baseline_revision='revision', steps=[], phase='terminal')
+    baseline = dict(action='opsx-archive', object_id=CID, revision='revision', files={})
+    reads = []
+    def read(record, name):
+        reads.append(name)
+        return dict(operation if name == 'operation' else baseline)
+    monkeypatch.setattr(journal.store, 'read', read)
+    records = {}
+    assert journal.record_block_reason('conversation', 'request', action='opsx-archive', records=records) is None
+    assert reads == ['operation', 'baseline'] and records['baseline'] == baseline
+    baseline['revision'] = 'changed'
+    rejected = {}
+    assert journal.record_block_reason('conversation', 'request', action='opsx-archive', records=rejected) == 'direct_command_identity_mismatch'
+    assert reads == ['operation', 'baseline'] * 2 and not rejected
 
 
 @pytest.mark.parametrize('failure', ['sync','changed','business','binding','baseline','scope'])
@@ -141,7 +180,10 @@ def test_reconcile_wrapper_proof_confirms_once_or_keeps_failure(chat, monkeypatc
     client, factory = chat
     cid = create(client)
     tid = queued(factory, cid, 'completed')
-    project = SimpleNamespace(key='project', root=None)
+    project = SimpleNamespace(key='project', root=None, space_id='space', repository_id='repo',
+                              readonly=False, binding_revision='test')
+    monkeypatch.setattr(context.scope, 'authorize', lambda *a, **kw: project)
+    monkeypatch.setattr(context.scope, 'visible', lambda *a, **kw: True)
     snapshot = Snapshot({}, 'after')
     monkeypatch.setattr(context, 'stable', lambda *a: snapshot)
     monkeypatch.setattr(context, 'stage_map', lambda *a: {CID: 'done'})

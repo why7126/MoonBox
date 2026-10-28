@@ -1,0 +1,12 @@
+{
+  "status": "failed_stopped_early",
+  "planned_samples": 100,
+  "retained_samples": 29,
+  "over_3000ms": 26,
+  "maximum_ms": 59087,
+  "http_errors": 0,
+  "reason": "More than five completed samples exceeded 3000 ms; planned 100-sample P95 cannot pass. Retained all exported observations; later observations overlap load shutdown and are diagnostic only.",
+  "load_stop_requested_at": "2026-10-28T02:49:16.434705+00:00",
+  "complete_window_p95_ms": null,
+  "ready": false
+}

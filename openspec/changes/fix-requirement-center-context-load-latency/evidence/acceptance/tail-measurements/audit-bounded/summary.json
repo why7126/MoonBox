@@ -1,0 +1,37 @@
+{
+  "status": "failed",
+  "reason": "loaded-refresh-p95-exceeded",
+  "samples": 400,
+  "snapshot_revision": "4a12172d90c1f07136075603aabb877e78bf834f3dc2fc2d4194b94510f9e3eb",
+  "summary": {
+    "natural-navigation": {
+      "count": 100,
+      "http_p95_ms": 2576,
+      "http_max_ms": 3415,
+      "first_p95_ms": 3197,
+      "errors": 0
+    },
+    "natural-refresh": {
+      "count": 100,
+      "http_p95_ms": 2610,
+      "http_max_ms": 4300,
+      "first_p95_ms": null,
+      "errors": 0
+    },
+    "loaded-navigation": {
+      "count": 100,
+      "http_p95_ms": 2472,
+      "http_max_ms": 2827,
+      "first_p95_ms": 2959,
+      "errors": 0
+    },
+    "loaded-refresh": {
+      "count": 100,
+      "http_p95_ms": 5068,
+      "http_max_ms": 6285,
+      "first_p95_ms": null,
+      "errors": 0
+    }
+  },
+  "buffer_diagnostic": "89 measured requests and 3 observation timeouts retained separately; replacement refresh100 used 10000-entry timing buffer and reached 252 entries without overflow"
+}

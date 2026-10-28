@@ -1,0 +1,29 @@
+{
+  "kind": "read_only_real_service_resource_observation_not_browser_acceptance",
+  "duration_s": 1798.955794999998,
+  "samples": 255,
+  "host_cpus": 10,
+  "load_1m_min": 3.25732421875,
+  "load_1m_max": 9.5791015625,
+  "services": {
+    "moonbox-backend": {
+      "cpu_percent_median": 32.63,
+      "cpu_percent_max": 136.31,
+      "health_at_completion": "healthy",
+      "restarts": 0
+    },
+    "moonbox-chat-worker": {
+      "cpu_percent_median": 3.82,
+      "cpu_percent_max": 123.57,
+      "health_at_completion": "healthy",
+      "restarts": 0
+    },
+    "moonbox-governance-controller": {
+      "cpu_percent_median": 1.76,
+      "cpu_percent_max": 42.07,
+      "health_at_completion": "healthy",
+      "restarts": 0
+    }
+  },
+  "notes": "前三服务从23:23起持续运行；观察含额外2CPU资源测试及其结束后的自然窗口，不替代正式页面两组采样"
+}

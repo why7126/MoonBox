@@ -1,0 +1,44 @@
+{
+  "command_runs": [
+    {
+      "source_session_hash": "a5d9462d1c14e36f65e56b89a0230c9942b12fd830aceb1cf6951e69d06f07df",
+      "source_data_file": "~/.codex/sessions/2026/10/26/rollout-2026-10-26T18-09-46-01a177b0-04bf-7000-b625-bcb4d3f99527.jsonl",
+      "source_line_start": 33,
+      "source_line_end": 40,
+      "turn_hash": "6afe1f72c1740879",
+      "started_at": "2026-10-26T10:19:46.972Z",
+      "ended_at": "2026-10-26T10:19:48.663Z",
+      "command": "bug.complete",
+      "workflow_event": "bug.complete",
+      "requirements": [],
+      "bugs": [
+        "BUG-0065-chat-final-answer-duplicate-concatenation",
+        "BUG-0066-chat-auto-verification-status-stale"
+      ],
+      "changes": [],
+      "sprint_id": null,
+      "release_sprints": [],
+      "release_version": "v2.1.9",
+      "attribution_confidence": "high",
+      "model_name": "codex-auto-review",
+      "model_provider": "openai",
+      "service_tier": "default",
+      "reasoning_effort": "low",
+      "reasoning_summary": "none",
+      "model_speed_tier": null,
+      "model_rate_limit_name": null,
+      "model_rate_limit_id": "codex",
+      "model_context_window": 258400,
+      "model_call_count": 1,
+      "input_tokens": 107766,
+      "cached_input_tokens": 6016,
+      "output_tokens": 74,
+      "reasoning_output_tokens": 11,
+      "total_tokens": 107840,
+      "tool_call_count": 0,
+      "tool_output_chars": 0,
+      "retry_count": 0,
+      "retry_count_method": "tool_result_error_count"
+    }
+  ]
+}

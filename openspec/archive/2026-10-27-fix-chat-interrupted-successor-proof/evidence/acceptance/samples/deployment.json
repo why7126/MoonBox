@@ -1,0 +1,16 @@
+{
+  "matched": true,
+  "backend_files": {
+    "direct_completion.py": "2cb8249048908f8aef80bc3d47d052029eae2cfe93257a2ead47f69495118680",
+    "successor_completion.py": "1fe4f73e6c175c39fd2cd3f2e4ec768c15d2b5b9889dbddf08203062f37e3f3c",
+    "successor_dependencies.py": "0f02981cbd9fd8a64a63817295908379a26ea62a62c442d87185ec9829eceee7",
+    "workflow_receipt.py": "9b6de2af521fd23faac98ae77fbf5d2d00a47e2054cae909c67983c927061a70"
+  },
+  "service_health": "all standard compose checks passed",
+  "rollback_images_preserved": true,
+  "maintenance_recovery": "test browser polling closed; sequential backend, worker, controller restart; no database writes or data deletion by maintenance",
+  "worker_healthy_after_recovery": true,
+  "worker_restart_count_after_recovery": 1,
+  "controller_restart_count_after_recovery": 4,
+  "ongoing_limitation": "SQLite lock contention recurred; latest isolated read platform worker_starting; controller restored; no claim of sustained platform readiness"
+}

@@ -1,0 +1,55 @@
+{
+  "status": "failed",
+  "devtools_open": false,
+  "summary": {
+    "natural-navigation": {
+      "count": 30,
+      "http_p95_ms": 4154,
+      "http_median_ms": 1754.5,
+      "http_max_ms": 5136,
+      "errors": 0,
+      "first_p95_ms": 5915,
+      "revisions": [
+        "b187b1a89409672a2bbb8449df5f52f835ee1eff7e6228cfa42ae2f3f1b720ee"
+      ]
+    },
+    "natural-refresh": {
+      "count": 30,
+      "http_p95_ms": 2338,
+      "http_median_ms": 1477.0,
+      "http_max_ms": 2619,
+      "errors": 0,
+      "first_p95_ms": null,
+      "revisions": [
+        "b187b1a89409672a2bbb8449df5f52f835ee1eff7e6228cfa42ae2f3f1b720ee"
+      ]
+    },
+    "loaded-navigation": {
+      "count": 30,
+      "http_p95_ms": 3487,
+      "http_median_ms": 2487.0,
+      "http_max_ms": 4311,
+      "errors": 0,
+      "first_p95_ms": 4415,
+      "revisions": [
+        "b187b1a89409672a2bbb8449df5f52f835ee1eff7e6228cfa42ae2f3f1b720ee"
+      ]
+    },
+    "loaded-refresh": {
+      "count": 30,
+      "http_p95_ms": 3097,
+      "http_median_ms": 2373.5,
+      "http_max_ms": 3499,
+      "errors": 0,
+      "first_p95_ms": null,
+      "revisions": [
+        "b187b1a89409672a2bbb8449df5f52f835ee1eff7e6228cfa42ae2f3f1b720ee"
+      ]
+    }
+  },
+  "regression": {
+    "passed": 342,
+    "subtests_passed": 6,
+    "failed": 0
+  }
+}

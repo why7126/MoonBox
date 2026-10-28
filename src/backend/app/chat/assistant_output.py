@@ -23,38 +23,56 @@ def saved_output(db, tid):
     # V2 previews read authoritative committed content, not truncated event text.
     from app.chat.content_schema import segments
     from app.chat import content_store
+    from app.chat.final_answer import selection
+    selected, final_complete = selection(db, tid)
     final_exists = db.scalar(select(segments.c.id).where(segments.c.turn_id == tid,
         segments.c.stream_id == 'final').limit(1))
     stream = 'final' if final_exists else 'output'
-    rows_v2 = db.execute(select(segments.c.object_id).where(segments.c.turn_id == tid,
-        segments.c.stream_id == stream).order_by(segments.c.sequence).limit(21)).scalars()
-    preview = []; size_v2 = 0; truncated_v2 = False
-    for oid in rows_v2:
-        data, _ = content_store.read_page(db, oid)
-        text_v2 = data.decode('utf-8')
-        remaining = MAX_CHARS - size_v2
-        preview.append(text_v2[:remaining]); size_v2 += min(len(text_v2), remaining)
-        if len(text_v2) > remaining or len(preview) == 21:
-            truncated_v2 = True; break
-    if preview:
-        return {'content': ''.join(preview), 'partial': not final_exists or truncated_v2,
-                'truncated': truncated_v2}
+    from app.chat.output_window import read_batch, BATCH_SEGMENTS, PREVIEW_SEGMENTS, PREVIEW_BYTES
+    preview = []; size_v2 = 0; read_bytes = 0; count = 0; after = 0; reason = None
+    while count < PREVIEW_SEGMENTS:
+        try:
+            batch, more, consumed = read_batch(db, tid, stream, after,
+                selected if stream == 'final' else None,
+                limit=min(BATCH_SEGMENTS, PREVIEW_SEGMENTS - count),
+                byte_budget=PREVIEW_BYTES - read_bytes)
+        except (ValueError, UnicodeError):
+            reason = 'invalid_payload'
+            break
+        read_bytes += consumed
+        for index, item in enumerate(batch):
+            text_v2 = item['text']; remaining = MAX_CHARS - size_v2
+            preview.append(text_v2[:remaining]); size_v2 += min(len(text_v2), remaining)
+            count += 1; after = item['sequence']
+            if len(text_v2) > remaining or (size_v2 == MAX_CHARS and (index + 1 < len(batch) or more)):
+                reason = 'preview_limit'
+                break
+        if reason or not more:
+            break
+        if not batch or read_bytes == PREVIEW_BYTES or count == PREVIEW_SEGMENTS:
+            reason = 'read_window'
+            break
+    if preview or reason:
+        result = {'content': ''.join(preview), 'partial': not final_complete or bool(reason),
+                  'truncated': bool(reason)}
+        if reason: result['truncation_reason'] = reason
+        return result
     # Read sequence metadata for all event types to detect retained-history gaps,
     # but never load tool payloads into the assistant projection.
     relevant = (events.c.event_type == 'execution.output') | events.c.source_id.startswith('assistant:final:')
     rows = db.execute(select(events.c.sequence, events.c.event_type, events.c.source_id,
         case((relevant, events.c.payload), else_='').label('payload'))
         .where(events.c.turn_id == tid).order_by(events.c.sequence).limit(MAX_EVENTS + 1)).mappings()
-    parts = {}; final = None; size = 0; previous = 0; truncated = False
+    parts = {}; final = None; size = 0; previous = 0; truncated = False; reason = None
     for index, row in enumerate(rows):
         if index == MAX_EVENTS:
-            truncated = True; break
-        if row['sequence'] != previous + 1: truncated = True
+            truncated = True; reason = reason or 'read_window'; break
+        if row['sequence'] != previous + 1: truncated = True; reason = 'history_gap'
         previous = row['sequence']
         if not row['payload']: continue
         try: payload = json.loads(row['payload'])
-        except (ValueError, TypeError): truncated = True; continue
-        if not isinstance(payload, dict): truncated = True; continue
+        except (ValueError, TypeError): truncated = True; reason = 'invalid_payload'; continue
+        if not isinstance(payload, dict): truncated = True; reason = 'invalid_payload'; continue
         text = payload.get('text')
         if not isinstance(text, str): continue
         if row['source_id'].startswith('assistant:final:'):
@@ -70,14 +88,20 @@ def saved_output(db, tid):
     joined = '\n\n'.join(parts.values())
     if final is None and len(joined) > MAX_CHARS: truncated = True
     content = final if final is not None else joined[:MAX_CHARS]
-    return {'content': content, 'partial': final is None or truncated, 'truncated': truncated}
+    result = {'content': content, 'partial': final is None or truncated, 'truncated': truncated}
+    if truncated: result['truncation_reason'] = reason or 'preview_limit'
+    return result
 
 
 def persist_output(db, tid, content=None):
     """No commit: same transaction/turn lock as normal completion or recovery."""
     existing = db.execute(select(messages.c.id).where(messages.c.turn_id == tid,
         messages.c.role == 'assistant').order_by(messages.c.created_at, messages.c.id).limit(1)).first()
-    if content is None: content = saved_output(db, tid)['content']
+    if content is None:
+        projection = saved_output(db, tid)
+        if existing and projection['truncated']:
+            return
+        content = projection['content']
     if not content: return
     if existing:
         # Preserve existing authoritative/legacy messages. Only our projection can
@@ -167,9 +191,11 @@ def message_page(db, cid, page, page_size, before=None, *, with_cursor=False):
                 row['display_time'] = None; row['time_source'] = 'legacy_unknown'
             if projected or row['id'] == message_id(row['turn_id']):
                 output = saved_output(db, row['turn_id'])
-                if projected:
+                from app.chat.final_answer import selection
+                selected, complete = selection(db, row['turn_id'])
+                if projected or (selected and complete and output['content'] and not output['truncated']):
                     row['content'] = output['content']
-                row.update(output_partial=output['partial'] or status != 'completed', output_truncated=output['truncated'],
+                row.update(output_partial=output['partial'] or status != 'completed', output_truncated=output['truncated'], output_truncation_reason=output.get('truncation_reason'),
                     output_source='events' if projected else 'message')
             else:
                 row.update(output_partial=status != 'completed', output_truncated=False, output_source='message')

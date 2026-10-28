@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>需求中心隔离冷暖验收</title>
+<style>body{margin:0;font:14px sans-serif}header{position:sticky;top:0;background:white;padding:8px}iframe{width:1440px;height:900px;border:0}</style>
+<header><button id="run">运行冷暖各30次</button> <span id="progress">就绪</span></header><iframe id="page" src="about:blank"></iframe>
+<script>
+const frame=document.querySelector('#page'), progress=document.querySelector('#progress');
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function until(check){const end=Date.now()+90000;while(Date.now()<end){if(check())return;await pause(40)}throw Error('timeout');}
+document.querySelector('#run').onclick=async event=>{
+ event.currentTarget.disabled=true;
+ try{
+  for(const cold of [true,false])for(let n=0;n<30;n++){
+   progress.textContent=(cold?'冷':'暖')+' '+(n+1)+'/30';
+   if(cold){
+    const reset=frame.contentDocument.getElementById('reset-caches');
+    if(reset){reset.click();await until(()=>reset.dataset.ready==='true')}
+    else{const response=await fetch('/api/fixture/context/reset',{method:'POST'});if(!response.ok)throw Error('reset failed')}
+   }
+   frame.src='/e2e/context-performance.html?cards=29&cold='+(cold?'1':'0')+'&sample='+n;
+   await new Promise(resolve=>frame.onload=resolve);
+   await until(()=>frame.contentDocument.getElementById('performance-evidence')?.dataset.ready==='true');
+   await pause(1000);
+  }
+  progress.textContent='完成冷暖各30次';
+ }catch(error){progress.textContent='失败 '+error}
+ finally{document.querySelector('#run').disabled=false}
+};
+</script></html>

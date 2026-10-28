@@ -5,7 +5,7 @@ import stat
 from pathlib import Path
 from uuid import UUID
 from app.chat.workspace import trusted_directory, WorkspaceError
-from app.chat.service import ChatError
+from app.chat.errors import ChatError
 
 
 def root():

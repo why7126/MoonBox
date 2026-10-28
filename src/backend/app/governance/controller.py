@@ -12,7 +12,7 @@ logger=logging.getLogger('moonbox.governance')
 _completion_scan_at = 0.0
 
 
-def tick(factory):
+def tick(factory, retention=None):
     from app.governance.recovery_controller import tick as recover
     recover(factory)
     from app.governance.completion_handoff import tick as reconcile_completion
@@ -21,8 +21,13 @@ def tick(factory):
         reconcile_completion(factory)
         _completion_scan_at = time.monotonic() + 10.0
     from app.governance.recovery_retention import sweep
-    with factory() as db:
-        sweep(db)
+    def maintain():
+        with factory() as db:
+            sweep(db)
+    if retention is None:
+        maintain()
+    else:
+        retention.run(maintain)
     from app.governance.recovery_schema import operations
     with factory() as db:
         rows=db.execute(select(governance_applications.c.id).outerjoin(operations,
@@ -52,9 +57,11 @@ def tick(factory):
 
 def main():
     store.root();factory=get_session_factory()
+    from app.chat.polling import Periodic
+    heartbeat, retention = Periodic(5), Periodic(30)
     while True:
         from app.governance.readiness import publish
-        publish();tick(factory);time.sleep(.25)
+        heartbeat.run(publish);tick(factory, retention);time.sleep(.25)
 
 
 if __name__=='__main__':main()

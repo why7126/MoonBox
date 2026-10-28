@@ -1,0 +1,45 @@
+{"sample": 0, "cards": 214, "revision": "55c9b06f41abf35a8156fb9abdb8b83ab96bf3b944dc8f9f55c710bd04312478", "timings": {"snapshot_and_fences_ms": 1032.08, "snapshot_ms": 1021.6, "fences_exclusive_ms": 10.48, "materialize_ms": 247.4, "object_authorization_ms": 0.0, "parse_ms": 335.66, "cleanup_ms": 22.53, "reconcile_ms": 131.54, "external_reconcile_ms": 8.15, "card_projection_exclusive_ms": 29.35, "projection_commit_ms": 0.55, "document_projection_ms": 1.75, "total_ms": 1814.68, "reader_orchestration_ms": 5.67}}
+         1231924 function calls (1121785 primitive calls) in 0.338 seconds
+
+   Ordered by: cumulative time
+   List reduced from 517 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.338    0.338 /app/app/services/requirement_center.py:153(build_requirement_center_context)
+        1    0.002    0.002    0.295    0.295 /app/app/governance/change_index.py:275(cards)
+      122    0.002    0.000    0.206    0.002 /app/app/services/requirement_center.py:194(_build_issue)
+        1    0.000    0.000    0.146    0.146 /app/app/services/requirement_center.py:332(_acceptance_readiness)
+        1    0.000    0.000    0.146    0.146 /app/app/governance/archive_admission.py:144(issue_acceptance)
+        1    0.000    0.000    0.146    0.146 /app/app/governance/archive_admission.py:89(_issue_acceptance)
+        1    0.000    0.000    0.125    0.125 /app/app/governance/acceptance_evidence.py:404(readiness)
+     5726    0.008    0.000    0.072    0.000 /app/app/services/requirement_center.py:121(read)
+      548    0.001    0.000    0.062    0.000 /app/app/governance/acceptance_evidence.py:14(within)
+        3    0.000    0.000    0.057    0.019 /app/app/governance/acceptance_evidence.py:354(acceptance_manifests)
+      454    0.000    0.000    0.053    0.000 /app/app/governance/acceptance_evidence.py:178(input_path)
+41849/3487    0.022    0.000    0.050    0.000 /usr/local/lib/python3.12/copy.py:118(deepcopy)
+        2    0.000    0.000    0.049    0.024 /app/app/governance/acceptance_evidence.py:366(latest_manifest)
+     1340    0.001    0.000    0.044    0.000 /usr/local/lib/python3.12/pathlib.py:1228(resolve)
+55737/1998    0.016    0.000    0.041    0.000 /app/app/governance/read_memo.py:14(clone)
+    15801    0.006    0.000    0.039    0.000 /usr/local/lib/python3.12/pathlib.py:437(__str__)
+       10    0.000    0.000    0.039    0.004 /app/app/governance/acceptance_evidence.py:233(fingerprint)
+      227    0.000    0.000    0.037    0.000 /app/app/governance/acceptance_evidence.py:190(input_bytes)
+    11735    0.004    0.000    0.036    0.000 /usr/local/lib/python3.12/pathlib.py:551(drive)
+     9405    0.005    0.000    0.035    0.000 /usr/local/lib/python3.12/pathlib.py:407(_load_parts)
+ 2646/516    0.004    0.000    0.034    0.000 /usr/local/lib/python3.12/copy.py:217(_deepcopy_dict)
+      269    0.000    0.000    0.033    0.000 /usr/local/lib/python3.12/json/__init__.py:299(loads)
+      269    0.000    0.000    0.033    0.000 /usr/local/lib/python3.12/json/decoder.py:333(decode)
+     1340    0.001    0.000    0.033    0.000 <frozen posixpath>:420(realpath)
+      269    0.032    0.000    0.032    0.000 /usr/local/lib/python3.12/json/decoder.py:344(raw_decode)
+ 2158/394    0.003    0.000    0.031    0.000 /usr/local/lib/python3.12/site-packages/pydantic/main.py:1053(__deepcopy__)
+    28971    0.006    0.000    0.031    0.000 /usr/local/lib/python3.12/pathlib.py:484(_str_normcase)
+     1314    0.001    0.000    0.031    0.000 /usr/local/lib/python3.12/pathlib.py:690(is_relative_to)
+        1    0.001    0.001    0.031    0.031 /app/app/governance/change_index.py:68(__init__)
+9539/8279    0.002    0.000    0.030    0.000 {method 'extend' of 'list' objects}
+      199    0.001    0.000    0.027    0.000 /app/app/governance/change_index.py:206(documents)
+      490    0.000    0.000    0.026    0.000 /usr/local/lib/python3.12/copy.py:191(_deepcopy_list)
+     1340    0.006    0.000    0.026    0.000 <frozen posixpath>:429(_joinrealpath)
+      122    0.003    0.000    0.025    0.000 /app/app/services/requirement_center.py:361(_document_entries)
+    13829    0.006    0.000    0.025    0.000 /usr/local/lib/python3.12/pathlib.py:380(with_segments)
+
+
+{"sample": 1, "cards": 214, "revision": "55c9b06f41abf35a8156fb9abdb8b83ab96bf3b944dc8f9f55c710bd04312478", "timings": {"snapshot_and_fences_ms": 255.46, "snapshot_ms": 253.98, "fences_exclusive_ms": 1.48, "materialize_ms": 0.68, "object_authorization_ms": 0.0, "parse_ms": 340.46, "cleanup_ms": 23.23, "reconcile_ms": 103.4, "external_reconcile_ms": 8.85, "card_projection_exclusive_ms": 21.76, "projection_commit_ms": 0.49, "document_projection_ms": 1.35, "total_ms": 756.24, "reader_orchestration_ms": 0.56}}

@@ -86,3 +86,5 @@ bash scripts/run-tests.sh
 关键未决策事项集中在 `docs/pending-decisions.md`。
 
 本地取证产物可保留于 Git 忽略的 `logs/`；不提交原始日志，长期验收证据按[目录规范](rules/directory-structure.md#本地取证日志目录)转存。
+
+Chat未知轮次的有界恢复、预算配置和暂停续接见[部署说明](docs/02-deployment.md#chat-未知轮次有界恢复bug-0064)。

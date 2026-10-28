@@ -104,6 +104,10 @@ def migrate(engine):
     for table in rule_change_tables:
         if table not in CHAT_TABLES:
             CHAT_TABLES.append(table)
+    from app.chat.recovery_schema import TABLES as chat_recovery_tables
+    for table in chat_recovery_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     metadata.create_all(engine, tables=CHAT_TABLES)
     from app.governance.replacement_schema import install_audit_guards
     install_audit_guards(engine)

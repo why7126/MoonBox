@@ -663,12 +663,32 @@ export interface ApiResponseCompletionVerificationResponse {
   data: CompletionVerificationResponse;
 }
 
+export type AutoVerificationStatusState = typeof AutoVerificationStatusState[keyof typeof AutoVerificationStatusState];
+
+
+export const AutoVerificationStatusState = {
+  pending: 'pending',
+  checking: 'checking',
+  confirmed: 'confirmed',
+  blocked: 'blocked',
+  unavailable: 'unavailable',
+} as const;
+
+export interface AutoVerificationStatus {
+  state: AutoVerificationStatusState;
+  reason_code?: string | null;
+}
+
 export interface DirectVerificationDifference {
   path: string;
   kind: string;
 }
 
+export type DirectVerificationResponseSuccessorEvidence = {[key: string]: string};
+
 export interface DirectVerificationResponse {
+  successor_evidence?: DirectVerificationResponseSuccessorEvidence;
+  auto_verification?: AutoVerificationStatus | null;
   available: boolean;
   state: string;
   version: number | null;

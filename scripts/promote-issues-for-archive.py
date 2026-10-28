@@ -250,7 +250,7 @@ def print_residual_blockers(blockers: list[IssueStatusResidual]) -> None:
     if not blockers:
         return
     print("## Issue Subdocument Status Gate\n")
-    print("BLOCKED: issue archive promotion found non-closed status values in issue subdocuments.\n")
+    print("BLOCKED: issue archive promotion found non-closed status values or lifecycle_stage drift in issue subdocuments.\n")
     print("| Issue | File | Source | Status | Suggestion |")
     print("|-------|------|--------|--------|------------|")
     for blocker in blockers:

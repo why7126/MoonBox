@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-python-entry",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "scripts/project-python.sh",
+        "scripts/project_python_preflight.py",
+        "scripts/archive-change.sh",
+        "scripts/test_project_python.py",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_project_python.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-python-entry/evidence/validation.md"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "scripts/project-python.sh",
+        "scripts/project_python_preflight.py",
+        "scripts/archive-change.sh",
+        "scripts/test_archive_python_entry.py",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_archive_python_entry.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-python-entry/evidence/validation.md"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "scripts/project-python.sh",
+        "scripts/project_python_preflight.py",
+        "scripts/archive-change.sh",
+        "scripts/validate-agent-context-budget.py",
+        ".agents/skills",
+        "AGENTS.md",
+        "rules/agent-context-budget.md",
+        "docs/08-command-execution-order.md",
+        "docs/standards/governance-feedback-loop.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-python-entry/evidence/validation.md"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "tests/unit/test_change_identity.py",
+        "scripts/archive-change.sh",
+        "scripts/project-python.sh",
+        "scripts/project_python_preflight.py",
+        "scripts/archive-recovery-guard.py",
+        "scripts/change_identity.py",
+        "scripts/workflow_sync",
+        "src/backend/app/governance/archive_recovery.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "tests/unit/test_change_identity.py"
+      ],
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-archive-python-entry/evidence/validation.md"
+      ]
+    }
+  ]
+}

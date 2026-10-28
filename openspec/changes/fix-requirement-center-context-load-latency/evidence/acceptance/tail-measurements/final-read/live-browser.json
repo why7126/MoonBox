@@ -1,0 +1,1469 @@
+{
+  "backend_services": [
+    "backend",
+    "chat-worker",
+    "governance-controller"
+  ],
+  "background_services_running": true,
+  "default_sprint_cards": 29,
+  "windows": [
+    {
+      "kind": "natural",
+      "devtools_open": false,
+      "additional_stress_running": false,
+      "stress_cpu_limit": 0,
+      "host_cpus": 10,
+      "host_load_samples": [
+        {
+          "time": 1793146051.145767,
+          "load": [
+            31.5859375,
+            18.08203125,
+            12.63671875
+          ]
+        },
+        {
+          "time": 1793146469.112301,
+          "load": [
+            5.4189453125,
+            11.15380859375,
+            11.7001953125
+          ]
+        }
+      ],
+      "service_health_before": [
+        {
+          "name": "backend",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:44.306417547Z"
+        },
+        {
+          "name": "chat-worker",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.956258536Z"
+        },
+        {
+          "name": "governance-controller",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.951769707Z"
+        }
+      ],
+      "service_health_after": [
+        {
+          "name": "backend",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:44.306417547Z"
+        },
+        {
+          "name": "chat-worker",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.956258536Z"
+        },
+        {
+          "name": "governance-controller",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.951769707Z"
+        }
+      ],
+      "navigation": [
+        {
+          "request_id": "9335dd70-6715-4ed7-9fa6-9eb99b6d7471",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2642,
+          "first_card_ms": 3152,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:33.628Z",
+          "snapshot_ms": 1332.51,
+          "parse_ms": 490.84
+        },
+        {
+          "request_id": "85d301b8-a059-4c94-a31f-ac2ba8355e7d",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2514,
+          "first_card_ms": 3281,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:37.910Z",
+          "snapshot_ms": 1624.99,
+          "parse_ms": 402.32
+        },
+        {
+          "request_id": "436a0a00-3f81-4999-94cc-c4c5cd7af36e",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1390,
+          "first_card_ms": 1781,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:40.693Z",
+          "snapshot_ms": 674.86,
+          "parse_ms": 345.96
+        },
+        {
+          "request_id": "d68f935d-fe95-41fc-91d0-2544c3c17469",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1409,
+          "first_card_ms": 1861,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:43.560Z",
+          "snapshot_ms": 643.75,
+          "parse_ms": 349
+        },
+        {
+          "request_id": "55f33deb-c83c-4392-90bb-cf90122c6dea",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1555,
+          "first_card_ms": 1978,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:46.544Z",
+          "snapshot_ms": 749.6,
+          "parse_ms": 331.31
+        },
+        {
+          "request_id": "b469cebd-8e10-4ded-8aa2-d366184f5aea",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2024,
+          "first_card_ms": 2461,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:50.010Z",
+          "snapshot_ms": 1000.74,
+          "parse_ms": 526.25
+        },
+        {
+          "request_id": "e7e66e9d-b3f5-44ae-b6d7-7bf6f9ed18ce",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1540,
+          "first_card_ms": 1914,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:52.927Z",
+          "snapshot_ms": 709.53,
+          "parse_ms": 355.39
+        },
+        {
+          "request_id": "55c38d24-e519-4860-af4d-cb2b320c18cd",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1841,
+          "first_card_ms": 2410,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:56.344Z",
+          "snapshot_ms": 777.64,
+          "parse_ms": 360.18
+        },
+        {
+          "request_id": "2251520d-98fc-40e1-bef5-ec8f6c100d03",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1911,
+          "first_card_ms": 2377,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:09:59.726Z",
+          "snapshot_ms": 1117.62,
+          "parse_ms": 337.03
+        },
+        {
+          "request_id": "d9cda946-676c-4c2f-a92d-06ccc8a68cc1",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1287,
+          "first_card_ms": 1660,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:02.394Z",
+          "snapshot_ms": 610.15,
+          "parse_ms": 327.89
+        },
+        {
+          "request_id": "61b2496e-6480-4ad7-b479-66087568d921",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1414,
+          "first_card_ms": 1778,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:05.177Z",
+          "snapshot_ms": 599.89,
+          "parse_ms": 394.68
+        },
+        {
+          "request_id": "9325bdd9-f39c-4a04-b296-5857170fc2a9",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2000,
+          "first_card_ms": 2548,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:08.727Z",
+          "snapshot_ms": 972.06,
+          "parse_ms": 450.63
+        },
+        {
+          "request_id": "666249cf-6669-403e-be8e-8a2da05e5694",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5557,
+          "first_card_ms": 6688,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:16.421Z",
+          "snapshot_ms": 1329.67,
+          "parse_ms": 1474.75
+        },
+        {
+          "request_id": "8c89dc56-a5ac-4f55-bf25-5c7bd3d063ff",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 10338,
+          "first_card_ms": 11610,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:29.036Z",
+          "snapshot_ms": 5855.79,
+          "parse_ms": 2835.44
+        },
+        {
+          "request_id": "92f3ddc2-96bf-4e06-901c-d776a0d801e3",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3310,
+          "first_card_ms": 3906,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:33.943Z",
+          "snapshot_ms": 2106.7,
+          "parse_ms": 537.44
+        },
+        {
+          "request_id": "89c101f2-b957-4059-b45c-129bcc66f91b",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1862,
+          "first_card_ms": 2327,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:37.277Z",
+          "snapshot_ms": 868,
+          "parse_ms": 499.97
+        },
+        {
+          "request_id": "23503c08-24b0-4036-96e6-7efc3cc44055",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2209,
+          "first_card_ms": 2711,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:40.994Z",
+          "snapshot_ms": 1058.74,
+          "parse_ms": 536.02
+        },
+        {
+          "request_id": "1562b722-d27c-43c9-973b-e3917a68a5ff",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2066,
+          "first_card_ms": 2661,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:44.661Z",
+          "snapshot_ms": 738.21,
+          "parse_ms": 377
+        },
+        {
+          "request_id": "338ec3ec-a0de-4164-90fc-cebe5a8ac590",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2419,
+          "first_card_ms": 2929,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:48.594Z",
+          "snapshot_ms": 1394.63,
+          "parse_ms": 480.72
+        },
+        {
+          "request_id": "362f19f5-e163-4449-bd65-dbaedbc539be",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1563,
+          "first_card_ms": 1953,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:51.628Z",
+          "snapshot_ms": 766.73,
+          "parse_ms": 364.85
+        },
+        {
+          "request_id": "53572a8b-802d-421a-97e5-55035cec3240",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1810,
+          "first_card_ms": 2527,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:55.160Z",
+          "snapshot_ms": 884.42,
+          "parse_ms": 428.44
+        },
+        {
+          "request_id": "c5572bc8-7a0d-462b-9297-3d78b71d849c",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1717,
+          "first_card_ms": 2179,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:10:58.343Z",
+          "snapshot_ms": 862.36,
+          "parse_ms": 322.36
+        },
+        {
+          "request_id": "f897081f-3845-475f-aff1-1bf723fe43a3",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1700,
+          "first_card_ms": 2122,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:01.478Z",
+          "snapshot_ms": 761.49,
+          "parse_ms": 433.17
+        },
+        {
+          "request_id": "19b661e2-4ec1-4ce0-b848-816b5800a7c9",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1906,
+          "first_card_ms": 2362,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:04.844Z",
+          "snapshot_ms": 919.85,
+          "parse_ms": 462.56
+        },
+        {
+          "request_id": "59cc3ce0-b921-4c30-a054-d958228c0fae",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1469,
+          "first_card_ms": 1881,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:07.731Z",
+          "snapshot_ms": 727.24,
+          "parse_ms": 323.49
+        },
+        {
+          "request_id": "0ab36d17-b323-4d14-bfc3-e404772d522b",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1595,
+          "first_card_ms": 2043,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:10.777Z",
+          "snapshot_ms": 758.14,
+          "parse_ms": 407.85
+        },
+        {
+          "request_id": "e8900d4f-6fce-4171-a6f4-56901410834e",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1446,
+          "first_card_ms": 1896,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:13.677Z",
+          "snapshot_ms": 627.4,
+          "parse_ms": 339.73
+        },
+        {
+          "request_id": "911bf415-f292-4a79-8d22-867525765728",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1391,
+          "first_card_ms": 1792,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:16.476Z",
+          "snapshot_ms": 646.3,
+          "parse_ms": 296.46
+        },
+        {
+          "request_id": "46e94d6c-8a49-4eec-b1db-9797643b8f00",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1334,
+          "first_card_ms": 1744,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:19.227Z",
+          "snapshot_ms": 610.37,
+          "parse_ms": 337.92
+        },
+        {
+          "request_id": "60b913ed-f161-4dea-a2cc-0d2969d63445",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1947,
+          "first_card_ms": 2397,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:11:22.627Z",
+          "snapshot_ms": 772.01,
+          "parse_ms": 665.35
+        }
+      ],
+      "refresh": [
+        {
+          "request_id": "e5918048-f39a-48dc-96b1-1394fb7796ba",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1094,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:07.300Z",
+          "snapshot_ms": 529.23,
+          "parse_ms": 197.61
+        },
+        {
+          "request_id": "e243d8cb-5c98-4377-ab4d-6d94dcecebc1",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 953,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:09.429Z",
+          "snapshot_ms": 502.71,
+          "parse_ms": 181.26
+        },
+        {
+          "request_id": "fc921520-4e00-464c-af3a-35872705e293",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2149,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:14.103Z",
+          "snapshot_ms": 972.69,
+          "parse_ms": 598.94
+        },
+        {
+          "request_id": "2bd29e03-5282-4cf1-98cd-37fe1b488a27",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1538,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:18.699Z",
+          "snapshot_ms": 804.17,
+          "parse_ms": 313.75
+        },
+        {
+          "request_id": "e8b984dc-0522-4dc0-a735-891b6af15016",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1936,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:21.772Z",
+          "snapshot_ms": 1071.14,
+          "parse_ms": 401.67
+        },
+        {
+          "request_id": "a23ebfab-7f18-4dde-a92e-f45e9c0b2364",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1660,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:24.635Z",
+          "snapshot_ms": 757.53,
+          "parse_ms": 335.75
+        },
+        {
+          "request_id": "62e2c709-1858-4dbb-9c42-6fdc2443138c",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1956,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:29.111Z",
+          "snapshot_ms": 983.35,
+          "parse_ms": 449.73
+        },
+        {
+          "request_id": "ed8d8169-2cf5-4064-9a00-ed563cef361b",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1807,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:33.632Z",
+          "snapshot_ms": 865.19,
+          "parse_ms": 355.17
+        },
+        {
+          "request_id": "b8eb14a4-3347-4b2c-bebf-90d72c81678a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1844,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:36.690Z",
+          "snapshot_ms": 961.48,
+          "parse_ms": 360.71
+        },
+        {
+          "request_id": "2dbaba99-e97c-403a-9671-c592a5057ccc",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1889,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:39.777Z",
+          "snapshot_ms": 865.43,
+          "parse_ms": 502.13
+        },
+        {
+          "request_id": "ccaa5f20-8e63-49a2-a4f8-548fb41a8efc",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1556,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:42.507Z",
+          "snapshot_ms": 725.68,
+          "parse_ms": 304.78
+        },
+        {
+          "request_id": "71cb2e7e-64b6-42e6-a3a1-21e919baeef2",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1986,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:46.719Z",
+          "snapshot_ms": 976.96,
+          "parse_ms": 492.68
+        },
+        {
+          "request_id": "fa38085d-fc5b-4c51-8db7-22d4a294e540",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2132,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:51.501Z",
+          "snapshot_ms": 930.62,
+          "parse_ms": 419.09
+        },
+        {
+          "request_id": "487bdbc6-f6e6-4795-aebe-cf2c459f2919",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1743,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:55.856Z",
+          "snapshot_ms": 843,
+          "parse_ms": 413.23
+        },
+        {
+          "request_id": "ef38bd1d-ac10-4202-96ec-3b880599febb",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1437,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:12:58.449Z",
+          "snapshot_ms": 627.51,
+          "parse_ms": 319.34
+        },
+        {
+          "request_id": "8d4b201d-78cf-4cf7-862a-5c177665ac97",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1254,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:00.875Z",
+          "snapshot_ms": 576.53,
+          "parse_ms": 270.17
+        },
+        {
+          "request_id": "b8d00d06-f570-45d4-b53a-3ee3f350e2d8",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1929,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:05.200Z",
+          "snapshot_ms": 832.26,
+          "parse_ms": 513.29
+        },
+        {
+          "request_id": "4f36dc4e-1399-4253-afb7-ffe2009d961e",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2822,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:11.328Z",
+          "snapshot_ms": 1537.99,
+          "parse_ms": 693.63
+        },
+        {
+          "request_id": "79ab2f26-df7d-4e51-b3aa-f7822b3619d8",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1644,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:14.180Z",
+          "snapshot_ms": 576.57,
+          "parse_ms": 613.96
+        },
+        {
+          "request_id": "1f99f818-1b52-417b-abad-aa54574bf890",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2446,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:19.404Z",
+          "snapshot_ms": 1411.12,
+          "parse_ms": 473.65
+        },
+        {
+          "request_id": "7b984597-4e78-40ed-9e23-654dfc5f3a85",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1606,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:23.071Z",
+          "snapshot_ms": 797.96,
+          "parse_ms": 307.52
+        },
+        {
+          "request_id": "13e543b2-0bd5-4065-a334-9671b1534927",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1246,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:25.511Z",
+          "snapshot_ms": 572.11,
+          "parse_ms": 257.1
+        },
+        {
+          "request_id": "e639799d-71d8-48c0-b892-900a3640181e",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1521,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:28.201Z",
+          "snapshot_ms": 692.31,
+          "parse_ms": 409.7
+        },
+        {
+          "request_id": "0f885b67-7fb4-4fb8-94dd-cbf125458cc7",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1793,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:32.245Z",
+          "snapshot_ms": 890.28,
+          "parse_ms": 445.1
+        },
+        {
+          "request_id": "f6d3d2ea-a80d-4142-9129-0ea03b168dab",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1243,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:34.655Z",
+          "snapshot_ms": 645.37,
+          "parse_ms": 242.66
+        },
+        {
+          "request_id": "34ed50cb-0e30-4e6d-914b-5fd80fbb1c45",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1424,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:37.262Z",
+          "snapshot_ms": 641.55,
+          "parse_ms": 369.45
+        },
+        {
+          "request_id": "71b2cdeb-1286-4569-bc3f-d9d9a2a84c33",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1550,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:41.712Z",
+          "snapshot_ms": 806.41,
+          "parse_ms": 313.56
+        },
+        {
+          "request_id": "4953d377-9bf2-428f-9a02-163d8f284377",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1499,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:44.402Z",
+          "snapshot_ms": 734.09,
+          "parse_ms": 362.75
+        },
+        {
+          "request_id": "b142fc70-894e-44c9-9c0d-1053bd426aef",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 1637,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:47.226Z",
+          "snapshot_ms": 814.04,
+          "parse_ms": 285.51
+        },
+        {
+          "request_id": "89488a91-5682-46ad-b38c-61029bda02bf",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2265,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:13:52.236Z",
+          "snapshot_ms": 1269.2,
+          "parse_ms": 514.57
+        }
+      ]
+    },
+    {
+      "kind": "loaded",
+      "devtools_open": false,
+      "additional_stress_running": true,
+      "stress_cpu_limit": 2,
+      "host_cpus": 10,
+      "host_load_samples": [
+        {
+          "time": 1793146476.658907,
+          "load": [
+            5.6552734375,
+            11.01611328125,
+            11.64453125
+          ]
+        },
+        {
+          "time": 1793146905.25346,
+          "load": [
+            13.560546875,
+            12.11767578125,
+            11.77783203125
+          ]
+        }
+      ],
+      "service_health_before": [
+        {
+          "name": "backend",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:44.306417547Z"
+        },
+        {
+          "name": "chat-worker",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.956258536Z"
+        },
+        {
+          "name": "governance-controller",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.951769707Z"
+        }
+      ],
+      "service_health_after": [
+        {
+          "name": "backend",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:44.306417547Z"
+        },
+        {
+          "name": "chat-worker",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.956258536Z"
+        },
+        {
+          "name": "governance-controller",
+          "health": "healthy",
+          "restarts": 0,
+          "started_at": "2026-10-27T23:31:49.951769707Z"
+        }
+      ],
+      "navigation": [
+        {
+          "request_id": "e1832b3d-15e6-4bc6-a764-44481079462a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4974,
+          "first_card_ms": 6225,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:14:46.048Z",
+          "snapshot_ms": 3129.64,
+          "parse_ms": 889.81
+        },
+        {
+          "request_id": "1c1281e8-0f97-4bc8-a0f2-cded10d0459a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3257,
+          "first_card_ms": 3974,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:14:51.028Z",
+          "snapshot_ms": 1812.8,
+          "parse_ms": 690.61
+        },
+        {
+          "request_id": "f910d7f3-7617-48d6-a0f8-bd6ff83d760f",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3058,
+          "first_card_ms": 3665,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:14:55.694Z",
+          "snapshot_ms": 1655.09,
+          "parse_ms": 707.23
+        },
+        {
+          "request_id": "0fdcc200-6f8d-432c-ab97-a2d1bee1985c",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3107,
+          "first_card_ms": 3712,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:00.410Z",
+          "snapshot_ms": 1606.57,
+          "parse_ms": 858.27
+        },
+        {
+          "request_id": "089be51a-67ff-492b-857b-b24fe8120470",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2864,
+          "first_card_ms": 3511,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:04.928Z",
+          "snapshot_ms": 1469.16,
+          "parse_ms": 585.7
+        },
+        {
+          "request_id": "bdaa3a77-93b4-4047-b6c1-cd80e42f8a07",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2875,
+          "first_card_ms": 3512,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:09.444Z",
+          "snapshot_ms": 1682.44,
+          "parse_ms": 549.48
+        },
+        {
+          "request_id": "8525dcc2-2241-45f3-8d60-1a4563dd2c8d",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2963,
+          "first_card_ms": 3578,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:14.028Z",
+          "snapshot_ms": 1452.72,
+          "parse_ms": 755.85
+        },
+        {
+          "request_id": "96089b96-57be-4d94-9198-21c7b9e3e9a5",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2723,
+          "first_card_ms": 3313,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:18.344Z",
+          "snapshot_ms": 1339.74,
+          "parse_ms": 659.31
+        },
+        {
+          "request_id": "71d5b4af-aa3c-48fd-aee4-2ef2d4faf354",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2798,
+          "first_card_ms": 3394,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:22.744Z",
+          "snapshot_ms": 1470.87,
+          "parse_ms": 554.91
+        },
+        {
+          "request_id": "da668ee6-44b7-4df1-9bdf-395eaee80ea3",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3959,
+          "first_card_ms": 4561,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:28.311Z",
+          "snapshot_ms": 1694.07,
+          "parse_ms": 1132.97
+        },
+        {
+          "request_id": "f50f5fe6-0219-4d18-8ea7-cad57c842dc8",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 6325,
+          "first_card_ms": 7148,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:36.463Z",
+          "snapshot_ms": 4369.82,
+          "parse_ms": 929.16
+        },
+        {
+          "request_id": "0469f293-e20e-469b-a5ba-36b29f053844",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3692,
+          "first_card_ms": 4425,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:41.895Z",
+          "snapshot_ms": 2051.76,
+          "parse_ms": 746.63
+        },
+        {
+          "request_id": "1c934885-6f8f-447e-b683-24394755de22",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2791,
+          "first_card_ms": 3412,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:46.312Z",
+          "snapshot_ms": 1546.19,
+          "parse_ms": 588.27
+        },
+        {
+          "request_id": "013ae9db-d08f-43ff-a6c1-a9d1994244dc",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3233,
+          "first_card_ms": 3862,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:51.178Z",
+          "snapshot_ms": 1949.03,
+          "parse_ms": 613.69
+        },
+        {
+          "request_id": "9c01e604-a21e-44a0-8db1-ef465a7ad3e2",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2788,
+          "first_card_ms": 3412,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:15:55.594Z",
+          "snapshot_ms": 1406.76,
+          "parse_ms": 680.86
+        },
+        {
+          "request_id": "820ee8f2-82d1-4665-9cd6-6e6797bba3b8",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2804,
+          "first_card_ms": 3427,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:00.028Z",
+          "snapshot_ms": 1427.36,
+          "parse_ms": 697.24
+        },
+        {
+          "request_id": "2970cc81-8ecc-4ca3-a104-3e2ee6fd5630",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2569,
+          "first_card_ms": 3096,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:04.127Z",
+          "snapshot_ms": 1407.28,
+          "parse_ms": 538.89
+        },
+        {
+          "request_id": "0c257ac6-3792-4d8e-b6ea-a9d3de050ba7",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2842,
+          "first_card_ms": 3514,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:08.645Z",
+          "snapshot_ms": 1406.98,
+          "parse_ms": 729.84
+        },
+        {
+          "request_id": "19f9c11d-4366-4c83-88f8-95da882cdd8d",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3295,
+          "first_card_ms": 3877,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:13.545Z",
+          "snapshot_ms": 1778.71,
+          "parse_ms": 773.42
+        },
+        {
+          "request_id": "e1336502-5f62-4ddc-904a-a8c7328e401b",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3040,
+          "first_card_ms": 3745,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:18.295Z",
+          "snapshot_ms": 1737.45,
+          "parse_ms": 560.48
+        },
+        {
+          "request_id": "fbaa7bb9-5440-4526-a925-ef0db778c0e9",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2795,
+          "first_card_ms": 3361,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:22.661Z",
+          "snapshot_ms": 1501.97,
+          "parse_ms": 664.84
+        },
+        {
+          "request_id": "6cbe09bf-dcde-4b13-9aca-0e1ddfa1800c",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2624,
+          "first_card_ms": 3246,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:26.913Z",
+          "snapshot_ms": 1353.44,
+          "parse_ms": 626.21
+        },
+        {
+          "request_id": "fc4f1f35-6563-418b-a670-ded6de774b7a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4921,
+          "first_card_ms": 6054,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:33.980Z",
+          "snapshot_ms": 2846.14,
+          "parse_ms": 1188.27
+        },
+        {
+          "request_id": "96738cf7-9110-4415-849d-0513aa2dc9ca",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5686,
+          "first_card_ms": 6773,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:41.758Z",
+          "snapshot_ms": 2609.34,
+          "parse_ms": 2065.96
+        },
+        {
+          "request_id": "3113a225-97e5-43c0-8a34-3f7329ccfad3",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5296,
+          "first_card_ms": 6329,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:49.127Z",
+          "snapshot_ms": 2874.12,
+          "parse_ms": 1331.24
+        },
+        {
+          "request_id": "87162f09-6525-4c09-a3cf-00d5b413203d",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3609,
+          "first_card_ms": 4646,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:16:54.781Z",
+          "snapshot_ms": 1950.19,
+          "parse_ms": 680.33
+        },
+        {
+          "request_id": "543fd61e-e4de-4639-a7a1-1f2150be11b1",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3649,
+          "first_card_ms": 4428,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:17:00.211Z",
+          "snapshot_ms": 1966.58,
+          "parse_ms": 772.66
+        },
+        {
+          "request_id": "3ad6054f-2369-4228-a039-7b2343e3efc6",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3105,
+          "first_card_ms": 3861,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:17:05.079Z",
+          "snapshot_ms": 1664.11,
+          "parse_ms": 739.42
+        },
+        {
+          "request_id": "4ee4a13d-f218-4799-b423-bcfca366c712",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3615,
+          "first_card_ms": 4543,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:17:10.629Z",
+          "snapshot_ms": 1621.84,
+          "parse_ms": 754.44
+        },
+        {
+          "request_id": "5e89b0f1-d3aa-43da-b9e5-ec7b3b7e1602",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3882,
+          "first_card_ms": 4662,
+          "first_card_in_viewport": true,
+          "time": "2026-10-28T00:17:16.295Z",
+          "snapshot_ms": 2009.76,
+          "parse_ms": 791.28
+        }
+      ],
+      "refresh": [
+        {
+          "request_id": "71b51a88-f1b9-4f9d-8242-b1afa4d53b84",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4436,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:06.516Z",
+          "snapshot_ms": 2172.52,
+          "parse_ms": 875.45
+        },
+        {
+          "request_id": "a1a4ae7d-19fe-48d3-b0b5-bece7296f465",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3694,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:11.582Z",
+          "snapshot_ms": 2112.16,
+          "parse_ms": 709.01
+        },
+        {
+          "request_id": "f4478d12-daeb-4d2d-9f4f-7eb0bc377ab6",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3020,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:15.940Z",
+          "snapshot_ms": 1526.08,
+          "parse_ms": 766.12
+        },
+        {
+          "request_id": "0fca18d2-758d-4596-97ea-6572547125c0",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3043,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:20.187Z",
+          "snapshot_ms": 1369.09,
+          "parse_ms": 901
+        },
+        {
+          "request_id": "c95d2b26-a15f-4bbc-8be5-09fecc1473b4",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2988,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:24.393Z",
+          "snapshot_ms": 1582.26,
+          "parse_ms": 667.87
+        },
+        {
+          "request_id": "9320c1c5-b2df-4eff-aced-243efb2e1d8a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2922,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:28.512Z",
+          "snapshot_ms": 1433.71,
+          "parse_ms": 682.65
+        },
+        {
+          "request_id": "db3efb37-ce23-4681-ad59-bc05c66e7126",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4728,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:34.438Z",
+          "snapshot_ms": 2041.12,
+          "parse_ms": 1936.29
+        },
+        {
+          "request_id": "20d29970-c35a-4a31-b92f-d1a91a2c5ef0",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3337,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:39.441Z",
+          "snapshot_ms": 1866.49,
+          "parse_ms": 701.79
+        },
+        {
+          "request_id": "ef9398a2-70c0-4df8-b979-914d3a194235",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3010,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:43.728Z",
+          "snapshot_ms": 1642.51,
+          "parse_ms": 667.83
+        },
+        {
+          "request_id": "4bc1382a-d9f5-4ba6-8f95-89b4a8816283",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2654,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:47.590Z",
+          "snapshot_ms": 1343.27,
+          "parse_ms": 686.23
+        },
+        {
+          "request_id": "961206a1-1dad-46f2-85ba-57a6aed702d5",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3281,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:52.068Z",
+          "snapshot_ms": 1431.29,
+          "parse_ms": 616.36
+        },
+        {
+          "request_id": "fe208f26-7b08-41a1-9260-a8a36ecc4e35",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3260,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:18:56.623Z",
+          "snapshot_ms": 1559.79,
+          "parse_ms": 816.88
+        },
+        {
+          "request_id": "b13c1ceb-16bb-4f5b-b197-0bd62978221f",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3074,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:00.913Z",
+          "snapshot_ms": 1568.21,
+          "parse_ms": 729.16
+        },
+        {
+          "request_id": "e3b96184-e569-4e03-9fbe-c5df178c9975",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2919,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:05.044Z",
+          "snapshot_ms": 1527.7,
+          "parse_ms": 612.94
+        },
+        {
+          "request_id": "59c8e61f-b978-4934-8784-93c711daf101",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 2610,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:08.851Z",
+          "snapshot_ms": 1372.53,
+          "parse_ms": 609.35
+        },
+        {
+          "request_id": "66e0e614-5583-476c-a10d-6c7a39ab1871",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5474,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:15.679Z",
+          "snapshot_ms": 3750.87,
+          "parse_ms": 902.67
+        },
+        {
+          "request_id": "1575f94c-c46d-4af4-a5c1-373aa586d94e",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5977,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:23.150Z",
+          "snapshot_ms": 3104.83,
+          "parse_ms": 1453.97
+        },
+        {
+          "request_id": "f271a2e2-e289-42da-b7e5-07c118988217",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3970,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:28.404Z",
+          "snapshot_ms": 2102.71,
+          "parse_ms": 874.2
+        },
+        {
+          "request_id": "9802526c-5faf-4fc5-afae-32962706bd99",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4203,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:33.944Z",
+          "snapshot_ms": 2253.24,
+          "parse_ms": 1022.89
+        },
+        {
+          "request_id": "e011d0d3-e4d2-473f-a4ce-840b37429aa6",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 5063,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:40.305Z",
+          "snapshot_ms": 2355.08,
+          "parse_ms": 1202.44
+        },
+        {
+          "request_id": "038a771d-182e-466b-b4a2-c2f8557e9485",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3462,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:45.107Z",
+          "snapshot_ms": 1720.5,
+          "parse_ms": 711.44
+        },
+        {
+          "request_id": "ab2bb5c4-cbd0-48e3-98ab-80d275424bc6",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4569,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:51.050Z",
+          "snapshot_ms": 2494.63,
+          "parse_ms": 792.02
+        },
+        {
+          "request_id": "b7ce971a-0ae1-41bd-b89b-62c4c9177d70",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3254,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:19:55.688Z",
+          "snapshot_ms": 1757.44,
+          "parse_ms": 694.16
+        },
+        {
+          "request_id": "a6fec4ef-e9db-4ec3-b7c6-8e31488aafc1",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4461,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:01.578Z",
+          "snapshot_ms": 2661.4,
+          "parse_ms": 892.83
+        },
+        {
+          "request_id": "e642dc8e-b95d-4f63-864b-22bded3b95c5",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3100,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:05.906Z",
+          "snapshot_ms": 1603.63,
+          "parse_ms": 680.28
+        },
+        {
+          "request_id": "66ef7ead-d9ea-4d01-ad30-ac0646dabb60",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3563,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:10.736Z",
+          "snapshot_ms": 1761.57,
+          "parse_ms": 972.36
+        },
+        {
+          "request_id": "c9633578-2a8b-46d5-93b9-0903d21737ec",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3636,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:15.729Z",
+          "snapshot_ms": 1917.5,
+          "parse_ms": 934.6
+        },
+        {
+          "request_id": "fa3cad46-63f1-4940-9f3b-b6ed7ae83c5a",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 3827,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:20.861Z",
+          "snapshot_ms": 1946.19,
+          "parse_ms": 959.98
+        },
+        {
+          "request_id": "aac3449e-a73f-4bcd-9567-2a62175fcf2f",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 4890,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:27.060Z",
+          "snapshot_ms": 2735.54,
+          "parse_ms": 1142.45
+        },
+        {
+          "request_id": "c602d9d9-1240-43eb-8be6-f5218e9a3fc2",
+          "status": 200,
+          "visible_cards": 29,
+          "context_ms": 6610,
+          "first_card_ms": null,
+          "first_card_in_viewport": null,
+          "time": "2026-10-28T00:20:35.182Z",
+          "snapshot_ms": 2530.43,
+          "parse_ms": 1406.67
+        }
+      ]
+    }
+  ]
+}

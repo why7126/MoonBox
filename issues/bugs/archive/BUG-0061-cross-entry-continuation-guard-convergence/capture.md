@@ -3,7 +3,7 @@ bug_id: BUG-0061-cross-entry-continuation-guard-convergence
 title: 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断
 status: done
 created_at: '2026-10-21 15:36:49'
-updated_at: 2026-10-21 17:25:21
+updated_at: 2026-10-27 16:02:30
 severity: high
 environment: local docker
 related_requirement: null
@@ -66,3 +66,30 @@ product_data_collection_observability: affected。affected_layers: governance wo
 ## 附件
 
 截图保留在当前对话；仓库仅记录附件名及脱敏事实。当前未复制原始数据库或聊天日志。
+
+## 2026-10-27 复发现象补充（未重新开启）
+
+用户确认将本次现场补充至原 BUG，不新建编号；保留原 done / archive、sprint-012 和已归档 Change 事实。本节是新增复发证据，不代表历史验收失效或本次问题已修复。
+
+### 现场与证据
+
+- 现场对象：BUG-0056-requirement-center-context-load-latency；Change：fix-requirement-center-context-load-latency；现场 Sprint：sprint-014（不改变本 BUG 的历史 Sprint 归属）。
+- 用户截图 codex-clipboard-c03d9ee4-af24-4c87-b0fc-f8e9b13691e3.png：卡片在验收中，研发 6/6、测试 7/7、验收 8/8，同时显示“结果待核对”，动作仅“查看执行”。截图留在本次对话，不复制会话与数据库原始数据。
+- 同会话浏览器于 2026-10-27 13:01 左右只读观察 /requirements：状态详情显示“缺少正式同步成功证明”，最近核验 2026-10-27 06:57:57；进入原执行后，06:50:07 开始的轮次显示“已停止 / 执行已中断”。上述时间均为 Asia/Shanghai。
+- 后续 Codex 接续完成：Change trace 的 execution.completed_at 为 2026-10-27 12:38:48；evidence/acceptance/20261027124209183130-5049da30/summary.md 为 complete / passed，8 项均通过。报告属于上述 BUG-0056 Change；不能单凭 8/8 认定原 Chat 轮次完成或当前产品动作已经放行。
+- 源码线索：src/backend/app/governance/execution_context.py 的 _reconcile_external_plan 对带 operation_id 的 running / needs_review 记录保留原保护；direct_completion.status 对 needs_review 且缺少 sync_succeeded 的记录返回 direct_sync_missing；reader.py 在不可发送时投影“结果待核对”。
+
+### 判断边界与影响
+
+已确认本次页面的最新验收计数与旧停止轮次待核对提示并存；属于原 BUG 的跨入口续接场景复发证据。原案例是完成轮次的证明冲突，本次是停止轮次缺少正式同步证明。尚未核实部署版本与历史修复的覆盖关系，不能断定是代码回归、部署遗漏还是遗漏分支；本次未读取运行数据库、未尝试发送归档，也未解除执行保护。记录严重度沿用 high：正常后续动作入口受限，可能诱导重复开发；无数据丢失证据。
+
+### 用户确认的处理方向与建议验收
+
+1. 保留旧执行“已停止”、事件、原证明及核验原因，不篡改历史为成功，不删除保护记录来绕过校验。
+2. 独立核验后续完成证据的对象、动作、版本、依赖、授权和有效验收结果；满足条件后解除当前对象限制，明确展示“已由后续执行完成”及证据入口。
+3. 覆盖 Chat 中断且缺少旧同步证明 → 外部接续实现与验收 → 产品核验 → 卡片恢复合法后续动作的完整场景；同时检查真实动作准入，不能仅检查 8/8、ready 或按钮外观。
+4. 缺证、证据过期、对象或版本不匹配、真实冲突、仍在运行的新执行均继续阻断并给出具体原因；覆盖重复核验、刷新、并发执行和过期回调，不重跑原开发或伪造旧证明。
+
+### 观测与后续范围
+
+product_data_collection_observability: affected；affected_layers: governance workflow、completion proof、API admission、UI projection。validation: 后续记录脱敏的旧执行与后继证据关联、核验原因和保护解除结果；本次只补充文档，未新增埋点、修改 API / DB / UI / 部署或生成客户端。DB 迁移需求待修复设计确认。

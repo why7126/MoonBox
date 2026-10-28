@@ -3,8 +3,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 from dataclasses import dataclass
 from functools import wraps
-from copy import deepcopy
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from datetime import datetime
 import os
 from pathlib import Path
@@ -12,6 +11,7 @@ import re
 from typing import Any
 
 from app.governance.lifecycle import change_state, aggregate_states
+from app.governance.read_memo import clone
 from sqlalchemy import bindparam, text
 from sqlalchemy.orm import Session
 import yaml
@@ -80,12 +80,29 @@ def _governance_root() -> Path:
     return _SCOPED_ROOT.get() or GOVERNANCE_ROOT
 
 @contextmanager
-def using_governance_root(root: Path, *, immutable: bool = False, evidence_root: Path | None = None, evidence_source_root: Path | None = None):
+def using_governance_root(root: Path, *, immutable: bool = False, evidence_root: Path | None = None, evidence_source_root: Path | None = None, registry_index=None, shared_memo=False):
+    from app.governance.read_memo import lease
+    with lease(root) if immutable and shared_memo else nullcontext({} if immutable else None) as memo:
+        with _using_governance_root(root, immutable=immutable, evidence_root=evidence_root,
+                                   evidence_source_root=evidence_source_root, registry_index=registry_index, memo=memo):
+            yield
+
+
+@contextmanager
+def _using_governance_root(root, *, immutable, evidence_root, evidence_source_root, registry_index, memo):
     token = _SCOPED_ROOT.set(root)
     evidence_token = _EVIDENCE_ROOT.set(evidence_root)
     source_token = _EVIDENCE_SOURCE_ROOT.set(evidence_source_root)
-    memo_token = _READ_MEMO.set({} if immutable else None)
+    memo_token = _READ_MEMO.set(memo)
     try:
+        if immutable and registry_index is not None:
+            for folder in ('requirements', 'bugs'):
+                key = ('_read_yaml', (root / 'issues' / folder / '_registry.yaml',))
+                memo = _READ_MEMO.get()
+                # This private root is immutable and scoped to one validated
+                # revision. Reuse pure registry parsing, never permissions.
+                parsed = clone(memo[key]) if key in memo else None
+                memo[key] = registry_index.registry(folder, parsed=parsed)
         yield
     finally:
         _SCOPED_ROOT.reset(token)
@@ -109,7 +126,10 @@ def _memoized_read(function):
         key = (function.__name__, tuple(tuple(arg) if isinstance(arg, list) else arg for arg in args))
         if key not in memo:
             memo[key] = function(*args)
-        return deepcopy(memo[key])
+        value = memo[key]
+        # These values are immutable. Mutable parse results still get defensive
+        # copies so a caller cannot poison a later request's snapshot memo.
+        return value if isinstance(value, (str, int, float, bool, type(None), Path)) else clone(value)
     return read
 
 STAGES = {
@@ -282,6 +302,7 @@ def _should_show_sprint(stage: str) -> bool:
     return stage in SPRINT_VISIBLE_STAGES
 
 
+@_memoized_read
 def _prototype_documents(issue_dir: Path | None) -> list[str]:
     if not issue_dir or not issue_dir.is_dir():
         return []
@@ -299,6 +320,7 @@ def _prototype_documents(issue_dir: Path | None) -> list[str]:
     return sorted(set(result))
 
 
+@_memoized_read
 def _document_names(issue_dir: Path | None) -> list[str]:
     if not issue_dir or not issue_dir.exists():
         return []
@@ -348,7 +370,7 @@ def _document_entries(issue_id: str, documents: list[str], stage: str, issue_typ
                 stage=stage,
                 document_name=name,
                 path_category=path_category,
-                exists=bool(trace_dir and (trace_dir / name).is_file()) if name not in SPRINT_DOCUMENT_NAMES else name in documents,
+                exists=bool(trace_dir and _snapshot_is_file(trace_dir / name)) if name not in SPRINT_DOCUMENT_NAMES else name in documents,
             )
             if name in SPRINT_DOCUMENT_NAMES:
                 capability = RequirementCenterDocumentCapability(
@@ -467,12 +489,32 @@ def _stage_action(issue_id: str, issue_type: str, stage: str, blocked: str | Non
 def _safe_issue_dir(raw_path: Any) -> Path | None:
     if not raw_path:
         return None
-    candidate = (_governance_root() / str(raw_path)).resolve()
+    return _safe_issue_path(str(raw_path))
+
+
+@_memoized_read
+def _safe_issue_path(raw_path: str) -> Path | None:
+    candidate = _snapshot_resolve(_governance_root() / raw_path)
     try:
         candidate.relative_to(_governance_root())
     except ValueError:
         return None
     return candidate
+
+
+@_memoized_read
+def _snapshot_resolve(path: Path) -> Path:
+    return path.resolve()
+
+
+@_memoized_read
+def _snapshot_is_file(path: Path) -> bool:
+    return path.is_file()
+
+
+@_memoized_read
+def _snapshot_exists(path: Path) -> bool:
+    return path.exists()
 
 
 @_memoized_read
@@ -484,6 +526,21 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     except (OSError, yaml.YAMLError):
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def _borrow_yaml(path: Path) -> dict[str, Any]:
+    """Private read-only consumers can borrow immutable parsed documents.
+
+    Keep _read_yaml's defensive-copy contract for all other callers. This is
+    shared only for immutable materializations; mutable/writer contexts read fresh.
+    """
+    memo = _READ_MEMO.get()
+    if memo is None:
+        return _read_yaml(path)
+    key = ('_read_yaml', (path,))
+    if key not in memo:
+        _read_yaml(path)
+    return memo[key]
 
 
 def _load_workspaces(
@@ -748,22 +805,31 @@ def _sprint_document(entry: dict[str, Any], trace: dict[str, Any], document_name
     sprint_id = entry.get("target_iteration") or entry.get("iteration") or trace.get("iteration")
     if not isinstance(sprint_id, str) or not re.fullmatch(r"sprint-\d{3,}", sprint_id):
         return None
-    root = _governance_root().resolve()
+    issue_id = entry.get("id")
+    if not isinstance(issue_id, str):
+        return None
+    return _associated_sprint_document(sprint_id, issue_id, document_name)
+
+
+@_memoized_read
+def _associated_sprint_document(sprint_id: str, issue_id: str, document_name: str) -> Path | None:
+    """Pure association facts; memo is scoped to a verified immutable root."""
+    root = _snapshot_resolve(_governance_root())
     directory = root / "iterations/change" / sprint_id
-    if not directory.exists():
+    if not _snapshot_exists(directory):
         directory = root / "iterations/archive" / sprint_id
-    directory = directory.resolve()
+    directory = _snapshot_resolve(directory)
     try:
         directory.relative_to(root / "iterations")
-        target = (directory / document_name).resolve()
+        target = _snapshot_resolve(directory / document_name)
         target.relative_to(directory)
     except ValueError:
         return None
-    sprint = _read_yaml(directory / "sprint.yaml")
-    key = "requirements" if str(entry.get("id", "")).startswith("REQ-") else "bugs"
-    if entry.get("id") not in (sprint.get(key) or []):
+    sprint = _borrow_yaml(directory / "sprint.yaml")
+    key = "requirements" if issue_id.startswith("REQ-") else "bugs"
+    if issue_id not in (sprint.get(key) or []):
         return None
-    return target if target.is_file() else None
+    return target if _snapshot_is_file(target) else None
 
 
 def _issue_sprint_document(issue_id: str, issue_dir: Path, document_name: str = "sprint.md") -> Path | None:
@@ -773,6 +839,7 @@ def _issue_sprint_document(issue_id: str, issue_dir: Path, document_name: str = 
     return _sprint_document(entry, _frontmatter(issue_dir / "trace.md"), document_name)
 
 
+@_memoized_read
 def _sprint_contains(sprint_id: str, issue_id: str) -> bool:
     if Path(sprint_id).name != sprint_id:
         return False
@@ -844,6 +911,7 @@ def _load_sprint_option_details() -> list[RequirementCenterSprintOption]:
     return [records[key] for key in sorted(records.keys(), reverse=True)]
 
 
+@_memoized_read
 def _load_sprint_metrics() -> RequirementCenterSprintMetrics:
     root = _governance_root()
     seen: set[str] = set()
@@ -1313,6 +1381,18 @@ def _change_dir(change_id: str) -> Path:
     if change_dir.is_dir():
         return change_dir
     archive_root = (_governance_root() / "openspec" / "archive").resolve()
+    memo = _READ_MEMO.get()
+    if memo is not None:
+        key = ('archive_directory_index', archive_root)
+        if key not in memo:
+            index = {}
+            for path in archive_root.glob('*'):
+                match = re.fullmatch(r'\d{4}-\d{2}-\d{2}-(.*)', path.name, re.DOTALL)
+                if match and path.is_dir() and path.resolve().parent == archive_root:
+                    index.setdefault(match[1], []).append(path.resolve())
+            memo[key] = index
+        matches = memo[key].get(change_id, [])
+        return matches[0] if len(matches) == 1 else change_dir
     # Full dated folder suffix, never a fuzzy or short-ID match.
     matches = [path.resolve() for path in archive_root.glob("*")
                if path.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}-" + re.escape(change_id), path.name)
@@ -1358,7 +1438,7 @@ def _issue_stage(issue_id: str, issue_dir: Path, documents: list[str]) -> str:
 
 def _find_issue_dir(issue_id: str) -> Path | None:
     issue_type = "requirements" if issue_id.startswith("REQ-") else "bugs"
-    registry = _read_yaml(_governance_root() / "issues" / issue_type / "_registry.yaml")
+    registry = _borrow_yaml(_governance_root() / "issues" / issue_type / "_registry.yaml")
     for entry in registry.get("entries", []) if isinstance(registry, dict) else []:
         if isinstance(entry, dict) and str(entry.get("id")) == issue_id:
             return _safe_issue_dir(entry.get("path"))

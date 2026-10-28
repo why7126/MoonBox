@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-final-answer-duplicate-concatenation",
+  "run_id": "20261026191542555621-1a457098",
+  "created_at": "2026-10-26 19:16:26",
+  "source_revision": "8ba1475de486cd628e89b7cf6be2ea8ae2a84374",
+  "environment": "local-isolated-sqlite-mysql-chromium",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "33449d1a14e349754321ade6c25fb5f7ee3ef5df8368fef1ff245d661c677ccf",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/verification.md",
+          "sha256": "a669d210023d4c8f3a9f195faff1b146b44096717d954934eeb0817223aecbdc"
+        }
+      ],
+      "duration_ms": 10048,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "87324d0af90eb61f90340640f09e7de462cd10cf566f8df2511ebde309401b3f",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/verification.md",
+          "sha256": "a669d210023d4c8f3a9f195faff1b146b44096717d954934eeb0817223aecbdc"
+        }
+      ],
+      "duration_ms": 14371,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "5e581a43e390f6ffe355ec0990fba1b5154dad55c3f70519924584093cd5ad71",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/verification.md",
+          "sha256": "a669d210023d4c8f3a9f195faff1b146b44096717d954934eeb0817223aecbdc"
+        }
+      ],
+      "duration_ms": 10813,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "d74cadf2932c0d1933989283c0559f46ec6b2ae7dfdd51547e853c2db7934d3b",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/verification.md",
+          "sha256": "a669d210023d4c8f3a9f195faff1b146b44096717d954934eeb0817223aecbdc"
+        },
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/evidence/browser/browser.json",
+          "sha256": "bad9b2feef13a9b78d04d2e135517a0ac75eb3afd508d60c1db007c88df1c82e"
+        },
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/evidence/browser/browser.png",
+          "sha256": "e6fb09e4bc6847c3ae040e5bc9aaba9cf94c31df8f207fa81e18c7e504486d3d"
+        }
+      ],
+      "duration_ms": 97,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "3c63841b279b29152dd9a474380bd81dc20f3076937294c2c47749f752179268",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-final-answer-duplicate-concatenation/verification.md",
+          "sha256": "a669d210023d4c8f3a9f195faff1b146b44096717d954934eeb0817223aecbdc"
+        }
+      ],
+      "duration_ms": 8401,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 5,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 98,
+    "duration_ms": 43957,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -14470,6 +14470,37 @@
         ],
         "title": "ArchiveRequest"
       },
+      "AutoVerificationStatus": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "checking",
+              "confirmed",
+              "blocked",
+              "unavailable"
+            ],
+            "title": "State"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "AutoVerificationStatus"
+      },
       "BehaviorEventCreate": {
         "properties": {
           "event_name": {
@@ -15520,6 +15551,23 @@
       },
       "DirectVerificationResponse": {
         "properties": {
+          "successor_evidence": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Successor Evidence"
+          },
+          "auto_verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoVerificationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "available": {
             "type": "boolean",
             "title": "Available"
@@ -16466,6 +16514,24 @@
             "title": "Output Truncated",
             "description": "输出有序号缺口或超出读取窗口",
             "default": false
+          },
+          "output_truncation_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "preview_limit",
+                  "read_window",
+                  "history_gap",
+                  "invalid_payload"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Truncation Reason",
+            "description": "预览受限或历史缺口原因；兼容旧客户端"
           }
         },
         "type": "object",

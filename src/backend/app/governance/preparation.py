@@ -461,7 +461,7 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
         from app.governance.execution_context import reconcile_external
         sprint_snapshot = ProjectReader(db, actor, project).snapshot()
         stage = 'done' if f'iterations/archive/{object_id}/sprint.yaml' in sprint_snapshot.files else 'sprint-planning'
-        reconcile_external(db, project, object_id, stage, sprint_snapshot)
+        reconcile_external(db, project, object_id, stage, sprint_snapshot, actor=actor)
     state = visible_state(db, actor, project, object_id)
     if not state['can_send']:
         from app.governance.observability import trace

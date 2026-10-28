@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "duration": true,
+    "errors": true,
+    "same_snapshot": true,
+    "same_cards": true,
+    "cache": true,
+    "rss_growth": true,
+    "peak_rss": true,
+    "cpu": true
+  },
+  "baseline_ref": "../repair-measurements/resource-expanded-4-baseline.json",
+  "baseline_sha256": "60e5fad998865de97229a96820189eb05afcf8f0bbc52b5e461d040ce5d120c9",
+  "scope": "第二批仅重跑满容量4并发；其他三组未在本批重跑，不宣称完整AC-007已通过",
+  "duration_s": 1804.6989727979999,
+  "completed": 1372,
+  "errors": 0,
+  "first_5m_rss_mib": 704.3671875,
+  "last_5m_rss_mib": 723.2109375,
+  "peak_rss_mib": 735.41796875,
+  "cache_mib": 45.45711040496826,
+  "cpu_s_per_request": 1.6145651676107873,
+  "baseline_cpu_s_per_request": 26.382378719911763
+}

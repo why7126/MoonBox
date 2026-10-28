@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:57:16
 owner: MoonBox 产品团队
 ---
 
@@ -41,3 +41,9 @@ owner: MoonBox 产品团队
 - [治理执行量化与分级优化闭环](standards/governance-feedback-loop.md)：耗时、Token、预算、受控修复、净收益与成本记录；脚本入口 `scripts/governance_feedback.py --help`。
 
 - [产品经理视角沟通](../rules/language.md#产品经理视角沟通)：业务结果优先、术语解释和决策取舍说明。
+
+- [临时 Docker 资源生命周期](standards/temporary-docker-lifecycle.md)：创建前登记、标签归属、任务结束清理、到期扫描和保守回收门禁。
+
+- [探索反馈与统一维护交接](standards/governance-feedback-loop.md#探索反馈与统一维护交接)：explore 只读反馈、分类去重、维护评测及版本生效；[代表案例](../.agents/skills/explore/evals/cases.md)仅维护时读取。
+
+- [归档 Shell 解释器继承](../scripts/README.md#归档-shell-解释器继承)：承接统一 Python 入口，覆盖内部调用及隔离回归。

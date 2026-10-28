@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-from sqlalchemy import select, text
+from sqlalchemy import select, text, func, case
 from app.chat.schema import object_access
 from app.chat.settings import repository_binding, repository_catalog
 from app.chat.workspace import trusted_directory, WorkspaceError
@@ -68,6 +68,32 @@ def visible(db, actor, scope, full_id):
     grants = db.execute(select(object_access).where(object_access.c.space_id == scope.space_id,
         object_access.c.repository_id == scope.repository_id, object_access.c.object_id == full_id)).mappings().all()
     return not grants or any(row['user_id'] == actor and row['can_read'] for row in grants)
+
+
+class RequestVisibility:
+    """Batch one request's ACL reads, then reject changed permissions on return."""
+    def __init__(self, db, actor, project):
+        self.actor, self.project = actor, project
+        self.permissions = self._read(db)
+
+    def _read(self, db):
+        grant = case(((object_access.c.user_id == self.actor) & (object_access.c.can_read != 0), 1), else_=0)
+        return dict(db.execute(select(object_access.c.object_id, func.max(grant)).where(
+            object_access.c.space_id == self.project.space_id,
+            object_access.c.repository_id == self.project.repository_id).group_by(object_access.c.object_id)).all())
+
+    def visible(self, oid):
+        return bool(self.permissions.get(oid, True))
+
+    def assert_current(self, db):
+        # The reader commits before this check so MySQL repeatable-read cannot
+        # hide a revocation. This object is never retained across requests.
+        current = authorize(db, self.actor, self.project.space_id, self.project.repository_id)
+        if (current.binding_revision != self.project.binding_revision
+                or current.readonly != self.project.readonly):
+            raise ChatError(2606, '项目绑定或权限已变化，请重新读取', 409)
+        if self._read(db) != self.permissions:
+            raise ChatError(2601, '对象访问权限已变化，请重新读取', 403)
 
 
 def projects(db, actor):

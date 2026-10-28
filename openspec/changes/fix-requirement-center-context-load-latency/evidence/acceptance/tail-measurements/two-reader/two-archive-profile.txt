@@ -1,0 +1,46 @@
+{"sample": 0, "cards": 214, "revision": "55c9b06f41abf35a8156fb9abdb8b83ab96bf3b944dc8f9f55c710bd04312478", "timings": {"snapshot_and_fences_ms": 2758.51, "snapshot_ms": 2743.66, "fences_exclusive_ms": 14.85, "materialize_ms": 919.44, "object_authorization_ms": 0.0, "parse_ms": 1049.92, "cleanup_ms": 65.12, "reconcile_ms": 325.05, "external_reconcile_ms": 20.5, "card_projection_exclusive_ms": 107.09, "projection_commit_ms": 1.59, "document_projection_ms": 3.83, "total_ms": 5268.38, "reader_orchestration_ms": 17.33}}
+{"proof_rejection_type": "ArchiveProofError", "reason": "archive_baseline_missing"}
+         111555 function calls (111413 primitive calls) in 0.331 seconds
+
+   Ordered by: cumulative time
+   List reduced from 232 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.331    0.331 /app/app/governance/archive_proof.py:148(verify)
+        1    0.004    0.004    0.331    0.331 /app/app/governance/archive_proof.py:106(_verify)
+        3    0.000    0.000    0.198    0.066 /app/app/governance/store.py:57(read)
+        3    0.005    0.002    0.196    0.065 /usr/local/lib/python3.12/json/__init__.py:274(load)
+        3    0.071    0.024    0.126    0.042 {method 'read' of '_io.TextIOWrapper' objects}
+        1    0.000    0.000    0.108    0.108 /app/app/governance/direct_command_journal.py:63(record_block_reason)
+        1    0.004    0.004    0.079    0.079 /app/app/governance/archive_proof.py:47(_archive)
+        3    0.000    0.000    0.066    0.022 /usr/local/lib/python3.12/json/__init__.py:299(loads)
+        3    0.000    0.000    0.066    0.022 /usr/local/lib/python3.12/json/decoder.py:333(decode)
+        3    0.065    0.022    0.065    0.022 /usr/local/lib/python3.12/json/decoder.py:344(raw_decode)
+        3    0.000    0.000    0.055    0.018 <frozen codecs>:319(decode)
+        3    0.055    0.018    0.055    0.018 {built-in method _codecs.utf_8_decode}
+     6430    0.003    0.000    0.035    0.000 /usr/local/lib/python3.12/re/__init__.py:255(escape)
+     6430    0.032    0.000    0.032    0.000 {method 'translate' of 'str' objects}
+        1    0.005    0.005    0.028    0.028 /app/app/governance/snapshot.py:58(digest)
+        2    0.000    0.000    0.024    0.012 /usr/local/lib/python3.12/site-packages/yaml/__init__.py:74(load)
+        2    0.004    0.002    0.024    0.012 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:47(get_single_data)
+     4334    0.022    0.000    0.022    0.000 {method 'encode' of 'str' objects}
+     4330    0.015    0.000    0.015    0.000 {built-in method _hashlib.openssl_sha256}
+        1    0.000    0.000    0.014    0.014 /app/app/governance/snapshot.py:25(safe_load)
+     6433    0.003    0.000    0.011    0.000 /usr/local/lib/python3.12/re/__init__.py:169(fullmatch)
+        1    0.000    0.000    0.010    0.010 /app/app/governance/candidates.py:11(frontmatter)
+        1    0.000    0.000    0.010    0.010 /usr/local/lib/python3.12/site-packages/yaml/__init__.py:117(safe_load)
+        1    0.000    0.000    0.009    0.009 /usr/local/lib/python3.12/site-packages/yaml/composer.py:29(get_single_node)
+        1    0.000    0.000    0.009    0.009 /usr/local/lib/python3.12/site-packages/yaml/composer.py:50(compose_document)
+     94/1    0.000    0.000    0.009    0.009 /usr/local/lib/python3.12/site-packages/yaml/composer.py:63(compose_node)
+      6/1    0.000    0.000    0.009    0.009 /usr/local/lib/python3.12/site-packages/yaml/composer.py:117(compose_mapping_node)
+      276    0.000    0.000    0.008    0.000 /usr/local/lib/python3.12/site-packages/yaml/parser.py:94(check_event)
+        2    0.000    0.000    0.007    0.004 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:54(construct_document)
+  120/117    0.000    0.000    0.007    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:410(construct_yaml_map)
+       60    0.000    0.000    0.007    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:215(construct_mapping)
+      684    0.001    0.000    0.006    0.000 /usr/local/lib/python3.12/site-packages/yaml/scanner.py:113(check_token)
+       60    0.001    0.000    0.006    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:132(construct_mapping)
+     1665    0.002    0.000    0.005    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:67(construct_object)
+        2    0.000    0.000    0.005    0.002 /usr/local/lib/python3.12/json/__init__.py:183(dumps)
+
+
+{"sample": 1, "cards": 214, "revision": "55c9b06f41abf35a8156fb9abdb8b83ab96bf3b944dc8f9f55c710bd04312478", "timings": {"snapshot_and_fences_ms": 921.76, "snapshot_ms": 917.01, "fences_exclusive_ms": 4.75, "materialize_ms": 1.73, "object_authorization_ms": 0.0, "parse_ms": 745.19, "cleanup_ms": 79.49, "reconcile_ms": 342.02, "external_reconcile_ms": 26.56, "card_projection_exclusive_ms": 71.24, "projection_commit_ms": 1.2, "document_projection_ms": 2.8, "total_ms": 2193.27, "reader_orchestration_ms": 1.28}}

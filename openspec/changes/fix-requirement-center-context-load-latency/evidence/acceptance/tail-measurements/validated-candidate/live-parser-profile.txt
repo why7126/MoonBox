@@ -1,0 +1,45 @@
+{"sample": 0, "cards": 214, "revision": "7244c4c28dc7c6f5b805a25ee3f8c4d95e5011152751752234cf3095c519e21e", "timings": {"snapshot_and_fences_ms": 811.74, "snapshot_ms": 801.23, "fences_exclusive_ms": 10.51, "materialize_ms": 224.4, "object_authorization_ms": 0.0, "parse_ms": 397.78, "cleanup_ms": 28.88, "reconcile_ms": 177.81, "external_reconcile_ms": 12.17, "card_projection_exclusive_ms": 42.37, "projection_commit_ms": 1.06, "document_projection_ms": 3.7, "total_ms": 1708.07, "reader_orchestration_ms": 8.16}}
+         2261062 function calls (2116823 primitive calls) in 1.554 seconds
+
+   Ordered by: cumulative time
+   List reduced from 520 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    1.554    1.554 src/backend/app/services/requirement_center.py:153(build_requirement_center_context)
+        1    0.009    0.009    1.407    1.407 src/backend/app/governance/change_index.py:265(cards)
+      122    0.009    0.000    1.059    0.009 src/backend/app/services/requirement_center.py:194(_build_issue)
+        1    0.000    0.000    0.570    0.570 src/backend/app/services/requirement_center.py:332(_acceptance_readiness)
+        1    0.000    0.000    0.570    0.570 src/backend/app/governance/archive_admission.py:144(issue_acceptance)
+        1    0.000    0.000    0.570    0.570 src/backend/app/governance/archive_admission.py:89(_issue_acceptance)
+        1    0.001    0.001    0.507    0.507 src/backend/app/governance/acceptance_evidence.py:402(readiness)
+     8549    0.035    0.000    0.393    0.000 src/backend/app/services/requirement_center.py:121(read)
+      922    0.005    0.000    0.286    0.000 src/backend/app/governance/acceptance_evidence.py:14(within)
+      430    0.002    0.000    0.268    0.001 src/backend/app/governance/acceptance_evidence.py:178(input_path)
+    34958    0.037    0.000    0.244    0.000 /usr/local/lib/python3.12/pathlib.py:380(with_segments)
+100999/2388    0.112    0.000    0.243    0.000 /usr/local/lib/python3.12/copy.py:118(deepcopy)
+6674/1673    0.034    0.000    0.215    0.000 /usr/local/lib/python3.12/copy.py:217(_deepcopy_dict)
+16223/11057    0.005    0.000    0.214    0.000 {method 'extend' of 'list' objects}
+     3460    0.009    0.000    0.207    0.000 /usr/local/lib/python3.12/pathlib.py:690(is_relative_to)
+       10    0.001    0.000    0.206    0.021 src/backend/app/governance/acceptance_evidence.py:231(fingerprint)
+    28860    0.029    0.000    0.202    0.000 /usr/local/lib/python3.12/pathlib.py:437(__str__)
+      215    0.001    0.000    0.200    0.001 src/backend/app/governance/acceptance_evidence.py:188(input_bytes)
+     2216    0.005    0.000    0.200    0.000 /usr/local/lib/python3.12/pathlib.py:1228(resolve)
+    37797    0.030    0.000    0.192    0.000 /usr/local/lib/python3.12/pathlib.py:1157(__init__)
+    22287    0.021    0.000    0.190    0.000 /usr/local/lib/python3.12/pathlib.py:551(drive)
+        3    0.002    0.001    0.178    0.059 src/backend/app/governance/acceptance_evidence.py:352(acceptance_manifests)
+     1586    0.011    0.000    0.178    0.000 /usr/local/lib/python3.12/pathlib.py:663(relative_to)
+    17541    0.024    0.000    0.176    0.000 /usr/local/lib/python3.12/pathlib.py:407(_load_parts)
+    15875    0.013    0.000    0.173    0.000 /usr/local/lib/python3.12/pathlib.py:420(_from_parsed_parts)
+    59822    0.038    0.000    0.172    0.000 /usr/local/lib/python3.12/pathlib.py:484(_str_normcase)
+      488    0.014    0.000    0.170    0.000 src/backend/app/services/requirement_center.py:796(_sprint_document)
+    37797    0.132    0.000    0.163    0.000 /usr/local/lib/python3.12/pathlib.py:358(__init__)
+     2216    0.004    0.000    0.142    0.000 <frozen posixpath>:420(realpath)
+    20071    0.011    0.000    0.141    0.000 <frozen _collections_abc>:1022(__iter__)
+    16801    0.020    0.000    0.131    0.000 /usr/local/lib/python3.12/pathlib.py:277(__getitem__)
+      434    0.000    0.000    0.129    0.000 src/backend/app/services/requirement_center.py:212(<genexpr>)
+     3460    0.010    0.000    0.128    0.000 <frozen _collections_abc>:1032(__contains__)
+    17557    0.057    0.000    0.117    0.000 /usr/local/lib/python3.12/pathlib.py:387(_parse_path)
+    17818    0.011    0.000    0.116    0.000 /usr/local/lib/python3.12/pathlib.py:524(__hash__)
+
+
+{"sample": 1, "cards": 214, "revision": "7244c4c28dc7c6f5b805a25ee3f8c4d95e5011152751752234cf3095c519e21e", "timings": {"snapshot_and_fences_ms": 447.55, "snapshot_ms": 443.9, "fences_exclusive_ms": 3.65, "materialize_ms": 1.63, "object_authorization_ms": 0.0, "parse_ms": 1560.87, "cleanup_ms": 70.14, "reconcile_ms": 290.1, "external_reconcile_ms": 23.96, "card_projection_exclusive_ms": 84.46, "projection_commit_ms": 2.69, "document_projection_ms": 4.32, "total_ms": 2487.63, "reader_orchestration_ms": 1.91}}

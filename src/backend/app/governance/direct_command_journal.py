@@ -60,7 +60,7 @@ def archive_completion_blocked(conversation_id, client_id, workspace):
         operation.get('object_id'), workspace)
 
 
-def record_block_reason(conversation_id, client_id, *, action=None, object_id=None, revision=None):
+def record_block_reason(conversation_id, client_id, *, action=None, object_id=None, revision=None, records=None):
     """Validate immutable command inputs without repairing or overwriting evidence."""
     rid = record_id(conversation_id, client_id)
     if not (store.root() / rid).exists():
@@ -99,6 +99,10 @@ def record_block_reason(conversation_id, client_id, *, action=None, object_id=No
     if any(baseline.get(key) != operation.get(target) for key, target in (
             ('action', 'action'), ('object_id', 'object_id'), ('revision', 'baseline_revision'))):
         return 'direct_command_identity_mismatch'
+    # Request-local handoff of the exact records just checked. Never a retained
+    # verdict: every invocation still opens and validates the private records.
+    if records is not None:
+        records.update(operation=operation, baseline=baseline)
     return None
 
 
@@ -299,6 +303,8 @@ def terminal(conversation_id, client_id, status, workspace):
 
 def reconcile_terminal_commands(factory, resolve_workspace):
     """Finish journals for already terminal turns after a worker restart."""
+    if not os.environ.get('MOONBOX_GOVERNANCE_STATE_ROOT'):
+        return
     from sqlalchemy import or_, select
     from app.chat.schema import turns
     with factory() as db:
@@ -310,6 +316,16 @@ def reconcile_terminal_commands(factory, resolve_workspace):
             .order_by(turns.c.updated_at.desc()).limit(200)).all())
     for conversation_id, client_id, status in rows:
         try:
+            rid = record_id(conversation_id, client_id)
+            if not (store.root() / rid).exists():
+                continue
+            operation = store.read(rid, 'operation')
+            if isinstance(operation, dict) and operation.get('phase') == 'terminal':
+                # This scan only finishes unfinished journals. A terminal marker
+                # is never used here as completion/admission proof; those paths
+                # still validate the full baseline independently. Avoid decoding
+                # every historical multi-megabyte baseline on each idle tick.
+                continue
             _, workspace = resolve_workspace(conversation_id)
             if workspace.is_dir():
                 terminal(conversation_id, client_id, status, workspace)

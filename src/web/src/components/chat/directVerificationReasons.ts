@@ -1,4 +1,9 @@
 export const directVerificationReasons:Record<string,string>={
+ direct_successor_dependency_invalid:'规则变化的独立承接证明不完整或已过期，保护已保留。',
+ direct_successor_available:'原执行缺少同步证明，可核验独立的后续完成证据。',
+ direct_successor_verified:'已由后续执行完成，原执行历史保留。',
+ direct_successor_baseline_invalid:'可信启动基线缺失或不匹配，保护已保留。',
+ direct_successor_time_invalid:'原执行与后续完成的时间关系无法确认，保护已保留。',
  direct_historical_evidence_missing:'历史文件清单缺失，需要核验当前成果；不会重放原命令。',
  direct_historical_verified:'历史成果已核验；当前动作以最新准入核验为准。',
  direct_historical_record_preserved:'历史核验记录已保留；对象已有后续变化，当前动作以最新准入核验为准。',

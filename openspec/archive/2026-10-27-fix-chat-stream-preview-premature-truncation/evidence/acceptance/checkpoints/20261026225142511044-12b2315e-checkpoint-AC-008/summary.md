@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-008 | passed | product_turn,visual | openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-390.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-390.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-390.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-390.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-390.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/computed-style.json,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/real-final-1440.png,openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/real-final-390.png |

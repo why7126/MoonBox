@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 if [[ ${1:-} == --help ]]; then
-  echo 'Usage: bash scripts/project-python.sh --check | SCRIPT [ARGS...]'
+  echo 'Usage: bash scripts/project-python.sh --check | SCRIPT [ARGS...] | -c CODE [ARGS...] | - [ARGS...]'
   echo 'PYTHON_BIN overrides src/backend/.venv/bin/python. Requires Python >=3.12 and PyYAML.'
   exit 0
 fi
@@ -22,6 +22,9 @@ export PYTHONDONTWRITEBYTECODE=1
 "$PYTHON_BIN" "$ROOT_DIR/scripts/project_python_preflight.py" || exit 2
 if [[ ${1:-} == --check ]]; then exit 0; fi
 if [[ $# == 0 ]]; then echo 'Missing governance script; use --help.' >&2; exit 2; fi
+if [[ "$1" == "-c" || "$1" == "-" ]]; then
+  exec "$PYTHON_BIN" "$@"
+fi
 script="$1"; shift
 if [[ "$script" != /* ]]; then script="$ROOT_DIR/$script"; fi
 exec "$PYTHON_BIN" "$script" "$@"

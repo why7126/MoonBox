@@ -1,0 +1,45 @@
+{"sample": 0, "cards": 214, "revision": "44f16465ff1fecd3711065359fe52efde5741dcb858cd4401b5ad8ccd6c220b0", "timings": {"snapshot_and_fences_ms": 16227.91, "snapshot_ms": 16161.07, "fences_exclusive_ms": 66.84, "materialize_ms": 834.86, "object_authorization_ms": 0.0, "parse_ms": 6885.71, "cleanup_ms": 174.94, "reconcile_ms": 737.25, "external_reconcile_ms": 82.78, "card_projection_exclusive_ms": 242.96, "projection_commit_ms": 7.02, "document_projection_ms": 18.08, "total_ms": 25216.04, "reader_orchestration_ms": 4.53}}
+         63553 function calls (63381 primitive calls) in 0.202 seconds
+
+   Ordered by: cumulative time
+   List reduced from 531 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.202    0.202 /app/app/governance/execution_context.py:246(reconcile)
+        1    0.002    0.002    0.191    0.191 /app/app/governance/execution_context.py:272(_reconcile_plan)
+        1    0.000    0.000    0.178    0.178 /app/app/governance/archive_proof.py:152(verify)
+        1    0.000    0.000    0.178    0.178 /app/app/governance/archive_proof.py:106(_verify)
+        3    0.000    0.000    0.140    0.047 /app/app/governance/store.py:57(read)
+        1    0.000    0.000    0.139    0.139 /app/app/governance/direct_command_journal.py:63(record_block_reason)
+        3    0.000    0.000    0.137    0.046 /usr/local/lib/python3.12/json/__init__.py:274(load)
+        3    0.062    0.021    0.089    0.030 {method 'read' of '_io.TextIOWrapper' objects}
+        3    0.000    0.000    0.048    0.016 /usr/local/lib/python3.12/json/__init__.py:299(loads)
+        3    0.000    0.000    0.048    0.016 /usr/local/lib/python3.12/json/decoder.py:333(decode)
+        3    0.048    0.016    0.048    0.016 /usr/local/lib/python3.12/json/decoder.py:344(raw_decode)
+        1    0.002    0.002    0.038    0.038 /app/app/governance/archive_proof.py:47(_archive)
+        2    0.000    0.000    0.029    0.015 /usr/local/lib/python3.12/site-packages/yaml/__init__.py:74(load)
+        2    0.005    0.002    0.029    0.014 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:47(get_single_data)
+        3    0.000    0.000    0.027    0.009 <frozen codecs>:319(decode)
+        3    0.027    0.009    0.027    0.009 {built-in method _codecs.utf_8_decode}
+        1    0.000    0.000    0.018    0.018 /app/app/governance/snapshot.py:25(safe_load)
+        7    0.000    0.000    0.012    0.002 /usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2201(_execute_internal)
+        1    0.000    0.000    0.011    0.011 /app/app/governance/candidates.py:11(frontmatter)
+        1    0.000    0.000    0.011    0.011 /usr/local/lib/python3.12/site-packages/yaml/__init__.py:117(safe_load)
+        1    0.000    0.000    0.011    0.011 /usr/local/lib/python3.12/site-packages/yaml/composer.py:29(get_single_node)
+        1    0.000    0.000    0.010    0.010 /usr/local/lib/python3.12/site-packages/yaml/composer.py:50(compose_document)
+     94/1    0.000    0.000    0.010    0.010 /usr/local/lib/python3.12/site-packages/yaml/composer.py:63(compose_node)
+      6/1    0.000    0.000    0.010    0.010 /usr/local/lib/python3.12/site-packages/yaml/composer.py:117(compose_mapping_node)
+        7    0.000    0.000    0.010    0.001 /usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:524(_execute_on_connection)
+        7    0.000    0.000    0.010    0.001 /usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1633(_execute_clauseelement)
+      276    0.000    0.000    0.010    0.000 /usr/local/lib/python3.12/site-packages/yaml/parser.py:94(check_event)
+        2    0.000    0.000    0.009    0.005 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:54(construct_document)
+  120/117    0.000    0.000    0.008    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:410(construct_yaml_map)
+       60    0.000    0.000    0.008    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:215(construct_mapping)
+        5    0.000    0.000    0.008    0.002 /app/app/governance/verification_transaction.py:50(execute)
+        6    0.000    0.000    0.008    0.001 /usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2406(execute)
+        7    0.000    0.000    0.008    0.001 /usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1782(_execute_context)
+      684    0.001    0.000    0.007    0.000 /usr/local/lib/python3.12/site-packages/yaml/scanner.py:113(check_token)
+       60    0.001    0.000    0.007    0.000 /usr/local/lib/python3.12/site-packages/yaml/constructor.py:132(construct_mapping)
+
+
+{"sample": 1, "cards": 214, "revision": "44f16465ff1fecd3711065359fe52efde5741dcb858cd4401b5ad8ccd6c220b0", "timings": {"snapshot_and_fences_ms": 3152.48, "snapshot_ms": 3143.52, "fences_exclusive_ms": 8.96, "materialize_ms": 2.44, "object_authorization_ms": 0.0, "parse_ms": 906.27, "cleanup_ms": 108.39, "reconcile_ms": 209.77, "external_reconcile_ms": 30.58, "card_projection_exclusive_ms": 88.25, "projection_commit_ms": 2.74, "document_projection_ms": 5.74, "total_ms": 4509.59, "reader_orchestration_ms": 2.93}}

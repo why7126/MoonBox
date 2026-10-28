@@ -1,0 +1,74 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>BUG-0056 正式路由验收</title>
+<style>body{margin:0;font:14px sans-serif}header{position:sticky;top:0;background:white;padding:8px;z-index:2}iframe{width:1440px;height:900px;border:0}pre{white-space:pre-wrap;max-height:300px;overflow:auto}</style>
+<header><button id="navigation">30次正式页面打开</button> <button id="refresh">30次正式页面刷新</button> <span id="progress">就绪</span></header>
+<iframe id="page" src="/requirements"></iframe><div id="rows"></div><pre id="evidence">[]</pre>
+<script>
+const frame=document.querySelector('#page'), output=document.querySelector('#evidence'), progress=document.querySelector('#progress');
+const requestedSamples=Number(new URLSearchParams(location.search).get('samples'));
+const sampleCount=[30,70,100].includes(requestedSamples)?requestedSamples:30;
+document.querySelector('#navigation').textContent=sampleCount+'次正式页面打开';
+document.querySelector('#refresh').textContent=sampleCount+'次正式页面刷新';
+let busy=false, rows=[], fetchedContext={}, observationGeneration=0, bufferFull=false;
+function observeFetch(){
+ const generation=++observationGeneration;
+ bufferFull=false;
+ frame.contentWindow.performance.setResourceTimingBufferSize(10000);
+ frame.contentWindow.performance.addEventListener('resourcetimingbufferfull',()=>{
+  if(generation===observationGeneration) bufferFull=true;
+ });
+ fetchedContext={};
+ const original=frame.contentWindow.fetch.bind(frame.contentWindow);
+ frame.contentWindow.fetch=async(...args)=>{
+  const response=await original(...args);
+  if(String(args[0]).includes('/requirement-center/context?')) {
+   const observed={request_id:response.headers.get('X-Request-ID'),status:response.status};
+   if(generation===observationGeneration) fetchedContext=observed;
+   const parse=response.json.bind(response);
+   response.json=async(...options)=>{
+    const body=await parse(...options);
+    observed.snapshot_revision=body?.data?.snapshot_revision;
+    observed.authorized_cards=body?.data?.issues?.length;
+    return body;
+   };
+  }
+  return response;
+ };
+}
+frame.onload=observeFetch;
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+function context(){return frame.contentWindow.performance.getEntriesByType('resource').filter(e=>e.name.includes('/requirement-center/context?'));}
+function cards(){return frame.contentDocument.querySelectorAll('.rc-card[data-issue-id]');}
+function metrics(entry){return {...fetchedContext,context_ms:entry.duration,status:entry.responseStatus||fetchedContext.status||null,queue_ms:entry.requestStart-entry.startTime,wait_ms:entry.responseStart-entry.requestStart,transfer_ms:entry.responseEnd-entry.responseStart,protocol:entry.nextHopProtocol,resource_entries:frame.contentWindow.performance.getEntriesByType('resource').length,resource_buffer_full:bufferFull,server_timing:Object.fromEntries((entry.serverTiming||[]).map(x=>[x.name,x.duration])),visible_cards:cards().length,viewport_width:window.innerWidth,viewport_height:window.innerHeight,page_viewport_width:frame.contentWindow.innerWidth,page_viewport_height:frame.contentWindow.innerHeight};}
+async function until(check,timeout=90000){const end=Date.now()+timeout;while(Date.now()<end){if(bufferFull)throw Error('resource timing buffer full');if(check())return;await pause(40)}throw Error('timeout');}
+async function navigate(n){
+ frame.src='/requirements?bug0056_sample='+n;
+ await new Promise(resolve=>frame.onload=()=>{observeFetch();resolve()});
+ await until(()=>context().length && cards().length===29 && !frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
+ await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+ const bounds=cards()[0].getBoundingClientRect(), outer=frame.getBoundingClientRect();
+ return {...metrics(context()[0]),first_card_ms:frame.contentWindow.performance.now(),first_card_in_viewport:bounds.width>0&&bounds.height>0&&bounds.top<frame.contentWindow.innerHeight&&bounds.bottom>0&&outer.top+bounds.top<window.innerHeight&&outer.top+bounds.bottom>0&&outer.left+bounds.left<window.innerWidth};
+}
+async function refresh(){
+ await until(()=>cards().length===29&&!frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
+ const before=context().length;
+ frame.contentDocument.querySelector('[aria-label="刷新需求中心"]').click();
+ await until(()=>context().length>before&&!frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
+ return metrics(context()[before]);
+}
+function renderRows(){
+ const nodes=[];
+ function add(value){const p=document.createElement('p');p.textContent=JSON.stringify(value);nodes.push(p)}
+ for(const r of rows){
+  add({n:r.n,mode:r.mode,time:r.time,request_id:r.request_id,in_view:r.first_card_in_viewport,http:r.context_ms,first:r.first_card_ms,status:r.status,cards:r.visible_cards,revision:r.snapshot_revision,authorized_cards:r.authorized_cards,queue:r.queue_ms,wait:r.wait_ms,transfer:r.transfer_ms,protocol:r.protocol,error:r.error});
+  add({view_n:r.n,viewport:[r.viewport_width,r.viewport_height,r.page_viewport_width,r.page_viewport_height]});
+  const timings=Object.entries(r.server_timing||{});
+  for(let i=0;i<timings.length;i+=4) add({timing_n:r.n,values:timings.slice(i,i+4)});
+ }
+ document.querySelector('#rows').replaceChildren(...nodes);
+}
+async function run(mode){if(busy)return;busy=true;rows=[];output.textContent='[]';document.querySelectorAll('button').forEach(x=>x.disabled=true);
+ try{await until(()=>cards().length===29);for(let n=0;n<sampleCount;n++){progress.textContent=mode+' '+(n+1)+'/'+sampleCount;let row;try{row=mode==='navigation'?await navigate(n):await refresh()}catch(e){row={error:String(e)}}rows.push({n,mode,time:new Date().toISOString(),...row});output.textContent=JSON.stringify(rows);renderRows();await pause(1000);}progress.textContent='完成 '+mode+' '+sampleCount+'/'+sampleCount;}
+ finally{busy=false;document.querySelectorAll('button').forEach(x=>x.disabled=false);}
+}
+document.querySelector('#navigation').onclick=()=>run('navigation');document.querySelector('#refresh').onclick=()=>run('refresh');
+</script></html>

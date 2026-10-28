@@ -1,0 +1,29 @@
+{
+  "time": 1793149856.3108149,
+  "host_cpus": 10,
+  "load": [
+    4.181640625,
+    5.3408203125,
+    6.5703125
+  ],
+  "service_health": [
+    {
+      "name": "backend",
+      "health": "healthy",
+      "restarts": 0,
+      "started_at": "2026-10-28T01:00:06.166004537Z"
+    },
+    {
+      "name": "chat-worker",
+      "health": "healthy",
+      "restarts": 0,
+      "started_at": "2026-10-28T01:00:11.898323792Z"
+    },
+    {
+      "name": "governance-controller",
+      "health": "healthy",
+      "restarts": 0,
+      "started_at": "2026-10-28T01:00:11.901551836Z"
+    }
+  ]
+}

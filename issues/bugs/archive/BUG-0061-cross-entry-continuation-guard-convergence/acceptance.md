@@ -2,7 +2,7 @@
 bug_id: BUG-0061-cross-entry-continuation-guard-convergence
 title: 跨入口续接保护恢复与实际归档验收标准
 created_at: '2026-10-21 15:55:12'
-updated_at: 2026-10-23 22:43:10
+updated_at: 2026-10-27 16:18:40
 acceptance_status: passed
 ---
 
@@ -10,7 +10,7 @@ acceptance_status: passed
 
 ## 验收状态
 
-实施及聚焦回归进行中，完整产品验收尚未签认。以下逐项收集当前证据，不把既有BUG-0055验收计为本BUG通过。
+以下AC-001至AC-014保留历史验收条目，历史最终结果以本文件结果回填和已归档Change证据为准。2026-10-27复发增量验收独立列于文末，尚未执行，不沿用历史passed。
 
 ## 回归标准
 
@@ -98,13 +98,29 @@ validation: AC-006/007/009/010/013核验关联、版本、原因与脱敏审计�
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-23 22:43:10
+accepted_at: 2026-10-27 16:18:40
 accepted_by: workflow-sync
 source_change: fix-cross-entry-continuation-guard
 source_sprint: sprint-012
 evidence: [openspec/archive/2026-10-21-fix-cross-entry-continuation-guard/evidence/acceptance/20261021172015757258-d2606c57/summary.md]
 failed_items: []
-source_event: sprint.archive
+source_event: bug.review
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 
+## 2026-10-27 复发增量验收（尚未执行）
+
+Frontmatter acceptance_status及原AC-001至AC-014属于2026-10-21历史交付，不代表本次复发通过。以下RC编号独立记录，不并入历史Change已通过计数；后续修复Change需正式映射，当前全部为待验证。
+
+| 编号 | 验收要求 | 证据与通过条件 | 当前结果 |
+|---|---|---|---|
+| RC-001 | 原轮已停止且无成功同步证明，外部完成具有独立可信证据时可发起后继核验 | REQ/BUG隔离正例；真实接口及页面均可进入核验，不伪造原同步步骤 | 未执行 |
+| RC-002 | 后继完成验证对象、动作、Change、绑定、授权、时间关系、正式完成收据及当前验收指纹 | 缺收据、仅勾选任务、仅ready、错对象、错绑定、过期证据、缺可信启动基线逐项拒绝 | 未执行 |
+| RC-003 | 历史不被改写，后继证明独立留痕 | 原停止状态、旧步骤、事件及证明哈希保持；新记录关联原操作与后继证据、核验版本和原因 | 未执行 |
+| RC-004 | 拒绝并发覆盖及真实依赖冲突 | 新执行占用、权限撤回、快照变化、过期回调、任务范围变化与未覆盖输入等负例；无部分放行 | 未执行 |
+| RC-005 | 幂等及中断恢复 | 重复核验、刷新和服务中断后重试不重复业务执行，不解除新保护，不重复合并规格 | 未执行 |
+| RC-006 | 卡片与执行详情解释当前事实 | 1440px与390px分别验证可核验、核验中、成功、失败；成功显示已由后续执行完成及证据入口，旧执行仍已停止；附截图、selector、computed style | 未执行 |
+| RC-007 | 真实完整链路与兼容性 | 隔离Chat中断→外部完成→产品核验→合法后续动作实际发送→终态；SQLite/MySQL均验证；既有有证明恢复与review/archive专用协议回归 | 未执行 |
+| RC-008 | BUG-0056现场恢复单独验证 | 修复后重读现场、证据与版本，经授权核验后检查当前准入；不能用隔离结果代替正式对象恢复，正式归档另按授权执行 | 未执行 |
+
+product_data_collection_observability: affected。affected_layers: governance workflow、completion proof、API admission、Web UI、recovery audit。validation: RC-002至RC-007验证请求与操作关联、拒绝原因和核验结果脱敏可追溯；后台核验不伪造用户行为事件。遵循docs/standards/product-data-collection-observability.md。DB schema与客户端生成是否变化在修复设计确认；对象存储、管理端及未启用客户端本次无已确认改动。本次仅文档完善，无产品层变更。

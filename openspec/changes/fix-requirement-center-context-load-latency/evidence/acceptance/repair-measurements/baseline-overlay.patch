@@ -1,0 +1,117 @@
+--- a/src/backend/app/governance/reader.py
++++ b/src/backend/app/governance/reader.py
+@@ -131,7 +131,7 @@
+                         card.blocked = card.acceptance_blocked_reason
+                         if card.action:
+                             card.action.disabled_reason = card.acceptance_blocked_reason
+-                reconcile_external(self.db, self.scope, object_id, card.stage, snapshot)
++                reconcile_external(self.db, self.scope, object_id, card.stage, snapshot, actor=self.actor)
+                 guard = read_guard(self.db, self.scope.key, object_id)
+                 state = visible_state(self.db, self.actor, self.scope, object_id)
+                 card.execution_state = state['execution_state']
+--- a/src/backend/app/governance/execution_context.py
++++ b/src/backend/app/governance/execution_context.py
+@@ -82,7 +82,7 @@
+         ids += [entry['id'] for entry in reader.authorize_object(snapshot, oid, change=True, write=True)]
+     stages = stage_map(snapshot)
+     for key in sorted(set(ids)):
+-        reconcile_external(db, project, key, stages.get(key, 'unknown'), snapshot)
++        reconcile_external(db, project, key, stages.get(key, 'unknown'), snapshot, actor=actor)
+     db.commit()
+     if client_id:
+         from app.governance.direct_command_journal import prepare as prepare_journal
+@@ -152,6 +152,30 @@
+ 
+ 
+ def reconcile(db, actor, project, *, operation_id=None):
++    """Own the reconciliation boundary; never keep file work in a write transaction."""
++    from app.governance.verification_transaction import VerificationPlan
++    db.commit()
++    from app.governance.writer import epoch
++    before_epoch = epoch(db, project)
++    query = select(guards.execution_guards).where(
++        guards.execution_guards.c.scope_key == project.key,
++        guards.execution_guards.c.owner_id == actor,
++        guards.execution_guards.c.state.in_(('running', 'needs_review')))
++    if operation_id:
++        query = query.where(guards.execution_guards.c.operation_id == operation_id)
++    rows = [dict(row) for row in db.execute(query).mappings()]
++    db.rollback()
++    for row in rows:
++        plan = VerificationPlan(db)
++        turn = plan.execute(select(turns).where(turns.c.id == row['operation_id'])).mappings().first()
++        if not turn or turn['status'] not in ('completed', 'failed', 'stopped', 'unknown'):
++            continue
++        _reconcile_plan(plan, actor, project, operation_id=row['operation_id'], object_id=row['object_id'])
++        plan.apply(actor=actor, project=project,
++                   expected={'object_id': row['object_id'], '_row': row}, turn=turn, expected_epoch=before_epoch)
++
++
++def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None):
+     """Recheck terminal outcomes; never execute/retry a governance command here."""
+     from app.governance.execution_validation import validate_result
+     from app.governance.direct_command_journal import record_id
+@@ -165,6 +189,8 @@
+     stages = None
+     for row in rows:
+         if operation_id and row['operation_id'] != operation_id:
++            continue
++        if object_id and row['object_id'] != object_id:
+             continue
+         turn = db.execute(select(turns).where(turns.c.id == row['operation_id'])).mappings().first()
+         if not turn or turn['status'] not in ('completed', 'failed', 'stopped', 'unknown'):
+@@ -227,6 +253,8 @@
+                         raise DirectProofError('direct_binding_changed')
+                     direct_manifest = verify_direct(record, snapshot.files, row['object_id'], row['action'])
+                 except DirectProofError as error:
++                    if row['reason_code'] == str(error):
++                        continue
+                     g = guards.execution_guards.c
+                     db.execute(update(guards.execution_guards).where(
+                         g.operation_id == row['operation_id'], g.version == row['version'],
+@@ -267,6 +295,8 @@
+                                             store.read(candidate['id'], 'result'), proof,
+                                             snapshot.files, row['object_id'], row['action'])
+                         except ProofError as error:
++                            if row['reason_code'] == str(error):
++                                continue
+                             g = guards.execution_guards.c
+                             db.execute(update(guards.execution_guards).where(
+                                 g.scope_key == project.key, g.object_id == row['object_id'],
+@@ -279,6 +309,8 @@
+                     verify(project, row, turn, record, snapshot)
+                     synced = True
+                 except ArchiveProofError as error:
++                    if row['reason_code'] == str(error):
++                        continue
+                     # Preserve the lifecycle and expose a bounded verification failure.
+                     g = guards.execution_guards.c
+                     db.execute(update(guards.execution_guards).where(
+@@ -315,7 +347,26 @@
+             continue
+ 
+ 
+-def reconcile_external(db, project, oid, stage, snapshot):
++def reconcile_external(db, project, oid, stage, snapshot, *, actor=None):
++    if actor is None:
++        # Legacy callers retain their transaction contract; readers supply actor.
++        return _reconcile_external_plan(db, project, oid, stage, snapshot)
++    from app.governance.verification_transaction import VerificationPlan
++    db.commit()
++    from app.governance.writer import epoch
++    before_epoch = epoch(db, project)
++    db.rollback()
++    plan = VerificationPlan(db)
++    row = guards.read(plan, project.key, oid)
++    _reconcile_external_plan(plan, project, oid, stage, snapshot)
++    try:
++        plan.apply(actor=actor, project=project,
++                   expected={'object_id': oid, '_row': dict(row) if row else None}, expected_epoch=before_epoch)
++    except IntegrityError:
++        db.rollback()  # Concurrent admission wins; do not overwrite it.
++
++
++def _reconcile_external_plan(db, project, oid, stage, snapshot):
+     """External facts use structural governance validation, never a fake Chat turn."""
+     from app.governance.execution_validation import validate_external
+     g = guards.execution_guards.c

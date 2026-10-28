@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-stream-preview-premature-truncation",
+  "environment": "local-chat",
+  "environment_contract": {
+    "deployment": "local-docker-and-isolated-source",
+    "workspace_mode": "source",
+    "sample_scope": "synthetic-visual-and-read-only-agent",
+    "authorization_ref": "用户已授权本地服务更新及只读真实轮次验收",
+    "login_strategy": "existing-browser-session-and-isolated-fixture",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/specs/chat-scalable-storage/spec.md"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "-q"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-UI",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/components/chat/FullOutput.tsx",
+        "src/web/src/components/chat/TurnActivity.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/components/chat/turnStatus.ts",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/full-output.test.tsx"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "src/full-output.test.tsx",
+        "src/unified-run-status.test.tsx",
+        "src/chat-assistant-output.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "product_turn",
+      "turn_id": "f21b13b3-8df5-4005-97c9-0edbc8f2e6f3",
+      "command_contains": "BUG0067_READ_ONLY_ACCEPTANCE",
+      "inputs": [
+        "src/backend/app/chat/output_window.py",
+        "src/backend/app/chat/assistant_output.py",
+        "src/backend/app/chat/result_reader.py",
+        "src/backend/app/chat/final_answer.py",
+        "src/backend/app/chat/content_store.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/tests/test_chat_preview.py",
+        "src/backend/tests/test_chat_assistant_output.py",
+        "src/backend/tests/test_chat_final_answer.py",
+        "src/web/src/components/chat/FullOutput.tsx",
+        "src/web/src/components/chat/TurnActivity.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/components/chat/turnStatus.ts",
+        "src/web/src/components/chat/useConversationMessages.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/web/src/full-output.test.tsx"
+      ],
+      "evidence_kinds": [
+        "product_turn",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-390.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-390.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-390.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-390.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-390.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/computed-style.json",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/real-final-1440.png",
+        "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/real-final-390.png"
+      ],
+      "coverage": {
+        "stages": [
+          "short",
+          "limited",
+          "opened",
+          "error",
+          "final"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "short",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-1440.png"
+            ]
+          },
+          {
+            "stage": "short",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/short-390.png"
+            ]
+          },
+          {
+            "stage": "limited",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-1440.png"
+            ]
+          },
+          {
+            "stage": "limited",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/limited-390.png"
+            ]
+          },
+          {
+            "stage": "opened",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-1440.png"
+            ]
+          },
+          {
+            "stage": "opened",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/opened-390.png"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-1440.png"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/error-390.png"
+            ]
+          },
+          {
+            "stage": "final",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-1440.png"
+            ]
+          },
+          {
+            "stage": "final",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-stream-preview-premature-truncation/evidence/acceptance/visual/final-390.png"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://localhost:39002/"
+        ]
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "真实轮次完成、命令退出0、293段output、页面无缺失提示；两视口最终正文与隔离五阶段证据分别签认。"
+      },
+      "collection": {
+        "state": "collected"
+      }
+    }
+  ]
+}

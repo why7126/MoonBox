@@ -19,6 +19,54 @@ def setup_store(chat, tmp_path):
     return LocalBackupStore(root, initialize=True), source
 
 
+def test_backup_yields_source_lock_and_keeps_concurrent_commit(tmp_path, monkeypatch):
+    from app.chat import backup
+    root = tmp_path / 'backups'; root.mkdir(mode=0o700)
+    source = tmp_path / 'source.sqlite'
+    with sqlite3.connect(source) as db:
+        db.execute('CREATE TABLE payload (body BLOB)')
+        db.executemany('INSERT INTO payload VALUES (zeroblob(4096))', [()] * 600)
+        db.execute('CREATE TABLE marker (value TEXT)')
+    store = LocalBackupStore(root, initialize=True)
+    commits = []
+    def yielding(seconds):
+        if commits:
+            return
+        # The progress callback runs between backup steps. A separate writer
+        # must commit here, before backup completes, without waiting for it.
+        with sqlite3.connect(source, timeout=.05) as writer:
+            writer.execute("INSERT INTO marker VALUES ('concurrent')")
+        commits.append(True)
+    monkeypatch.setattr(backup.time, 'sleep', yielding)
+    backup_id = store.create(source)
+    assert commits == [True]
+    with sqlite3.connect(root / (backup_id + '.sqlite')) as copied:
+        assert copied.execute('PRAGMA integrity_check').fetchone() == ('ok',)
+        assert copied.execute('SELECT COUNT(*) FROM payload').fetchone() == (600,)
+        assert copied.execute('SELECT value FROM marker').fetchone() == ('concurrent',)
+
+
+def test_busy_automatic_copy_keeps_old_backup_and_worker_retries(chat, tmp_path, monkeypatch):
+    from app.chat import backup, platform_worker
+    _, factory = chat
+    store, source = setup_store(chat, tmp_path)
+    old = store.create(source, origin='automatic')
+    with sqlite3.connect(source) as db:
+        db.execute('CREATE TABLE synthetic_load (body BLOB)')
+        db.executemany('INSERT INTO synthetic_load VALUES (zeroblob(4096))', [()] * 600)
+    monkeypatch.setattr(backup, 'AUTOMATIC_COPY_SECONDS', 0)
+    assert platform_worker.initial_snapshot_delay(factory, store, source, 1) == 300
+    assert {row['id'] for row in store.inventory()} == {old}
+    assert next(iter(store.inventory()))['valid']
+    assert {p.name for p in store.root.glob('*.sqlite')} == {'deletions.sqlite', old + '.sqlite'}
+    with factory() as db:
+        assert db.scalar(select(task_traces.c.id).where(task_traces.c.status == 'failed'))
+    monkeypatch.setattr(backup, 'AUTOMATIC_COPY_SECONDS', 60)
+    assert platform_worker.initial_snapshot_delay(factory, store, source, 1) == 86400
+    assert len(store.inventory()) == 1
+    assert next(iter(store.inventory()))['id'] != old
+
+
 def test_real_backup_delete_restore_cannot_resurrect(chat, tmp_path, monkeypatch):
     client, factory = chat
     store, source = setup_store(chat, tmp_path)

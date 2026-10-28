@@ -126,7 +126,7 @@ def test_projection_bounds_and_final_snapshot(chat, monkeypatch):
         db.commit()
         assert db.scalar(select(func.count()).select_from(messages).where(messages.c.turn_id==tid))==1
         monkeypatch.setattr(assistant_output,'MAX_EVENTS',1)
-        assert assistant_output.saved_output(db,tid)=={'content':'part','partial':True,'truncated':True}
+        assert assistant_output.saved_output(db,tid)=={'content':'part','partial':True,'truncated':True,'truncation_reason':'read_window'}
     data=client.get(f'/api/v1/chat/conversations/{cid}/messages').json()['data']['items']
     assert len(data)==1 and data[0]['content']=='final'
 

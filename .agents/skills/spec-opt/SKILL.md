@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-26 12:16:48
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
@@ -178,3 +178,11 @@ bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.appl
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 临时 Docker 资源门禁
+
+遵循 `docs/standards/temporary-docker-lifecycle.md`；使用 `scripts/temporary_docker.py` 在创建前登记并为所有临时容器和专属网络加标签，入口 reap 扫描，任务结束 cleanup --apply 后 check 零残留。中断续接先核对原 run；保留现场必须说明理由、期限和回收动作，不得把任务完成等同容器已删除。不删除历史未登记资源、共享服务或数据卷。
+
+## explore 维护交接
+
+接到 explore 改进请求时，按 `docs/standards/governance-feedback-loop.md` 的“探索反馈与统一维护交接”核对反馈分类、已有规则、候选去重、脱敏证据与最小改动。复用统一治理机制，不为 Skill 新建私有台账。仅维护时读取 `.agents/skills/explore/evals/cases.md`；先定义旧版/候选版对照与不适用反例，分别报告静态、合成及真实行为证据。验证通过后记录版本生效方式与 observing 状态；不把未执行的模型评测或用量缺失宣称为收益确认。

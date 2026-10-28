@@ -20,7 +20,10 @@ class ProjectReader:
         from app.governance.writer import assert_readable, epoch
         before_epoch = epoch(self.db, self.scope)
         assert_readable(self.db, self.scope)
-        result = stable(self.scope.root)
+        from app.governance.read_snapshot import stable_read
+        snapshot_start = perf_counter()
+        result = stable_read(self.scope.root, self.scope.binding_revision)
+        self.snapshot_ms = (perf_counter() - snapshot_start) * 1000
         # End the read transaction so MySQL REPEATABLE READ cannot hide a writer
         # that started after the first fence check. No writes are pending here.
         self.db.commit()
@@ -33,6 +36,9 @@ class ProjectReader:
         return result
 
     def entries(self, snapshot):
+        index = getattr(self, '_identities', None)
+        if index is not None and index.snapshot is snapshot:
+            return [entry for folder in ('requirements', 'bugs') for entry in index.registry(folder)['entries']]
         return [entry for folder in ('requirements','bugs')
                 for entry in safe_load(snapshot.files[f'issues/{folder}/_registry.yaml'])['entries']]
 
@@ -73,6 +79,11 @@ class ProjectReader:
             return result
         finally:
             timings["total_ms"] = round((perf_counter() - start) * 1000, 2)
+            exclusive = ('snapshot_and_fences_ms', 'materialize_ms', 'object_authorization_ms',
+                         'parse_ms', 'cleanup_ms', 'reconcile_ms', 'external_reconcile_ms',
+                         'card_projection_exclusive_ms', 'projection_commit_ms', 'document_projection_ms')
+            timings['reader_orchestration_ms'] = round(max(0, timings['total_ms'] -
+                sum(timings.get(key, 0) for key in exclusive)), 2)
             self.timings = dict(timings)
             logging.getLogger("moonbox.requirement_center").info("requirement_center.read_timing %s", json.dumps({
                 "request_id": getattr(self, "request_id", ""), "operation": name,
@@ -83,13 +94,18 @@ class ProjectReader:
         start = perf_counter()
         snapshot=self.snapshot()
         timings["snapshot_and_fences_ms"] = round((perf_counter() - start) * 1000, 2)
+        if hasattr(self, 'snapshot_ms'):
+            timings['snapshot_ms'] = round(self.snapshot_ms, 2)
+            timings['fences_exclusive_ms'] = round(max(0, timings['snapshot_and_fences_ms'] - self.snapshot_ms), 2)
         if name.startswith('update_'):
             if self.scope.readonly: raise ChatError(2601,'当前空间只读',403)
             # Every old write entrance fails closed until the trusted writer is installed.
             raise ChatError(2605,'受控写入服务尚未就绪，文档保持只读',503)
         files=dict(snapshot.files)
+        from app.governance.execution_context import IdentityIndex
+        self._identities = IdentityIndex(snapshot)
         start = perf_counter()
-        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision)) as root, legacy.using_governance_root(root, immutable=True, evidence_root=self.scope.root, evidence_source_root=getattr(self.scope, "source_root", None)):
+        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision)) as root, legacy.using_governance_root(root, immutable=True, evidence_root=self.scope.root, evidence_source_root=getattr(self.scope, "source_root", None), registry_index=self._identities, shared_memo=True):
             timings["materialize_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             if name != 'build_requirement_center_context':
@@ -98,8 +114,9 @@ class ProjectReader:
             timings["object_authorization_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             if name == 'build_requirement_center_context':
+                visibility = scopes.RequestVisibility(self.db, self.actor, self.scope)
                 kwargs = {**kwargs, 'owner_space_id': self.scope.space_id,
-                          'visibility': lambda oid: scopes.visible(self.db, self.actor, self.scope, oid)}
+                          'visibility': visibility.visible}
             from .controlled_successor import authority
             with authority(self.db, self.scope, self.actor):
                 result=getattr(legacy,name)(*args,**kwargs)
@@ -118,11 +135,21 @@ class ProjectReader:
                     sprint.archive_readiness.reason_code = 'permission_denied'
                     sprint.archive_readiness.safe_summary = '当前用户无权发起迭代归档。'
                     sprint.archive_readiness.blockers = []
-            from app.governance.execution_context import reconcile, visible_state, canonical_id, reconcile_external
-            from app.governance.execution_guard import read as read_guard
-            reconcile(self.db, self.actor, self.scope)
+            from app.governance.execution_context import reconcile, visible_states, canonical_id, reconcile_external_batch, IdentityIndex
+            identities = self._identities
+            start = perf_counter()
+            reconcile(self.db, self.actor, self.scope, snapshot=snapshot)
+            timings['reconcile_ms'] = round((perf_counter() - start) * 1000, 2)
+            start = perf_counter()
+            external_start = perf_counter()
+            reconcile_external_batch(self.db, self.scope,
+                [(canonical_id(snapshot, card.id, identities), card.stage) for card in result.issues],
+                snapshot, actor=self.actor)
+            external_seconds = perf_counter() - external_start
+            states = visible_states(self.db, self.actor, self.scope,
+                                    [canonical_id(snapshot, card.id, identities) for card in result.issues])
             for card in result.issues:
-                object_id = canonical_id(snapshot, card.id)
+                object_id = canonical_id(snapshot, card.id, identities)
                 if card.type == 'change' and card.stage == 'acceptance':
                     from app.governance.archive_admission import change_acceptance
                     admission = change_acceptance(self.scope.root, object_id, source_root=getattr(self.scope, "source_root", None))
@@ -131,9 +158,7 @@ class ProjectReader:
                         card.blocked = card.acceptance_blocked_reason
                         if card.action:
                             card.action.disabled_reason = card.acceptance_blocked_reason
-                reconcile_external(self.db, self.scope, object_id, card.stage, snapshot)
-                guard = read_guard(self.db, self.scope.key, object_id)
-                state = visible_state(self.db, self.actor, self.scope, object_id)
+                guard, state = states[object_id]
                 card.execution_state = state['execution_state']
                 card.can_send = state['can_send']
                 card.execution_reason = state.get('reason_code')
@@ -160,7 +185,13 @@ class ProjectReader:
                         card.stage = guard['confirmed_stage']
                     if card.action and card.stage != 'development':
                         card.action.disabled_reason = '执行中，请查看原执行' if guard['state'] == 'running' else '结果待核对'
+            timings['external_reconcile_ms'] = round(external_seconds * 1000, 2)
+            timings['card_projection_exclusive_ms'] = round((perf_counter() - start - external_seconds) * 1000, 2)
+            start = perf_counter()
             self.db.commit()
+            visibility.assert_current(self.db)
+            timings['projection_commit_ms'] = round((perf_counter() - start) * 1000, 2)
+            start = perf_counter()
             query=urlencode({'space_id':self.scope.space_id,'repository_id':self.scope.repository_id})
             for issue in result.issues:
                 if issue.type == 'change' and issue.action and issue.stage != 'development' and self.scope.readonly:
@@ -178,6 +209,7 @@ class ProjectReader:
                         doc.capability.task_toggle_only=False
                         doc.capability.ai_mutable=False
                         doc.capability.reason='当前空间只读'
+            timings['document_projection_ms'] = round((perf_counter() - start) * 1000, 2)
         return result
 
 

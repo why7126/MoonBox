@@ -92,6 +92,20 @@ class EntryTests(unittest.TestCase):
         self.assertEqual(result.returncode, 7, result.stderr)
         self.assertTrue((self.root / 'scripts/ran').exists())
 
+    def test_inline_command_arguments_and_exit(self):
+        self.env['PYTHON_BIN'] = sys.executable
+        result = self.run_entry('-c', 'import sys; print(repr(sys.argv[1:])); sys.exit(7)', 'a b', '$(literal)')
+        self.assertEqual(7, result.returncode)
+        self.assertIn("['a b', '$(literal)']", result.stdout)
+
+    def test_stdin_execution(self):
+        self.env['PYTHON_BIN'] = sys.executable
+        result = subprocess.run(['bash', str(self.root / 'scripts/project-python.sh'), '-', 'a b'],
+                                cwd=self.root, env=self.env, capture_output=True, text=True,
+                                input='import sys; print(sys.argv[1]); sys.exit(6)')
+        self.assertEqual(6, result.returncode)
+        self.assertEqual('a b', result.stdout.strip())
+
     def test_skill_regression_guard(self):
         import runpy
         validator = runpy.run_path(str(ROOT / 'scripts/validate-agent-context-budget.py'))['validate_python_entry']

@@ -28,6 +28,7 @@ entries = Table('chat_snapshot_entries', metadata,
     Column('verified', Integer, nullable=False, default=0),
     Column('object_id', String(64), ForeignKey('chat_content_objects.id')))
 Index('ix_chat_snapshot_digest', entries.c.version_id, entries.c.digest, entries.c.kind, entries.c.mode)
+Index('ix_chat_snapshot_object', entries.c.object_id)
 segments = Table('chat_result_segments', metadata, *identity(),
     Column('turn_id', String(64), ForeignKey('chat_turns.id'), nullable=False),
     Column('stream_id', String(24), nullable=False), Column('source_event_id', String(64), nullable=False),
@@ -35,6 +36,7 @@ segments = Table('chat_result_segments', metadata, *identity(),
     Column('object_id', String(64), ForeignKey('chat_content_objects.id'), nullable=False),
     UniqueConstraint('turn_id', 'stream_id', 'source_event_id', 'source_offset', name='uq_chat_segment_source'),
     UniqueConstraint('turn_id', 'sequence', name='uq_chat_segment_sequence'))
+Index('ix_chat_segment_object', segments.c.object_id)
 ledger = Table('chat_storage_ledger', metadata,
     Column('event_id', String(64), primary_key=True),
     Column('conversation_id', String(64), ForeignKey('chat_conversations.id'), nullable=False),

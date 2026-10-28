@@ -1,7 +1,7 @@
 ---
 purpose: OpenSpec 自动验收与证据包标准
 created_at: 2026-10-12 14:59:30
-updated_at: '2026-10-26 11:05:14'
+updated_at: 2026-10-26 12:09:32
 ---
 
 # OpenSpec 自动验收与证据包
@@ -142,3 +142,7 @@ manifest.metrics 记录本轮 duration_ms、preflight_ms、command_executions、
 ## 历史规格末尾换行补证
 
 独立补证位于 `openspec/archive/.spec-normalizations/`，不得修改原 journal 或 manifest。补证保存完整目录文件哈希清单及变化规格前后文本，以源归档 expected 与已完成后继 baseline 双向锚定；重算两端目录哈希，文件集合与正文逐字一致，仅允许规格末尾 LF 数量差异。正文、文件集合、锚点、交付或增量不符均拒绝，仍需后继归档连续链、最终条文效果和并发复读。读取不执行仓库脚本，不把语义近似当成一致，也不改变权限和验收要求。
+
+## 临时 Docker 资源完成门禁
+
+使用临时 Docker 时执行 [资源生命周期契约](temporary-docker-lifecycle.md)：创建前 register，容器和专属网络携带完整标签；采集证据后 cleanup --apply，再 check 验证零残留。AC 通过不替代环境收尾；保留排障现场须记录理由、责任、到期时间和精确回收入口，报告为保留待回收，不得宣称资源清理完成。下一入口先 reap 预览，过期运行资源先核查。

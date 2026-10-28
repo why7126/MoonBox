@@ -60,7 +60,7 @@ def emit(root, change, event, issue):
         out.flush(); os.fsync(out.fileno())
 
 
-def valid(folder, change, issue, run):
+def valid(folder, change, issue, run, *, not_before=None):
     if not safe_id(change) or not safe_id(run):
         return False
     plan = folder/'acceptance-plan.json'
@@ -73,12 +73,16 @@ def valid(folder, change, issue, run):
             continue
         try:
             r = json.loads(path.read_text())
+            if not_before is not None:
+                created = datetime.fromisoformat(r.get('created_at', ''))
+                if created.tzinfo is None or not not_before <= created <= datetime.now(timezone.utc):
+                    continue
             if (r.get('schema_version') == 1 and r.get('event') == 'opsx.accept'
                     and r.get('mode') == 'write' and r.get('ok') is True
                     and r.get('object_id') == issue and r.get('change_id') == change
                     and r.get('run_id') == run and r.get('plan_hash') == digest(plan)
                     and r.get('manifest_hash') == digest(manifest)):
                 return True
-        except (ValueError, OSError):
+        except (ValueError, TypeError, AttributeError, OSError):
             continue
     return False

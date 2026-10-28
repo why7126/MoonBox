@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "add-temporary-docker-lifecycle",
+  "checks": [
+    {
+      "id": "AC-001",
+      "title": "登记回收与拒绝路径回归",
+      "kind": "command",
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_temporary_docker.py"
+      ],
+      "inputs": [
+        "scripts/temporary_docker.py",
+        "scripts/test_temporary_docker.py",
+        "docs/standards/temporary-docker-lifecycle.md",
+        "openspec/changes/add-temporary-docker-lifecycle/specs",
+        "openspec/changes/add-temporary-docker-lifecycle/design.md"
+      ],
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-002",
+      "title": "治理入口与生命周期引用门禁",
+      "kind": "command",
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        "AGENTS.md",
+        "rules/environment.md",
+        "rules/agent-context-budget.md",
+        "docs/08-command-execution-order.md",
+        "docs/standards/opsx-acceptance.md",
+        "docs/standards/temporary-docker-lifecycle.md",
+        ".agents/skills/opsx-apply/SKILL.md",
+        ".agents/skills/openspec-apply-change/SKILL.md",
+        ".agents/skills/opsx-modify/SKILL.md",
+        ".agents/skills/opsx-accept/SKILL.md",
+        ".agents/skills/spec-opt/SKILL.md"
+      ],
+      "timeout_seconds": 60
+    },
+    {
+      "id": "AC-003",
+      "title": "真实Docker隔离清理与模拟到期回收",
+      "kind": "command",
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/smoke_temporary_docker.py",
+        "--image",
+        "moonbox-chat-executor:0.153.4-test"
+      ],
+      "inputs": [
+        "scripts/temporary_docker.py",
+        "scripts/smoke_temporary_docker.py",
+        "docs/standards/temporary-docker-lifecycle.md",
+        "openspec/changes/add-temporary-docker-lifecycle/design.md"
+      ],
+      "timeout_seconds": 120
+    }
+  ]
+}

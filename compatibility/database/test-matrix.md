@@ -3,7 +3,7 @@ purpose: 数据库兼容测试矩阵
 content: 数据库兼容范围、测试环境、Schema/迁移验证、CRUD、查询、事务、类型映射、性能、安全、CI 门禁和初始化生成规则
 update_method: 项目初始化时由用户输入参数生成；数据库类型、兼容目标、迁移策略、测试框架、部署环境或质量门禁变化时更新；后续由 AI 辅助更新并经人工 Review
 created_at: 2026-06-27 08:44:18
-updated_at: '2026-10-20 09:20:02'
+updated_at: "2026-10-27 19:34:50"
 owner: MoonBox
 status: draft
 note: 适用于 MoonBox 项目
@@ -327,3 +327,20 @@ REQ-0025并发释放返修：SQLite增列/重复迁移、终态预留补偿、�
 ### BUG-0063 适用性
 
 兼容条文证明在文件系统执行，API 错误详情复用现有响应，不新增 SQL、表、字段或事务。SQLite Chat 准入及跨入口回归已执行；MySQL schema/migration 本次不适用，原数据库兼容路径不变。真实产品观察与文件证明测试见 fix-compatible-requirement-successor 的验证记录。
+
+
+## Chat 恢复预算兼容性
+
+BUG-0064新增chat_turn_recoveries和chat_recovery_resumes，采用通用字符串时间、整数代次、唯一请求键及条件UPDATE；无需数据库专属锁语法。覆盖重复迁移、预算/暂停持久化、并发CAS、过期租约、终态围栏与续接幂等。数据库时钟使用SQLite CURRENT_TIMESTAMP、MySQL UTC_TIMESTAMP；运行验证见对应Change证据，不把SQLite结果视为MySQL证明。
+
+## BUG-0068 新增事务矩阵
+
+`src/backend/tests/test_verification_transaction.py`覆盖双库的零行终态更新、2秒扫描屏障与独立写连接、20轮双读者/单写者、版本及权限过时拒绝、真实持续锁超时、有界重试、提交成功后异常的权威读回、诊断脱敏。使用CHAT_TEST_DATABASE_URL时仅连接显式独立测试库；原业务轮次不重放。
+
+### BUG-0069 无旧同步证明接续
+
+SQLite核心五组171项通过，独立后继组49项包含规则和任务承接正反例。MySQL 8.2.0独立后继、旧后继与事务竞争83项通过，任务承接增量10项通过。无DB schema变更；使用独立临时库，未在正式库运行测试DDL。真实链路与现场恢复另见fix-chat-interrupted-successor-proof验证记录，不以兼容回归替代现场验收。
+
+## BUG-0056 后台维护引用查询
+
+SQLite与MySQL：移除测试库的两项新索引后运行真实migrate两次，验证ix_chat_snapshot_object与ix_chat_segment_object恢复、内容引用保留和孤儿回收一致；SQLite额外EXPLAIN断言两个相关子查询使用引用索引。SQLite在线备份另验证批次间独立连接成功提交且最终副本integrity_check通过。测试入口为test_chat_content_store.py和test_chat_backup.py，真实并发现场结果归属BUG-0056 Change。

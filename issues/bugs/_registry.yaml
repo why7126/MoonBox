@@ -1,5 +1,85 @@
-next_id: 64
+next_id: 70
 entries:
+- id: BUG-0069-chat-interrupted-successor-proof-missing
+  title: "Chat 中断缺少旧同步证明导致外部接续完成后仍受限"
+  status: done
+  severity: high
+  owner: 产品团队
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0069-chat-interrupted-successor-proof-missing/
+  created: '2026-10-27 16:37:42'
+  related_requirement: null
+  related_bug: BUG-0061-cross-entry-continuation-guard-convergence
+  iteration: sprint-014
+  related_change: fix-chat-interrupted-successor-proof
+- id: BUG-0068-chat-database-lock-execution-interruption
+  title: "Chat 执行期间数据库锁竞争导致持久化失败与任务中断"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户 bug-capture 授权及同会话只读探索
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0068-chat-database-lock-execution-interruption/
+  created: '2026-10-27 08:19:57'
+  related_requirement: null
+  related_bug: BUG-0056-requirement-center-context-load-latency
+  iteration: sprint-014
+  related_change: fix-chat-database-lock-execution-interruption
+- id: BUG-0067-chat-stream-preview-premature-truncation
+  title: "Chat 流式正文预览过早截断并误导提示输出不完整"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户 bug-capture 授权
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0067-chat-stream-preview-premature-truncation/
+  created: '2026-10-26 20:08:41'
+  related_requirement: null
+  related_bug: BUG-0030-chat-assistant-output-missing-from-conversation
+  iteration: sprint-014
+  related_change: fix-chat-stream-preview-premature-truncation
+- id: BUG-0065-chat-final-answer-duplicate-concatenation
+  title: "Chat 最终回答相同内容重复保存并拼接展示"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户 bug-capture 授权
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0065-chat-final-answer-duplicate-concatenation/
+  created: '2026-10-26 18:01:50'
+  related_requirement: null
+  related_bug: BUG-0030-chat-assistant-output-missing-from-conversation
+  iteration: sprint-014
+  related_change: fix-chat-final-answer-duplicate-concatenation
+- id: BUG-0066-chat-auto-verification-status-stale
+  title: "Chat 自动核验状态未持续刷新导致结果待核验提示滞留"
+  status: done
+  severity: medium
+  owner: 产品团队
+  source: 用户 bug-capture 授权
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0066-chat-auto-verification-status-stale/
+  created: '2026-10-26 18:01:50'
+  related_requirement: null
+  related_bug: BUG-0052-verified-result-execution-guard-not-released
+  iteration: sprint-014
+  related_change: fix-chat-auto-verification-status-stale
+- id: BUG-0064-chat-unknown-recovery-container-churn
+  title: "Chat 未知轮次无界恢复导致执行容器持续重复创建"
+  status: done
+  severity: high
+  owner: 产品团队
+  source: 用户bug-capture授权及2026-10-26同会话只读探索
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0064-chat-unknown-recovery-container-churn/
+  created: '2026-10-26 13:07:04'
+  related_requirement: null
+  related_bug:
+  - BUG-0026-chat-platform-opsx-archive-source-permission
+  - BUG-0052-verified-result-execution-guard-not-released
+  - BUG-0058-chat-history-status-replay-request-amplification
+  iteration: sprint-014
+  related_change: fix-chat-unknown-recovery-container-churn
 - id: BUG-0063-compatible-requirement-successor-blocked
   title: "同条文兼容追加被归档后继冲突门禁拒绝"
   status: done
@@ -57,7 +137,7 @@ entries:
   related_change: fix-direct-command-completion-proof
 - id: BUG-0056-requirement-center-context-load-latency
   title: "需求中心首屏聚合请求耗时约二十七秒"
-  status: approved
+  status: in_sprint
   severity: high
   owner: 产品团队
   source: 用户授权与同会话 explore 证据
@@ -66,8 +146,8 @@ entries:
   created: '2026-10-21 08:50:06'
   related_requirement: null
   related_bug: BUG-0016-capture
-  iteration: null
-  related_change: null
+  iteration: sprint-014
+  related_change: fix-requirement-center-context-load-latency
 - id: BUG-0057-requirement-card-chat-navigation-latency
   title: "需求卡片动作准备会话导致进入聊天工作台等待过长"
   status: enriching

@@ -2,11 +2,17 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-26 10:37:24
+updated_at: 2026-10-27 09:21:37
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-27 09:21:37 · governance · [Issue 生命周期阶段同步与校验补齐](20261027092137-governance-issue-lifecycle-stage-sync.md)：共享阶段投影、残留门禁与两字段定向修复；保留历史证据，回归覆盖预览和幂等。
+
+- 2026-10-26 12:57:16 · governance · [归档统一解释器遗漏补齐](20261026125716-governance-archive-python-entry.md)：复用既有入口，覆盖归档内部调用与32项回归。跨项目落地提示词：检查治理 shell 是否绕过统一解释器，并以隔离真实 wrapper 验证失败前无写入。
+
+- 2026-10-26 12:18:18 · governance · [探索持续改进试点](20261026121818-governance-explore-feedback-loop.md)：只读反馈、统一维护、分类去重、行为评测及版本生效；验证入口 `improve-explore-feedback-loop`。跨项目落地提示词：保留探索只读边界，复用既有治理反馈机制，补齐分类、去重、评测与版本规则。
 
 - 2026-10-26 10:37:24 · governance · [已验收规格演进准入修复](20261026103724-governance-reviewed-spec-evolution.md)：复用当前验收、全文覆盖与完整历史，保留权限及并发门禁。
 

@@ -6,6 +6,40 @@ from app.chat import content_store as store
 from app.chat.content_schema import objects, chunks, ledger, segments
 
 
+def test_existing_content_schema_gains_reference_indexes_idempotently(chat):
+    from sqlalchemy import inspect, text, Index
+    from app.chat.schema import migrate
+    from app.chat.content_schema import entries
+    _, factory = chat
+    engine = factory.kw['bind']
+    legacy_indexes = []
+    # Simulate the pre-repair schema, then exercise the actual upgrade path.
+    for table, name in ((entries, 'ix_chat_snapshot_object'), (segments, 'ix_chat_segment_object')):
+        if engine.dialect.name == 'mysql':
+            # Old MySQL tables already have a foreign-key support index.
+            legacy = Index(name + '_legacy', table.c.object_id)
+            legacy.create(engine)
+            legacy_indexes.append(legacy)
+        next(index for index in table.indexes if index.name == name).drop(engine)
+    migrate(engine); migrate(engine)
+    for index in legacy_indexes:
+        index.drop(engine)
+        index.table.indexes.remove(index)
+    for table, name in ((entries, 'ix_chat_snapshot_object'), (segments, 'ix_chat_segment_object')):
+        assert any(row['name'] == name and row['column_names'] == ['object_id']
+                   for row in inspect(engine).get_indexes(table.name))
+    if engine.dialect.name == 'sqlite':
+        with engine.connect() as db:
+            plan = db.execute(text('EXPLAIN QUERY PLAN SELECT o.id FROM chat_content_objects o '
+                'WHERE o.conversation_id=:cid AND NOT EXISTS '
+                '(SELECT 1 FROM chat_snapshot_entries e WHERE e.object_id=o.id) '
+                'AND NOT EXISTS (SELECT 1 FROM chat_result_segments s WHERE s.object_id=o.id) LIMIT 100'),
+                {'cid': 'synthetic'}).all()
+        details = ' '.join(row[3] for row in plan)
+        assert 'ix_chat_snapshot_object' in details and 'ix_chat_segment_object' in details
+        assert 'SCAN e' not in details and 'SCAN s' not in details
+
+
 def test_content_publish_replay_and_isolation(chat):
     client, factory = chat
     cid = create(client); other = create(client)

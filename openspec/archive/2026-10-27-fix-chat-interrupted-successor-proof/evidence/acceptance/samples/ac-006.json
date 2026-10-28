@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "real_api": true,
+  "old_status_preserved": true,
+  "card_observed": true,
+  "states": [
+    "available",
+    "busy",
+    "failure",
+    "success"
+  ],
+  "viewports": [
+    1440,
+    390
+  ],
+  "sample": "synthetic stopped turn and identity; real verification HTTP API; card and turn components",
+  "frontend_passed": 22,
+  "typescript": "passed",
+  "inputs": {
+    "src/backend/app/governance/direct_completion.py": "2cb8249048908f8aef80bc3d47d052029eae2cfe93257a2ead47f69495118680",
+    "src/backend/app/governance/successor_completion.py": "1fe4f73e6c175c39fd2cd3f2e4ec768c15d2b5b9889dbddf08203062f37e3f3c",
+    "src/backend/app/governance/workflow_receipt.py": "9b6de2af521fd23faac98ae77fbf5d2d00a47e2054cae909c67983c927061a70",
+    "src/backend/app/governance/verification_transaction.py": "68564c63415bd488235d0de150712e47162c218dd44dda05525cad8567ed434b",
+    "src/backend/tests/test_interrupted_successor.py": "0df2b927c24eadb7c277db01542fa26323de73a6697bfd6ee2a93bff4a4dda42",
+    "src/web/src/components/chat/DirectCompletion.tsx": "1d7b542540a59af5b909860b33a0786a10c4f9351f625d0afee1732f7e9c6ca8",
+    "src/web/src/components/chat/directVerificationReasons.ts": "d363f78dc0e1fe4d448f9ba75093534cd01d88d204291dc6e04d9120e3f49530",
+    "src/web/src/components/chat/useDirectVerification.ts": "589247609f9d337138dfb9cd0134e2f61fb5d9902cb63eae408be8f5bbc7de7c",
+    "src/backend/app/governance/api.py": "e410dce3fba31d6ae4b37ff9d9be1597055f85a9c983946cf4d783b19f1b97b9",
+    "src/backend/tests/interrupted_evidence.py": "14c6df716a849d229dac33bedc034781b48942ad4fca1f6197f63580fbc459c4",
+    "src/web/src/components/chat/OperationVerification.tsx": "8df75c0e6050d80ea1d0915b0f3c24f812ef3d5cd6c91ffd665546e329f91f2f",
+    "src/backend/tests/interrupted_browser_fixture.py": "592865f62e4ab5ecd5eb84dc96f98f2ee1d569000c6f4cd18e5e24fcc8b5fb9d",
+    "src/web/e2e/interrupted.tsx": "d18a64432c05f683a62fab885baa0c6a07718393f6f08efffe1594845012c724",
+    "src/backend/app/governance/successor_dependencies.py": "0f02981cbd9fd8a64a63817295908379a26ea62a62c442d87185ec9829eceee7"
+  }
+}

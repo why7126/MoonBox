@@ -74,6 +74,9 @@ def delete_history(db,actor,cid,expected_hash=None):
         row=db.execute(select(usage_accounts).where(usage_accounts.c.id==key)).mappings().first()
         if row:db.execute(update(usage_accounts).where(usage_accounts.c.id==key).values(used_bytes=max(0,row['used_bytes']-used)))
     for table in (events,messages,snapshots,diffs,reservations):db.execute(delete(table).where(table.c.turn_id.in_(ids)))
+    from app.chat.recovery_schema import recoveries, resumes
+    for table in (resumes, recoveries):
+        db.execute(delete(table).where(table.c.turn_id.in_(ids)))
     db.execute(delete(turns).where(turns.c.conversation_id==cid))
     db.execute(delete(relations).where(relations.c.conversation_id==cid))
     db.execute(delete(workspace_baselines).where(workspace_baselines.c.conversation_id==cid))

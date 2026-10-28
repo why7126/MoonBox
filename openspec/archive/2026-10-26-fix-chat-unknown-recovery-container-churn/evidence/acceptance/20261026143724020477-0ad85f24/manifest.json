@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-chat-unknown-recovery-container-churn",
+  "run_id": "20261026143724020477-0ad85f24",
+  "created_at": "2026-10-26 14:37:27",
+  "source_revision": "8ba1475de486cd628e89b7cf6be2ea8ae2a84374",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-01",
+      "fingerprint": "588c00ceb9110e3ffc7fbc3d2bb0577b2d07ec9d7ad4f071bd510ba43a91140b",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 1229,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-02",
+      "fingerprint": "8a2e907a3cff16a6185f2b0848493b5f1ca7224b8b99252e0ffb1d81f5c5db7a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 206,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-03",
+      "fingerprint": "f118ab6e62f6e0a60e04457c73847995753c750b4e6173447e50f22b2174528f",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 163,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-04",
+      "fingerprint": "7b31434b75c6dc32ef0e4dd5f5a77a258c4db85a4f235baae720764dbf6e2f1c",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 178,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-05",
+      "fingerprint": "50b339e20637c7acd603ca037dbe0bee75277656061cc50f2056bfb30fe61bf6",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 115,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-06",
+      "fingerprint": "e7878c2ca9efc7f992b446bf06c8942d64200bb9ed426fbb35b3853c958cf2ae",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 111,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-07",
+      "fingerprint": "9ca1fbe3f19b9fdd889e3aef91131839bd142ef0e3ba64975198cea099d40983",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        }
+      ],
+      "duration_ms": 181,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-08",
+      "fingerprint": "1d2747c395772cc49e1cb938006817b6de9840f1fc69462bb093bacd120d7274",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/sqlite.json",
+          "sha256": "6efb1023c674777e420182b093133caa33ee19dae422c9f8a5c35e0b6006ec16"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/mysql.json",
+          "sha256": "fa9d71d3a1dd10cb4959a7a7df4225c242845f5967a07b06f46ae6947a067fca"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/docker-recovery.json",
+          "sha256": "6d3b7a0dd5c15959c5b3c8bacaa96660130f19f6c7eb7e9ccaae4cdff5ca07f0"
+        },
+        {
+          "path": "openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/resource-cleanup.json",
+          "sha256": "d374e1a77c3d86d713da5aac99a0b4abefb755ab118373992e521904e760eff1"
+        }
+      ],
+      "duration_ms": 91,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 7,
+    "reused": 0,
+    "preflight_ms": 1656,
+    "duration_ms": 4679,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

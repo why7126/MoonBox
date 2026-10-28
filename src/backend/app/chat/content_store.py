@@ -140,7 +140,8 @@ def result(db, cid, tid, stream, source_id, offset, payload):
     """Turn fence is held by the caller; publication and sequence share its txn."""
     if stream not in ('output', 'final') or offset < 0:
         raise ValueError('invalid result segment')
-    source_key = hashlib.sha256(source_id.encode()).hexdigest()
+    from app.chat.final_answer import key
+    source_key = key(source_id) if stream == 'final' else hashlib.sha256(source_id.encode()).hexdigest()
     old = db.execute(select(segments).where(segments.c.turn_id == tid,
         segments.c.stream_id == stream, segments.c.source_event_id == source_key,
         segments.c.source_offset == offset)).mappings().first()
@@ -149,6 +150,11 @@ def result(db, cid, tid, stream, source_id, offset, payload):
         if digest != hashlib.sha256(payload).hexdigest():
             raise ValueError('result replay conflict')
         return old['sequence']
+    if stream == 'final':
+        from app.chat.schema import events
+        if db.scalar(select(events.c.id).where(events.c.turn_id == tid,
+                events.c.source_id == 'answer:complete:' + source_key).limit(1)):
+            raise ValueError('result replay conflict')
     previous = db.execute(select(segments.c.source_offset, objects.c.byte_count)
         .join(objects, objects.c.id == segments.c.object_id).where(segments.c.turn_id == tid,
         segments.c.stream_id == stream, segments.c.source_event_id == source_key)

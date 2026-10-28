@@ -1,4 +1,5 @@
 import logging
+from time import monotonic
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status, Query, Request
@@ -70,12 +71,16 @@ def _log_document_operation(
 
 @router.get("/context", response_model=ApiResponse[RequirementCenterContext], tags=["Requirement Center"], summary="读取需求中心上下文")
 def get_requirement_center_context(
+    request: Request,
     reader: ProjectReader = Depends(get_reader),
     current_user: dict[str, Any] = Depends(require_session_user),
     db: Session = Depends(get_db),
 ) -> ApiResponse[RequirementCenterContext]:
     try:
-        return ApiResponse(data=reader.call("build_requirement_center_context", current_user=current_user, db=db))
+        request.state.governance_endpoint_started = monotonic()
+        response = ApiResponse(data=reader.call("build_requirement_center_context", current_user=current_user, db=db))
+        request.state.governance_endpoint_finished = monotonic()
+        return response
     except OSError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

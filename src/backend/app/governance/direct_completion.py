@@ -175,14 +175,24 @@ def verify(record, files, oid, action):
     return current
 
 
-def differences(before, after):
+def differences(before, after, *, limit=30):
     old, new = before.get('files', {}), after.get('files', {})
     return [{'path': name, 'kind': 'added' if name not in old else 'deleted' if name not in new else 'modified'}
-            for name in sorted(old.keys() | new.keys()) if old.get(name) != new.get(name)][:30]
+            for name in sorted(old.keys() | new.keys()) if old.get(name) != new.get(name)][:limit]
 
 
 def stamp():
     return datetime.now(timezone.utc).isoformat()
+
+
+def successor_evidence(record):
+    """Expose only confirmed, safe report identities, never private journal data."""
+    from app.governance.workflow_receipt import safe_id
+    final = record.get('final_verification', {})
+    if final.get('pending_confirmation') or final.get('mode') != 'successor_revalidation':
+        return {}
+    runs = final.get('successor', {}).get('acceptance_runs', {})
+    return {cid: run for cid, run in runs.items() if safe_id(cid) and safe_id(run)} if isinstance(runs, dict) else {}
 
 
 def operation_context(db, actor, turn_id):
@@ -242,7 +252,10 @@ def historical_status(db, actor, turn_id):
             or proof.get('object_id') != record['object_id']
             or proof.get('action') != record['action']
             or not isinstance(proof.get('files'), dict)
-            or not any(s.get('sync_succeeded') for s in record['steps'])):
+            or not (any(s.get('sync_succeeded') for s in record['steps'])
+                    or (final.get('mode') == 'successor_revalidation'
+                        and final.get('successor', {}).get('kind') == 'verified_successor'
+                        and final.get('successor', {}).get('original_operation_id') == turn_id))):
         raise service.ChatError(2601, '原执行不存在或无权核验', 404)
     from app.governance.snapshot import stable
     current = stable(project.root)
@@ -253,8 +266,25 @@ def historical_status(db, actor, turn_id):
         still_valid = False
     return {'available': True, 'state': 'validated' if still_valid else 'historical', 'version': None,
             'reason_code': 'direct_historical_verified' if still_valid else 'direct_historical_record_preserved', 'can_verify': False,
-            'last_checked_at': final['checked_at'], 'differences': [],
+            'last_checked_at': final['checked_at'], 'differences': [], 'successor_evidence': successor_evidence(record),
             'historical_evidence_missing': final.get('historical_attribution') == 'unknown'}
+
+
+def auto_verification(db, actor, turn_id, project, guard):
+    from sqlalchemy import select
+    from app.governance.completion_handoff import handoffs
+    unavailable = {'state': 'unavailable', 'reason_code': None}
+    if guard['owner_id'] != actor or guard['operation_id'] != turn_id or guard['scope_key'] != project.key:
+        return unavailable
+    job = db.execute(select(handoffs).where(handoffs.c.scope_key == project.key,
+        handoffs.c.object_id == guard['object_id'], handoffs.c.guard_version == guard['version'],
+        handoffs.c.operation_id == turn_id)).mappings().first()
+    if not job or job['state'] not in ('pending', 'checking', 'confirmed', 'blocked'):
+        return unavailable
+    # Stable codes only, never return an exception or untrusted diagnostic text.
+    import re
+    reason = job['reason_code']
+    return {'state': job['state'], 'reason_code': reason if isinstance(reason, str) and re.fullmatch(r'[a-z][a-z0-9_]{0,63}', reason) else None}
 
 
 def status(db, actor, turn_id):
@@ -267,6 +297,16 @@ def status(db, actor, turn_id):
     except service.ChatError:
         return historical_status(db, actor, turn_id)
     terminal = turn['status'] in ('completed', 'failed', 'stopped')
+    from app.governance.successor_completion import startup_proof, original_time
+    successor_candidate = False
+    successor_reason = None
+    if terminal and row['state'] == 'needs_review' and row['action'] in ('opsx-apply', 'opsx-modify'):
+        try:
+            startup_proof(row, record, baseline)
+            original_time(turn['created_at'])
+            successor_candidate = True
+        except DirectProofError as error:
+            successor_reason = str(error)
     changes = []
     has_sync = any(step.get('sync_succeeded') for step in record['steps'])
     legacy_missing = record.get('proof_schema_version') != SCHEMA_VERSION and has_sync and not any(step.get('completion_manifest') for step in record['steps'])
@@ -278,12 +318,14 @@ def status(db, actor, turn_id):
         except (ValueError, OSError):
             pass
 
-    return {'available': True, 'state': row['state'], 'version': row['version'], 'differences': changes,
-            'reason_code': ('direct_sync_missing' if row['state'] == 'needs_review' and not has_sync else 'direct_historical_evidence_missing' if row['state'] == 'needs_review' and legacy_missing else row['reason_code']),
+    return {'auto_verification': auto_verification(db, actor, turn_id, project, row),
+            'available': True, 'state': row['state'], 'version': row['version'], 'differences': changes,
+            'reason_code': ('direct_successor_verified' if row['state'] in ('validated', 'recovered_valid') and record.get('final_verification', {}).get('mode') == 'successor_revalidation' else 'direct_successor_available' if successor_candidate and not has_sync else successor_reason if not has_sync and successor_reason else 'direct_sync_missing' if row['state'] == 'needs_review' and not has_sync else 'direct_historical_evidence_missing' if row['state'] == 'needs_review' and legacy_missing else row['reason_code']),
             'last_checked_at': (None if record.get('final_verification', {}).get('pending_confirmation')
                                 else record.get('final_verification', {}).get('checked_at')),
-            'can_verify': terminal and has_sync and row['state'] == 'needs_review' and row['action'] not in ('req-review','bug-review','opsx-archive'),
-            'historical_evidence_missing': legacy_missing}
+            'can_verify': terminal and (has_sync or successor_candidate) and row['state'] == 'needs_review' and row['action'] not in ('req-review','bug-review','opsx-archive'),
+            'historical_evidence_missing': legacy_missing,
+            'successor_evidence': successor_evidence(record)}
 
 
 def recover(db, actor, turn_id, expected_version):
@@ -311,9 +353,12 @@ def recover(db, actor, turn_id, expected_version):
     snapshot = stable(project.root)
     successor = None
     legacy = not any('completion_manifest' in s for s in record['steps'])
-    if legacy:
-        if row['action'] in ('opsx-apply', 'opsx-modify'):
-            raise DirectProofError('direct_historical_evidence_missing')
+    independent = row['action'] in ('opsx-apply', 'opsx-modify') and not any(
+        step.get('sync_succeeded') and step.get('completion_manifest') for step in record['steps'])
+    if independent:
+        from app.governance.successor_completion import verify_successor
+        proof, successor = verify_successor(project, row, record, snapshot, baseline, original_started_at=turn['created_at'])
+    elif legacy:
         # Reconstruct CURRENT evidence, never pretend to recover a historic diff.
         # Specialized review/archive protocols are not replaced by this path.
         if row['action'] in ('req-review', 'bug-review', 'opsx-archive'):
@@ -357,7 +402,7 @@ def recover(db, actor, turn_id, expected_version):
     if manifest(latest.files, row['object_id'], row['action']) != proof:
         raise DirectProofError('direct_dependency_conflict')
     if successor is not None:
-        verify_successor(project, row, record, latest, baseline)
+        verify_successor(project, row, record, latest, baseline, original_started_at=turn['created_at'])
     authorized = scope.authorize(db, actor, project.space_id, project.repository_id, write=True)
     if authorized.binding_revision != project.binding_revision or not scope.visible(db, actor, authorized, row['object_id']):
         raise DirectProofError('direct_binding_changed')

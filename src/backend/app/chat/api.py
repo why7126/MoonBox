@@ -9,6 +9,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query, Request, Header, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.routing import APIRoute
+from starlette.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -72,78 +73,99 @@ class ChatRoute(APIRoute):
             except RequestValidationError:
                 response = JSONResponse(status_code=422,content={'code':1000,'message':'请求字段校验失败','data':None})
             finally:
-                try:
-                    audit_metadata = {}
+                handler_finished = time.monotonic()
+                def persist_audit():
                     try:
-                        body = json.loads(response.body) if response and getattr(response, 'body', None) else {}
-                        if isinstance(body, dict) and body.get('code') not in (None, 0):
-                            audit_metadata['code'] = body.get('code')
-                        data = body.get('data') if isinstance(body, dict) else None
-                        if self.path == '/api/v1/chat/conversations/{cid}/turns' and request.method == 'POST' and isinstance(data, dict):
-                            for key in ('image_count', 'file_count', 'skill_count'):
-                                value = data.get(key)
-                                if type(value) is int and 0 <= value <= 100:
-                                    audit_metadata[key] = value
-                    except Exception:
                         audit_metadata = {}
-                    metadata = dict(audit_metadata)
-                    with get_session_factory()() as db:
-                        db.execute(insert(audit).values(**service.identity(), request_id=rid,
-                            actor_id=getattr(request.state, 'chat_actor', None), route_template=self.path,
-                            method=request.method, status_code=response.status_code if response else 500,
-                            duration_ms=int((time.monotonic()-start)*1000), metadata=json.dumps(audit_metadata)))
-                        if request.headers.get('X-Chat-Client')=='web' and getattr(request.state,'chat_actor',None):
-                            from app.chat.observability import behavior
-                            names={('/api/v1/chat/conversations','POST'):'chat.session_create',('/api/v1/chat/conversations/{cid}','PATCH'):'chat.session_update',('/api/v1/chat/conversations/{cid}','DELETE'):'chat.session_delete',('/api/v1/chat/conversations/{cid}/relations','PUT'):'chat.relations_save',('/api/v1/chat/conversations/{cid}/turns','POST'):'chat.send',('/api/v1/chat/turns/{tid}/interrupt','POST'):'chat.stop',('/api/v1/chat/turns/{tid}/retries','POST'):'chat.retry'}
-                            names.update({('/api/v1/chat/governance-operations/{operation_id}/recoveries','POST'):'governance.recovery',
-                                ('/api/v1/chat/turns/{tid}/results','GET'):'chat.result_page',
-                                ('/api/v1/chat/turns/{tid}/files','GET'):'chat.file_page',
-                                ('/api/v1/chat/turns/{tid}/files/{file_id}/content','GET'):'chat.file_content',
-                                ('/api/v1/chat/turns/{tid}/files/{file_id}/blocks','GET'):'chat.file_content',
-                                ('/api/v1/chat/turns/{tid}/recovery','POST'):'chat.recovery',
-                                ('/api/v1/requirement-center/captures','POST'):'governance.capture',
-                                ('/api/v1/chat/governance-preparations','POST'):'governance.prepare',
-                                ('/api/v1/chat/object-sessions','POST'):'governance.prepare',
-                                ('/api/v1/chat/governance-candidates/{candidate_id}/applications','POST'):'governance.apply'})
-                            if self.path.startswith('/api/v1/requirement-center/') and request.method=='PUT':
-                                names[(self.path,request.method)]='governance.document_save'
-                            event=names.get((self.path,request.method))
-                            if event:
-                                success=response is not None and response.status_code<400
-                                resource={}
-                                if success:
-                                    # Only successful authorized results may be linked to resource identifiers.
-                                    payload=json.loads(response.body).get('data',{})
-                                    if event in ('chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'):
-                                        resource['turn_id'] = request.path_params.get('tid')
-                                    elif event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
-                                    elif event == 'governance.capture':resource['operation_id']=payload.get('id')
-                                    elif event == 'governance.prepare':
-                                        resource['conversation_id']=payload.get('conversation_id')
-                                        resource['candidate_id']=payload.get('preparation_id')
-                                        resource['object_id']=payload.get('object_id')
-                                        resource['object_type']=payload.get('object_type') or (payload.get('object_id') or '').split('-',1)[0]
-                                        resource['action_type']=payload.get('action') or (payload.get('prompt') or '').split(' ',1)[0].lstrip('/')
-                                        resource['result'] = payload.get('reason_code') or ('reused_conversation' if payload.get('reused_conversation') else 'new_conversation')
-                                    elif event in ('chat.send','chat.retry','chat.stop'):
-                                        resource['turn_id']=payload.get('id')
-                                        resource['image_count']=payload.get('image_count')
-                                        resource['skill_count']=payload.get('skill_count')
-                                        effective=payload.get('effective_config') or {}
-                                        for key in ('agent','model','reasoning'):
-                                            resource[key]=effective.get(key)
-                                        if payload.get('config_fallback_reason'):
-                                            resource['config_fallback']='applied'
-                                    else:resource['conversation_id']=payload.get('id') or request.path_params.get('cid')
-                                metadata={**metadata, **{key:value for key,value in resource.items() if key in ('image_count','file_count','skill_count','agent','model','reasoning','config_fallback') and value is not None}}
-                                behavior(db,event,request.state.chat_actor,rid,'success' if success else 'failure','web',resource)
-                        db.execute(update(audit).where(audit.c.request_id==rid).values(metadata=json.dumps(metadata, ensure_ascii=False, sort_keys=True)))
-                        db.commit()
-                except Exception:
-                    logging.getLogger('moonbox.chat').warning('chat.request_log_unavailable')
+                        try:
+                            body = json.loads(response.body) if response and getattr(response, 'body', None) else {}
+                            if isinstance(body, dict) and body.get('code') not in (None, 0):
+                                audit_metadata['code'] = body.get('code')
+                            data = body.get('data') if isinstance(body, dict) else None
+                            if self.path == '/api/v1/chat/conversations/{cid}/turns' and request.method == 'POST' and isinstance(data, dict):
+                                for key in ('image_count', 'file_count', 'skill_count'):
+                                    value = data.get(key)
+                                    if type(value) is int and 0 <= value <= 100:
+                                        audit_metadata[key] = value
+                        except Exception:
+                            audit_metadata = {}
+                        metadata = dict(audit_metadata)
+                        with get_session_factory()() as db:
+                            audit_identity = service.identity()
+                            db.execute(insert(audit).values(**audit_identity, request_id=rid,
+                                actor_id=getattr(request.state, 'chat_actor', None), route_template=self.path,
+                                method=request.method, status_code=response.status_code if response else 500,
+                                duration_ms=int((time.monotonic()-start)*1000), metadata=json.dumps(audit_metadata)))
+                            if request.headers.get('X-Chat-Client')=='web' and getattr(request.state,'chat_actor',None):
+                                from app.chat.observability import behavior
+                                names={('/api/v1/chat/conversations','POST'):'chat.session_create',('/api/v1/chat/conversations/{cid}','PATCH'):'chat.session_update',('/api/v1/chat/conversations/{cid}','DELETE'):'chat.session_delete',('/api/v1/chat/conversations/{cid}/relations','PUT'):'chat.relations_save',('/api/v1/chat/conversations/{cid}/turns','POST'):'chat.send',('/api/v1/chat/turns/{tid}/interrupt','POST'):'chat.stop',('/api/v1/chat/turns/{tid}/retries','POST'):'chat.retry'}
+                                names.update({('/api/v1/chat/governance-operations/{operation_id}/recoveries','POST'):'governance.recovery',
+                                    ('/api/v1/chat/turns/{tid}/results','GET'):'chat.result_page',
+                                    ('/api/v1/chat/turns/{tid}/files','GET'):'chat.file_page',
+                                    ('/api/v1/chat/turns/{tid}/files/{file_id}/content','GET'):'chat.file_content',
+                                    ('/api/v1/chat/turns/{tid}/files/{file_id}/blocks','GET'):'chat.file_content',
+                                    ('/api/v1/chat/turns/{tid}/recovery','POST'):'chat.recovery',
+                                    ('/api/v1/requirement-center/captures','POST'):'governance.capture',
+                                    ('/api/v1/chat/governance-preparations','POST'):'governance.prepare',
+                                    ('/api/v1/chat/object-sessions','POST'):'governance.prepare',
+                                    ('/api/v1/chat/governance-candidates/{candidate_id}/applications','POST'):'governance.apply'})
+                                if self.path.startswith('/api/v1/requirement-center/') and request.method=='PUT':
+                                    names[(self.path,request.method)]='governance.document_save'
+                                event=names.get((self.path,request.method))
+                                if event:
+                                    success=response is not None and response.status_code<400
+                                    resource={}
+                                    if success:
+                                        # Only successful authorized results may be linked to resource identifiers.
+                                        payload=json.loads(response.body).get('data',{})
+                                        if event in ('chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'):
+                                            resource['turn_id'] = request.path_params.get('tid')
+                                        elif event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
+                                        elif event == 'governance.capture':resource['operation_id']=payload.get('id')
+                                        elif event == 'governance.prepare':
+                                            resource['conversation_id']=payload.get('conversation_id')
+                                            resource['candidate_id']=payload.get('preparation_id')
+                                            resource['object_id']=payload.get('object_id')
+                                            resource['object_type']=payload.get('object_type') or (payload.get('object_id') or '').split('-',1)[0]
+                                            resource['action_type']=payload.get('action') or (payload.get('prompt') or '').split(' ',1)[0].lstrip('/')
+                                            resource['result'] = payload.get('reason_code') or ('reused_conversation' if payload.get('reused_conversation') else 'new_conversation')
+                                        elif event in ('chat.send','chat.retry','chat.stop'):
+                                            resource['turn_id']=payload.get('id')
+                                            resource['image_count']=payload.get('image_count')
+                                            resource['skill_count']=payload.get('skill_count')
+                                            effective=payload.get('effective_config') or {}
+                                            for key in ('agent','model','reasoning'):
+                                                resource[key]=effective.get(key)
+                                            if payload.get('config_fallback_reason'):
+                                                resource['config_fallback']='applied'
+                                        else:resource['conversation_id']=payload.get('id') or request.path_params.get('cid')
+                                    metadata={**metadata, **{key:value for key,value in resource.items() if key in ('image_count','file_count','skill_count','agent','model','reasoning','config_fallback') and value is not None}}
+                                    behavior(db,event,request.state.chat_actor,rid,'success' if success else 'failure','web',resource)
+                            if metadata != audit_metadata:
+                                # Update only the row just inserted. request_id is
+                                # a correlation field, not an indexed row identity.
+                                db.execute(update(audit).where(audit.c.id == audit_identity['id']).values(
+                                    metadata=json.dumps(metadata, ensure_ascii=False, sort_keys=True)))
+                            db.commit()
+                    except Exception:
+                        logging.getLogger('moonbox.chat').warning('chat.request_log_unavailable')
+                await run_in_threadpool(persist_audit)
             timings = getattr(getattr(request.state, 'governance_reader', None), 'timings', {})
-            allowed_timings = ('snapshot_and_fences_ms', 'materialize_ms', 'object_authorization_ms', 'parse_ms', 'cleanup_ms', 'total_ms')
+            allowed_timings = ('snapshot_and_fences_ms', 'snapshot_ms', 'fences_exclusive_ms', 'materialize_ms', 'object_authorization_ms', 'parse_ms', 'cleanup_ms', 'reconcile_ms', 'external_reconcile_ms', 'card_projection_exclusive_ms', 'projection_commit_ms', 'document_projection_ms', 'reader_orchestration_ms', 'total_ms', 'dependencies_ms', 'response_finalize_ms', 'request_audit_ms', 'route_total_ms')
             if timings:
+                timings = dict(timings)
+                endpoint_started = getattr(request.state, 'governance_endpoint_started', None)
+                endpoint_finished = getattr(request.state, 'governance_endpoint_finished', None)
+                if endpoint_started is not None:
+                    timings['dependencies_ms'] = (endpoint_started - start) * 1000
+                if endpoint_finished is not None:
+                    # Includes response validation/serialization and worker-to-loop
+                    # scheduling. It is not claimed as CPU serialization time.
+                    timings['response_finalize_ms'] = (handler_finished - endpoint_finished) * 1000
+                timings['request_audit_ms'] = (time.monotonic() - handler_finished) * 1000
+                timings['route_total_ms'] = (time.monotonic() - start) * 1000
+                logging.getLogger('moonbox.requirement_center').info(
+                    'requirement_center.http_timing %s', json.dumps({'request_id': rid, 'timings': timings}))
                 response.headers['Server-Timing'] = ', '.join(
                     f"{name.removesuffix('_ms')};dur={timings[name]:.2f}" for name in allowed_timings if name in timings)
             response.headers['X-Request-ID'] = rid
@@ -513,6 +535,7 @@ class MessageRead(BaseModel):
     output_source: str | None = Field(default=None, description='正文来源：message 为已落库，events 为只读事件投影')
     output_partial: bool = Field(default=False, description='部分输出不代表执行完成')
     output_truncated: bool = Field(default=False, description='输出有序号缺口或超出读取窗口')
+    output_truncation_reason: Literal['preview_limit', 'read_window', 'history_gap', 'invalid_payload'] | None = Field(default=None, description='预览受限或历史缺口原因；兼容旧客户端')
 
 
 class MessagePage(BaseModel):

@@ -4,7 +4,7 @@ import json
 import os
 import stat
 import time
-from app.chat.service import ChatError
+from app.chat.errors import ChatError
 from app.chat.settings import repository_catalog, repository_binding
 from app.governance import store
 

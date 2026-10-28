@@ -1,0 +1,554 @@
+{
+  "backend-profile": {
+    "samples": 1118,
+    "kind": "nonblocking_stack_sample_inclusive_not_wall_time",
+    "top_app_frames": [
+      {
+        "file": "app/governance/reader.py",
+        "function": "call",
+        "line": 77,
+        "sample_hits": 869
+      },
+      {
+        "file": "app/api/v1/requirement_center.py",
+        "function": "get_requirement_center_context",
+        "line": 81,
+        "sample_hits": 869
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 107,
+        "sample_hits": 559
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "read_once",
+        "line": 141,
+        "sample_hits": 559
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "_call",
+        "line": 95,
+        "sample_hits": 385
+      },
+      {
+        "file": "app/governance/read_snapshot.py",
+        "function": "stable_read",
+        "line": 46,
+        "sample_hits": 384
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "snapshot",
+        "line": 25,
+        "sample_hits": 384
+      },
+      {
+        "file": "app/governance/read_snapshot.py",
+        "function": "read",
+        "line": 43,
+        "sample_hits": 383
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "_stable",
+        "line": 181,
+        "sample_hits": 327
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "_call",
+        "line": 145,
+        "sample_hits": 313
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "_stable",
+        "line": 180,
+        "sample_hits": 233
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 106,
+        "sample_hits": 196
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "stable",
+        "line": 173,
+        "sample_hits": 181
+      },
+      {
+        "file": "app/governance/execution_context.py",
+        "function": "reconcile_external_batch",
+        "line": 455,
+        "sample_hits": 181
+      },
+      {
+        "file": "app/chat/api.py",
+        "function": "traced",
+        "line": 141,
+        "sample_hits": 170
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 122,
+        "sample_hits": 136
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 95,
+        "sample_hits": 120
+      },
+      {
+        "file": "app/governance/execution_context.py",
+        "function": "reconcile_external_batch",
+        "line": 452,
+        "sample_hits": 110
+      }
+    ]
+  },
+  "worker-profile": {
+    "samples": 219,
+    "kind": "nonblocking_stack_sample_inclusive_not_wall_time",
+    "top_app_frames": [
+      {
+        "file": "app/chat/platform_worker.py",
+        "function": "<module>",
+        "line": 197,
+        "sample_hits": 194
+      },
+      {
+        "file": "app/chat/platform_worker.py",
+        "function": "main",
+        "line": 134,
+        "sample_hits": 78
+      },
+      {
+        "file": "app/chat/platform_worker.py",
+        "function": "main",
+        "line": 138,
+        "sample_hits": 77
+      },
+      {
+        "file": "app/governance/direct_command_journal.py",
+        "function": "reconcile_terminal_commands",
+        "line": 318,
+        "sample_hits": 54
+      },
+      {
+        "file": "app/chat/accounting.py",
+        "function": "reconcile_usage",
+        "line": 30,
+        "sample_hits": 31
+      },
+      {
+        "file": "app/chat/admission.py",
+        "function": "release_concurrency",
+        "line": 122,
+        "sample_hits": 23
+      },
+      {
+        "file": "app/chat/accounting.py",
+        "function": "reconcile_usage",
+        "line": 32,
+        "sample_hits": 21
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "read",
+        "line": 67,
+        "sample_hits": 21
+      },
+      {
+        "file": "app/chat/accounting.py",
+        "function": "reconcile_usage",
+        "line": 27,
+        "sample_hits": 18
+      },
+      {
+        "file": "app/governance/completion_recovery.py",
+        "function": "checkpoint_applied_completions",
+        "line": 26,
+        "sample_hits": 16
+      },
+      {
+        "file": "app/chat/platform_worker.py",
+        "function": "main",
+        "line": 150,
+        "sample_hits": 16
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "read",
+        "line": 62,
+        "sample_hits": 15
+      },
+      {
+        "file": "app/chat/heartbeat.py",
+        "function": "refresh",
+        "line": 25,
+        "sample_hits": 14
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "read",
+        "line": 60,
+        "sample_hits": 14
+      },
+      {
+        "file": "app/governance/direct_command_journal.py",
+        "function": "reconcile_terminal_commands",
+        "line": 316,
+        "sample_hits": 13
+      },
+      {
+        "file": "app/governance/recovery_capabilities.py",
+        "function": "publish",
+        "line": 15,
+        "sample_hits": 12
+      },
+      {
+        "file": "app/chat/platform_worker.py",
+        "function": "main",
+        "line": 126,
+        "sample_hits": 12
+      },
+      {
+        "file": "app/governance/direct_command_journal.py",
+        "function": "record_id",
+        "line": 191,
+        "sample_hits": 10
+      }
+    ]
+  },
+  "controller-profile": {
+    "samples": 308,
+    "kind": "nonblocking_stack_sample_inclusive_not_wall_time",
+    "top_app_frames": [
+      {
+        "file": "app/governance/controller.py",
+        "function": "<module>",
+        "line": 60,
+        "sample_hits": 303
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "main",
+        "line": 57,
+        "sample_hits": 302
+      },
+      {
+        "file": "app/governance/recovery_capabilities.py",
+        "function": "publish",
+        "line": 15,
+        "sample_hits": 78
+      },
+      {
+        "file": "app/governance/readiness.py",
+        "function": "publish",
+        "line": 18,
+        "sample_hits": 77
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 25,
+        "sample_hits": 70
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 17,
+        "sample_hits": 66
+      },
+      {
+        "file": "app/governance/recovery_retention.py",
+        "function": "sweep",
+        "line": 35,
+        "sample_hits": 41
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "write",
+        "line": 50,
+        "sample_hits": 30
+      },
+      {
+        "file": "app/governance/recovery_retention.py",
+        "function": "classify",
+        "line": 17,
+        "sample_hits": 23
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "write",
+        "line": 49,
+        "sample_hits": 22
+      },
+      {
+        "file": "app/governance/readiness.py",
+        "function": "publish",
+        "line": 33,
+        "sample_hits": 21
+      },
+      {
+        "file": "app/governance/recovery_retention.py",
+        "function": "sweep",
+        "line": 34,
+        "sample_hits": 20
+      },
+      {
+        "file": "app/governance/readiness.py",
+        "function": "publish",
+        "line": 34,
+        "sample_hits": 19
+      },
+      {
+        "file": "app/governance/recovery_retention.py",
+        "function": "classify",
+        "line": 20,
+        "sample_hits": 17
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 28,
+        "sample_hits": 16
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 101,
+        "sample_hits": 16
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 81,
+        "sample_hits": 12
+      },
+      {
+        "file": "app/governance/store.py",
+        "function": "write",
+        "line": 34,
+        "sample_hits": 9
+      }
+    ]
+  },
+  "backend-after-polling": {
+    "samples": 810,
+    "kind": "nonblocking_stack_sample_inclusive_not_wall_time",
+    "top_app_frames": [
+      {
+        "file": "app/governance/reader.py",
+        "function": "call",
+        "line": 77,
+        "sample_hits": 644
+      },
+      {
+        "file": "app/api/v1/requirement_center.py",
+        "function": "get_requirement_center_context",
+        "line": 81,
+        "sample_hits": 644
+      },
+      {
+        "file": "app/governance/read_snapshot.py",
+        "function": "stable_read",
+        "line": 46,
+        "sample_hits": 429
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "snapshot",
+        "line": 25,
+        "sample_hits": 429
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "_call",
+        "line": 95,
+        "sample_hits": 429
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "read_once",
+        "line": 141,
+        "sample_hits": 427
+      },
+      {
+        "file": "app/governance/read_snapshot.py",
+        "function": "read",
+        "line": 43,
+        "sample_hits": 427
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 107,
+        "sample_hits": 425
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "_stable",
+        "line": 181,
+        "sample_hits": 271
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 106,
+        "sample_hits": 189
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "_stable",
+        "line": 180,
+        "sample_hits": 156
+      },
+      {
+        "file": "app/governance/reader.py",
+        "function": "_call",
+        "line": 121,
+        "sample_hits": 119
+      },
+      {
+        "file": "app/services/requirement_center.py",
+        "function": "build_requirement_center_context",
+        "line": 157,
+        "sample_hits": 106
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 95,
+        "sample_hits": 99
+      },
+      {
+        "file": "app/chat/api.py",
+        "function": "traced",
+        "line": 141,
+        "sample_hits": 98
+      },
+      {
+        "file": "app/governance/snapshot.py",
+        "function": "walk",
+        "line": 122,
+        "sample_hits": 95
+      },
+      {
+        "file": "app/governance/change_index.py",
+        "function": "cards",
+        "line": 280,
+        "sample_hits": 69
+      },
+      {
+        "file": "app/governance/execution_context.py",
+        "function": "reconcile",
+        "line": 214,
+        "sample_hits": 65
+      }
+    ]
+  },
+  "controller-after-polling": {
+    "samples": 29,
+    "kind": "nonblocking_stack_sample_inclusive_not_wall_time",
+    "top_app_frames": [
+      {
+        "file": "app/governance/controller.py",
+        "function": "main",
+        "line": 64,
+        "sample_hits": 28
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "<module>",
+        "line": 67,
+        "sample_hits": 28
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 17,
+        "sample_hits": 17
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 82,
+        "sample_hits": 7
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 85,
+        "sample_hits": 3
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 101,
+        "sample_hits": 3
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 90,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/completion_handoff.py",
+        "function": "tick",
+        "line": 76,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 21,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 95,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 80,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/recovery_controller.py",
+        "function": "tick",
+        "line": 81,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/readiness.py",
+        "function": "publish",
+        "line": 34,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/chat/polling.py",
+        "function": "run",
+        "line": 12,
+        "sample_hits": 1
+      },
+      {
+        "file": "app/governance/controller.py",
+        "function": "tick",
+        "line": 33,
+        "sample_hits": 1
+      }
+    ]
+  }
+}

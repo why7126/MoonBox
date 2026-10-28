@@ -88,9 +88,10 @@ def _validate(files, oid, action, *, external=False):
 def _change(files, cid, action, *, external=False, historical=False):
     if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', cid):
         return False
+    archive_trace = re.compile(rf'openspec/archive/\d{{4}}-\d{{2}}-\d{{2}}-{re.escape(cid)}/trace.md')
     bases = [name[:-len('/trace.md')] for name in files
              if name == f'openspec/changes/{cid}/trace.md'
-             or re.fullmatch(rf'openspec/archive/\d{{4}}-\d{{2}}-\d{{2}}-{re.escape(cid)}/trace.md', name)]
+             or archive_trace.fullmatch(name)]
     if len(bases) != 1:
         return False
     base = bases[0]

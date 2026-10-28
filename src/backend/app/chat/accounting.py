@@ -27,7 +27,10 @@ def reconcile_usage(db, tid):
     row=db.execute(select(turns).where(turns.c.id==tid)).mappings().first()
     if not row or row['status'] not in ('completed','failed','stopped'):return False
     # Repair terminal reservations left by older workers without inventing usage.
-    release_concurrency(db, tid)
+    reservation = db.execute(select(reservations.c.status, reservations.c.concurrency_released)
+        .where(reservations.c.turn_id == tid)).mappings().first()
+    if reservation and reservation['status'] == 'reserved' and not reservation['concurrency_released']:
+        release_concurrency(db, tid)  # The existing CAS remains the authority.
     db.commit()
     receipt=db.scalar(select(events.c.payload).where(events.c.turn_id==tid,events.c.source_id=='runner:accounting'))
     trusted_archive=False

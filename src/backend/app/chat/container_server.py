@@ -6,6 +6,13 @@ import shutil
 import subprocess
 import time
 import uuid
+import hashlib
+import threading
+
+from app.chat import recovery_runtime
+
+_PREFLIGHT_CACHE = {}
+_PREFLIGHT_LOCK = threading.Lock()
 
 from app.chat.app_server import AppServer, ExecutorError
 from app.chat.workspace import trusted_directory
@@ -53,6 +60,9 @@ class ContainerAppServer(AppServer):
         trusted_directory(workspace / '.git')
         self.container_name = 'moonbox-chat-session-' + uuid.uuid4().hex
         self.created_epoch = int(time.time())
+        self.recovery_context = recovery_runtime.CURRENT.get()
+        if self.recovery_context and getattr(self.recovery_context, 'image', None):
+            self.IMAGE = self.recovery_context.image
         self.mounts = ['--mount', f'type=bind,src={workspace},dst=/work',
                        '--mount', f'type=bind,src={workspace / ".git"},dst=/work/.git,readonly',
                        '--mount', f'type=bind,src={runtime},dst=/runtime']
@@ -60,6 +70,17 @@ class ContainerAppServer(AppServer):
         scope = write_scope or ('implementation_write' if write else 'read_only')
         super().__init__(self.docker, workspace, runtime, home=runtime, write=write,
                          timeout=timeout, permission_profile=None, effort='low', write_scope=scope)
+
+    def transport_environment(self):
+        # Docker context belongs to the trusted controller, not the isolated CODEX_HOME.
+        endpoint = os.environ.get('DOCKER_HOST')
+        if not endpoint:
+            result = recovery_runtime.run([self.docker, 'context', 'inspect', '--format', '{{.Endpoints.docker.Host}}'],
+                                          capture_output=True, text=True, timeout=5)
+            if result.returncode: raise ExecutorError('container_runtime_unavailable')
+            endpoint = result.stdout.strip()
+        if not endpoint.startswith('unix://'): raise ExecutorError('container_runtime_endpoint_unsupported')
+        return {'DOCKER_HOST': endpoint}
 
     def options(self):
         return ['--read-only','--log-driver','none','--user',f'{os.getuid()}:{os.getgid()}','--cap-drop','ALL',
@@ -69,24 +90,30 @@ class ContainerAppServer(AppServer):
                 '--workdir','/work','--env','HOME=/runtime','--env','CODEX_HOME=/runtime', *self.mounts]
 
     def version_command(self, executable):
-        return [self.docker,'run','--rm','--network','none','--read-only',self.IMAGE,'codex','--version']
+        return [self.docker,'run','--rm', *self.recovery_labels(), '--network','none','--read-only',self.IMAGE,'codex','--version']
 
     def version_timeout(self):
         # A cold Docker start can exceed the local CLI's 30-second limit.
-        return 180
+        return recovery_runtime.timeout(180)
 
     def launch_command(self, executable):
         return [self.docker,'run','--rm','--init','--interactive','--name',self.container_name,
-                '--label','moonbox.chat.platform=true' if os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex' else 'moonbox.chat.test=true',*self.options(), self.IMAGE,
+                *self.recovery_labels(), '--label','moonbox.chat.platform=true' if os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex' else 'moonbox.chat.test=true',*self.options(), self.IMAGE,
                 'codex','app-server','--stdio','-c','shell_environment_policy.inherit="none"']
 
+    def recovery_labels(self):
+        return self.recovery_context.labels() if self.recovery_context else []
+
     def rpc(self, method, params):
+        if self.recovery_context:
+            self.timeout = self.recovery_context.remaining(self.timeout)
         if 'cwd' in params:
             if params['cwd'] != str(self.workspace):raise ExecutorError('container_workspace_mismatch')
             params={**params,'cwd':'/work'}
         return super().rpc(method, params)
 
     def _next(self, deadline):
+        if self.recovery_context: deadline = min(deadline, self.recovery_context.deadline)
         try: return super()._next(deadline)
         except ExecutorError as error:
             if error.code != 'executor_disconnected': raise
@@ -110,7 +137,7 @@ class ContainerAppServer(AppServer):
     def close(self):
         try:super().close()
         finally:
-            subprocess.run([self.docker,'rm','--force',self.container_name],capture_output=True,timeout=20)
+            subprocess.run([self.docker,'rm','--force',self.container_name],capture_output=True,timeout=10)
 
 
 SANDBOX_CHECK = """import json,os,socket,tempfile,uuid
@@ -166,38 +193,68 @@ def persistent_container_server(workspace, runtime_root, auth_source):
         with auth.open('x') as file:
             auth.chmod(0o600);file.write('{"OPENAI_API_KEY":"synthetic-invalid-key"}')
     try:
-        with ContainerAppServer(workspace,runtime) as server:
-            verify_toolchain(server)
-            result=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-write','-C','/work','/usr/local/bin/python','-c',SANDBOX_CHECK],capture_output=True,text=True,timeout=30)
-            try:checks=json.loads(result.stdout)
-            except ValueError:checks={}
-            if result.returncode or not checks or not all(value is True for value in checks.values()):
-                raise ExecutorError('container_sandbox_preflight_failed')
-            readonly=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-read','-C','/work','/usr/local/bin/python','-c',READONLY_CHECK],capture_output=True,text=True,timeout=30)
-            if readonly.returncode or readonly.stdout.strip()!='readonly-denied':
-                raise ExecutorError('container_readonly_preflight_failed')
-            governance=subprocess.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-governance','-C','/work','/usr/local/bin/python','-c',"import tempfile,fcntl; f=tempfile.TemporaryFile(); f.write(b'lock'); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB); print('governance-lock-ready')"],capture_output=True,text=True,timeout=30)
-            if governance.returncode or governance.stdout.strip()!='governance-lock-ready':
-                raise ExecutorError('container_governance_lock_unavailable')
+        cache_key = preflight_key(workspace, runtime, auth_source) if recovery_runtime.CURRENT.get() else None
+        cached = cache_key is not None and time.monotonic() < _PREFLIGHT_CACHE.get(cache_key, 0)
+        if recovery_runtime.CURRENT.get(): recovery_runtime.CURRENT.get().metrics["cache_hit"] = cached
+        if not cached:
+            verify_preflight(workspace, runtime)
+            if cache_key is not None:
+                with _PREFLIGHT_LOCK:
+                    _PREFLIGHT_CACHE.clear()
+                    _PREFLIGHT_CACHE[cache_key] = time.monotonic() + 300
     finally:
         if synthetic:auth.unlink(missing_ok=True)
-    if synthetic or os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex':
-        source=Path(auth_source)
-        if source.is_symlink() or not source.is_file() or source.stat().st_uid!=os.getuid():
-            raise ExecutorError('container_auth_source_invalid')
-        # New claims refresh only the credential file; personal config is never imported.
-        stage=runtime/('auth-'+uuid.uuid4().hex+'.tmp')
-        try:
-            with source.open('rb') as reader,stage.open('xb') as writer:
-                stage.chmod(0o600);shutil.copyfileobj(reader,writer)
-            stage.replace(auth)
-        finally: stage.unlink(missing_ok=True)
-    return ContainerAppServer(workspace,runtime)
+    if synthetic or recovery_runtime.CURRENT.get() or os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex':
+        refresh_auth(auth_source, runtime, auth)
+    return ContainerAppServer(workspace,runtime,write=not bool(recovery_runtime.CURRENT.get()))
+
+
+def verify_preflight(workspace, runtime):
+    with ContainerAppServer(workspace,runtime) as server:
+        verify_toolchain(server)
+        result=recovery_runtime.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-write','-C','/work','/usr/local/bin/python','-c',SANDBOX_CHECK],capture_output=True,text=True,timeout=30)
+        try:checks=json.loads(result.stdout)
+        except ValueError:checks={}
+        if result.returncode or not checks or not all(value is True for value in checks.values()):
+            raise ExecutorError('container_sandbox_preflight_failed')
+        readonly=recovery_runtime.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-read','-C','/work','/usr/local/bin/python','-c',READONLY_CHECK],capture_output=True,text=True,timeout=30)
+        if readonly.returncode or readonly.stdout.strip()!='readonly-denied':
+            raise ExecutorError('container_readonly_preflight_failed')
+        governance=recovery_runtime.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-governance','-C','/work','/usr/local/bin/python','-c',"import tempfile,fcntl; f=tempfile.TemporaryFile(); f.write(b'lock'); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB); print('governance-lock-ready')"],capture_output=True,text=True,timeout=30)
+        if governance.returncode or governance.stdout.strip()!='governance-lock-ready':
+            raise ExecutorError('container_governance_lock_unavailable')
+
+def refresh_auth(auth_source, runtime, auth):
+    source=Path(auth_source)
+    if source.is_symlink() or not source.is_file() or source.stat().st_uid!=os.getuid():
+        raise ExecutorError('container_auth_source_invalid')
+    stage=runtime/('auth-'+uuid.uuid4().hex+'.tmp')
+    try:
+        with source.open('rb') as reader,stage.open('xb') as writer:
+            stage.chmod(0o600);shutil.copyfileobj(reader,writer)
+        stage.replace(auth)
+    finally: stage.unlink(missing_ok=True)
+
+
+def preflight_key(workspace, runtime, auth_source):
+    """No raw identity or credential bytes leave this in-memory digest."""
+    source = Path(auth_source)
+    if source.is_symlink() or not source.is_file() or source.stat().st_uid != os.getuid():
+        raise ExecutorError('container_auth_source_invalid')
+    result = recovery_runtime.run(['docker', 'image', 'inspect', '--format', '{{.Id}}', ContainerAppServer.IMAGE],
+                                 capture_output=True, text=True, timeout=5)
+    if result.returncode or not result.stdout.strip(): return None
+    if recovery_runtime.CURRENT.get(): recovery_runtime.CURRENT.get().image = result.stdout.strip()
+    stats = [(str(path), path.stat().st_dev, path.stat().st_ino, path.stat().st_mode)
+             for path in (workspace, workspace/'.git', runtime)]
+    policy = Path(__file__).read_bytes() + (Path(__file__).parents[2]/'container/seccomp-codex.json').read_bytes()
+    return hashlib.sha256(result.stdout.encode() + repr(stats).encode() + policy +
+                          (runtime/'config.toml').read_bytes() + source.read_bytes()).hexdigest()
 
 
 def verify_toolchain(server):
     try:
-        result = subprocess.run([server.docker, 'exec', server.container_name,
+        result = recovery_runtime.run([server.docker, 'exec', server.container_name,
             'codex', 'sandbox', '-P', 'moonbox-read', '-C', '/work',
             '/usr/bin/env', '-i', f'PATH={TOOL_PATH}', 'HOME=/tmp',
             'XDG_CONFIG_HOME=/tmp/config', 'XDG_CACHE_HOME=/tmp/cache',

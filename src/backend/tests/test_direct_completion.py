@@ -298,3 +298,27 @@ def test_unknown_operation_proof_version_fails_closed(direct_scene,chat):
     response=client.post(f'/api/v1/chat/turns/{tid}/completion-verification',json={'expected_version':version})
     assert response.status_code==409
     assert response.json()['data']['kind']=='direct_proof_invalid'
+
+
+def test_auto_queue_projection_is_version_and_operation_scoped(direct_scene,chat):
+    from sqlalchemy import insert, update, select, func
+    from app.governance.completion_handoff import handoffs
+    factory,project,tid,rid,version=direct_scene;client,_=chat
+    url=f'/api/v1/chat/turns/{tid}/completion-verification'
+    assert client.get(url).json()['data']['auto_verification']['state']=='unavailable'
+    with factory() as db:
+        db.execute(insert(handoffs).values(scope_key=project.key,object_id=OID,guard_version=version,
+            operation_id=tid,application_id='direct',state='pending',attempt_count=0,
+            next_attempt_at='2026-01-01T00:00:00Z',created_at='2026-01-01T00:00:00Z'))
+        db.commit()
+    for state in ['pending','checking','confirmed','blocked']:
+        with factory() as db:
+            db.execute(update(handoffs).values(state=state,reason_code='retry_exhausted' if state=='blocked' else None));db.commit()
+        response=client.get(url)
+        assert response.status_code==200
+        assert response.json()['data']['auto_verification']['state']==state
+    with factory() as db:
+        db.execute(update(handoffs).values(operation_id='another-turn'));db.commit()
+    assert client.get(url).json()['data']['auto_verification']['state']=='unavailable'
+    with factory() as db:
+        assert db.scalar(select(func.count()).select_from(handoffs))==1

@@ -15,6 +15,7 @@ from .issue_subdocuments import (
     replace_mapping_value as replace_mapping_value,
 )
 from .timefmt import now_shanghai, touch_frontmatter
+from .issue_stage import scan_stage_drift, replace_stage
 
 
 @dataclass(frozen=True)
@@ -125,6 +126,8 @@ def scan_issue_status_residuals(issue_dir: Path, *, issue_id: str | None = None)
                     )
                 )
 
+    residuals.extend(IssueStatusResidual(resolved_issue_id, d.file, "frontmatter.lifecycle_stage", d.current)
+                     for d in scan_stage_drift(issue_dir))
     return residuals
 
 
@@ -165,10 +168,12 @@ def issue_reconcile_blockers(issue: collect.IssueRecord) -> list[str]:
 
 def plan_issue_status_reconcile(issue: collect.IssueRecord) -> tuple[list[IssueStatusReconcilePlan], list[str]]:
     blockers = issue_reconcile_blockers(issue)
+    blockers.extend(f"{d.file.name}: invalid lifecycle_stage `{d.current}`"
+                    for d in scan_stage_drift(issue.path) if not d.safe)
     target_status = issue_target_closed_status(issue)
     updated_at = now_shanghai()
     planned = [
-        IssueStatusReconcilePlan(residual=residual, target_status=target_status, updated_at=updated_at)
+        IssueStatusReconcilePlan(residual=residual, target_status=issue.path.parent.name if residual.source == "frontmatter.lifecycle_stage" else target_status, updated_at=updated_at)
         for residual in scan_issue_status_residuals(issue.path, issue_id=issue.issue_id)
     ]
     return planned, blockers
@@ -195,13 +200,21 @@ def reconcile_issue_status_residuals(
     for path in sorted({plan.residual.file for plan in planned}):
         text = collect.read_text(path)
         original = text
-        text, fm_changed = _replace_frontmatter_status(text, issue_target_closed_status(issue))
-        text, block_changed = _replace_yaml_block_status(text, issue_target_closed_status(issue))
-        if fm_changed or block_changed:
+        sources = {plan.residual.source for plan in planned if plan.residual.file == path}
+        fm_changed = block_changed = stage_changed = False
+        if "frontmatter" in sources:
+            text, fm_changed = _replace_frontmatter_status(text, issue_target_closed_status(issue))
+        if "yaml_block" in sources:
+            text, block_changed = _replace_yaml_block_status(text, issue_target_closed_status(issue))
+        if "frontmatter.lifecycle_stage" in sources:
+            updated = replace_stage(text, issue.path.parent.name)
+            stage_changed = updated != text
+            text = updated
+        if fm_changed or block_changed or stage_changed:
             text, _ = touch_frontmatter(text, bump_updated=True)
             atomic_write(path, text, original)
             changed_files += 1
-            changed_fields += int(fm_changed) + int(block_changed)
+            changed_fields += int(fm_changed) + int(block_changed) + int(stage_changed)
 
     return IssueStatusReconcileResult(
         issue_id=issue.issue_id,
