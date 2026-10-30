@@ -1,0 +1,41 @@
+.moonbox-workspace-overview { padding: 32px; min-width: 0; color: var(--rc-text); font-size: 14px; line-height: 1.45; }
+.moonbox-workspace-overview > header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.moonbox-workspace-overview h1 { font-size: 24px; margin: 8px 0 20px; }
+.moonbox-workspace-overview h2 { font-size: 18px; margin: 0 0 16px; }
+.workspace-eyebrow, .workspace-muted { color: var(--rc-muted); }
+.moonbox-workspace-overview [role=status] { padding: 12px; margin: 16px 0; border-left: 3px solid var(--rc-accent); background: var(--rc-panel); }
+.workspace-card { padding: 20px; border: 1px solid var(--rc-border); border-radius: 6px; background: var(--rc-panel); margin-bottom: 16px; min-width: 0; }
+.workspace-delivery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.workspace-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.moonbox-workspace-overview button { font: inherit; color: inherit; background: var(--rc-panel); border: 1px solid var(--rc-border); padding: 9px 12px; border-radius: 6px; cursor: pointer; }
+.moonbox-workspace-overview button:disabled { opacity: .5; cursor: not-allowed; }
+.moonbox-workspace-overview button:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 2px; }
+.workspace-identity dl { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; }
+.workspace-identity dt { color: var(--rc-muted); }
+.workspace-identity dd { margin: 6px 0; overflow-wrap: anywhere; }
+@media(max-width:720px) {
+  .moonbox-workspace-overview { padding: 16px; }
+  .workspace-delivery-grid, .workspace-identity dl { grid-template-columns: 1fr; }
+}
+.moonbox-workspace-panel .chat-dialog { width: min(880px, calc(100vw - 32px)); border-radius: 6px; }
+.moonbox-workspace-panel .chat-dialog-body { padding: 0; }
+.moonbox-workspace-panel :is(input, select, textarea) { display: block; width: 100%; min-width: 0; box-sizing: border-box; font: inherit; color: var(--rc-text); background: var(--rc-bg); border: 1px solid var(--rc-border); border-radius: 6px; padding: 10px; margin: 6px 0 14px; }
+.moonbox-workspace-panel label { display: block; font-size: 14px; color: var(--rc-text); }
+.moonbox-workspace-panel button { font: inherit; color: var(--rc-text); background: var(--rc-panel); border: 1px solid var(--rc-border); border-radius: 6px; padding: 9px 12px; cursor: pointer; }
+.moonbox-workspace-panel button:disabled { opacity: .5; cursor: not-allowed; }
+.moonbox-workspace-panel button:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 2px; }
+.moonbox-workspace-panel .chat-dialog { max-height: calc(100dvh - 32px); }
+.moonbox-workspace-panel .chat-dialog-body { min-height: 0; overflow-y: auto; }
+.moonbox-workspace-panel .chat-dialog-body > :is(label, p, ul, button) { margin: 16px 24px; }
+.moonbox-workspace-panel .chat-dialog-body > label { width: calc(100% - 48px); }
+.moonbox-workspace-panel [role=alert] { color: var(--rc-danger, #dc2626); overflow-wrap: anywhere; }
+.workspace-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.workspace-facts dt { color: var(--rc-muted); }
+.workspace-facts dd { margin: 6px 0; overflow-wrap: anywhere; }
+@media(max-width:720px) { .workspace-facts { grid-template-columns: 1fr; } .moonbox-workspace-panel .chat-dialog-body > :is(label, p, ul, button) { margin: 16px; } .moonbox-workspace-panel .chat-dialog-body > label { width: calc(100% - 32px); } }
+
+.moonbox-workspace-panel .chat-dialog { font-size: 14px; line-height: 1.45; }
+
+.moonbox-workspace-panel .workspace-file-selection {border: 1px solid var(--rc-border); border-radius: 6px; padding: 12px; margin: 16px; max-height: 180px; overflow: auto;}
+.moonbox-workspace-panel .workspace-file-selection label {display: flex; align-items: center; gap: 8px; overflow-wrap: anywhere;}
+.moonbox-workspace-panel .workspace-file-selection input {width: auto; min-height: auto; flex: 0 0 auto;}

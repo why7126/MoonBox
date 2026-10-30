@@ -1,0 +1,13 @@
+{
+  "mysql_failed": 0,
+  "mysql_passed": 29,
+  "sqlite_failed": 0,
+  "sqlite_passed": 40,
+  "reference_indexes_present": true,
+  "orphan_reference_full_scans": 0,
+  "automatic_backup_bounded": true,
+  "evidence_scope": "isolated SQLite/MySQL regression; actual service health and restart records are in live-browser.json",
+  "sqlite_command": "test_chat_content_store.py test_chat_backup.py test_governance_polling.py test_context_evidence_contract.py",
+  "mysql_command": "request visibility, batched current state, accounting, summary reads, durable audit; MySQL 8.2.0 isolated synthetic database",
+  "temporary_mysql_removed": true
+}

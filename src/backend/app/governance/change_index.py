@@ -216,6 +216,8 @@ class ChangeIndex:
 
     def acceptance_source_reason(self, record: ChangeRecord, *, source_root: Path | None = None) -> str | None:
         """Locate delivery evidence; never infer test success from file presence."""
+        if legacy._SUMMARY_READ.get():
+            return '验收待检查'
         directory = record.directory
         if directory is None:
             return '验收来源待核实：Change 目录不唯一'
@@ -272,10 +274,12 @@ class ChangeIndex:
             reason = reason or '缺少唯一有效的 Sprint 归属'
         return RequirementCenterAction(command=f'/{command} {record.id}', label=label, disabled_reason=reason)
 
-    def cards(self, can_read: Callable[[str], bool]) -> list[RequirementCenterIssue]:
+    def cards(self, can_read: Callable[[str], bool], *, selected_object=None) -> list[RequirementCenterIssue]:
         visible = {cid: record for cid, record in self.records.items() if record.visible(can_read)}
         cards = []
         for oid, (kind, entry) in self.entries.items():
+            if selected_object is not None and oid != selected_object:
+                continue
             if not can_read(oid):
                 continue
             related = [record for record in visible.values() if oid in record.issue_ids]
@@ -311,6 +315,8 @@ class ChangeIndex:
             self.apply_card_metadata(card, oid, sid, [r.id for r in related], issue_dir)
             cards.append(card)
         for record in visible.values():
+            if selected_object is not None and record.id != selected_object:
+                continue
             if record.issue_ids:
                 continue
             documents = self.documents(record)

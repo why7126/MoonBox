@@ -3,6 +3,7 @@
 <header><button id="run">运行冷暖各30次</button> <span id="progress">就绪</span></header><iframe id="page" src="about:blank"></iframe>
 <script>
 const frame=document.querySelector('#page'), progress=document.querySelector('#progress');
+const expectedCards=Number(new URLSearchParams(location.search).get('cards'))||29;
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(check){const end=Date.now()+90000;while(Date.now()<end){if(check())return;await pause(40)}throw Error('timeout');}
 document.querySelector('#run').onclick=async event=>{
@@ -15,7 +16,7 @@ document.querySelector('#run').onclick=async event=>{
     if(reset){reset.click();await until(()=>reset.dataset.ready==='true')}
     else{const response=await fetch('/api/fixture/context/reset',{method:'POST'});if(!response.ok)throw Error('reset failed')}
    }
-   frame.src='/e2e/context-performance.html?cards=29&cold='+(cold?'1':'0')+'&sample='+n;
+   frame.src='/e2e/context-performance.html?cards='+expectedCards+'&cold='+(cold?'1':'0')+'&sample='+n;
    await new Promise(resolve=>frame.onload=resolve);
    await until(()=>frame.contentDocument.getElementById('performance-evidence')?.dataset.ready==='true');
    await pause(1000);

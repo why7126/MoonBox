@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-30",
+  "scope": "frontend image and web container only",
+  "image": "sha256:3b05ef6a489dbd9d2380b2aa5ab1172ab2c47ec1e90dd5944972e4100b983ab1",
+  "build": "docker compose build web",
+  "update": "docker compose up -d --no-deps --no-build web",
+  "web_http": 200,
+  "browser": "existing Firefox requirements page; hard reload and full accessibility tree",
+  "bug0056_present": true,
+  "absent": [
+    "状态详情",
+    "检查最新结果",
+    "验收待检查"
+  ],
+  "search_restored": true,
+  "backend_continuity": {
+    "services": [
+      "backend",
+      "chat-worker",
+      "governance-controller"
+    ],
+    "container_ids_unchanged": true,
+    "started_at_unchanged": true,
+    "restart_counts": [
+      0,
+      0,
+      0
+    ],
+    "health": [
+      "healthy",
+      "healthy",
+      "healthy"
+    ]
+  },
+  "archived": false,
+  "performance_acceptance": "not assessed by this deployment"
+}

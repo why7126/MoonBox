@@ -192,18 +192,29 @@ def purge_conversation(db, cid):
     from app.chat.content_schema import entries, versions
     from app.chat.schema import turns
     from app.chat.content_schema import prepare_attempts
-    total = db.scalar(select(func.coalesce(func.sum(ledger.c.delta_bytes), 0)).where(ledger.c.conversation_id == cid))
-    total += db.scalar(select(func.coalesce(func.sum(prepare_attempts.c.prior_bytes), 0)).where(
+    prior = db.scalar(select(func.coalesce(func.sum(prepare_attempts.c.prior_bytes), 0)).where(
         prepare_attempts.c.turn_id.in_(select(turns.c.id).where(turns.c.conversation_id == cid))))
     version_ids = select(versions.c.id).where(versions.c.conversation_id == cid)
-    object_ids = select(objects.c.id).where(objects.c.conversation_id == cid)
     db.execute(delete(segments).where(segments.c.turn_id.in_(select(turns.c.id).where(turns.c.conversation_id == cid))))
     db.execute(delete(prepare_attempts).where(prepare_attempts.c.turn_id.in_(select(turns.c.id).where(turns.c.conversation_id == cid))))
     db.execute(delete(entries).where(entries.c.version_id.in_(version_ids)))
+    from app.moonbox_rollout.schema import snapshot_points
+    db.execute(delete(snapshot_points).where(snapshot_points.c.version_id.in_(version_ids)))
     db.execute(delete(versions).where(versions.c.conversation_id == cid))
+    from app.moonbox_rollout.schema import entries as recovery_entries
+    from sqlalchemy import exists
+    # Recovery code content has an independent workspace lifecycle, not a turn FK.
+    retained = select(objects.c.id).where(objects.c.conversation_id == cid,
+        exists(select(recovery_entries.c.object_id).where(recovery_entries.c.object_id == objects.c.id)) |
+        exists(select(entries.c.object_id).where(entries.c.object_id == objects.c.id)))
+    retained_ids = list(db.scalars(retained))
+    object_ids = select(objects.c.id).where(objects.c.conversation_id == cid,
+        objects.c.id.not_in(retained_ids))
+    released_ledger = (ledger.c.conversation_id == cid, ledger.c.object_id.not_in(retained_ids))
+    total = prior + db.scalar(select(func.coalesce(func.sum(ledger.c.delta_bytes), 0)).where(*released_ledger))
     db.execute(delete(chunks).where(chunks.c.object_id.in_(object_ids)))
-    db.execute(delete(ledger).where(ledger.c.conversation_id == cid))
-    db.execute(delete(objects).where(objects.c.conversation_id == cid))
+    db.execute(delete(ledger).where(*released_ledger))
+    db.execute(delete(objects).where(objects.c.conversation_id == cid, objects.c.id.not_in(retained_ids)))
     return total
 
 
@@ -212,6 +223,7 @@ def collect_orphans(db, cid, limit=100):
     from app.chat.schema import conversations, usage_accounts
     from app.chat.content_schema import entries, versions
     from sqlalchemy import exists
+    from app.moonbox_rollout.schema import entries as recovery_entries
     if not 1 <= limit <= 100: raise ValueError('invalid maintenance window')
     parent = db.execute(select(conversations).where(conversations.c.id == cid).with_for_update()).mappings().first()
     if not parent or parent['active_turn_id']: return 0
@@ -224,9 +236,12 @@ def collect_orphans(db, cid, limit=100):
     candidates = list(db.execute(select(objects.c.id, objects.c.byte_count).where(
         objects.c.conversation_id == cid,
         ~exists(select(entries.c.object_id).where(entries.c.object_id == objects.c.id)),
-        ~exists(select(segments.c.object_id).where(segments.c.object_id == objects.c.id))).limit(limit)))
+        ~exists(select(recovery_entries.c.object_id).where(recovery_entries.c.object_id == objects.c.id)),
+        ~exists(select(segments.c.object_id).where(segments.c.object_id == objects.c.id))).limit(limit).with_for_update()))
     removed = 0; remaining_blocks = limit
     for oid, _ in candidates:
+        # Once reclamation starts, cross-session dedup must not reuse partial content.
+        db.execute(update(objects).where(objects.c.id == oid).values(status='collecting'))
         charged = db.scalar(select(ledger.c.delta_bytes).where(ledger.c.object_id == oid)) or 0
         # Delete only a bounded number of blocks, even for a multi-gigabyte orphan.
         if remaining_blocks <= 0: break

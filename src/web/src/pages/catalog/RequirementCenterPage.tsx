@@ -1,5 +1,5 @@
 import { CardInfoTags, type CardInfoFacts } from "./CardInfoTags";
-import {OperationVerification,type VerificationFacts} from "../../components/chat/OperationVerification";
+import {type VerificationFacts} from "../../components/chat/OperationVerification";
 import { storeSprintArchiveIntent } from "./sprintArchiveIntent";
 import { governanceSessionDecision, type GovernanceSessionResult } from "./governanceSession";
 import { normalizeOwner, ownerFilterOptions } from "./requirementOwner";
@@ -81,6 +81,11 @@ type Stage = {
 type ChangeSummary = { id: string; title: string | null; stage: string; source_kind: string; task_progress?: [number, number] | null; document_entries?: IssueDocument[]; warnings?: string[] };
 
 type IssueCard = VerificationFacts & CardInfoFacts & {
+  checks_deferred?: boolean;
+  object_id?: string;
+  delivery_workspace_id?: string | null;
+  workspace_execution_state?: string | null;
+  integration_state?: string | null;
   execution_state?: string;
   can_send?: boolean;
   execution_reason?: string | null;
@@ -2016,6 +2021,8 @@ export function RequirementCenterPage() {
   const [openFilter, setOpenFilter] = useState<MultiFilterKey | null>(null);
   const [filterSearch, setFilterSearch] = useState<Record<MultiFilterKey, string>>({ stage: "", owner: "", level: "", sprint: "" });
   const [toast, setToast] = useState("");
+  const [checkingObject, setCheckingObject] = useState<string | null>(null);
+  const checkFlight = useRef<AbortController | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [syncLabel, setSyncLabel] = useState("正在读取项目连接");
@@ -2140,6 +2147,7 @@ export function RequirementCenterPage() {
     if (contextFlight.current?.key === key && !contextController.current?.signal.aborted) return contextFlight.current.promise;
     const run = async () => {
     const epoch = ++requestEpoch.current;
+    checkFlight.current?.abort();
     contextController.current?.abort();
     const controller = new AbortController(); contextController.current = controller;
     const current = () => epoch === requestEpoch.current && !controller.signal.aborted;
@@ -2169,7 +2177,7 @@ export function RequirementCenterPage() {
       setProject(selected || null); projectRef.current = selected || null;
       if (contextFlight.current) contextFlight.current.key = JSON.stringify([requestedSpace.current || selected?.space_id || "initial", selected?.repository_id || ""]);
       if (!selected) { setContext(directoryContext); setSyncLabel("当前空间尚未绑定本地项目"); setContextError(""); return; }
-      const data = await governanceRequest<RequirementCenterContext & { snapshot_revision: string }>(scopedUrl("/api/v1/requirement-center/context", selected), { signal: controller.signal });
+      const data = await governanceRequest<RequirementCenterContext & { snapshot_revision: string }>(scopedUrl("/api/v1/requirement-center/context?view=summary", selected), { signal: controller.signal });
       if (!current()) return;
       const next = normalizeContext(data, username);
       setWorkspace(next.workspaces.find(w => w.workspaceId === selected.space_id) || emptyWorkspace);
@@ -2204,7 +2212,7 @@ export function RequirementCenterPage() {
       const denied = error instanceof GovernanceError && [401, 403].includes(error.status);
       if (denied || mode === "initial") setContext(null);
       if (denied) { setProject(null); projectRef.current = null; documentEpoch.current++; setDrawer({ type: "none" }); setErrorDetails(null); revisionRef.current = ""; }
-      setSyncLabel(denied ? "项目访问权限已失效" : "同步失败，将自动重试");
+      setSyncLabel(denied ? "项目访问权限已失效" : "同步失败，请刷新重试");
       if (error instanceof GovernanceError && error.status === 401) {
         clearFrontendSession(); clearAdminSession(); setSessionFallbackUser(emptyUser);
         window.history.replaceState(null, "", "/login"); window.dispatchEvent(new PopStateEvent("popstate"));
@@ -2222,17 +2230,78 @@ export function RequirementCenterPage() {
   }, []);
 
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    let stopped = false;
-    const poll = async () => {
-      if (!document.hidden && !pollPaused.current) await loadContext("refresh");
-      if (!stopped) timer = setTimeout(poll, Math.min(30000, 3000 * 2 ** Math.min(pollFailures.current, 3)));
-    };
-    void loadContext().then(() => { if (!stopped) timer = setTimeout(poll, 3000); });
+    void loadContext();
     const focus = () => { if (!document.hidden && !pollPaused.current) void loadContext("refresh"); };
-    window.addEventListener("governance-operation-verified", focus); window.addEventListener("focus", focus); document.addEventListener("visibilitychange", focus);
-    return () => { stopped = true; clearTimeout(timer); contextController.current?.abort(); window.removeEventListener("governance-operation-verified", focus); window.removeEventListener("focus", focus); document.removeEventListener("visibilitychange", focus); };
+    window.addEventListener("governance-operation-verified", focus);
+    window.addEventListener("focus", focus);
+    document.addEventListener("visibilitychange", focus);
+    return () => {
+      contextController.current?.abort(); checkFlight.current?.abort();
+      window.removeEventListener("governance-operation-verified", focus);
+      window.removeEventListener("focus", focus);
+      document.removeEventListener("visibilitychange", focus);
+    };
   }, [loadContext]);
+
+  const activeObjectKey = JSON.stringify((context?.issues || [])
+    .filter(issue => issue.object_id && (issue.execution_state === "running" || issue.workspace_execution_state === "occupied"))
+    .map(issue => issue.object_id));
+  useEffect(() => {
+    const ids = JSON.parse(activeObjectKey) as string[];
+    if (!ids.length) return;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const selected = projectRef.current;
+        const epoch = requestEpoch.current;
+        if (selected && !document.hidden && !contextFlight.current) {
+          for (let offset = 0; offset < ids.length; offset += 32) {
+            const query = new URLSearchParams();
+            ids.slice(offset, offset + 32).forEach(id => query.append("object_ids", id));
+            const data = await governanceRequest<{ items: Array<Partial<IssueCard> & { object_id: string; reason_code?: string }> }>(
+              scopedUrl(`/api/v1/requirement-center/status?${query}`, selected), { signal: controller.signal });
+            if (controller.signal.aborted || epoch !== requestEpoch.current) return;
+            setContext(value => value ? { ...value, issues: value.issues.map(issue => {
+              const state = data.items.find(item => item.object_id === issue.object_id);
+              return state ? { ...issue, ...state, execution_reason: state.reason_code } : issue;
+            }) } : value);
+          }
+        }
+      } catch (error) {
+        if (!controller.signal.aborted && error instanceof GovernanceError && [401, 403].includes(error.status)) void loadContext("refresh");
+      } finally {
+        if (!controller.signal.aborted) timer = setTimeout(poll, 10000);
+      }
+    };
+    timer = setTimeout(poll, 10000);
+    return () => { controller.abort(); clearTimeout(timer); };
+  }, [activeObjectKey, loadContext]);
+
+  const checkObject = async (objectId?: string) => {
+    const selected = projectRef.current;
+    if (!selected || checkingObject !== null) return;
+    const epoch = requestEpoch.current;
+    const controller = new AbortController(); checkFlight.current = controller;
+    setCheckingObject(objectId || "sprints");
+    try {
+      const query = objectId ? `?object_id=${encodeURIComponent(objectId)}` : "";
+      const data = await governanceRequest<RequirementCenterContext>(scopedUrl(`/api/v1/requirement-center/context${query}`, selected), { signal: controller.signal });
+      if (controller.signal.aborted || epoch !== requestEpoch.current) return;
+      const checked = normalizeContext(data, readFrontendSession()?.username);
+      setContext(value => value ? {
+        ...value,
+        currentIterationCapacity: checked.currentIterationCapacity,
+        issues: objectId ? value.issues.map(issue => checked.issues.find(item => item.id === issue.id) || issue) : checked.issues,
+      } : value);
+    } catch (error) {
+      if (controller.signal.aborted || epoch !== requestEpoch.current) return;
+      setToast(error instanceof Error ? error.message : "检查未完成，请重试");
+      if (error instanceof GovernanceError && [401, 403].includes(error.status)) void loadContext("refresh");
+    } finally {
+      if (checkFlight.current === controller) { checkFlight.current = null; setCheckingObject(null); }
+    }
+  };
 
 
   useEffect(() => {
@@ -3299,7 +3368,6 @@ export function RequirementCenterPage() {
             else setToast("根因文档暂不可用，请刷新后重试。");
           }} />
         </div>
-        <OperationVerification key={issue.verification_operation_id||issue.id} facts={issue} disabled={!!contextFailure} onRefresh={()=>void loadContext("refresh")} onOriginal={issue.view_conversation_id?()=>viewExecution(issue):undefined}/>
         <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
           {ownDocuments.length > 0 && (
             <div className="rc-doc-group" role="group" aria-label={issue.type === "change" ? "Change 文档" : "Issue 文档"}>
@@ -3346,11 +3414,12 @@ export function RequirementCenterPage() {
           )}
         </div>
         {isEnriching && issue.completion_hint && <p className="rc-blocked" data-testid="issue-completion-hint">{issue.completion_hint}</p>}
-        {stage.id === "acceptance" && (!issue.acceptancePendingCount || !manualProgress) && issue.acceptanceBlockedReason && (
+        {stage.id === "acceptance" && (!issue.acceptancePendingCount || !manualProgress) && issue.acceptanceBlockedReason && issue.acceptanceBlockedReason !== "验收待检查" && (
           <p className="rc-blocked" data-testid="acceptance-readiness">{issue.acceptanceBlockedReason}</p>
         )}
+        {issue.delivery_workspace_id && <p className="rc-progress" data-testid="delivery-workspace-status">工作区 {issue.delivery_workspace_id.slice(0, 8)} · {issue.workspace_execution_state === "occupied" ? "执行中" : "空闲"} · {({developing:"开发中",prepared:"候选已建立",validating:"组合验证中",validation_blocked:"组合验证未通过",validated:"待确认合入",integrated:"已合入主线"} as Record<string,string>)[issue.integration_state || ""] || "待交付"}</p>}
         {issue.type === "change" && !issue.taskProgress && <p className="rc-progress">任务进度未知</p>}
-        {tip && !(stage.id === "acceptance" && tip === issue.acceptanceBlockedReason) ? (
+        {tip && tip !== "验收待检查" && !(stage.id === "acceptance" && tip === issue.acceptanceBlockedReason) ? (
           <p className="rc-blocked"><CircleDot size={12} /> {tip}</p>
         ) : null}
         {!isDoneStage && (taskProgress || issue.testProgress || manualProgress) && (
@@ -3723,6 +3792,11 @@ export function RequirementCenterPage() {
           </article>
         </section>
 
+        {currentIterationCapacity.some(item => item.archiveReadiness?.safeSummary === "归档条件待检查" || item.archive_readiness?.safe_summary === "归档条件待检查") && (
+          <button type="button" className="rc-result-check rc-result-check-sprints" disabled={checkingObject !== null || isRefreshingContext} onClick={() => void checkObject()}>
+            {checkingObject === "sprints" ? "正在检查迭代…" : "检查迭代归档条件"}
+          </button>
+        )}
         <CurrentIterationCapacityStrip
           items={currentIterationCapacity}
           loading={isLoadingContext}

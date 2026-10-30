@@ -77,8 +77,16 @@ audit = Table('chat_request_logs', metadata, *identity(),
 CHAT_TABLES = [conversations, turns, events, messages, turn_materials, uploaded_materials, snapshots, diffs, audit]
 
 def migrate(engine):
+    from app.moonbox_core.schema import TABLES as workspace_tables
+    for table in workspace_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     from app.chat.content_schema import TABLES as content_tables
     for table in content_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
+    from app.moonbox_rollout.schema import TABLES as rollout_tables
+    for table in rollout_tables:
         if table not in CHAT_TABLES:
             CHAT_TABLES.append(table)
     from app.governance.completion_handoff import handoffs
@@ -108,11 +116,25 @@ def migrate(engine):
     for table in chat_recovery_tables:
         if table not in CHAT_TABLES:
             CHAT_TABLES.append(table)
+    from app.verification.candidate_schema import TABLES as candidate_environment_tables
+    for table in candidate_environment_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
+    from app.verification.acceptance_schema import TABLES as acceptance_tables
+    for table in acceptance_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     metadata.create_all(engine, tables=CHAT_TABLES)
     from app.governance.replacement_schema import install_audit_guards
     install_audit_guards(engine)
     from sqlalchemy import inspect, text
     with engine.begin() as connection:
+        acceptance_columns = {column['name'] for column in inspect(connection).get_columns('verification_operations')}
+        if 'source_ref_json' not in acceptance_columns:
+            connection.execute(text("ALTER TABLE verification_operations ADD COLUMN source_ref_json TEXT"))
+            connection.execute(text("UPDATE verification_operations SET source_ref_json='{}' WHERE source_ref_json IS NULL"))
+        if 'checks_deadline' not in acceptance_columns:
+            connection.execute(text("ALTER TABLE verification_operations ADD COLUMN checks_deadline INTEGER"))
         turn_columns = {column['name'] for column in inspect(connection).get_columns('chat_turns')}
         if 'requested_config' not in turn_columns:
             connection.execute(text("ALTER TABLE chat_turns ADD COLUMN requested_config TEXT NOT NULL DEFAULT '{}'"))

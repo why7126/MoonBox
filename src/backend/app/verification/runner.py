@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 from urllib.parse import urlsplit
 from uuid import UUID
@@ -63,7 +64,8 @@ def run_browser_acceptance(image_digest: str, *, network: str, target_url: str,
                            steps: list[dict] | None = None,
                            artifact_path: Path | None = None,
                            evidence_root: Path, space_id: str, repository_id: str,
-                           task_id: str, timeout: int = 120) -> dict:
+                           task_id: str, timeout: int = 120, lifecycle_labels: dict | None = None,
+                           identity_file: Path | None = None, login: dict | None = None) -> dict:
     """Run trusted browser checks; neither project source nor client commands execute here."""
     if not isinstance(image_digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image_digest):
         raise RunnerUnavailable("runner_image_unpinned")
@@ -120,21 +122,40 @@ def run_browser_acceptance(image_digest: str, *, network: str, target_url: str,
     target.mkdir(mode=0o700)
     seccomp = Path(__file__).parents[2] / "container" / "seccomp-codex.json"
     container_name = "moonbox-verification-" + task_id
-    command = [docker, "run", "--rm", "--init", "--interactive", "--name", container_name,
+    command = [docker, "run", "--log-driver", "none", "--rm", "--init", "--interactive", "--name", container_name,
                "--network", network, "--read-only",
                "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
                "--security-opt", f"seccomp={seccomp}", "--pids-limit", "256", "--memory", "1g", "--cpus", "1",
-               "--tmpfs", "/tmp:rw,nosuid,size=128m", "--user", f"{os.getuid()}:{os.getgid()}",
+               "--tmpfs", "/tmp:rw,nosuid,size=128m", "--ulimit", "fsize=10485760:10485760", "--user", f"{os.getuid()}:{os.getgid()}",
                "--env", "HOME=/tmp", "--env", "XDG_CACHE_HOME=/tmp",
                "--mount", f"type=bind,src={target},dst=/evidence"]
+    for key, value in (lifecycle_labels or {}).items():
+        if not re.fullmatch(r'moonbox\.(candidate|temp)\.[a-z]+', key) or not re.fullmatch(r'[a-zA-Z0-9-]{1,64}', value):
+            raise RunnerUnavailable('resource_label_invalid')
+        command.extend(['--label', key + '=' + value])
     if artifact_path is not None:
         artifact = trusted_directory(artifact_path)
         if not (artifact / "verified.json").is_file():
             raise RunnerUnavailable("artifact_unverified")
         command.extend(["--mount", f"type=bind,src={artifact},dst=/dependencies,readonly",
                         "--env", "MOONBOX_VERIFICATION_PROJECT_ARTIFACT=/dependencies"])
+    if identity_file is not None:
+        private = Path(identity_file)
+        info = private.lstat()
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_mode & 0o077
+                or info.st_size > 16384 or info.st_uid != os.getuid()):
+            raise RunnerUnavailable('identity_media_invalid')
+        trusted_directory(private.parent)
+        if (not isinstance(login, dict) or set(login) != {'path','username_field','password_field'}
+                or not re.fullmatch(r'/[a-zA-Z0-9/_-]+',str(login['path']))
+                or any(not re.fullmatch(r'[a-zA-Z_][a-zA-Z0-9_]{0,63}',str(login[key])) for key in ('username_field','password_field'))):
+            raise RunnerUnavailable('identity_login_invalid')
+        command.extend(['--mount',f'type=bind,src={private},dst=/identity/credentials.json,readonly'])
+    elif login is not None:
+        raise RunnerUnavailable('identity_media_missing')
     command.extend([image_digest, "node", "/opt/moonbox-verification/acceptance.cjs"])
     plan = {"url": target_url, "browser": browser, "viewports": viewports, "selectors": selectors, "steps": steps}
+    if identity_file is not None: plan['login'] = login
     try:
         completed = subprocess.run(command, input=json.dumps(plan), text=True, capture_output=True,
                                    timeout=timeout, check=False)
@@ -147,7 +168,8 @@ def run_browser_acceptance(image_digest: str, *, network: str, target_url: str,
     if completed.returncode:
         code = completed.stderr.strip().splitlines()[-1:] or []
         allowed = {"plan_too_large", "browser_invalid", "viewports_invalid", "target_invalid",
-                   "selectors_invalid", "steps_invalid", "viewport_invalid", "target_response_failed", "selector_missing", "step_failed"}
+                   "selectors_invalid", "steps_invalid", "viewport_invalid", "target_response_failed", "selector_missing", "step_failed",
+                   "identity_login_invalid", "identity_expired", "identity_login_failed"}
         raise RunnerUnavailable(code[0] if code and code[0] in allowed else "browser_acceptance_failed")
     try:
         result = json.loads(completed.stdout)

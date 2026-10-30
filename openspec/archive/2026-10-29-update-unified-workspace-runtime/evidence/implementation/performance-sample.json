@@ -1,0 +1,19 @@
+{
+  "sample": "synthetic-real-files-and-sqlite",
+  "files": 100,
+  "bytes_per_phase": 409600,
+  "database": "sqlite",
+  "repetitions": 1,
+  "concurrent_load": "other local verification may be running",
+  "thresholds": null,
+  "measurements": {
+    "enumeration_seconds": 0.0014769170084036887,
+    "before_capture_and_content_persistence_seconds": 0.4427466250199359,
+    "before_catalog_persistence_seconds": 0.004878291016211733,
+    "after_capture_and_content_persistence_seconds": 0.5301894999865908,
+    "after_catalog_persistence_seconds": 0.0059154999908059835,
+    "preflight_and_operation_persistence_seconds": 0.46871850002207793,
+    "restore_seconds": 14.930630791990552
+  },
+  "restored_files": 100
+}

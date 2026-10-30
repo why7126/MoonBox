@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: "2026-10-27 23:32:32"
+updated_at: "2026-10-29 18:44:23"
 owner: MoonBox 产品团队
 ---
 
@@ -527,3 +527,62 @@ DirectVerificationResponse增加可选successor_evidence（默认空映射）：
 BUG-0056 持续负载返修：context的对象可见性仅在请求内聚合，并在结束读事务后重新查询、重新授权项目及绑定；构建中撤权返回原有403，绑定或只读状态变化返回409，结果不跨请求保留。卡片执行状态批量查询仍只用于展示，发送保留实时事务准入。ChatRoute审计等待工作线程完成落库后返回，事件字段、失败观测和request_id语义保持不变；不以取消审计换取低延迟。API schema、客户端生成及对象存储不变。
 
 需求中心读取审计：响应前保留请求摘要持久化，未改变的metadata不重复更新；需补充行为字段时按本次审计记录主键更新，避免随历史请求数量增长的全表扫描。请求字段、错误和采集口径不变。
+
+## 统一工作区基础接口（实施中）
+
+REQ-0042 的基础登记入口使用现有登录会话和空间/仓库鉴权；客户端只传业务身份，响应不包含物理目录。当前不开放独立工作树创建、会话重绑定、恢复或成果合入写入口。
+
+| 方法与路径 | 当前语义 |
+|---|---|
+| GET /api/v1/chat/workspaces | 查询当前可访问工作区及操作能力；不返回物理路径 |
+| POST /api/v1/chat/workspaces/main | 登记唯一主源码目录；重复登记幂等 |
+| POST /api/v1/chat/workspaces/development | 按当前 Change 所属交付根链路创建或串行复用开发树 |
+| POST /api/v1/chat/workspaces/sessions | 在固定工作区创建后继会话，原会话绑定不变 |
+| GET /api/v1/chat/workspaces/recovery-points、recovery-files | 分页查询恢复点、保护原因及文件能力 |
+| POST /api/v1/chat/workspaces/recovery-preflight、restore | 三方预检与持久文件恢复；写入前再次核对指纹 |
+| POST /api/v1/chat/workspaces/restore/{operation_id}/resume | 续接原恢复操作，已完成项不盲目重放 |
+| POST /api/v1/chat/workspaces/recovery-protection、recovery-directory | 人工保护及独立恢复用途目录 |
+| GET /api/v1/chat/workspaces/merge-capability、merge-candidates、operations | 当前迭代权限、候选与操作状态 |
+| POST /api/v1/chat/workspaces/merge-candidates | 固定源/目标创建候选并验证 |
+| GET /api/v1/chat/workspaces/merge-candidates/{candidate_id}/files | 候选文件统计分页，不返回私有目录 |
+| POST /api/v1/chat/workspaces/merge-candidates/{candidate_id}/validate、confirm、repair | 重新验证、人工确认和返回返修 |
+| POST /api/v1/chat/workspaces/merge-operations/{operation_id}/resume | 重新核对当前权限和版本后续接 |
+| POST /api/v1/chat/workspaces/cleanup | 显式清理受保护条件全部满足的独立目录 |
+
+工作区身份由服务端生成；恢复与合入含 request_id、固定版本及指纹。权限拒绝为 403，版本/目录/占用冲突为 409，独立候选验收能力不可用为 503。会话响应新增 execution_workspace_id 和 execution_workspace_purpose。客户端位于 `src/web/src/api/generated/workspaces.ts` 与 `chat.ts`；Web 入口在现有 Chat 工作台。
+
+新开发工作区和正式合入仍受联合验收门禁约束；默认供应器缺少 REQ-0048 固定候选验收能力时返回 isolated_candidate_validation_unavailable。接口和合成测试存在不代表正式门禁已通过。
+
+工作区 `/operations` 与 `/merge-operations/{operation_id}/resume` 的合入结果增加 `governance_state`（pending/applying/blocked/completed）。已合入而同步待处理时，Web 显示独立状态并提供重新核对入口；续接仍核验当前迭代权限。候选响应 `validation` 提供固定候选的环境身份、镜像/模板摘要、证据摘要及 SQLite/MySQL/浏览器检查摘要，不接受客户端提交验收通过状态。
+
+## Chat 隔离验收编排（REQ-0048，实施中）
+
+| 方法与路径 | 行为 |
+|---|---|
+| POST `/api/v1/chat/acceptance-operations` | 由授权会话、来源轮次、Change 和幂等键创建；只接受已确认结束的来源检查点 |
+| GET `/api/v1/chat/conversations/{conversation_id}/acceptance-operations` | 只读列表，最多50条；轮询不触发模型或环境动作 |
+| GET `/api/v1/chat/acceptance-operations/{operation_id}` | 授权状态回读；显式核验通过请求头标识行为，不修改执行状态 |
+| GET `/api/v1/chat/acceptance-operations/{operation_id}/evidence` | 受权限保护的7日在线证据摘要；全部过期返回410 |
+| POST `/api/v1/chat/acceptance-operations/{operation_id}/stop` | 当前版本号取消，拒绝迟到回调 |
+| POST `/api/v1/chat/acceptance-operations/{operation_id}/resume` | 重验权限、绑定和源输入，资源释放后建立新尝试 |
+| POST `/api/v1/chat/acceptance-operations/{operation_id}/cleanup-retries` | 无执行所有者且回收失败时请求有限清理重试 |
+
+响应区分验收状态与资源回收状态；不公开执行计划、宿主路径或短期凭据。并发版本冲突返回409。OpenAPI 与 Chat Orval 已同步；不改变既有验证任务路径。模型轮次结果消费与自动关联续接尚未接入。
+
+
+## BUG-0056 摘要读取与按需检查
+
+`GET /api/v1/requirement-center/context` 新增 `view=full|summary`（默认 full）和可选 `object_id`。首页使用 summary；不改变授权对象集合，卡片新增 `object_id` 完整身份及 `checks_deferred`。summary 排除 docs、rules 和 Change evidence 子树，保留其余治理摘要依赖的完整路径/字节一致性与安全边界；摘要版本不能作为完整执行证明。验收/归档未检查显式待检查，既有完整模式按需核验，动作入口始终独立复核。
+
+`GET /api/v1/requirement-center/status` 使用现有 space_id/repository_id 授权和重复 object_ids 参数，每批最多32项，返回当前执行保护与工作区状态；不读取文件快照，不核验完成证明，不写入保护收敛。前端仅活动对象每10秒读取，静置无全量轮询。权限失败清除可见数据，摘要刷新使之前深度检查失效。
+
+观测继续使用现有 X-Request-ID、Server-Timing、行为关联和请求日志；新增接口只提供受权展示，不将遥测作为准入证明。无数据库迁移、保留周期或部署拓扑调整；OpenAPI/Orval 和接口安全/前端回归同步。
+
+REQ-0048新增 `GET /api/v1/chat/acceptance-operations/{operation_id}/evidence/archive`：返回已发布的长期摘要、相对归属及内容摘要；每次当前ACL与哈希核验，篡改返回409。操作投影新增 `archive-evidence` 动作；存在活动关联轮次时终态验收仍提供停止。固定原生工具不接受客户端路径、命令、身份或模板。OpenAPI/Orval同步。
+
+
+### BUG-0056 只读审计响应后执行
+
+仅需求中心前缀下GET请求使用ASGI响应后的同一日志持久化流程；写操作及其他路由保持原审计时序。请求ID、日志字段、保留周期及失败告警不变。每进程最多16项延后任务，满额回退同步写入，不建立无界队列；取消响应的预留槽随响应释放。正常退出等待后台任务，强杀可能丢失未落库的只读日志，响应返回不代表日志已持久化。
+
+Server-Timing的request_audit表示响应前同步写入等待，request_audit_dispatch表示延后登记；实际延后写入耗时由相同request_id的requirement_center.deferred_audit日志记录，包含success和duration_ms。endpoint_overhead覆盖Reader返回后的收尾日志及响应对象构建。route_total由dependencies、total、endpoint_overhead、response_finalize、request_audit、request_audit_dispatch独占相加；实际后台审计时长不计入响应前总时长，也不称为零成本。正文/OpenAPI模型不变，无新增DB字段。

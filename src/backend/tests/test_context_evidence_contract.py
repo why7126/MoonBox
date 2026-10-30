@@ -1,7 +1,24 @@
 """Reject incomplete or selectively retained formal-page performance evidence."""
 import copy
 import pytest
-from verify_context_evidence import verify_live_windows
+from verify_context_evidence import verify_live_windows, verify_request_segments
+
+
+@pytest.mark.parametrize('fault', ['missing_phase', 'double_count', 'nested_gap', 'route_gap', 'nonfinite'])
+def test_request_segments_reject_incomplete_or_unexplained_evidence(fault):
+    phases = dict.fromkeys(('materialize', 'object_authorization', 'parse', 'cleanup',
+                           'reconcile', 'external_reconcile', 'card_projection_exclusive',
+                           'projection_commit', 'document_projection', 'reader_orchestration'), 0.0)
+    phases.update(snapshot_and_fences=100, snapshot=90, fences_exclusive=10, total=100,
+                  dependencies=5, response_finalize=3, request_audit=2, route_total=110)
+    verify_request_segments({'server_timing': phases})
+    if fault == 'missing_phase': phases.pop('parse')
+    elif fault == 'double_count': phases['parse'] = 90
+    elif fault == 'nested_gap': phases['snapshot'] = 70
+    elif fault == 'route_gap': phases['route_total'] = 500
+    elif fault == 'nonfinite': phases['parse'] = float('nan')
+    with pytest.raises((AssertionError, KeyError)):
+        verify_request_segments({'server_timing': phases})
 
 
 def evidence():
@@ -67,3 +84,16 @@ def test_expanded_sampling_requires_all_predeclared_samples():
     item['windows'][0]['navigation'].pop()
     with pytest.raises(AssertionError):
         verify_live_windows(item)
+
+
+def test_route_segments_include_measured_endpoint_and_dispatch_overhead():
+    phases = dict.fromkeys(('materialize', 'object_authorization', 'parse', 'cleanup',
+                           'reconcile', 'external_reconcile', 'card_projection_exclusive',
+                           'projection_commit', 'document_projection', 'reader_orchestration'), 0.0)
+    phases.update(snapshot_and_fences=100, snapshot=90, fences_exclusive=10, total=100,
+                  dependencies=5, response_finalize=3, request_audit=0,
+                  request_audit_dispatch=2, endpoint_overhead=25, route_total=135)
+    verify_request_segments({'server_timing': phases})
+    phases.pop('endpoint_overhead')
+    with pytest.raises(AssertionError):
+        verify_request_segments({'server_timing': phases})

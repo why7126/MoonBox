@@ -44,6 +44,11 @@ def size(value, seen=None):
         return 0
     seen.add(id(value))
     total = getsizeof(value)
+    # Exact built-in scalars have no instance dict or slots to traverse.
+    # Avoid repeated reflection for every title/path token in a warm memo;
+    # subclasses still take the general path so their storage is counted.
+    if type(value) in (str, int, float, bool, bytes, type(None)):
+        return total
     if isinstance(value, dict):
         return total + sum(size(k, seen) + size(v, seen) for k, v in value.items())
     if isinstance(value, (tuple, list, set, frozenset)):
@@ -63,6 +68,33 @@ def clear():
         _versions.clear()
 
 
+def bounded_entries(memo):
+    """Retain useful pure entries when the whole parsed tree exceeds budget.
+
+    Charge shared objects per entry conservatively. Include dictionary storage
+    after insertion, so the retained subset cannot exceed the existing limit.
+    Large relationship indexes are preferred, but never exempt from the cap.
+    """
+    retained = {}
+    payload = 0
+    indexes = {'summary_change_index', 'archive_directory_index'}
+    def priority(key):
+        return 0 if isinstance(key, tuple) and key and key[0] in indexes else 1
+    for key in sorted(memo, key=priority):
+        value = memo[key]
+        weight = size(key) + size(value)
+        retained[key] = value
+        if getsizeof(retained) + payload + weight > MAX_BYTES:
+            retained.pop(key)
+        else:
+            payload += weight
+    # A rejected insertion can still grow the dict's allocated table.
+    while retained and getsizeof(retained) + payload > MAX_BYTES:
+        key, value = retained.popitem()
+        payload -= size(key) + size(value)
+    return retained
+
+
 @contextmanager
 def lease(root):
     # Root names belong to cached_materialize, not caller-controlled live paths.
@@ -74,6 +106,9 @@ def lease(root):
             yield memo
         finally:
             used = size(memo)
+            if used > MAX_BYTES:
+                memo = bounded_entries(memo)
+                used = size(memo) if memo else MAX_BYTES + 1
             while _versions and (len(_versions) >= MAX_VERSIONS or
                                   sum(row[1] for row in _versions.values()) + used > MAX_BYTES):
                 _versions.popitem(last=False)

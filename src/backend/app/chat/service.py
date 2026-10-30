@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.chat.errors import ChatError
+from app.moonbox_worktree import WorktreeConflict
 
 import json
 import hashlib
@@ -78,13 +79,18 @@ def public_conversation(row, db=None, actor=None):
     data = {k: row[k] for k in ('id', 'space_id', 'repository_id', 'title', 'pinned', 'archived', 'active_turn_id', 'created_at', 'updated_at')}
     data['branch_name'] = row.get('branch_name') if hasattr(row, 'get') else row['branch_name']
     if db is not None and actor:
+        from app.moonbox_core.schema import workspaces, session_bindings
+        workspace = db.execute(select(workspaces.c.id, workspaces.c.purpose).join(session_bindings,
+            session_bindings.c.workspace_id == workspaces.c.id).where(session_bindings.c.conversation_id == row['id'])).first()
+        data.update(execution_workspace_id=workspace.id if workspace else None,
+            execution_workspace_purpose=workspace.purpose if workspace else None)
         from app.chat.policy import write_policy
         policy = write_policy(db, actor, row)
         data.update(write_scope=policy['write_scope'], write_reason_code=policy['reason_code'])
     return data
 
 
-def create_conversation(db, actor, space_id, repository_id, title, client_request_id=None, branch_name=None):
+def create_conversation(db, actor, space_id, repository_id, title, client_request_id=None, branch_name=None, *, execution_workspace_id=None, delivery_binding=None):
     authorize_space(db, actor, space_id)
     # Repository IDs are opaque; paths are never accepted from the client.
     from app.chat.settings import repository_catalog
@@ -97,13 +103,33 @@ def create_conversation(db, actor, space_id, repository_id, title, client_reques
         row['id'] = str(uuid5(NAMESPACE_URL, json.dumps(['moonbox.chat.create.v1', actor, client_request_id])))
         existing = db.execute(select(conversations.c.id).where(conversations.c.id == row['id'])).first()
         if existing:
+            if execution_workspace_id:
+                from app.moonbox_core.sessions import bound
+                if bound(db, row['id']) != execution_workspace_id:
+                    raise ChatError(2504, '请求标识已绑定其他工作区', 409)
             return _created_replay(db, actor, row['id'], space_id, repository_id, branch_name)
     try:
-        db.execute(insert(conversations).values(**row)); db.commit()
+        db.execute(insert(conversations).values(**row))
+        if execution_workspace_id:
+            from app.moonbox_core.sessions import bind
+            bind(db, row, execution_workspace_id)
+        else:
+            from app.moonbox_core.migration import ensure_binding
+            ensure_binding(db, row)
+        if delivery_binding:
+            from app.moonbox_core.schema import delivery_sessions
+            from app.chat.schema import relations
+            db.execute(insert(delivery_sessions).values(conversation_id=row['id'], **delivery_binding))
+            db.execute(insert(relations).values(conversation_id=row['id'], object_id=delivery_binding['change_id'],
+                role='primary', title=delivery_binding['change_id']))
+        db.commit()
     except IntegrityError:
         db.rollback()
         if not client_request_id: raise
         return _created_replay(db, actor, row['id'], space_id, repository_id, branch_name)
+    except WorktreeConflict:
+        db.rollback()
+        raise ChatError(2504, '工作区身份或历史迁移未就绪，原会话与文件已保留', 409) from None
     return public_conversation(row, db, actor)
 
 
@@ -503,7 +529,7 @@ def revalidate_uploaded_materials(db, actor, row, materials):
     return updated
 
 
-def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None, execution_config=None, request_id=None):
+def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None, execution_config=None, request_id=None, admission_guard=None):
     prompt = (prompt or '').strip()
     materials = normalize_materials(images, skills)
     config = normalize_execution_config(execution_config)
@@ -537,7 +563,7 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
         from app.chat.settings import execution_limits
         return enqueue(db,actor,cid,client_id,prompt,execution_limits(),materials=materials,execution_config=config,
             request_id=request_id,budget_prompt=execution_prompt_for_turn(db,row,prompt),
-            governance_candidate_id=governance_candidate['id'] if governance_candidate else None)
+            governance_candidate_id=governance_candidate['id'] if governance_candidate else None,admission_guard=admission_guard)
     # Normal deployment stays closed; only the isolated launcher has a test gate.
     raise ChatError(2505, '执行服务尚未通过隔离与额度验收，暂不可发送', 503)
 
@@ -595,10 +621,12 @@ def _attach_workspace_status(db, row_turn, result):
         binding = repository_binding(parent['repository_id'], parent['space_id']) or {}
         workspace_id = parent['workspace_id']
         root = binding.get('source_root') if binding.get('workspace_mode') == 'source' and workspace_id == 'source' else binding.get('workspace_root')
-        if not workspace_id or not isinstance(root, str):
-            return result
         from app.chat.workspace import snapshot, trusted_directory
-        workspace = trusted_directory(Path(root) if workspace_id == 'source' else Path(root) / workspace_id)
+        from app.moonbox_core.sessions import execution_workspace
+        managed = execution_workspace(db, parent)
+        if not managed and (not workspace_id or not isinstance(root, str)):
+            return result
+        workspace = managed[1] if managed else trusted_directory(Path(root) if workspace_id == 'source' else Path(root) / workspace_id)
         current = snapshot(workspace, max_text_bytes=0)
         for key in ('files', 'cumulative_files'):
             if isinstance(result.get(key), list):

@@ -38,7 +38,15 @@ def main():
     def execute(claim,path):
         try:run_claim(factory,claim,path,server,max_seconds=180)
         except Exception:mark_unknown(factory,claim,'local_worker_setup_failed')
-    recovery_slot = RecoverySlot(factory, lambda cid: (None, root/'workspaces'/cid), server, recovery_policy(), docker=config.get('executor')=='container')
+    def workspace(cid):
+        with factory() as db:
+            parent = db.execute(select(conversations).where(conversations.c.id == cid)).mappings().one()
+            from app.moonbox_core.sessions import execution_workspace
+            managed = execution_workspace(db, parent)
+            if managed:
+                return None, managed[1]
+        return None, root/'workspaces'/cid
+    recovery_slot = RecoverySlot(factory, workspace, server, recovery_policy(), docker=config.get('executor')=='container')
     try:
         while running:
             from app.governance.recovery_capabilities import publish as publish_capabilities
@@ -52,13 +60,13 @@ def main():
                     worker.mark_stale_unknown(db,stale_seconds=10)
                     for row in pending(db):reconcile_usage(db,row['id'])
                 from app.governance.candidate_recovery import reconcile_terminal_candidates
-                reconcile_terminal_candidates(factory, lambda cid: (None, root/'workspaces'/cid))
+                reconcile_terminal_candidates(factory, workspace)
                 from app.governance.direct_command_journal import reconcile_terminal_commands
-                reconcile_terminal_commands(factory, lambda cid: (None, root/'workspaces'/cid))
+                reconcile_terminal_commands(factory, workspace)
                 if time.monotonic()>=maintenance_at:
                     from app.chat.cleanup import process_copies
                     def purge(job):
-                        path=trusted_directory(root/'workspaces'/job['conversation_id'])
+                        path=trusted_directory(workspace(job['conversation_id'])[1])
                         with server(path) as adapter:return adapter.delete_thread(job['executor_thread_id'])
                     def backup(job):
                         from app.chat.settings import backup_root
@@ -70,7 +78,7 @@ def main():
                     maintenance_at=time.monotonic()+30
                 with factory() as db:token=worker.claim(db,'local-'+str(os.getpid()))
                 if token:
-                    path=root/'workspaces'/token['conversation_id']
+                    path=workspace(token['conversation_id'])[1]
                     try:
                         with factory() as db:
                             parent=service.conversation(db,config['actor'],token['conversation_id'])

@@ -1,0 +1,572 @@
+{
+  "schema_version": 1,
+  "change_id": "add-isolated-candidate-validation",
+  "run_id": "20261029125000268601-82890fcd",
+  "created_at": "2026-10-29 12:50:00",
+  "source_revision": "430855fef826b881047aae377fc107998e676c6c",
+  "environment": "isolated-workspace-acceptance",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "d11522905b37734599119cb3e9f764932d9373344435316dcc9d39d6fedb08e2",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/stable-backend.json",
+          "sha256": "8eac1cab10b2a588c9a5b169bdb4a3af742eec88d27b150e32cb8b0e609ff937"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/governance-scope.json",
+          "sha256": "073bb517a7b7e742421f72900d0882baf27c078de48787ba0a8d979dbc22e764"
+        }
+      ],
+      "duration_ms": 74,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "9c1cf74c9d8c3fcde3b85dc2550d387b85af3c2e8ce4432d96079764dac493b0",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/live-candidate.json",
+          "sha256": "8e22422883f23dd0bdb0e762bdfa1b537c083820972691b3a3face4816410e0d"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/stable-backend.json",
+          "sha256": "8eac1cab10b2a588c9a5b169bdb4a3af742eec88d27b150e32cb8b0e609ff937"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/governance-scope.json",
+          "sha256": "073bb517a7b7e742421f72900d0882baf27c078de48787ba0a8d979dbc22e764"
+        }
+      ],
+      "duration_ms": 76,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "e18f475b05706cbd88c51bd16114f47760bae17c58b612abab12f04c6580b669",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/stable-backend.json",
+          "sha256": "8eac1cab10b2a588c9a5b169bdb4a3af742eec88d27b150e32cb8b0e609ff937"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/governance-scope.json",
+          "sha256": "073bb517a7b7e742421f72900d0882baf27c078de48787ba0a8d979dbc22e764"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "012b03054eaff0a5c3ed5b2ab5fb89d99c28ded276ba1748d6f2906d5ffebdcc",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/ui-regression.json",
+          "sha256": "b512757c641bbb765ad005c8a56b780fea64bf034ce02e201d67f490befac584"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/governance-scope.json",
+          "sha256": "073bb517a7b7e742421f72900d0882baf27c078de48787ba0a8d979dbc22e764"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-1024-dark.jpg",
+          "sha256": "fa6ef759a5a804125a1e0673eaf6fba00f02b8abdb7c6849a84b2770264f7165"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-1024-light.jpg",
+          "sha256": "f93f2a58101933f5b99904c0de2b86e7bcefbd8bb638c023bebf346000d2ca4b"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-1440-dark.jpg",
+          "sha256": "ec911f9dd489518e9f5230d5431c70ed014f587080f77825fd20a1723325bc0c"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-1440-light.jpg",
+          "sha256": "eaf4b6bb79ac1063103034f9742ee5ea205c8b726b0a35b6f00c5eeb6e2c1985"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-390-dark.jpg",
+          "sha256": "0061f1e912b8f8d77c2f66951b5c3d79c04fa255f6bc7f5ee2198b44f616f12f"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-cleanup-390-light.jpg",
+          "sha256": "a19a4a41a9c713d43ae8a77ff974b17f78e7cf73fe36916c636c69096f7396c1"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-1024-dark.jpg",
+          "sha256": "1653fc1a3fae9850651bef35ad19dd536e6e045be38a467168620dcd94387f33"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-1024-light.jpg",
+          "sha256": "79bd717d8e62181eff55659524f8ba60f8246b390a354d4266c6b79503bae937"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-1440-dark.jpg",
+          "sha256": "7105b83c8fb0b3fbb2d7fb2041b71e5d0ac72f1b138ea8465e0e0e56679628f8"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-1440-light.jpg",
+          "sha256": "aec78fe7d02a3cf893895439bb448e90fbe1e74731bf75f2e95fd4367d252485"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-390-dark.jpg",
+          "sha256": "63f79d924ca078f48ef0819eb95920a49e41cfd9a8ef15995188a53e3a375d1b"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-confirm-390-light.jpg",
+          "sha256": "a34bbd7884570db6b32e830283b049b969c0a5c9c8d95930b99c4e0cd49116b4"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-1024-dark.jpg",
+          "sha256": "5974926f560d86fd4232855b13b844177ab83549133b476eeff70d389652cfc7"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-1024-light.jpg",
+          "sha256": "7b2559b4d871f915e6ccaf8b1ffc4882854244b4d734130e08f8a421f0c3c358"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-1440-dark.jpg",
+          "sha256": "d95b3edb972b25e00f159c945b50553662436d31ebdeefc3b03aa8c77580a0c2"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-1440-light.jpg",
+          "sha256": "06a1ea2c0ec546f2da2ac13895888f23a735b7928082b3cbbbea5c80baa84024"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-390-dark.jpg",
+          "sha256": "f71efd6ef16be119569f00c10df81717a29b725aa02b1a1278bf38eb41b5f0cf"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-create-390-light.jpg",
+          "sha256": "57199296ef56f32534b376ca9192f7efa5f759d1455dbfef1497f28e9261a454"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-1024-dark.jpg",
+          "sha256": "2256508ea0f7a89f44e60c461fedad21b740a5940e429821929cff39eb4e59b0"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-1024-light.jpg",
+          "sha256": "3da80329a99addd1d2ceffb3e297d18a5bbf7d9626e171c778f9329179d798e7"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-1440-dark.jpg",
+          "sha256": "854d54e299f8106dfc61160ce3d3ee031305880db1d2aaf9dc7669adb5bab61c"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-1440-light.jpg",
+          "sha256": "a3edf1c5a72f5ca5e9907e41fbc62759702022c149ae8b1b39624aefdecab089"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-390-dark.jpg",
+          "sha256": "adb6ddfa67368ce9003f77989596f2b2ce0ae4c58596d2aa4b983d5debc629b0"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-integrated-390-light.jpg",
+          "sha256": "3789a650abd1475ae97349af5c7b350111e3e69f922a7fc2460abf5ed13822b1"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-1024-dark.jpg",
+          "sha256": "9b80eaedbdb57ec72bdb380b16aac8eb2bcd24b1c468bba27c41b18f0276f7b6"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-1024-light.jpg",
+          "sha256": "0076a913a4d989f8bdb05cd59044ebdb87c79b073ae2f9fbd646cd6a93229abc"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-1440-dark.jpg",
+          "sha256": "9b7797ff39a1feae97a06cb69c7b2cb39663b0bcedf924c3141e11b2663b96f6"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-1440-light.jpg",
+          "sha256": "7d1d33600fa70438833f8a579b0afa06cec0c7bb7fc30fac41d8ed02c92ae5db"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-390-dark.jpg",
+          "sha256": "5ed0dccf35ad043ad2b55988da7ab2e3f8c05bac045160c94358835147769cc9"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-merge-diff-390-light.jpg",
+          "sha256": "4ece1cb1ba3e1d4da477ea63215dbc9ab939777c00a7a754ddd5380c51643be4"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-1024-dark.jpg",
+          "sha256": "d9e2b1cb7e3d1a4a5be8cba6b047387e881513486f3487c6b6fe547ac724925e"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-1024-light.jpg",
+          "sha256": "f61338c852394c30cde0a6c96b04979949a244d85faf1c36469b0cf885b83d17"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-1440-dark.jpg",
+          "sha256": "a731c2d1b2226a270a2eb9504c824e5c86d47d41a14624d5ad417586a68fed22"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-1440-light.jpg",
+          "sha256": "724f669e662d0584f0b7bc0e027e7317918f625dc080129fbf1603e013bc76ca"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-390-dark.jpg",
+          "sha256": "ae19c02ce362268bd651731265699abf44418b36ea200be4158fefb8286c028e"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-protect-390-light.jpg",
+          "sha256": "232f6a4482897ab42c7e822278daf40b33e4a19e4b27f3d8b1e1588e4952aad6"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-1024-dark.jpg",
+          "sha256": "22ad93195f80bed031dcf0c4bd89ea1b39c75e4afd25da9c80ed8ef568099d10"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-1024-light.jpg",
+          "sha256": "fc8a346d3cf3cdad5c6bff75cdfa0433adf80423cb65888a60d86002a9b9c6ea"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-1440-dark.jpg",
+          "sha256": "c29de60332bb970cbba4bba4c2220b3540eb88060c4dee837372de3ac9ff5c68"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-1440-light.jpg",
+          "sha256": "dcc2ea48b047ab6602f4c0eecb837b1aee8030f9029bbac6cd82b4e75e5d60c7"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-390-dark.jpg",
+          "sha256": "c15287cfaea05a9ab7573a55206cdc523e1a45f7ad46a27f4111386fe3906705"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-recover-directory-390-light.jpg",
+          "sha256": "4e900cc6047b1b037f316b536925e89ae4b6781d92f94e49a06cf1b09b4660c9"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-1024-dark.jpg",
+          "sha256": "5dc1f8dbf34bc7a83808ea419eb863bd46dafaf724473018396c558dc7e560b0"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-1024-light.jpg",
+          "sha256": "a39391a30702ce9f4a9f0e35dc2b2776542d81e0eac7e221eac338cadb7a4fa9"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-1440-dark.jpg",
+          "sha256": "76b1264150aa323e1110caac9a4e42f53aba4b1b01188d122bc093ded8abd25d"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-1440-light.jpg",
+          "sha256": "0f46fd996e903a5208847945f9bf5ee4628a86b48fee934205d32d18dd4474b3"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-390-dark.jpg",
+          "sha256": "9cde1df1ed8c60be9c489db355bc1a205711b9802d673d3e6d4db215b38b983d"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-restore-390-light.jpg",
+          "sha256": "590bec9ddca8e2b79efa13c4be8bd84461c3cbb0e9d2d90c4c04feb540c383b7"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-1024-dark.jpg",
+          "sha256": "42e7e7c21e2dc23bf37cd2f08179c5f4167e4ffc9d5a2821d2c78ed2d58da0e6"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-1024-light.jpg",
+          "sha256": "7ba5e874eee7ab8d93d170a4b025d619c9e2ecd513c7771d2dbd223eb5880120"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-1440-dark.jpg",
+          "sha256": "fd366f82252750ea3711b102a65ff6b5a902ce51f03e85a076649a2b825320f5"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-1440-light.jpg",
+          "sha256": "9b340925497ff4c3540909b02cdb5ddb13e4a0cb19bf322a3efcab1d11a34587"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-390-dark.jpg",
+          "sha256": "9eeb0efb235eeceb03f6221b5ac67f823c6bcd9df8ba30cf40f215e22e28d317"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/verified-resume-390-light.jpg",
+          "sha256": "331d2a4a8e13747c4e4c5a84d7ca1bcf98f9f8bff7e7a60f9d3fed1d6e524a53"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-1024-dark.png",
+          "sha256": "e97bf9c9091846bb6067d484990e1f8be44851e9952d4e5c967b0fe3002e4d29"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-1024-light.png",
+          "sha256": "547199ee32dc5494791786a44e55ab682a50dceb5198e3aefc24855259a9654f"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-1440-dark.png",
+          "sha256": "7e42bed07cfcfc109e80448d97eae5587d949375f399073c02109534e5394a33"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-1440-light.png",
+          "sha256": "df3d15bfbf6c91c04f13bcb8422b70841141df8fa5bc2afd2bb5578156fb9dcf"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-390-dark.png",
+          "sha256": "ea75d3ac7f97697d8cd48fee22b3b050241d13573926567c780c23971314b185"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-error-390-light.png",
+          "sha256": "35882645e1fb19ab648dbc306b4836d84f8de6698200067c39446252c16b840e"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-1024-dark.png",
+          "sha256": "8f6e8c5d0141a529600041a1418f2a021fccb214c31aa624f9c69be06c1795ee"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-1024-light.png",
+          "sha256": "73eef19ed565b4f3378a0dc8787a4d84dd036679a7b091d560e3c5f4eb93856b"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-1440-dark.png",
+          "sha256": "73c6f620150bab7f7e3c9d5951ac6777806186a9dc71fa67e2c6239711298e41"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-1440-light.png",
+          "sha256": "d2abb12c9adfa5a36554ca9476186cfe26f2d8a2b9f0f9f09449bd7dbfefa096"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-390-dark.png",
+          "sha256": "38068ce157f9d7cde76d1b1c90985a14e95a2e98aca0fede065489086090dc57"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-390-light.png",
+          "sha256": "5e3010b8c4b2b60752f6c325735f8077495bf5c16b53aad2fe8f79a38aa9a13f"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-1024-dark.png",
+          "sha256": "f7eb401ba472e568874889e0c07a13b23bed39f2518fbd411a669d1217949ccb"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-1024-light.png",
+          "sha256": "bb23cb68b40de5c338799fbfe5969e509a53b6ae1140101028b11d7d4f7d09ca"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-1440-dark.png",
+          "sha256": "1a6d2c9e38c81c7de3875f715c964b29c5fb47d2b12a95aeee64a858d5699144"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-1440-light.png",
+          "sha256": "ba38e2fb487b9bc8e5c6501c65c131f9ad21148f70b6462e676bc60791b3bc90"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-390-dark.png",
+          "sha256": "a789cbcc1e727ef3092a32c99a2e368611c6f8f0656d57e943f239bd9b085648"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-forbidden-390-light.png",
+          "sha256": "42fe40300a1c026cc304899ce10c8a1d05940b7286e5db7b1a11ae28c0c74d38"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-1024-dark.png",
+          "sha256": "52dc671321488c228541406780df9e299b3c5ada700d7bd489910edcfdca1a77"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-1024-light.png",
+          "sha256": "03cd80b258789c3840ee675b431a4ee8ce992651ef486273474f9da6f5ac85cc"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-1440-dark.png",
+          "sha256": "b676d8224377ae05fb72d96b8e8c82e46151c4ca5d69128b5d31bf3e71b57027"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-1440-light.png",
+          "sha256": "87fc9c8cedae655d85dacb4ab6186002e25d9ef3830063060329b7b5b874d09f"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-390-dark.png",
+          "sha256": "58cccac4c0fbfc2a8d79c98b85eb423ebd98cfe534adc08b561729bc5c52fe26"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-390-light.png",
+          "sha256": "35962983261a30aa3006a9b19efe5fd288d52b2384725e6c1b4cea6684f173ce"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-1024-dark.png",
+          "sha256": "1e34c17f0f29248b2413eda1d951811b99b9691e4d6bd21a182a481173084ad3"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-1024-light.png",
+          "sha256": "81d740f5cd9e1c251aa3cf239e73d6296cca5c5019311c9c3175ada555d4325c"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-1440-dark.png",
+          "sha256": "015d94c6d965b58020ab8ddaf342dcb3440648b1145b85f82c22249b86d9528a"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-1440-light.png",
+          "sha256": "7c160ae21e3b87349ee2077d041f288f9b0b600a4279818e35ee652464a84418"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-390-dark.png",
+          "sha256": "540424d7395dc1d201541e5a6f4c2420c8a51a18be8a5c779c6e00f073f15f99"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-repair-390-light.png",
+          "sha256": "4ba718763e6b84c8356ed940ea95815e5c54953f93c08ce22cb9a5b80232742a"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/candidate-confirm-dark-styles.json",
+          "sha256": "3f5272e6600e5f3c4690b1e5fa5ed60082bfb5d0d0ff567d05a859f0db2a6f1c"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/candidate-confirm-light-styles.json",
+          "sha256": "62d08172b1d4293eac5da347572148311c88f03d731fae1a2ac369e688fecedb"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/visual-review.json",
+          "sha256": "2c6a1c475d54bd7144ac42c1512f0b91d3399de8d77984c37dc2bfb68c9af27e"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-candidate-computed-styles.json",
+          "sha256": "dba4b7f0e45c8523375bceeff5fd604dc31c13d120bf76acbc1adff12090c106"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-errors-computed-styles.json",
+          "sha256": "7d35afa039b1b631fd9c95a9927b406c369125d246fcd65febe527b937ee0892"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-files-computed-styles.json",
+          "sha256": "d81468c90aac5d613ba7ac604c9f7b5f350a8122151463edf3f6cbcf10c5f4e1"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-keyboard.json",
+          "sha256": "46ae6d96a65192f339d9267a9b4b9dd3b01ef3c7dcf2031f098cf0b5ea928f3f"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-live-computed-styles.json",
+          "sha256": "f3e42fa7b1731c48b79ccfc1cf37e9ad36bb98acb65b39ec4043d4b56ebe62c1"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-modals-dark-styles.json",
+          "sha256": "4782f0f5b92cfd789c2c2ab8bd1bf8c0b828f0510af7fd2449eaeb39479a2c08"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-modals-light-styles.json",
+          "sha256": "cab2e117367dba0cd114ab3bbb1f3efba8ae9ee4a96fafcb4be5f4c43f0d6e62"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-skeleton-styles.json",
+          "sha256": "25eedaac80b87edc799afe71dd5d58620f61d4f1c47e87461f0d76448fec0167"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-skeleton-1440-dark.jpg",
+          "sha256": "ae983764fe64822ff97a664669d0ba6a185c121635e3461769a2a38ef03481a3"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-skeleton-1440-light.jpg",
+          "sha256": "13babfb825fdaca0b156d3e9947054fa6c6bccf98728bc1024eacc9da05c7d7a"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/ui/workspace-skeleton-390-light.jpg",
+          "sha256": "408c3bc1c1dba8d651b28eec966de8f10c2508c1547b3b27b0085c69f6d56ce7"
+        }
+      ],
+      "duration_ms": 90,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "16e8ddf683db7bf56cf86ebeb8befd5228956469cc427d449ff63c3fd4503720",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/live-api-flow.json",
+          "sha256": "56b0b810e8ce52090748c581959d39ae90af14dab39d8749533fadf8254240a2"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/performance-sample.json",
+          "sha256": "ec1c07cc2b81d7a177c80755e5a38cf93810e4db8cb4d4aadac3880f1fccf101"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/stable-backend.json",
+          "sha256": "8eac1cab10b2a588c9a5b169bdb4a3af742eec88d27b150e32cb8b0e609ff937"
+        },
+        {
+          "path": "openspec/changes/add-isolated-candidate-validation/evidence/implementation/governance-scope.json",
+          "sha256": "073bb517a7b7e742421f72900d0882baf27c078de48787ba0a8d979dbc22e764"
+        }
+      ],
+      "duration_ms": 92,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 4,
+    "deduplicated": 1,
+    "reused": 0,
+    "preflight_ms": 47,
+    "duration_ms": 444,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

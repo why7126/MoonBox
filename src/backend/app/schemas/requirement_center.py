@@ -34,6 +34,11 @@ class RequirementCenterChangeSummary(BaseModel):
 
 
 class RequirementCenterIssue(BaseModel):
+    object_id: str | None = Field(default=None, description='当前卡片完整治理身份，用于受权状态查询')
+    checks_deferred: bool = Field(default=False, description='摘要未执行深度核验；不代表通过，动作入口仍重新校验')
+    delivery_workspace_id: str | None = None
+    workspace_execution_state: str | None = None
+    integration_state: str | None = None
     estimated_person_days: float | None = Field(default=None, description="对象有效 Sprint Scope 的预估开发人天；缺失不填零")
     estimate_status: Literal["available", "missing", "conflict", "invalid"] = "missing"
     root_cause_state: Literal["absent", "pending", "confirmed"] = "absent"

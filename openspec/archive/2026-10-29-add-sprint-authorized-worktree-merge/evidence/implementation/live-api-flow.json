@@ -1,0 +1,31 @@
+{
+  "sample": "live-http-api-real-git-synthetic-identity",
+  "permission_revoked": {
+    "http_status": 403,
+    "code": 2601
+  },
+  "source_changed": {
+    "http_status": 409,
+    "code": 2606
+  },
+  "no_merge_on_rejection": true,
+  "merge_success": {
+    "operation_id": "2f534def-3f4d-4deb-ba9e-6a78e95c6265",
+    "candidate_id": "8296c1f6-2f27-4982-b110-0c6e30d0ca3b",
+    "target_commit": "a4489bef13a8edc4461ac62342a591d34a455b26",
+    "governance_state": "completed",
+    "confirmed_by": "alice",
+    "registry_written": true
+  },
+  "interrupted_receipt_resume": {
+    "injection": "after-real-git-result durable receipt reverted to applying",
+    "http_status": 200,
+    "state": "completed",
+    "git_commit_count_unchanged": true,
+    "repeat_resume_same_operation": true
+  },
+  "environment_cleanup": {
+    "state": "passed",
+    "cleanup_state": "clean"
+  }
+}

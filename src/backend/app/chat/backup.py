@@ -230,6 +230,12 @@ class LocalBackupStore:
                 with sqlite3.connect(source.as_uri() + '?mode=ro', uri=True) as backup, sqlite3.connect(stage) as copy:
                     backup.backup(copy)
                 engine = create_engine('sqlite:///' + str(stage))
+                from sqlalchemy import inspect
+                if inspect(engine).has_table('chat_content_objects'):
+                    from app.chat.schema import metadata
+                    from app.moonbox_core.schema import TABLES as workspace_tables
+                    from app.moonbox_rollout.schema import TABLES as rollout_tables
+                    metadata.create_all(engine, tables=[*workspace_tables, *rollout_tables])
                 with Session(engine) as db:
                     for cid in ids:
                         parent=db.execute(select(conversations).where(conversations.c.id==cid)).mappings().first()
@@ -249,6 +255,10 @@ class LocalBackupStore:
                             db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))
                         from app.chat.recovery_schema import recoveries, resumes
                         for table in (resumes, recoveries):
+                            if inspect(db.get_bind()).has_table(table.name):
+                                db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))
+                        from app.moonbox_core.schema import execution_receipts, runtime_bindings
+                        for table in (execution_receipts, runtime_bindings):
                             if inspect(db.get_bind()).has_table(table.name):
                                 db.execute(delete(table).where(table.c.turn_id.in_(turn_ids)))
                         db.execute(delete(turns).where(turns.c.conversation_id == cid))

@@ -35,7 +35,24 @@ def write_profiles(runtime):
             '/work/issues':'write','/work/openspec/changes':'write','/work/openspec/specs':'write',
             '/work/openspec/archive':'write','/work/iterations':'write','/work/docs/spec-logs':'write','/work/.git':'read'},
     }
+    from app.moonbox_exec_server.context import DELIVERY
+    delivery = DELIVERY.get()
+    if delivery:
+        from app.moonbox_core.delivery_policy import writable_roots
+        roots = writable_roots(delivery['change_id'])
+        for mode in ('write', 'governance', 'archive'):
+            profiles[mode] = {'/':'read','/runtime':'deny','/proc':'deny','/work':'read','/work/.git':'read'}
+        for relative in roots:
+            profiles['write']['/work/' + relative] = 'write'
+        profiles['write']['/work/docs/spec-logs'] = 'read'
     for mode, paths in profiles.items():
+        from app.moonbox_exec_server.scope import EXCLUDED
+        for relative in EXCLUDED:
+            if relative != '.git':
+                # Codex creates an empty protected .codex directory inside its
+                # sandbox. A deny-file overlay conflicts with that directory.
+                # Host preflight rejects nonempty repository tool directories.
+                paths['/work/' + relative] = 'read' if relative == '.codex' else 'deny'
         paths['/tmp'] = 'write'
         config += f'\n[permissions.moonbox-{mode}.filesystem]\n'
         for path, access in paths.items():
@@ -57,15 +74,30 @@ class ContainerAppServer(AppServer):
             raise ExecutorError('container_credential_directory_invalid')
         if workspace == runtime or workspace in runtime.parents or runtime in workspace.parents:
             raise ExecutorError('container_mount_overlap')
-        trusted_directory(workspace / '.git')
+        from app.moonbox_exec_server.git_view import prepare as prepare_git_view
+        git_view = prepare_git_view(workspace, runtime) if (workspace / '.git').is_file() else None
+        if git_view is None:
+            trusted_directory(workspace / '.git')
         self.container_name = 'moonbox-chat-session-' + uuid.uuid4().hex
         self.created_epoch = int(time.time())
         self.recovery_context = recovery_runtime.CURRENT.get()
         if self.recovery_context and getattr(self.recovery_context, 'image', None):
             self.IMAGE = self.recovery_context.image
+        from app.moonbox_exec_server.context import IMAGE
+        selected_image = IMAGE.get() or self.IMAGE
+        inspected = recovery_runtime.run([self.docker, 'image', 'inspect', '--format', '{{.Id}}', selected_image],
+                                         capture_output=True, text=True, timeout=10)
+        import re
+        if inspected.returncode or not re.fullmatch(r'sha256:[0-9a-f]{64}', inspected.stdout.strip()):
+            raise ExecutorError('container_runtime_unavailable')
+        self.IMAGE = inspected.stdout.strip()
         self.mounts = ['--mount', f'type=bind,src={workspace},dst=/work',
-                       '--mount', f'type=bind,src={workspace / ".git"},dst=/work/.git,readonly',
                        '--mount', f'type=bind,src={runtime},dst=/runtime']
+        if git_view:
+            self.mounts += ['--mount', f'type=bind,src={git_view[0]},dst=/git,readonly',
+                           '--mount', f'type=bind,src={git_view[1]},dst=/work/.git,readonly']
+        else:
+            self.mounts += ['--mount', f'type=bind,src={workspace / ".git"},dst=/work/.git,readonly']
         # A test-owned runtime is prepared by the controller; never load personal config.
         scope = write_scope or ('implementation_write' if write else 'read_only')
         super().__init__(self.docker, workspace, runtime, home=runtime, write=write,
@@ -138,6 +170,10 @@ class ContainerAppServer(AppServer):
         try:super().close()
         finally:
             subprocess.run([self.docker,'rm','--force',self.container_name],capture_output=True,timeout=10)
+            checked = subprocess.run([self.docker, 'ps', '-a', '--filter', 'name=^/' + self.container_name + '$',
+                '--format', '{{.Names}}'], capture_output=True, text=True, timeout=10)
+            if checked.returncode or checked.stdout.strip():
+                raise ExecutorError('executor_shutdown_unconfirmed')
 
 
 SANDBOX_CHECK = """import json,os,socket,tempfile,uuid
@@ -184,6 +220,14 @@ def persistent_container_server(workspace, runtime_root, auth_source):
     """隔离worker入口：每个工作区独立运行目录；先验证沙箱，再复制认证。"""
     import hashlib
     workspace=trusted_directory(workspace);runtime_root=trusted_directory(runtime_root)
+    from app.moonbox_exec_server.context import IMAGE
+    if IMAGE.get() is None:
+        result = recovery_runtime.run(['docker','image','inspect','--format','{{.Id}}',ContainerAppServer.IMAGE],
+            capture_output=True,text=True,timeout=10)
+        import re
+        if result.returncode or not re.fullmatch(r'sha256:[0-9a-f]{64}', result.stdout.strip()):
+            raise ExecutorError('container_runtime_unavailable')
+        IMAGE.set(result.stdout.strip())
     runtime=runtime_root/hashlib.sha256(str(workspace).encode()).hexdigest()
     runtime.mkdir(mode=0o700,exist_ok=True);trusted_directory(runtime)
     write_profiles(runtime)
@@ -212,7 +256,14 @@ def persistent_container_server(workspace, runtime_root, auth_source):
 def verify_preflight(workspace, runtime):
     with ContainerAppServer(workspace,runtime) as server:
         verify_toolchain(server)
-        result=recovery_runtime.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-write','-C','/work','/usr/local/bin/python','-c',SANDBOX_CHECK],capture_output=True,text=True,timeout=30)
+        from app.moonbox_exec_server.context import DELIVERY
+        check = SANDBOX_CHECK
+        if DELIVERY.get():
+            from app.moonbox_core.delivery_policy import writable_roots
+            writable = next((p for p in writable_roots(DELIVERY.get()['change_id']) if (workspace/p).is_dir()), None)
+            if writable is None: raise ExecutorError('container_sandbox_preflight_failed')
+            check = check.replace("dir='.'", 'dir=' + repr(writable))
+        result=recovery_runtime.run([server.docker,'exec',server.container_name,'codex','sandbox','-P','moonbox-write','-C','/work','/usr/local/bin/python','-c',check],capture_output=True,text=True,timeout=30)
         try:checks=json.loads(result.stdout)
         except ValueError:checks={}
         if result.returncode or not checks or not all(value is True for value in checks.values()):

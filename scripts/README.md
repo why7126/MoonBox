@@ -1,7 +1,7 @@
 ---
 title: 治理脚本执行说明
 created_at: 2026-10-25 22:20:00
-updated_at: 2026-10-27 09:21:37
+updated_at: 2026-10-29 06:53:30
 ---
 
 # 治理脚本执行说明
@@ -42,3 +42,11 @@ Python 子命令使用 `[sys.executable, script, ...]`，shell 子命令使用�
 `workflow_sync/issue_stage.py` 提供目录阶段与已有 Frontmatter 镜像的共享投影，供 `promote-issue-stage.py`、子文档同步和残留扫描使用。仅覆盖 trace、主文档、capture；不处理历史正文和其他语义状态。合法漂移可同步，非法字段先阻断。
 
 定向归档漂移修复复用 `sync-workflow-status.py --reconcile-issue-status-residuals`：先带 `--dry-run --output detail` 检查路径、字段、目标与更新时间，再于授权范围内 `--apply-reconcile`。该分支不重放归档，不自动移动目录。规则见 `rules/issues-lifecycle.md` 第9节，回归见 `tests/unit/test_issue_lifecycle_stage.py`。
+
+## Issue 迁移原型引用检查
+
+`workflow_sync/prototype_references.py` 为 `promote-issue-stage.py` 和 `promote-issues-for-archive.py` 提供只读预检与实际迁移后复核。`--dry-run` 输出同一门禁诊断而不改写文件；`--check` 保持原有待迁移退出码语义。错误包含来源、行号、目标及 `existing-missing` / `migration-break` 分类。历史章节、示例、远程和动态引用为单独提示。有效引用失败返回非零，不自动修链接；后检失败保留目标目录，修复后重跑原命令复核。
+
+检查限定当前 Issue、其关联 Change、所属 Sprint 及原型引用的仓库内 HTML/CSS 依赖。语法边界、历史标题和根路径提示见 [Issue 生命周期规则](../rules/issues-lifecycle.md#10-迁移原型引用门禁)。单元测试只用临时文件树，不迁移真实 Issue。
+
+回归入口：`bash scripts/project-python.sh scripts/test_prototype_references.py`。

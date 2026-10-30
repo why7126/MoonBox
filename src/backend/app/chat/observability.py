@@ -10,6 +10,8 @@ from app.chat.schema import audit,usage_events,task_traces,task_trace_spans
 EVENTS={'governance.recovery','governance.capture','governance.prepare','governance.apply','governance.document_save','chat.send','chat.stop','chat.retry','chat.session_create','chat.session_update','chat.session_delete','chat.relations_save','chat.image_add','chat.image_remove','chat.file_add','chat.file_remove','chat.skill_select','chat.skill_remove','chat.config_select'}
 EVENTS.update({'capture.upload','capture.organize','capture.review_save','capture.confirm','capture.retry'})
 EVENTS.update({'chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'})
+EVENTS.update({'workspace.action', 'workspace.view'})
+EVENTS.update({'acceptance.action','acceptance.verify','acceptance.evidence'})
 STAGES={'queued','connecting','running','completed','failed','stopped','unknown','stopping'}
 
 
@@ -80,7 +82,7 @@ def prune(db):
     """Standard retention for this consumer only; unrelated instrumentation is untouched."""
     now=datetime.now(timezone.utc)
     cutoff=(now-timedelta(days=90)).isoformat(timespec='seconds')
-    expired=list(db.scalars(select(task_traces.c.task_trace_id).where(task_traces.c.task_type.in_(('chat_execution','capture_organize','capture_confirmation','local_snapshot')),task_traces.c.finished_at<cutoff)))
+    expired=list(db.scalars(select(task_traces.c.task_trace_id).where(task_traces.c.task_type.in_(('chat_execution','capture_organize','capture_confirmation','local_snapshot','workspace_operation')),task_traces.c.finished_at<cutoff)))
     if expired:
         db.execute(delete(task_trace_spans).where(task_trace_spans.c.task_trace_id.in_(expired)))
         db.execute(delete(task_traces).where(task_traces.c.task_trace_id.in_(expired)))

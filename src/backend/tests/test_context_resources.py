@@ -19,6 +19,25 @@ from app.governance import snapshot, read_snapshot, read_memo, reader
 from app.services import requirement_center as legacy
 
 
+@pytest.fixture
+def sustained_client(chat):
+    """Keep one server loop alive, as a deployed ASGI worker does.
+
+    TestClient without a portal creates new loop/worker threads per request.
+    Their allocator arenas contaminate sustained server RSS observations.
+    The synthetic database is already initialized by chat; do not run the
+    application's production lifespan against a real configured database.
+    """
+    from anyio.from_thread import start_blocking_portal
+    client, factory = chat
+    with start_blocking_portal() as portal:
+        client.portal = portal
+        try:
+            yield client, factory
+        finally:
+            client.portal = None
+
+
 def baseline_reader(directory, monkeypatch):
     def load(name, filename):
         spec = importlib.util.spec_from_file_location('app.governance.' + name, directory / filename)
@@ -37,6 +56,14 @@ def baseline_reader(directory, monkeypatch):
     old_execution.legacy = old_legacy
     old.ProjectReader._baseline_stage_map = staticmethod(old_execution.stage_map)
     old.ProjectReader._baseline_read_title = staticmethod(old_titles.read_title)
+    class CompatibleBaseline(old.ProjectReader):
+        def call(self, name, *args, **kwargs):
+            # The retained implementation predates the additive read selector.
+            # Its workload remains the original full read, not a summary shim.
+            kwargs.pop('summary', None)
+            kwargs.pop('check_object_id', None)
+            return super().call(name, *args, **kwargs)
+    old.ProjectReader = CompatibleBaseline
     for name in ('_read_yaml', '_frontmatter', '_change_dir', '_change_tasks', '_change_document_names', '_change_spec_paths'):
         monkeypatch.setattr(legacy, name, getattr(old_legacy, name))
     return old.ProjectReader
@@ -81,8 +108,8 @@ def expand_to_limits(root, source):
 
 
 @pytest.mark.skipif(os.environ.get('CONTEXT_RESOURCE_TEST') != '1', reason='explicit 30 minute isolated resource run')
-def test_sustained(chat, tmp_path, monkeypatch):
-    client, factory = chat
+def test_sustained(sustained_client, tmp_path, monkeypatch):
+    client, factory = sustained_client
     database_columns(factory)
     source = snapshot.stable(Path(os.environ['BUG_READ_SOURCE']))
     root = tmp_path / 'source'
@@ -107,12 +134,14 @@ def test_sustained(chat, tmp_path, monkeypatch):
     concurrency = int(os.environ.get('CONTEXT_RESOURCE_CONCURRENCY', '1'))
     seconds = int(os.environ.get('CONTEXT_RESOURCE_SECONDS', '1800'))
     queries = [0]
+    view = os.environ.get('CONTEXT_RESOURCE_VIEW', 'full')
+    assert view in ('full', 'summary')
     def sql(*args):
         queries[0] += 1
     event.listen(factory.kw['bind'], 'before_cursor_execute', sql)
     def request(_):
         start = time.perf_counter()
-        response = client.get('/api/v1/requirement-center/context', params={'space_id': 'space', 'repository_id': 'repo'})
+        response = client.get('/api/v1/requirement-center/context', params={'space_id': 'space', 'repository_id': 'repo', 'view': view})
         assert response.status_code == 200
         data = response.json()['data']
         return (tuple(sorted((card['id'], card['stage']) for card in data['issues'])),
@@ -177,6 +206,7 @@ def test_sustained(chat, tmp_path, monkeypatch):
         last = [s['rss'] for s in memory_samples if s['elapsed_s'] >= elapsed - 300]
         assert first and last
         result = {'mode': mode, 'expanded': expanded, 'concurrency': concurrency,
+                  'server_lifecycle': 'persistent_event_loop',
                   'duration_s': elapsed, 'completed': completed, 'errors': 0,
                   'files': len(fixed.files), 'bytes': sum(map(len, fixed.files.values())),
                   'cards': len(expected), 'sql': queries[0], 'response_bytes': rows[0][1],
@@ -187,6 +217,7 @@ def test_sustained(chat, tmp_path, monkeypatch):
                   'memory_samples': memory_samples,
                   'cache_bytes': cache_bytes, 'snapshot_revision': fixed.revision}
         result.update(counters)
+        result['view'] = view
         Path(os.environ['CONTEXT_RESOURCE_OUTPUT']).write_text(json.dumps(result, indent=2))
         # The budget governs the delivered implementation. A historical control
         # may exceed it; retain its measured growth rather than changing it.

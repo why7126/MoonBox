@@ -2,11 +2,13 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-27 09:21:37
+updated_at: 2026-10-29 06:54:25
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-29 06:54:25 · governance · [Issue 迁移原型引用保护](20261029065425-governance-issue-prototype-references.md)：原型入口与本地资源预检、后检、历史排除及只读预览回归。
 
 - 2026-10-27 09:21:37 · governance · [Issue 生命周期阶段同步与校验补齐](20261027092137-governance-issue-lifecycle-stage-sync.md)：共享阶段投影、残留门禁与两字段定向修复；保留历史证据，回归覆盖预览和幂等。
 

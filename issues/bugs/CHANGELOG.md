@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-27 18:44:34
+updated_at: 2026-10-30 08:28:29
 owner: MoonBox 产品团队
 ---
 
@@ -41,7 +41,7 @@ owner: MoonBox 产品团队
 | BUG-0059-chat-governance-command-submit-latency | 聊天治理命令同步准备导致消息提交等待过长缺陷记录 | high | captured | plan | 无 | 无 | 2026-10-21 08:50:24 | `/bug-generate BUG-0059-chat-governance-command-submit-latency` | `issues/bugs/plan/BUG-0059-chat-governance-command-submit-latency/trace.md` |
 | BUG-0058-chat-history-status-replay-request-amplification | 聊天历史状态重建与重复读取导致加载迟缓 | high | approved | review | 无 | 无 | 2026-10-21 09:16:09 | `/sprint-propose --bug BUG-0058-chat-history-status-replay-request-amplification` | `issues/bugs/review/BUG-0058-chat-history-status-replay-request-amplification/trace.md` |
 | BUG-0057-requirement-card-chat-navigation-latency | 需求卡片动作准备会话导致进入聊天工作台等待过长 | high | enriching | plan | 无 | 无 | 2026-10-21 09:23:24 | `/bug-complete BUG-0057-requirement-card-chat-navigation-latency` | `issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md` |
-| BUG-0056-requirement-center-context-load-latency | 需求中心首屏聚合请求耗时约二十七秒 | high | in_sprint | review | sprint-014 | fix-requirement-center-context-load-latency | 2026-10-27 12:38:49 | `/opsx-archive BUG-0056-requirement-center-context-load-latency` | `issues/bugs/review/BUG-0056-requirement-center-context-load-latency/trace.md` |
+| BUG-0056-requirement-center-context-load-latency | 需求中心首屏聚合请求耗时约二十七秒 | high | done | archive | sprint-014 | fix-requirement-center-context-load-latency | 2026-10-30 08:28:29 | 无 | `issues/bugs/archive/BUG-0056-requirement-center-context-load-latency/trace.md` |
 | BUG-0055-chat-turn-message-order-inversion | Chat 同轮助手回复排在用户提问之前 | medium | done | archive | sprint-011 | fix-chat-turn-message-order | 2026-10-21 17:13:04 | 无 | `issues/bugs/archive/BUG-0055-chat-turn-message-order-inversion/trace.md` |
 | BUG-0053-deployed-acceptance-input-resolution | 部署态验收输入解析不完整导致纯 Change 归档误阻塞 | high | done | archive | sprint-011 | fix-deployed-acceptance-input-resolution | 2026-10-20 19:36:08 | 无 | `issues/bugs/archive/BUG-0053-deployed-acceptance-input-resolution/trace.md` |
 | BUG-0054-change-card-blocked-reason-missing | 纯 Change 卡片验收阻塞缺少具体原因 | medium | done | archive | sprint-011 | fix-change-card-blocked-reason | 2026-10-20 19:36:45 | 无 | `issues/bugs/archive/BUG-0054-change-card-blocked-reason-missing/trace.md` |

@@ -1033,7 +1033,7 @@ describe("RequirementCenterPage", () => {
 
     expect(await screen.findByText("DEMO-REQ-CAPTURE-READY")).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
+      "/api/v1/requirement-center/context?view=summary&space_id=moonbox-platform&repository_id=moonbox",
       expect.anything(),
     );
     ["采集池", "规划中", "待评审", "已评审", "迭代规划", "待开发", "研发中", "验收中", "已完成"].forEach((stage) => {
@@ -1079,7 +1079,7 @@ describe("RequirementCenterPage", () => {
 
     expect(await screen.findByText("REQ-0012")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
+      "/api/v1/requirement-center/context?view=summary&space_id=moonbox-platform&repository_id=moonbox",
       expect.anything(),
     );
     expect(screen.queryByText("DEMO-REQ-CAPTURE-READY")).toBeNull();
@@ -1991,12 +1991,11 @@ describe("RequirementCenterPage", () => {
     render(<RequirementCenterPage />);
     await showAllSprintCards();
     const card = (await screen.findByText("REQ-0200")).closest("article") as HTMLElement;
-    const details = within(card).getByTestId("requirement-operation-status");
-    expect(details.tagName).toBe("DETAILS");
-    expect(details.hasAttribute("open")).toBe(false);
+    expect(within(card).queryByTestId("requirement-operation-status")).toBeNull();
     expect(within(card).getAllByText("下一步暂不可执行 · 历史成果保留")).toHaveLength(1);
     expect(within(card).queryByTestId("governance-execution-state")).toBeNull();
-    expect(within(card).getByText("历史成果已应用并核验")).toBeTruthy();
+    expect(within(card).queryByText("历史成果已应用并核验")).toBeNull();
+    expect(within(card).getByTestId("view-execution")).toBeTruthy();
     expect(within(card).queryByText("结果待核对")).toBeNull();
     expect(within(card).getByRole("button", {name:"加入迭代 →"}).title).toBe("下一步暂不可执行 · 历史成果保留");
   });
@@ -3583,7 +3582,7 @@ describe("RequirementCenterPage", () => {
     await screen.findByText("REQ-0012");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/requirement-center/context?space_id=moonbox-platform&repository_id=moonbox",
+      "/api/v1/requirement-center/context?view=summary&space_id=moonbox-platform&repository_id=moonbox",
       expect.objectContaining({
         headers: expect.objectContaining({ authorization: "Bearer admin-token" }),
       }),

@@ -71,3 +71,6 @@ app.include_router(archive_command_router)
 
 from app.api.v1.capture_drafts import router as capture_drafts_router
 app.include_router(capture_drafts_router)
+
+from app.moonbox_app_server.workspace_api import router as workspace_router
+app.include_router(workspace_router)

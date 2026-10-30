@@ -3,11 +3,11 @@ requirement_id: REQ-0048-chat-isolated-acceptance-orchestration
 title: Chat 隔离验收环境编排与原操作续接
 terminal: web-catalog
 version: v1
-status: approved
+status: in_sprint
 owner: 产品团队
 source: capture.md 及用户确认的探索拆分方案
 created_at: '2026-10-21 16:41:53'
-updated_at: '2026-10-21 16:55:26'
+updated_at: 2026-10-29 10:33:29
 priority: P1
 parent_requirement: REQ-0044-shared-project-verification-environment
 related_requirements:
@@ -256,3 +256,7 @@ MySQL 默认 utf8mb4、utf8mb4_0900_ai_ci、UTC；已有 schema 或业务查询�
 ### 11.6 文档与原型策略
 
 本需求为平台编排加原Chat状态反馈，不命中admin-list/admin-form/admin-modal/media-upload四类横切标签。保留治理恢复与证据分层专项AC。prototype/web为局部交互结构原型，使用合成数据、不调用API，不代表新门户或现有页面的一对一复刻。需求完成阶段给出HTML和context；PNG不作为文档Ready前提，真实1440px/390px截图与computed style在实施验收取得。UI Skeleton首轮确认和最终REQ一致性检查仍为后续门禁。
+
+## 本轮续接与长期转存实施（2026-10-29）
+
+模型工具一次消费、失败轮次最多一次关联续接及长期脱敏摘要转存已实现；保留原期限、有限token余额、当前权限和输入校验。长期摘要不延长原始截图七日访问，真实产品视觉材料仍需单独脱敏签认。真实产品验收按用户决策待接入，完整需求未宣布完成。

@@ -16,12 +16,19 @@ def inspect_deletion(db,actor,cid):
     if db.scalar(select(governance_candidates.c.id).where(governance_candidates.c.conversation_id==cid).limit(1)):
         return {'allowed':False,'reason':'治理成果仍在保留期内，需先完成受控成果清理','workspace_hash':None}
     if parent['active_turn_id']:return {'allowed':False,'reason':'存在活动或未知运行','workspace_hash':None}
+    from app.moonbox_core.sessions import bound
+    from app.moonbox_core.schema import write_locks
+    workspace_id = bound(db, cid)
+    if workspace_id and db.scalar(select(write_locks.c.operation_id).where(write_locks.c.workspace_id == workspace_id)):
+        return {'allowed':False,'reason':'工作区操作尚未完成核对，暂不能删除历史','workspace_hash':None}
     count=db.scalar(select(func.count()).select_from(turns).where(turns.c.conversation_id==cid))
     if not count:return {'allowed':True,'reason':None,'workspace_hash':None}
     if not retention_limits():return {'allowed':False,'reason':'执行副本及备份删除时限尚未配置','workspace_hash':None}
     if db.scalar(select(reservations.c.id).join(turns,turns.c.id==reservations.c.turn_id).where(turns.c.conversation_id==cid,reservations.c.status=='reserved').limit(1)):
         return {'allowed':False,'reason':'执行使用量尚未结算','workspace_hash':None}
     if not parent['workspace_id']:return {'allowed':True,'reason':None,'workspace_hash':None}
+    if workspace_id:
+        return {'allowed':True,'reason':None,'workspace_hash':'managed-history-only'}
     binding=repository_binding(parent['repository_id'],parent['space_id'])
     if binding and binding.get('workspace_mode') == 'source' and parent['workspace_id'] == 'source':
         return {'allowed':True,'reason':None,'workspace_hash':'source'}
@@ -77,6 +84,9 @@ def delete_history(db,actor,cid,expected_hash=None):
     from app.chat.recovery_schema import recoveries, resumes
     for table in (resumes, recoveries):
         db.execute(delete(table).where(table.c.turn_id.in_(ids)))
+    from app.moonbox_core.schema import runtime_bindings, execution_receipts
+    db.execute(delete(execution_receipts).where(execution_receipts.c.turn_id.in_(ids)))
+    db.execute(delete(runtime_bindings).where(runtime_bindings.c.turn_id.in_(ids)))
     db.execute(delete(turns).where(turns.c.conversation_id==cid))
     db.execute(delete(relations).where(relations.c.conversation_id==cid))
     db.execute(delete(workspace_baselines).where(workspace_baselines.c.conversation_id==cid))

@@ -455,6 +455,12 @@ def test_run_claim_accepts_source_workspace_identity(chat,tmp_path,monkeypatch):
     from app.chat.schema import reservations, workspace_baselines
     client,factory=chat;cid=create(client);source=tmp_path.resolve()/'real-repository';source.mkdir()
     (source/'tracked.txt').write_text('baseline')
+    from test_managed_worktree_git import git
+    git(source, 'init', '-q', '-b', 'main')
+    git(source, 'add', '.')
+    git(source, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'baseline')
+    runtime = tmp_path / 'runtime'; runtime.mkdir()
+    (runtime / 'config.toml').write_text('sandbox = \"test\"')
     monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
         'id':'repo','space_id':'space','source_root':str(source),
         'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
@@ -462,6 +468,9 @@ def test_run_claim_accepts_source_workspace_identity(chat,tmp_path,monkeypatch):
     limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
         user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
     class Peer:
+        IMAGE = 'sha256:' + 'a' * 64
+        VERSION = 'synthetic-test-runtime'
+        codex_home = runtime
         def connect(self,previous):return 'thread'
         def start_turn(self,*_):return 'run'
         def event(self,timeout):
@@ -476,7 +485,8 @@ def test_run_claim_accepts_source_workspace_identity(chat,tmp_path,monkeypatch):
         turn=enqueue(db,'alice',cid,'source-workspace','synthetic',limits);token=worker.claim(db,'executor')
     assert run_claim(factory,token,source,lambda _:Peer())=='completed'
     with factory() as db:
-        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))=='source'
+        from app.moonbox_core.sessions import bound
+        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))==bound(db, cid)
         assert db.scalar(select(workspace_baselines.c.workspace_id).where(workspace_baselines.c.conversation_id==cid))==cid
         assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='completed'
         assert db.scalar(select(reservations.c.status))=='settled'
@@ -489,6 +499,12 @@ def test_run_claim_allows_multiple_source_conversation_baselines(chat,tmp_path,m
     from app.chat.schema import reservations, workspace_baselines
     client,factory=chat;source=tmp_path.resolve()/'real-repository';source.mkdir()
     (source/'tracked.txt').write_text('baseline')
+    from test_managed_worktree_git import git
+    git(source, 'init', '-q', '-b', 'main')
+    git(source, 'add', '.')
+    git(source, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'baseline')
+    runtime = tmp_path / 'runtime'; runtime.mkdir()
+    (runtime / 'config.toml').write_text('sandbox = \"test\"')
     monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
         'id':'repo','space_id':'space','source_root':str(source),
         'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
@@ -496,6 +512,9 @@ def test_run_claim_allows_multiple_source_conversation_baselines(chat,tmp_path,m
     limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
         user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
     class Peer:
+        IMAGE = 'sha256:' + 'a' * 64
+        VERSION = 'synthetic-test-runtime'
+        codex_home = runtime
         def connect(self,previous):return 'thread'
         def start_turn(self,*_):return 'run'
         def event(self,timeout):
@@ -517,12 +536,14 @@ def test_run_claim_allows_multiple_source_conversation_baselines(chat,tmp_path,m
     with factory() as db:
         stored=dict(db.execute(select(workspace_baselines.c.conversation_id,workspace_baselines.c.workspace_id)).all())
         assert {stored[cid] for cid in cids}==set(cids)
-        assert [db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid)) for cid in cids]==['source','source']
+        from app.moonbox_core.sessions import bound
+        assert [db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid)) for cid in cids]==[bound(db, cid) for cid in cids]
+        assert bound(db, cids[0]) == bound(db, cids[1])
         assert [db.scalar(select(turns.c.status).where(turns.c.id==tid)) for tid in turn_ids]==['completed','completed']
         assert db.scalar(select(reservations.c.status))=='settled'
 
 
-def test_run_claim_migrates_legacy_copy_workspace_to_source(chat,tmp_path,monkeypatch):
+def test_run_claim_preserves_legacy_copy_workspace(chat,tmp_path,monkeypatch):
     import json
     from app.chat.admission import enqueue
     from app.chat.execution import run_claim
@@ -530,7 +551,17 @@ def test_run_claim_migrates_legacy_copy_workspace_to_source(chat,tmp_path,monkey
     from app.chat.workspace import snapshot
     client,factory=chat;cid=create(client);source=tmp_path.resolve()/'real-repository';source.mkdir()
     (source/'tracked.txt').write_text('baseline')
-    initial=snapshot(source)
+    from test_managed_worktree_git import git
+    git(source, 'init', '-q', '-b', 'main')
+    git(source, 'add', '.')
+    git(source, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'baseline')
+    runtime = tmp_path / 'runtime'; runtime.mkdir()
+    (runtime / 'config.toml').write_text('sandbox = \"test\"')
+    import shutil
+    legacy = tmp_path / 'workspaces' / cid
+    shutil.copytree(source, legacy)
+    (legacy/'tracked.txt').write_text('legacy-only-change')
+    initial=snapshot(legacy)
     monkeypatch.setenv('MOONBOX_CHAT_REPOSITORY_BINDINGS',json.dumps([{
         'id':'repo','space_id':'space','source_root':str(source),
         'workspace_root':str(tmp_path/'workspaces'),'governance_root':str(source),'workspace_mode':'source'
@@ -538,6 +569,9 @@ def test_run_claim_migrates_legacy_copy_workspace_to_source(chat,tmp_path,monkey
     limits=dict(user_concurrency=1,space_concurrency=2,user_monthly_tokens=10000,space_monthly_tokens=20000,
         user_storage_bytes=1000000,space_storage_bytes=2000000,turn_reserved_tokens=1000,turn_reserved_bytes=100000)
     class Peer:
+        IMAGE = 'sha256:' + 'a' * 64
+        VERSION = 'synthetic-test-runtime'
+        codex_home = runtime
         def connect(self,previous):return 'thread'
         def start_turn(self,*_):return 'run'
         def event(self,timeout):
@@ -553,12 +587,17 @@ def test_run_claim_migrates_legacy_copy_workspace_to_source(chat,tmp_path,monkey
         db.execute(insert(workspace_baselines).values(conversation_id=cid,workspace_id=cid,
             content_hash=initial['hash'],payload=json.dumps(initial,ensure_ascii=False),token_total=0))
         turn=enqueue(db,'alice',cid,'source-workspace-migration','synthetic',limits);token=worker.claim(db,'executor')
-    assert run_claim(factory,token,source,lambda _:Peer())=='completed'
+    assert run_claim(factory,token,legacy,lambda _:Peer())=='completed'
     with factory() as db:
-        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))=='source'
+        from app.moonbox_core.sessions import bound
+        assert db.scalar(select(conversations.c.workspace_id).where(conversations.c.id==cid))==bound(db, cid)
         assert db.scalar(select(workspace_baselines.c.workspace_id).where(workspace_baselines.c.conversation_id==cid))==cid
         assert db.scalar(select(turns.c.status).where(turns.c.id==turn['id']))=='completed'
         assert db.scalar(select(reservations.c.status))=='settled'
+
+
+    assert (source/'tracked.txt').read_text() == 'baseline'
+    assert (legacy/'tracked.txt').read_text() == 'legacy-only-change'
 
 
 def test_execution_disconnect_after_external_turn_keeps_unknown_lock_and_reservation(chat,tmp_path):

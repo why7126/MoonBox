@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-26 10:45:33
+updated_at: 2026-10-29 18:40:34
 owner: MoonBox 产品团队
 ---
 
@@ -28,18 +28,21 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| REQ-0056-requirement-center-change-delivery-cards | 需求中心交付阶段按 Change 独立成卡 | pending_review | plan | P1 | 无 | 无 | 2026-10-29 18:40:34 | `/req-review REQ-0056-requirement-center-change-delivery-cards` | `issues/requirements/plan/REQ-0056-requirement-center-change-delivery-cards/trace.md` |
+| REQ-0055-sprint-authorized-worktree-merge | 继承迭代操作权限的工作区成果确认合入 | done | archive | P1 | sprint-015 | add-sprint-authorized-worktree-merge | 2026-10-29 13:05:33 | 无 | `issues/requirements/archive/REQ-0055-sprint-authorized-worktree-merge/trace.md` |
+| REQ-0054-workspace-recovery-points | 工作区恢复点复用保留与冲突恢复 | done | archive | P1 | sprint-015 | add-workspace-recovery-points | 2026-10-29 13:04:47 | 无 | `issues/requirements/archive/REQ-0054-workspace-recovery-points/trace.md` |
 | REQ-0053-chat-scalable-execution-storage | Chat 无默认运营配额与大规模工作区持续执行 | done | archive | P1 | sprint-013 | update-chat-scalable-execution-storage | 2026-10-26 10:45:33 | 无 | `issues/requirements/archive/REQ-0053-chat-scalable-execution-storage/trace.md` |
 | REQ-0052-stage-spec-reading-center | 九阶段流转规范查阅与研发规范中心 | pending_review | plan | P1 | 无 | 无 | 2026-10-23 09:39:10 | `/req-review REQ-0052-stage-spec-reading-center` | `issues/requirements/plan/REQ-0052-stage-spec-reading-center/trace.md` |
 | REQ-0051-card-persistent-info-tags | 需求中心卡片常驻根因状态与开发人天标签 | done | archive | P2 | sprint-013 | add-card-persistent-info-tags | 2026-10-22 20:02:54 | 无 | `issues/requirements/archive/REQ-0051-card-persistent-info-tags/trace.md` |
 | REQ-0050-controlled-rule-replacement-proof | 规则修改说明与安全归档 | done | archive | P1 | sprint-013 | add-controlled-rule-replacement-proof | 2026-10-24 20:59:31 | 无 | `issues/requirements/archive/REQ-0050-controlled-rule-replacement-proof/trace.md` |
 | REQ-0049-sprint-archive-chat-entry | 迭代归档接入 Sprint 对象会话与命令预填 | done | archive | P1 | sprint-012 | add-sprint-archive-chat-entry | 2026-10-21 22:35:30 | 无 | `issues/requirements/archive/REQ-0049-sprint-archive-chat-entry/trace.md` |
-| REQ-0048-chat-isolated-acceptance-orchestration | Chat 隔离验收环境编排与原操作续接 | approved | review | P1 | 无 | 无 | 2026-10-21 16:55:29 | `/sprint-propose --req REQ-0048-chat-isolated-acceptance-orchestration` | `issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/trace.md` |
+| REQ-0048-chat-isolated-acceptance-orchestration | Chat 隔离验收环境编排与原操作续接 | in_sprint | review | P1 | sprint-016 | add-chat-isolated-acceptance-orchestration | 2026-10-29 17:11:44 | `/opsx-apply REQ-0048-chat-isolated-acceptance-orchestration` | `issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/trace.md` |
 | REQ-0047-governance-command-durable-recovery | 治理命令持久化阶段与幂等恢复闭环 | done | archive | P1 | sprint-010 | add-governance-command-durable-recovery | 2026-10-19 18:28:28 | 无 | `issues/requirements/archive/REQ-0047-governance-command-durable-recovery/trace.md` |
 | REQ-0046-chat-execution-output-status-feedback | Chat 按执行状态优化过程输出提示与结果反馈 | done | archive | P2 | sprint-011 | fix-chat-unified-run-status-verification | 2026-10-21 08:21:41 | 无 | `issues/requirements/archive/REQ-0046-chat-execution-output-status-feedback/trace.md` |
 | REQ-0045-isolated-acceptance-data-source-label | 隔离验收环境在需求中心显示数据源标识 | approved | review | P2 | 无 | 无 | 2026-10-11 10:37:48 | `/sprint-propose --req REQ-0045-isolated-acceptance-data-source-label` | `issues/requirements/review/REQ-0045-isolated-acceptance-data-source-label/trace.md` |
 | REQ-0044-shared-project-verification-environment | 平台提供跨空间项目验证环境 | done | archive | P1 | sprint-009 | add-shared-project-verification-environment | 2026-10-09 10:25:09 | 无 | `issues/requirements/archive/REQ-0044-shared-project-verification-environment/trace.md` |
 | REQ-0043-unify-data-mount-and-snapshot-rotation | 统一 data 目录边界与本地数据挂载及快照轮转 | done | archive | P1 | sprint-009 | add-local-data-mount-and-snapshot-rotation | 2026-10-08 17:44:19 | 无 | `issues/requirements/archive/REQ-0043-unify-data-mount-and-snapshot-rotation/trace.md` |
-| REQ-0042-agent-runtime-version-space-isolation | Agent 运行环境版本治理与多空间隔离 | captured | plan | P1 | 无 | 无 | 2026-10-06 21:30:34 | `/req-generate REQ-0042-agent-runtime-version-space-isolation` | `issues/requirements/plan/REQ-0042-agent-runtime-version-space-isolation/trace.md` |
+| REQ-0042-agent-runtime-version-space-isolation | 统一主源码目录与交付链路工作区及模块化执行架构 | done | archive | P1 | sprint-015 | update-unified-workspace-runtime | 2026-10-29 16:21:21 | 无 | `issues/requirements/archive/REQ-0042-agent-runtime-version-space-isolation/trace.md` |
 | REQ-0041-remove-capture-draft-binding-check | 移除新建 Capture 草稿的项目绑定版本校验 | draft | plan | P1 | 无 | 无 | 2026-10-08 23:03:55 | `/req-complete REQ-0041-remove-capture-draft-binding-check` | `issues/requirements/plan/REQ-0041-remove-capture-draft-binding-check/trace.md` |
 | REQ-0040-space-agent-model-reasoning-config | 空间级 Agent、模型与思考程度配置 | captured | plan | P1 | 无 | 无 | 2026-10-05 22:13:21 | `/req-generate REQ-0040-space-agent-model-reasoning-config` | `issues/requirements/plan/REQ-0040-space-agent-model-reasoning-config/trace.md` |
 | REQ-0039-requirement-center-card-chat-session-reuse | 需求中心卡片动作复用对象会话 | done | archive | P1 | sprint-008 | add-requirement-center-card-chat-session-reuse | 2026-10-06 00:21:08 | 无 | `issues/requirements/archive/REQ-0039-requirement-center-card-chat-session-reuse/trace.md` |

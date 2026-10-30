@@ -6,7 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-10-26 11:28:36
+updated_at: 2026-10-30 08:37:47
 ---
 
 # 知识库使用说明
@@ -58,6 +58,8 @@ updated_at: 2026-10-26 11:28:36
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-015 | [Sprint-015 经验复盘](retrospectives/sprint-015-retrospective.md) | active | 8（另1项已纳入sprint-016） |
+| sprint-014 | [Sprint-014 经验复盘](retrospectives/sprint-014-retrospective.md) | active | 8（含7项前序承接） |
 | sprint-013 | [Sprint-013 经验复盘](retrospectives/sprint-013-retrospective.md) | active | 8（含6项前序承接） |
 | sprint-012 | [Sprint-012 经验复盘](retrospectives/sprint-012-retrospective.md) | active | 6（含5项前序承接） |
 | sprint-011 | [Sprint-011 经验复盘](retrospectives/sprint-011-retrospective.md) | active | 5（含4项前序承接） |
@@ -107,3 +109,5 @@ updated_at: 2026-10-26 11:28:36
 - [Chat 数据库锁竞争与核验事务隔离](incidents/chat-database-lock-verification.md)：BUG-0068，线程证据、零行更新及提交未知边界。
 
 - [无旧成功证明的中断接续复发](incidents/20261027-interrupted-successor-proof.md)：BUG-0069，可信启动基线、独立后继收据、完整差异覆盖与历史保留。
+
+- [依赖子交付与迭代承接实践](best-practices/partial-delivery-sprint-handoff.md)：父需求partial、历史交付保留、当前归属及重放限制。

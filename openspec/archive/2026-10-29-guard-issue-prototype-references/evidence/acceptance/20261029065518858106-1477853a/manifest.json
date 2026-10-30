@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "change_id": "guard-issue-prototype-references",
+  "run_id": "20261029065518858106-1477853a",
+  "created_at": "2026-10-29 06:55:21",
+  "source_revision": "430855fef826b881047aae377fc107998e676c6c",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-REF",
+      "fingerprint": "68f90263873be9db7b898216884d8b5ad2a5965ee2b349c3c9add0e8ea1b9c01",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2390,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-CONTEXT",
+      "fingerprint": "6a0930c106bc89f65759f33d27c886666a3c6e9379a8e36711bc7e7135819d14",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "fingerprint": "9cafa82ff1fe034d24c15662819e54a90a74fca295de03dd475254f4a95cebb6",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "fingerprint": "8aceced0a6a445106c5147f7233c449004ff158a984b54282311efca8e4f704d",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-SPEC",
+      "fingerprint": "76df00c12e97ffbd0ea002c5cc00bc9605d7d0f53a966d45d485627fdbf21a84",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 0,
+    "reused": 4,
+    "preflight_ms": 5,
+    "duration_ms": 2407,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -160,3 +160,21 @@ def test_concurrent_writers_cannot_exceed_finite_operating_storage(chat, monkeyp
     assert sorted(results) == ['quota','saved']
     with factory() as db:
         assert db.scalar(select(usage_accounts.c.used_bytes).where(usage_accounts.c.id == 'user:alice')) == 4
+
+
+def test_lock_budget_survives_repeated_pool_replacement(chat):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session
+    from app.chat.resource_guard import lock_budget
+    _,factory=chat
+    url=factory.kw['bind'].url
+    for _ in range(32):
+        engine=create_engine(url)
+        try:
+            with Session(engine) as db:
+                query='SELECT @@SESSION.innodb_lock_wait_timeout' if engine.dialect.name=='mysql' else 'PRAGMA busy_timeout'
+                original=db.connection().exec_driver_sql(query).scalar()
+                lock_budget(db); db.commit()
+                assert db.connection().exec_driver_sql(query).scalar()==original
+                assert 'chat_lock_restore' not in db.connection().info
+        finally: engine.dispose()

@@ -11,12 +11,16 @@ DISK_RESERVE_BYTES = 256 * 1024 * 1024
 def lock_budget(db, *, seconds=5):
     """Apply a bounded lock wait; restore pooled connections on checkin."""
     from sqlalchemy import event
+    from sqlalchemy.pool import Pool
     connection = db.connection()
     engine = connection.engine
     dialect = engine.dialect.name
     if dialect not in ('sqlite', 'mysql'): return
-    if not event.contains(engine.pool, 'checkin', _restore_lock_budget):
-        event.listen(engine.pool, 'checkin', _restore_lock_budget)
+    # Register on the stable Pool class. Short-lived pool identities can be reused
+    # before SQLAlchemy's weak event registry is collected: contains(instance)
+    # may then report an old registration while its actual dispatch list is empty.
+    if not event.contains(Pool, 'checkin', _restore_lock_budget):
+        event.listen(Pool, 'checkin', _restore_lock_budget)
     if 'chat_lock_restore' in connection.info: return
     query = 'PRAGMA busy_timeout' if dialect == 'sqlite' else 'SELECT @@SESSION.innodb_lock_wait_timeout'
     previous = int(connection.exec_driver_sql(query).scalar())

@@ -114,6 +114,8 @@ def _issue_acceptance(root: Path, issue_dir: Path, changes=(), *, source_root: P
                 identity = issue_identity(trace)
                 if identity != issue_dir.name or plan.get("issue_id", identity) != identity:
                     raise ValueError("acceptance_identity_mismatch")
+                if plan.get("issue_acceptance_scope") == "partial":
+                    continue
                 checks = {c["id"] for c in plan["checks"]}
                 evidence = (readiness(root, cid, source_root=source_root) if folder.parent.name == "changes"
                             else archived_readiness(root, folder))
@@ -124,6 +126,9 @@ def _issue_acceptance(root: Path, issue_dir: Path, changes=(), *, source_root: P
                 all_ready &= evidence["status"] == "ready"
                 if evidence["status"] != "ready":
                     failures.append(evidence)
+            if not planned:
+                return dict(ready=False, done=len(checked & ids), total=len(ids),
+                            source="partial-evidence", reason="子交付验收不代表完整需求验收")
             missing = ids - planned
             total = len(planned | ids)
             done = len((passed & planned) | (checked & missing))
@@ -192,6 +197,22 @@ def change_acceptance(root: Path, change: str, *, source_root: Path | None = Non
         dirs = [p for p in dirs if (p / "acceptance.md").is_file()]
         if len(dirs) != 1:
             return dict(ready=False, reason="issue_acceptance_missing_or_ambiguous")
+        if (folder / "acceptance-plan.json").is_file():
+            plan = read_plan(folder)
+            if plan.get("issue_acceptance_scope") == "partial":
+                if plan.get("issue_id") != oid:
+                    raise ValueError("acceptance_identity_mismatch")
+                meta = metadata(dirs[0] / "acceptance.md")
+                evidence = (readiness(root, change, source_root=source_root) if folder == active
+                            else archived_readiness(root, folder))
+                total = len(plan["checks"])
+                signed = meta.get("acceptance_status") in {"partial", "passed", "accepted", "approved", "done", "complete", "completed"} and meta.get("manual_acceptance_status") not in {"pending", "failed", "required"}
+                if evidence["status"] != "ready" or not signed:
+                    return dict(ready=False, done=0, total=total, source="partial-evidence",
+                                reason=readiness_reason(evidence) if evidence["status"] != "ready" else "子交付尚未签认")
+                from app.governance.archive_recovery import recovery_admission
+                recovery = recovery_admission(root, change, source_root=source_root)
+                return finish({**recovery, "done": total, "total": total, "source": "partial-evidence", "issue_complete": False})
         return finish(issue_acceptance(root, dirs[0], [change], source_root=source_root))
     except (OSError, ValueError, KeyError, TypeError, yaml.YAMLError):
         return dict(ready=False, reason="acceptance_source_invalid")

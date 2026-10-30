@@ -4,7 +4,7 @@
 TBD - created by archiving change update-chat-scalable-execution-storage. Update Purpose after archive.
 ## Requirements
 ### Requirement: 不设固定规模门槛的可信快照
-系统 MUST 分批扫描受信文件并建立版本化快照，不按文件数或总字节拒绝；路径、Git忽略、符号链接、硬链接、特殊文件与撤权边界保持。
+系统 MUST 分批扫描受信文件并建立版本化快照，不按文件数或总字节拒绝；路径、符号链接、硬链接、特殊文件与撤权边界保持。采集范围按版本化授权写策略确定，覆盖实际可写普通文件；Git忽略仅作辅助提示，不能单独决定完整性或安全性。纯只读轮次不建立文件恢复点，写前可复用经内容校验的完整版本；上下文与历史仍逐轮记录。
 
 #### Scenario: 大规模仓库
 - **WHEN** 至少12000文件和600MiB样本在资源充足环境执行

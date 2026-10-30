@@ -1,5 +1,62 @@
-next_id: 54
+next_id: 57
 entries:
+- id: REQ-0056-requirement-center-change-delivery-cards
+  title: "需求中心交付阶段按 Change 独立成卡"
+  status: pending_review
+  priority: P1
+  owner: 产品团队
+  source: 用户确认与同会话 explore
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0056-requirement-center-change-delivery-cards/
+  created: '2026-10-29 18:19:44'
+  iteration: null
+  related_change: null
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: REQ-0026-requirement-center-standalone-change-cards
+  related_requirements:
+  - REQ-0026-requirement-center-standalone-change-cards
+  - REQ-0048-chat-isolated-acceptance-orchestration
+- id: REQ-0055-sprint-authorized-worktree-merge
+  title: "继承迭代操作权限的工作区成果确认合入"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户确认与同会话 explore
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0055-sprint-authorized-worktree-merge/
+  created: '2026-10-28 23:41:40'
+  iteration: sprint-015
+  related_change: add-sprint-authorized-worktree-merge
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: null
+  related_requirements:
+  - REQ-0042-agent-runtime-version-space-isolation
+  - REQ-0054-workspace-recovery-points
+  - REQ-0047-governance-command-durable-recovery
+  - REQ-0048-chat-isolated-acceptance-orchestration
+- id: REQ-0054-workspace-recovery-points
+  title: "工作区恢复点复用保留与冲突恢复"
+  status: done
+  priority: P1
+  owner: 产品团队
+  source: 用户确认与同会话 explore
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0054-workspace-recovery-points/
+  created: '2026-10-28 23:41:40'
+  iteration: sprint-015
+  related_change: add-workspace-recovery-points
+  related_changes: []
+  type: feature
+  requester: user
+  parent_requirement: REQ-0053-chat-scalable-execution-storage
+  related_requirements:
+  - REQ-0042-agent-runtime-version-space-isolation
+  - REQ-0055-sprint-authorized-worktree-merge
+  - REQ-0047-governance-command-durable-recovery
 - id: REQ-0053-chat-scalable-execution-storage
   title: "Chat 无默认运营配额与大规模工作区持续执行"
   status: done
@@ -82,15 +139,15 @@ entries:
   - REQ-0039-requirement-center-card-chat-session-reuse
 - id: REQ-0048-chat-isolated-acceptance-orchestration
   title: "Chat 隔离验收环境编排与原操作续接"
-  status: approved
+  status: in_sprint
   priority: P1
   owner: 产品团队
   source: 用户确认 BUG-0045 探索拆分
   lifecycle_stage: review
   path: issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/
   created: '2026-10-21 16:24:14'
-  iteration: null
-  related_change: null
+  iteration: sprint-016
+  related_change: add-chat-isolated-acceptance-orchestration
   parent_requirement: REQ-0044-shared-project-verification-environment
   related_bugs:
   - BUG-0045-chat-acceptance-runtime-capability-gap
@@ -173,20 +230,22 @@ entries:
   - REQ-0025-chat-workbench
   related_changes: []
 - id: REQ-0042-agent-runtime-version-space-isolation
-  title: "Agent 运行环境版本治理与多空间隔离"
-  status: captured
+  title: "统一主源码目录与交付链路工作区及模块化执行架构"
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户反馈
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0042-agent-runtime-version-space-isolation/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0042-agent-runtime-version-space-isolation/
   created: '2026-10-06 21:29:24'
-  iteration: null
-  related_change: null
+  iteration: sprint-015
+  related_change: update-unified-workspace-runtime
   type: feature
   requester: user
   related_requirements:
   - REQ-0040-space-agent-model-reasoning-config
+  - REQ-0054-workspace-recovery-points
+  - REQ-0055-sprint-authorized-worktree-merge
   related_changes: []
 - id: REQ-0041-remove-capture-draft-binding-check
   title: "移除新建 Capture 草稿的项目绑定版本校验"

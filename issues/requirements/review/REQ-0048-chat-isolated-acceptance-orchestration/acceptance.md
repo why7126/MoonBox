@@ -2,9 +2,9 @@
 requirement_id: REQ-0048-chat-isolated-acceptance-orchestration
 title: Chat 隔离验收环境编排逐项验收标准
 created_at: '2026-10-21 16:49:26'
-updated_at: 2026-10-21 16:55:29
+updated_at: 2026-10-29 21:25:19
 owner: 产品团队
-acceptance_status: not_started
+acceptance_status: pending
 ---
 
 # Chat 隔离验收环境编排逐项验收标准
@@ -220,7 +220,7 @@ admin-list/admin-form/admin-modal/media-upload：均不适用；本需求无管�
 
 ## 数据采集与结果
 
-product_data_collection_observability: applicable；affected_layers: Web、API、DB、执行器、环境编排、request_logs、task_traces、证据访问。validation: AC-004/006/007/008/009/012核对授权、身份链、版本、计时和错误码；后台不伪造usage_events。本次无运行态更改，所有验收not_started。
+product_data_collection_observability: applicable；affected_layers: Web、API、DB、执行器、环境编排、request_logs、task_traces、证据访问。validation: AC-004/006/007/008/009/012核对授权、身份链、版本、计时和错误码；后台不伪造usage_events。设计时尚无运行态更改；当前实现与机制回归见本轮补充，完整产品验收仍not_started。
 
 ```yaml
 acceptance_status: not_started
@@ -231,18 +231,25 @@ source_sprint: null
 evidence: []
 failed_items: []
 ```
+
+## 历史验收
+
+已归档子交付 `add-isolated-candidate-validation` 属于 sprint-015；完整需求当时验收为 partial。原回填时间为2026-10-29 16:34:29，来自sprint-016范围承接，不是重新验收时间。历史有效证据入口：`openspec/archive/2026-10-29-add-isolated-candidate-validation/evidence/acceptance/20261029125418415091-776f4695/summary.md`。本次新Change尚未开始完整20项验收；下面的当前投影不撤销已归档依赖事实，不自动勾选完整AC。
 
 ## 验收结果回填
 
 ```yaml
-acceptance_status: not_started
+acceptance_status: pending
 accepted_at: null
 accepted_by: null
-source_change: null
-source_sprint: null
+source_change: add-chat-isolated-acceptance-orchestration
+source_sprint: sprint-016
 evidence: []
 failed_items: []
-source_event: req.review
-notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
+source_event: opsx.progress
+notes: 待验收；由 opsx.apply 标记，后续 archive 时回填结论。
 ```
 
+## 本轮续接与长期转存实施（2026-10-29）
+
+实现与合成验证见当前Change verification.md及evidence/implementation/continuation-evidence.json；新增协议、真实Git检查点、事务准入、预算、取消、写后恢复、归档后引用和长期ACL回归。双视口真实组件与测试API证明过期后长期摘要可读；这些不替代20项完整产品AC，原签认框保持待接入。

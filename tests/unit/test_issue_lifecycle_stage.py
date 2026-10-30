@@ -116,3 +116,15 @@ def test_invalid_stage_prevents_subdocument_sync(tmp_path):
     result = sync_issue_subdocuments(issue, derived, event=None, source_change=None, write=True)
     assert result.blockers
     assert {p:p.read_bytes() for p in before} == before
+
+
+def test_partial_parent_is_not_promoted_by_archived_dependency(tmp_path):
+    ns=runpy.run_path(str(ROOT/'scripts/promote-issue-stage.py'))
+    issue=issue_at(tmp_path,'review')
+    (issue.path/'acceptance.md').write_text('---\nacceptance_status: partial\n---\n')
+    archived=tmp_path/'openspec/archive/2026-10-29-dependency'
+    archived.mkdir(parents=True)
+    (archived/'trace.md').write_text('---\nchange_id: dependency\nstatus: archived\n---\n')
+    candidate=ns['IssueCandidate']('bug',issue.issue_id,issue.path,issue.path/'trace.md',['dependency'])
+    ready,reasons=ns['all_changes_archived'](tmp_path,candidate)
+    assert not ready and 'partial Issue acceptance' in reasons[0]

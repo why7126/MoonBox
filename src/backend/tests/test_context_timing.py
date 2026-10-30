@@ -14,6 +14,14 @@ def test_http_stage_accounting_and_error_correlation(chat, tmp_path, monkeypatch
     root = fixture_tree(tmp_path / 'source')
     bind(monkeypatch, root)
     caplog.set_level(logging.INFO, logger='moonbox.requirement_center')
+    from app.governance.reader import ProjectReader
+    import time
+    original = ProjectReader.call
+    def with_endpoint_tail(self, *args, **kwargs):
+        result = original(self, *args, **kwargs)
+        time.sleep(.025)
+        return result
+    monkeypatch.setattr(ProjectReader, 'call', with_endpoint_tail)
     response = client.get('/api/v1/requirement-center/context', params={'space_id': 'space', 'repository_id': 'repo'})
     assert response.status_code == 200
     metrics = {item.strip().split(';dur=')[0]: float(item.split(';dur=')[1])
@@ -23,8 +31,10 @@ def test_http_stage_accounting_and_error_correlation(chat, tmp_path, monkeypatch
                  'projection_commit', 'document_projection', 'reader_orchestration')
     assert abs(sum(metrics[key] for key in exclusive) - metrics['total']) < .1
     assert abs(metrics['snapshot'] + metrics['fences_exclusive'] - metrics['snapshot_and_fences']) < .1
-    route_parts = sum(metrics[key] for key in ('dependencies', 'total', 'response_finalize', 'request_audit'))
+    route_parts = sum(metrics[key] for key in ('dependencies', 'total', 'response_finalize', 'request_audit', 'request_audit_dispatch', 'endpoint_overhead'))
     assert abs(metrics['route_total'] - route_parts) < 10
+    assert metrics['endpoint_overhead'] >= 20
+    assert metrics['request_audit'] == 0
     logs = [json.loads(record.getMessage().split(' ', 1)[1]) for record in caplog.records
             if record.getMessage().startswith('requirement_center.http_timing ')]
     assert logs[-1]['request_id'] == response.headers['X-Request-ID']

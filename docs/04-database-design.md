@@ -327,3 +327,41 @@ BUG-0065：沿用chat_events与chat_result_segments，不新增物理表。正�
 ## 需求中心后台并发返修（BUG-0056）
 
 在既有chat_snapshot_entries.object_id和chat_result_segments.object_id上分别增加ix_chat_snapshot_object、ix_chat_segment_object索引。用于空闲内容维护的相关NOT EXISTS引用判定，避免每个内容对象全表扫描；无新表、字段、约束或数据重写。chat.schema.migrate对旧表补索引且重复运行安全，SQLite/MySQL共用SQLAlchemy定义。回滚应用保留索引，不删除历史内容；正式升级应在低峰创建索引并核对查询计划。
+
+## 统一工作区增量结构（实施中）
+
+以下五表通过 `app/chat/schema.py` 的现有增量迁移入口创建，不修改既有会话和快照正文，不自动迁移旧副本。
+
+| 表 | 身份与约束 |
+|---|---|
+| moonbox_workspaces | 工作区身份、用途、私有目录定位、Git 身份、基线、生命周期与修订 |
+| moonbox_main_bindings | Git 身份唯一，空间/仓库组合唯一，关联主工作区 |
+| moonbox_delivery_claims | 空间/仓库/交付根链路复合主键，关联唯一活动开发工作区 |
+| moonbox_workspace_sessions | 会话唯一绑定工作区，历史执行不静默换目录 |
+| moonbox_workspace_write_locks | 每工作区一条持久占用，操作身份与代次共同确定释放者 |
+
+工作区写锁不因心跳超时自动释放。结果采集与执行器关闭后才能正常释放；失败现场按原执行身份和代次对账。
+
+新增 `moonbox_workspace_migrations` 保留旧会话目录身份与基线摘要；`moonbox_delivery_sessions` 保存会话所属 Change 与前继；`moonbox_workspace_assignments` 保存当前串行交付阶段。`moonbox_runtime_bindings` 固定轮次镜像、工具、权限配置；`moonbox_execution_receipts` 保存退出与采集确认，不以租约超时推断进程结束。
+
+`moonbox_recovery_points` 保存工作区单调版本、清单/策略摘要、原 Change 和完整性；`moonbox_recovery_entries` 独立引用内容对象；`moonbox_recovery_references` 区分普通引用和保护原因；`moonbox_snapshot_points` 关联旧轮次快照，轮转同时撤销过期快照可恢复清单。`moonbox_restore_operations` 以工作区/actor/request_id 唯一，保存预检和持久步骤计划；`moonbox_restore_steps` 按路径记录完成项。删除会话只删除历史引用，仍被工作区点或其他会话引用的对象保留。
+
+`moonbox_merge_candidates` 保存源/目标/候选、治理与运行版本、证据摘要和确认指纹；`moonbox_merge_operations` 保存 actor、确认时刻、幂等键、当前状态与实际主线结果。业务记录先于 Git 副作用提交；主目录工作区锁与 Git 文件锁共同串行管理动作。权限撤销后不得新增 Git 写入，但可核验已发生的精确候选结果并修复数据库投影。
+
+全部表经 `app.chat.schema.migrate` 的公共 metadata 入口增量创建，覆盖 SQLite/MySQL，不重写原会话正文。旧 source 原位登记，旧 copy 保留历史目录，不自动覆盖。SQLite 离线备份恢复补建新增空表后重放删除意图，已执行任务隔离为 unknown，不自动重发模型。部署回滚时保留新增表和目录，暂停新操作并核对占用，不删除恢复正文或强制撤回 Git。
+
+双库验证和实际证据以三个 Change 的实施记录为准；未通过的联合依赖与真实产品轮次不计为交付完成。
+
+### 固定候选环境
+
+`verification_candidate_environments` 保存候选唯一归属、空间/仓库、候选提交、模板摘要、Docker daemon 身份、阶段、原始到期时间、清理状态及脱敏结果。SQLite/MySQL 共用增量建表；不存密码或数据库连接串。状态先于外部副作用提交，清理未知保留记录并阻断通过。工作区执行回执增加最近核对时间，用于有界批次的公平续接，不作为进程终止证明。
+
+合入操作新增 `governance_state` 与 `governance_plan`，分别保存主线记录同步阶段和逐文件前后内容。Git 成功与治理同步分别记账：`state=completed` 不等于 `governance_state=completed`。同步计划持久化后按文件比较并原子替换；中断只续接未完成步骤，人工改动或当前权限失效时阻断，不重新合并。该业务恢复计划不进入请求日志或 Task Trace。
+
+## REQ-0048 隔离验收持久事实（实施中）
+
+新增 `verification_operations`、`verification_attempts`、`verification_environment_steps`、`verification_ac_results`、`verification_identity_refs` 和 `verification_resource_reservations`。操作幂等约束覆盖 actor/space/repository/source_turn/request_hash；尝试序号、步骤键和AC结果分别唯一，租约及队列有查询索引。版本号CAS与epoch围栏共同拒绝旧工作者写入。资源字节使用BIGINT，避免20GiB在MySQL整型溢出；槽位主键和空间唯一约束限制并发。
+
+Chat schema初始化负责建表，并对实施期间已有的操作表补充 `source_ref_json`、`checks_deadline`。SQLite快速回归与独立MySQL8.4.13事务竞争样本分别记录，不能替代完整应用迁移矩阵。身份表仅存随机引用、角色、有效期和撤销状态，不存密码。AC证据形成时间独立于操作心跳，失败清理不删除有效结果。长期证据转存尚未完成。
+
+REQ-0048续接新增三表：`verification_result_deliveries`（operation唯一，关联目标轮次与输入摘要）、`verification_tool_waits`（source_turn唯一，工具调用/代次/检查点及消费状态）、`verification_evidence_archives`（attempt唯一，白名单摘要、相对路径、SHA-256和发布状态）。沿用统一metadata增量create_all，不改历史轮次终态；SQLite事务回归与独立MySQL8.4约束验证分别取证。恢复事实不随七日在线证据过期清除。

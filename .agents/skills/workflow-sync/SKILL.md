@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-27 09:21:56
+updated_at: 2026-10-29 06:53:44
 name: workflow-sync
 description: Sync REQ/BUG/Sprint/OpenSpec workflow status after req/bug/sprint/opsx commands
 ---
@@ -220,3 +220,7 @@ opsx.start和opsx.progress为Change事件，同样要求Sprint范围与Issue门�
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
 
 生命周期阶段同步与残留修复遵循 `rules/issues-lifecycle.md` 第9节：以目录为准，仅处理 trace、主文档和 capture 中已有的 Frontmatter 阶段；预览后在授权范围内修复，非法值阻断，保留历史正文及其他语义状态，不重跑归档。
+
+## Issue 迁移原型引用复核
+
+阶段迁移遵循 `rules/issues-lifecycle.md` 第10节：共享检查器在写入前模拟原型引用，迁移后复核实际文件；dry-run 不写入，历史与当前引用分开。出现 `existing-missing` / `migration-break` 时先按来源文件与行号修正有效引用，不批量改写历史记录。后检失败保留目录并返回失败，重试同一入口复核目标；不得因目录已在目标阶段而报告成功。检查范围和语法边界见 `scripts/README.md`，回归入口 `scripts/test_prototype_references.py`。

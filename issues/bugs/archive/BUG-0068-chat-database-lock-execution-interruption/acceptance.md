@@ -2,7 +2,7 @@
 bug_id: BUG-0068-chat-database-lock-execution-interruption
 title: Chat 数据库锁竞争与执行恢复验收标准
 created_at: '2026-10-27 08:25:20'
-updated_at: 2026-10-27 09:09:47
+updated_at: 2026-10-30 08:33:55
 acceptance_status: passed
 ---
 
@@ -34,13 +34,13 @@ product_data_collection_observability: applicable；affected_layers: API、DB、
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-27 09:09:47
+accepted_at: 2026-10-30 08:33:55
 accepted_by: workflow-sync
 source_change: fix-chat-database-lock-execution-interruption
 source_sprint: sprint-014
 evidence: [openspec/archive/2026-10-27-fix-chat-database-lock-execution-interruption/evidence/acceptance/20261027090443095634-888712c4/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

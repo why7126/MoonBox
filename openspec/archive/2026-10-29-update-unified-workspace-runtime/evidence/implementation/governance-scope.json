@@ -1,0 +1,26 @@
+{
+  "sample": "governance-scope-regression",
+  "exit_code": 0,
+  "counts": {
+    "tests": 183,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_hashes": {
+    "tests/unit/test_opsx_acceptance.py": "554fdc00aa766761bb09ea8830c10152f201dfbdbe12403fed8b67ab4d63d687",
+    "tests/unit/test_workflow_sync_engine.py": "bd05a3e2ce418caaaecaec475e344a7f67484e96fd7059686fba299bbf261927",
+    "tests/unit/test_issue_acceptance_archive_recovery.py": "4d5b91984dc13a1d1e5893a94e187c2d7f9da568bb8bc9ef705c54d51fa0432a",
+    "tests/unit/test_issue_lifecycle_stage.py": "837430272dc26ea88b34ee0954494bd5f7f9046cbc880a8bb75bbc7b30f0b682",
+    "tests/unit/test_issue_acceptance_checkmarks.py": "2e57f674d10a072771ec280741cae24918264e281046d604e222a8352778e6de",
+    "src/backend/tests/test_cross_entry_archive_admission.py": "92ab3a1a9e08cae6351ddb978cfdec4962d9ef77c313c026b93e8f2638359d33",
+    "src/backend/tests/test_acceptance_input_projection.py": "3ea39c25a26810e9606b280a20df0072100a0a4cd60a45e621a187b6ebcd96ed",
+    "src/backend/app/governance/acceptance_evidence.py": "5a135bc9ab5759c6ff72ad390c48fbc301113793e9491315d504e24ff9066922",
+    "src/backend/app/governance/archive_admission.py": "14021ad3e4d89d18d76a1e6f5828bea8fc506a86558272048aac300dc04be5bc",
+    "scripts/workflow_sync/issue_subdocuments.py": "3722a2b155c0be2e21421ed001c0f5784780b44ab4f292ef141d64f46999b1e8",
+    "scripts/workflow_sync/derive.py": "8ff05e687c5402a7583bfa496d8bf68d3de8a4c06170690ea4e9fe95e2ca6e2f",
+    "scripts/promote-issue-stage.py": "725ff413065846749eccdb2f7427c885f1e178d6498c7b0116a99ac1b85a640f"
+  },
+  "source_stable": true,
+  "suite": "governance"
+}

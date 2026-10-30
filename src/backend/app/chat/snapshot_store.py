@@ -73,9 +73,12 @@ def read_file(db, cid, root_fd, relative, *, retain, checkpoint=None):
     if retain:
         verified = read_file(db, cid, root_fd, relative, retain=False)
         if verified['kind'] != 'file': return verified
-        existing = db.scalar(select(objects.c.id).where(objects.c.conversation_id == cid,
+        from app.chat.schema import conversations
+        owner = db.execute(select(conversations.c.space_id, conversations.c.repository_id).where(conversations.c.id == cid)).one()
+        existing = db.scalar(select(objects.c.id).join(conversations, conversations.c.id == objects.c.conversation_id).where(
+            conversations.c.space_id == owner.space_id, conversations.c.repository_id == owner.repository_id,
             objects.c.status == 'complete', objects.c.sha256 == verified['digest'],
-            objects.c.byte_count == verified['byte_count']).limit(1))
+            objects.c.byte_count == verified['byte_count']).limit(1).with_for_update())
         if existing: return {**verified, 'object_id': existing}
     directory, name = parent_fd(root_fd, relative)
     try:
@@ -123,10 +126,13 @@ def page(db, version_id, after='', limit=100):
         entries.c.path_key > after).order_by(entries.c.path_key).limit(limit)).mappings())
 
 
-def capture(factory, cid, tid, root, phase, *, fence=None, roots=None):
+def capture(factory, cid, tid, root, phase, *, fence=None, roots=None, policy_roots=None):
     root = trusted_directory(root)
     def enumerate_paths():
-        if roots is None:
+        if policy_roots is not None:
+            from app.moonbox_exec_server.scope import names as scoped_names
+            yield from scoped_names(root, policy_roots)
+        elif roots is None:
             yield from names(root)
         else:
             for prefix in roots:
@@ -261,6 +267,8 @@ def import_legacy(db, cid, tid, snapshot):
 
 def diff_page(db, before, after, cursor='', limit=100):
     """Merge ordered manifest pages; memory depends on window, not file count."""
+    if db.scalar(select(versions.c.id).where(versions.c.id.in_((before, after)), versions.c.status == 'expired').limit(1)):
+        raise service.ChatError(2507, '文件版本已按恢复点保留策略轮转，对话记录仍保留', 410)
     def iterator(vid):
         key = cursor
         while True:

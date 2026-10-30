@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "change_id": "add-chat-isolated-acceptance-orchestration",
+  "run_id": "20261029212332409662-f9462e56",
+  "created_at": "2026-10-29 21:24:19",
+  "source_revision": "430855fef826b881047aae377fc107998e676c6c",
+  "environment": "registered-synthetic-project",
+  "scope": "diagnostic",
+  "status": "blocked",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "7aeaa7d2beced2e4081909da0d73162d16cf4c81928f72415a80f9fadf9ccdd3",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "product-db-unavailable",
+        "turn-pending-collection"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "bc57014918f4e6a962f4f60aaf31986023a1fb576f7f267435acfd95dd0d6e15",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "049bbb395fec8eca83adb8cb9368b5a7e32a2df12b22e7e5133c195fb4c0bd1e",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "45b42f263ad38ef99f94c70a76049598caddc97a1a5a8dc0f5d0e71e89b32742",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "948e9877fc8a0bf8086d989a26bc0f03d4ab1908f3d5204c78172f4b25b9dae2",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "3b828c79b2e13a266d7572a5bb20f8dcb2378abdcd4cb007bc3af8b1370c964f",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "product-db-unavailable",
+        "turn-pending-collection"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "55669abbc42626b1176036446eeb4430e52614243caa9b101303a491047055b4",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "product-db-unavailable",
+        "turn-pending-collection"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "e99231d3d8d4ad50c4946a767f5598f66dc87d15716b6d13dd3cae12e0eb32ef",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "11c6aa8b2b2159143dcb9a43dd4a07d95eafdaf317e16f947753eb62aabe163f",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "fc2c235cba8ff6b356ed6218018d443bec9ac0dbdeaaa5b8c8fb70da227e21c2",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "11a17145b17ade87a1dd597f3a4f47d33a5b067a421803899f1a68af30e24d1d",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "4131557c62c1f6192775bd7d41bef1741704a1ba335c04008e38d23cb80a8c01",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-XCUT-001",
+      "fingerprint": "cd3ec0a6e4e4a431372a7a362113865125dd3e6dc146c70544f70e5708cc890c",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "product-db-unavailable",
+        "turn-pending-collection"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-XCUT-002",
+      "fingerprint": "caa79c8a4dd581f78c261c023f1a72f8fefccf3dd2c3de86eb9c7010106908f8",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-XCUT-003",
+      "fingerprint": "2da31f2317e25b791ed276d7247cbc07eec54c7b95af5dadc7180d13b8271ac0",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-XCUT-004",
+      "fingerprint": "0b15941f75fe9092c4561b6f7b53f9c7c678cfdd3a2d7340b4f793358e63dc19",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [
+        "product-db-unavailable",
+        "turn-pending-collection"
+      ],
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "876d1dcbf651e1a1aec9e80cf35976d53123bf86b45955833d03a041b15adba3",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "c1617390c95afa9f1bb53d6c17b97cbaaa1758394cf7de6086b1fa3ca03a8463"
+        }
+      ],
+      "duration_ms": 45583,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "c4aa8bdd38dfc477a4e67caedccfcf6da1044bc674662c1d7cf813e63384f491",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "c1617390c95afa9f1bb53d6c17b97cbaaa1758394cf7de6086b1fa3ca03a8463"
+        }
+      ],
+      "duration_ms": 24,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "72f8be82f1451330b70f80f8eaf603bc785a8e9bf035ed44fa18e79d0b37fc9f",
+      "status": "blocked",
+      "reused": false,
+      "reason": "collection-blocked",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "blocked"
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "fingerprint": "912d4119bb567de09e79a8114726edfe822deb5ded160197409f2a5648237730",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "c1617390c95afa9f1bb53d6c17b97cbaaa1758394cf7de6086b1fa3ca03a8463"
+        }
+      ],
+      "duration_ms": 24,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 2,
+    "reused": 0,
+    "preflight_ms": 849,
+    "duration_ms": 47346,
+    "blocked": 17,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

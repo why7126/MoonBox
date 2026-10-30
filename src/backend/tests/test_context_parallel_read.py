@@ -1,5 +1,7 @@
 """Bounded second-pass scheduling retains complete reads and global limits."""
 import os
+import gc
+import weakref
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -14,6 +16,26 @@ def tree(path, count=20):
         folder.mkdir(parents=True)
         (folder / 'proof.md').write_text(f'document {n}')
     return root
+
+
+@pytest.mark.parametrize('workers', [1, 2, 4])
+def test_completed_read_releases_request_metadata_without_cyclic_gc(tmp_path, workers):
+    class RequestMetadata(dict):
+        pass
+    root = tree(tmp_path / 'repo')
+    metadata = RequestMetadata()
+    reference = weakref.ref(metadata)
+    enabled = gc.isenabled()
+    gc.disable()
+    try:
+        result = snapshot.read_once(root, identities=metadata, workers=workers)
+        assert result and metadata
+        del metadata
+        assert reference() is None, 'completed read retains request metadata until cyclic GC'
+    finally:
+        if enabled:
+            gc.enable()
+        gc.collect()
 
 
 @pytest.mark.parametrize('workers', [2, 4])

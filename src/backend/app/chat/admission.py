@@ -18,7 +18,7 @@ def _account(db, key):
             pass
 
 
-def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None, budget_prompt=None, governance_candidate_id=None):
+def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None, budget_prompt=None, governance_candidate_id=None, admission_guard=None):
     """Caller must first verify the isolated executor. This function never starts a process."""
     materials = materials or []
     execution_config = execution_config or service.normalize_execution_config()
@@ -46,6 +46,13 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
         original = service.turn(db, actor, retry_of)
         if original['conversation_id'] != cid or original['status'] not in ('failed','stopped') or original['prompt'] != prompt:
             db.rollback(); raise service.ChatError(2506, '只可重试已确认失败或停止的原轮次')
+    from app.moonbox_core.migration import ensure_binding
+    from app.moonbox_worktree import WorktreeConflict
+    try:
+        ensure_binding(db, row)
+    except WorktreeConflict:
+        db.rollback()
+        raise service.ChatError(2504, '工作区身份或历史迁移未就绪，原会话与文件已保留', 409) from None
     token = service.identity(); tid = token['id']
     won = db.execute(update(conversations).where(conversations.c.id == cid,
         conversations.c.active_turn_id.is_(None), conversations.c.archived == 0,
@@ -78,6 +85,8 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
                 .values(reserved_tokens=usage_accounts.c.reserved_tokens+reserve_tokens)).rowcount
             if capacity != 1 or budget != 1:
                 raise service.ChatError(2508, '并发、额度或存储容量不足')
+        if admission_guard is not None:
+            admission_guard(db,tid)
         db.execute(insert(turns).values(**token, conversation_id=cid, client_request_id=client_id,
             status='queued', prompt=prompt, retry_of=retry_of, generation=0, reserved_bytes=reserve_bytes,
             requested_config=json.dumps(execution_config['requested'], ensure_ascii=False, sort_keys=True),

@@ -1,0 +1,1117 @@
+{
+  "schema_version": 1,
+  "suite": "backend",
+  "sample": "synthetic-regression-real-git-files-database",
+  "database": "sqlite",
+  "exit_code": 0,
+  "source_stable": true,
+  "counts": {
+    "tests": 272,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  "seconds": 96.877,
+  "cases": [
+    {
+      "name": "test_main_workspace_api_is_authorized_and_path_free",
+      "status": "passed"
+    },
+    {
+      "name": "test_real_authority_development_reuse_and_shared_fact_protection",
+      "status": "passed"
+    },
+    {
+      "name": "test_delivery_uses_requirement_chain_and_current_permissions",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>0]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>1]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>2]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>3]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>4]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>5]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>6]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>7]",
+      "status": "passed"
+    },
+    {
+      "name": "test_changed_or_malformed_facts_deny_delivery[<lambda>8]",
+      "status": "passed"
+    },
+    {
+      "name": "test_independent_change_owns_its_chain",
+      "status": "passed"
+    },
+    {
+      "name": "test_unknown_executor_keeps_lease_without_starving_closed_executor",
+      "status": "passed"
+    },
+    {
+      "name": "test_batch_limit_does_not_starve_unknown_receipts",
+      "status": "passed"
+    },
+    {
+      "name": "test_queue_serializes_shared_workspace_and_preserves_unknown_lock",
+      "status": "passed"
+    },
+    {
+      "name": "test_linked_executor_view_has_no_peer_refs_or_objects",
+      "status": "passed"
+    },
+    {
+      "name": "test_missing_isolated_provider_blocks_confirmation",
+      "status": "passed"
+    },
+    {
+      "name": "test_validated_candidate_human_confirmation_preserves_commits_and_replays",
+      "status": "passed"
+    },
+    {
+      "name": "test_current_permission_and_facts_rechecked_at_confirmation[permission]",
+      "status": "passed"
+    },
+    {
+      "name": "test_current_permission_and_facts_rechecked_at_confirmation[governance]",
+      "status": "passed"
+    },
+    {
+      "name": "test_current_permission_and_facts_rechecked_at_confirmation[dirty_main]",
+      "status": "passed"
+    },
+    {
+      "name": "test_git_success_before_db_projection_is_reconciled_once",
+      "status": "passed"
+    },
+    {
+      "name": "test_revoked_actor_cannot_write_but_worker_can_record_proven_git_success",
+      "status": "passed"
+    },
+    {
+      "name": "test_nested_credentials_rejected_in_candidate",
+      "status": "passed"
+    },
+    {
+      "name": "test_telemetry_failure_does_not_replace_durable_business_result",
+      "status": "passed"
+    },
+    {
+      "name": "test_business_confirmation_write_failure_prevents_git_effect",
+      "status": "passed"
+    },
+    {
+      "name": "test_board_overlay_keeps_scope_and_does_not_advance_formal_governance",
+      "status": "passed"
+    },
+    {
+      "name": "test_governance_projection_resumes_without_remerging_or_overwriting[False]",
+      "status": "passed"
+    },
+    {
+      "name": "test_governance_projection_resumes_without_remerging_or_overwriting[True]",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_pass_does_not_attest_combined_candidate",
+      "status": "passed"
+    },
+    {
+      "name": "test_two_confirmed_deliveries_serialize_and_second_requires_revalidation",
+      "status": "passed"
+    },
+    {
+      "name": "test_verified_history_adopted_once_but_corruption_not_promoted",
+      "status": "passed"
+    },
+    {
+      "name": "test_managed_main_real_model_write_and_recovery_capture",
+      "status": "skipped"
+    },
+    {
+      "name": "test_human_confirmation_requires_current_sprint_rights",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[source_commit-1111111111111111111111111111111111111111]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[target_commit-2222222222222222222222222222222222222222]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[candidate_commit-3333333333333333333333333333333333333333]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[evidence_digest-4444444444444444444444444444444444444444444444444444444444444444]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[governance_digest-5555555555555555555555555555555555555555555555555555555555555555]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[runtime_digest-sha256:6666666666666666666666666666666666666666666666666666666666666666]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[sprint_id-sprint-016]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[space_id-other]",
+      "status": "passed"
+    },
+    {
+      "name": "test_any_input_change_invalidates_confirmation[workspace_id-other]",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_only_evidence_or_dirty_workspace_cannot_merge[overrides0]",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_only_evidence_or_dirty_workspace_cannot_merge[overrides1]",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_only_evidence_or_dirty_workspace_cannot_merge[overrides2]",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_only_evidence_or_dirty_workspace_cannot_merge[overrides3]",
+      "status": "passed"
+    },
+    {
+      "name": "test_git_success_database_failure_reconciles_without_duplicate_merge",
+      "status": "passed"
+    },
+    {
+      "name": "test_measured_scan_capture_publication_and_restore",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before0-after0-current0-restore]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before1-after1-current1-conflict]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[None-after2-current2-delete]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[None-after3-current3-conflict]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before4-None-None-restore]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before5-None-current5-conflict]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before6-after6-current6-already_restored]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before7-after7-current7-unchanged]",
+      "status": "passed"
+    },
+    {
+      "name": "test_three_way_preserves_later_edits[before8-after8-current8-conflict]",
+      "status": "passed"
+    },
+    {
+      "name": "test_scope_and_baseline_participate_in_reuse_identity",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[../secret]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[/secret]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[src/../secret]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[.git/config]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[src//x]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[src\\\\x]",
+      "status": "passed"
+    },
+    {
+      "name": "test_untrusted_path_rejected[]",
+      "status": "passed"
+    },
+    {
+      "name": "test_ten_unprotected_versions_plus_pins_not_ten_turns",
+      "status": "passed"
+    },
+    {
+      "name": "test_capture_includes_ignored_writable_files_but_excludes_runtime_and_shared_logs",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_retention_configuration_is_rejected[0]",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_retention_configuration_is_rejected[-1]",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_retention_configuration_is_rejected[bad]",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_retention_configuration_is_rejected[\\uff11]",
+      "status": "passed"
+    },
+    {
+      "name": "test_main_identity_and_cross_space_protection",
+      "status": "passed"
+    },
+    {
+      "name": "test_chain_reservation_survives_reentry",
+      "status": "passed"
+    },
+    {
+      "name": "test_workspace_lock_is_owned_and_not_stolen",
+      "status": "passed"
+    },
+    {
+      "name": "test_dirty_main_cannot_be_used_as_task_baseline",
+      "status": "passed"
+    },
+    {
+      "name": "test_concurrent_requests_return_one_identity",
+      "status": "passed"
+    },
+    {
+      "name": "test_linked_tree_cannot_become_second_main_and_remote_url_is_not_identity",
+      "status": "passed"
+    },
+    {
+      "name": "test_lease_and_registration_do_not_escape_outer_rollback",
+      "status": "passed"
+    },
+    {
+      "name": "test_restore_and_crash_reentry_are_idempotent",
+      "status": "passed"
+    },
+    {
+      "name": "test_corrupt_content_and_external_edits_are_not_overwritten",
+      "status": "passed"
+    },
+    {
+      "name": "test_creation_deletion_and_symlink_escape",
+      "status": "passed"
+    },
+    {
+      "name": "test_restore_preflight_then_persisted_undo_and_replay",
+      "status": "passed"
+    },
+    {
+      "name": "test_stale_preflight_and_external_edit_are_preserved",
+      "status": "passed"
+    },
+    {
+      "name": "test_crash_after_file_write_can_resume_without_overwriting_new_work",
+      "status": "passed"
+    },
+    {
+      "name": "test_completed_step_does_not_overwrite_later_edit",
+      "status": "passed"
+    },
+    {
+      "name": "test_recovery_directory_preserves_current_tree_and_does_not_claim_development",
+      "status": "passed"
+    },
+    {
+      "name": "test_history_deletion_keeps_shared_reference_and_point_content",
+      "status": "passed"
+    },
+    {
+      "name": "test_rotation_releases_old_snapshot_manifests_but_keeps_history",
+      "status": "passed"
+    },
+    {
+      "name": "test_binding_is_immutable_and_resolves_trusted_root",
+      "status": "passed"
+    },
+    {
+      "name": "test_stale_parent_cannot_move_active_or_historical_session[values0-busy]",
+      "status": "passed"
+    },
+    {
+      "name": "test_stale_parent_cannot_move_active_or_historical_session[values1-unavailable]",
+      "status": "passed"
+    },
+    {
+      "name": "test_stale_parent_cannot_move_active_or_historical_session[values2-legacy]",
+      "status": "passed"
+    },
+    {
+      "name": "test_stale_parent_cannot_move_active_or_historical_session[values3-legacy]",
+      "status": "passed"
+    },
+    {
+      "name": "test_repository_replaced_at_same_path_cannot_resume",
+      "status": "passed"
+    },
+    {
+      "name": "test_real_linked_worktree_and_safe_removal",
+      "status": "passed"
+    },
+    {
+      "name": "test_dirty_and_unmerged_results_are_preserved",
+      "status": "passed"
+    },
+    {
+      "name": "test_main_root_and_preexisting_target_protected",
+      "status": "passed"
+    },
+    {
+      "name": "test_outside_repo_cannot_be_adopted",
+      "status": "passed"
+    },
+    {
+      "name": "test_overlapping_managed_root_rejected",
+      "status": "passed"
+    },
+    {
+      "name": "test_candidate_preserves_source_commits_and_integrates_exactly_once",
+      "status": "passed"
+    },
+    {
+      "name": "test_conflicts_leave_main_and_task_untouched",
+      "status": "passed"
+    },
+    {
+      "name": "test_dirty_target_and_changed_target_refuse_integration",
+      "status": "passed"
+    },
+    {
+      "name": "test_repository_management_operations_are_serialized",
+      "status": "passed"
+    },
+    {
+      "name": "test_forged_linked_git_pointer_is_rejected",
+      "status": "passed"
+    },
+    {
+      "name": "test_reuse_pin_rotation_and_expired_reference_rejection",
+      "status": "passed"
+    },
+    {
+      "name": "test_incomplete_content_and_wrong_workspace_rejected",
+      "status": "passed"
+    },
+    {
+      "name": "test_exact_twelve_ordinary_and_three_protected_points",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change0]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change1]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change2]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change3]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change4]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change5]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change6]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change7]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change8]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change9]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change10]",
+      "status": "passed"
+    },
+    {
+      "name": "test_template_rejects_unapproved_inputs[change11]",
+      "status": "passed"
+    },
+    {
+      "name": "test_fixed_git_export_and_dependency_mismatch",
+      "status": "passed"
+    },
+    {
+      "name": "test_cleanup_failure_never_attests_pass_and_retry_reconciles",
+      "status": "passed"
+    },
+    {
+      "name": "test_unknown_prior_execution_is_not_replayed",
+      "status": "passed"
+    },
+    {
+      "name": "test_real_candidate_sqlite_mysql_browser_and_cleanup",
+      "status": "skipped"
+    },
+    {
+      "name": "test_reconciler_cleans_owned_interruption_without_replaying",
+      "status": "passed"
+    },
+    {
+      "name": "test_manifest_symlink_is_not_followed",
+      "status": "passed"
+    },
+    {
+      "name": "test_capability_requires_present_pinned_images_with_approved_platform",
+      "status": "passed"
+    },
+    {
+      "name": "test_controller_does_not_shadow_application_server_module",
+      "status": "passed"
+    },
+    {
+      "name": "test_capacity_scope_expiry_and_live_lock_are_fail_closed",
+      "status": "passed"
+    },
+    {
+      "name": "test_crud_and_readiness",
+      "status": "passed"
+    },
+    {
+      "name": "test_owner_and_revoked_space",
+      "status": "passed"
+    },
+    {
+      "name": "test_claim_fencing_terminal_and_replay",
+      "status": "passed"
+    },
+    {
+      "name": "test_restart_never_releases_unknown_lock",
+      "status": "passed"
+    },
+    {
+      "name": "test_stop_queued_and_running",
+      "status": "passed"
+    },
+    {
+      "name": "test_request_id_conflict_and_validation",
+      "status": "passed"
+    },
+    {
+      "name": "test_authentication_and_logs_have_no_prompt",
+      "status": "passed"
+    },
+    {
+      "name": "test_space_expiry_is_time_aware",
+      "status": "passed"
+    },
+    {
+      "name": "test_two_workers_cannot_claim_same_turn",
+      "status": "passed"
+    },
+    {
+      "name": "test_space_catalog_filters_non_members",
+      "status": "passed"
+    },
+    {
+      "name": "test_admission_reservation_idempotency_and_terminal_settlement",
+      "status": "passed"
+    },
+    {
+      "name": "test_material_snapshots_history_and_trace_are_sanitized",
+      "status": "passed"
+    },
+    {
+      "name": "test_execution_config_capability_send_history_and_trace_are_sanitized",
+      "status": "passed"
+    },
+    {
+      "name": "test_material_api_validation_and_skill_candidates",
+      "status": "passed"
+    },
+    {
+      "name": "test_material_behavior_events_are_allowlisted",
+      "status": "passed"
+    },
+    {
+      "name": "test_branch_catalog_and_uploaded_file_material_are_revalidated",
+      "status": "passed"
+    },
+    {
+      "name": "test_limits_default_unlimited_and_invalid_fail_closed",
+      "status": "passed"
+    },
+    {
+      "name": "test_concurrent_admission_returns_one_id",
+      "status": "passed"
+    },
+    {
+      "name": "test_execution_persists_reply_diff_and_settles_confirmed_usage",
+      "status": "passed"
+    },
+    {
+      "name": "test_diff_marks_workspace_snapshot_status",
+      "status": "passed"
+    },
+    {
+      "name": "test_start_request_without_ack_keeps_unknown_and_reservation",
+      "status": "passed"
+    },
+    {
+      "name": "test_run_claim_accepts_source_workspace_identity",
+      "status": "passed"
+    },
+    {
+      "name": "test_run_claim_allows_multiple_source_conversation_baselines",
+      "status": "passed"
+    },
+    {
+      "name": "test_run_claim_preserves_legacy_copy_workspace",
+      "status": "passed"
+    },
+    {
+      "name": "test_execution_disconnect_after_external_turn_keeps_unknown_lock_and_reservation",
+      "status": "passed"
+    },
+    {
+      "name": "test_live_app_server_two_rounds_through_persistent_runner",
+      "status": "skipped"
+    },
+    {
+      "name": "test_incremental_indexes_are_present",
+      "status": "passed"
+    },
+    {
+      "name": "test_relations_snapshots_and_revocation",
+      "status": "passed"
+    },
+    {
+      "name": "test_relation_scope_links_and_context_bounds",
+      "status": "passed"
+    },
+    {
+      "name": "test_retry_reuses_snapshot_and_queued_stop_settles",
+      "status": "passed"
+    },
+    {
+      "name": "test_repository_revocation_blocks_history_and_executor",
+      "status": "passed"
+    },
+    {
+      "name": "test_write_policy_requires_current_role_and_sprint_change",
+      "status": "passed"
+    },
+    {
+      "name": "test_write_policy_grants_archive_scope_only_for_opsx_archive_turn[requirement]",
+      "status": "passed"
+    },
+    {
+      "name": "test_write_policy_grants_archive_scope_only_for_opsx_archive_turn[requirement_id]",
+      "status": "passed"
+    },
+    {
+      "name": "test_write_policy_grants_archive_scope_for_legacy_source_bug_trace",
+      "status": "passed"
+    },
+    {
+      "name": "test_write_policy_archives_standalone_change_with_sprint_and_continuation",
+      "status": "passed"
+    },
+    {
+      "name": "test_archive_scope_survives_cli_legacy_directory_transition",
+      "status": "passed"
+    },
+    {
+      "name": "test_conversation_read_includes_write_scope",
+      "status": "passed"
+    },
+    {
+      "name": "test_analysis_object_is_read_only_even_for_space_writer[captured]",
+      "status": "passed"
+    },
+    {
+      "name": "test_analysis_object_is_read_only_even_for_space_writer[exploring]",
+      "status": "passed"
+    },
+    {
+      "name": "test_observability_trusted_ids_and_retention",
+      "status": "passed"
+    },
+    {
+      "name": "test_trace_failure_does_not_rollback_business",
+      "status": "passed"
+    },
+    {
+      "name": "test_observability_retention_keeps_100_day_behavior_and_unfinished_trace",
+      "status": "passed"
+    },
+    {
+      "name": "test_history_deletion_checks_current_code_and_preserves_audit",
+      "status": "passed"
+    },
+    {
+      "name": "test_history_filters_all_and_pinned",
+      "status": "passed"
+    },
+    {
+      "name": "test_unknown_reconciliation_reads_exact_turn_without_restart",
+      "status": "passed"
+    },
+    {
+      "name": "test_stop_behavior_links_only_authorized_turn",
+      "status": "passed"
+    },
+    {
+      "name": "test_output_limit_is_explicit_and_requests_interrupt",
+      "status": "passed"
+    },
+    {
+      "name": "test_revocation_during_execution_closes_adapter_and_hides_output",
+      "status": "passed"
+    },
+    {
+      "name": "test_running_turn_keeps_original_read_only_scope_after_primary_object_added",
+      "status": "passed"
+    },
+    {
+      "name": "test_create_idempotency_permissions_conflict_and_tombstone",
+      "status": "passed"
+    },
+    {
+      "name": "test_concurrent_create_returns_one_conversation",
+      "status": "passed"
+    },
+    {
+      "name": "test_archive_workspace_preflight_detects_empty_and_hidden_tool_dirs",
+      "status": "passed"
+    },
+    {
+      "name": "test_archive_workspace_preflight_scans_all_project_trees",
+      "status": "passed"
+    },
+    {
+      "name": "test_two_round_diff_has_distinct_cumulative_baseline",
+      "status": "passed"
+    },
+    {
+      "name": "test_snapshot_never_follows_links_or_special_files",
+      "status": "passed"
+    },
+    {
+      "name": "test_limits_preserve_metadata_without_fake_text",
+      "status": "passed"
+    },
+    {
+      "name": "test_git_snapshot_skips_ignored_runtime_data",
+      "status": "passed"
+    },
+    {
+      "name": "test_workspace_copies_only_committed_tree_and_preserves_source",
+      "status": "passed"
+    },
+    {
+      "name": "test_exact_rename_records_old_path",
+      "status": "passed"
+    },
+    {
+      "name": "test_existing_content_schema_gains_reference_indexes_idempotently",
+      "status": "passed"
+    },
+    {
+      "name": "test_content_publish_replay_and_isolation",
+      "status": "passed"
+    },
+    {
+      "name": "test_uncommitted_content_and_chunk_checkpoints",
+      "status": "passed"
+    },
+    {
+      "name": "test_result_replay_and_conflict",
+      "status": "passed"
+    },
+    {
+      "name": "test_source_gap_and_orphan_cleanup_keep_committed_result",
+      "status": "passed"
+    },
+    {
+      "name": "test_storage_quota_atomic_and_metadata_idempotent",
+      "status": "passed"
+    },
+    {
+      "name": "test_disk_failure_preserves_previous_commit",
+      "status": "passed"
+    },
+    {
+      "name": "test_chat_lock_budget_restores_pool_configuration",
+      "status": "passed"
+    },
+    {
+      "name": "test_concurrent_writers_cannot_exceed_finite_operating_storage",
+      "status": "passed"
+    },
+    {
+      "name": "test_lock_budget_survives_repeated_pool_replacement",
+      "status": "passed"
+    },
+    {
+      "name": "test_defaults_and_deprecated_turn_budget",
+      "status": "passed"
+    },
+    {
+      "name": "test_snapshot_diff_and_full_text_pages",
+      "status": "passed"
+    },
+    {
+      "name": "test_segments_long_output_are_readable_and_authorized",
+      "status": "passed"
+    },
+    {
+      "name": "test_v2_run_uses_chunk_output",
+      "status": "passed"
+    },
+    {
+      "name": "test_snapshot_resume_reuses_committed_content_and_detects_rename",
+      "status": "passed"
+    },
+    {
+      "name": "test_legacy_backfill_restart_and_missing_text",
+      "status": "passed"
+    },
+    {
+      "name": "test_late_receipt_corrects_usage_once",
+      "status": "passed"
+    },
+    {
+      "name": "test_v2_manifest_matches_independent_content_and_mode_scan",
+      "status": "passed"
+    },
+    {
+      "name": "test_v2_drift_never_publishes_complete_snapshot",
+      "status": "passed"
+    },
+    {
+      "name": "test_v2_does_not_follow_symlinks_or_hardlinks",
+      "status": "passed"
+    },
+    {
+      "name": "test_result_pages_reauthorize_every_request",
+      "status": "passed"
+    },
+    {
+      "name": "test_exact_block_diff_is_paged_and_scope_bound",
+      "status": "passed"
+    },
+    {
+      "name": "test_storage_observability_links_request_and_filters_content",
+      "status": "passed"
+    },
+    {
+      "name": "test_unknown_reconciliation_preserves_output_and_stores_authoritative_final",
+      "status": "passed"
+    },
+    {
+      "name": "test_backup_yields_source_lock_and_keeps_concurrent_commit",
+      "status": "passed"
+    },
+    {
+      "name": "test_busy_automatic_copy_keeps_old_backup_and_worker_retries",
+      "status": "passed"
+    },
+    {
+      "name": "test_real_backup_delete_restore_cannot_resurrect",
+      "status": "passed"
+    },
+    {
+      "name": "test_missing_ledger_blocks_deletion_and_restore",
+      "status": "passed"
+    },
+    {
+      "name": "test_corrupt_backup_existing_target_and_wrong_database_rejected",
+      "status": "passed"
+    },
+    {
+      "name": "test_empty_conversation_deletion_also_survives_restore",
+      "status": "passed"
+    },
+    {
+      "name": "test_automatic_rotation_preserves_manual_and_protected_backups",
+      "status": "passed"
+    },
+    {
+      "name": "test_old_unclassified_snapshots_are_not_rotated",
+      "status": "passed"
+    },
+    {
+      "name": "test_rotation_failure_keeps_previous_recovery_point_and_trace",
+      "status": "passed"
+    },
+    {
+      "name": "test_worker_snapshot_start_and_periodic_limit_zero",
+      "status": "passed"
+    },
+    {
+      "name": "test_snapshot_registration_failure_preserves_old_backup",
+      "status": "passed"
+    },
+    {
+      "name": "test_interrupted_expiry_reconciles_file_and_ledger",
+      "status": "passed"
+    },
+    {
+      "name": "test_v2_deleted_content_cannot_return_through_backup",
+      "status": "passed"
+    },
+    {
+      "name": "test_governance_turn_keeps_narrow_profile_when_change_becomes_implementation_ready",
+      "status": "passed"
+    },
+    {
+      "name": "test_all_source_aliases_and_sprint_aliases",
+      "status": "passed"
+    },
+    {
+      "name": "test_conflict_type_mismatch_fail_closed",
+      "status": "passed"
+    },
+    {
+      "name": "test_governance_candidate_does_not_gain_implementation",
+      "status": "passed"
+    },
+    {
+      "name": "test_missing_field_stage_and_member_do_not_grant_implementation",
+      "status": "passed"
+    },
+    {
+      "name": "test_permission_event_persistence_deduplication_and_redaction",
+      "status": "passed"
+    },
+    {
+      "name": "test_profile_mismatch_and_write_downgrade_are_blocked",
+      "status": "passed"
+    },
+    {
+      "name": "test_real_bug_alias_shape_and_version_hashes",
+      "status": "passed"
+    },
+    {
+      "name": "test_request_profile_acknowledgment",
+      "status": "passed"
+    },
+    {
+      "name": "test_stable_invalid_is_classified_once_and_recovers",
+      "status": "passed"
+    },
+    {
+      "name": "test_cache_checks_actual_bytes_and_add_delete_rename",
+      "status": "passed"
+    },
+    {
+      "name": "test_cache_namespace_bounds_and_writer_isolation",
+      "status": "passed"
+    },
+    {
+      "name": "test_unsafe_tree_and_changing_tree_have_distinct_safe_errors",
+      "status": "passed"
+    },
+    {
+      "name": "test_error_envelope_request_correlation_and_no_source_leak",
+      "status": "passed"
+    },
+    {
+      "name": "test_existing_candidate_guard_rejects_invalid_registry_without_mutation",
+      "status": "passed"
+    },
+    {
+      "name": "test_warm_validation_never_bypasses_snapshot_limits[LIMIT_FILE-4]",
+      "status": "passed"
+    },
+    {
+      "name": "test_warm_validation_never_bypasses_snapshot_limits[LIMIT_TOTAL-4]",
+      "status": "passed"
+    },
+    {
+      "name": "test_warm_validation_never_bypasses_snapshot_limits[LIMIT_COUNT-1]",
+      "status": "passed"
+    },
+    {
+      "name": "test_binding_change_still_rejected_with_warm_tree",
+      "status": "passed"
+    },
+    {
+      "name": "test_probe_uses_immutable_image_and_restricted_container",
+      "status": "passed"
+    },
+    {
+      "name": "test_probe_rejects_unpinned_or_failed_image",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_isolated_evidence_and_rejects_client_target",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_mounts_only_verified_artifact_readonly",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_blocks_when_evidence_disk_capacity_is_low",
+      "status": "passed"
+    }
+  ],
+  "source_hashes": {
+    "src/backend/app/chat/admission.py": "1ae5beae76cbc88acba10e322a18d13c70a3a96d68c5d81ddc1719743b1cf335",
+    "src/backend/app/chat/api.py": "71ba842d5ab79f6881126853caab57fdeb61833b071ab52a116db10ae6198aa0",
+    "src/backend/app/chat/backup.py": "3bf9bb536b758c45bd18f181b93ec114435d3daa2cdf667253bccdbd78c040c8",
+    "src/backend/app/chat/cleanup.py": "c5e7679aeeda6821811a66132778450eacfdbacc11bd79d186521a99a682737a",
+    "src/backend/app/chat/container_server.py": "145d4a3502194078da77552883ff7bb6dc6252df8266440a5c53b5363c0af9e3",
+    "src/backend/app/chat/content_store.py": "726519553a281e5b8e8bb8c9238927040223a1876fb8c3a8eb8374d1228e0bd0",
+    "src/backend/app/chat/execution.py": "0c24de19e52a45a66cdfa4200d7e8b1321538a1f8ce0f9d82960e040caa81593",
+    "src/backend/app/chat/local_worker.py": "5a9d0c4406c569a54f325afe5eebe01363982533bb51a576b2062aa129243891",
+    "src/backend/app/chat/observability.py": "5a48f4a75db5d253bcf8d64d476eb1bed4d6c484c7b18d98e62e841032cb653a",
+    "src/backend/app/chat/platform_worker.py": "0b6667621a9cce9b50cbeeeb691a280fc3f805bbb4d9add7ebb022d90c8b601e",
+    "src/backend/app/chat/preparation_failure.py": "9094dbf6b9d375a418056d9befe79cdd244a64795d7753e6409f9e2769fff5fd",
+    "src/backend/app/chat/resource_guard.py": "19909ec815b98a1c44fbdb7d2ccf8c12946bbaf5299e6171f4c157de80637df4",
+    "src/backend/app/chat/result_reader.py": "0d472beaa7426b5e8a3d04528cfff66d649e2335a8ea6fdc16e22f1c30a7787d",
+    "src/backend/app/chat/schema.py": "dfa504a6adfd3eae263621a2a6763207938caf184f231b3b12a76cf98eebca90",
+    "src/backend/app/chat/service.py": "98ba84b2a36ca0f65e903038d044f20627424773121458f9c6f730d72329d8e9",
+    "src/backend/app/chat/snapshot_store.py": "5731ea6cdacbb64bb813a3cfbf38c9d1a378adaad65bd4c835b6ca275f6307e2",
+    "src/backend/app/chat/worker.py": "38ed470e0fe5b7fd08acb813dd763a8884ed359c211dc9116ec7ccb2e807e828",
+    "src/backend/app/governance/reader.py": "e3986e82d724e594f4602544a425936ccfcc8e7f873a5137cda51238b4449e0d",
+    "src/backend/app/moonbox_app_server/__init__.py": "dcb49bace3b48323fb2d73903448865899ca70b3fe538e02f1a8594a2cd1c4c7",
+    "src/backend/app/moonbox_app_server/workspace_api.py": "1a8708af1007151244928f0a729504b4c93482934ee0e290c5c64dfdd508dee4",
+    "src/backend/app/moonbox_core/__init__.py": "c7280338605a4dcd5e78075c332b26551c73907914490d2ad0ac5e2248f6ad0f",
+    "src/backend/app/moonbox_core/authority.py": "6361c2b5c3ce404b7d475d4ba68cd161f88940780c39d20039054a4d1472ffc8",
+    "src/backend/app/moonbox_core/completion.py": "e0febd966057bdfb22433e1a84c1793fd912face7d9ab032978f2313a51908fb",
+    "src/backend/app/moonbox_core/delivery_policy.py": "68854b1bb22141f347ff908d607fe50a07cc927011afe28437a001ff95f063c5",
+    "src/backend/app/moonbox_core/governance_projection.py": "3738bc8f607835be92fe686f91c702bd08ccad633c7b2d443a3612f3d9197822",
+    "src/backend/app/moonbox_core/integration.py": "5a6c46a603b70538b491b1bcf93019e6a619fef1ffaee74ac9d94be7cacdc2cc",
+    "src/backend/app/moonbox_core/integration_schema.py": "f334021029f1f8f8dbed9ee24e0356b55f46174c359b8a97fc3bfb0d08156567",
+    "src/backend/app/moonbox_core/integration_worker.py": "590ca785fa8111d60b99eca568878e6d771d6014a2393a16ddce29c25beafbca",
+    "src/backend/app/moonbox_core/lifecycle.py": "dfaa50acd341a3647ca8931cad34cdd5c906425ca9540a9213fafc591eceed92",
+    "src/backend/app/moonbox_core/merge.py": "c3239dc6b1b1c20186c063d6224a7210c944b052167b811fd05ea42913ca1ac9",
+    "src/backend/app/moonbox_core/migration.py": "88745db5c422c71755284bbd492efd46d04ed8a2bcf4fb796124b19ab83ebbf9",
+    "src/backend/app/moonbox_core/observability.py": "1dc072db0a7792d29e0dad0bd7b414bc56d6bd9e8f95be62e1f902baca09e6e4",
+    "src/backend/app/moonbox_core/projection.py": "a4b57758f9f754924e293565621812bdf86d20b78fab7d323ba7522005177241",
+    "src/backend/app/moonbox_core/schema.py": "2b3b507830bff434b00d9ee94266711b784cf6eda6efe37ca2e68ad11696fbbd",
+    "src/backend/app/moonbox_core/service.py": "a5a6bc0772a819274c01fdedf532abfb7ad2f8b26ff8f93054a4dc7c45b1b061",
+    "src/backend/app/moonbox_core/sessions.py": "29ddeef0f3f76eedf29de842649464b659c03ecf5f32fc1341c16029b21ff3a8",
+    "src/backend/app/moonbox_core/workspaces.py": "63b6d4545670ee1dd0c2e064b79a50926035f74560be88652e642003908dfacb",
+    "src/backend/app/moonbox_exec/__init__.py": "e2d533fce102d5d334e2d0c570e87efdf0b1b19b2b7e79ff5be75101583f643d",
+    "src/backend/app/moonbox_exec_server/__init__.py": "ffc2eabc7284da56e6832c7df6bb80572f758cb291ddd10b154b808775bb50bb",
+    "src/backend/app/moonbox_exec_server/context.py": "926bc0b2bd0b2cfb20494e0a2013f0737660d31516a7241feb7af8b67c149e00",
+    "src/backend/app/moonbox_exec_server/git_view.py": "8c6dc34a71b74fbbffda226edafc2721cb4f5318729d99e5ab26ba63d398b646",
+    "src/backend/app/moonbox_exec_server/runtime.py": "7340c17a81ecf7c41d15dda2f7af99cee5002494a0e1edc61d426b1ca89179a8",
+    "src/backend/app/moonbox_exec_server/scope.py": "52f7376636419b7d898f303060cc26d109e876864c8750f8aca1bba16667f36d",
+    "src/backend/app/moonbox_exec_server/validation.py": "77fcf68f531de1b01bfa640cd993cea8166a9f19aff492e9193e952e92acd475",
+    "src/backend/app/moonbox_rollout/__init__.py": "7617548dade11deb108e56ec1ce8b03f6980c1630922fca9d6f64e47213ca553",
+    "src/backend/app/moonbox_rollout/catalog.py": "eeddb82331ed83e8074a7ee4bcc7e670684f544a0248e3bd9b397a304fb48aa2",
+    "src/backend/app/moonbox_rollout/execution.py": "2033546e2c103274ba92b2cc0addbe0923af3561fb43f3eee84823c0b48757de",
+    "src/backend/app/moonbox_rollout/migration.py": "848241bf6855fe0c18b0b32e3ca78400910ed9fd2def952ab3de2cecab9a17aa",
+    "src/backend/app/moonbox_rollout/recovery.py": "fd244535b0a5dfa55d6cf12ae870c8a9ce28e740a47b155eb6895d96dd8a3282",
+    "src/backend/app/moonbox_rollout/recovery_tree.py": "a689c93cdf245a1cd8eb7423e53f3482bf477544463f61085ee5d1f6621f0478",
+    "src/backend/app/moonbox_rollout/restore.py": "2eba05f3be6be18e6529b1063b34c8f241508dec4fbbbba8c0cd42fe7fe339a9",
+    "src/backend/app/moonbox_rollout/restore_io.py": "a5ec1d687329b5090d4d9bd0511e4651e5146570674cabe39562849544a3ccd0",
+    "src/backend/app/moonbox_rollout/schema.py": "abed3905b673c7a74bb5995c054eefea4b65186544b8f79340e9511496d94a52",
+    "src/backend/app/moonbox_worktree/__init__.py": "ea021a6d04a21c3a35c4a1079cc30b2bbf0478c050f02be9ec89509600b37a2f",
+    "src/backend/app/moonbox_worktree/git.py": "07376009352415c6d2f1f763d8ea338b14631292c126c947ac548ba188021aec",
+    "src/backend/app/schemas/requirement_center.py": "c78ac70cf6323ab2b2b8388cef61d4434a1bd13e45cbfaad46a4fd903db97738",
+    "src/backend/app/verification/__init__.py": "0d6a0b40bede2c77e0c43266cd94c23bb48b1e59072bd163f5c2f68cd0869354",
+    "src/backend/app/verification/artifacts.py": "31bdf429e65939557bc38305a19b5f235b07e6a42f14c57f04e730b315897e2d",
+    "src/backend/app/verification/candidate.py": "2284fcfa9dccd4bf160a025e8069c4e000c6d6ed6de0829c1e81c0a3cd247783",
+    "src/backend/app/verification/candidate_schema.py": "a1dee8ba0d1729aee88a521741aff75132946f0da6ebd91e16c8daf873b56291",
+    "src/backend/app/verification/candidate_template.py": "9e46775844c72220d0e6e0791b2e38be5b20acf1c6b5a505ad27a182b5e73428",
+    "src/backend/app/verification/environment.py": "496f2d4ca017591418c33f9cb9a2d22c062625fbffcc4b8699220ea1c2181c73",
+    "src/backend/app/verification/preparation.py": "af6d5f77cf99ee88e4c2158b8fcd6520a0d539b77fe8b278a6dd1ffdec8a2678",
+    "src/backend/app/verification/runner.py": "a6ae4dd2d2e1bc58ee078d584bfd0d271958ea184da56995298d9e03783ff967",
+    "src/backend/app/verification/service.py": "0799630d127e0660466e36964de293bb22b6b836e4852043de074cafb393f46e",
+    "src/backend/app/verification/tasks.py": "11e70bb859ef00151362be811ac161f3fa86e406ef0e82264db85d2cdd45be5d",
+    "src/backend/app/verification/worker.py": "420765d1ddef0a034f858051dbee9507b69e374f377964003d5b8ecb7c4114e7",
+    "src/backend/tests/test_workspace_api.py": "7094a7cc8a5f746da1bc66c09553de03238b0c1eb0c12249238dd91d1375450d",
+    "src/backend/tests/test_workspace_authority.py": "233546b364a2328b25bb9992623866d40531cafbe1e1900582a260a485a9fc5e",
+    "src/backend/tests/test_workspace_completion.py": "2f711e8238aecd39d941651a1f5399f82717e9dae7274d4a66cf46dc3afa8ef8",
+    "src/backend/tests/test_workspace_dispatch.py": "16999b431b8415c12d1a08952450ed6e9f099c2bbdf9253cd26f1f6ed190756a",
+    "src/backend/tests/test_workspace_git_view.py": "30cfa7c34ffe0c7260c0815f7d2ccd5b3f276319c343c9365b59ec4bdbbe2bbd",
+    "src/backend/tests/test_workspace_integration.py": "40442dc6dbf18fee6fafe3edcc3f420d0b0c7e191c4d21673e1606670ba7f445",
+    "src/backend/tests/test_workspace_legacy_points.py": "2998671669cc3213df36bbe07e65fea242a822b5f984904d7342ed7d1c6c6326",
+    "src/backend/tests/test_workspace_live.py": "5817aa5d6f5bda95ae6d14cc519729608d864edc6b57fe054e0ea81299fc90c9",
+    "src/backend/tests/test_workspace_merge_contract.py": "e9edd091364d25a6788c4f56070e42c685f6e1d9c63a70f792bc3300ef85e22c",
+    "src/backend/tests/test_workspace_performance_sample.py": "3eed8fcbe626ab1e4ea8261e58709be21c555c50fbc302c34493235150f9200b",
+    "src/backend/tests/test_workspace_recovery_policy.py": "2d8c798017c24143696fc0028b6bd9a9aedf27ece32975c8f8b31ccfa824bfe1",
+    "src/backend/tests/test_workspace_registry.py": "83fb26788ecf683f303129c8a9851ee5ede86f54a38bc6b8f71812e1601dab66",
+    "src/backend/tests/test_workspace_restore_io.py": "9d01617ebaaa56c73570023b471cebc766b2e126c4744f731f043d016d9924f1",
+    "src/backend/tests/test_workspace_restore_operation.py": "4d822653906f4ab1f91ba96696132cb09caa6b3eeb3444c0e0e9c9bcc3a367a4",
+    "src/backend/tests/test_workspace_sessions.py": "34661934ef7ad14adf9a1c45a08c7e879edeaab9cd8963c2670efdb12fb35897",
+    "src/backend/tests/workspace_verification.py": "0d3beecadbcbac18d907d8651aaaed373ef10380852f5c3d75b2149ce3ed3710",
+    "src/backend/tests/test_managed_worktree_git.py": "0436e79ccd8200a4bc761967dadc401050a64fca60da513dfcfc88141ce6b594",
+    "src/backend/tests/test_recovery_catalog.py": "7c55e803ae2f0d622595ff2a8815078614912ff7400d8a91f2fca7142212c1fe",
+    "src/backend/tests/test_candidate_supplier.py": "fafa0e6a72d2d0d49b3199442b7c6a07f30ff7dd4f0e966f0d3dc5f53b9cc398",
+    "src/backend/tests/test_chat.py": "68bb8926f6e46a0fb9ff1935d751cd6953446121f3aa49a91ba2031483838204",
+    "src/backend/tests/test_chat_workspace.py": "701849ccb644c1c0817ef158270a5271e078b231fe15e88eb98601e6a1f00652",
+    "src/backend/tests/test_chat_content_store.py": "5818fa7bc5dd2ff6f232ff4efdbc0bb3ca059dd67eeeab2b9649baab155ca181",
+    "src/backend/tests/test_chat_scalable.py": "f28032f564772325a78d68869118583c074d05e86b550a7032fcef2d4750049c",
+    "src/backend/tests/test_chat_backup.py": "2d3758bd9e71b489064dc811aef6d122feeffee71dd4d0fd1d9aa973048a6863",
+    "src/backend/tests/test_permission_governance_contract.py": "13ea38dcddf51a3375558d58b82a25e53b03db6d4e2e8c70778cf4c35ea8fab9",
+    "src/backend/tests/test_governance_read_cache.py": "ee615929088e04562dc071a2a47b689e1227410f858a18a93cfaf2a6be142e12",
+    "src/backend/tests/test_verification_runner.py": "38120822eee3ab0e302cf83f5e51f84398a38cdf1d29921ef68219c17f4ef0a6"
+  }
+}

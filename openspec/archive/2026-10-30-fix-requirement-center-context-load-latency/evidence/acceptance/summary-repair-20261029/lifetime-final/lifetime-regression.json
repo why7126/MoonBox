@@ -1,0 +1,18 @@
+{
+  "before": {
+    "failed": 3,
+    "workers": [
+      1,
+      2,
+      4
+    ],
+    "condition": "completed read still owns request metadata when cyclic GC is disabled"
+  },
+  "after": {
+    "focused_passed": 80,
+    "failed": 0,
+    "condition": "completed reads release metadata by reference count after all workers finish"
+  },
+  "implementation": "break mutually recursive traversal closure cells after thread completion; no explicit GC or allocator trimming in production",
+  "long_resource_status": "passed"
+}

@@ -58,6 +58,12 @@ def initial_snapshot_delay(factory, store, database, snapshot_limit):
 
 
 def reconcile_idle_history(factory, workspace):
+    from app.moonbox_core.integration_worker import tick as integrate_confirmed
+    integrate_confirmed(factory)
+    from app.moonbox_core.completion import reconcile as reconcile_workspace_completion
+    reconcile_workspace_completion(factory)
+    from app.verification.candidate import CandidateSupplier
+    CandidateSupplier().reconcile(factory)
     with factory() as db:
         for row in pending(db):
             reconcile_usage(db, row['id'])
@@ -124,7 +130,13 @@ def main():
         try: run_claim(factory,claim,path,server)
         except Exception: mark_unknown(factory,claim,'platform_execution_setup_failed')
     def workspace(cid):
-        with factory() as db: parent=db.execute(select(conversations).where(conversations.c.id==cid)).mappings().one()
+        with factory() as db:
+            parent=db.execute(select(conversations).where(conversations.c.id==cid)).mappings().one()
+            from app.moonbox_core.sessions import execution_workspace
+            managed = execution_workspace(db, parent)
+            if managed:
+                source, _, _ = roots[(parent['space_id'], parent['repository_id'])]
+                return source, managed[1]
         source,root,mode=roots[(parent['space_id'],parent['repository_id'])]
         return source,source if mode=='source' else root/cid
     recovery_slot = RecoverySlot(factory, workspace, server, policy)
@@ -148,7 +160,7 @@ def main():
                     from app.chat.content_store import collect_orphans
                     with factory() as db:
                         idle_ids = list(db.scalars(select(conversations.c.id).where(
-                            conversations.c.active_turn_id.is_(None), conversations.c.deleted_at.is_(None),
+                            conversations.c.active_turn_id.is_(None),
                             conversations.c.id > gc_cursor).order_by(conversations.c.id).limit(10)))
                         gc_cursor = idle_ids[-1] if idle_ids else ''
                         for cid in idle_ids:

@@ -87,7 +87,8 @@ def read_body(fd, size):
     return b''.join(chunks)
 
 
-def read_once(root, *, reuse=None, identities=None, workers=1):
+def read_once(root, *, reuse=None, identities=None, workers=1, profile='full', byte_candidates=None):
+    if profile not in ('full', 'summary'): raise ValueError('profile')
     if workers not in (1, 2, 4): raise ValueError('workers')
     files = {}; total = 0
     lock = RLock()
@@ -129,6 +130,11 @@ def read_once(root, *, reuse=None, identities=None, workers=1):
                 if (name.startswith('.') and not change_control) or name in ('node_modules','__pycache__'):
                     continue
                 relative = f'{prefix}/{name}' if prefix else name
+                # Summary reads have an explicit server-owned dependency scope.
+                # Evidence is checked by the full reader on demand, never inferred
+                # from the absence of these files in a summary materialization.
+                if profile == 'summary' and prefix.startswith(('openspec/changes/', 'openspec/archive/')) and len(prefix.split('/')) == 3 and name == 'evidence':
+                    continue
                 if entry.is_symlink(): raise ValueError('link')
                 if entry.is_dir(follow_symlinks=False):
                     if pool is not None and depth == 1:
@@ -154,6 +160,13 @@ def read_once(root, *, reuse=None, identities=None, workers=1):
                         identity = file_identity(after)
                         if file_identity(before) != identity: raise ValueError('changed')
                     finally: os.close(child)
+                    # Retain an existing immutable payload only after opening,
+                    # reading and validating this file in full. This is not the
+                    # first-pass metadata hint above: every fresh byte was read
+                    # and compared, including when timestamps are unchanged.
+                    candidate = byte_candidates.get(relative) if byte_candidates is not None else None
+                    if candidate is not None and body == candidate[1]:
+                        body = candidate[1]
                     add(relative, body, identity)
         except BaseException:
             aborted.set()
@@ -166,6 +179,7 @@ def read_once(root, *, reuse=None, identities=None, workers=1):
     fd = os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     try:
         for name in ROOTS:
+            if profile == 'summary' and name in ('docs', 'rules'): continue
             try: child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
             except FileNotFoundError: continue
             try: walk(child,name)
@@ -173,6 +187,10 @@ def read_once(root, *, reuse=None, identities=None, workers=1):
     finally:
         os.close(fd)
         if pool is not None: pool.shutdown(wait=True)
+        # The mutually recursive closures otherwise keep each request's file
+        # and metadata maps alive until cyclic GC. All submitted work has
+        # finished, so break their shared cells before returning the snapshot.
+        walk = descend = None
     return files
 
 
@@ -250,9 +268,12 @@ def cached_materialize(snapshot, namespace):
             directory = tempfile.TemporaryDirectory(prefix='moonbox-governance-cache-')
             try:
                 root = Path(directory.name).resolve()
+                created = {root}
                 for relative, body in snapshot.files.items():
                     target = root / relative
-                    target.parent.mkdir(parents=True, exist_ok=True)
+                    if target.parent not in created:
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        created.add(target.parent)
                     target.write_bytes(body)
                 _trees[key] = (directory, root, size)
             except BaseException:

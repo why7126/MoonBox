@@ -36,7 +36,8 @@ from workflow_sync.issue_status_residuals import (  # noqa: E402
     reconcile_issue_status_residuals,
     scan_issue_status_residuals,
 )
-from workflow_sync.patch import patch_issue_changelog_index, patch_registry_entry  # noqa: E402
+from workflow_sync.patch import patch_issue_changelog_index, patch_registry_entry
+from workflow_sync.prototype_references import check_references  # noqa: E402
 
 ROOT = SCRIPTS_DIR.parent
 PROMOTE_SCRIPT = SCRIPTS_DIR / "promote-issue-stage.py"
@@ -399,6 +400,30 @@ def main() -> int:
 
     reason = args.reason.strip() or default_reason
     print_report(candidates, dry_run=args.dry_run, context=context)
+    # Reference rejection must precede even the wrapper's status reconciliation.
+    reference_blocked = False
+    # A previous run may have moved the directory but failed its post-check.
+    scoped = (issues_linked_to_change(args.change, issues) if args.change else
+              [issues[key] for key in resolve_sprint_issue_ids(args.sprint) if key in issues])
+    for issue in scoped:
+        if issue.path.parent.name != "archive":
+            continue
+        findings = check_references(ROOT, issue.path, issue.path, collect_issue_change_ids(issue))
+        for finding in findings:
+            print(f"Prototype reference: {finding.describe()}")
+        reference_blocked |= any(finding.blocking for finding in findings)
+    eligible = []
+    for item in candidates:
+        issue = issues[item.issue_id]
+        target = ROOT / "issues" / ("requirements" if item.kind == "req" else "bugs") / "archive" / item.issue_id
+        findings = check_references(ROOT, issue.path, target, item.change_ids)
+        for finding in findings:
+            print(f"Prototype reference: {finding.describe()}")
+        if any(finding.blocking for finding in findings):
+            reference_blocked = True
+        else:
+            eligible.append(item)
+    candidates = eligible
     reconcile_results = reconcile_safe_residuals(candidates, issues, dry_run=args.dry_run)
     print_reconcile_results(reconcile_results)
     if reconcile_results and not args.dry_run:
@@ -411,12 +436,13 @@ def main() -> int:
     exit_code = run_promotions(candidates, dry_run=args.dry_run, reason=reason)
     if exit_code != 0:
         return exit_code
-    return refresh_promoted_indexes(
+    refresh_code = refresh_promoted_indexes(
         candidates,
         sprint_id=args.sprint,
         change_id=args.change,
         dry_run=args.dry_run,
     )
+    return refresh_code or (1 if reference_blocked else 0)
 
 
 if __name__ == "__main__":

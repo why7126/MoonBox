@@ -2,7 +2,7 @@
 bug_id: BUG-0067-chat-stream-preview-premature-truncation
 title: Chat 流式正文预览过早截断修复验收标准
 created_at: '2026-10-26 20:19:21'
-updated_at: 2026-10-27 09:10:24
+updated_at: 2026-10-30 08:33:54
 acceptance_status: passed
 ---
 
@@ -40,19 +40,19 @@ AC-003/007 的具体预算和查询上界在 Change 设计中明确后执行，�
 
 ## 实施验证摘要
 
-后端 SQLite 最终 47 项通过，MySQL 35 项及边界/状态 22 项、最终粒度/保护增量 6 项通过；前端 33 项与 TypeScript 通过。交付依据见 `openspec/changes/fix-chat-stream-preview-premature-truncation/verification.md`，截图见同 Change `evidence/acceptance/visual/`。读取不改业务状态、不重放命令；本地完整 Chat 已按授权更新；未正式归档。
+后端 SQLite 最终 47 项通过，MySQL 35 项及边界/状态 22 项、最终粒度/保护增量 6 项通过；前端 33 项与 TypeScript 通过。交付依据见 `openspec/archive/2026-10-27-fix-chat-stream-preview-premature-truncation/verification.md`，截图见同 Change `evidence/acceptance/visual/`。读取不改业务状态、不重放命令；本地完整 Chat 已按授权更新；未正式归档。
 
 ## 验收结果回填
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-27 09:10:24
+accepted_at: 2026-10-30 08:33:54
 accepted_by: workflow-sync
 source_change: fix-chat-stream-preview-premature-truncation
 source_sprint: sprint-014
 evidence: [openspec/archive/2026-10-27-fix-chat-stream-preview-premature-truncation/evidence/acceptance/20261026225142511044-12b2315e/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

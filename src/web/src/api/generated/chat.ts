@@ -59,6 +59,8 @@ export interface BehaviorEventCreate {
 }
 
 export interface ConversationRead {
+  execution_workspace_id?: string | null;
+  execution_workspace_purpose?: string | null;
   id: string;
   space_id: string;
   repository_id: string;
@@ -291,6 +293,79 @@ export interface ApiResponseListDictStrStr {
   code?: number;
   message?: string;
   data: ApiResponseListDictStrStrDataItem[];
+}
+
+export interface AcceptanceCreate {
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  conversation_id: string;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  source_turn_id: string;
+  /**
+     * @maxLength 128
+     * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+     */
+  change_id: string;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  client_request_id: string;
+}
+
+export type AcceptanceReadAllowedActionsItem = typeof AcceptanceReadAllowedActionsItem[keyof typeof AcceptanceReadAllowedActionsItem];
+
+
+export const AcceptanceReadAllowedActionsItem = {
+  verify: 'verify',
+  evidence: 'evidence',
+  'archive-evidence': 'archive-evidence',
+  stop: 'stop',
+  resume: 'resume',
+  'cleanup-retries': 'cleanup-retries',
+} as const;
+
+export interface AcceptanceCheckRead {
+  ac_id: string;
+  status: string;
+  reason_code: string | null;
+  evidence_available: boolean;
+}
+
+export interface AcceptanceRead {
+  id: string;
+  conversation_id: string;
+  source_turn_id: string;
+  change_id: string;
+  status: string;
+  version: number;
+  cleanup_state: string;
+  reason_code: string | null;
+  reason_message: string | null;
+  expires_at: number | null;
+  created_at: string;
+  updated_at: string;
+  cancel_requested: boolean;
+  ready: boolean;
+  allowed_actions: AcceptanceReadAllowedActionsItem[];
+  checks: AcceptanceCheckRead[];
+}
+
+export interface ApiResponseAcceptanceRead {
+  code?: number;
+  message?: string;
+  data: AcceptanceRead;
+}
+
+export interface AcceptanceListRead {
+  items: AcceptanceRead[];
+}
+
+export interface ApiResponseAcceptanceListRead {
+  code?: number;
+  message?: string;
+  data: AcceptanceListRead;
+}
+
+export interface AcceptanceVersion {
+  /** @minimum 1 */
+  version: number;
 }
 
 export interface VerificationTaskCreate {
@@ -2156,6 +2231,518 @@ export const verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGet 
 
   const data: verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as verificationPreflightApiV1ChatVerificationEnvironmentsPreflightGetResponse
+}
+
+
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse200 = {
+  data: ApiResponseAcceptanceRead
+  status: 200
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponseSuccess = (acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse200) & {
+  headers: Headers;
+};
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponseError = (acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse403 | acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse404 | acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse409 | acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse422 | acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse = (acceptanceCreateApiV1ChatAcceptanceOperationsPostResponseSuccess | acceptanceCreateApiV1ChatAcceptanceOperationsPostResponseError)
+
+export const getAcceptanceCreateApiV1ChatAcceptanceOperationsPostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations`
+}
+
+/**
+ * @summary 从授权轮次检查点幂等创建验收操作
+ */
+export const acceptanceCreateApiV1ChatAcceptanceOperationsPost = async (acceptanceCreate: AcceptanceCreate, options?: RequestInit): Promise<acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getAcceptanceCreateApiV1ChatAcceptanceOperationsPostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(acceptanceCreate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceCreateApiV1ChatAcceptanceOperationsPostResponse
+}
+
+
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse200 = {
+  data: ApiResponseAcceptanceListRead
+  status: 200
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponseSuccess = (acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse200) & {
+  headers: Headers;
+};
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponseError = (acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse403 | acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse404 | acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse409 | acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse422 | acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse = (acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponseSuccess | acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponseError)
+
+export const getAcceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetUrl = (conversationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/conversations/${conversationId}/acceptance-operations`
+}
+
+/**
+ * @summary 只读列出当前 Chat 验收操作
+ */
+export const acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGet = async (conversationId: string, options?: RequestInit): Promise<acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse> => {
+
+  const res = await fetch(getAcceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetUrl(conversationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceListApiV1ChatConversationsConversationIdAcceptanceOperationsGetResponse
+}
+
+
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse200 = {
+  data: ApiResponseAcceptanceRead
+  status: 200
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponseSuccess = (acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse200) & {
+  headers: Headers;
+};
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponseError = (acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse403 | acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse404 | acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse409 | acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse422 | acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse = (acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponseSuccess | acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponseError)
+
+export const getAcceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations/${operationId}`
+}
+
+/**
+ * @summary 读取当前授权的 Chat 验收操作
+ */
+export const acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGet = async (operationId: string, options?: RequestInit): Promise<acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse> => {
+
+  const res = await fetch(getAcceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetUrl(operationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceReadApiV1ChatAcceptanceOperationsOperationIdGetResponse
+}
+
+
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponseSuccess = (acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse200) & {
+  headers: Headers;
+};
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponseError = (acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse403 | acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse404 | acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse409 | acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse422 | acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse = (acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponseSuccess | acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponseError)
+
+export const getAcceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations/${operationId}/evidence`
+}
+
+/**
+ * @summary 鉴权读取验收证据摘要
+ */
+export const acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGet = async (operationId: string, options?: RequestInit): Promise<acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse> => {
+
+  const res = await fetch(getAcceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetUrl(operationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceEvidenceApiV1ChatAcceptanceOperationsOperationIdEvidenceGetResponse
+}
+
+
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse200 = {
+  data: ApiResponseDict
+  status: 200
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponseSuccess = (acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse200) & {
+  headers: Headers;
+};
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponseError = (acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse403 | acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse404 | acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse409 | acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse422 | acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse = (acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponseSuccess | acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponseError)
+
+export const getAcceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations/${operationId}/evidence/archive`
+}
+
+/**
+ * @summary 读取已转存且完整性有效的长期验收摘要
+ */
+export const acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGet = async (operationId: string, options?: RequestInit): Promise<acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse> => {
+
+  const res = await fetch(getAcceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetUrl(operationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceArchiveApiV1ChatAcceptanceOperationsOperationIdEvidenceArchiveGetResponse
+}
+
+
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse200 = {
+  data: ApiResponseAcceptanceRead
+  status: 200
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponseSuccess = (acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse200) & {
+  headers: Headers;
+};
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponseError = (acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse403 | acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse404 | acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse409 | acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse422 | acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse = (acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponseSuccess | acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponseError)
+
+export const getAcceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostUrl = (operationId: string,) => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations/${operationId}/stop`
+}
+
+/**
+ * @summary 停止 Chat 验收并围栏隔离迟到结果
+ */
+export const acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPost = async (operationId: string,
+    acceptanceVersion: AcceptanceVersion, options?: RequestInit): Promise<acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getAcceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostUrl(operationId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(acceptanceVersion)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceStopApiV1ChatAcceptanceOperationsOperationIdStopPostResponse
+}
+
+
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse200 = {
+  data: ApiResponseAcceptanceRead
+  status: 200
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponseSuccess = (acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse200) & {
+  headers: Headers;
+};
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponseError = (acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse403 | acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse404 | acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse409 | acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse422 | acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse503) & {
+  headers: Headers;
+};
+
+export type acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse = (acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponseSuccess | acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponseError)
+
+export const getAcceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostUrl = (operationId: string,
+    actionName: 'resume' | 'cleanup-retries',) => {
+
+
+
+
+  return `/api/v1/chat/acceptance-operations/${operationId}/${actionName}`
+}
+
+/**
+ * @summary 恢复已核验的验收操作或重试所属资源清理
+ */
+export const acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePost = async (operationId: string,
+    actionName: 'resume' | 'cleanup-retries',
+    acceptanceVersion: AcceptanceVersion, options?: RequestInit): Promise<acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getAcceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostUrl(operationId,actionName),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(acceptanceVersion)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as acceptanceActionApiV1ChatAcceptanceOperationsOperationIdActionNamePostResponse
 }
 
 

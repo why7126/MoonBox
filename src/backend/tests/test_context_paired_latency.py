@@ -29,6 +29,8 @@ def test_paired(chat, monkeypatch):
     old = baseline_reader(Path(os.environ['BUG_READ_BASELINE_DIR']), monkeypatch)
     prior = {name: getattr(legacy, name) for name in names}
     operation = os.environ.get('CONTEXT_PAIRED_OPERATION', 'md')
+    view = os.environ.get('CONTEXT_PAIRED_VIEW', 'full')
+    assert view in ('full', 'summary')
     route = '/context' if operation == 'context' else '/issues/BUG-0016-capture/documents/capture.md'
     samples = {'baseline': [], 'optimized': []}
     count = int(os.environ.get('CONTEXT_PAIRED_SAMPLES', '30'))
@@ -44,7 +46,8 @@ def test_paired(chat, monkeypatch):
                 monkeypatch.setattr(legacy, name, (prior if mode == 'baseline' else modern)[name])
             start = time.perf_counter()
             response = client.get('/api/v1/requirement-center' + route,
-                                  params={'space_id': 'space', 'repository_id': 'repo'})
+                                  params={'space_id': 'space', 'repository_id': 'repo',
+                                          'view': view if mode == 'optimized' else 'full'})
             elapsed = (time.perf_counter() - start) * 1000
             assert response.status_code == 200
             data = response.json()['data']
@@ -56,7 +59,7 @@ def test_paired(chat, monkeypatch):
                 samples[mode].append({'ms': elapsed, 'request_id': response.headers['X-Request-ID'],
                                       'timings': response.headers.get('Server-Timing')})
     assert snapshot.stable(root).revision == frozen.revision
-    report = {'operation': operation, 'revision': frozen.revision, 'samples': samples,
+    report = {'operation': operation, 'optimized_view': view, 'revision': frozen.revision, 'samples': samples,
               'scheme': f'{count} alternating-order pairs after one warm-up per variant', 'summary': {}}
     for mode, rows in samples.items():
         values = sorted(row['ms'] for row in rows)

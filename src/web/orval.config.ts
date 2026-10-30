@@ -1,6 +1,10 @@
 import { defineConfig } from "orval";
 
 export default defineConfig({
+  workspaces: {
+    input: { target: "./openapi.json", filters: { tags: ["Workspaces"] } },
+    output: { target: "./src/api/generated/workspaces.ts", client: "fetch", mode: "single" },
+  },
   capture: {
     input: { target: "./openapi.json", filters: { tags: ["Capture"] } },
     output: { target: "./src/api/generated/capture.ts", client: "fetch", mode: "single" },

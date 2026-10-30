@@ -3,11 +3,11 @@ req_id: REQ-0048-chat-isolated-acceptance-orchestration
 title: Chat 隔离验收环境编排与原操作续接
 status: captured
 created_at: '2026-10-21 16:24:14'
-updated_at: '2026-10-21 16:24:14'
+updated_at: 2026-10-29 10:33:29
 owner: 产品团队
 source: 用户确认的 BUG-0045 探索拆分方案
 priority: P1
-lifecycle_stage: plan
+lifecycle_stage: review
 parent_requirement: REQ-0044-shared-project-verification-environment
 related_bugs:
   - BUG-0045-chat-acceptance-runtime-capability-gap

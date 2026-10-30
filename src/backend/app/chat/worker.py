@@ -30,7 +30,14 @@ def mark_stale_unknown(db, stale_seconds=120):
 
 
 def claim(db, worker_id):
-    candidate=db.execute(select(turns).where(turns.c.status=='queued').order_by(turns.c.created_at,turns.c.id).limit(1)).mappings().first()
+    from sqlalchemy import exists
+    from app.moonbox_core.schema import session_bindings, write_locks
+    from app.moonbox_core.workspaces import acquire
+    from app.moonbox_worktree import WorktreeConflict
+    occupied = exists(select(session_bindings.c.workspace_id).join(write_locks,
+        session_bindings.c.workspace_id == write_locks.c.workspace_id).where(
+        session_bindings.c.conversation_id == turns.c.conversation_id))
+    candidate=db.execute(select(turns).where(turns.c.status=='queued', ~occupied).order_by(turns.c.created_at,turns.c.id).limit(1)).mappings().first()
     if not candidate: return None
     cid=candidate['conversation_id']; tid=candidate['id']
     won=db.execute(update(turns).where(turns.c.id==tid,turns.c.status=='queued').values(
@@ -43,6 +50,13 @@ def claim(db, worker_id):
     if won!=1:
         db.rollback();return None
     generation=db.scalar(select(conversations.c.generation).where(conversations.c.id==cid))
+    workspace_id = db.scalar(select(session_bindings.c.workspace_id).where(session_bindings.c.conversation_id == cid))
+    if workspace_id:
+        try:
+            acquire(db, workspace_id, tid, generation)
+        except WorktreeConflict:
+            db.rollback()
+            return None
     db.execute(update(turns).where(turns.c.id==tid).values(generation=generation))
     from app.chat.content_schema import prepare_attempts
     db.execute(update(prepare_attempts).where(prepare_attempts.c.turn_id == tid,

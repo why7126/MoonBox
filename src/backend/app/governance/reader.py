@@ -16,13 +16,14 @@ class ProjectReader:
     def __init__(self, db, actor, scope):
         self.db, self.actor, self.scope = db, actor, scope
 
-    def snapshot(self):
+    def snapshot(self, *, summary=False):
         from app.governance.writer import assert_readable, epoch
         before_epoch = epoch(self.db, self.scope)
         assert_readable(self.db, self.scope)
         from app.governance.read_snapshot import stable_read
         snapshot_start = perf_counter()
-        result = stable_read(self.scope.root, self.scope.binding_revision)
+        options = {'profile': 'summary'} if summary else {}
+        result = stable_read(self.scope.root, self.scope.binding_revision, **options)
         self.snapshot_ms = (perf_counter() - snapshot_start) * 1000
         # End the read transaction so MySQL REPEATABLE READ cannot hide a writer
         # that started after the first fence check. No writes are pending here.
@@ -91,8 +92,10 @@ class ProjectReader:
             }))
 
     def _call(self, name, args, kwargs, timings):
+        summary = kwargs.pop('summary', False) if name == 'build_requirement_center_context' else False
+        check_object = kwargs.pop('check_object_id', None) if name == 'build_requirement_center_context' else None
         start = perf_counter()
-        snapshot=self.snapshot()
+        snapshot=self.snapshot(summary=True) if summary else self.snapshot()
         timings["snapshot_and_fences_ms"] = round((perf_counter() - start) * 1000, 2)
         if hasattr(self, 'snapshot_ms'):
             timings['snapshot_ms'] = round(self.snapshot_ms, 2)
@@ -105,7 +108,7 @@ class ProjectReader:
         from app.governance.execution_context import IdentityIndex
         self._identities = IdentityIndex(snapshot)
         start = perf_counter()
-        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision)) as root, legacy.using_governance_root(root, immutable=True, evidence_root=self.scope.root, evidence_source_root=getattr(self.scope, "source_root", None), registry_index=self._identities, shared_memo=True):
+        with cached_materialize(Snapshot(files,snapshot.revision), (str(self.scope.root), self.scope.binding_revision, summary)) as root, legacy.using_governance_root(root, immutable=True, evidence_root=self.scope.root, evidence_source_root=getattr(self.scope, "source_root", None), registry_index=self._identities, shared_memo=True, summary=summary):
             timings["materialize_ms"] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             if name != 'build_requirement_center_context':
@@ -115,8 +118,14 @@ class ProjectReader:
             start = perf_counter()
             if name == 'build_requirement_center_context':
                 visibility = scopes.RequestVisibility(self.db, self.actor, self.scope)
+                selected = None
+                if check_object:
+                    change = not check_object.startswith(('REQ-', 'BUG-'))
+                    entries = self.authorize_object(snapshot, check_object, change=change, root=root)
+                    selected = check_object if change else entries[0]['id']
                 kwargs = {**kwargs, 'owner_space_id': self.scope.space_id,
-                          'visibility': visibility.visible}
+                          'visibility': visibility.visible,
+                          'selected_object': selected}
             from .controlled_successor import authority
             with authority(self.db, self.scope, self.actor):
                 result=getattr(legacy,name)(*args,**kwargs)
@@ -138,19 +147,33 @@ class ProjectReader:
             from app.governance.execution_context import reconcile, visible_states, canonical_id, reconcile_external_batch, IdentityIndex
             identities = self._identities
             start = perf_counter()
-            reconcile(self.db, self.actor, self.scope, snapshot=snapshot)
+            if not summary:
+                reconcile(self.db, self.actor, self.scope, snapshot=snapshot)
             timings['reconcile_ms'] = round((perf_counter() - start) * 1000, 2)
             start = perf_counter()
             external_start = perf_counter()
-            reconcile_external_batch(self.db, self.scope,
-                [(canonical_id(snapshot, card.id, identities), card.stage) for card in result.issues],
-                snapshot, actor=self.actor)
+            if not summary:
+                reconcile_external_batch(self.db, self.scope,
+                    [(canonical_id(snapshot, card.id, identities), card.stage) for card in result.issues],
+                    snapshot, actor=self.actor)
             external_seconds = perf_counter() - external_start
             states = visible_states(self.db, self.actor, self.scope,
                                     [canonical_id(snapshot, card.id, identities) for card in result.issues])
+            from app.moonbox_core.projection import delivery_overlay
+            workspace_states = delivery_overlay(self.db, self.scope.space_id, self.scope.repository_id,
+                [canonical_id(snapshot, card.id, identities) for card in result.issues])
             for card in result.issues:
+                card.checks_deferred = summary
+                if summary and card.stage == 'acceptance':
+                    card.manual_acceptance_progress = None
+                    card.acceptance_blocked_reason = '验收待检查'
+                    if card.action:
+                        card.action.disabled_reason = '验收待检查'
                 object_id = canonical_id(snapshot, card.id, identities)
-                if card.type == 'change' and card.stage == 'acceptance':
+                card.object_id = object_id
+                for key, value in workspace_states.get(object_id, {}).items():
+                    setattr(card, key, value)
+                if not summary and card.type == 'change' and card.stage == 'acceptance':
                     from app.governance.archive_admission import change_acceptance
                     admission = change_acceptance(self.scope.root, object_id, source_root=getattr(self.scope, "source_root", None))
                     if not admission['ready']:
@@ -164,11 +187,14 @@ class ProjectReader:
                 card.execution_reason = state.get('reason_code')
                 card.view_conversation_id = state.get('view_conversation_id')
                 if guard and card.view_conversation_id:
-                    from app.governance.recovery_schema import operations
                     card.view_turn_id = guard['operation_id']
-                    card.verification_operation_id = self.db.scalar(select(operations.c.id).where(operations.c.origin_turn_id == guard['operation_id']))
+                    if not summary:
+                        from app.governance.recovery_schema import operations
+                        card.verification_operation_id = self.db.scalar(select(operations.c.id).where(operations.c.origin_turn_id == guard['operation_id']))
                 from app.governance.completion_handoff import status as completion_status
-                completion = completion_status(self.db, self.actor, self.scope, guard)
+                completion = (dict(historical_result='unverified', last_checked_at=None,
+                    verification_reason='checks_deferred', verification_actions=[], verification_differences=[])
+                    if summary else completion_status(self.db, self.actor, self.scope, guard))
                 card.historical_result = completion['historical_result']
                 card.last_checked_at = completion['last_checked_at']
                 card.verification_reason = completion['verification_reason']
@@ -181,7 +207,7 @@ class ProjectReader:
                     # the current lifecycle projection while blocking its action;
                     # the old execution's stage is historical, not a rollback.
                     continuation = guard['action'] in ('opsx-apply', 'opsx-modify') and guard['state'] != 'running'
-                    if not started and not continuation and guard['confirmed_stage'] and guard['confirmed_stage'] != 'unknown' and card.historical_result != 'verified':
+                    if not summary and not started and not continuation and guard['confirmed_stage'] and guard['confirmed_stage'] != 'unknown' and card.historical_result != 'verified':
                         card.stage = guard['confirmed_stage']
                     if card.action and card.stage != 'development':
                         card.action.disabled_reason = '执行中，请查看原执行' if guard['state'] == 'running' else '结果待核对'

@@ -81,11 +81,25 @@ def content(db,actor,tid,file_id,side,cursor=None,scope='turn'):
     if side not in ('before','after'): raise service.ChatError(2504,'读取侧无效',422)
     if scope not in ('turn','cumulative'): raise service.ChatError(2504,'比较范围无效',422)
     version = data['initial_version'] if side == 'before' and scope == 'cumulative' else data[side+'_version']
+    from app.chat.content_schema import versions
+    manifest = db.execute(select(versions).where(versions.c.id == version,
+        versions.c.conversation_id == turn['conversation_id'])).mappings().first()
+    if not manifest:
+        raise service.ChatError(2504, '内容不可用', 404)
+    if manifest['status'] == 'expired':
+        raise service.ChatError(2507, '文件版本已轮转，对话记录仍保留', 410)
     item=db.execute(select(entries).where(entries.c.version_id==version,entries.c.path_key==file_id)).mappings().first()
     if not item or not item['object_id']:
         return {'status':'legacy_unavailable' if item and item['kind']=='file' else 'metadata_only','text':None,'next_cursor':None}
-    oid=item['object_id']; owner=db.scalar(select(objects.c.conversation_id).where(objects.c.id==oid))
-    if owner != turn['conversation_id']: raise service.ChatError(2504,'内容不可用',404)
+    oid=item['object_id']
+    from app.chat.schema import conversations
+    parent = db.execute(select(conversations.c.space_id, conversations.c.repository_id).where(
+        conversations.c.id == turn['conversation_id'])).one()
+    # Authority follows this live manifest reference, never an object's first owner.
+    valid = db.scalar(select(objects.c.id).join(conversations, conversations.c.id == objects.c.conversation_id).where(
+        objects.c.id == oid, objects.c.status == 'complete', conversations.c.space_id == parent.space_id,
+        conversations.c.repository_id == parent.repository_id))
+    if not valid: raise service.ChatError(2504,'内容不可用',404)
     # Reconstruct UTF-8 carry from trusted stored bytes, never from the cursor.
     cursor_stream=scope+':'+side+':'+file_id
     position=decode(cursor,tid,cursor_stream,-1)

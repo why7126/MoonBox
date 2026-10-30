@@ -25,8 +25,9 @@ def main():
                        'CONTEXT_RESOURCE_CONCURRENCY': str(concurrency),
                        'CONTEXT_RESOURCE_SECONDS': '1800',
                        'CONTEXT_RESOURCE_OUTPUT': '/results/' + name + '.json',
-                       'BUG_READ_SOURCE': '/work/fixture', 'BUG_READ_BASELINE_DIR': '/baseline',
-                       'PYTHONPATH': '/work/deps:/work'}
+                       'BUG_READ_SOURCE': os.environ.get('BUG_READ_SOURCE', '/work/fixture'),
+                       'BUG_READ_BASELINE_DIR': '/baseline',
+                       'PYTHONPATH': os.environ.get('PYTHONPATH', '/work/deps:/work')}
                 log = open('/results/' + name + '.txt', 'w')
                 process = subprocess.Popen([sys.executable, '-m', 'pytest', '-q',
                                             'tests/test_context_resources.py'], env=env, stdout=log, stderr=log)

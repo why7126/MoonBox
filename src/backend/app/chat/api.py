@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, Query, Request, Header, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.routing import APIRoute
 from starlette.concurrency import run_in_threadpool
+from app.chat.request_audit import defer_read_audit
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -111,6 +112,12 @@ class ChatRoute(APIRoute):
                                     ('/api/v1/chat/governance-candidates/{candidate_id}/applications','POST'):'governance.apply'})
                                 if self.path.startswith('/api/v1/requirement-center/') and request.method=='PUT':
                                     names[(self.path,request.method)]='governance.document_save'
+                                if self.path.startswith('/api/v1/chat/workspaces'):
+                                    names[(self.path,request.method)] = 'workspace.action' if request.method == 'POST' else 'workspace.view'
+                                if self.path.startswith('/api/v1/chat/acceptance-operations'):
+                                    if request.method=='POST':names[(self.path,request.method)]='acceptance.action'
+                                    elif self.path.endswith('/evidence'):names[(self.path,request.method)]='acceptance.evidence'
+                                    elif request.headers.get('X-Acceptance-Action')=='verify':names[(self.path,request.method)]='acceptance.verify'
                                 event=names.get((self.path,request.method))
                                 if event:
                                     success=response is not None and response.status_code<400
@@ -138,6 +145,13 @@ class ChatRoute(APIRoute):
                                                 resource[key]=effective.get(key)
                                             if payload.get('config_fallback_reason'):
                                                 resource['config_fallback']='applied'
+                                        elif event.startswith('workspace.'):
+                                            resource['operation_id'] = payload.get('id')
+                                            resource['action_type'] = self.name
+                                        elif event.startswith('acceptance.'):
+                                            resource['operation_id']=payload.get('id') or payload.get('operation_id')
+                                            resource['turn_id']=payload.get('source_turn_id')
+                                            resource['action_type']=request.path_params.get('action_name') or self.name
                                         else:resource['conversation_id']=payload.get('id') or request.path_params.get('cid')
                                     metadata={**metadata, **{key:value for key,value in resource.items() if key in ('image_count','file_count','skill_count','agent','model','reasoning','config_fallback') and value is not None}}
                                     behavior(db,event,request.state.chat_actor,rid,'success' if success else 'failure','web',resource)
@@ -147,11 +161,15 @@ class ChatRoute(APIRoute):
                                 db.execute(update(audit).where(audit.c.id == audit_identity['id']).values(
                                     metadata=json.dumps(metadata, ensure_ascii=False, sort_keys=True)))
                             db.commit()
+                        return True
                     except Exception:
                         logging.getLogger('moonbox.chat').warning('chat.request_log_unavailable')
-                await run_in_threadpool(persist_audit)
+                        return False
+                audit_deferred = defer_read_audit(request, response, persist_audit, rid)
+                if not audit_deferred:
+                    await run_in_threadpool(persist_audit)
             timings = getattr(getattr(request.state, 'governance_reader', None), 'timings', {})
-            allowed_timings = ('snapshot_and_fences_ms', 'snapshot_ms', 'fences_exclusive_ms', 'materialize_ms', 'object_authorization_ms', 'parse_ms', 'cleanup_ms', 'reconcile_ms', 'external_reconcile_ms', 'card_projection_exclusive_ms', 'projection_commit_ms', 'document_projection_ms', 'reader_orchestration_ms', 'total_ms', 'dependencies_ms', 'response_finalize_ms', 'request_audit_ms', 'route_total_ms')
+            allowed_timings = ('snapshot_and_fences_ms', 'snapshot_ms', 'fences_exclusive_ms', 'materialize_ms', 'object_authorization_ms', 'parse_ms', 'cleanup_ms', 'reconcile_ms', 'external_reconcile_ms', 'card_projection_exclusive_ms', 'projection_commit_ms', 'document_projection_ms', 'reader_orchestration_ms', 'total_ms', 'dependencies_ms', 'response_finalize_ms', 'request_audit_ms', 'request_audit_dispatch_ms', 'endpoint_overhead_ms', 'route_total_ms')
             if timings:
                 timings = dict(timings)
                 endpoint_started = getattr(request.state, 'governance_endpoint_started', None)
@@ -162,7 +180,11 @@ class ChatRoute(APIRoute):
                     # Includes response validation/serialization and worker-to-loop
                     # scheduling. It is not claimed as CPU serialization time.
                     timings['response_finalize_ms'] = (handler_finished - endpoint_finished) * 1000
-                timings['request_audit_ms'] = (time.monotonic() - handler_finished) * 1000
+                if endpoint_started is not None and endpoint_finished is not None:
+                    timings['endpoint_overhead_ms'] = max(0, (endpoint_finished - endpoint_started) * 1000 - timings['total_ms'])
+                audit_elapsed = (time.monotonic() - handler_finished) * 1000
+                timings['request_audit_ms'] = 0 if audit_deferred else audit_elapsed
+                timings['request_audit_dispatch_ms'] = audit_elapsed if audit_deferred else 0
                 timings['route_total_ms'] = (time.monotonic() - start) * 1000
                 logging.getLogger('moonbox.requirement_center').info(
                     'requirement_center.http_timing %s', json.dumps({'request_id': rid, 'timings': timings}))
@@ -219,6 +241,8 @@ class TurnCreate(BaseModel):
         return v
 
 class ConversationRead(BaseModel):
+    execution_workspace_id: str | None = None
+    execution_workspace_purpose: str | None = None
     id: str
     space_id: str
     repository_id: str
@@ -486,6 +510,108 @@ class VerificationTaskCreate(BaseModel):
     space_id: str = Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$')
     repository_id: str = Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$')
     browser: str = Field(pattern=r'^(firefox|chromium)$')
+
+
+class AcceptanceVersion(BaseModel):
+    version: int = Field(ge=1)
+
+
+class AcceptanceCheckRead(BaseModel):
+    ac_id: str
+    status: str
+    reason_code: str | None
+    evidence_available: bool
+
+
+class AcceptanceRead(BaseModel):
+    id: str
+    conversation_id: str
+    source_turn_id: str
+    change_id: str
+    status: str
+    version: int
+    cleanup_state: str
+    reason_code: str | None
+    reason_message: str | None
+    expires_at: int | None
+    created_at: str
+    updated_at: str
+    cancel_requested: bool
+    ready: bool
+    allowed_actions: list[Literal['verify','evidence','archive-evidence','stop','resume','cleanup-retries']]
+    checks: list[AcceptanceCheckRead]
+
+
+class AcceptanceListRead(BaseModel):
+    items: list[AcceptanceRead]
+
+
+class AcceptanceCreate(BaseModel):
+    conversation_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+    source_turn_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+    change_id: str = Field(pattern=r'^[a-z0-9]+(?:-[a-z0-9]+)*$', max_length=128)
+    client_request_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+
+
+@router.post('/acceptance-operations', response_model=ApiResponse[AcceptanceRead], summary='从授权轮次检查点幂等创建验收操作')
+def acceptance_create(payload: AcceptanceCreate, request: Request, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import create
+    from app.verification.acceptance_state import Conflict
+    try:
+        return ApiResponse(data=create(db, get_session_factory(), uid, payload.conversation_id,
+            payload.source_turn_id, payload.change_id, payload.client_request_id,request.state.chat_request_id))
+    except Conflict as error:
+        raise service.ChatError(2702, '验收输入未就绪，请核验来源轮次与授权检查点', 409,
+                                details={'reason': str(error)}) from None
+
+
+@router.get('/conversations/{conversation_id}/acceptance-operations', response_model=ApiResponse[AcceptanceListRead], summary='只读列出当前 Chat 验收操作')
+def acceptance_list(conversation_id: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import list_for_conversation
+    return ApiResponse(data=list_for_conversation(db, get_session_factory(), uid, conversation_id))
+
+
+@router.get('/acceptance-operations/{operation_id}', response_model=ApiResponse[AcceptanceRead], summary='读取当前授权的 Chat 验收操作')
+def acceptance_read(operation_id: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import read
+    return ApiResponse(data=read(db, get_session_factory(), uid, operation_id))
+
+
+@router.get('/acceptance-operations/{operation_id}/evidence', response_model=ApiResponse[dict], summary='鉴权读取验收证据摘要')
+def acceptance_evidence(operation_id: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import evidence
+    return ApiResponse(data=evidence(db,get_session_factory(),uid,operation_id))
+
+
+@router.get('/acceptance-operations/{operation_id}/evidence/archive', response_model=ApiResponse[dict], summary='读取已转存且完整性有效的长期验收摘要')
+def acceptance_archive(operation_id: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_archive import read
+    from app.verification.acceptance_state import Conflict
+    try:return ApiResponse(data=read(db,get_session_factory(),uid,operation_id))
+    except Conflict as error:
+        raise service.ChatError(2705,'长期验收证据不可复核',409,details={'reason':str(error)}) from None
+
+
+@router.post('/acceptance-operations/{operation_id}/stop', response_model=ApiResponse[AcceptanceRead], summary='停止 Chat 验收并围栏隔离迟到结果')
+def acceptance_stop(operation_id: str, payload: AcceptanceVersion, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import stop
+    from app.verification.acceptance_state import Conflict
+    try:
+        return ApiResponse(data=stop(db, get_session_factory(), uid, operation_id, payload.version))
+    except Conflict as error:
+        raise service.ChatError(2702, '验收状态已变化，请刷新后重试', 409,
+                                details={'reason': str(error)}) from None
+
+
+@router.post('/acceptance-operations/{operation_id}/{action_name}', response_model=ApiResponse[AcceptanceRead], summary='恢复已核验的验收操作或重试所属资源清理')
+def acceptance_action(operation_id: str, action_name: Literal['resume','cleanup-retries'], payload: AcceptanceVersion,
+                      uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.acceptance_service import action
+    from app.verification.acceptance_state import Conflict
+    try:
+        return ApiResponse(data=action(db,get_session_factory(),uid,operation_id,payload.version,action_name))
+    except Conflict as error:
+        raise service.ChatError(2702,'当前状态不允许此操作，请重新核验',409,details={'reason':str(error)}) from None
 
 
 @router.post('/verification-tasks', response_model=ApiResponse[dict], summary='幂等创建授权浏览器验证任务')

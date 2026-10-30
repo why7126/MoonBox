@@ -1,0 +1,108 @@
+{
+  "natural": {
+    "navigation": {
+      "samples": 30,
+      "http_p95_ms": 1628,
+      "http_max_ms": 1718,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 592.39,
+        "snapshot": 582,
+        "fences_exclusive": 12.74,
+        "materialize": 4.43,
+        "object_authorization": 0,
+        "parse": 567.2,
+        "cleanup": 220.16,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 220.04,
+        "projection_commit": 10.63,
+        "document_projection": 16.25,
+        "reader_orchestration": 9.41,
+        "total": 1431.1,
+        "dependencies": 17.69,
+        "response_finalize": 41.74,
+        "request_audit": 97.49,
+        "route_total": 1561.81
+      },
+      "first_card_p95_ms": 2663
+    },
+    "refresh": {
+      "samples": 30,
+      "http_p95_ms": 1596,
+      "http_max_ms": 2898,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 622.17,
+        "snapshot": 609.05,
+        "fences_exclusive": 13.12,
+        "materialize": 5.75,
+        "object_authorization": 0,
+        "parse": 593.98,
+        "cleanup": 133.9,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 133.75,
+        "projection_commit": 2.5,
+        "document_projection": 5.67,
+        "reader_orchestration": 3.46,
+        "total": 1502.58,
+        "dependencies": 10.54,
+        "response_finalize": 24.37,
+        "request_audit": 58.97,
+        "route_total": 1578.91
+      }
+    }
+  },
+  "loaded": {
+    "navigation": {
+      "samples": 30,
+      "http_p95_ms": 3123,
+      "http_max_ms": 3704,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 1118.31,
+        "snapshot": 1050.5,
+        "fences_exclusive": 67.81,
+        "materialize": 11.98,
+        "object_authorization": 0,
+        "parse": 894.4,
+        "cleanup": 261.05,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 192.23,
+        "projection_commit": 5.83,
+        "document_projection": 10.19,
+        "reader_orchestration": 5.72,
+        "total": 1929.24,
+        "dependencies": 22.97,
+        "response_finalize": 54.21,
+        "request_audit": 98,
+        "route_total": 3094.75
+      },
+      "first_card_p95_ms": 4715
+    },
+    "refresh": {
+      "samples": 30,
+      "http_p95_ms": 2258,
+      "http_max_ms": 2264,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 979.83,
+        "snapshot": 939.43,
+        "fences_exclusive": 18.25,
+        "materialize": 5.47,
+        "object_authorization": 0,
+        "parse": 930.68,
+        "cleanup": 157.15,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 336.56,
+        "projection_commit": 12.4,
+        "document_projection": 11.01,
+        "reader_orchestration": 5.03,
+        "total": 2117.11,
+        "dependencies": 16.56,
+        "response_finalize": 29.68,
+        "request_audit": 112.92,
+        "route_total": 2237.42
+      }
+    }
+  }
+}

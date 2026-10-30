@@ -80,12 +80,16 @@ def _governance_root() -> Path:
     return _SCOPED_ROOT.get() or GOVERNANCE_ROOT
 
 @contextmanager
-def using_governance_root(root: Path, *, immutable: bool = False, evidence_root: Path | None = None, evidence_source_root: Path | None = None, registry_index=None, shared_memo=False):
+def using_governance_root(root: Path, *, immutable: bool = False, evidence_root: Path | None = None, evidence_source_root: Path | None = None, registry_index=None, shared_memo=False, summary=False):
     from app.governance.read_memo import lease
     with lease(root) if immutable and shared_memo else nullcontext({} if immutable else None) as memo:
         with _using_governance_root(root, immutable=immutable, evidence_root=evidence_root,
                                    evidence_source_root=evidence_source_root, registry_index=registry_index, memo=memo):
-            yield
+            token = _SUMMARY_READ.set(summary)
+            try:
+                yield
+            finally:
+                _SUMMARY_READ.reset(token)
 
 
 @contextmanager
@@ -112,6 +116,7 @@ def _using_governance_root(root, *, immutable, evidence_root, evidence_source_ro
 
 _EVIDENCE_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_evidence_root", default=None)
 _EVIDENCE_SOURCE_ROOT: ContextVar[Path | None] = ContextVar("requirement_center_evidence_source_root", default=None)
+_SUMMARY_READ: ContextVar[bool] = ContextVar("requirement_center_summary", default=False)
 
 # Request-local pure parsing only. Mutable legacy/writer contexts opt out.
 _READ_MEMO: ContextVar[dict | None] = ContextVar("requirement_center_read_memo", default=None)
@@ -155,9 +160,21 @@ def build_requirement_center_context(
     db: Session | None = None,
     visibility=None,
     owner_space_id: str | None = None,
+    selected_object: str | None = None,
 ) -> RequirementCenterContext:
     from app.governance.change_index import ChangeIndex
-    issues = ChangeIndex(_governance_root()).cards(visibility or (lambda _: True))
+    root = _governance_root()
+    memo = _READ_MEMO.get() if _SUMMARY_READ.get() else None
+    key = ('summary_change_index', root)
+    if memo is not None:
+        # Only immutable file relationships are retained. Cards, visibility,
+        # owners, execution state and acceptance checks remain request-local.
+        if key not in memo:
+            memo[key] = ChangeIndex(root)
+        index = memo[key]
+    else:
+        index = ChangeIndex(root)
+    issues = index.cards(visibility or (lambda _: True), selected_object=selected_object)
     _resolve_issue_owners(issues, db, owner_space_id)
     issues.sort(key=lambda item: item.updated_at, reverse=True)
     stats = RequirementCenterStats(
@@ -330,6 +347,8 @@ def _document_names(issue_dir: Path | None) -> list[str]:
 
 
 def _acceptance_readiness(issue_dir: Path | None) -> tuple[int, int, str | None]:
+    if _SUMMARY_READ.get():
+        return 0, 0, '验收待检查'
     """Use the same evidence and manual-signoff rules as the archive CLI."""
     if issue_dir is None:
         return 0, 0, "验收来源待核实：Issue 目录不可用"
@@ -1011,6 +1030,9 @@ def _sprint_archive_readiness(
     used_capacity: float | None,
     capacity_status: str,
 ) -> RequirementCenterCurrentIterationArchiveReadiness:
+    if _SUMMARY_READ.get():
+        return RequirementCenterCurrentIterationArchiveReadiness(
+            display_mode='disabled', reason_code='unknown', safe_summary='归档条件待检查')
     from app.governance.sprint_object import preparation_reason, REASONS
     reason = preparation_reason(_governance_root(), sprint_id, sprint)
     if reason:

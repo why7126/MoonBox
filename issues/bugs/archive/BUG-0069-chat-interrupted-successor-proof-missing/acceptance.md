@@ -1,7 +1,7 @@
 ---
 bug_id: BUG-0069-chat-interrupted-successor-proof-missing
 created_at: '2026-10-27 16:38:20'
-updated_at: 2026-10-27 18:44:31
+updated_at: 2026-10-30 08:33:56
 title: Chat 中断缺少旧同步证明导致外部接续完成后仍受限验收标准
 acceptance_status: passed
 ---
@@ -33,13 +33,13 @@ product_data_collection_observability: affected。affected_layers: governance wo
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-27 18:44:31
+accepted_at: 2026-10-30 08:33:56
 accepted_by: workflow-sync
 source_change: fix-chat-interrupted-successor-proof
 source_sprint: sprint-014
 evidence: [openspec/archive/2026-10-27-fix-chat-interrupted-successor-proof/evidence/acceptance/20261027182313150225-0fde4c1e/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 

@@ -11,6 +11,22 @@ def p95(rows, key):
     return sorted(row[key] for row in rows)[math.ceil(len(rows) * .95) - 1]
 
 
+def verify_request_segments(row):
+    raw = row['server_timing']
+    metrics = (raw if isinstance(raw, dict) else
+               dict((part.strip().split(';dur=')[0], float(part.split(';dur=')[1]))
+                    for part in raw.split(',')))
+    assert all(math.isfinite(value) and value >= 0 for value in metrics.values())
+    exclusive = ('snapshot_and_fences', 'materialize', 'object_authorization', 'parse',
+                 'cleanup', 'reconcile', 'external_reconcile', 'card_projection_exclusive',
+                 'projection_commit', 'document_projection', 'reader_orchestration')
+    assert abs(sum(metrics[key] for key in exclusive) - metrics['total']) < .2
+    assert abs(metrics['snapshot'] + metrics['fences_exclusive'] - metrics['snapshot_and_fences']) < .1
+    assert abs(sum(metrics[key] for key in ('dependencies', 'total', 'response_finalize', 'request_audit'))
+               + metrics.get('endpoint_overhead', 0) + metrics.get('request_audit_dispatch', 0)
+               - metrics['route_total']) < 10
+
+
 def verify_live_windows(live):
     """Require both real-service windows; a fast isolated run cannot replace them."""
     services = ['backend', 'chat-worker', 'governance-controller']
@@ -100,16 +116,17 @@ def verify(directory, ac):
         assert observations['status'] == 'passed'
         assert {'default_sprint', 'all', 'type_filter', 'refresh', 'document'} <= set(observations['checks'])
     elif ac == 'AC-006':
-        exclusive = ('snapshot_and_fences', 'materialize', 'object_authorization', 'parse',
-                     'cleanup', 'reconcile', 'external_reconcile', 'card_projection_exclusive',
-                     'projection_commit', 'document_projection', 'reader_orchestration')
         for row in read('browser.json')['samples']:
-            metrics = dict((part.strip().split(';dur=')[0], float(part.split(';dur=')[1]))
-                           for part in row['server_timing'].split(','))
-            assert abs(sum(metrics[key] for key in exclusive) - metrics['total']) < .2
-            assert abs(metrics['snapshot'] + metrics['fences_exclusive'] - metrics['snapshot_and_fences']) < .1
-            assert abs(sum(metrics[key] for key in ('dependencies', 'total', 'response_finalize', 'request_audit'))
-                       - metrics['route_total']) < 10
+            verify_request_segments(row)
+        if metadata.get('read_profile') == 'summary':
+            live = read('live-browser.json')
+            verify_live_windows(live)
+            for window in live['windows']:
+                for action in ('navigation', 'refresh'):
+                    for row in window[action]:
+                        verify_request_segments(row)
+                        assert all(math.isfinite(row[key]) and row[key] >= 0
+                                   for key in ('queue', 'wait', 'transfer'))
     elif ac == 'AC-007':
         expanded = read('expanded-latency.json')
         assert expanded['files'] == 10000 and expanded['bytes'] == 32 * 1024**2
@@ -122,6 +139,8 @@ def verify(directory, ac):
                 pair = {mode: read(f'resource-{scale}-{concurrency}-{mode}.json')
                         for mode in ('baseline', 'optimized')}
                 for item in pair.values():
+                    if metadata.get('read_profile') == 'summary':
+                        assert item.get('server_lifecycle') == 'persistent_event_loop'
                     assert item['duration_s'] >= 1800 and item['completed'] > 0 and item['errors'] == 0
                     assert item['cards'] == (expanded.get('cards', 1458) if scale == 'expanded' else metadata['authorized_cards'])
                     assert item['files'] == (10000 if scale == 'expanded' else metadata['files'])

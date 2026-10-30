@@ -1,0 +1,89 @@
+sprint_id: sprint-015
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-29 06:45:27'
+updated_at: '2026-10-29 16:30:18'
+start_date: '2026-10-29 06:45:27'
+end_date: '2026-11-12 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0042-agent-runtime-version-space-isolation
+  - REQ-0054-workspace-recovery-points
+  - REQ-0055-sprint-authorized-worktree-merge
+bugs: []
+estimated_story_points: 34
+estimated_person_days: 34
+knowledge_intake:
+- action_id: S10-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 验证当前 Issue、原型和归档引用；不宣称关闭全局历史问题
+- action_id: S10-A002
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 成功、拒绝、冲突与原操作恢复分别留证，真实与合成分开
+- action_id: S10-A003
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 派生规划只读取摘要，详细证据按需
+- action_id: S9-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 保留用量未知边界，不以聚合值推算精确成本
+- action_id: S11-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 当前迭代硬超限故分至新迭代；29/30仅余1人天，后续范围优先延期或替换
+- action_id: S12-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 项目Python入口与恢复前检，原执行不盲目重放
+- action_id: S13-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 范围工具串行写入并验证YAML、目标编号和Scope一致
+- action_id: S13-A002
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 复用当前有效规则，历史经验不得恢复已退出策略
+scope_estimates:
+  - id: REQ-0042-agent-runtime-version-space-isolation
+    change: update-unified-workspace-runtime
+    requirement: REQ-0042-agent-runtime-version-space-isolation
+    size: XXL
+    story_points: 13
+    estimated_person_days: 13
+    rationale: 身份模块4、隔离迁移4、双库并发与UI验证5人天；主目录先行，独立树开放依赖恢复与合入
+  - id: REQ-0054-workspace-recovery-points
+    change: add-workspace-recovery-points
+    requirement: REQ-0054-workspace-recovery-points
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 采集引用3、三方恢复及故障保护3、容量兼容和UI验证2人天；复用0053
+  - id: REQ-0055-sprint-authorized-worktree-merge
+    change: add-sprint-authorized-worktree-merge
+    requirement: REQ-0055-sprint-authorized-worktree-merge
+    size: XL
+    story_points: 8
+    estimated_person_days: 8
+    rationale: 权限版本2、候选集成及对账3、撤权并发和UI验证3人天；合计29/30仅余1人天缓冲
+  - id: add-isolated-candidate-validation
+    change: add-isolated-candidate-validation
+    source_requirement: REQ-0048-chat-isolated-acceptance-orchestration
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 用户授权推进统一工作区闭环必需依赖；本次只交付固定候选的受控独立数据库与验收供应，不声称完成REQ-0048全部Chat环境编排。复用既有验证基础，估算5人天；合计34/30处于容量风险区，缓冲不足，其余REQ-0048能力延后。
+capacity_usage: 1.1333
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+
+changes:
+  - update-unified-workspace-runtime
+  - add-workspace-recovery-points
+  - add-sprint-authorized-worktree-merge
+  - add-isolated-candidate-validation
+
+scope_transfers:
+  - requirement: REQ-0048-chat-isolated-acceptance-orchestration
+    destination_sprint: sprint-016
+    status: transferred
+    retained_change: add-isolated-candidate-validation
+    reason: 用户明确授权将未交付完整Chat编排范围转入后续迭代，保留本迭代已交付依赖及5人天估算，不关闭父需求。
+closed_at: '2026-10-29 16:30:18'

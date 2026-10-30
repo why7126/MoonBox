@@ -2375,6 +2375,101 @@
         }
       }
     },
+    "/api/v1/requirement-center/status": {
+      "get": {
+        "tags": [
+          "requirement-center"
+        ],
+        "summary": "读取活动卡片当前执行状态",
+        "operationId": "get_requirement_center_status_api_v1_requirement_center_status_get",
+        "parameters": [
+          {
+            "name": "object_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 32,
+              "default": [],
+              "title": "Object Ids"
+            }
+          },
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_str__Any__"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequirementCenterReadError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/requirement-center/projects": {
       "get": {
         "tags": [
@@ -2443,6 +2538,39 @@
         "summary": "读取需求中心上下文",
         "operationId": "get_requirement_center_context_api_v1_requirement_center_context_get",
         "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "full",
+                "summary"
+              ],
+              "type": "string",
+              "default": "full",
+              "title": "View"
+            }
+          },
+          {
+            "name": "object_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9-]+$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Object Id"
+            }
+          },
           {
             "name": "space_id",
             "in": "query",
@@ -6078,6 +6206,859 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "从授权轮次检查点幂等创建验收操作",
+        "operationId": "acceptance_create_api_v1_chat_acceptance_operations_post",
+        "parameters": [
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptanceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AcceptanceRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/conversations/{conversation_id}/acceptance-operations": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "只读列出当前 Chat 验收操作",
+        "operationId": "acceptance_list_api_v1_chat_conversations__conversation_id__acceptance_operations_get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AcceptanceListRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations/{operation_id}": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "读取当前授权的 Chat 验收操作",
+        "operationId": "acceptance_read_api_v1_chat_acceptance_operations__operation_id__get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AcceptanceRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations/{operation_id}/evidence": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "鉴权读取验收证据摘要",
+        "operationId": "acceptance_evidence_api_v1_chat_acceptance_operations__operation_id__evidence_get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations/{operation_id}/evidence/archive": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "读取已转存且完整性有效的长期验收摘要",
+        "operationId": "acceptance_archive_api_v1_chat_acceptance_operations__operation_id__evidence_archive_get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations/{operation_id}/stop": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "停止 Chat 验收并围栏隔离迟到结果",
+        "operationId": "acceptance_stop_api_v1_chat_acceptance_operations__operation_id__stop_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptanceVersion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AcceptanceRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/acceptance-operations/{operation_id}/{action_name}": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "恢复已核验的验收操作或重试所属资源清理",
+        "operationId": "acceptance_action_api_v1_chat_acceptance_operations__operation_id___action_name__post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "action_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "resume",
+                "cleanup-retries"
+              ],
+              "type": "string",
+              "title": "Action Name"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptanceVersion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AcceptanceRead_"
                 }
               }
             }
@@ -11688,10 +12669,1668 @@
           }
         }
       }
+    },
+    "/api/v1/chat/workspaces": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "查询仓库工作区",
+        "operationId": "list_workspaces_api_v1_chat_workspaces_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_WorkspaceList_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/main": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "登记仓库主工作区",
+        "operationId": "register_main_api_v1_chat_workspaces_main_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_WorkspaceView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/development": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "按交付链路创建或复用独立开发工作区",
+        "operationId": "create_development_api_v1_chat_workspaces_development_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevelopmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_WorkspaceView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/sessions": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "创建固定绑定工作区的新会话",
+        "operationId": "create_workspace_session_api_v1_chat_workspaces_sessions_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/recovery-points": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "查询工作区恢复点与保护原因",
+        "operationId": "recovery_points_api_v1_chat_workspaces_recovery_points_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workspace Id"
+            }
+          },
+          {
+            "name": "before_sequence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Sequence"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/recovery-files": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "分页查询恢复点文件覆盖范围",
+        "operationId": "recovery_files_api_v1_chat_workspaces_recovery_files_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workspace Id"
+            }
+          },
+          {
+            "name": "point_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Point Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "After"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/recovery-preflight": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "核对恢复前后与当前文件的三方差异",
+        "operationId": "recovery_preflight_api_v1_chat_workspaces_recovery_preflight_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverySelection"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/restore": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "持久记录并执行选定文件的安全恢复",
+        "operationId": "restore_files_api_v1_chat_workspaces_restore_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/restore/{operation_id}/resume": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "重新检查权限并续接未完成的恢复操作",
+        "operationId": "resume_restore_api_v1_chat_workspaces_restore__operation_id__resume_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/recovery-protection": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "保护或解除自己手动保护的恢复点",
+        "operationId": "protect_recovery_api_v1_chat_workspaces_recovery_protection_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProtectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-capability": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "查询当前迭代操作权限与组合验证能力",
+        "operationId": "merge_capability_api_v1_chat_workspaces_merge_capability_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workspace Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-candidates": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "创建固定源和目标版本的合入候选并申请组合验证",
+        "operationId": "prepare_merge_api_v1_chat_workspaces_merge_candidates_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "查询工作区合入候选",
+        "operationId": "list_merge_candidates_api_v1_chat_workspaces_merge_candidates_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workspace Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-candidates/{candidate_id}/validate": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "续接固定组合版本的验证",
+        "operationId": "validate_merge_api_v1_chat_workspaces_merge_candidates__candidate_id__validate_post",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-candidates/{candidate_id}/confirm": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "由当前具备迭代操作权限的人确认并合入已验证候选",
+        "operationId": "confirm_merge_api_v1_chat_workspaces_merge_candidates__candidate_id__confirm_post",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-candidates/{candidate_id}/repair": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "作废未确认候选并保留开发工作区继续返修",
+        "operationId": "repair_merge_api_v1_chat_workspaces_merge_candidates__candidate_id__repair_post",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-operations/{operation_id}/resume": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "重新核验并续接合入操作",
+        "operationId": "resume_merge_api_v1_chat_workspaces_merge_operations__operation_id__resume_post",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/cleanup": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "检查未合入成果和保护引用后清理独立目录",
+        "operationId": "cleanup_workspace_api_v1_chat_workspaces_cleanup_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CleanupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_WorkspaceView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/operations": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "查询工作区恢复与合入操作的持久状态",
+        "operationId": "workspace_operations_api_v1_chat_workspaces_operations_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workspace Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/recovery-directory": {
+      "post": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "将恢复点提取到独立恢复目录并保留当前工作区",
+        "operationId": "create_recovery_directory_api_v1_chat_workspaces_recovery_directory_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryTreeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/workspaces/merge-candidates/{candidate_id}/files": {
+      "get": {
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "分页查看固定候选相对主线的文件差异",
+        "operationId": "merge_files_api_v1_chat_workspaces_merge_candidates__candidate_id__files_get",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AcceptanceCheckRead": {
+        "properties": {
+          "ac_id": {
+            "type": "string",
+            "title": "Ac Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "evidence_available": {
+            "type": "boolean",
+            "title": "Evidence Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ac_id",
+          "status",
+          "reason_code",
+          "evidence_available"
+        ],
+        "title": "AcceptanceCheckRead"
+      },
+      "AcceptanceCreate": {
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Conversation Id"
+          },
+          "source_turn_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Source Turn Id"
+          },
+          "change_id": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "title": "Change Id"
+          },
+          "client_request_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Client Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "source_turn_id",
+          "change_id",
+          "client_request_id"
+        ],
+        "title": "AcceptanceCreate"
+      },
+      "AcceptanceListRead": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AcceptanceRead"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "AcceptanceListRead"
+      },
+      "AcceptanceRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "conversation_id": {
+            "type": "string",
+            "title": "Conversation Id"
+          },
+          "source_turn_id": {
+            "type": "string",
+            "title": "Source Turn Id"
+          },
+          "change_id": {
+            "type": "string",
+            "title": "Change Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "cleanup_state": {
+            "type": "string",
+            "title": "Cleanup State"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "reason_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Message"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "cancel_requested": {
+            "type": "boolean",
+            "title": "Cancel Requested"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "verify",
+                "evidence",
+                "archive-evidence",
+                "stop",
+                "resume",
+                "cleanup-retries"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/AcceptanceCheckRead"
+            },
+            "type": "array",
+            "title": "Checks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "conversation_id",
+          "source_turn_id",
+          "change_id",
+          "status",
+          "version",
+          "cleanup_state",
+          "reason_code",
+          "reason_message",
+          "expires_at",
+          "created_at",
+          "updated_at",
+          "cancel_requested",
+          "ready",
+          "allowed_actions",
+          "checks"
+        ],
+        "title": "AcceptanceRead"
+      },
+      "AcceptanceVersion": {
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "title": "AcceptanceVersion"
+      },
       "AdminAvatarUploadResult": {
         "properties": {
           "url": {
@@ -13119,6 +15758,50 @@
         ],
         "title": "AdminUserUpdate"
       },
+      "ApiResponse_AcceptanceListRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AcceptanceListRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[AcceptanceListRead]"
+      },
+      "ApiResponse_AcceptanceRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AcceptanceRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[AcceptanceRead]"
+      },
       "ApiResponse_AdminAvatarUploadResult_": {
         "properties": {
           "code": {
@@ -14153,6 +16836,50 @@
         ],
         "title": "ApiResponse[TurnRead]"
       },
+      "ApiResponse_WorkspaceList_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WorkspaceList"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[WorkspaceList]"
+      },
+      "ApiResponse_WorkspaceView_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WorkspaceView"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[WorkspaceView]"
+      },
       "ApiResponse_dict_": {
         "properties": {
           "code": {
@@ -14828,6 +17555,42 @@
         ],
         "title": "CandidateOrigin"
       },
+      "CandidateRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "request_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "request_id"
+        ],
+        "title": "CandidateRequest"
+      },
       "CapabilitiesResult": {
         "properties": {
           "limits": {
@@ -15065,6 +17828,41 @@
         ],
         "title": "CatalogSpaceCreateResult"
       },
+      "CleanupRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "expected_revision"
+        ],
+        "title": "CleanupRequest"
+      },
       "CompletionVerificationResponse": {
         "properties": {
           "historical_result": {
@@ -15151,6 +17949,41 @@
           "idempotency_key"
         ],
         "title": "ConfirmInput"
+      },
+      "ConfirmationRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Fingerprint"
+          },
+          "request_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "fingerprint",
+          "request_id"
+        ],
+        "title": "ConfirmationRequest"
       },
       "ConfirmationResult": {
         "properties": {
@@ -15318,6 +18151,28 @@
       },
       "ConversationRead": {
         "properties": {
+          "execution_workspace_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Workspace Id"
+          },
+          "execution_workspace_purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Workspace Purpose"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -15416,6 +18271,36 @@
           "cleanup"
         ],
         "title": "DeleteResult"
+      },
+      "DevelopmentRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "change_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "title": "Change Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "change_id"
+        ],
+        "title": "DevelopmentRequest"
       },
       "DiffRead": {
         "properties": {
@@ -16300,6 +19185,28 @@
           "issue_id"
         ],
         "title": "IssueLink"
+      },
+      "MainRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id"
+        ],
+        "title": "MainRequest"
       },
       "MaterialResult": {
         "properties": {
@@ -17309,6 +20216,47 @@
         ],
         "title": "Proposal"
       },
+      "ProtectionRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "point_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Point Id"
+          },
+          "protected": {
+            "type": "boolean",
+            "title": "Protected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "point_id",
+          "protected"
+        ],
+        "title": "ProtectionRequest"
+      },
       "RecoveryAttemptResponse": {
         "properties": {
           "operation_id": {
@@ -17633,6 +20581,102 @@
           "confirmed"
         ],
         "title": "RecoveryRequest"
+      },
+      "RecoverySelection": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "before_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Before Id"
+          },
+          "after_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "After Id"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 256,
+            "minItems": 1,
+            "title": "Paths"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "before_id",
+          "after_id",
+          "paths"
+        ],
+        "title": "RecoverySelection"
+      },
+      "RecoveryTreeRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "point_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Point Id"
+          },
+          "request_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "point_id",
+          "request_id"
+        ],
+        "title": "RecoveryTreeRequest"
       },
       "RelationsUpdate": {
         "properties": {
@@ -18450,6 +21494,57 @@
       },
       "RequirementCenterIssue": {
         "properties": {
+          "object_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Id",
+            "description": "当前卡片完整治理身份，用于受权状态查询"
+          },
+          "checks_deferred": {
+            "type": "boolean",
+            "title": "Checks Deferred",
+            "description": "摘要未执行深度核验；不代表通过，动作入口仍重新校验",
+            "default": false
+          },
+          "delivery_workspace_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Workspace Id"
+          },
+          "workspace_execution_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspace Execution State"
+          },
+          "integration_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Integration State"
+          },
           "estimated_person_days": {
             "anyOf": [
               {
@@ -19239,6 +22334,79 @@
         ],
         "title": "RequirementCenterWorkspace"
       },
+      "RestoreRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "before_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Before Id"
+          },
+          "after_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "After Id"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 256,
+            "minItems": 1,
+            "title": "Paths"
+          },
+          "conversation_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Conversation Id"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Fingerprint"
+          },
+          "request_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "before_id",
+          "after_id",
+          "paths",
+          "conversation_id",
+          "fingerprint",
+          "request_id"
+        ],
+        "title": "RestoreRequest"
+      },
       "ResultPageRead": {
         "properties": {
           "items": {
@@ -19369,6 +22537,54 @@
           "exception"
         ],
         "title": "RuleEdit"
+      },
+      "SessionRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Workspace Id"
+          },
+          "request_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id"
+          },
+          "predecessor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predecessor Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "workspace_id",
+          "request_id"
+        ],
+        "title": "SessionRequest"
       },
       "SourceContent": {
         "properties": {
@@ -19767,6 +22983,118 @@
           "expected_revision"
         ],
         "title": "VersionInput"
+      },
+      "WorkspaceList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "can_create_development": {
+            "type": "boolean",
+            "title": "Can Create Development",
+            "default": false
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code",
+            "default": "delivery_protection_not_ready"
+          },
+          "can_register_main": {
+            "type": "boolean",
+            "title": "Can Register Main",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "WorkspaceList"
+      },
+      "WorkspaceView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "space_id": {
+            "type": "string",
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "title": "Repository Id"
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "base_commit": {
+            "type": "string",
+            "title": "Base Commit"
+          },
+          "lifecycle": {
+            "type": "string",
+            "title": "Lifecycle"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "change_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Id"
+          },
+          "delivery_root": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Root"
+          },
+          "execution_state": {
+            "type": "string",
+            "title": "Execution State",
+            "default": "idle"
+          },
+          "integration_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Integration State"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "space_id",
+          "repository_id",
+          "purpose",
+          "base_commit",
+          "lifecycle",
+          "revision"
+        ],
+        "title": "WorkspaceView"
       },
       "app__governance__replacement_api__Decision": {
         "properties": {

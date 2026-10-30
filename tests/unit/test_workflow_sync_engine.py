@@ -511,3 +511,28 @@ def test_sprint_archive_receipt_identifies_sprint(monkeypatch, capsys):
     result=json.loads(line.split(':',1)[1])
     assert result['object_id']=='sprint-099'
     assert result['mode']=='dry-run'
+
+
+def test_dependency_subdelivery_does_not_sign_entire_requirement(tmp_path,monkeypatch):
+    import json
+    from types import SimpleNamespace
+    from scripts.workflow_sync import issue_subdocuments
+    monkeypatch.syspath_prepend(str(ROOT / 'scripts'))
+    import opsx_acceptance
+    change=tmp_path/'changes'/'candidate';change.mkdir(parents=True)
+    plan=change/'acceptance-plan.json'
+    plan.write_text(json.dumps({'issue_id':'REQ-0048-example','issue_acceptance_scope':'partial'}))
+    monkeypatch.setattr(issue_subdocuments,'acceptance_plan_for',lambda *_:plan)
+    monkeypatch.setattr(opsx_acceptance,'readiness',lambda *_:{'status':'ready'})
+    derived=SimpleNamespace(display_status='in_sprint')
+    assert issue_subdocuments.acceptance_status_for(derived,'opsx.apply',issue_path=tmp_path/'REQ-0048-example',source_change='candidate')=='partial'
+    plan.write_text(json.dumps({'issue_id':'REQ-0048-example'}))
+    assert issue_subdocuments.acceptance_status_for(derived,'opsx.apply',issue_path=tmp_path/'REQ-0048-example',source_change='candidate')=='passed'
+
+
+def test_archived_dependency_keeps_partial_issue_open(tmp_path):
+    from scripts.workflow_sync.derive import derive_issue
+    issue=IssueRecord(issue_id='REQ-0048-example',kind='req',path=tmp_path,openspec_changes=[{'change_id':'dependency'}])
+    (tmp_path/'acceptance.md').write_text('---\nacceptance_status: partial\n---\n')
+    change=DerivedChange('dependency','archived','archived','archived',1,1,issue.issue_id,None,'2026-10-29')
+    assert derive_issue(issue,{'dependency':change},None).display_status=='in_sprint'

@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "checks": [
+    "default_sprint",
+    "all",
+    "type_filter",
+    "refresh",
+    "document",
+    "no_full_poll",
+    "deferred_checks"
+  ],
+  "observations": {
+    "default_sprint_cards": 30,
+    "all_authorized_cards": 218,
+    "bug_filtered_cards": 18,
+    "restored_default": true,
+    "document": "REQ-0041 requirement.md safe Markdown preview visible after retry",
+    "document_failure_retained": "document-stress-diagnostic.json",
+    "idle_observation": {
+      "duration_ms": 84178,
+      "context_before": 2,
+      "context_after": 2,
+      "status_before": 38,
+      "status_after": 46
+    },
+    "check_object": "BUG-0056 latest result check preserved acceptance blocker; no write action invoked"
+  },
+  "screenshots": [
+    "page-final.png",
+    "document-retry-success.png",
+    "check-button-after.png"
+  ],
+  "boundary": "Real formal page; 8-workload stress document first attempt failed and was retained, functional retry succeeded. No document latency SLA inferred."
+}

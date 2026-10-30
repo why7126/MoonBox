@@ -622,8 +622,8 @@ Chat 工作台 SHALL 将执行工作区、assistant 输出和治理 candidate �
 - **THEN** 系统 SHALL 默认声明 `workspace_mode: source`
 - **AND** 执行器 SHALL 直接使用 `source_root` 当前工作树作为工作区
 - **AND** 系统 SHALL 不创建 `<workspace_root>/<conversation_id>` 会话副本、不执行副本同步、不要求候选二次应用
-- **AND** 共享生产仓库、多人同时编辑或强隔离审阅场景 MAY 显式配置 `workspace_mode: copy`
-- **AND** copy 模式 SHALL 保留既有隔离副本、候选应用和未应用成果保护语义
+- **AND** 隔离或并行交付 SHALL 按交付链路创建真正 Git worktree，不新建 copy 会话副本
+- **AND** 历史 copy SHALL 标为 legacy 并保留隔离副本、候选应用与未应用成果保护，完成核验迁移前不得删除；任务树成果通过受控合入，正式规格经归档生效
 
 ### Requirement: 旧治理面板清理不得删除正常会话
 系统 MUST 只清理具有明确旧治理面板标识或明确旧评审对话框身份的元素，不得因普通聊天正文包含旧面板关键词而删除正文、会话外壳或无关对话框。

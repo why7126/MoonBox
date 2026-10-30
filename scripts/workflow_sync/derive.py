@@ -104,6 +104,14 @@ def derive_issue(
         linked_ids[0] if linked_ids else None,
     )
 
+    # A dependency-only delivery can be archived while its parent Issue remains open.
+    acceptance = issue.path / "acceptance.md"
+    if linked_ids and acceptance.is_file():
+        from .collect import parse_frontmatter_yaml, read_text
+        if parse_frontmatter_yaml(read_text(acceptance)).get("acceptance_status") == "partial":
+            return DerivedIssue(issue.issue_id, issue.kind, "in_sprint", linked_change,
+                                "必要依赖已交付；完整需求仍有未验收范围")
+
     if len(linked_ids) > 1:
         linked_states = [changes.get(cid) for cid in linked_ids]
         archived_count = sum(change is not None and change.state == "archived" for change in linked_states)

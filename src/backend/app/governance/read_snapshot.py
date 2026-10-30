@@ -43,10 +43,11 @@ def read_workers():
         return 1
 
 
-def stable_read(root, namespace, *, enabled=True, retries=3):
+def stable_read(root, namespace, *, enabled=True, retries=3, profile='full'):
+    if profile not in ('full', 'summary'): raise ValueError('profile')
     if not enabled:
-        return snapshot.stable(root, retries)
-    key = (str(root), namespace)
+        return snapshot._stable(root, retries, lambda path: snapshot.read_once(path, profile=profile))
+    key = (str(root), namespace) if profile == 'full' else (str(root), namespace, profile)
     with _lock:
         previous = _versions.get(key)
         if previous is not None:
@@ -65,8 +66,11 @@ def stable_read(root, namespace, *, enabled=True, retries=3):
         identities.clear()
         if reads == 1 and previous is not None:
             return previous[2].files
+        options = {'profile': profile} if profile != 'full' else {}
+        if profile == 'summary' and reuse:
+            options['byte_candidates'] = reuse
         return snapshot.read_once(path, identities=identities,
-                                  workers=read_workers() if reads == 2 and len(reuse) >= 256 else 1)
+                                  workers=read_workers() if profile == 'summary' or (reads == 2 and len(reuse) >= 256) else 1, **options)
 
     result = snapshot._stable(root, retries, read,
                               known_snapshot=previous[2] if previous else None)

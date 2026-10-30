@@ -1,0 +1,149 @@
+{
+  "sample": "real-docker-synthetic-project",
+  "result": {
+    "status": "passed",
+    "candidate_id": "a5de15a6-c7df-4fa4-ad4a-00268b67986b",
+    "candidate_commit": "9f6e5f88e81a53afbd292bb6b1a1535005edabcf",
+    "environment_key": "21e63961-2464-42aa-8d05-a0da3fce1873",
+    "runtime_digest": "sha256:94b35b3666f0aa4aa279137581c3e5778eed409ce58f2aa8d8706b616e0983aa",
+    "evidence_digest": "f6a58cbfb8e8599e4f6f94cf23b4c459cf30b49ab80edc0e8b5acc2e4f00d1ce",
+    "template_digest": "de5cc626e9e993a87987a43db25ac4bd255b93afc55e51ef27a77f8da1868429",
+    "checks": [
+      {
+        "database": "sqlite",
+        "version": "3.46.1",
+        "checks_passed": 1,
+        "browser": "chromium",
+        "browser_version": "156.0.8078.73"
+      },
+      {
+        "database": "mysql",
+        "version": "8.4.13",
+        "checks_passed": 1,
+        "browser": "chromium",
+        "browser_version": "156.0.8078.73"
+      }
+    ]
+  },
+  "cleanup_state": "clean",
+  "evidence": {
+    "candidate_commit": "9f6e5f88e81a53afbd292bb6b1a1535005edabcf",
+    "template_digest": "de5cc626e9e993a87987a43db25ac4bd255b93afc55e51ef27a77f8da1868429",
+    "matrices": [
+      {
+        "database": "sqlite",
+        "version": "3.46.1",
+        "steps": [
+          "migration",
+          "seed"
+        ],
+        "app_version": "9f6e5f88e81a53afbd292bb6b1a1535005edabcf",
+        "checks_passed": 1,
+        "browser": {
+          "task_id": "b3ded303-4bbc-4dd7-b67a-b88f6c804f9a",
+          "environment_image": "sha256:dbd9b3233e850cb615485a378ad3b831832fa29a59f5ca56f71283b21c1ed172",
+          "category": "real_browser",
+          "browser": "chromium",
+          "browser_version": "156.0.8078.73",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "screenshot": "chromium-1440x900.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            },
+            {
+              "width": 390,
+              "height": 844,
+              "screenshot": "chromium-390x844.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            }
+          ]
+        }
+      },
+      {
+        "database": "mysql",
+        "version": "8.4.13",
+        "steps": [
+          "migration",
+          "seed"
+        ],
+        "app_version": "9f6e5f88e81a53afbd292bb6b1a1535005edabcf",
+        "checks_passed": 1,
+        "browser": {
+          "task_id": "c9c7057b-997f-49d7-958e-92472d08389f",
+          "environment_image": "sha256:dbd9b3233e850cb615485a378ad3b831832fa29a59f5ca56f71283b21c1ed172",
+          "category": "real_browser",
+          "browser": "chromium",
+          "browser_version": "156.0.8078.73",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "screenshot": "chromium-1440x900.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            },
+            {
+              "width": 390,
+              "height": 844,
+              "screenshot": "chromium-390x844.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "source_hashes": {
+    "src/backend/app/verification/__init__.py": "0d6a0b40bede2c77e0c43266cd94c23bb48b1e59072bd163f5c2f68cd0869354",
+    "src/backend/app/verification/artifacts.py": "31bdf429e65939557bc38305a19b5f235b07e6a42f14c57f04e730b315897e2d",
+    "src/backend/app/verification/candidate.py": "2284fcfa9dccd4bf160a025e8069c4e000c6d6ed6de0829c1e81c0a3cd247783",
+    "src/backend/app/verification/candidate_schema.py": "a1dee8ba0d1729aee88a521741aff75132946f0da6ebd91e16c8daf873b56291",
+    "src/backend/app/verification/candidate_template.py": "9e46775844c72220d0e6e0791b2e38be5b20acf1c6b5a505ad27a182b5e73428",
+    "src/backend/app/verification/environment.py": "496f2d4ca017591418c33f9cb9a2d22c062625fbffcc4b8699220ea1c2181c73",
+    "src/backend/app/verification/preparation.py": "af6d5f77cf99ee88e4c2158b8fcd6520a0d539b77fe8b278a6dd1ffdec8a2678",
+    "src/backend/app/verification/runner.py": "a6ae4dd2d2e1bc58ee078d584bfd0d271958ea184da56995298d9e03783ff967",
+    "src/backend/app/verification/service.py": "0799630d127e0660466e36964de293bb22b6b836e4852043de074cafb393f46e",
+    "src/backend/app/verification/tasks.py": "11e70bb859ef00151362be811ac161f3fa86e406ef0e82264db85d2cdd45be5d",
+    "src/backend/app/verification/worker.py": "420765d1ddef0a034f858051dbee9507b69e374f377964003d5b8ecb7c4114e7",
+    "src/backend/container/verification_acceptance.cjs": "ef33314e691062f3cfc9a28a98f995976085800e6b56c0e45b50cf52914d7741",
+    "src/backend/tests/test_candidate_supplier.py": "fafa0e6a72d2d0d49b3199442b7c6a07f30ff7dd4f0e966f0d3dc5f53b9cc398"
+  },
+  "source_stable": true
+}

@@ -1,0 +1,6 @@
+本轮增量验证（合成样本，不代表真实模型交付）
+SQLite 工作区、恢复、合入与 Chat/权限回归：144 passed, 1 skipped, 21 subtests passed。
+MySQL 8.2.0 临时独立库：恢复持久化、中断续接、合入权限与幂等、API、队列共 12 passed。
+独立 worktree 真实 Docker sandbox：实现目录可写；共享治理不可写；Git 管理不可写；凭据不可读；本树 Git 可读；兄弟树独有 Git 对象不可读；主目录保持原内容。
+镜像 moonbox-chat-executor:0.153.4-test；无网络、无真实凭据、未调用模型。
+后续变更按受影响范围继续复验，此文件不是最终验收 ready 声明。

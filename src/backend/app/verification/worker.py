@@ -238,9 +238,20 @@ def main() -> None:
     signal.signal(signal.SIGINT, stop)
     try:
         maintenance_at = 0.0
+        acceptance_maintenance_at = 0.0
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="verification") as pool:
             active = {}
+            acceptance_active = {}
             while running:
+                from app.verification import acceptance_worker
+                for future, operation_id in list(acceptance_active.items()):
+                    if future.done():
+                        try:
+                            future.result()
+                        except Exception:
+                            # Durable lease/ownership remains for exact reconciliation.
+                            pass
+                        del acceptance_active[future]
                 for future, row in list(active.items()):
                     if not future.done():
                         continue
@@ -255,7 +266,19 @@ def main() -> None:
                     except (KeyError, WorkspaceError):
                         pass
                     maintenance_at = time.monotonic() + 3600
-                if len(active) < 2:
+                if time.monotonic() >= acceptance_maintenance_at:
+                    acceptance_worker.reconcile(factory)
+                    from app.verification.acceptance_delivery import tick as deliver_acceptance
+                    from app.verification.acceptance_archive import tick as archive_acceptance
+                    archive_acceptance(factory)
+                    deliver_acceptance(factory)
+                    acceptance_maintenance_at = time.monotonic() + 60
+                if len(active) + len(acceptance_active) < 2:
+                    operation_id = acceptance_worker.next_queued(factory)
+                    if operation_id and operation_id not in acceptance_active.values():
+                        acceptance_active[pool.submit(acceptance_worker.run_one, factory, operation_id,
+                            'verification-acceptance')] = operation_id
+                        continue
                     with factory() as db:
                         row = claim(db)
                     if row:

@@ -60,3 +60,27 @@ def test_generated_change_trace_issue_id_never_bypasses_acceptance(tmp_path,fiel
     assert MODULE.readiness(tmp_path,'isolated-change')==(False,'issue_acceptance_pending checked=0 total=1')
     acceptance.write_text('---\nacceptance_status: passed\n---\n\n- [x] AC-001：通过。\n')
     assert MODULE.readiness(tmp_path,'isolated-change')==(True,'issue_acceptance_passed')
+
+
+def test_partial_change_admission_never_closes_whole_issue(tmp_path):
+    import json,sys
+    from app.governance.archive_admission import change_acceptance,issue_acceptance
+    from scripts.opsx_acceptance import run_acceptance
+    issue='REQ-9001-isolated';change='isolated-change'
+    folder=tmp_path/'openspec/changes'/change;folder.mkdir(parents=True)
+    (folder/'trace.md').write_text(f'---\nrequirement_id: {issue}\nstatus: applied\n---\n')
+    (folder/'acceptance.md').write_text('- [ ] AC-001 subset\n')
+    doc=tmp_path/'issues/requirements/review'/issue/'acceptance.md';doc.parent.mkdir(parents=True)
+    doc.write_text('---\nacceptance_status: partial\n---\n- [ ] AC-010 whole workflow\n- [ ] AC-011 other workflow\n')
+    (tmp_path/'input.txt').write_text('immutable input')
+    plan=dict(schema_version=1,change_id=change,issue_id=issue,issue_acceptance_scope='partial',scope_description='dependency only',issue_ac_mapping={'AC-001':['AC-010']},checks=[dict(id='AC-001',kind='command',inputs=['input.txt'],argv=[sys.executable,'-c','exit(0)'])])
+    (folder/'acceptance-plan.json').write_text(json.dumps(plan))
+    assert run_acceptance(tmp_path,change,None)['status']=='passed'
+    result=change_acceptance(tmp_path,change)
+    assert result['ready'] and result['total']==1 and result['issue_complete'] is False
+    assert not issue_acceptance(tmp_path,doc.parent,[change])['ready']
+    doc.write_text(doc.read_text().replace('acceptance_status: partial','acceptance_status: partial\nmanual_acceptance_status: required'))
+    assert not change_acceptance(tmp_path,change)['ready']
+    doc.write_text(doc.read_text().replace('\nmanual_acceptance_status: required',''))
+    (tmp_path/'input.txt').write_text('changed')
+    assert not change_acceptance(tmp_path,change)['ready']

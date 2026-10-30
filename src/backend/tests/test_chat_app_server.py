@@ -112,3 +112,16 @@ def test_named_profile_supports_governance_scope(server_config):
         server.rpc=rpc
         server.start_turn('thread','synthetic')
         assert calls[0][1]['permissions']=='moonbox-governance'
+
+
+def test_dynamic_acceptance_request_before_rpc_response_is_preserved(server_config):
+    (server_config['workspace']/'fixture-mode').write_text('acceptance')
+    with AppServer(**server_config) as server:
+        server.acceptance_enabled=True
+        assert server.connect()=='thread'
+        assert server.start_turn('thread','synthetic')=='turn'
+        request=server.event()
+        assert request['method']=='item/tool/call' and request['id']==99
+        server.respond_tool(99,{'success':True,'contentItems':[{'type':'inputText','text':'sanitized result'}]})
+        assert server.event()['method']=='item/agentMessage/delta'
+        assert server.event()['params']['item']['success'] is True

@@ -119,11 +119,11 @@ def test_read_only_projection_borrows_without_copying_or_leaking(tmp_path, monke
     with legacy.using_governance_root(root):
         expected = legacy._sprint_document(entry, {})
     copied = []
-    original = legacy.deepcopy
+    original = legacy.clone
     def copy(value):
         copied.append(1)
         return original(value)
-    monkeypatch.setattr(legacy, 'deepcopy', copy)
+    monkeypatch.setattr(legacy, 'clone', copy)
     with legacy.using_governance_root(root, immutable=True):
         for _ in range(20):
             assert legacy._sprint_document(entry, {}) == expected

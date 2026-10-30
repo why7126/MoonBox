@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "guard-issue-prototype-references",
+  "checks": [
+    {
+      "id": "AC-REF",
+      "kind": "command",
+      "inputs": [
+        "scripts/workflow_sync/prototype_references.py",
+        "scripts/promote-issue-stage.py",
+        "scripts/promote-issues-for-archive.py",
+        "scripts/test_prototype_references.py",
+        "scripts/workflow_sync/issue_stage.py",
+        "tests/unit/test_issue_lifecycle_stage.py",
+        "tests/unit/test_review_promotion_sync.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main([\"tests/unit/test_issue_lifecycle_stage.py\", \"tests/unit/test_review_promotion_sync.py\", \"scripts/test_prototype_references.py\", \"-q\"]))"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-CONTEXT",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        "rules/issues-lifecycle.md",
+        "scripts/README.md",
+        ".agents/skills/workflow-sync/SKILL.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-openspec-language.py",
+        "rules/issues-lifecycle.md",
+        "scripts/README.md",
+        ".agents/skills/workflow-sync/SKILL.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "guard-issue-prototype-references",
+        "--residual-report"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-directory-structure.py",
+        "rules/issues-lifecycle.md",
+        "scripts/README.md",
+        ".agents/skills/workflow-sync/SKILL.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-directory-structure.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-SPEC",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/guard-issue-prototype-references/proposal.md",
+        "openspec/changes/guard-issue-prototype-references/design.md",
+        "openspec/changes/guard-issue-prototype-references/specs/issue-prototype-references/spec.md"
+      ],
+      "argv": [
+        "openspec",
+        "validate",
+        "guard-issue-prototype-references"
+      ],
+      "timeout_seconds": 120
+    }
+  ]
+}

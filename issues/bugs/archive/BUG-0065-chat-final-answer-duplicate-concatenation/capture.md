@@ -4,13 +4,13 @@ title: Chat 最终回答相同内容重复保存并拼接展示
 status: done
 severity: medium
 created_at: '2026-10-26 18:01:50'
-updated_at: 2026-10-26 19:54:50
+updated_at: 2026-10-30 08:33:53
 environment: local docker chat-platform
 owner: 产品团队
 source: 用户双条 bug-capture 授权及同会话只读探索
 related_requirement: null
 related_bug: BUG-0030-chat-assistant-output-missing-from-conversation
-lifecycle_stage: plan
+lifecycle_stage: archive
 root_cause_status: confirmed
 ---
 

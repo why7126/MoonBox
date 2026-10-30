@@ -5,6 +5,7 @@
 <script>
 const frame=document.querySelector('#page'), output=document.querySelector('#evidence'), progress=document.querySelector('#progress');
 const requestedSamples=Number(new URLSearchParams(location.search).get('samples'));
+const expectedCards=Number(new URLSearchParams(location.search).get('cards'))||29;
 const sampleCount=[30,70,100].includes(requestedSamples)?requestedSamples:30;
 document.querySelector('#navigation').textContent=sampleCount+'次正式页面打开';
 document.querySelector('#refresh').textContent=sampleCount+'次正式页面刷新';
@@ -43,13 +44,13 @@ async function until(check,timeout=90000){const end=Date.now()+timeout;while(Dat
 async function navigate(n){
  frame.src='/requirements?bug0056_sample='+n;
  await new Promise(resolve=>frame.onload=()=>{observeFetch();resolve()});
- await until(()=>context().length && cards().length===29 && !frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
+ await until(()=>context().length && cards().length===expectedCards && !frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
  await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
  const bounds=cards()[0].getBoundingClientRect(), outer=frame.getBoundingClientRect();
  return {...metrics(context()[0]),first_card_ms:frame.contentWindow.performance.now(),first_card_in_viewport:bounds.width>0&&bounds.height>0&&bounds.top<frame.contentWindow.innerHeight&&bounds.bottom>0&&outer.top+bounds.top<window.innerHeight&&outer.top+bounds.bottom>0&&outer.left+bounds.left<window.innerWidth};
 }
 async function refresh(){
- await until(()=>cards().length===29&&!frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
+ await until(()=>cards().length===expectedCards&&!frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
  const before=context().length;
  frame.contentDocument.querySelector('[aria-label="刷新需求中心"]').click();
  await until(()=>context().length>before&&!frame.contentDocument.querySelector('[aria-label="刷新需求中心"]')?.disabled);
@@ -67,7 +68,7 @@ function renderRows(){
  document.querySelector('#rows').replaceChildren(...nodes);
 }
 async function run(mode){if(busy)return;busy=true;rows=[];output.textContent='[]';document.querySelectorAll('button').forEach(x=>x.disabled=true);
- try{await until(()=>cards().length===29);for(let n=0;n<sampleCount;n++){progress.textContent=mode+' '+(n+1)+'/'+sampleCount;let row;try{row=mode==='navigation'?await navigate(n):await refresh()}catch(e){row={error:String(e)}}rows.push({n,mode,time:new Date().toISOString(),...row});output.textContent=JSON.stringify(rows);renderRows();await pause(1000);}progress.textContent='完成 '+mode+' '+sampleCount+'/'+sampleCount;}
+ try{await until(()=>cards().length===expectedCards);for(let n=0;n<sampleCount;n++){progress.textContent=mode+' '+(n+1)+'/'+sampleCount;let row;try{row=mode==='navigation'?await navigate(n):await refresh()}catch(e){row={error:String(e)}}rows.push({n,mode,time:new Date().toISOString(),...row});output.textContent=JSON.stringify(rows);renderRows();await pause(1000);}progress.textContent='完成 '+mode+' '+sampleCount+'/'+sampleCount;}
  finally{busy=false;document.querySelectorAll('button').forEach(x=>x.disabled=false);}
 }
 document.querySelector('#navigation').onclick=()=>run('navigation');document.querySelector('#refresh').onclick=()=>run('refresh');

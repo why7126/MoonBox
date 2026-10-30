@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "sample": "synthetic-mechanisms-not-product-acceptance",
+  "backend_stable": {
+    "passed": 148,
+    "skipped": 3
+  },
+  "incremental": {
+    "passed": 28
+  },
+  "source_checkpoint": {
+    "passed": 5
+  },
+  "frontend": {
+    "passed": 6,
+    "typescript": "passed",
+    "orval": "8.29.0"
+  },
+  "disk_probe": {
+    "tmpfs_mib": 8,
+    "enospc": true,
+    "root_readonly": true,
+    "full_20gib_pressure_test": false
+  },
+  "runtime_protocol": {
+    "version": "0.153.4",
+    "image": "sha256:339c6935977a6068f08e2236b0778cf5d91b230f5e555650e3ff7bb54f94fe93",
+    "method": "item/tool/call",
+    "thread_resume_dynamic_tools": false
+  },
+  "product_acceptance": "pending_by_user_scope",
+  "fingerprints": {
+    "src/backend/app/verification/acceptance_state.py": "b6b8e9d33a6221e113a6b138db23dcbecd1f2f4b730828bc6f9f1484af675c97",
+    "src/backend/app/verification/acceptance_delivery.py": "fdd9ea34a47dfb338f7b4dcd02d4a3c3a4fe4b63fe9db69457a500a21c4e7328",
+    "src/backend/app/verification/acceptance_service.py": "353609ebc944aee51a156cc0586becb7c3a739a340d26e112a8f73f7ca39b9d8",
+    "src/backend/app/verification/acceptance_observability.py": "6af7d7c4f2caa391b9a74788bfec958c9a81518a088af6fdb23612bbcaf6b8de",
+    "src/backend/app/verification/acceptance_cleanup.py": "b9c10a4bec0cc6cde96a36ab62af3188ef40c882575f7ce26bfdede0589db547",
+    "src/backend/app/verification/acceptance_runtime.py": "9fbb717ea4932360b3cce4832f911eabb750990e220846854fc12c519a23d473",
+    "src/backend/app/verification/acceptance_source.py": "1d5851b7e2c3a87396e48bdf622f9997f0ca84d50af7c84bcbe87262ea3cc2d0",
+    "src/backend/app/verification/acceptance_tool.py": "f643cf140c3f8d3710ddaa08eb4c60a7db9fb1af973a84598eea4bcd3671804a",
+    "src/backend/app/verification/acceptance_schema.py": "2d4a10f73193140b65e592562af6ae3b4062a270b8399f4a6284eb66a4d6c86d",
+    "src/backend/app/verification/acceptance_controller.py": "e84c7d8dac0a7a937e9ae17689793d367a34d38cf56142ca231907bdcd514703",
+    "src/backend/app/verification/acceptance_worker.py": "5008db5c0f6b1788990502079823e9f742d3d0798f93107bdb3e9240f2ee1e53",
+    "src/backend/app/verification/acceptance_archive.py": "3ed689fa40fc87ea964404816af51de708ba39dd3212b34184e10f64d24457f2",
+    "src/backend/app/verification/acceptance_template.py": "9e543dd3fa28d3358aa41185e11b2693f894f7d824cea9b28986d403930a40f7",
+    "src/backend/app/verification/acceptance_resources.py": "40a07a96cee55076f1d34061e4f24f60801237f81c42012ca4c8a1ec72a4637b",
+    "src/backend/app/verification/acceptance_snapshot.py": "c42b1243c951ce47200a9009076554bc44f5bc2dac4e8a0e64c0eeb6fef35f95",
+    "src/backend/app/verification/acceptance_identity.py": "7ae5258f4d0e863f26cfd10794d8be7db31938b600f71fc2b982e619cf0f2055",
+    "src/backend/app/chat/execution.py": "0b85392deb63d39a75703bb3366ce46adea3506afea7c39e51c42874b1eab1b4",
+    "src/backend/app/chat/app_server.py": "00e0263c29a21b6aac7809f356bccdc06c5053151fafcd753a013b6e3a0f4f6f",
+    "src/backend/app/chat/admission.py": "7d6085b6338a0d8e81388e6bccf007071ddc65ecbe0e53cddde2d3446db7ef91",
+    "src/backend/app/chat/service.py": "f53800259133dd815b9eee89e5d0a50d88a9e763d14fd2816e688403e5ad13c3",
+    "src/backend/app/chat/api.py": "0e52cf6a652090991933aaafe0a3d28b5251669784afae12ade9146e5978fc1f",
+    "src/web/src/components/chat/AcceptanceOperations.tsx": "298f5808397a01aa4f5a40b981ea0c4379dd8fbe78b00422b9f6ba26944940d7"
+  }
+}

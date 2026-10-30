@@ -135,7 +135,8 @@ class AppServer:
             except ExecutorError as error:
                 if error.code == 'executor_timeout': raise ExecutorError('executor_timeout_'+method.replace('/', '_'))
                 raise
-            if 'method' in value and 'id' in value:
+            if ('method' in value and 'id' in value and not
+                    (getattr(self, 'acceptance_enabled', False) and value['method'] == 'item/tool/call')):
                 self._send({'id': value['id'], 'error': {'code': -32601, 'message': 'Interactive requests are not supported'}})
                 raise ExecutorError('executor_interactive_request')
             if value.get('id') == request_id and 'method' not in value:
@@ -155,9 +156,18 @@ class AppServer:
             previous = self.rpc('thread/read', {'threadId': thread_id, 'includeTurns': False})['thread']
             self._verify_thread(previous, thread_id)
             result = self.rpc('thread/resume', {'threadId': thread_id, **policy})
-        else: result = self.rpc('thread/start', policy)
+        else:
+            if getattr(self,'acceptance_enabled',False):
+                from app.verification.acceptance_tool import SPEC
+                policy['dynamicTools']=[SPEC]
+            result = self.rpc('thread/start', policy)
         self._verify_thread(result.get('thread', {}), thread_id)
         return result['thread']['id']
+
+    def respond_tool(self, request_id, result):
+        if not isinstance(request_id,(str,int)) or isinstance(request_id,bool):
+            raise ExecutorError('executor_tool_request_invalid')
+        self._send({'id':request_id,'result':result})
 
     def _verify_thread(self, thread, expected):
         if not isinstance(thread.get('id'), str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,96}', thread['id']) or (expected and thread.get('id') != expected): raise ExecutorError('executor_thread_mismatch')

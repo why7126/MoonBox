@@ -25,10 +25,12 @@ def test_expanded_cold_warm(chat, tmp_path, monkeypatch):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(body)
     bind(monkeypatch, root)
+    view = os.environ.get('CONTEXT_RESOURCE_VIEW', 'full')
+    assert view in ('full', 'summary')
     def request():
         started = time.perf_counter()
         response = client.get('/api/v1/requirement-center/context',
-                              params={'space_id': 'space', 'repository_id': 'repo'})
+                              params={'space_id': 'space', 'repository_id': 'repo', 'view': view})
         elapsed = (time.perf_counter() - started) * 1000
         assert response.status_code == 200
         cards = response.json()['data']['issues']
@@ -55,7 +57,7 @@ def test_expanded_cold_warm(chat, tmp_path, monkeypatch):
         summary['cold' if cold else 'warm'] = {'median_ms': statistics.median(values),
             'p95_ms': values[math.ceil(len(values)*.95)-1], 'max_ms': max(values)}
     assert snapshot.stable(root).revision == fixed.revision
-    result = {'samples': rows, 'summary': summary, 'initialization': initialization,
+    result = {'view': view, 'samples': rows, 'summary': summary, 'initialization': initialization,
               'files': len(fixed.files), 'bytes': sum(map(len, fixed.files.values())),
               'reference_cards': len(reference), 'cards': len(expected),
               'snapshot_revision': fixed.revision, 'os_page_cache_cleared': False,

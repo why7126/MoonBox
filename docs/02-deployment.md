@@ -461,7 +461,7 @@ bash scripts/docker-down.sh self-storage-sqlite --chat-platform
 
 Compose 控制器为非root用户，单独持有 Docker socket 权限；此控制器属于受信任部署边界。API没有 socket 或认证挂载，模型执行容器没有业务DB、socket、其他会话工作区或宿主认证目录。Linux 部署需确保 `MOONBOX_CHAT_DOCKER_GID` 和持久目录权限允许部署用户访问；不得通过给执行容器挂载 socket 来修复。所选源仓库只读挂载给 Chat 后端用于比较当前治理文件 manifest/revision；在本地 source 工作区模式下，Chat worker 对 `source_root` 使用宿主可写挂载，以便授权命令直接更新真实仓库。执行容器实际可写范围仍由 `moonbox-read`、`moonbox-governance`、`moonbox-archive` 或 `moonbox-write` sandbox profile 决定，不能把 worker 可写挂载等同于无限制写权限。本地常驻部署默认在仓库绑定中声明 `workspace_mode: "source"`，让执行器直接使用 `source_root` 当前工作树；无需为每次治理命令提交 Git 或重启部署。显式隔离副本模式仍可通过将绑定改为 `workspace_mode: "copy"` 使用：执行控制器从已提交树初始化独立 Git 基线，再同步经过授权和版本校验的当前治理文件与命令技能，支持未提交治理修改，且不导入源仓库 hooks/config、环境凭证或任意未跟踪文件。
 
-本地真实仓库工作区模式是本地常驻部署推荐默认。该模式下执行器以 `source_root` 当前工作树作为工作区，所有命令直接读写真实仓库，不创建 `<workspace_root>/<conversation_id>` 副本，不执行治理文件副本同步，也不在 generate 成果后要求候选二次应用。该模式只适用于本地受信任部署，仍保留单 worker 串行领取、项目级写入锁、空间成员写权限、对象状态门禁、产物 allowlist、请求日志、Task Trace 和需求中心看板刷新；不应在共享生产仓库或多人同时编辑场景启用。共享生产仓库、多人同时编辑或需要强隔离审阅时，应显式使用 `workspace_mode: "copy"`，并配套副本清理和未应用成果恢复流程。手工配置或旧绑定如缺少 `workspace_mode`，worker 启动预检会拒绝该绑定；迁移时需按部署场景显式补 `source` 或 `copy`，不得静默回退到副本模式。当前模板只支持默认 SQLite 数据位置，已有其他数据库布局须先调整模板并验证。
+本地真实仓库工作区模式是本地常驻部署推荐默认。该模式下执行器以 `source_root` 当前工作树作为工作区，所有命令直接读写真实仓库，不创建 `<workspace_root>/<conversation_id>` 副本，不执行治理文件副本同步，也不在 generate 成果后要求候选二次应用。该模式只适用于本地受信任部署，仍保留单 worker 串行领取、项目级写入锁、空间成员写权限、对象状态门禁、产物 allowlist、请求日志、Task Trace 和需求中心看板刷新；不应在共享生产仓库或多人同时编辑场景启用。统一工作区启用后，共享仓库或并行交付使用按需 Git worktree；`copy` 仅作为旧会话兼容目录保留，新会话绑定正式登记工作区。手工配置或旧绑定如缺少 `workspace_mode`，worker 启动预检会拒绝该绑定；迁移时需按部署场景显式补 `source` 或 `copy`，不得静默回退到副本模式。当前模板只支持默认 SQLite 数据位置，已有其他数据库布局须先调整模板并验证。
 
 
 单机部署续接：已按用户指定项目仓库与唯一编码`moonbox`的现有空间建立映射，该空间显示名为“AI原生软件工厂”，未创建或重命名空间。实际路径和空间ID仅保留在被忽略的私有env。配置`MOONBOX_CHAT_EXECUTION_MODE=local-codex`后，根up/down脚本自动加载常驻覆盖文件，原`bash scripts/docker-up.sh self-storage-sqlite`和配对down命令可继续使用；显式`--chat-test`仍选择测试模式。旧初始密码不代表现有账号密码，前台验收使用用户当前有效登录，不修改或重置账号。
@@ -655,3 +655,27 @@ BUG-0056 持续运行补充：控制器就绪/兼容声明每5秒发布，原30�
 需求中心暖快照第二遍读取按部署CPU预算选择调度：CPU亲和性与cgroup v2配额均允许至少4CPU时最多4线程，否则顺序读取；无法取得预算时保守使用顺序路径。每次仍完整枚举并安全读取当前全部文件，与已验证候选逐路径逐字节比较；变化、异常、冷读和写入口使用完整双遍读取。权限检查不变，不要求扩大容器权限。
 
 需求中心完整读取的最新预算：实际CPU容量至少4时最多2个读取线程，为后台服务保留调度空间；低CPU配额或容量未知采用串行。并发仅用于完整安全读取，不改变快照一致性、权限和写入检查。
+
+## 统一工作区部署边界（REQ-0042 / REQ-0054 / REQ-0055）
+
+backend 与 chat-worker 同步更新，先停止领取新任务并确认已有写操作状态，再经既有数据库初始化入口创建 moonbox 工作区、恢复与合入表。不同项目继续各自使用完整主源码目录；`source_root` 和正式 `governance_root` 对齐，`workspace_root` 为同一执行主机上的独立私有目录，不能放在源码目录内或其祖先。linked worktree 的共享 Git 管理只由可信宿主服务访问；执行容器挂载当前工作区和私有只读 Git 视图，不挂载共享 Git 管理目录。
+
+同一仓库的管理进程需共享文件锁和数据库占用状态。当前文件锁契约面向单一执行主机；多主机调度需保持仓库归属，不把本机 flock 当分布式锁。已有 copy 工作区按历史副本保留；启动时不批量移动目录或覆盖未应用成果。
+
+`MOONBOX_WORKSPACE_RECOVERY_KEEP` 默认 10，必须为正整数，仅控制普通工作区恢复点数量。正文与恢复索引共用数据库持久存储；数据库自动备份仍由 `MOONBOX_CHAT_LOCAL_SNAPSHOT_LIMIT`（默认 2）独立控制，人工及系统保护单独保留。备份恢复需验证索引和正文完整性，并保留独立删除日志；不把恢复点当数据库灾备或容器快照。
+
+回滚保留新增表、内容块、Git 分支及目录，暂停新操作并对账已有任务；不能删除未知占用、强制 reset 或在旧版本 worker 中自动重放活动任务。新开发工作区入口要求恢复与受控合入联合门禁；缺少 REQ-0048 固定候选独立验收供应能力时保持关闭。该说明不是生产部署执行记录。
+
+### 固定候选验收部署
+
+API/worker 使用同一 `MOONBOX_CANDIDATE_ROOT` 持久受控目录和同一 Docker daemon；`MOONBOX_CANDIDATE_TEMPLATE` 指向仓库外的只读批准模板，详见 `src/backend/app/verification/README.md`。无模板时新开发树与组合验收保持关闭。受控模板固定 linux/arm64 镜像和项目依赖锁，不从客户端接受连接串、网络、镜像或命令。数据库为独立 MySQL8.4临时实例与SQLite；无生产数据复制，无宿主端口，无自动远程推送。worker在调用时清理失联环境，不承诺worker停止后的定时回收。
+
+合入后的正式记录同步需要配置既有 `MOONBOX_GOVERNANCE_STATE_ROOT` 私有目录，并由 API/worker 共享同一目录与数据库。同步仅更新主目录对应 Issue 的 `workspace_integration` 字段和 Sprint 合入记录区，不改评审/归档阶段。新增治理文件修改保留为可审阅的未提交变更；下次创建候选前须按正常治理提交流程提交，系统不会自动提交其他人工改动。同步中断保留工作区占用与逐文件计划，重试从持久记录核对，不手工释放未知占用。
+
+## REQ-0048 Chat 隔离验收配置边界（实施中）
+
+新增可选 `MOONBOX_ACCEPTANCE_TEMPLATE`（部署受控批准JSON）和 `MOONBOX_ACCEPTANCE_ROOT`（独立私有运行目录）。未配置时相关验收操作受阻，不回退真实业务数据库、共享账号或任意项目命令。模板字段、期限、身份适配与当前限制见 `src/backend/app/verification/README.md`。API 与验证 worker 需要共享同一控制账本和受控目录，并连接已登记的同一 Docker daemon；本轮未修改生产环境或启动正式部署。
+
+当前授权验证范围为登记合成项目。真实产品模板与完整产品样本仍是上线前门禁；模型消费/续接和长期摘要转存已实现，机制证据见当前Change verification.md，不应将合成样本结果作为生产ready。原有固定候选模板及验证任务配置保持兼容。
+
+REQ-0048长期摘要写入复用 `MOONBOX_GOVERNANCE_STATE_ROOT` 项目锁，API与worker须共享当前授权项目文件系统及治理状态目录。新增线程的动态工具契约固定0.153.4；旧线程不注入协议不支持的参数。关联轮次保留原总期限与有限token余额；扫描每60秒执行，进程内游标分批遍历，坏记录不长期占据首批。

@@ -1,0 +1,24 @@
+{
+  "host": {
+    "passed": 98,
+    "skipped": 1,
+    "failed": 0
+  },
+  "deployed_linux": {
+    "passed": 98,
+    "skipped": 1,
+    "failed": 0
+  },
+  "skip_reason": "CHAT_LIVE_PROBE not enabled; controlled external Codex execution is outside this read-performance regression",
+  "checks": [
+    "ASGI body-before-audit only for requirement-center GET",
+    "writes and other routes remain durable before body",
+    "eventual matching request log",
+    "bounded capacity synchronous fallback",
+    "failure warning and slot release",
+    "existing background task preserved",
+    "abandoned response reservation released",
+    "endpoint overhead accounted",
+    "scope and Chat regressions"
+  ]
+}

@@ -3,7 +3,7 @@ bug_id: BUG-0064-chat-unknown-recovery-container-churn
 title: Chat 未知轮次恢复调度与资源消耗验收
 acceptance_status: passed
 created_at: '2026-10-26 13:11:48'
-updated_at: 2026-10-26 14:41:23
+updated_at: 2026-10-30 08:33:53
 ---
 
 # Chat 未知轮次恢复调度与资源消耗验收
@@ -48,16 +48,16 @@ product_data_collection_observability: applicable；affected_layers: task_traces
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-26 14:41:23
+accepted_at: 2026-10-30 08:33:53
 accepted_by: workflow-sync
 source_change: fix-chat-unknown-recovery-container-churn
 source_sprint: sprint-014
 evidence: [openspec/archive/2026-10-26-fix-chat-unknown-recovery-container-churn/evidence/acceptance/20261026143724020477-0ad85f24/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 
 ## 本轮逐项签认
 
-AC-01至AC-08全部通过，详见[自动验收清单](../../../../openspec/changes/fix-chat-unknown-recovery-container-churn/evidence/acceptance/20261026143724020477-0ad85f24/summary.md)及[交付验证](../../../../openspec/changes/fix-chat-unknown-recovery-container-churn/verification.md)。SQLite142通过、MySQL23通过；各有一项明确不适用/显式模型样本跳过。真实Docker使用合成认证、当前代码和固定镜像，不调用模型；暂停330秒新增0容器，6创建/6销毁及取消、中断、超时回收通过。登记资源最终零残留。该签认针对隔离交付版本，不表示已发布或原运行实例已升级。
+AC-01至AC-08全部通过，详见[自动验收清单](../../../../openspec/archive/2026-10-26-fix-chat-unknown-recovery-container-churn/evidence/acceptance/20261026143724020477-0ad85f24/summary.md)及[交付验证](../../../../openspec/archive/2026-10-26-fix-chat-unknown-recovery-container-churn/verification.md)。SQLite142通过、MySQL23通过；各有一项明确不适用/显式模型样本跳过。真实Docker使用合成认证、当前代码和固定镜像，不调用模型；暂停330秒新增0容器，6创建/6销毁及取消、中断、超时回收通过。登记资源最终零残留。该签认针对隔离交付版本，不表示已发布或原运行实例已升级。

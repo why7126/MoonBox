@@ -1,6 +1,7 @@
 import logging
 from time import monotonic
 from typing import Any
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status, Query, Request
 from sqlalchemy.orm import Session
@@ -34,6 +35,32 @@ def get_reader(
 
 router = APIRouter(prefix="/api/v1/requirement-center", tags=["requirement-center"], route_class=ChatRoute, responses={503: {"model": RequirementCenterReadError}})
 logger = logging.getLogger("moonbox.requirement_center")
+
+
+@router.get('/status', response_model=ApiResponse[dict[str, Any]], summary='读取活动卡片当前执行状态')
+def get_requirement_center_status(
+    object_ids: list[str] = Query(default=[], max_length=32),
+    reader: ProjectReader = Depends(get_reader),
+):
+    import re
+    from app.chat.service import ChatError
+    from app.governance.scope import RequestVisibility
+    from app.governance.writer import assert_readable
+    from app.governance.execution_context import visible_states
+    from app.moonbox_core.projection import delivery_overlay
+    if any(not re.fullmatch(r'[A-Za-z0-9-]{1,200}', value) for value in object_ids):
+        raise ChatError(2601, '对象标识无效', 403)
+    assert_readable(reader.db, reader.scope)
+    visibility = RequestVisibility(reader.db, reader.actor, reader.scope)
+    if any(not visibility.visible(value) for value in object_ids):
+        raise ChatError(2601, '对象不存在或无权访问', 403)
+    states = visible_states(reader.db, reader.actor, reader.scope, object_ids)
+    overlays = delivery_overlay(reader.db, reader.scope.space_id, reader.scope.repository_id, object_ids)
+    items = [{'object_id': oid, **state, **overlays.get(oid, {})} for oid, (_, state) in states.items()]
+    reader.db.commit()
+    visibility.assert_current(reader.db)
+    assert_readable(reader.db, reader.scope)
+    return ApiResponse(data={'items': items})
 
 
 @router.get("/projects", response_model=ApiResponse[dict[str, Any]], summary="读取授权项目与账号目录")
@@ -72,13 +99,15 @@ def _log_document_operation(
 @router.get("/context", response_model=ApiResponse[RequirementCenterContext], tags=["Requirement Center"], summary="读取需求中心上下文")
 def get_requirement_center_context(
     request: Request,
+    view: Literal['full', 'summary'] = Query(default='full'),
+    object_id: str | None = Query(default=None, min_length=1, max_length=200, pattern=r'^[A-Za-z0-9-]+$'),
     reader: ProjectReader = Depends(get_reader),
     current_user: dict[str, Any] = Depends(require_session_user),
     db: Session = Depends(get_db),
 ) -> ApiResponse[RequirementCenterContext]:
     try:
         request.state.governance_endpoint_started = monotonic()
-        response = ApiResponse(data=reader.call("build_requirement_center_context", current_user=current_user, db=db))
+        response = ApiResponse(data=reader.call("build_requirement_center_context", current_user=current_user, db=db, summary=view == 'summary', check_object_id=object_id))
         request.state.governance_endpoint_finished = monotonic()
         return response
     except OSError as exc:

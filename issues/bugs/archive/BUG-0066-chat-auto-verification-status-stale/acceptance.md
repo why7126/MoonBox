@@ -2,7 +2,7 @@
 bug_id: BUG-0066-chat-auto-verification-status-stale
 title: 自动核验状态未刷新验收标准
 created_at: '2026-10-26 18:19:35'
-updated_at: 2026-10-26 19:55:10
+updated_at: 2026-10-30 08:33:55
 acceptance_status: passed
 ---
 
@@ -32,15 +32,15 @@ N/A：本次无对象存储、部署、API schema 或DB迁移变更；实施时�
 
 ```yaml
 acceptance_status: passed
-accepted_at: 2026-10-26 19:55:10
+accepted_at: 2026-10-30 08:33:55
 accepted_by: workflow-sync
 source_change: fix-chat-auto-verification-status-stale
 source_sprint: sprint-014
 evidence: [openspec/archive/2026-10-26-fix-chat-auto-verification-status-stale/evidence/acceptance/20261026191303432657-47e3dc27/summary.md]
 failed_items: []
-source_event: opsx.archive
+source_event: sprint.archive
 notes: 由 Workflow Sync 根据 Change/Sprint 状态回填。
 ```
 
 ## 本次验收签认
-2026-10-26 19:17:59：全部AC通过，见[逐项证据报告](../../../../openspec/changes/fix-chat-auto-verification-status-stale/evidence/acceptance/20261026191303432657-47e3dc27/summary.md)。合成回归、MySQL兼容和隔离真实浏览器分别记录；浏览器使用真实HTTP与后台控制器、合成业务证明，未重放原用户命令。历史原始事件身份缺口不扩张为全链路确认。
+2026-10-26 19:17:59：全部AC通过，见[逐项证据报告](../../../../openspec/archive/2026-10-26-fix-chat-auto-verification-status-stale/evidence/acceptance/20261026191303432657-47e3dc27/summary.md)。合成回归、MySQL兼容和隔离真实浏览器分别记录；浏览器使用真实HTTP与后台控制器、合成业务证明，未重放原用户命令。历史原始事件身份缺口不扩张为全链路确认。

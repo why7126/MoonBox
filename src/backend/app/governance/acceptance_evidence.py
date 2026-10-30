@@ -153,8 +153,24 @@ def read_plan(change_dir: Path) -> dict:
             raise ValueError("linked Issue acceptance document missing or ambiguous")
         text = matches[0].read_text(encoding="utf-8")
         issue_ac = set(re.findall(r"^(?:- \[[ xX]\] |\|\s*)(AC-[A-Za-z0-9-]+)(?:\b|\s*\|)", text, re.MULTILINE))
-        if issue_ac != seen:
+        scope = plan.get("issue_acceptance_scope", "full")
+        if scope not in {"full", "partial"}:
+            raise ValueError("invalid Issue acceptance scope")
+        if scope == "partial":
+            mapping = plan.get("issue_ac_mapping")
+            scope_text = plan.get("scope_description")
+            local = change_dir / "acceptance.md"
+            local_ac = set(re.findall(r"^- \[[ xX]\] (AC-[A-Za-z0-9-]+)\b", local.read_text(encoding="utf-8"), re.MULTILINE)) if local.is_file() else set()
+            if (local_ac != seen or not isinstance(scope_text, str) or not scope_text.strip()
+                    or not isinstance(mapping, dict) or set(mapping) != seen
+                    or any(not isinstance(ids, list) or not ids
+                           or any(not isinstance(ac, str) or ac not in issue_ac for ac in ids)
+                           for ids in mapping.values())):
+                raise ValueError("partial acceptance requires local AC coverage and explicit Issue mapping")
+        elif issue_ac != seen:
             raise ValueError("acceptance plan AC set differs from linked Issue")
+    elif plan.get("issue_acceptance_scope") == "partial":
+        raise ValueError("partial acceptance requires a linked Issue")
     return plan
 
 def ordered_checks(checks: list[dict]) -> list[dict]:

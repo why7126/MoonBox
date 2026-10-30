@@ -1,0 +1,116 @@
+{
+  "natural": {
+    "navigation": {
+      "samples": 30,
+      "http_p95_ms": 1123,
+      "http_max_ms": 1998,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 477.05,
+        "snapshot": 465.83,
+        "fences_exclusive": 11.22,
+        "materialize": 3.36,
+        "object_authorization": 0,
+        "parse": 452.29,
+        "cleanup": 119.61,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 188.18,
+        "projection_commit": 3.92,
+        "document_projection": 8.23,
+        "reader_orchestration": 7.18,
+        "total": 1045.52,
+        "dependencies": 26.85,
+        "response_finalize": 25.31,
+        "request_audit": 0,
+        "request_audit_dispatch": 0.33,
+        "endpoint_overhead": 0.31,
+        "route_total": 1079.35
+      },
+      "first_card_p95_ms": 2026
+    },
+    "refresh": {
+      "samples": 30,
+      "http_p95_ms": 1858,
+      "http_max_ms": 3021,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 1198.32,
+        "snapshot": 1181.4,
+        "fences_exclusive": 14.79,
+        "materialize": 4.53,
+        "object_authorization": 0,
+        "parse": 464.39,
+        "cleanup": 131.14,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 208.69,
+        "projection_commit": 9.87,
+        "document_projection": 15.74,
+        "reader_orchestration": 7.24,
+        "total": 1796.26,
+        "dependencies": 10.78,
+        "response_finalize": 49.82,
+        "request_audit": 0,
+        "request_audit_dispatch": 0.34,
+        "endpoint_overhead": 0.31,
+        "route_total": 1830.22
+      }
+    }
+  },
+  "loaded": {
+    "navigation": {
+      "samples": 30,
+      "http_p95_ms": 4199,
+      "http_max_ms": 5276,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 2838.31,
+        "snapshot": 2786.04,
+        "fences_exclusive": 31.64,
+        "materialize": 7.43,
+        "object_authorization": 0,
+        "parse": 1342.34,
+        "cleanup": 290.77,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 350.61,
+        "projection_commit": 10.79,
+        "document_projection": 15.31,
+        "reader_orchestration": 13.14,
+        "total": 4073.04,
+        "dependencies": 72.51,
+        "response_finalize": 79.18,
+        "request_audit": 0,
+        "request_audit_dispatch": 0.63,
+        "endpoint_overhead": 0.52,
+        "route_total": 4154.76
+      },
+      "first_card_p95_ms": 5487
+    },
+    "refresh": {
+      "samples": 30,
+      "http_p95_ms": 2619,
+      "http_max_ms": 3841,
+      "segments_p95_ms": {
+        "snapshot_and_fences": 1508.88,
+        "snapshot": 1497.13,
+        "fences_exclusive": 26.44,
+        "materialize": 4.89,
+        "object_authorization": 0,
+        "parse": 739.79,
+        "cleanup": 265.77,
+        "reconcile": 0,
+        "external_reconcile": 0,
+        "card_projection_exclusive": 432.8,
+        "projection_commit": 10.95,
+        "document_projection": 17.55,
+        "reader_orchestration": 8.2,
+        "total": 2450.25,
+        "dependencies": 81.87,
+        "response_finalize": 58.07,
+        "request_audit": 0,
+        "request_audit_dispatch": 0.53,
+        "endpoint_overhead": 0.89,
+        "route_total": 2578.45
+      }
+    }
+  }
+}

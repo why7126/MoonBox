@@ -1,0 +1,149 @@
+{
+  "category": "synthetic_project_real_runtime",
+  "source_authority": "substituted exporter",
+  "model_round": "not_exercised",
+  "status": "cancelled",
+  "cleanup": "released",
+  "reason_code": "user_stopped",
+  "checks": [
+    {
+      "ac_id": "AC-001",
+      "status": "pending",
+      "reason_code": null
+    },
+    {
+      "ac_id": "AC-002",
+      "status": "pending",
+      "reason_code": null
+    }
+  ],
+  "observed_limits": [
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ],
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ],
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ],
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ],
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ],
+    [
+      {
+        "cpu_nanos": 1000000000,
+        "memory": 2147483648,
+        "readonly": true,
+        "pids": 256,
+        "tmpfs": {
+          "/run": "rw,nosuid,size=64m",
+          "/state": "rw,nosuid,uid=10001,gid=10001,size=512m",
+          "/tmp": "rw,nosuid,size=256m"
+        },
+        "published_ports": false,
+        "log_driver": "none",
+        "kind": "application_or_database"
+      }
+    ]
+  ],
+  "runtime_versions": {
+    "python": "3.12.15",
+    "node": "24.22.0",
+    "mysql": "8.4.13",
+    "chromium": "156.0.8078.73",
+    "firefox": "153.0"
+  },
+  "template_digest": "5c8e53581744b824581506eae147a466916a405b3fcd75ff72b8ba24e9f27f69",
+  "source_hashes": {
+    "src/backend/app/verification/acceptance_cleanup.py": "b9c10a4bec0cc6cde96a36ab62af3188ef40c882575f7ce26bfdede0589db547",
+    "src/backend/app/verification/acceptance_controller.py": "e84c7d8dac0a7a937e9ae17689793d367a34d38cf56142ca231907bdcd514703",
+    "src/backend/app/verification/acceptance_identity.py": "7ae5258f4d0e863f26cfd10794d8be7db31938b600f71fc2b982e619cf0f2055",
+    "src/backend/app/verification/acceptance_observability.py": "6af7d7c4f2caa391b9a74788bfec958c9a81518a088af6fdb23612bbcaf6b8de",
+    "src/backend/app/verification/acceptance_resources.py": "40a07a96cee55076f1d34061e4f24f60801237f81c42012ca4c8a1ec72a4637b",
+    "src/backend/app/verification/acceptance_runtime.py": "9fbb717ea4932360b3cce4832f911eabb750990e220846854fc12c519a23d473",
+    "src/backend/app/verification/acceptance_schema.py": "b734198d18b2ac15ff309a896ff1f823432283549cec6dadee9a9715861a83af",
+    "src/backend/app/verification/acceptance_service.py": "c35289faef7165a1d19823ddff3247d5dbc777e06c8076895ed181309660e7ad",
+    "src/backend/app/verification/acceptance_snapshot.py": "c42b1243c951ce47200a9009076554bc44f5bc2dac4e8a0e64c0eeb6fef35f95",
+    "src/backend/app/verification/acceptance_source.py": "3268114cc164f647859aa64539b2fb15822ddbdb0ad25bdeaebfb16010281a8c",
+    "src/backend/app/verification/acceptance_state.py": "b6b8e9d33a6221e113a6b138db23dcbecd1f2f4b730828bc6f9f1484af675c97",
+    "src/backend/app/verification/acceptance_template.py": "9e543dd3fa28d3358aa41185e11b2693f894f7d824cea9b28986d403930a40f7",
+    "src/backend/app/verification/acceptance_worker.py": "715241891f34604501f6ab7d99271ab45592d95201da75a66b2d91bcb0fee301",
+    "src/backend/app/verification/runner.py": "61905f0acd850de9c29066fe86129895ef6e2d1390f701c9bbcdbcd7a2b36c31",
+    "src/backend/app/verification/candidate.py": "c691c5d808a7a4943262ee6ba3e2c7e6d239700dc771512ab7daf46041986437",
+    "src/backend/container/verification_acceptance.cjs": "c1b215a10bd468cb276d451afe4ffe336162a8b1ac3ab946ed7f4bd1a0ca6821",
+    "src/backend/tests/test_acceptance_runtime_live.py": "2353e210c9155865bf44aabe551b04c9878e8ad083968cfe4d11973e91afc21a"
+  },
+  "cancel_to_release_seconds": 13.97,
+  "source_stable": true,
+  "screenshots": [],
+  "interpretation": "登记合成项目主动停止样本，模型轮次未执行。"
+}

@@ -137,15 +137,18 @@ def acceptance_status_for(derived: DerivedIssue, event: str | None, *, issue_pat
         if plan:
             try:
                 import json
-                linked_issue = json.loads(plan.read_text(encoding="utf-8")).get("issue_id")
+                plan_data = json.loads(plan.read_text(encoding="utf-8"))
+                linked_issue = plan_data.get("issue_id")
                 if linked_issue and issue_path is not None and linked_issue != issue_path.name:
                     return "pending"
                 if plan.parent.parent.name == "archive":
                     from app.governance.acceptance_evidence import archived_readiness
-                    return "passed" if archived_readiness(ROOT, plan.parent).get("evidence_status") == "ready" else "pending"
+                    if archived_readiness(ROOT, plan.parent).get("evidence_status") == "ready":
+                        return "partial" if plan_data.get("issue_acceptance_scope") == "partial" else "passed"
+                    return "pending"
                 from opsx_acceptance import readiness
                 if readiness(ROOT, source_change)["status"] == "ready":
-                    return "passed"
+                    return "partial" if plan_data.get("issue_acceptance_scope") == "partial" else "passed"
             except (OSError, ValueError, KeyError):
                 pass
             return "pending"
@@ -348,7 +351,7 @@ def sync_issue_subdocuments(
             acceptance_status = acceptance_status_for(derived, event, issue_path=issue.path, source_change=linked_change)
             result.acceptance_status = acceptance_status
             evidence = None
-            if linked_change and acceptance_status == "passed":
+            if linked_change and acceptance_status in {"passed", "partial"}:
                 from .constants import ROOT
                 plan = acceptance_plan_for(ROOT, linked_change)
                 if plan:
@@ -361,8 +364,10 @@ def sync_issue_subdocuments(
                 plan_path = acceptance_plan_for(ROOT, linked_change)
                 if plan_path:
                     import json
-                    linked_issue = json.loads(plan_path.read_text(encoding="utf-8")).get("issue_id")
-                    if not linked_issue or linked_issue == issue.path.name:
+                    plan_metadata = json.loads(plan_path.read_text(encoding="utf-8"))
+                    linked_issue = plan_metadata.get("issue_id")
+                    # A subset AC may reuse a numeric ID but is not the full Issue AC.
+                    if plan_metadata.get("issue_acceptance_scope") != "partial" and (not linked_issue or linked_issue == issue.path.name):
                         from opsx_acceptance import artifacts_match, effects, fingerprint, latest_manifest, read_plan
                         manifest = latest_manifest(plan_path.parent)
                         if manifest:

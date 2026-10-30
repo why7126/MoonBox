@@ -1,0 +1,15 @@
+{
+  "lifecycle": "persistent_event_loop",
+  "source": "byte-reuse-final/persistent-server-method",
+  "fixed_revision": "392f0fac049b1bdb80a09013a4f47745f351090521943cd6736f31b2a2d53d8f",
+  "historical_modules_sha256": {
+    "requirement_center.py": "c12205d30a5a141e35970b5fb8023d32c965e41e0819a1716fd96446c597bb60",
+    "change_index.py": "41d1521bea1e94e318bd199b13126d1657c012578955bd497e4e924b633f306e",
+    "titles.py": "8a32a6160647eb94d9371843077f2ee50554c629bc2454fbe4c4c34d1b305495",
+    "reader.py": "c1c0e65d92c3cdef741a55b190a7953ba0906f48ee0c10555cacaca3667bbcc6",
+    "execution_context.py": "3b302446e59186eb00f38728429cbd5942206bf7575e9597f09055af16bb82b0",
+    "snapshot.py": "4b981468cd5f1830373618f41ee60992a2320746ba3d6a764b121cc3e12105d4"
+  },
+  "reuse_reason": "all baseline reader/parse modules remain historical; modern bounded memo retention is not used by the baseline adapter",
+  "shared_envelope": "4 vCPU / 8 GiB; host contention varied and raw samples retained"
+}

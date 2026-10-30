@@ -124,6 +124,13 @@ export interface RequirementCenterTasks {
 }
 
 export interface RequirementCenterIssue {
+  /** 当前卡片完整治理身份，用于受权状态查询 */
+  object_id?: string | null;
+  /** 摘要未执行深度核验；不代表通过，动作入口仍重新校验 */
+  checks_deferred?: boolean;
+  delivery_workspace_id?: string | null;
+  workspace_execution_state?: string | null;
+  integration_state?: string | null;
   /** 对象有效 Sprint Scope 的预估开发人天；缺失不填零 */
   estimated_person_days?: number | null;
   estimate_status?: RequirementCenterIssueEstimateStatus;
@@ -1158,7 +1165,11 @@ export interface ApiResponseArchiveObjectResponse {
   data: ArchiveObjectResponse;
 }
 
-export type GetRequirementCenterContextApiV1RequirementCenterContextGetParams = {
+export type GetRequirementCenterStatusApiV1RequirementCenterStatusGetParams = {
+/**
+ * @maxItems 32
+ */
+object_ids?: string[];
 /**
  * @minLength 1
  * @maxLength 64
@@ -1170,6 +1181,29 @@ space_id: string;
  */
 repository_id: string;
 };
+
+export type GetRequirementCenterContextApiV1RequirementCenterContextGetParams = {
+view?: GetRequirementCenterContextApiV1RequirementCenterContextGetView;
+object_id?: string | null;
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+repository_id: string;
+};
+
+export type GetRequirementCenterContextApiV1RequirementCenterContextGetView = typeof GetRequirementCenterContextApiV1RequirementCenterContextGetView[keyof typeof GetRequirementCenterContextApiV1RequirementCenterContextGetView];
+
+
+export const GetRequirementCenterContextApiV1RequirementCenterContextGetView = {
+  full: 'full',
+  summary: 'summary',
+} as const;
 
 export type GetRequirementCenterDocumentApiV1RequirementCenterIssuesIssueIdDocumentsDocumentNameGetParams = {
 /**
@@ -1290,6 +1324,76 @@ export type StatusApiV1ChatReplacementPolicyGetParams = {
 space_id: string;
 repository_id: string;
 };
+
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse200 = {
+  data: ApiResponseDictStrAny
+  status: 200
+}
+
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse503 = {
+  data: RequirementCenterReadError
+  status: 503
+}
+
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponseSuccess = (getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse200) & {
+  headers: Headers;
+};
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponseError = (getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse422 | getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse503) & {
+  headers: Headers;
+};
+
+export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse = (getRequirementCenterStatusApiV1RequirementCenterStatusGetResponseSuccess | getRequirementCenterStatusApiV1RequirementCenterStatusGetResponseError)
+
+export const getGetRequirementCenterStatusApiV1RequirementCenterStatusGetUrl = (params: GetRequirementCenterStatusApiV1RequirementCenterStatusGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["object_ids"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/requirement-center/status?${stringifiedParams}` : `/api/v1/requirement-center/status`
+}
+
+/**
+ * @summary 读取活动卡片当前执行状态
+ */
+export const getRequirementCenterStatusApiV1RequirementCenterStatusGet = async (params: GetRequirementCenterStatusApiV1RequirementCenterStatusGetParams, options?: RequestInit): Promise<getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse> => {
+
+  const res = await fetch(getGetRequirementCenterStatusApiV1RequirementCenterStatusGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse
+}
+
+
 
 export type getProjectsApiV1RequirementCenterProjectsGetResponse200 = {
   data: ApiResponseDictStrAny

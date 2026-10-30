@@ -106,7 +106,15 @@ def _permission_event(factory, token, decision, evidence, profile, phase, execut
         return False
 
 
-def _workspace_identity(parent, workspace):
+def _workspace_identity(parent, workspace, db=None):
+    if db is not None:
+        from app.moonbox_core.sessions import execution_workspace
+        binding = execution_workspace(db, parent)
+        if binding:
+            row, expected = binding
+            if workspace != expected:
+                raise ExecutorError('workspace_binding_mismatch')
+            return row['id']
     from app.chat.settings import repository_binding
     binding = repository_binding(parent['repository_id'], parent['space_id']) or {}
     if binding.get('workspace_mode') == 'source':
@@ -121,9 +129,15 @@ def _workspace_identity(parent, workspace):
     return workspace.name
 
 
-def _workspace_id_allowed(parent, workspace_id):
+def _workspace_id_allowed(parent, workspace_id, db=None):
     if parent['workspace_id'] in (None, workspace_id):
         return True
+    if db is not None:
+        from app.moonbox_core.schema import migrations
+        migration = db.execute(select(migrations).where(migrations.c.conversation_id == parent['id'],
+            migrations.c.workspace_id == workspace_id)).mappings().first()
+        if migration and migration['previous_workspace_id'] == parent['workspace_id']:
+            return True
     # Existing object conversations may have been initialized before a repository
     # binding switched from copy mode to source mode. Allow one safe migration only
     # after the current workspace has already been verified as the bound source root.
@@ -188,6 +202,10 @@ def owned(db, token):
         conversations.c.deleted_at.is_(None))).mappings().first()
     if not row or not parent: raise ExecutorError('worker_fenced')
     service.conversation(db,parent['owner_id'],parent['id'])
+    from app.verification.acceptance_delivery import execution_guard
+    from app.verification.acceptance_state import Conflict
+    try:execution_guard(db,token['turn_id'])
+    except Conflict as error:raise ExecutorError(str(error)) from None
     from app.chat.relations import authorize_history
     authorize_history(db, parent['owner_id'], dict(parent))
     db.execute(update(turns).where(turns.c.id == row['id'], turns.c.generation == token['generation'])
@@ -231,34 +249,67 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
     """server_factory accepts the verified workspace; executable/auth never come from a browser request."""
     executor_turn = None
     start_requested = False
+    workspace_collection_complete = False
+    from app.moonbox_exec_server.context import DELIVERY, IMAGE
+    delivery_token = DELIVERY.set(None)
+    image_token = IMAGE.set(None)
     tool_started = {}
+    acceptance_pending = None
     final_reply = None
     server = None; permitted_scope = None; seq = 0; terminal = None; reply = ''; usage = None; metadata_bytes = 0; budget_stop = False; limit_recorded = False; stop_at = None; last_interrupt = 0
     try:
         workspace = trusted_directory(workspace)
+        with factory() as db:
+            _, binding_parent = owned(db, token)
+            from app.verification.acceptance_delivery import execution_guard
+            execution_guard(db,token['turn_id'],starting=True)
+            from app.moonbox_core.delivery_policy import execution_context
+            from app.moonbox_core.sessions import execution_workspace
+            managed = execution_workspace(db, binding_parent)
+            if managed and managed[1] != workspace:
+                raise ExecutorError('workspace_binding_mismatch')
+            context = execution_context(db, binding_parent['owner_id'], binding_parent,
+                db.scalar(select(turns.c.prompt).where(turns.c.id == token['turn_id'])))
+            DELIVERY.set(context)
+            db.commit()
         from app.governance.archive_chat import run as run_trusted_archive
         archive_result = run_trusted_archive(factory, token, workspace)
         if archive_result is not None:
+            workspace_collection_complete = True
             return archive_result
         with factory() as db:
             row, parent = owned(db, token)
-            workspace_id = _workspace_identity(parent, workspace)
-            if not _workspace_id_allowed(parent, workspace_id): raise ExecutorError('workspace_binding_mismatch')
+            workspace_id = _workspace_identity(parent, workspace, db)
+            if not _workspace_id_allowed(parent, workspace_id, db): raise ExecutorError('workspace_binding_mismatch')
             reserve = db.execute(select(reservations).where(reservations.c.turn_id == row['id'])).mappings().first()
             if not reserve: raise ExecutorError('usage_reservation_missing')
             budget = row['reserved_bytes']; token_budget = reserve['tokens']
-            scalable = budget == 0
+            from app.verification.acceptance_delivery import token_limit
+            continuation_token_limit=token_limit(db,row['id'])
+            scalable = budget == 0 or managed is not None
             baseline = db.execute(select(workspace_baselines).where(workspace_baselines.c.conversation_id == parent['id'])).mappings().first()
-            baseline_workspace_id = _baseline_workspace_id(parent, workspace_id)
+            from app.moonbox_core.sessions import bound
+            baseline_workspace_id = parent['id'] if bound(db, parent['id']) else _baseline_workspace_id(parent, workspace_id)
             from app.governance.preparation import execution_prompt_for_turn
             execution_prompt=execution_prompt_for_turn(db,parent,row['prompt'])
             db.commit()
         from app.chat.relations import read_snapshots
         with factory() as db: context=read_snapshots(db,parent['owner_id'],row['id'])
         context_bytes=len(json.dumps(context,ensure_ascii=False).encode())
+        from app.chat.policy import write_policy, WRITE_SCOPE_READ_ONLY
+        from app.moonbox_exec_server.scope import roots as recovery_roots
+        with factory() as db:
+            capture_policy = write_policy(db, parent['owner_id'], parent)
+        allowed_roots = recovery_roots(capture_policy['write_scope'], DELIVERY.get()) if managed else None
         if scalable:
             from app.chat.snapshot_store import capture, import_legacy, diff_page
-            before = capture(factory, parent['id'], row['id'], workspace, 'before', fence=lambda db: owned(db, token))
+            before = capture(factory, parent['id'], row['id'], workspace, 'before', fence=lambda db: owned(db, token), policy_roots=allowed_roots)
+            if managed:
+                from app.moonbox_rollout.execution import publish_turn
+                with factory() as db:
+                    owned(db, token)
+                    publish_turn(db, managed[0], row['id'], before, allowed_roots, 'before')
+                    db.commit()
         else:
             before = snapshot(workspace, max_text_bytes=min(budget//4, 4*1024*1024))
         if baseline:
@@ -289,14 +340,26 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
         with factory() as db:
             current_write_policy = write_policy(db, parent['owner_id'], parent, evidence=permission_evidence)
         permitted_scope = current_write_policy['write_scope']
+        if managed and recovery_roots(permitted_scope, DELIVERY.get()) != allowed_roots:
+            raise ExecutorError('workspace_write_scope_changed')
         if permitted_scope != WRITE_SCOPE_READ_ONLY:
             _check_workspace_tool_dirs_outside_sandbox(workspace)
         server = server_factory(workspace)
+        server.acceptance_enabled = bool(managed and DELIVERY.get() and permitted_scope=='implementation_write')
         if hasattr(server, 'set_write_scope'):
             server.set_write_scope(permitted_scope)
         else:
             server.write = permitted_scope == 'implementation_write'
         selected_profile = _verify_permission_profile(server, permitted_scope)
+        if managed:
+            from app.moonbox_exec_server.runtime import pin
+            with factory() as db:
+                owned(db, token)
+                pin(db, token['turn_id'], managed[0]['id'], server)
+                from app.moonbox_core.schema import execution_receipts
+                db.execute(update(execution_receipts).where(execution_receipts.c.turn_id == token['turn_id']).values(
+                    scope_json=json.dumps(allowed_roots)))
+                db.commit()
         _permission_event(factory, token, current_write_policy, permission_evidence,
             getattr(server, 'permission_profile', None), 'selected')
         thread_id = server.connect(parent['thread_id'])
@@ -362,10 +425,35 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                     # A rejected early interrupt is retried against the same turn, never by starting a new turn.
                     if time.monotonic()-last_interrupt >= 1:
                         server.interrupt(thread_id,executor_turn);last_interrupt=time.monotonic()
+                if acceptance_pending:
+                    from app.verification.acceptance_tool import poll
+                    poll(factory,token,server,*acceptance_pending)
                 event=server.event(timeout=1)
                 if event is None: continue
                 params=event.get('params',{});method=event.get('method')
                 if params.get('threadId') != thread_id: continue
+                if method=='item/tool/call' and 'id' in event:
+                    from app.verification.acceptance_tool import begin
+                    from app.verification.acceptance_state import Conflict
+                    try:
+                        if (not server.acceptance_enabled or params.get('turnId')!=executor_turn or
+                                params.get('tool')!='moonbox_acceptance' or params.get('arguments')!={} or
+                                params.get('namespace') is not None or tool_started):
+                            raise Conflict('acceptance_tool_unavailable')
+                        operation_id=begin(factory,token,workspace,params.get('callId'))
+                        acceptance_pending=(event['id'],operation_id)
+                    except (Conflict,service.ChatError) as error:
+                        reason=str(error) if isinstance(error,Conflict) else 'acceptance_authorization_denied'
+                        server.respond_tool(event['id'],{'success':False,'contentItems':[{'type':'inputText','text':reason}]})
+                    continue
+                if (method=='item/completed' and params.get('item',{}).get('type')=='dynamicToolCall'
+                        and params.get('turnId')==executor_turn
+                        and params.get('item',{}).get('success') is True
+                        and params.get('item',{}).get('tool')=='moonbox_acceptance'):
+                    from app.verification.acceptance_tool import acknowledge
+                    item=params['item']
+                    acknowledge(factory,token,item.get('callId') or item.get('id'))
+                    acceptance_pending=None
                 event_turn=params.get('turnId') or params.get('turn',{}).get('id')
                 if event_turn != executor_turn: continue
                 if method=='thread/tokenUsage/updated':
@@ -378,6 +466,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                                 if worker.record_event(db,token,f'usage:{total}','execution.usage',{'total_tokens':usage,'reserved_tokens':token_budget}):metadata_bytes+=1024
                         else:budget_stop=True
                         if not scalable and token_budget > 0 and usage >= token_budget: budget_stop=True
+                        if continuation_token_limit is not None and usage >= continuation_token_limit: budget_stop=True
                 elif method=='item/agentMessage/delta':
                     text=safe_text(params.get('delta','')).replace(str(workspace),'[工作区]'); size=len(text.encode())
                     if scalable:
@@ -469,7 +558,12 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                 total=params.get('tokenUsage',{}).get('total',{}).get('totalTokens')
                 if type(total) is int and total>=0: usage=max(usage or 0,total)
         if scalable:
-            after = capture(factory, parent['id'], row['id'], workspace, 'after', fence=lambda db: owned(db, token))
+            after = capture(factory, parent['id'], row['id'], workspace, 'after', fence=lambda db: owned(db, token), policy_roots=allowed_roots)
+            if managed:
+                with factory() as db:
+                    owned(db, token)
+                    publish_turn(db, managed[0], row['id'], after, allowed_roots, 'after')
+                    db.commit()
             with factory() as db:
                 delta = diff_page(db, before['version_id'], after['version_id'])
                 cumulative = diff_page(db, initial['version_id'], after['version_id'])
@@ -508,6 +602,7 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
                 reconcile_usage(db,row['id'])
         from app.governance.preparation import collect
         with factory() as db: collect(db, parent, row['id'], workspace, terminal)
+        workspace_collection_complete = True
         return terminal
     except (ExecutorError, WorkspaceError, service.ChatError) as error:
         logging.getLogger(__name__).warning('chat_execution_cause cause_type=%s', type(error).__name__)
@@ -531,8 +626,23 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
             return mark_setup_failed(factory, token, code, cause=error)
         return mark_unknown(factory,token,code)
     finally:
+        DELIVERY.reset(delivery_token)
+        IMAGE.reset(image_token)
         try:
             if server is not None:server.close()
+            from app.moonbox_core.schema import execution_receipts
+            with factory() as db:
+                db.execute(update(execution_receipts).where(execution_receipts.c.turn_id == token['turn_id']).values(
+                    executor_closed=1, files_collected=int(workspace_collection_complete)))
+                db.commit()
+            if workspace_collection_complete:
+                from app.moonbox_core.sessions import bound as bound_workspace_id
+                from app.moonbox_core.workspaces import release
+                with factory() as db:
+                    workspace_id = bound_workspace_id(db, token['conversation_id'])
+                    if workspace_id:
+                        release(db, workspace_id, token['turn_id'], token['generation'])
+                    db.commit()
         finally:
             if permitted_scope is not None and permitted_scope != 'read_only':
                 try: _check_workspace_tool_dirs_outside_sandbox(workspace)
@@ -543,6 +653,9 @@ def run_claim(factory, token, workspace, server_factory, *, max_seconds=None, st
 def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease=None, outcome=None):
     """Read the exact external turn; never restart it or infer termination from elapsed time."""
     server=None
+    from app.moonbox_exec_server.context import DELIVERY, IMAGE
+    delivery_token = DELIVERY.set(None)
+    image_token = IMAGE.set(None)
     def report(value):
         if outcome is not None: outcome["result"] = value
     report("no_terminal")
@@ -554,7 +667,7 @@ def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease
             if parent['active_turn_id']!=tid or not parent['thread_id'] or not row['executor_turn_id']:
                 report('record_missing');return False
             bound=trusted_directory(workspace)
-            if _workspace_identity(parent, bound) != parent['workspace_id']:
+            if _workspace_identity(parent, bound, db) != parent['workspace_id']:
                 report('workspace_identity');return False
         signature = None
         if recovery_lease is not None:
@@ -562,7 +675,20 @@ def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease
             signature = fingerprint(server_factory, bound, parent['thread_id'])
             if unchanged(tid, signature):
                 report('unchanged');return False
+        from app.moonbox_exec_server.runtime import saved, pin
+        from app.moonbox_core.schema import delivery_sessions
+        with factory() as db:
+            runtime = saved(db, tid)
+            delivery_binding = db.execute(select(delivery_sessions).where(
+                delivery_sessions.c.conversation_id == parent['id'])).mappings().first()
+            if runtime:
+                IMAGE.set(runtime['image_digest'])
+            if delivery_binding:
+                DELIVERY.set(dict(delivery_binding))
         server=server_factory(bound);server.write=False
+        if runtime:
+            with factory() as db:
+                pin(db, tid, runtime['workspace_id'], server)
         result=server.read_turn(parent['thread_id'],row['executor_turn_id'])
         terminal={'completed':'completed','failed':'failed','interrupted':'stopped'}.get((result or {}).get('status'))
         if terminal is None:
@@ -587,6 +713,11 @@ def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease
             db.execute(update(conversations).where(conversations.c.id==parent['id'],conversations.c.active_turn_id==tid).values(active_turn_id=None,updated_at=service.now()))
             from app.chat.admission import release_concurrency
             release_concurrency(db, tid)
+            from app.moonbox_core.sessions import bound as bound_workspace_id
+            from app.moonbox_core.workspaces import release
+            workspace_id = bound_workspace_id(db, parent['id'])
+            if workspace_id:
+                release(db, workspace_id, tid, row['generation'])
             from app.chat.schema import events
             from sqlalchemy import func
             seq=(db.scalar(select(func.max(events.c.sequence)).where(events.c.turn_id==tid)) or 0)+1
@@ -653,6 +784,8 @@ def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease
         from app.chat.recovery import classify
         report(classify(error));return False
     finally:
+        DELIVERY.reset(delivery_token)
+        IMAGE.reset(image_token)
         if server is not None:server.close()
 
 

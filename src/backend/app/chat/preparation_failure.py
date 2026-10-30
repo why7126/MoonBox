@@ -74,6 +74,15 @@ def fail_preparation(factory, token, error, *, recovering=False):
         from app.chat.admission import settle
         # Zero model usage is justified here: this stage never calls start_turn.
         settle(db, tid, 0, size)
+        from app.moonbox_core.sessions import bound
+        from app.moonbox_core.workspaces import release
+        workspace_id = bound(db, token['conversation_id'])
+        if workspace_id:
+            from sqlalchemy import delete
+            from app.moonbox_rollout.schema import references
+            db.execute(delete(references).where(references.c.workspace_id == workspace_id,
+                references.c.owner_type == 'active_turn', references.c.owner_id == tid))
+            release(db, workspace_id, tid, token['generation'])
         from app.governance.recovery_service import checkpoint_preparation_failure
         checkpoint_preparation_failure(db, tid, code)
         db.commit()

@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-requirement-center-context-load-latency",
+  "run_id": "20261030082128249498-f584ca1b",
+  "created_at": "2026-10-30 08:21:33",
+  "source_revision": "430855fef826b881047aae377fc107998e676c6c",
+  "environment": "isolated-and-live-background-context-performance",
+  "scope": "diagnostic",
+  "status": "failed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "53e8d016950066a9d7fa8e2da230860527978126cace729037409b43a619d720",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression.json",
+          "sha256": "5326b72ed48035f459d030e9db245890a92dc5080ed97e4f5638729c8729aef0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/paired-context.json",
+          "sha256": "2da0749d39b7a39df81cd3d3cbf1b791e2a5eeb3c87a854eab785a83e5c5f978"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/paired-md.json",
+          "sha256": "0ad1e4bdbeb67aa145d41b1d81f2d1b3a699c49b5599230625b233c00b50198d"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/browser.json",
+          "sha256": "e512991f0c728e19e73a0cee118d8299fd88ae706944b3f6d7448838e4702976"
+        }
+      ],
+      "duration_ms": 101,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "520c8b422a0161dc2756a3e9a22be418193b695f93337b005b49b69a1f553fdb",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression.json",
+          "sha256": "5326b72ed48035f459d030e9db245890a92dc5080ed97e4f5638729c8729aef0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression-safety.txt",
+          "sha256": "26808b44c37520ad1e9497ffaa6cbf46cf6dfd4ebaa2c34ff1e0fef024d8d883"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression-boundaries.txt",
+          "sha256": "fa601872799c684782819ec414307f0432ecfd33a80bb73196b7318cc8bbf442"
+        }
+      ],
+      "duration_ms": 93,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "f26d4da5a44c5eba7fcc221a07f378ebd5bc5a41f31c95848990948f54e0fc22",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression.json",
+          "sha256": "5326b72ed48035f459d030e9db245890a92dc5080ed97e4f5638729c8729aef0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/indexes.json",
+          "sha256": "e077ea6d306e7d893c987eb7936dac42617b785824ba08f7580c297b7ace6897"
+        }
+      ],
+      "duration_ms": 66,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "79fe2d91f7aec5a1b85a940d5687cc0c5951fa560037bd35ed0db7297c6e4ca0",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/regression.json",
+          "sha256": "5326b72ed48035f459d030e9db245890a92dc5080ed97e4f5638729c8729aef0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/indexes.json",
+          "sha256": "e077ea6d306e7d893c987eb7936dac42617b785824ba08f7580c297b7ace6897"
+        }
+      ],
+      "duration_ms": 64,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "d6c0ff3dcc4977978d534dfd3994e67cad4ba73ec12fe87bff374430c24a1ec0",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/frontend.json",
+          "sha256": "975f84dc1fee3e1d23db139d1700092ee842053e2f688e8b050d10778ad5da24"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/browser-functional.json",
+          "sha256": "c6b03dce261f9451d594ba7fc50b40c14a60c433c1fbb663dad423c61e0a4b6e"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/page-final.png",
+          "sha256": "d1f9c047912dca76c22bc7995b4c6e8fef76a5d489732a36750e5894f7cb6e18"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/document-retry-success.png",
+          "sha256": "f79c770f6e97272947d7c8eb5fe19d76f8000b6a1a8c611b42b3a6abaac0132d"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/document-stress-failure.png",
+          "sha256": "acce9bd21c422b05504d3d56272f4004bc341d2760ee874acfa2c440c0a9cec0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/check-button-after.png",
+          "sha256": "b7c9a66ba871d2deea005742ca80e47b4bdc9529b02975ef040583787012e5ad"
+        }
+      ],
+      "duration_ms": 74,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "09ea18a0c5c6955847e677a4e028251f1f2b353a6440ecccf37acfe936c6b3ad",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "0a55207ed99a0d5bc42b679c0903f70bf092cebee69c01aa734f1728514cac50",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-reference-1-baseline.json",
+          "sha256": "381551e40092043241896853b3987fde85c56939f9094c24bf9892f7e02e1e9f"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-reference-1-optimized.json",
+          "sha256": "8a1f9b007f4d28da51e7aeb0e9dd0e8ba4ff52ace6282ae573070f1adeef0429"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-reference-4-baseline.json",
+          "sha256": "98ec6407a6cd5104b6f124d87344341c55e27bb0becfa0bfacd648c8068784a3"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-reference-4-optimized.json",
+          "sha256": "64db3ee8c99882827b308d54a7ef2202d7c767acd276596189e6ff919624aded"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-expanded-1-baseline.json",
+          "sha256": "13a6af87bec0df4fa79028d50fdce2bfd66dcd99f6ac8e5b9af0d44bc90b0a52"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-expanded-1-optimized.json",
+          "sha256": "c6d22d62ab45469cd4b8ac687f0d86d648b41e3ad52d0973f59c2febeac54b65"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-expanded-4-baseline.json",
+          "sha256": "c0f607cd316ac74a97f83eb712885ce20cf213528011dd461cf40dd638a2bee6"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-expanded-4-optimized.json",
+          "sha256": "df047130ec335d7a30265a3b872160cc49b3c97644044a7064964d10e9bd5990"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-execution.json",
+          "sha256": "c8371eecc3e3ecc05f982240dd30e081316209a85def46fc07edd2ace838d797"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/expanded-latency.json",
+          "sha256": "e7c9cc68bec156d52fa507061fbb95252ba68121cde25bdd04a019816c716bc1"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-exits.json",
+          "sha256": "47306ddfe4384e271ea1008ee6cb4fd759af084718b898956260585b8e21aa87"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/resource-summary.json",
+          "sha256": "2c548b0c72160c9e53f81708df0bad6b4cea2c94b76a6adf2b0d2cf8e3562602"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/runtime-cleanup.json",
+          "sha256": "650436f6c11a7c5aa345877df0bf5ca83081b0665e7cbe6cc068b844a88c903e"
+        }
+      ],
+      "duration_ms": 82,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "bcf96d11d25505e76f3defd053372dd0dcc33c61d1b950125f9db8d5009ce1eb",
+      "reused": false,
+      "deduplicated": false,
+      "status": "failed",
+      "reason": "exit-code",
+      "exit_code": 1,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/inputs.json",
+          "sha256": "fee4f807209dcba71f39cc73b07f643b09775fb25a29f046aa62eb6715e464b7"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/governance.json",
+          "sha256": "4401940e41d640473e80a57a331bc43356aed261c8eccf5400461e9f0462add0"
+        },
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/executed-source-sha256.json",
+          "sha256": "e72210b3eb224f079cf3290143cdedb21b7e02d2c434dcb0aa53e5cf1d0193c4"
+        }
+      ],
+      "duration_ms": 75,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "failed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "d021cbf25801bc00ed10d26885a1672f332b32ed7f44a677e3171dc0a94f1605",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1037,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "90f15294010c580e838212e26d81297da49b754a84613aa2da6606682f0c8fbc",
+      "status": "blocked",
+      "reused": false,
+      "reason": "pending-collection",
+      "effect_problems": [],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "pending_collection"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "a6064ca415bc58771e190311d3900863448656279729735564d7f43ed5a17711",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1834,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "408570b037a1e3dfda4997c2cd9c9da34f729db1d9910c4a2e62852ca9b31eba",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-requirement-center-context-load-latency/evidence/acceptance/summary-repair-20261029/audit-final/audit-deployment-scope.json",
+          "sha256": "bf6c3b7edbb03644ba8b3652c197fa88032a4e41d2c74e8b16ba2cc49897d508"
+        }
+      ],
+      "duration_ms": 2106,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 10,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 32,
+    "duration_ms": 5627,
+    "blocked": 2,
+    "failed": 7
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

@@ -1821,6 +1821,36 @@ body {
   padding: 0 4px;
 }
 
+.rc-result-check {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--rc-accent);
+  font: inherit;
+  font-size: var(--rc-text-sm);
+  cursor: pointer;
+}
+
+.rc-result-check:disabled {
+  color: var(--rc-muted);
+  cursor: not-allowed;
+}
+
+.rc-result-check:focus-visible {
+  outline: 2px solid var(--rc-accent);
+  outline-offset: 2px;
+}
+
+.rc-result-check-sprints {
+  align-self: flex-end;
+  margin: 0 28px;
+}
+
 .rc-toolbar select {
   height: 34px;
   min-width: 128px;

@@ -79,7 +79,7 @@ def test_acceptance_checks_issue_documents_not_card_display_list(tmp_path):
     entry = dict(id=issue.name, path=str(issue.relative_to(tmp_path)), status="in_sprint", related_change="validation")
     with service.using_governance_root(tmp_path):
         row = service._build_issue("requirement", entry)
-        assert row.stage == "acceptance" and row.blocked == "验收结论待核实，请查看 acceptance.md 与交付证据"
+        assert row.stage == "acceptance" and row.blocked == "验收来源待核实"
         assert row.task_progress == (1, 1)
         assert row.test_progress == (1, 3)
         assert row.manual_acceptance_progress == (0, 1)
@@ -122,17 +122,17 @@ def test_acceptance_readiness_is_separate_from_task_progress(tmp_path):
         assert row.task_progress == (1, 1) and row.test_progress == (1, 1)
         assert row.acceptance_pending_count == 2
         assert row.manual_acceptance_progress == (0, 2)
-        assert "2 项待验证" in (row.action.disabled_reason or "")
+        assert row.action.disabled_reason == "验收未完成，请查看验收项与交付证据"
         write(issue / "acceptance.md", "---\nacceptance_status: accepted\n---\n- [x] AC-051：真实复验\n- [ ] AC-052：补齐证据\n")
         partly_checked = service._build_issue("bug", entry)
         assert partly_checked.acceptance_pending_count == 1
         assert partly_checked.manual_acceptance_progress == (1, 2)
-        assert "1 项待验证" in (partly_checked.action.disabled_reason or "")
+        assert partly_checked.action.disabled_reason == "验收未完成，请查看验收项与交付证据"
         write(issue / "acceptance.md", "---\nacceptance_status: pending\n---\n- [x] AC-051：真实复验\n- [x] AC-052：补齐证据\n")
         unsigned = service._build_issue("bug", entry)
         assert unsigned.acceptance_pending_count == 0
         assert unsigned.manual_acceptance_progress == (2, 2)
-        assert "验收结论待核实" in (unsigned.action.disabled_reason or "")
+        assert unsigned.action.disabled_reason == "验收未完成，请查看验收项与交付证据"
         write(issue / "acceptance.md", "---\nacceptance_status: accepted\n---\n- [x] AC-051：真实复验\n- [x] AC-052：补齐证据\n")
         accepted = service._build_issue("bug", entry)
         assert accepted.acceptance_pending_count == 0

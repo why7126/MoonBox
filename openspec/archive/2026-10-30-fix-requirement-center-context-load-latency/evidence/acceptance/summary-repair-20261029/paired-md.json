@@ -1,0 +1,327 @@
+{
+  "operation": "md",
+  "optimized_view": "full",
+  "revision": "392f0fac049b1bdb80a09013a4f47745f351090521943cd6736f31b2a2d53d8f",
+  "samples": {
+    "baseline": [
+      {
+        "ms": 1245.0707769894507,
+        "request_id": "bc78994c-e087-4886-b13c-641fae78b862",
+        "timings": "snapshot_and_fences;dur=1087.45, materialize;dur=1.43, object_authorization;dur=21.66, parse;dur=15.20, cleanup;dur=0.09, total;dur=1127.95, request_audit;dur=100.87, route_total;dur=1235.76"
+      },
+      {
+        "ms": 1259.2381199938245,
+        "request_id": "40f7fee4-70fb-40ab-8ec4-33f15b033aea",
+        "timings": "snapshot_and_fences;dur=1188.33, materialize;dur=0.88, object_authorization;dur=19.43, parse;dur=10.34, cleanup;dur=0.12, total;dur=1222.00, request_audit;dur=21.61, route_total;dur=1250.80"
+      },
+      {
+        "ms": 3926.1572530085687,
+        "request_id": "4efececb-4de2-4739-af26-8f50aaa2c0ff",
+        "timings": "snapshot_and_fences;dur=3600.13, materialize;dur=0.67, object_authorization;dur=17.06, parse;dur=9.14, cleanup;dur=0.09, total;dur=3628.92, request_audit;dur=116.96, route_total;dur=3808.29"
+      },
+      {
+        "ms": 1035.8698460040614,
+        "request_id": "78447c36-8b29-4b5a-9d78-7c5e7d10dcf9",
+        "timings": "snapshot_and_fences;dur=762.30, materialize;dur=0.57, object_authorization;dur=208.95, parse;dur=7.80, cleanup;dur=0.05, total;dur=981.01, request_audit;dur=39.16, route_total;dur=1028.40"
+      },
+      {
+        "ms": 1629.3377340189181,
+        "request_id": "cd5d7e04-62f6-463f-80a8-dd79c3b9b5c6",
+        "timings": "snapshot_and_fences;dur=1454.18, materialize;dur=0.59, object_authorization;dur=15.00, parse;dur=7.68, cleanup;dur=0.05, total;dur=1479.02, request_audit;dur=135.81, route_total;dur=1620.38"
+      },
+      {
+        "ms": 759.0073340106755,
+        "request_id": "7283f254-3f2d-40b9-b1da-ec66fa146e62",
+        "timings": "snapshot_and_fences;dur=708.17, materialize;dur=0.33, object_authorization;dur=13.13, parse;dur=7.85, cleanup;dur=0.16, total;dur=731.03, request_audit;dur=9.09, route_total;dur=748.39"
+      },
+      {
+        "ms": 982.0899740152527,
+        "request_id": "9519d8d9-4fc7-4cd6-b0f0-a88850501c77",
+        "timings": "snapshot_and_fences;dur=935.62, materialize;dur=0.41, object_authorization;dur=13.10, parse;dur=7.10, cleanup;dur=0.04, total;dur=957.38, request_audit;dur=11.36, route_total;dur=977.11"
+      },
+      {
+        "ms": 673.5448840190656,
+        "request_id": "921cc4b1-9ece-4279-8f5e-5f7e01c55576",
+        "timings": "snapshot_and_fences;dur=631.54, materialize;dur=0.34, object_authorization;dur=13.77, parse;dur=7.83, cleanup;dur=0.10, total;dur=655.16, request_audit;dur=9.60, route_total;dur=668.95"
+      },
+      {
+        "ms": 872.584299009759,
+        "request_id": "75ffddb7-17df-44cd-aef9-9b459ac4413c",
+        "timings": "snapshot_and_fences;dur=698.26, materialize;dur=0.40, object_authorization;dur=137.64, parse;dur=10.34, cleanup;dur=0.06, total;dur=847.66, request_audit;dur=15.66, route_total;dur=868.35"
+      },
+      {
+        "ms": 848.331777000567,
+        "request_id": "b2055b31-5550-4e42-be45-72141aad50fb",
+        "timings": "snapshot_and_fences;dur=805.64, materialize;dur=0.40, object_authorization;dur=12.56, parse;dur=7.54, cleanup;dur=0.05, total;dur=826.94, request_audit;dur=10.55, route_total;dur=843.44"
+      },
+      {
+        "ms": 577.0143910194747,
+        "request_id": "3cc67cb7-c09e-4bb1-9d4a-27738a6ff66a",
+        "timings": "snapshot_and_fences;dur=532.55, materialize;dur=0.40, object_authorization;dur=14.10, parse;dur=11.25, cleanup;dur=0.04, total;dur=559.53, request_audit;dur=8.74, route_total;dur=572.64"
+      },
+      {
+        "ms": 563.6695720022544,
+        "request_id": "ece8eb39-64f1-49bf-8385-a2be1b85cb66",
+        "timings": "snapshot_and_fences;dur=514.22, materialize;dur=0.41, object_authorization;dur=14.14, parse;dur=8.32, cleanup;dur=0.04, total;dur=537.85, request_audit;dur=17.47, route_total;dur=559.28"
+      },
+      {
+        "ms": 468.6354580044281,
+        "request_id": "ee667843-bcf5-4071-a850-d63b6f07db25",
+        "timings": "snapshot_and_fences;dur=425.77, materialize;dur=0.35, object_authorization;dur=14.63, parse;dur=7.80, cleanup;dur=0.04, total;dur=449.37, request_audit;dur=11.90, route_total;dur=465.29"
+      },
+      {
+        "ms": 465.0001820118632,
+        "request_id": "ef051ac4-d3c0-4e9e-9263-e3eb81477510",
+        "timings": "snapshot_and_fences;dur=423.86, materialize;dur=0.34, object_authorization;dur=12.02, parse;dur=9.41, cleanup;dur=0.06, total;dur=446.53, request_audit;dur=9.84, route_total;dur=460.28"
+      },
+      {
+        "ms": 706.8858050042763,
+        "request_id": "a542522a-aa43-49c0-b44d-6b062c6291ea",
+        "timings": "snapshot_and_fences;dur=444.51, materialize;dur=0.33, object_authorization;dur=231.41, parse;dur=8.67, cleanup;dur=0.05, total;dur=686.83, request_audit;dur=11.59, route_total;dur=702.09"
+      },
+      {
+        "ms": 666.2038300128188,
+        "request_id": "30c6782b-e295-4d62-8586-31a3b2ad13d1",
+        "timings": "snapshot_and_fences;dur=610.51, materialize;dur=0.39, object_authorization;dur=14.92, parse;dur=9.56, cleanup;dur=0.08, total;dur=636.39, request_audit;dur=18.67, route_total;dur=660.84"
+      },
+      {
+        "ms": 609.0530650108121,
+        "request_id": "b6ca0e7e-dbad-4666-9a1b-8d12db3f7a14",
+        "timings": "snapshot_and_fences;dur=559.89, materialize;dur=0.40, object_authorization;dur=12.86, parse;dur=8.42, cleanup;dur=0.07, total;dur=582.69, request_audit;dur=16.57, route_total;dur=604.78"
+      },
+      {
+        "ms": 527.5942349981051,
+        "request_id": "106cf7e2-2bba-4841-ac25-975711305d57",
+        "timings": "snapshot_and_fences;dur=486.12, materialize;dur=0.46, object_authorization;dur=12.86, parse;dur=7.32, cleanup;dur=0.05, total;dur=507.94, request_audit;dur=9.95, route_total;dur=522.27"
+      },
+      {
+        "ms": 556.053801003145,
+        "request_id": "44dd3c78-b933-4f19-baa5-1395dd23a47b",
+        "timings": "snapshot_and_fences;dur=512.18, materialize;dur=0.60, object_authorization;dur=15.06, parse;dur=8.47, cleanup;dur=0.05, total;dur=537.26, request_audit;dur=10.41, route_total;dur=551.83"
+      },
+      {
+        "ms": 759.1705480008386,
+        "request_id": "7a421364-d9ad-44a5-971b-790d037b56e7",
+        "timings": "snapshot_and_fences;dur=623.16, materialize;dur=0.64, object_authorization;dur=105.38, parse;dur=7.39, cleanup;dur=0.05, total;dur=737.62, request_audit;dur=13.19, route_total;dur=755.27"
+      },
+      {
+        "ms": 1023.6169349809643,
+        "request_id": "4e65184b-b04d-4c32-8d7d-6c3efb1b39c3",
+        "timings": "snapshot_and_fences;dur=974.69, materialize;dur=0.53, object_authorization;dur=13.60, parse;dur=8.25, cleanup;dur=0.05, total;dur=998.09, request_audit;dur=14.70, route_total;dur=1018.94"
+      },
+      {
+        "ms": 788.3494689885993,
+        "request_id": "2b8d5302-e3af-49f2-af82-9d781004e532",
+        "timings": "snapshot_and_fences;dur=718.48, materialize;dur=0.48, object_authorization;dur=22.07, parse;dur=15.33, cleanup;dur=0.18, total;dur=758.41, request_audit;dur=18.53, route_total;dur=782.44"
+      },
+      {
+        "ms": 902.7110820170492,
+        "request_id": "e27a4cfe-6b15-49e6-97a4-717a663af4d9",
+        "timings": "snapshot_and_fences;dur=829.05, materialize;dur=0.53, object_authorization;dur=23.66, parse;dur=11.27, cleanup;dur=0.54, total;dur=867.41, request_audit;dur=18.90, route_total;dur=894.70"
+      },
+      {
+        "ms": 683.2424259919208,
+        "request_id": "c022ab1d-0999-4193-bce2-7a5be02d1064",
+        "timings": "snapshot_and_fences;dur=634.29, materialize;dur=0.69, object_authorization;dur=14.59, parse;dur=10.29, cleanup;dur=0.14, total;dur=661.17, request_audit;dur=9.44, route_total;dur=678.11"
+      },
+      {
+        "ms": 514.6951789793093,
+        "request_id": "710f3011-e395-464d-bb13-210e861a4bd4",
+        "timings": "snapshot_and_fences;dur=463.94, materialize;dur=0.98, object_authorization;dur=20.00, parse;dur=9.94, cleanup;dur=0.06, total;dur=496.35, request_audit;dur=11.30, route_total;dur=511.35"
+      },
+      {
+        "ms": 663.2899079995696,
+        "request_id": "294edb29-c21f-496d-afad-077924362b99",
+        "timings": "snapshot_and_fences;dur=615.87, materialize;dur=0.50, object_authorization;dur=13.67, parse;dur=8.48, cleanup;dur=0.09, total;dur=639.72, request_audit;dur=12.99, route_total;dur=658.25"
+      },
+      {
+        "ms": 1302.6525109889917,
+        "request_id": "5a5f11af-2346-40ed-b5b8-13e1a77829a9",
+        "timings": "snapshot_and_fences;dur=1216.11, materialize;dur=0.47, object_authorization;dur=23.60, parse;dur=14.04, cleanup;dur=0.32, total;dur=1258.10, request_audit;dur=32.70, route_total;dur=1295.67"
+      },
+      {
+        "ms": 1128.746061003767,
+        "request_id": "35c28cc4-24cc-45a8-9b8f-0b4dcb3e1c9c",
+        "timings": "snapshot_and_fences;dur=1029.85, materialize;dur=0.96, object_authorization;dur=31.07, parse;dur=18.81, cleanup;dur=0.06, total;dur=1081.91, request_audit;dur=27.00, route_total;dur=1121.26"
+      },
+      {
+        "ms": 967.9790910158772,
+        "request_id": "26b3eb2e-b487-43c7-827c-70f9b21560ab",
+        "timings": "snapshot_and_fences;dur=917.99, materialize;dur=0.41, object_authorization;dur=15.27, parse;dur=9.06, cleanup;dur=0.05, total;dur=943.55, request_audit;dur=11.42, route_total;dur=963.36"
+      },
+      {
+        "ms": 496.63305198191665,
+        "request_id": "cf35b275-6e5d-486c-b78a-363a8ec7d1e8",
+        "timings": "snapshot_and_fences;dur=450.74, materialize;dur=0.37, object_authorization;dur=14.53, parse;dur=6.84, cleanup;dur=0.04, total;dur=473.40, request_audit;dur=14.12, route_total;dur=492.98"
+      }
+    ],
+    "optimized": [
+      {
+        "ms": 497.0925239904318,
+        "request_id": "f90cae0c-2786-4251-9f32-3194009bb70f",
+        "timings": "snapshot_and_fences;dur=382.54, snapshot;dur=376.71, fences_exclusive;dur=5.83, materialize;dur=2.56, object_authorization;dur=1.09, parse;dur=0.78, cleanup;dur=3.28, reader_orchestration;dur=2.09, total;dur=392.34, request_audit;dur=80.26, route_total;dur=484.72"
+      },
+      {
+        "ms": 454.4977819896303,
+        "request_id": "d44b7098-e21a-4426-9c5b-a4c1956b9864",
+        "timings": "snapshot_and_fences;dur=308.73, snapshot;dur=304.37, fences_exclusive;dur=4.36, materialize;dur=1.54, object_authorization;dur=0.44, parse;dur=0.32, cleanup;dur=2.23, reader_orchestration;dur=0.31, total;dur=313.57, request_audit;dur=125.44, route_total;dur=445.14"
+      },
+      {
+        "ms": 1065.4616970277857,
+        "request_id": "1f3e7249-6bf2-4fb6-83ab-987bdb9ed3e8",
+        "timings": "snapshot_and_fences;dur=763.11, snapshot;dur=753.57, fences_exclusive;dur=9.54, materialize;dur=7.81, object_authorization;dur=2.18, parse;dur=0.87, cleanup;dur=70.98, reader_orchestration;dur=0.73, total;dur=845.68, request_audit;dur=92.57, route_total;dur=949.75"
+      },
+      {
+        "ms": 285.9981610090472,
+        "request_id": "7e2be825-1ae8-4fd1-949b-6483c18257b2",
+        "timings": "snapshot_and_fences;dur=256.94, snapshot;dur=253.62, fences_exclusive;dur=3.32, materialize;dur=1.48, object_authorization;dur=0.49, parse;dur=0.42, cleanup;dur=2.12, reader_orchestration;dur=0.43, total;dur=261.88, request_audit;dur=16.09, route_total;dur=282.51"
+      },
+      {
+        "ms": 377.2464539797511,
+        "request_id": "e66c747a-3fb0-4301-b3db-f6a6397b46f8",
+        "timings": "snapshot_and_fences;dur=348.85, snapshot;dur=344.71, fences_exclusive;dur=4.14, materialize;dur=2.16, object_authorization;dur=0.88, parse;dur=0.44, cleanup;dur=2.56, reader_orchestration;dur=0.43, total;dur=355.32, request_audit;dur=11.12, route_total;dur=372.58"
+      },
+      {
+        "ms": 434.0730409894604,
+        "request_id": "33426207-659c-49e4-8f34-f4699ad16ce3",
+        "timings": "snapshot_and_fences;dur=379.89, snapshot;dur=370.70, fences_exclusive;dur=9.19, materialize;dur=6.80, object_authorization;dur=1.12, parse;dur=0.60, cleanup;dur=5.01, reader_orchestration;dur=0.95, total;dur=394.37, request_audit;dur=21.67, route_total;dur=425.53"
+      },
+      {
+        "ms": 762.5108149950393,
+        "request_id": "c5ac7485-29b7-4aa3-bfac-e14492f2c834",
+        "timings": "snapshot_and_fences;dur=705.29, snapshot;dur=695.29, fences_exclusive;dur=10.00, materialize;dur=3.98, object_authorization;dur=2.06, parse;dur=0.67, cleanup;dur=3.17, reader_orchestration;dur=0.83, total;dur=716.00, request_audit;dur=27.91, route_total;dur=755.11"
+      },
+      {
+        "ms": 295.8017899945844,
+        "request_id": "34d154fe-d4e5-47bc-a1f4-eb9aed536ecd",
+        "timings": "snapshot_and_fences;dur=266.75, snapshot;dur=263.79, fences_exclusive;dur=2.96, materialize;dur=1.53, object_authorization;dur=0.43, parse;dur=0.38, cleanup;dur=1.95, reader_orchestration;dur=0.63, total;dur=271.67, request_audit;dur=15.83, route_total;dur=292.44"
+      },
+      {
+        "ms": 325.0886729802005,
+        "request_id": "471ee46d-9ec7-440d-af24-021408b00158",
+        "timings": "snapshot_and_fences;dur=301.01, snapshot;dur=297.30, fences_exclusive;dur=3.71, materialize;dur=1.79, object_authorization;dur=0.69, parse;dur=0.40, cleanup;dur=2.28, reader_orchestration;dur=0.53, total;dur=306.70, request_audit;dur=10.46, route_total;dur=321.10"
+      },
+      {
+        "ms": 352.7507570106536,
+        "request_id": "a82521c3-e6b9-417a-af0e-01423ea24324",
+        "timings": "snapshot_and_fences;dur=325.71, snapshot;dur=321.87, fences_exclusive;dur=3.84, materialize;dur=1.45, object_authorization;dur=0.84, parse;dur=0.34, cleanup;dur=2.01, reader_orchestration;dur=0.27, total;dur=330.62, request_audit;dur=14.23, route_total;dur=349.01"
+      },
+      {
+        "ms": 274.8095330025535,
+        "request_id": "cf22e948-e7ce-4287-bc1d-77c805bd05fb",
+        "timings": "snapshot_and_fences;dur=250.20, snapshot;dur=247.28, fences_exclusive;dur=2.92, materialize;dur=1.51, object_authorization;dur=0.39, parse;dur=0.28, cleanup;dur=1.91, reader_orchestration;dur=0.44, total;dur=254.73, request_audit;dur=12.37, route_total;dur=271.63"
+      },
+      {
+        "ms": 347.6821460062638,
+        "request_id": "4e831a03-9b5c-47f6-8835-79e50a1d8dbc",
+        "timings": "snapshot_and_fences;dur=323.59, snapshot;dur=320.23, fences_exclusive;dur=3.36, materialize;dur=1.59, object_authorization;dur=0.43, parse;dur=0.33, cleanup;dur=2.01, reader_orchestration;dur=0.27, total;dur=328.22, request_audit;dur=9.81, route_total;dur=343.78"
+      },
+      {
+        "ms": 363.0790680181235,
+        "request_id": "23bdba1c-5a24-4b21-893e-d4eec5ffb55b",
+        "timings": "snapshot_and_fences;dur=339.97, snapshot;dur=337.27, fences_exclusive;dur=2.70, materialize;dur=1.52, object_authorization;dur=0.43, parse;dur=0.31, cleanup;dur=1.90, reader_orchestration;dur=0.31, total;dur=344.44, request_audit;dur=10.92, route_total;dur=359.74"
+      },
+      {
+        "ms": 272.4761290010065,
+        "request_id": "b8d50fb4-882c-4eaf-a93c-5f0166a43b1d",
+        "timings": "snapshot_and_fences;dur=251.86, snapshot;dur=249.56, fences_exclusive;dur=2.30, materialize;dur=1.29, object_authorization;dur=0.33, parse;dur=0.30, cleanup;dur=2.20, reader_orchestration;dur=0.33, total;dur=256.31, request_audit;dur=8.91, route_total;dur=269.42"
+      },
+      {
+        "ms": 274.05121800256893,
+        "request_id": "a59392f9-d40f-4607-9371-3e175fb9bab8",
+        "timings": "snapshot_and_fences;dur=247.56, snapshot;dur=244.06, fences_exclusive;dur=3.50, materialize;dur=1.59, object_authorization;dur=0.72, parse;dur=0.35, cleanup;dur=1.88, reader_orchestration;dur=0.28, total;dur=252.38, request_audit;dur=13.26, route_total;dur=270.47"
+      },
+      {
+        "ms": 285.3505589882843,
+        "request_id": "4aacf0ab-bed4-48df-b2ed-dabfcb7ba245",
+        "timings": "snapshot_and_fences;dur=262.91, snapshot;dur=260.16, fences_exclusive;dur=2.75, materialize;dur=1.31, object_authorization;dur=0.37, parse;dur=0.27, cleanup;dur=1.77, reader_orchestration;dur=0.38, total;dur=267.01, request_audit;dur=10.11, route_total;dur=281.85"
+      },
+      {
+        "ms": 350.4726879764348,
+        "request_id": "7713ca32-2e39-418e-85cb-6fdae506d525",
+        "timings": "snapshot_and_fences;dur=326.69, snapshot;dur=323.87, fences_exclusive;dur=2.82, materialize;dur=1.45, object_authorization;dur=0.35, parse;dur=0.58, cleanup;dur=2.19, reader_orchestration;dur=0.28, total;dur=331.54, request_audit;dur=11.10, route_total;dur=346.96"
+      },
+      {
+        "ms": 292.58931800723076,
+        "request_id": "064bb825-d64f-4da4-8d2d-509d709a4e9f",
+        "timings": "snapshot_and_fences;dur=268.79, snapshot;dur=265.23, fences_exclusive;dur=3.56, materialize;dur=1.52, object_authorization;dur=0.50, parse;dur=0.34, cleanup;dur=2.10, reader_orchestration;dur=0.25, total;dur=273.50, request_audit;dur=10.02, route_total;dur=288.27"
+      },
+      {
+        "ms": 291.1141070071608,
+        "request_id": "c39951bf-1778-4f95-8688-e4fab55ebcea",
+        "timings": "snapshot_and_fences;dur=262.93, snapshot;dur=259.82, fences_exclusive;dur=3.11, materialize;dur=1.30, object_authorization;dur=0.32, parse;dur=0.30, cleanup;dur=1.90, reader_orchestration;dur=0.26, total;dur=267.01, request_audit;dur=13.47, route_total;dur=285.09"
+      },
+      {
+        "ms": 320.81737800035626,
+        "request_id": "1f444fdf-bfc4-4711-a515-36bbba8e4d93",
+        "timings": "snapshot_and_fences;dur=301.07, snapshot;dur=297.82, fences_exclusive;dur=3.25, materialize;dur=1.55, object_authorization;dur=0.45, parse;dur=0.30, cleanup;dur=1.77, reader_orchestration;dur=0.28, total;dur=305.42, request_audit;dur=8.19, route_total;dur=317.47"
+      },
+      {
+        "ms": 343.89515599468723,
+        "request_id": "703f484a-3bf0-4328-9c3f-92ce83361092",
+        "timings": "snapshot_and_fences;dur=321.25, snapshot;dur=318.25, fences_exclusive;dur=3.00, materialize;dur=1.84, object_authorization;dur=0.67, parse;dur=0.38, cleanup;dur=1.97, reader_orchestration;dur=0.47, total;dur=326.58, request_audit;dur=9.96, route_total;dur=340.40"
+      },
+      {
+        "ms": 293.5725560237188,
+        "request_id": "1fde522b-56b0-41f6-b83d-8ad2aaefa314",
+        "timings": "snapshot_and_fences;dur=262.32, snapshot;dur=259.15, fences_exclusive;dur=3.17, materialize;dur=2.13, object_authorization;dur=0.83, parse;dur=0.58, cleanup;dur=2.33, reader_orchestration;dur=0.52, total;dur=268.71, request_audit;dur=13.55, route_total;dur=288.90"
+      },
+      {
+        "ms": 329.6455609961413,
+        "request_id": "b3b52426-728b-4326-b392-2d89d7dc28aa",
+        "timings": "snapshot_and_fences;dur=299.23, snapshot;dur=295.03, fences_exclusive;dur=4.20, materialize;dur=2.20, object_authorization;dur=0.66, parse;dur=0.57, cleanup;dur=3.22, reader_orchestration;dur=0.32, total;dur=306.20, request_audit;dur=13.39, route_total;dur=325.10"
+      },
+      {
+        "ms": 483.5460320173297,
+        "request_id": "77a82991-8472-485b-adad-37bf466f3ae2",
+        "timings": "snapshot_and_fences;dur=455.37, snapshot;dur=451.92, fences_exclusive;dur=3.45, materialize;dur=2.43, object_authorization;dur=0.55, parse;dur=0.33, cleanup;dur=1.88, reader_orchestration;dur=0.32, total;dur=460.88, request_audit;dur=13.80, route_total;dur=479.55"
+      },
+      {
+        "ms": 390.5740629998036,
+        "request_id": "af953a2a-69aa-4722-b679-c4508f3603a4",
+        "timings": "snapshot_and_fences;dur=368.46, snapshot;dur=365.01, fences_exclusive;dur=3.45, materialize;dur=1.43, object_authorization;dur=0.48, parse;dur=0.30, cleanup;dur=2.06, reader_orchestration;dur=0.40, total;dur=373.13, request_audit;dur=10.13, route_total;dur=387.05"
+      },
+      {
+        "ms": 327.04864800325595,
+        "request_id": "95a3c288-e57c-4614-ad9b-86f878c75cea",
+        "timings": "snapshot_and_fences;dur=306.00, snapshot;dur=303.05, fences_exclusive;dur=2.95, materialize;dur=1.64, object_authorization;dur=0.41, parse;dur=0.28, cleanup;dur=1.89, reader_orchestration;dur=0.45, total;dur=310.67, request_audit;dur=8.22, route_total;dur=323.22"
+      },
+      {
+        "ms": 323.74834100482985,
+        "request_id": "3384a38b-c37b-42ad-a3b3-7e334c67d6fe",
+        "timings": "snapshot_and_fences;dur=296.60, snapshot;dur=292.34, fences_exclusive;dur=4.26, materialize;dur=1.72, object_authorization;dur=0.59, parse;dur=0.35, cleanup;dur=2.09, reader_orchestration;dur=0.67, total;dur=302.02, request_audit;dur=13.15, route_total;dur=319.63"
+      },
+      {
+        "ms": 418.4494449873455,
+        "request_id": "8dac4a64-eb81-4fe6-94ab-885820db53a4",
+        "timings": "snapshot_and_fences;dur=387.27, snapshot;dur=383.78, fences_exclusive;dur=3.49, materialize;dur=1.43, object_authorization;dur=0.37, parse;dur=0.30, cleanup;dur=1.95, reader_orchestration;dur=0.24, total;dur=391.56, request_audit;dur=10.85, route_total;dur=409.50"
+      },
+      {
+        "ms": 492.55167800583877,
+        "request_id": "4b321d1f-ad6c-4405-987f-9f7e0f0a8d14",
+        "timings": "snapshot_and_fences;dur=447.73, snapshot;dur=442.76, fences_exclusive;dur=4.97, materialize;dur=4.80, object_authorization;dur=2.08, parse;dur=2.56, cleanup;dur=9.00, reader_orchestration;dur=0.74, total;dur=466.91, request_audit;dur=16.00, route_total;dur=486.94"
+      },
+      {
+        "ms": 354.1290480061434,
+        "request_id": "d20817cd-7423-4d2c-902f-2c66a0e25952",
+        "timings": "snapshot_and_fences;dur=326.96, snapshot;dur=323.34, fences_exclusive;dur=3.62, materialize;dur=2.41, object_authorization;dur=0.78, parse;dur=0.39, cleanup;dur=2.32, reader_orchestration;dur=0.32, total;dur=333.18, request_audit;dur=12.34, route_total;dur=350.16"
+      }
+    ]
+  },
+  "scheme": "30 alternating-order pairs after one warm-up per variant",
+  "summary": {
+    "baseline": {
+      "n": 30,
+      "median_ms": 759.0889410057571,
+      "p95_ms": 1629.3377340189181,
+      "max_ms": 3926.1572530085687
+    },
+    "optimized": {
+      "n": 30,
+      "median_ms": 345.7886510004755,
+      "p95_ms": 762.5108149950393,
+      "max_ms": 1065.4616970277857
+    }
+  },
+  "improvement": 0.5320118112564465
+}

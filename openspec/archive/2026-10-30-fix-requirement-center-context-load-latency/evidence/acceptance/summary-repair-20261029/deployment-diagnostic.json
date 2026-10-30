@@ -1,0 +1,44 @@
+{
+  "status": "not_passed",
+  "sample_kind": "diagnostic_not_complete_acceptance",
+  "background_services": "backend, worker, governance-controller retained; signer healthy",
+  "startup": {
+    "summary_http_ms": 60127,
+    "status": 504,
+    "server_timing": null,
+    "host_load_1m": 62.25,
+    "worker": "starting; exceeded compose health wait then became healthy"
+  },
+  "ready_samples": [
+    {
+      "http_ms": 31606,
+      "snapshot_ms": 18296.23,
+      "materialize_ms": 4242.68,
+      "parse_ms": 6868.75
+    },
+    {
+      "http_ms": 11163,
+      "snapshot_ms": 9775.16,
+      "materialize_ms": 8.18,
+      "parse_ms": 743.04
+    },
+    {
+      "request_id": "307cc6ac-66d2-4a5d-bede-bb77dec8af38",
+      "response_headers_ms": 3268,
+      "status": 200,
+      "snapshot_ms": 1920.11,
+      "parse_ms": 506.17
+    }
+  ],
+  "container_read_only_diagnostic": {
+    "files": 2340,
+    "read_once_seconds": {
+      "1_worker": 2.622,
+      "2_workers": 0.655,
+      "4_workers": 1.106
+    },
+    "stable_cold_seconds": 3.309,
+    "stable_warm_seconds": 0.581
+  },
+  "limits": "No exact first-card or complete P95 for these diagnostic observations. Header timing differs from full HTTP resource timing."
+}

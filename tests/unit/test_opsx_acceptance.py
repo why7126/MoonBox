@@ -428,3 +428,24 @@ def test_archived_evidence_remains_linked_after_change_moves(tmp_path, monkeypat
     derived = DerivedIssue(issue_id=issue_dir.name, kind="bug", display_status="done", linked_change="check-example", note="")
     assert issue_subdocuments.acceptance_status_for(derived, "opsx.archive", issue_path=issue_dir, source_change="check-example") == "passed"
     assert issue_subdocuments.acceptance_plan_for(root, "check-example") == target / "acceptance-plan.json"
+
+
+def test_partial_issue_scope_requires_complete_change_mapping(tmp_path):
+    import pytest
+    root, change = fixture(tmp_path)
+    issue = root/'issues/requirements/review/REQ-0001-example'
+    issue.mkdir(parents=True)
+    (issue/'acceptance.md').write_text('- [ ] AC-010 full workflow\n- [ ] AC-011 deferred\n')
+    plan=json.loads((change/'acceptance-plan.json').read_text())
+    plan.update(issue_id='REQ-0001-example',issue_acceptance_scope='partial',scope_description='Only dependency implementation',issue_ac_mapping={'AC-001':['AC-010'],'AC-002':['AC-010']})
+    (change/'acceptance.md').write_text('- [ ] AC-001 subset one\n- [ ] AC-002 subset two\n')
+    def save(): (change/'acceptance-plan.json').write_text(json.dumps(plan))
+    save(); assert read_plan(change)['issue_acceptance_scope']=='partial'
+    plan['issue_ac_mapping']['AC-002']=['AC-099']; save()
+    with pytest.raises(ValueError,match='explicit Issue mapping'): read_plan(change)
+    plan['issue_ac_mapping']['AC-002']=['AC-010']
+    (change/'acceptance.md').write_text('- [ ] AC-001 subset one\n')
+    save()
+    with pytest.raises(ValueError,match='local AC coverage'): read_plan(change)
+    plan['issue_acceptance_scope']='full'; save()
+    with pytest.raises(ValueError,match='AC set differs'): read_plan(change)

@@ -146,3 +146,11 @@ manifest.metrics 记录本轮 duration_ms、preflight_ms、command_executions、
 ## 临时 Docker 资源完成门禁
 
 使用临时 Docker 时执行 [资源生命周期契约](temporary-docker-lifecycle.md)：创建前 register，容器和专属网络携带完整标签；采集证据后 cleanup --apply，再 check 验证零残留。AC 通过不替代环境收尾；保留排障现场须记录理由、责任、到期时间和精确回收入口，报告为保留待回收，不得宣称资源清理完成。下一入口先 reap 预览，过期运行资源先核查。
+
+## 依赖子交付的需求签认
+
+用户明确批准的必要依赖子交付可在计划声明 `issue_acceptance_scope: partial`。它不降低当前 Change 的 ready 门禁，但 Workflow Sync 将来源 Issue 的验收状态投影为 partial，保留整个需求的未完成 AC；不得用子交付成功宣称整条需求完成。未声明时沿用完整交付行为。该标记只用于已明确界定的子范围，不豁免当前 Change 的任何检查。
+
+部分交付计划还须提供非空 `scope_description` 与 `issue_ac_mapping`：每个 Change AC 明确映射到已有 Issue AC，Change 自身 `acceptance.md` 检查清单与计划完全一致。未声明部分范围时仍要求覆盖整个 Issue；部分范围的 ready 不代表其映射的完整 Issue AC 已通过。
+
+子交付的 Change 准入依据本地完整AC与有效证据，并保留恢复/规则合并门禁；Issue完整准入不把子交付AC计为完整AC。Issue验收为partial时，派生状态保持in_sprint，目录晋级不会因依赖Change归档而关闭父需求。

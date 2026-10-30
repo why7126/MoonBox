@@ -33,6 +33,9 @@ function validate(plan) {
     if (!Number.isInteger(viewport.width) || viewport.width < 320 || viewport.width > 3840 ||
         !Number.isInteger(viewport.height) || viewport.height < 320 || viewport.height > 2160) throw new Error('viewport_invalid');
   }
+  if (plan.login && (Object.keys(plan.login).sort().join(',') !== 'password_field,path,username_field' ||
+      !/^\/[a-zA-Z0-9/_-]+$/.test(plan.login.path) ||
+      ![plan.login.username_field, plan.login.password_field].every(value => /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/.test(value)))) throw new Error('identity_login_invalid');
 }
 
 async function main() {
@@ -43,8 +46,19 @@ async function main() {
   const result = { category: 'real_browser', browser: plan.browser, browser_version: browser.version(), viewports: [] };
   try {
     for (const viewport of plan.viewports) {
-      const page = await browser.newPage({ viewport });
+      const context = await browser.newContext({ viewport });
+      const page = await context.newPage();
       try {
+        if (plan.login) {
+          const identity = JSON.parse(fs.readFileSync('/identity/credentials.json', 'utf8'));
+          if (typeof identity.username !== 'string' || typeof identity.password !== 'string' ||
+              !Number.isInteger(identity.expires_at) || identity.expires_at * 1000 <= Date.now()) throw new Error('identity_expired');
+          const loginResponse = await context.request.post(new URL(plan.login.path, plan.url).href, {
+            data: { [plan.login.username_field]: identity.username, [plan.login.password_field]: identity.password },
+            timeout: 10000, maxRedirects: 0,
+          });
+          if (!loginResponse.ok()) throw new Error('identity_login_failed');
+        }
         const response = await page.goto(plan.url, { waitUntil: 'domcontentloaded', timeout: 20000 });
         if (!response || response.status() >= 400) throw new Error('target_response_failed');
         for (const step of plan.steps) {
@@ -76,7 +90,7 @@ async function main() {
         await page.screenshot({ path: path.join('/evidence', filename), fullPage: true });
         result.viewports.push({ ...viewport, screenshot: filename, styles, assertion_count: plan.selectors.length + plan.steps.length + 1 });
       } finally {
-        await page.close();
+        await context.close();
       }
     }
   } finally {
@@ -88,7 +102,8 @@ async function main() {
 main().catch(error => {
   if (process.env.MOONBOX_VERIFICATION_DEBUG === '1') process.stderr.write(String(error && error.stack || error) + '\n');
   const code = ['plan_too_large', 'browser_invalid', 'viewports_invalid', 'target_invalid', 'selectors_invalid',
-                'steps_invalid', 'viewport_invalid', 'target_response_failed', 'selector_missing', 'step_failed'].includes(error.message)
+                'steps_invalid', 'viewport_invalid', 'target_response_failed', 'selector_missing', 'step_failed',
+                'identity_login_invalid', 'identity_expired', 'identity_login_failed'].includes(error.message)
     ? error.message : 'browser_acceptance_failed';
   process.stderr.write(code + '\n');
   process.exitCode = 1;

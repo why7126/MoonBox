@@ -289,3 +289,11 @@ product_data_collection_observability: applicable；affected_layers: api、db、
 ### Chat 持续保存与恢复
 
 REQ-0053 新增行为 `chat.result_page`、`chat.file_page`、`chat.file_content`（含内容块比较）、`chat.recovery`。沿用服务端请求 ID 与可信客户端类型判定；直接 API 不伪装 Web 行为。worker 记录 `chat.snapshot_scan`、`chat.result_commit`（首段及每128段检查点）、`chat.resource_guard`、`chat.recovery_check`，关联原 task_trace，不以存储 span 改写运行终态。元数据仅含存储格式与稳定错误码，不记录正文、文件路径、游标、凭证或连接串；观测失败通过独立告警降级，不替换已提交结果。
+
+## 工作区恢复与合入观测（REQ-0042 / REQ-0054 / REQ-0055）
+
+product_data_collection_observability: applicable；affected_layers: web、api、db、request_logs、usage_events、task_traces、task_trace_spans、agent_workflow。工作区路由沿用 ChatRoute 的可信 request_id；显式 Web 标记产生 workspace.view / workspace.action，直接 API 和后台对账不伪造用户行为。属性仅包含不透明操作标识和受控动作名，不采文件正文、Git 输出、绝对目录或凭证。
+
+异步恢复、候选和合入使用 task_type=workspace_operation，步骤名 workspace.restore / workspace.candidate / workspace.merge 加受限阶段。记录 operation_id、workspace_id 和安全 error_code；终态明细沿用 90 天清理，在途持久操作不随遥测删除。候选、确认、恢复逐文件记录是业务依据，提交失败时不能执行对应副作用；遥测使用独立保存点降级，失败不能改写业务结果。具体验证结果保存在对应 Change 的实施与验收证据中。
+
+工作区请求上下文只从 ChatRoute 生成的可信 request_id 进入 ContextVar；候选、恢复和合入 Task Trace 首次创建时记录 parent_request_id。Web usage_events 通过相同请求及 operation_id 关联任务，直接 API 仍有请求/任务关系但不伪造 Web 行为。后台续接不生成用户请求，保留初始关系。

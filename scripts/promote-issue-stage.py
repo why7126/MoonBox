@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from workflow_sync.issue_stage import scan_stage_drift, replace_stage
 from workflow_sync.timefmt import touch_frontmatter
+from workflow_sync.prototype_references import check_references
 
 
 ISSUE_TYPES = {
@@ -57,6 +58,7 @@ class Report:
     blocked: list[str] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
     drift: list[str] = field(default_factory=list)
+    reference_notes: list[str] = field(default_factory=list)
 
 
 def parse_args() -> argparse.Namespace:
@@ -255,6 +257,14 @@ def all_changes_archived(root: Path, issue: IssueCandidate) -> tuple[bool, list[
         for change_id in issue.change_ids
         if not find_archived_change(root, change_id)
     ]
+    if not missing:
+        acceptance = issue.path / "acceptance.md"
+        if acceptance.is_file():
+            content = acceptance.read_text(encoding="utf-8")
+            if content.startswith("---\n"):
+                meta = yaml.safe_load(content.split("---", 2)[1]) or {}
+                if meta.get("acceptance_status") == "partial":
+                    return False, ["partial Issue acceptance; remaining scope is not complete"]
     return not missing, missing
 
 
@@ -352,10 +362,25 @@ def diff_trace(promotion: Promotion, root: Path) -> str:
     return trace_diff
 
 
+def reference_gate(root: Path, issue: IssueCandidate, target: Path, report: Report) -> bool:
+    findings = check_references(root, issue.path, target, issue.change_ids)
+    for finding in findings:
+        message = finding.describe()
+        bucket = report.blocked if finding.blocking else report.reference_notes
+        if message not in bucket:
+            bucket.append(message)
+    return not any(finding.blocking for finding in findings)
+
+
 def apply_promotions(root: Path, promotions: list[Promotion], args: argparse.Namespace, report: Report) -> int:
     if not promotions:
         return 0
 
+    eligible = []
+    for promotion in promotions:
+        if reference_gate(root, promotion.issue, promotion.target, report):
+            eligible.append(promotion)
+    promotions = eligible
     if args.check:
         for promotion in promotions:
             report.drift.append(f"{promotion.issue.path.relative_to(root)} -> {promotion.target.relative_to(root)}")
@@ -366,7 +391,7 @@ def apply_promotions(root: Path, promotions: list[Promotion], args: argparse.Nam
         for promotion in promotions:
             print(f"Would promote {promotion.issue.path.relative_to(root)} -> {promotion.target.relative_to(root)}")
             print(diff_trace(promotion, root))
-        return 0
+        return 1 if report.blocked else 0
 
     for promotion in promotions:
         drifts = scan_stage_drift(promotion.issue.path, promotion.target.parent.name)
@@ -382,8 +407,12 @@ def apply_promotions(root: Path, promotions: list[Promotion], args: argparse.Nam
             write_text(promotion.issue.trace_path, promotion.trace_after)
         promotion.target.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(promotion.issue.path), str(promotion.target))
+        moved = candidate_from_dir(promotion.issue.kind, promotion.target)
+        if moved is None or not reference_gate(root, moved, promotion.target, report):
+            report.blocked.append(f"{promotion.issue.issue_id}: post-move reference check failed; directory retained at target; repair references and retry")
+            continue
         report.promoted.append(f"{promotion.issue.path.relative_to(root)} -> {promotion.target.relative_to(root)}")
-    return 0
+    return 1 if report.blocked else 0
 
 
 def print_report(args: argparse.Namespace, report: Report) -> None:
@@ -402,6 +431,10 @@ def print_report(args: argparse.Namespace, report: Report) -> None:
     if report.blocked:
         print("Blocked:")
         for item in report.blocked:
+            print(f"- {item}")
+    if report.reference_notes:
+        print("Prototype reference notes:")
+        for item in report.reference_notes:
             print(f"- {item}")
     if report.skipped:
         print("Skipped:")
@@ -456,9 +489,13 @@ def main() -> int:
         report.skipped.append("no issue candidates discovered")
         print_report(args, report)
         return 0
+    # Retries must verify a previously moved destination, including post-check failures.
+    for issue in candidates:
+        if issue.path.parent.name == args.to:
+            reference_gate(root, issue, issue.path, report)
     promotions = build_promotions(root, candidates, args, report)
     exit_code = apply_promotions(root, promotions, args, report)
-    if exit_code == 0:
+    if exit_code == 0 and not report.blocked:
         exit_code = sync_review_projections(root, candidates, args, report)
     print_report(args, report)
     return exit_code or (1 if report.blocked else 0)

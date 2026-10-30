@@ -1,0 +1,162 @@
+{
+  "sample": "real-docker-synthetic-project",
+  "result": {
+    "status": "passed",
+    "candidate_id": "60d6e56d-63f0-4e86-9e58-bc47d8578d97",
+    "candidate_commit": "139cdcc7cca06afc37ae0d0431bbd95b71a7bc3d",
+    "environment_key": "412f453c-0418-4fee-aa87-89247d74fad9",
+    "runtime_digest": "sha256:5c5357ff53cd1f08754cd6f771acb962aa3b611bb7a0ca90b2195dd9d707e13c",
+    "evidence_digest": "2da966a652b585a5863f4b926ca67035952032308d69a8bb7059c1f4e3c80d90",
+    "template_digest": "57463d27a8e1a07ef90b08a5d0e23edc98fe2257c6b86a76e6d1d39b42121f49",
+    "checks": [
+      {
+        "database": "sqlite",
+        "version": "3.46.1",
+        "checks_passed": 1,
+        "browser": "chromium",
+        "browser_version": "156.0.8078.73"
+      },
+      {
+        "database": "mysql",
+        "version": "8.4.13",
+        "checks_passed": 1,
+        "browser": "chromium",
+        "browser_version": "156.0.8078.73"
+      }
+    ]
+  },
+  "cleanup_state": "clean",
+  "evidence": {
+    "candidate_commit": "139cdcc7cca06afc37ae0d0431bbd95b71a7bc3d",
+    "template_digest": "57463d27a8e1a07ef90b08a5d0e23edc98fe2257c6b86a76e6d1d39b42121f49",
+    "matrices": [
+      {
+        "database": "sqlite",
+        "version": "3.46.1",
+        "steps": [
+          "migration",
+          "seed"
+        ],
+        "app_version": "139cdcc7cca06afc37ae0d0431bbd95b71a7bc3d",
+        "checks_passed": 1,
+        "browser": {
+          "task_id": "745016bf-e5cb-4284-bfc0-0b76cb3560da",
+          "environment_image": "sha256:dbd9b3233e850cb615485a378ad3b831832fa29a59f5ca56f71283b21c1ed172",
+          "category": "real_browser",
+          "browser": "chromium",
+          "browser_version": "156.0.8078.73",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "screenshot": "chromium-1440x900.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            },
+            {
+              "width": 390,
+              "height": 844,
+              "screenshot": "chromium-390x844.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            }
+          ]
+        }
+      },
+      {
+        "database": "mysql",
+        "version": "8.4.13",
+        "steps": [
+          "migration",
+          "seed"
+        ],
+        "app_version": "139cdcc7cca06afc37ae0d0431bbd95b71a7bc3d",
+        "checks_passed": 1,
+        "browser": {
+          "task_id": "d7a9a9f7-3ccc-40fd-9f40-19a473df6071",
+          "environment_image": "sha256:dbd9b3233e850cb615485a378ad3b831832fa29a59f5ca56f71283b21c1ed172",
+          "category": "real_browser",
+          "browser": "chromium",
+          "browser_version": "156.0.8078.73",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "screenshot": "chromium-1440x900.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            },
+            {
+              "width": 390,
+              "height": 844,
+              "screenshot": "chromium-390x844.png",
+              "styles": {
+                "h1": {
+                  "display": "block",
+                  "visibility": "visible",
+                  "color": "rgb(0, 0, 0)",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "fontSize": "32px"
+                }
+              },
+              "assertion_count": 2
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "source_hashes": {
+    "src/backend/app/verification/__init__.py": "0d6a0b40bede2c77e0c43266cd94c23bb48b1e59072bd163f5c2f68cd0869354",
+    "src/backend/app/verification/acceptance_cleanup.py": "b9c10a4bec0cc6cde96a36ab62af3188ef40c882575f7ce26bfdede0589db547",
+    "src/backend/app/verification/acceptance_controller.py": "e84c7d8dac0a7a937e9ae17689793d367a34d38cf56142ca231907bdcd514703",
+    "src/backend/app/verification/acceptance_identity.py": "7ae5258f4d0e863f26cfd10794d8be7db31938b600f71fc2b982e619cf0f2055",
+    "src/backend/app/verification/acceptance_observability.py": "6af7d7c4f2caa391b9a74788bfec958c9a81518a088af6fdb23612bbcaf6b8de",
+    "src/backend/app/verification/acceptance_resources.py": "40a07a96cee55076f1d34061e4f24f60801237f81c42012ca4c8a1ec72a4637b",
+    "src/backend/app/verification/acceptance_runtime.py": "9fbb717ea4932360b3cce4832f911eabb750990e220846854fc12c519a23d473",
+    "src/backend/app/verification/acceptance_schema.py": "b734198d18b2ac15ff309a896ff1f823432283549cec6dadee9a9715861a83af",
+    "src/backend/app/verification/acceptance_service.py": "752f894ff1a9486c99995066ab040e1745cd23cfc4ab87daebe1352dd2c6644a",
+    "src/backend/app/verification/acceptance_snapshot.py": "c42b1243c951ce47200a9009076554bc44f5bc2dac4e8a0e64c0eeb6fef35f95",
+    "src/backend/app/verification/acceptance_source.py": "3268114cc164f647859aa64539b2fb15822ddbdb0ad25bdeaebfb16010281a8c",
+    "src/backend/app/verification/acceptance_state.py": "b6b8e9d33a6221e113a6b138db23dcbecd1f2f4b730828bc6f9f1484af675c97",
+    "src/backend/app/verification/acceptance_template.py": "9e543dd3fa28d3358aa41185e11b2693f894f7d824cea9b28986d403930a40f7",
+    "src/backend/app/verification/acceptance_worker.py": "715241891f34604501f6ab7d99271ab45592d95201da75a66b2d91bcb0fee301",
+    "src/backend/app/verification/artifacts.py": "31bdf429e65939557bc38305a19b5f235b07e6a42f14c57f04e730b315897e2d",
+    "src/backend/app/verification/candidate.py": "c691c5d808a7a4943262ee6ba3e2c7e6d239700dc771512ab7daf46041986437",
+    "src/backend/app/verification/candidate_schema.py": "a1dee8ba0d1729aee88a521741aff75132946f0da6ebd91e16c8daf873b56291",
+    "src/backend/app/verification/candidate_template.py": "9e46775844c72220d0e6e0791b2e38be5b20acf1c6b5a505ad27a182b5e73428",
+    "src/backend/app/verification/environment.py": "496f2d4ca017591418c33f9cb9a2d22c062625fbffcc4b8699220ea1c2181c73",
+    "src/backend/app/verification/preparation.py": "af6d5f77cf99ee88e4c2158b8fcd6520a0d539b77fe8b278a6dd1ffdec8a2678",
+    "src/backend/app/verification/runner.py": "61905f0acd850de9c29066fe86129895ef6e2d1390f701c9bbcdbcd7a2b36c31",
+    "src/backend/app/verification/service.py": "0799630d127e0660466e36964de293bb22b6b836e4852043de074cafb393f46e",
+    "src/backend/app/verification/tasks.py": "11e70bb859ef00151362be811ac161f3fa86e406ef0e82264db85d2cdd45be5d",
+    "src/backend/app/verification/worker.py": "8dfe560676de3d50e70c3b122293ef2fe4c089c6afe29b7d48679e5d7bbe602a",
+    "src/backend/container/verification_acceptance.cjs": "c1b215a10bd468cb276d451afe4ffe336162a8b1ac3ab946ed7f4bd1a0ca6821",
+    "src/backend/tests/test_candidate_supplier.py": "43064179eb85529f1919d4b88afce2714c4c8b7f5ce2b60e4226118e82fcf43f"
+  },
+  "source_stable": true
+}

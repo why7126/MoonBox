@@ -4,7 +4,7 @@ content: plan / review / archive 三阶段目录职责、准入条件、迁移�
 source: 项目团队确认
 update_method: 需求/BUG 流程或目录边界变化时同步更新
 created_at: 2026-06-27 22:24:39
-updated_at: 2026-10-27 09:21:37
+updated_at: 2026-10-29 06:53:30
 note: REQ 与 BUG 共用；registry 与 _registry.yaml 仍位于 issues/* 根下
 ---
 
@@ -147,3 +147,15 @@ lifecycle_stage: plan | review | archive
 共享实现位于 scripts/workflow_sync/issue_stage.py。阶段迁移 dry-run 展示主文档与 capture 的补丁；Workflow Sync 子文档同步和残留扫描覆盖阶段差异。已归档定向修复使用既有 --reconcile-issue-status-residuals 入口，先 --dry-run --output detail，再在已授权范围内 --apply-reconcile；此模式提前返回，不执行归档、目录迁移或普通事件投影。仅更新选中文档字段和 updated_at，保留历史证据及 created_at。
 
 回归入口：tests/unit/test_issue_lifecycle_stage.py；覆盖迁移、只读预览、非法值阻断、正文保护和重复执行无变化。
+
+## 10. 迁移原型引用门禁
+
+Issue 物理迁移前由 `workflow_sync/prototype_references.py` 检查当前 Issue、关联 Change 和所属 Sprint 的有效原型入口及 HTML/CSS 静态本地资源。`promote-issue-stage.py` 的直接入口、dry-run、check 与归档包装入口共用检查；包装入口在状态修复前执行预检。
+
+- 模拟源目录到目标目录的映射，区分既有缺失与迁移断链；阻断当前 Issue 前不修改文件，其他可执行 Issue 继续。报告文件、行号、引用和目标，不自动替换引用。
+- 仅明确的“变更记录、历史记录、迁移记录、历史验收、历史验收记录、历史验收轮次”标题及其下级段落视为历史；同级或更高级当前章节恢复有效引用检查。代码围栏作为示例提示。当前正文中的旧路径仍检查。
+- 支持 Markdown 行内/引用式链接及明确 prototype 路径、HTML href/src/srcset/poster 和 CSS url/import；查询串与片段不参与文件存在性检查。远程 URL、动态路径、站点根路径和 HTML base 单独提示，不联网、不执行 JS、不宣称渲染或锚点已验证。
+- 仅在仓库内读取文本资源，拒绝越界及符号链接引用；无原型且无引用正常通过。
+- 移动后复核实际文件；失败返回非零，保留目标目录和诊断、不列为成功。重试时即使已在目标阶段也须复核，归档包装入口同样覆盖已迁移目标。
+
+回归：`bash scripts/project-python.sh scripts/test_prototype_references.py`。静态隔离回归不替代 UI 视觉验收；不批量检查或修复无关历史文档。

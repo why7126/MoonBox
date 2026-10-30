@@ -166,6 +166,24 @@ def test_memo_budget_evicts_and_does_not_retain_oversized_values(monkeypatch):
     read_memo.clear()
 
 
+def test_oversized_memo_retains_bounded_pure_index_subset(monkeypatch):
+    read_memo.clear()
+    monkeypatch.setattr(read_memo, 'MAX_BYTES', 2048)
+    key = ('summary_change_index', 'immutable-root')
+    with read_memo.lease('partial') as memo:
+        for n in range(30):
+            memo[('frontmatter', str(n))] = {'title': str(n) * 50}
+        memo[key] = {'pure_relationships': ['one', 'two']}
+        memo['oversized'] = 'x' * 4096
+    with read_memo.lease('partial') as memo:
+        assert memo[key] == {'pure_relationships': ['one', 'two']}
+        assert 'oversized' not in memo
+        assert len(memo) < 32
+        assert read_memo.size(memo) <= 2048
+    assert sum(row[1] for row in read_memo._versions.values()) <= 2048
+    read_memo.clear()
+
+
 def test_batch_noop_reads_current_admission_and_changed_revision_uses_fences(direct_scene, monkeypatch):
     factory, project, tid, _, _ = direct_scene
     snap = SimpleNamespace(revision='same')

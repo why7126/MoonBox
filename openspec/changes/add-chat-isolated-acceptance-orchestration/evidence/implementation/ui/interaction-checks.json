@@ -1,0 +1,16 @@
+{
+  "category": "synthetic_state_real_api_ui",
+  "viewport": "390x844",
+  "evidenceDialog": {
+    "x": 20,
+    "width": 350,
+    "right": 370,
+    "overflow": false
+  },
+  "insideClick": "stays_open",
+  "escape": "closes_and_returns_focus_to_acceptance_stop",
+  "outsideClick": "closes",
+  "stop": "real_api_returned_cancelled_and_removed_stop_action",
+  "modelRound": "not_exercised",
+  "cleanupRetry": "real_api_changed_cleanup_failed_to_releasing_and_removed_retry_action"
+}

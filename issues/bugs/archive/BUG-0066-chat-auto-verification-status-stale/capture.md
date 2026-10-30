@@ -4,13 +4,13 @@ title: Chat 自动核验状态未持续刷新导致结果待核验提示滞留
 status: done
 severity: medium
 created_at: '2026-10-26 18:01:50'
-updated_at: 2026-10-26 19:55:10
+updated_at: 2026-10-30 08:33:55
 environment: local docker chat-platform
 owner: 产品团队
 source: 用户双条 bug-capture 授权及同会话只读探索
 related_requirement: null
 related_bug: BUG-0052-verified-result-execution-guard-not-released
-lifecycle_stage: plan
+lifecycle_stage: archive
 root_cause_status: confirmed
 ---
 

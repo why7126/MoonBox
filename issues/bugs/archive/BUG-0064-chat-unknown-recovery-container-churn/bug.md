@@ -2,12 +2,12 @@
 bug_id: BUG-0064-chat-unknown-recovery-container-churn
 status: done
 created_at: '2026-10-26 13:09:09'
-updated_at: 2026-10-26 14:41:23
+updated_at: 2026-10-30 08:33:53
 severity: high
 environment: docker
 owner: 产品团队
 source: 用户bug-capture授权及2026-10-26同会话只读探索
-lifecycle_stage: review
+lifecycle_stage: archive
 related_requirement: null
 related_bug:
 - BUG-0026-chat-platform-opsx-archive-source-permission

@@ -160,7 +160,7 @@ class GovernancePermissionTests(unittest.TestCase):
     def test_governance_candidate_does_not_gain_implementation(self):
         candidate={'actor_id':'owner','object_id':self.oid,'action':'bug-complete','state':'running','binding_revision':'rev'}
         from types import SimpleNamespace
-        with patch('app.governance.preparation._current_prepared_candidate',return_value=candidate), \
+        with patch('app.governance.preparation._current_workspace_candidate',return_value=candidate), \
              patch('app.governance.scope.authorize',return_value=SimpleNamespace(binding_revision='rev')), \
              patch('app.governance.scope.visible',return_value=True):
             self.assertEqual(self.decide({'bug_id':self.oid,'iteration':'sprint-999','status':'proposed'})['reason_code'],'governance_candidate_running')
