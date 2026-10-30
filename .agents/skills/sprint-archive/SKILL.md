@@ -1,6 +1,6 @@
 ---
 name: "sprint-archive"
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-30 09:00:15
 description: "批量归档 Sprint 内 OpenSpec Change 并关闭迭代"
 ---
 
@@ -187,3 +187,7 @@ Report archived/skipped/blocked counts, Sprint close status, updated files, vali
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 当前正文与证据导航
+
+Sprint stale scan 复用归档收尾的普通导航与明确当前正文检查；历史记录不自动改写，真实链接不因历史标题而豁免。review 项需核对证据，不能报告完整关闭成功；部分交付父需求沿用现有关闭策略。

@@ -2,7 +2,7 @@
 bug_id: BUG-0067-chat-stream-preview-premature-truncation
 title: Chat 流式正文预览过早截断修复验收标准
 created_at: '2026-10-26 20:19:21'
-updated_at: 2026-10-30 08:33:54
+updated_at: 2026-10-30 09:12:20
 acceptance_status: passed
 ---
 
@@ -40,7 +40,7 @@ AC-003/007 的具体预算和查询上界在 Change 设计中明确后执行，�
 
 ## 实施验证摘要
 
-后端 SQLite 最终 47 项通过，MySQL 35 项及边界/状态 22 项、最终粒度/保护增量 6 项通过；前端 33 项与 TypeScript 通过。交付依据见 `openspec/archive/2026-10-27-fix-chat-stream-preview-premature-truncation/verification.md`，截图见同 Change `evidence/acceptance/visual/`。读取不改业务状态、不重放命令；本地完整 Chat 已按授权更新；未正式归档。
+后端 SQLite 最终 47 项通过，MySQL 35 项及边界/状态 22 项、最终粒度/保护增量 6 项通过；前端 33 项与 TypeScript 通过。交付依据见 `openspec/archive/2026-10-27-fix-chat-stream-preview-premature-truncation/verification.md`，截图见同 Change `evidence/acceptance/visual/`。读取不改业务状态、不重放命令；本地完整 Chat 已按授权更新；已于2026-10-27归档；原验证数量与证据说明保持不变。
 
 ## 验收结果回填
 

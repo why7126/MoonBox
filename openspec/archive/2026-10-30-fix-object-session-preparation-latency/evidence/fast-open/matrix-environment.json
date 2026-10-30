@@ -1,0 +1,13 @@
+{
+  "source_hashes": {
+    "src/backend/app/governance/preparation.py": "75f06f86e1c0ea6ba31447f6374e3d14d08b4f2ce99e2ab22cc703173873e09d",
+    "src/backend/app/chat/service.py": "21dbcc5ab60fb0651f16f77a44a65c8102b7d789473beccd4164cb46d70c86e4",
+    "src/web/src/components/chat/Composer.tsx": "5881448bfe96a7f601b7637395021b17d3dadc82d69990265bcd8912d998ac0d",
+    "src/web/src/pages/catalog/useObjectChatEntry.ts": "d838d335af4983337c8c786df441e065682e5eb95dbfe5b659e71780666da3a9"
+  },
+  "harness_hashes": {
+    "baseline": "da2a7fafacc295ca43170b4fa2292d45a833e7ee498436adec49a585e16560ea",
+    "candidate": "c7f590242998c2a491c607877ce9efe3965421d6f8172a6e14b62e8d98fcf07d"
+  },
+  "scope": "Fixed read-only database copy and frozen governance tree in container-local temporary storage; baseline historical write preparation versus candidate open-chat. Authentication dependency replaced in isolated process; original authorization retained. Does not measure full send preparation or native mount throughput. No worker started."
+}

@@ -1,0 +1,60 @@
+{
+  "turns": [
+    {
+      "id": "e1a38e86-ddbc-4881-8a9d-c327bfa163b0",
+      "conversation_id": "4309f83f-8959-5fe2-8e8d-4db02c5b8f80",
+      "status": "stopped",
+      "error_code": null,
+      "created_at": "2026-10-30T01:55:31+00:00",
+      "updated_at": "2026-10-30T01:58:14+00:00"
+    }
+  ],
+  "operations": [
+    {
+      "id": "21f6ba9b-93b0-4644-a257-1f8a90f52510",
+      "source_turn_id": "e1a38e86-ddbc-4881-8a9d-c327bfa163b0",
+      "status": "cancelled",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "cancel_requested": 1,
+      "reason_code": "user_stopped",
+      "input_digest": "869ce88db11d5de91a6793a981909e8b675a9da446b03198df133aeb6be0ec40"
+    }
+  ],
+  "checks": [
+    {
+      "attempt_id": "07248cb8-3dc0-4f16-8e1d-54b2ce4f776e",
+      "ac_id": "AC-LOCAL-MEMBER",
+      "status": "pending",
+      "reason_code": null,
+      "evidence_json": "{}"
+    },
+    {
+      "attempt_id": "07248cb8-3dc0-4f16-8e1d-54b2ce4f776e",
+      "ac_id": "AC-LOCAL-READER",
+      "status": "pending",
+      "reason_code": null,
+      "evidence_json": "{}"
+    }
+  ],
+  "tool_waits": [
+    {
+      "source_turn_id": "e1a38e86-ddbc-4881-8a9d-c327bfa163b0",
+      "operation_id": "21f6ba9b-93b0-4644-a257-1f8a90f52510",
+      "state": "waiting",
+      "generation": 1
+    }
+  ],
+  "deliveries": [],
+  "archives": [],
+  "receipts": [
+    {
+      "turn_id": "e1a38e86-ddbc-4881-8a9d-c327bfa163b0",
+      "executor_closed": 1,
+      "files_collected": 1
+    }
+  ],
+  "identities": [],
+  "category": "real_product_model_round",
+  "database_rows_injected": false
+}

@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "add-object-archive-diagnostics",
+  "environment": "isolated-archive-diagnostics",
+  "environment_contract": {
+    "deployment": "temporary-replacement-image-32a0fe49",
+    "workspace_mode": "isolated",
+    "sample_scope": "disposable-diag-changes-only",
+    "authorization_ref": "user-opsx-apply-four-batches-and-sidebar-choice",
+    "login_strategy": "generated-isolated-test-accounts",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "network",
+      "console"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-01",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['-q', 'src/backend/tests/test_archive_command_diagnostics.py', 'src/backend/tests/test_object_archive_diagnostics.py', 'tests/unit/test_archive_coordinator.py', 'tests/unit/test_replacement_coordinator.py', 'tests/unit/test_replacement_cli.py', 'tests/unit/test_archive_finalization.py']))"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['-q', 'src/backend/tests/test_archive_command_diagnostics.py', 'src/backend/tests/test_object_archive_diagnostics.py', 'tests/unit/test_archive_coordinator.py', 'tests/unit/test_replacement_coordinator.py', 'tests/unit/test_replacement_cli.py', 'tests/unit/test_archive_finalization.py']))"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-03",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['-q', 'src/backend/tests/test_archive_command_diagnostics.py', 'src/backend/tests/test_object_archive_diagnostics.py', 'tests/unit/test_archive_coordinator.py', 'tests/unit/test_replacement_coordinator.py', 'tests/unit/test_replacement_cli.py', 'tests/unit/test_archive_finalization.py']))"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-04",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['-q', 'src/backend/tests/test_archive_command_diagnostics.py', 'src/backend/tests/test_object_archive_diagnostics.py', 'tests/unit/test_archive_coordinator.py', 'tests/unit/test_replacement_coordinator.py', 'tests/unit/test_replacement_cli.py', 'tests/unit/test_archive_finalization.py']))"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/web/src/components/chat/ObjectArchivePanel.tsx",
+        "src/web/src/components/chat/ObjectArchivePanel.test.tsx",
+        "src/web/src/components/chat/object-archive.css",
+        "src/web/src/components/chat/ExecutionPanel.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/workbench/governanceApi.ts",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/styles/chat-workbench.css"
+      ],
+      "argv": [
+        "env",
+        "NODE_OPTIONS=--no-experimental-webstorage",
+        "npm",
+        "--prefix",
+        "src/web",
+        "test",
+        "--",
+        "--run",
+        "src/components/chat/ObjectArchivePanel.test.tsx",
+        "src/components/chat/ArchiveBlockers.test.tsx",
+        "src/chat-execution.test.tsx",
+        "src/chat-relations.test.tsx"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-06",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py",
+        "src/web/src/components/chat/ObjectArchivePanel.tsx",
+        "src/web/src/components/chat/ObjectArchivePanel.test.tsx",
+        "src/web/src/components/chat/object-archive.css",
+        "src/web/src/components/chat/ExecutionPanel.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/workbench/governanceApi.ts",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/backend/tests/archive_diagnostics_evidence_check.py",
+        "src/backend/tests/object_archive_live_harness.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/archive_diagnostics_evidence_check.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 30,
+      "artifacts": [
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-matrix.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-cli-first.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-final-samples.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-recovery-and-denials.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-recovery.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/visual-check.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-blocked-1440.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-confirm-1440.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-completed-1440.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-completed-390.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/sidebar-390.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/confirm-1440.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/synthetic-confirm-390.png",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/narrow-confirm.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "真实隔离 API/CLI 与浏览器已采集，未使用模型轮次；验收者已签认视觉语义"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "evidence_kinds": [
+        "file_state",
+        "visual"
+      ],
+      "preflight": [
+        [
+          "node",
+          "-e",
+          "require('./src/web/node_modules/@playwright/test');fetch('http://127.0.0.1:39074').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "阻断详情",
+          "确认",
+          "完成"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "阻断详情",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-blocked-1440.png"
+            ]
+          },
+          {
+            "stage": "阻断详情",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/sidebar-390.png"
+            ]
+          },
+          {
+            "stage": "确认",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-confirm-1440.png"
+            ]
+          },
+          {
+            "stage": "确认",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/synthetic-confirm-390.png"
+            ]
+          },
+          {
+            "stage": "完成",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-completed-1440.png"
+            ]
+          },
+          {
+            "stage": "完成",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-completed-390.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-07",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/backend/app/governance/archive_query.py",
+        "src/backend/app/governance/archive_diagnostics.py",
+        "src/backend/app/governance/archive_dispatch.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_archive_api.py",
+        "src/backend/app/governance/replacement_cli.py",
+        "src/backend/app/governance/replacement_permissions.py",
+        "src/backend/app/governance/replacement_schema.py",
+        "src/backend/app/governance/scope.py",
+        "src/backend/app/governance/reader.py",
+        "src/backend/app/governance/sprint_object.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/archive_admission.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/relations.py",
+        "src/backend/app/main.py",
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/tests/test_archive_command_diagnostics.py",
+        "src/backend/tests/test_object_archive_diagnostics.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_cli.py",
+        "tests/unit/test_archive_finalization.py",
+        "src/web/src/components/chat/ObjectArchivePanel.tsx",
+        "src/web/src/components/chat/ObjectArchivePanel.test.tsx",
+        "src/web/src/components/chat/object-archive.css",
+        "src/web/src/components/chat/ExecutionPanel.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/workbench/governanceApi.ts",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/styles/chat-workbench.css",
+        "src/backend/tests/archive_diagnostics_evidence_check.py",
+        "src/backend/tests/object_archive_live_harness.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/archive_diagnostics_evidence_check.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 30,
+      "artifacts": [
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-matrix.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-cli-first.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-final-samples.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/live-recovery-and-denials.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/product-recovery.json",
+        "openspec/changes/add-object-archive-diagnostics/evidence/ui/visual-check.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "真实隔离 API/CLI 与浏览器已采集，未使用模型轮次；验收者已签认视觉语义"
+      },
+      "collection": {
+        "state": "collected"
+      },
+      "evidence_kinds": [
+        "file_state"
+      ]
+    },
+    {
+      "id": "AC-08",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-object-archive-diagnostics/design.md",
+        "openspec/changes/add-object-archive-diagnostics/specs/object-archive-diagnostics/spec.md",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/web/src/components/chat/ObjectArchivePanel.tsx",
+        "src/web/src/components/chat/ObjectArchivePanel.test.tsx",
+        "src/web/src/components/chat/object-archive.css",
+        "src/web/src/components/chat/ExecutionPanel.tsx",
+        "src/web/src/components/chat/RelationsBar.tsx",
+        "src/web/src/components/chat/chatApi.ts",
+        "src/web/src/components/chat/ChatDialog.tsx",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/workbench/governanceApi.ts",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/styles/chat-workbench.css"
+      ],
+      "argv": [
+        "npm",
+        "--prefix",
+        "src/web",
+        "run",
+        "build"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

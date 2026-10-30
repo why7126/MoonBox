@@ -21,10 +21,10 @@ class MessageOrderTests(unittest.TestCase):
                        create_engine('sqlite://', poolclass=StaticPool, connect_args={'check_same_thread': False}))
         with self.engine.begin() as db:
             for sql in [
-                'CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY)',
+                "CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY, status VARCHAR(32) NOT NULL DEFAULT '正常', deleted_at VARCHAR(64))",
                 'CREATE TABLE admin_spaces (id VARCHAR(64) PRIMARY KEY, owner_id VARCHAR(64), status VARCHAR(24), deleted_at VARCHAR(32), expires_at VARCHAR(32))',
                 'CREATE TABLE admin_space_members (id VARCHAR(64) PRIMARY KEY, space_id VARCHAR(64), user_id VARCHAR(64), role VARCHAR(32))',
-                "INSERT INTO admin_users VALUES ('alice'), ('bob')",
+                "INSERT INTO admin_users (id) VALUES ('alice'), ('bob')",
                 "INSERT INTO admin_spaces (id,owner_id,status) VALUES ('space','alice','ACTIVE')"]:
                 db.execute(text(sql))
         migrate(self.engine); self.factory = sessionmaker(self.engine)

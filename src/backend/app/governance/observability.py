@@ -18,7 +18,7 @@ def _metadata(value):
     return json.dumps(result,ensure_ascii=False)
 
 
-def trace(db,oid,stage,*,actor=None,request_id=None,metadata=None):
+def trace(db,oid,stage,*,actor=None,request_id=None,metadata=None,serialize_sqlite=False):
     if stage not in STAGES:return
     try:
         meta=_metadata(metadata)
@@ -26,6 +26,12 @@ def trace(db,oid,stage,*,actor=None,request_id=None,metadata=None):
             # Existing trace table's turn_id is a generic unique correlation slot.
             # Prefix prevents collisions with Chat UUIDs; task_type keeps consumers separate.
             identity='governance:'+oid
+            if serialize_sqlite and db.get_bind().dialect.name == 'sqlite':
+                # Take write intent before a deferred SAVEPOINT reads its
+                # snapshot. Otherwise concurrent prepared traces can deadlock
+                # while upgrading their shared locks. No file work occurs here.
+                db.execute(update(task_traces).where(task_traces.c.turn_id==identity)
+                    .values(updated_at=task_traces.c.updated_at))
             row=db.execute(select(task_traces).where(task_traces.c.turn_id==identity)).mappings().first()
             if row:
                 tid=row['task_trace_id']

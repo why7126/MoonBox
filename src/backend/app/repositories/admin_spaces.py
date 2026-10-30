@@ -25,7 +25,8 @@ from app.schemas.admin_spaces import (
 
 
 def _row_to_dict(row) -> dict:  # type: ignore[no-untyped-def]
-    data = dict(row._mapping)
+    from app.db.time_values import row_times
+    data = row_times(dict(row._mapping))
     for key in ("protected",):
         if key in data:
             data[key] = bool(data[key])

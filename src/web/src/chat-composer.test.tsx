@@ -324,3 +324,15 @@ it('keeps a new conversation draft free of project governance actions', () => {
  expect(screen.getByTestId('chat-prompt').textContent).toBe('保留草稿');
  expect(fetch).not.toHaveBeenCalled();
 });
+it('shows final-check progress for an existing conversation and prevents duplicate submission', async()=>{
+ localStorage.setItem('moonbox.session',JSON.stringify({access_token:'synthetic'}));
+ let reject!: (reason: Error)=>void;
+ vi.stubGlobal('fetch',vi.fn(()=>new Promise<Response>((_,fail)=>{reject=fail;})));
+ render(<Composer conversation={{id:'c'} as ConversationRead} capabilities={{execution_ready:true,reason:'',repositories:[]}} initialDraft="/bug-complete BUG-0036-bug" onDraft={()=>{}} onSubmitted={()=>{}}/>);
+ fireEvent.click(screen.getByTestId('chat-send'));
+ expect((await screen.findByTestId('chat-send-progress')).textContent).toContain('正在检查执行条件');
+ fireEvent.click(screen.getByTestId('chat-send'));expect(fetch).toHaveBeenCalledTimes(1);
+ reject(Error('检查失败'));await screen.findByRole('alert');
+ expect(screen.queryByTestId('chat-send-progress')).toBeNull();
+ expect(screen.getByTestId('chat-prompt').textContent).toBe('/bug-complete BUG-0036-bug');
+});

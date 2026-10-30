@@ -28,6 +28,8 @@ def _chat_error_data(exc: service.ChatError, request_id: str):
         return None
     data = {'kind': exc.kind, 'request_id': request_id}
     details = exc.details if isinstance(exc.details, dict) else {}
+    from app.governance.archive_diagnostics import safe_diagnostics
+    data.update(safe_diagnostics(details))
     for key in ('reason', 'suggested_action'):
         value = details.get(key)
         if isinstance(value, str) and 0 < len(value) <= 160:

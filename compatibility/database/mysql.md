@@ -56,3 +56,7 @@ BUG-0064新增chat_turn_recoveries和chat_recovery_resumes，采用通用字符�
 ## BUG-0068 核验锁竞争
 
 核验读事务在文件计算前结束，避免REPEATABLE READ隐藏并发事实。提交阶段重新授权、检查项目代次/guard原值并条件写，拒绝旧计划；锁等待设置最小1秒后归池恢复。驱动1205/1213仅在已回滚且无外部副作用时允许有界重试，提交不明不重试。需真实MySQL回归，SQLite不能替代。
+
+## 对象会话准备Trace兼容
+
+BUG-0057的SQLite先写后读选项按方言隔离；MySQL继续原Trace查询、更新及span插入顺序，无新增SQL、字段、索引或事务策略。不能用SQLite并发采样代替MySQL运行态验收。

@@ -1,6 +1,9 @@
 """Stable public archive diagnostics shared by API and the online CLI."""
 
 ARCHIVE_FAILURES = {
+    'replacement_candidate_ambiguous': ('归档操作关联不唯一，请核对原操作身份。', 'review_archive_history'),
+    'archive_query_scope_too_large': ('当前对象关联范围较大，请按单个对象核对。', 'review_archive_blockers'),
+    'archive_finalization_blocked': ('归档收尾发现当前文档或引用问题，请修复后回读原操作。', 'review_archive_blockers'),
     'archive_tool_unavailable': ('归档工具尚未就绪，请联系项目管理员。', 'contact_project_admin'),
     'archive_tools_not_trusted': ('归档工具或项目目录未达到可信运行要求，请联系项目管理员。', 'contact_project_admin'),
     'archive_tool_runtime_unavailable': ('归档检查工具无法启动，请联系项目管理员排查服务配置。', 'contact_project_admin'),
@@ -27,3 +30,42 @@ ARCHIVE_FAILURES = {
 
 SAFE_ARCHIVE_REASONS = frozenset(ARCHIVE_FAILURES) | {
     'archive_filesystem_unavailable', 'archive_storage_unavailable'}
+
+
+def safe_diagnostics(value):
+    """Allow only generated labels and repository-relative locations, never prose."""
+    import re
+    from pathlib import PurePosixPath
+    result = {}
+    if not isinstance(value, dict):
+        return result
+    oid = value.get('operation_id')
+    if isinstance(oid, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}', oid):
+        result['operation_id'] = oid
+    findings = []
+    source = value.get('findings')
+    for item in (source if isinstance(source, list) else [])[:30]:
+        if not isinstance(item, dict):
+            continue
+        path = item.get('relative_path', item.get('file', ''))
+        kind = item.get('kind', '')
+        if (not isinstance(path, str) or len(path) > 500 or '\\' in path
+                or not re.fullmatch(r'[\w./-]+', path)
+                or PurePosixPath(path).is_absolute() or '..' in PurePosixPath(path).parts
+                or path.split('/')[0] not in {'openspec', 'issues', 'iterations', 'docs'}
+                or not isinstance(kind, str) or not re.fullmatch(r'[a-z][a-z0-9-]{0,63}', kind)):
+            continue
+        line = item.get('line', 0)
+        findings.append({'reason_code': 'archive_finalization_blocked', 'kind': kind,
+                         'relative_path': path, 'line': line if type(line) is int and 0 <= line <= 1000000 else 0,
+                         'message': '请核对当前文档与引用；历史过程保留。',
+                         'requires_review': item.get('severity') == 'review' or item.get('requires_review') is True})
+    if findings:
+        result['findings'] = findings
+    return result
+
+
+class ArchiveDiagnosticError(ValueError):
+    def __init__(self, reason, details=None):
+        super().__init__(reason)
+        self.details = safe_diagnostics(details)

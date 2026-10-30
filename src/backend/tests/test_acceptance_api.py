@@ -102,3 +102,17 @@ def test_read_does_not_present_old_template_as_current_ready(chat,monkeypatch,tm
     assert state.get(item['id'])['version']==before
     monkeypatch.setattr('app.verification.acceptance_template.approved_template',lambda:SimpleNamespace(key='d'*64))
     assert client.get(url).json()['data']['ready']
+
+
+def test_frozen_actor_is_rejected_by_background_authorization(chat,monkeypatch,tmp_path):
+    import pytest
+    from app.chat.service import ChatError, conversation
+    from app.verification.acceptance_service import authorize as authorize_operation
+    item=operation(chat,monkeypatch,tmp_path);_,factory=chat
+    with factory() as db:
+        db.execute(text("UPDATE admin_users SET status='已冻结' WHERE id='alice'"));db.commit()
+        for check in (lambda:authorize(db,'alice','space','repo'),
+                      lambda:conversation(db,'alice',item['conversation_id']),
+                      lambda:authorize_operation(db,'alice',item['id'],write=True)):
+            with pytest.raises(ChatError) as error:check()
+            assert error.value.status==403

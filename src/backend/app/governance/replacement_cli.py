@@ -59,7 +59,8 @@ def request(config, path, payload=None):
             except (ValueError, OSError, TypeError):
                 reason = None
             if reason in SAFE_ARCHIVE_REASONS:
-                raise ValueError(reason) from None
+                from .archive_diagnostics import ArchiveDiagnosticError
+                raise ArchiveDiagnosticError(reason, data) from None
         raise ValueError('online_authority_unavailable_or_request_unverified') from None
     except (URLError, TimeoutError, OSError):
         raise ValueError('online_authority_unavailable_or_request_unverified') from None
@@ -111,7 +112,7 @@ def main(argv=None):
         return 0 if result.get('stage') == 'completed' else 1
     except ValueError as error:
         # Error codes are local constants; never include HTTP bodies or tokens.
-        print(json.dumps({'decision': 'blocked', 'reason_code': str(error),
+        print(json.dumps({'decision': 'blocked', 'reason_code': str(error), **getattr(error, 'details', {}),
             'guidance': '核验在线服务；结果未知时保持原提案、版本、摘要和 operation，不创建新操作。'}, ensure_ascii=False))
         return 1
 

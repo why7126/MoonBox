@@ -13,7 +13,8 @@ from app.schemas.admin_spaces import AdminSpaceApplicationCreate
 
 
 def _now() -> str:
-    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    from app.db.time_values import storage_time
+    return storage_time(datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"))
 
 
 def seed_admin_user(session: Session) -> None:

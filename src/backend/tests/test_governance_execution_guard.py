@@ -271,12 +271,13 @@ class AdmissionTests(unittest.TestCase):
         from app.chat import worker
         import json
         with tempfile.TemporaryDirectory() as directory:
+            directory = str(Path(directory).resolve())
             engine = create_engine(f'sqlite:///{directory}/chat.db')
             with engine.begin() as conn:
-                conn.execute(text('CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY)'))
+                conn.execute(text("CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY, status VARCHAR(32) NOT NULL DEFAULT '正常', deleted_at VARCHAR(64))"))
                 conn.execute(text("CREATE TABLE admin_spaces (id VARCHAR(64) PRIMARY KEY, name VARCHAR(80), owner_id VARCHAR(64), status VARCHAR(24), deleted_at VARCHAR(32), expires_at VARCHAR(32))"))
                 conn.execute(text('CREATE TABLE admin_space_members (id VARCHAR(64) PRIMARY KEY, space_id VARCHAR(64), user_id VARCHAR(64), role VARCHAR(32))'))
-                conn.execute(text("INSERT INTO admin_users VALUES ('alice')"))
+                conn.execute(text("INSERT INTO admin_users (id) VALUES ('alice')"))
                 conn.execute(text("INSERT INTO admin_spaces (id,name,owner_id,status) VALUES ('space','Test','alice','ACTIVE')"))
             migrate(engine); migrate(engine)
             sessions = sessionmaker(engine)

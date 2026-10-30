@@ -44,3 +44,22 @@ def test_execute_preserves_exact_original_identity(tmp_path,monkeypatch):
     args=['--config',str(path),'--proposal','proposal','--execute','--operation','original','--expected-revision','2','--digest','a'*64]
     assert cli.main(args)==0
     assert calls[-1][1]=={'proposal_id':'proposal','expected_revision':2,'proposal_digest':'a'*64,'idempotency_key':'original','confirmed':True}
+
+
+def test_http_blocking_diagnostics_remain_bounded(monkeypatch):
+    import io
+    from urllib.error import HTTPError
+    from app.governance.archive_diagnostics import ArchiveDiagnosticError
+    data = {'reason': 'archive_finalization_blocked', 'operation_id': 'original', 'findings': [
+        {'relative_path': 'issues/test.md', 'kind': 'broken-link', 'line': 2, 'message': 'secret raw prose'},
+        {'relative_path': '/private/secret', 'kind': 'broken-link'}]}
+    class Transport:
+        def open(self, *a, **k):
+            raise HTTPError('http://localhost',409,'blocked',{},io.BytesIO(json.dumps({'data':data}).encode()))
+    monkeypatch.setattr('urllib.request.build_opener', lambda *a: Transport())
+    with pytest.raises(ArchiveDiagnosticError) as error:
+        cli.request({'base_url':'http://localhost','access_token':'synthetic'},'archive-commands',{})
+    assert str(error.value) == 'archive_finalization_blocked'
+    assert error.value.details['operation_id'] == 'original'
+    assert len(error.value.details['findings']) == 1
+    assert 'secret' not in json.dumps(error.value.details)

@@ -1,6 +1,6 @@
 """Explicit archive execution, separate from proposal and installation approvals."""
 from uuid import uuid5,NAMESPACE_URL
-from fastapi import APIRouter,Depends,Request
+from fastapi import APIRouter,Depends,Request,Query
 from pydantic import BaseModel,ConfigDict,Field
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -10,7 +10,7 @@ from app.chat.service import ChatError
 from app.db.session import get_db
 from app.schemas.common import ApiResponse
 from . import scope,replacement_signer
-from .archive_diagnostics import ARCHIVE_FAILURES
+from .archive_diagnostics import ARCHIVE_FAILURES, safe_diagnostics
 from .replacement_schema import proposals,commits
 from .replacement_api import object_access
 from .replacement_observability import ReplacementRoute
@@ -23,7 +23,7 @@ def archive_failure(error):
     reason = str(error) if isinstance(error, ValueError) else ''
     if reason in ARCHIVE_FAILURES:
         message, action = ARCHIVE_FAILURES[reason]
-        return message, {'reason': reason, 'suggested_action': action}
+        return message, {'reason': reason, 'suggested_action': action, **safe_diagnostics(getattr(error, 'details', {}))}
     if isinstance(error, OSError):
         return '归档服务无法访问所需文件，请联系项目管理员。', {'reason': 'archive_filesystem_unavailable', 'suggested_action': 'contact_project_admin'}
     if isinstance(error, SQLAlchemyError):
@@ -91,10 +91,11 @@ def create(payload:ArchiveRequest,request:Request,user=Depends(require_session_u
         result=execute(db,actor=user['id'],space_id=project.space_id,repository_id=project.repository_id,
             proposal_id=payload.proposal_id,operation_id=oid,expected_revision=payload.expected_revision,
             proposal_digest=payload.proposal_digest,sign=replacement_signer.sign,request_id=request.state.chat_request_id)
-    except (ValueError,OSError,SQLAlchemyError):
+    except (ValueError,OSError,SQLAlchemyError) as error:
         db.rollback()
-        raise ChatError(2606,'归档未确认完成，请回读原操作。可信部署、独立签署或输入变化仍可能阻断；不要重新建立操作。',409,
-                        kind='controlled_archive_unverified',details={'operation_id':oid}) from None
+        message, details = archive_failure(error)
+        raise ChatError(2606,message,409,kind='controlled_archive_unverified',
+                        details={**details, 'operation_id':oid}) from None
     return ApiResponse(data=result)
 
 
@@ -107,3 +108,81 @@ def read(operation_id:str,request:Request,user=Depends(require_session_user),db:
     project=scope.authorize(db,user['id'],proposal['space_id'],proposal['repository_id'])
     object_access(db,user,project,proposal['change_id'])
     return ApiResponse(data={'operation_id':row['id'],'stage':row['stage'],'revision':row['revision']})
+
+
+class ArchiveFinding(BaseModel):
+    reason_code: str
+    kind: str
+    relative_path: str
+    line: int
+    message: str
+    requires_review: bool
+
+
+class ArchiveVerification(BaseModel):
+    status: str
+    checked_at: str
+    input_fingerprint: str
+    findings: list[ArchiveFinding]
+
+
+class ObjectArchiveOperation(BaseModel):
+    operation_id: str
+    operation_kind: str
+    target_id: str
+    stage: str
+    revision: int
+    verification: ArchiveVerification
+    allowed_actions: list[str]
+    denial_reason: str | None = None
+
+
+class ObjectArchiveView(BaseModel):
+    object_id: str
+    object_type: str
+    association_scope: str
+    operations: list[ObjectArchiveOperation]
+    not_started_targets: list[str]
+    summary: str
+
+
+query_router = APIRouter(prefix='/api/v1/chat/archive-operations', tags=['Governance'], route_class=ReplacementRoute)
+
+
+@query_router.get('', response_model=ApiResponse[ObjectArchiveView], summary='只读查询当前对象的归档操作与诊断')
+def query_operations(request: Request, space_id: str = Query(min_length=1,max_length=64),
+                     repository_id: str = Query(min_length=1,max_length=64),
+                     object_id: str = Query(pattern=r"^(?:(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$"),
+                     user=Depends(require_session_user), db: Session=Depends(get_db)):
+    request.state.chat_actor = user['id']
+    from .archive_query import view
+    try:
+        result = view(db, actor=user['id'], space_id=space_id, repository_id=repository_id, object_id=object_id)
+    except (ValueError, OSError, SQLAlchemyError) as error:
+        db.rollback()
+        message, details = archive_failure(error)
+        raise ChatError(2606, message, 409, kind='archive_command_unverified', details=details) from None
+    return ApiResponse(data=result)
+
+
+class ResumeArchiveRequest(ArchiveObjectRequest):
+    operation_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+
+
+@query_router.post('/resume', response_model=ApiResponse[ArchiveOperationResponse], summary='显式续接原归档操作')
+def resume_operation(payload: ResumeArchiveRequest, request: Request,
+                     user=Depends(require_session_user), db: Session=Depends(get_db)):
+    request.state.chat_actor = user['id']
+    if not payload.confirmed:
+        raise ChatError(2606, '请确认继续原归档操作', 409)
+    from .archive_query import resume
+    try:
+        result = resume(db, actor=user['id'], space_id=payload.space_id, repository_id=payload.repository_id,
+                        object_id=payload.object_id, operation_id=payload.operation_id,
+                        request_id=request.state.chat_request_id)
+    except (ValueError, OSError, SQLAlchemyError) as error:
+        db.rollback()
+        message, details = archive_failure(error)
+        details['operation_id'] = payload.operation_id
+        raise ChatError(2606, message, 409, kind='archive_command_unverified', details=details) from None
+    return ApiResponse(data=result)

@@ -126,17 +126,19 @@ describe("Chat Skeleton boundary", () => {
       if (url.includes("/api/v1/chat/conversations/conversation/governance-candidates")) return data({ items: [candidate] });
       if (url.includes("/api/v1/chat/governance-applications/operation")) return data({ id: "operation", state: "applied", phase: "verified" });
       if (url === "/api/v1/requirement-center/projects") return data({ current_user: { name: "tester" }, workspaces: [workspace], selected_workspace_id: "space", projects: [{ space_id: "space", repository_id: "repo", status: "connected", readonly: false }] });
+      if (url.endsWith("/acceptance-operations")) return data({items:[]});
       return data({});
     });
     vi.stubGlobal("fetch", fetch);
     render(<ChatWorkbenchPage />);
     await waitFor(() => expect(fetch.mock.calls.some(([url]) => String(url).includes("/governance-applications/operation"))).toBe(true));
     expect(fetch.mock.calls.some(([url, init]) => String(url).includes("/governance-candidates/candidate/applications") && init?.method === "POST")).toBe(false);
-    fireEvent.change(screen.getByTestId("chat-prompt"), {target:{value:"保留原会话草稿"}});
+    screen.getByTestId("chat-prompt").textContent="保留原会话草稿";
+    fireEvent.input(screen.getByTestId("chat-prompt"));
     expect(sessionStorage.getItem("moonbox.governance.prompt:conversation")).toBe("保留原会话草稿");
     cleanup();
     render(<ChatWorkbenchPage />);
-    await waitFor(() => expect((screen.getByTestId("chat-prompt") as HTMLTextAreaElement).value).toBe("保留原会话草稿"));
+    await waitFor(() => expect(screen.getByTestId("chat-prompt").textContent).toBe("保留原会话草稿"));
     for (const text of ["待应用成果", "查看成果", "审阅治理成果", "确认应用"]) {
       expect(screen.queryByText(text)).toBeNull();
     }
@@ -159,6 +161,7 @@ describe("Chat Skeleton boundary", () => {
       if (url.includes("/api/v1/chat/conversations/conversation/objects")) return data({ items: [] });
       if (url.includes("/api/v1/chat/conversations/conversation/governance-candidates")) return data({ items: [] });
       if (url === "/api/v1/requirement-center/projects") return data({ current_user: { name: "tester" }, workspaces: [workspace], selected_workspace_id: "space", projects: [{ space_id: "space", repository_id: "repo", status: "connected", readonly: false }] });
+      if (url.endsWith("/acceptance-operations")) return data({items:[]});
       return data({});
     }));
     render(<ChatWorkbenchPage />);

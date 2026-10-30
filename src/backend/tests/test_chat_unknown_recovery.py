@@ -94,6 +94,19 @@ def test_lost_lease_cannot_commit(chat, tmp_path):
     with factory() as db: assert db.scalar(select(turns.c.status)) == 'unknown'
 
 
+def test_terminal_recovery_does_not_release_uncollected_workspace(chat, tmp_path, monkeypatch):
+    factory, tid, path = sample(chat, tmp_path)
+    released=[]
+    monkeypatch.setattr('app.moonbox_core.workspaces.release', lambda *args: released.append(args))
+    class Peer:
+        def read_turn(self, *_):
+            monkeypatch.setattr('app.moonbox_core.sessions.bound', lambda *_: 'pending-workspace')
+            return {'status':'failed'}
+        def close(self):pass
+    assert reconcile_unknown(factory,tid,path,lambda _:Peer())
+    assert released==[], 'terminal recovery must leave collection ownership intact'
+
+
 def test_resume_permissions_generation_and_idempotency(chat, tmp_path):
     factory, tid, path = sample(chat, tmp_path)
     with factory() as db: lease = recovery.claim(db)

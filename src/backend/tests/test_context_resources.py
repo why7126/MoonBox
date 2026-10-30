@@ -73,7 +73,7 @@ def database_columns(factory):
     with factory() as db:
         for name, kind in [('code', 'TEXT'), ('description', 'TEXT'), ('member_count', 'INTEGER'), ('created_at', 'TEXT')]:
             db.execute(text(f'ALTER TABLE admin_spaces ADD COLUMN {name} {kind}'))
-        for name in ('username', 'nickname', 'status', 'deleted_at'):
+        for name in ('username', 'nickname'):
             db.execute(text(f'ALTER TABLE admin_users ADD COLUMN {name} TEXT'))
         db.execute(text('CREATE TABLE admin_space_products (space_id TEXT)'))
         db.commit()

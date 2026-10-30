@@ -10,6 +10,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +33,10 @@ PLACEHOLDER_VALUES = {
     "replace-with-example-key",
     "replace-with-access-key",
     "replace-with-secret-key",
+    "replace-with-s3-access-key",
+    "replace-with-s3-secret-key",
+    "replace-with-external-minio-access-key",
+    "replace-with-external-minio-secret-key",
 }
 
 SAFE_PATH_PATTERNS = [
@@ -216,7 +221,7 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "object-storage-credential",
-        re.compile(r"\b(?:MINIO|S3|OBJECT_STORAGE)_[A-Z0-9_]*(?:KEY|SECRET|TOKEN)\b\s*[:=]\s*[\"']?([^\"'\s}]{12,})"),
+        re.compile(r"(?<![\w${])(?:MINIO|S3|OBJECT_STORAGE)_[A-Z0-9_]*(?:KEY|SECRET|TOKEN)\b\s*[:=]\s*[\"']?(\$\{[^}\n]+\}[^\"'\s,}]*|[^\"'\s}]{12,})"),
         "error",
     ),
     (
@@ -226,7 +231,7 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "privacy-email",
-        re.compile(r"\b[A-Za-z0-9._%+-]+@(?!example\.com\b|example\.org\b|localhost\b)[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+        re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
         "warning",
     ),
     ("privacy-phone", re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)"), "warning"),
@@ -234,21 +239,54 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
 
 
 def is_placeholder(value: str) -> bool:
-    cleaned = value.strip().strip("\"'`;,")
-    lower = cleaned.lower()
-    if "<name>" in lower or "<local-project>" in lower:
-        return True
-    if lower in PLACEHOLDER_VALUES:
-        return True
-    if "replace-with" in lower:
-        return True
-    if lower.startswith("${") or ":-change-me" in lower or "?" in lower:
-        return True
-    if lower.startswith("<") and lower.endswith(">"):
-        return True
-    if "example" in lower or "localhost" in lower or "change-me" in lower:
-        return True
-    return False
+    """Only complete, documented template values are safe; substrings are not."""
+    return value.lower() in PLACEHOLDER_VALUES or bool(
+        re.fullmatch(r"\$\{[A-Z_][A-Z0-9_]*(?::-change-me|:\?[^{}\n]+)?\}", value)
+    )
+
+
+def is_safe_match(rule: str, value: str, line: str, match: re.Match[str]) -> bool:
+    if rule == "privacy-email":
+        domain = value.rsplit("@", 1)[-1].lower()
+        if domain in {"example.com", "example.org", "example.invalid"}:
+            return True
+        # Reserved integration identity only in Git's explicit author setting.
+        if value == "integration@" + "moonbox.invalid" and line[max(0, match.start()-11):match.start()] == "user.email=":
+            return True
+        # An escaped source newline before a Python HTTP decorator is not email.
+        return bool(re.fullmatch(r"[nr]@[A-Za-z_]\w*\.(?:get|post|put|patch|delete|head|options)", value)
+                    and match.start() > 0 and line[match.start()-1] == "\\"
+                    and line[match.end():].lstrip().startswith("("))
+    if rule == "local-absolute-path":
+        username = value.split("/", 3)[2]
+        return username in {"example", "<name>", "<local-project>"}
+    if rule == "database-url":
+        try:
+            parsed = urlsplit(value)
+            return (parsed.username is not None and parsed.password is not None
+                    and is_placeholder(parsed.username) and is_placeholder(parsed.password)
+                    and not parsed.query and not parsed.fragment)
+        except ValueError:
+            return False
+    return is_placeholder(value)
+
+
+def phone_noise_spans(path: str, line: str) -> list[tuple[int, int]]:
+    """Bound exceptions to a complete hash or the fractional part of a JSON number."""
+    spans = []
+    for token in re.finditer(r"(?<![\w-])[a-fA-F0-9]{64}(?![\w-])", line):
+        if re.search(r"[a-fA-F]", token.group()):
+            spans.append(token.span())
+    # PyPI artifact paths split the SHA256 into 2/2/60 hexadecimal digits.
+    for token in re.finditer(r"https://files\.pythonhosted\.org/packages/[a-f0-9]{2}/[a-f0-9]{2}/([a-f0-9]{60})/", line):
+        spans.append(token.span(1))
+    if Path(path).suffix.lower() in {".json", ".jsonl"}:
+        # Consume quoted strings first so a string containing digits stays visible.
+        for token in re.finditer(r'"(?:\\.|[^"\\])*"|(?<![\w.])-?\d+\.\d+(?:[eE][+-]?\d+)?(?![\w.])', line):
+            value = token.group()
+            if not value.startswith('"'):
+                spans.append((token.start() + value.index(".") + 1, token.end()))
+    return spans
 
 
 def redact(value: str) -> str:
@@ -258,10 +296,9 @@ def redact(value: str) -> str:
 
 
 def redacted_line(line: str, match: re.Match[str]) -> str:
-    snippet = line.strip()
     groups = [group for group in match.groups() if group]
     target = groups[-1] if groups else match.group(0)
-    redacted = snippet.replace(target, redact(target))
+    redacted = redact(target)
     if len(redacted) > 180:
         return f"{redacted[:177]}..."
     return redacted
@@ -280,12 +317,16 @@ def is_probably_binary(path: Path) -> bool:
 def scan_text_content(path: str, content: str) -> list[Finding]:
     findings: list[Finding] = []
     for line_number, line in enumerate(content.splitlines(), start=1):
+        noise_spans = phone_noise_spans(path, line)
+        database_spans = [m.span() for name, pattern, _ in SECRET_PATTERNS if name == "database-url" for m in pattern.finditer(line)]
         for rule, pattern, severity in SECRET_PATTERNS:
-            if rule == "privacy-email" and "://" in line:
-                continue
             for match in pattern.finditer(line):
+                if rule == "privacy-email" and any(start <= match.start() and match.end() <= end for start, end in database_spans):
+                    continue
                 value = next((group for group in reversed(match.groups()) if group), match.group(0))
-                if is_placeholder(value):
+                if rule == "privacy-phone" and any(start <= match.start() and match.end() <= end for start, end in noise_spans):
+                    continue
+                if is_safe_match(rule, value, line, match):
                     continue
                 findings.append(
                     Finding(
@@ -383,7 +424,7 @@ def print_report(scan_scope: str, scanned_count: int, findings: list[Finding]) -
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run pre-push Git safety checks; regex directory prefixes are not concrete user paths.")
+    parser = argparse.ArgumentParser(description="Run pre-push Git safety checks; exact template values and bounded hash/JSON contexts only; URLs do not exempt a line.")
     parser.add_argument("--all", action="store_true", help="Scan all repository files instead of staged + tracked files.")
     parser.add_argument(
         "--max-file-size-mb",

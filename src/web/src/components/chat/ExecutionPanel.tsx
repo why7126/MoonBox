@@ -1,3 +1,4 @@
+import { ObjectArchivePanel } from "./ObjectArchivePanel";
 import { useEffect, useRef, useState } from "react";
 import { DiffView, type DiffData } from "./DiffView";
 import { ChatDialog } from "./ChatDialog";
@@ -13,7 +14,7 @@ const traceMessage = (error: unknown, fallback = "执行轨迹暂不可读，可
   if (normalized instanceof ChatApiError && normalized.status === 0) return fallback;
   return normalized instanceof Error ? normalized.message : fallback;
 };
-export function ExecutionPanel({ conversation, executionReady = false, focusTurn, focusVersion }: { conversation: ConversationRead | null; executionReady?: boolean; focusTurn?: string; focusVersion?: number }) {
+export function ExecutionPanel({ conversation, executionReady = false, focusTurn, focusVersion, visible = true }: { conversation: ConversationRead | null; executionReady?: boolean; focusTurn?: string; focusVersion?: number; visible?: boolean }) {
   const [turns, setTurns] = useState<TurnRead[]>([]), [selected, setSelected] = useState("");
   const [eventAfter, setEventAfter] = useState(0), [moreEvents, setMoreEvents] = useState(false);
   const [events, setEvents] = useState<ChatEvent[]>([]), [diff, setDiff] = useState<DiffData | null>(null);
@@ -76,6 +77,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
     finally { retrying.current = false; setBusy(false); }
   }
   return <>
+    <ObjectArchivePanel conversation={conversation} visible={visible} refreshKey={`${conversation?.active_turn_id || ""}:${events[events.length - 1]?.sequence || 0}:${turns.map(t => `${t.id}:${t.status}`).join(",")}:${retry}`} />
     {selectedTurn && <SavedResults key={selectedTurn.id} turnId={selectedTurn.id} status={selectedTurn.status} reason={selectedTurn.error_code} />}
     {active?.status === "unknown" && <p className="chat-error">原运行状态尚未确认，暂不能发起新运行。</p>}
     {error && <div role="alert" className="chat-error">{error}<button onClick={() => setRetry(value => value + 1)}>重新连接</button></div>}

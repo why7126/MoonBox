@@ -1165,6 +1165,66 @@ export interface ApiResponseArchiveObjectResponse {
   data: ArchiveObjectResponse;
 }
 
+export interface ArchiveFinding {
+  reason_code: string;
+  kind: string;
+  relative_path: string;
+  line: number;
+  message: string;
+  requires_review: boolean;
+}
+
+export interface ArchiveVerification {
+  status: string;
+  checked_at: string;
+  input_fingerprint: string;
+  findings: ArchiveFinding[];
+}
+
+export interface ObjectArchiveOperation {
+  operation_id: string;
+  operation_kind: string;
+  target_id: string;
+  stage: string;
+  revision: number;
+  verification: ArchiveVerification;
+  allowed_actions: string[];
+  denial_reason?: string | null;
+}
+
+export interface ObjectArchiveView {
+  object_id: string;
+  object_type: string;
+  association_scope: string;
+  operations: ObjectArchiveOperation[];
+  not_started_targets: string[];
+  summary: string;
+}
+
+export interface ApiResponseObjectArchiveView {
+  code?: number;
+  message?: string;
+  data: ObjectArchiveView;
+}
+
+export interface ResumeArchiveRequest {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  space_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  repository_id: string;
+  /** @pattern ^(?:(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$ */
+  object_id: string;
+  confirmed: boolean;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  operation_id: string;
+}
+
 export type GetRequirementCenterStatusApiV1RequirementCenterStatusGetParams = {
 /**
  * @maxItems 32
@@ -1323,6 +1383,23 @@ change_id: string;
 export type StatusApiV1ChatReplacementPolicyGetParams = {
 space_id: string;
 repository_id: string;
+};
+
+export type QueryOperationsApiV1ChatArchiveOperationsGetParams = {
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+repository_id: string;
+/**
+ * @pattern ^(?:(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$
+ */
+object_id: string;
 };
 
 export type getRequirementCenterStatusApiV1RequirementCenterStatusGetResponse200 = {
@@ -3424,4 +3501,117 @@ const res = await fetch(getCommandApiV1ChatArchiveCommandsPostUrl(),
 
   const data: commandApiV1ChatArchiveCommandsPostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as commandApiV1ChatArchiveCommandsPostResponse
+}
+
+
+
+export type queryOperationsApiV1ChatArchiveOperationsGetResponse200 = {
+  data: ApiResponseObjectArchiveView
+  status: 200
+}
+
+export type queryOperationsApiV1ChatArchiveOperationsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type queryOperationsApiV1ChatArchiveOperationsGetResponseSuccess = (queryOperationsApiV1ChatArchiveOperationsGetResponse200) & {
+  headers: Headers;
+};
+export type queryOperationsApiV1ChatArchiveOperationsGetResponseError = (queryOperationsApiV1ChatArchiveOperationsGetResponse422) & {
+  headers: Headers;
+};
+
+export type queryOperationsApiV1ChatArchiveOperationsGetResponse = (queryOperationsApiV1ChatArchiveOperationsGetResponseSuccess | queryOperationsApiV1ChatArchiveOperationsGetResponseError)
+
+export const getQueryOperationsApiV1ChatArchiveOperationsGetUrl = (params: QueryOperationsApiV1ChatArchiveOperationsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/chat/archive-operations?${stringifiedParams}` : `/api/v1/chat/archive-operations`
+}
+
+/**
+ * @summary 只读查询当前对象的归档操作与诊断
+ */
+export const queryOperationsApiV1ChatArchiveOperationsGet = async (params: QueryOperationsApiV1ChatArchiveOperationsGetParams, options?: RequestInit): Promise<queryOperationsApiV1ChatArchiveOperationsGetResponse> => {
+
+  const res = await fetch(getQueryOperationsApiV1ChatArchiveOperationsGetUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: queryOperationsApiV1ChatArchiveOperationsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as queryOperationsApiV1ChatArchiveOperationsGetResponse
+}
+
+
+
+export type resumeOperationApiV1ChatArchiveOperationsResumePostResponse200 = {
+  data: ApiResponseArchiveOperationResponse
+  status: 200
+}
+
+export type resumeOperationApiV1ChatArchiveOperationsResumePostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type resumeOperationApiV1ChatArchiveOperationsResumePostResponseSuccess = (resumeOperationApiV1ChatArchiveOperationsResumePostResponse200) & {
+  headers: Headers;
+};
+export type resumeOperationApiV1ChatArchiveOperationsResumePostResponseError = (resumeOperationApiV1ChatArchiveOperationsResumePostResponse422) & {
+  headers: Headers;
+};
+
+export type resumeOperationApiV1ChatArchiveOperationsResumePostResponse = (resumeOperationApiV1ChatArchiveOperationsResumePostResponseSuccess | resumeOperationApiV1ChatArchiveOperationsResumePostResponseError)
+
+export const getResumeOperationApiV1ChatArchiveOperationsResumePostUrl = () => {
+
+
+
+
+  return `/api/v1/chat/archive-operations/resume`
+}
+
+/**
+ * @summary 显式续接原归档操作
+ */
+export const resumeOperationApiV1ChatArchiveOperationsResumePost = async (resumeArchiveRequest: ResumeArchiveRequest, options?: RequestInit): Promise<resumeOperationApiV1ChatArchiveOperationsResumePostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getResumeOperationApiV1ChatArchiveOperationsResumePostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(resumeArchiveRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: resumeOperationApiV1ChatArchiveOperationsResumePostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as resumeOperationApiV1ChatArchiveOperationsResumePostResponse
 }

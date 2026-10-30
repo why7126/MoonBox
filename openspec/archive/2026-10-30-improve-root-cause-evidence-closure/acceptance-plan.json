@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "improve-root-cause-evidence-closure",
+  "environment": "local-governance-document-checks",
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "--check"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-CONTEXT",
+      "kind": "command",
+      "inputs": [
+        "rules/root-cause-evidence.md",
+        "docs/standards/root-cause-diagnostics.md",
+        "rules/document-governance.md",
+        "openspec/changes/improve-root-cause-evidence-closure/evaluation.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/capture.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/root-cause.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/investigation-history.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/workaround.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/bug.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "kind": "command",
+      "inputs": [
+        "rules/root-cause-evidence.md",
+        "docs/standards/root-cause-diagnostics.md",
+        "rules/document-governance.md",
+        "openspec/changes/improve-root-cause-evidence-closure/evaluation.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/capture.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/root-cause.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/investigation-history.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/workaround.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/bug.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "scripts/validate-openspec-language.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "improve-root-cause-evidence-closure"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "kind": "command",
+      "inputs": [
+        "rules/root-cause-evidence.md",
+        "docs/standards/root-cause-diagnostics.md",
+        "rules/document-governance.md",
+        "openspec/changes/improve-root-cause-evidence-closure/evaluation.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/capture.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/root-cause.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/investigation-history.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/workaround.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/bug.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "scripts/validate-directory-structure.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-directory-structure.py"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-ROOT",
+      "kind": "command",
+      "inputs": [
+        "rules/root-cause-evidence.md",
+        "docs/standards/root-cause-diagnostics.md",
+        "rules/document-governance.md",
+        "openspec/changes/improve-root-cause-evidence-closure/evaluation.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/capture.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/root-cause.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/investigation-history.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/workaround.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/bug.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "scripts/validate-root-cause-evidence.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-root-cause-evidence.py",
+        "--bug",
+        "BUG-0057-requirement-card-chat-navigation-latency"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-TITLES",
+      "kind": "command",
+      "inputs": [
+        "rules/root-cause-evidence.md",
+        "docs/standards/root-cause-diagnostics.md",
+        "rules/document-governance.md",
+        "openspec/changes/improve-root-cause-evidence-closure/evaluation.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/capture.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/root-cause.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/investigation-history.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/workaround.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/bug.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/trace.md",
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "scripts/validate-document-titles.py",
+        "docs/standards/root-cause-diagnostics.md",
+        "docs/spec-logs/20261030145329-governance-root-cause-closure.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--bug",
+        "BUG-0057-requirement-card-chat-navigation-latency",
+        "--change",
+        "improve-root-cause-evidence-closure",
+        "docs/standards/root-cause-diagnostics.md",
+        "docs/spec-logs/20261030145329-governance-root-cause-closure.md"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-HISTORY",
+      "kind": "command",
+      "inputs": [
+        "issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency",
+        "openspec/changes/improve-root-cause-evidence-closure/evidence/history-sha256.json"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "from pathlib import Path; import hashlib,json,re,yaml; c=Path('openspec/changes/improve-root-cause-evidence-closure'); b=Path('issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency'); h=(b/'investigation-history.md').read_text(); blocks=re.findall(r'````markdown\\n(.*?)````',h,re.S); m=json.loads((c/'evidence/history-sha256.json').read_text()); assert len(blocks)==len(m)==3; assert all(hashlib.sha256(s.encode()).hexdigest()==v for s,v in zip(blocks,m.values())); meta=lambda p:yaml.safe_load(p.read_text().split('---',2)[1]); t=meta(b/'trace.md'); assert t['status']=='enriching' and t.get('iteration') is None; assert t['root_cause_status']=='confirmed'; assert meta(b/'acceptance.md')['acceptance_status']=='not_started'; assert not t.get('openspec_changes'); assert t['lifecycle']['reviewed'] is None and t['lifecycle']['approved'] is None; r=(b/'root-cause.md').read_text(); assert len(re.findall(r'^\\| E\\d+ \\|',r,re.M))==16; assert '保持 probable' not in r and '待补证项为同一请求' not in r; print('3 original snapshots hash-exact; 16 evidence IDs; lifecycle and acceptance preserved')"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-OPENSPEC",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/improve-root-cause-evidence-closure/proposal.md",
+        "openspec/changes/improve-root-cause-evidence-closure/design.md",
+        "openspec/changes/improve-root-cause-evidence-closure/specs"
+      ],
+      "argv": [
+        "openspec",
+        "validate",
+        "improve-root-cause-evidence-closure"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "web_http": 200,
+  "services": {
+    "backend": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:b87358fc4b1ae7f647866f1094bf917e77b734f35afaee0204b5a5c5bf1fb893"
+    },
+    "web": {
+      "status": "running",
+      "health": null,
+      "image": "sha256:2526478920cff5986eb456281a85ed3ca992dfe56960d6081bd15002317eacb3"
+    },
+    "chat-worker": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:136c8c746f3fcedcee636c044964c0798595235339f8d72e3370b6ab791bf4da"
+    },
+    "governance-controller": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:b87358fc4b1ae7f647866f1094bf917e77b734f35afaee0204b5a5c5bf1fb893"
+    },
+    "replacement-signer-1": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:b87358fc4b1ae7f647866f1094bf917e77b734f35afaee0204b5a5c5bf1fb893"
+    }
+  },
+  "code_matches": true,
+  "web_manifest_matches": true,
+  "fixture_counts": {
+    "conversations": 2,
+    "turns": 4
+  },
+  "rollback": "bash logs/bug0057-fast-open/deploy.sh rollback",
+  "temporary_containers_created": 0
+}

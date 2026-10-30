@@ -360,8 +360,14 @@ BUG-0065：沿用chat_events与chat_result_segments，不新增物理表。正�
 
 ## REQ-0048 隔离验收持久事实（实施中）
 
+2026-10-30 本机真实产品接入补充：MySQL 启动初始化会核对已存在索引的列顺序和非唯一属性，仅复用同名同定义索引，漂移仍报错；避免二次初始化重复创建索引。账号、种子、登录会话的 UTC 时间写入 MySQL DATETIME 时使用无时区 UTC 字符串，驱动返回 datetime 后统一恢复 API 的 UTC `Z` 格式；SQLite 原存储格式不变。本次不新增数据库结构或迁移，不宣称其他未覆盖的后台时间写入路径已全部验证。
+
 新增 `verification_operations`、`verification_attempts`、`verification_environment_steps`、`verification_ac_results`、`verification_identity_refs` 和 `verification_resource_reservations`。操作幂等约束覆盖 actor/space/repository/source_turn/request_hash；尝试序号、步骤键和AC结果分别唯一，租约及队列有查询索引。版本号CAS与epoch围栏共同拒绝旧工作者写入。资源字节使用BIGINT，避免20GiB在MySQL整型溢出；槽位主键和空间唯一约束限制并发。
 
 Chat schema初始化负责建表，并对实施期间已有的操作表补充 `source_ref_json`、`checks_deadline`。SQLite快速回归与独立MySQL8.4.13事务竞争样本分别记录，不能替代完整应用迁移矩阵。身份表仅存随机引用、角色、有效期和撤销状态，不存密码。AC证据形成时间独立于操作心跳，失败清理不删除有效结果。长期证据转存尚未完成。
 
 REQ-0048续接新增三表：`verification_result_deliveries`（operation唯一，关联目标轮次与输入摘要）、`verification_tool_waits`（source_turn唯一，工具调用/代次/检查点及消费状态）、`verification_evidence_archives`（attempt唯一，白名单摘要、相对路径、SHA-256和发布状态）。沿用统一metadata增量create_all，不改历史轮次终态；SQLite事务回归与独立MySQL8.4约束验证分别取证。恢复事实不随七日在线证据过期清除。
+
+### BUG-0057 对象会话准备观测写入
+
+对象会话准备的prepared/conflict Trace在SQLite中先于读取取得写入意图：同一savepoint内对既有turn_id身份执行不改变updated_at值的参数化UPDATE，再沿用既有Trace/span记录。避免两条延迟事务读完后同时升级写锁；写事务不跨文件扫描。仅准备入口显式启用，其他调用及MySQL沿用原顺序。无表、索引、字段、迁移或保留周期变化，不改业务幂等、权限及状态围栏；观测异常仍不覆盖业务响应。

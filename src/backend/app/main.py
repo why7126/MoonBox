@@ -65,9 +65,10 @@ from app.governance.rule_change_api import router as rule_change_router
 app.include_router(rule_change_router)
 from app.governance.replacement_policy_api import router as replacement_policy_router
 app.include_router(replacement_policy_router)
-from app.governance.replacement_archive_api import router as replacement_archive_router, command_router as archive_command_router
+from app.governance.replacement_archive_api import router as replacement_archive_router, command_router as archive_command_router, query_router as archive_query_router
 app.include_router(replacement_archive_router)
 app.include_router(archive_command_router)
+app.include_router(archive_query_router)
 
 from app.api.v1.capture_drafts import router as capture_drafts_router
 app.include_router(capture_drafts_router)

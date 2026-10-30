@@ -1,0 +1,1497 @@
+{
+  "schema_version": 1,
+  "change_id": "add-chat-isolated-acceptance-orchestration",
+  "run_id": "20261030112909168308-f917f18d",
+  "created_at": "2026-10-30 11:29:48",
+  "source_revision": "7b05291440c9414bba97dbc76e488cb46b3fdbcd",
+  "environment": "local-moonbox-isolated-product-arm64",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "8d07791729b2b3f70918dbf945d3102dde7e2c35de2fae820ba3355b29dc10f3",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "verified": true,
+      "reason": "native-acceptance-verified",
+      "turn_id": "622f38f0-3d49-4202-b04e-16d458e4572b",
+      "operation_id": "d9051808-6a42-4f17-a281-51b4c3a89f5f",
+      "turn_status": "completed",
+      "operation_status": "passed",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "conversation_id": "00a3be47-4530-5bf7-af42-435027916226",
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 7,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "4b09f98f76590e3adf160f29577cb5a906e77d14521967a94097decf71acddbc",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 19863,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "dd797a5a641796f06ab871913be9923c33e1ebbc72cfb2ed21ef363b9dc8d02e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "5a1a234231ff49ba20ff0f70b8d7c5053af836b6c32d4c89746c948d00eb2ee9",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-005",
+      "fingerprint": "3427c55b531b1e10df4899ec44161f520ec5b92dcd1e7414d34c185b014f6cda",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-006",
+      "fingerprint": "d18d0c6a02fa227df686a7d736244716feec3aad10c7d482ea5ebe37b82cdcaa",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "verified": true,
+      "reason": "native-acceptance-verified",
+      "turn_id": "d32ac3ab-42d6-48a6-b0f5-6b66df9bdd04",
+      "operation_id": "d9f36e81-ea55-462f-aae4-8c032b3fc95b",
+      "turn_status": "failed",
+      "operation_status": "passed",
+      "cleanup_state": "released",
+      "resume_count": 1,
+      "conversation_id": "a0caedf4-ef91-5ee7-a31b-34247ad19573",
+      "target_turn_id": "eb5dffd0-9406-42d7-8a10-f5f5f26264c5",
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-007",
+      "fingerprint": "e102a8e01d3d1f0e3e769ba75ff115a376674fe3b93abf3742d288b6393c80ee",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "verified": true,
+      "reason": "native-acceptance-verified",
+      "turn_id": "e1a38e86-ddbc-4881-8a9d-c327bfa163b0",
+      "operation_id": "21f6ba9b-93b0-4644-a257-1f8a90f52510",
+      "turn_status": "stopped",
+      "operation_status": "cancelled",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "conversation_id": "4309f83f-8959-5fe2-8e8d-4db02c5b8f80",
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-008",
+      "fingerprint": "2147ca659583cac82556599c91b1db0b47dc8d313f6c345505cf53610bc76bdd",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-009",
+      "fingerprint": "ac77caaad2f49be0f54c3d3aae013887ef2c6ed6ae5e4c1395cf67aecb5dd335",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-010",
+      "fingerprint": "938caf3df1d5974519ec97c704a058087fbdf17ca6445ebd5f7338f11ad64984",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-011",
+      "fingerprint": "0342fe1497e436ece08787faf08f96272cf04b5c4812634b01beff7e75832f1b",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 9,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-012",
+      "fingerprint": "2a7234c224348b6b18da89a78e02e16752ccab3b9851be31a35a3596b0cca08c",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/focus-return-1440.png",
+          "sha256": "8c5cb1fd94eeb7692206d847b5afcde92f9ab298b6df53bf3a3411d2711c2ee4"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/focus-return.json",
+          "sha256": "8924a728e57df9f548cc6c44040094289d038116e0bf1141647b482e0d98d2d5"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-dark-1440.png",
+          "sha256": "81ec65d97b4f99e56633fc5cafbc312a60951f13ff00c0107be79b6ef87168c9"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-dark-390.png",
+          "sha256": "6380bb86af8d91770f8e6f8cc22f3dd2b4aabc18f36ce911e9468dc106945367"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-light-1440.png",
+          "sha256": "78e5e0d1cca566364f2a1a2c0afa09c1d20ffbf7c8f6fdfe91c905149041807f"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-light-390.png",
+          "sha256": "b8f4b8e322eac7a73ac416c471ef5f990f54387257aea6462486176197ef5dd3"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-dark-1440.png",
+          "sha256": "33f55536d2cea8e01bf428aff78961c24b750eccb7e293750195413b30662951"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-dark-390.png",
+          "sha256": "ee823fb047ca62badd6a44dd3c99063f889eb68e1f817cd6375fa3686f60505d"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-light-1440.png",
+          "sha256": "c489d272f1b3bd20f2b67ca84a2be2726972d71d19877b7651e589f0b5a63fe1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-light-390.png",
+          "sha256": "38988b228a187dc8337490feb1ee5b2e4ce785794ddaf5afa9efab9ac30b206c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-dark-1440.png",
+          "sha256": "9d258267c5ae9d080ceb9cf4e46125cf82259dc31322d58f228a57382a1b9cc3"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-dark-390.png",
+          "sha256": "40074edfaf062493822781ebf9f0f77241b651baa858eb7cefed3e6126b13e8e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-light-1440.png",
+          "sha256": "d400f9f1469124c3bd0ef64fc2719c86c87b98e58618c533e94e962d461d9ae7"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-light-390.png",
+          "sha256": "1a8c31c1ccb20e1627b5ca1c1270f5abb7339bb911062d1f71a1aa8cebaad5f1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-dark-1440.png",
+          "sha256": "96d058263f8298e6218e2269897345746e285a4b0096c6e0d1aee589eae0cbfa"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-dark-390.png",
+          "sha256": "afb5458f4388a82af5ac702706d355d0933f203491595f6713da56bac371ba48"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-light-1440.png",
+          "sha256": "61f8f1ac376201d67529a6143ca8491a2267ef8284e6d237476cf4f7bff5860c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-light-390.png",
+          "sha256": "f6c21895f02de9ff6fef9c35ba844201906d55f593f4aade0caeb64be693c514"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-dark-1440.png",
+          "sha256": "be0ad680578110bda42c382d3406f4ea5235ebe8d6df9a3c49a8aeee1a83c0de"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-dark-390.png",
+          "sha256": "59653840202d4036189e2eee048e107da7ce6f80cfe5564cc9d3bdd9df42bfe1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-light-1440.png",
+          "sha256": "09867f8ffb2e463a996e1beb8d65a68f89ee762d52913405a91426186b6eaac7"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-light-390.png",
+          "sha256": "58cd94de63a917beff83dd805a17a26de20fe84ade2ef9b36591abdcc87055ca"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-dark-1440.png",
+          "sha256": "310ca390b34dcf669d762c731daf0d9e88314d95dd1405bb4478c91e2f803d57"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-dark-390.png",
+          "sha256": "6bc552a607331c6f418cc974a6a02408341f68ea5e9a483f854e1c43dc305598"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-light-1440.png",
+          "sha256": "e5b40a8e21e48a78fdcf9daab39a6741f29ba47c8a0e4430e738873b999d275c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-light-390.png",
+          "sha256": "57b7658ac9c49020ed1fe21b7c97d0f128e582d153e1a8c568f64e73f4b7b075"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-dark-1440.png",
+          "sha256": "f711baf5e1f9a0823ffecfba0dec9b233b449fb008ebf060d2bc938dba42c904"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-dark-390.png",
+          "sha256": "69dc2e94461a7fc80e9521b2e30da542c02d1fb228c671f49782b20792a799ff"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-light-1440.png",
+          "sha256": "96776526794ec26eb29b25a3a3225657dac83b0ba47f2cc9e6b8f12c63e35472"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-light-390.png",
+          "sha256": "8af4866d3ca95a94778767745347cbf62e3b4d1f5cf0aab86e1e0bcbd2f520f8"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-dark-1440-style.json",
+          "sha256": "29dd8ae322ac56cd8e814cfb2bff73b0e665d59d11f112d29a9b5ca86d89f75e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-dark-390-style.json",
+          "sha256": "b4c1fd87533e2b2f1d507e2eb459eed4a9c52184840ef5851b06d887eed38828"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-light-1440-style.json",
+          "sha256": "56cd0dd696e1e047d5d8973ac496d0aa5bb5eeebb7a9cc5fa35188d24ff83c6a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-light-390-style.json",
+          "sha256": "4a0648f87be619fd19ee0b930e441f9dd08a4799f88df662c342e9eb40e3dce9"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        }
+      ],
+      "duration_ms": 19057,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-001",
+      "fingerprint": "ff4cf613cdb1bae1eb9988a05d8098a68b46afa03aa093460c3444228bba36e1",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "verified": true,
+      "reason": "native-acceptance-verified",
+      "turn_id": "b37d0d27-d77f-4e50-86c5-26ad79e30bc7",
+      "operation_id": "07dfd182-d212-48f5-bfca-d9e8022b4758",
+      "turn_status": "stopped",
+      "operation_status": "passed",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "conversation_id": "6baa0cf2-9e51-56eb-9e87-073e2e2f6303",
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-002",
+      "fingerprint": "6676eda8892755f298cb341d67cd89fb0bc7c944ec6aabd4dd582f2f64257f44",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-003",
+      "fingerprint": "63c6c928f0532cd20188ebd1ab4529c6207bcbc8b0d0382d02638b4a3bdaec88",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-004",
+      "fingerprint": "fbb89ef3a9bc46a6da300713ed39fc58c06eeca1fd45fb86bdd9db84c6d0d947",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "verified": true,
+      "reason": "native-acceptance-verified",
+      "turn_id": "622f38f0-3d49-4202-b04e-16d458e4572b",
+      "operation_id": "d9051808-6a42-4f17-a281-51b4c3a89f5f",
+      "turn_status": "completed",
+      "operation_status": "passed",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "conversation_id": "00a3be47-4530-5bf7-af42-435027916226",
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 6,
+      "evidence_kinds": [
+        "product_turn"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "58b43f85c8ff751a508f30d93dcf86d8a4a51f3f29136ef73f609abf5cf6581d",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "6292dbbea6c2348a02a7323cd275d1ae4462fb60c908e34681039c87774554bf",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 11,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "6d371a6c0c2df30e15a35171e5bb99e6ea334855fb624eb2cdd1bfccbd18101a",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/focus-return-1440.png",
+          "sha256": "8c5cb1fd94eeb7692206d847b5afcde92f9ab298b6df53bf3a3411d2711c2ee4"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/focus-return.json",
+          "sha256": "8924a728e57df9f548cc6c44040094289d038116e0bf1141647b482e0d98d2d5"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-dark-1440.png",
+          "sha256": "81ec65d97b4f99e56633fc5cafbc312a60951f13ff00c0107be79b6ef87168c9"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-dark-390.png",
+          "sha256": "6380bb86af8d91770f8e6f8cc22f3dd2b4aabc18f36ce911e9468dc106945367"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-light-1440.png",
+          "sha256": "78e5e0d1cca566364f2a1a2c0afa09c1d20ffbf7c8f6fdfe91c905149041807f"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-blocked-light-390.png",
+          "sha256": "b8f4b8e322eac7a73ac416c471ef5f990f54387257aea6462486176197ef5dd3"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-dark-1440.png",
+          "sha256": "33f55536d2cea8e01bf428aff78961c24b750eccb7e293750195413b30662951"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-dark-390.png",
+          "sha256": "ee823fb047ca62badd6a44dd3c99063f889eb68e1f817cd6375fa3686f60505d"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-light-1440.png",
+          "sha256": "c489d272f1b3bd20f2b67ca84a2be2726972d71d19877b7651e589f0b5a63fe1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-cleanup-failed-light-390.png",
+          "sha256": "38988b228a187dc8337490feb1ee5b2e4ce785794ddaf5afa9efab9ac30b206c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-dark-1440.png",
+          "sha256": "9d258267c5ae9d080ceb9cf4e46125cf82259dc31322d58f228a57382a1b9cc3"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-dark-390.png",
+          "sha256": "40074edfaf062493822781ebf9f0f77241b651baa858eb7cefed3e6126b13e8e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-light-1440.png",
+          "sha256": "d400f9f1469124c3bd0ef64fc2719c86c87b98e58618c533e94e962d461d9ae7"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-preparing-light-390.png",
+          "sha256": "1a8c31c1ccb20e1627b5ca1c1270f5abb7339bb911062d1f71a1aa8cebaad5f1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-dark-1440.png",
+          "sha256": "96d058263f8298e6218e2269897345746e285a4b0096c6e0d1aee589eae0cbfa"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-dark-390.png",
+          "sha256": "afb5458f4388a82af5ac702706d355d0933f203491595f6713da56bac371ba48"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-light-1440.png",
+          "sha256": "61f8f1ac376201d67529a6143ca8491a2267ef8284e6d237476cf4f7bff5860c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-ready-light-390.png",
+          "sha256": "f6c21895f02de9ff6fef9c35ba844201906d55f593f4aade0caeb64be693c514"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-dark-1440.png",
+          "sha256": "be0ad680578110bda42c382d3406f4ea5235ebe8d6df9a3c49a8aeee1a83c0de"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-dark-390.png",
+          "sha256": "59653840202d4036189e2eee048e107da7ce6f80cfe5564cc9d3bdd9df42bfe1"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-light-1440.png",
+          "sha256": "09867f8ffb2e463a996e1beb8d65a68f89ee762d52913405a91426186b6eaac7"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-released-light-390.png",
+          "sha256": "58cd94de63a917beff83dd805a17a26de20fe84ade2ef9b36591abdcc87055ca"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-dark-1440.png",
+          "sha256": "310ca390b34dcf669d762c731daf0d9e88314d95dd1405bb4478c91e2f803d57"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-dark-390.png",
+          "sha256": "6bc552a607331c6f418cc974a6a02408341f68ea5e9a483f854e1c43dc305598"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-light-1440.png",
+          "sha256": "e5b40a8e21e48a78fdcf9daab39a6741f29ba47c8a0e4430e738873b999d275c"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-releasing-light-390.png",
+          "sha256": "57b7658ac9c49020ed1fe21b7c97d0f128e582d153e1a8c568f64e73f4b7b075"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-dark-1440.png",
+          "sha256": "f711baf5e1f9a0823ffecfba0dec9b233b449fb008ebf060d2bc938dba42c904"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-dark-390.png",
+          "sha256": "69dc2e94461a7fc80e9521b2e30da542c02d1fb228c671f49782b20792a799ff"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-light-1440.png",
+          "sha256": "96776526794ec26eb29b25a3a3225657dac83b0ba47f2cc9e6b8f12c63e35472"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/real-running-light-390.png",
+          "sha256": "8af4866d3ca95a94778767745347cbf62e3b4d1f5cf0aab86e1e0bcbd2f520f8"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-dark-1440-style.json",
+          "sha256": "29dd8ae322ac56cd8e814cfb2bff73b0e665d59d11f112d29a9b5ca86d89f75e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-dark-390-style.json",
+          "sha256": "b4c1fd87533e2b2f1d507e2eb459eed4a9c52184840ef5851b06d887eed38828"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-light-1440-style.json",
+          "sha256": "56cd0dd696e1e047d5d8973ac496d0aa5bb5eeebb7a9cc5fa35188d24ff83c6a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/space2-light-390-style.json",
+          "sha256": "4a0648f87be619fd19ee0b930e441f9dd08a4799f88df662c342e9eb40e3dce9"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        }
+      ],
+      "duration_ms": 13,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "fingerprint": "52d526affbdf7bf94e84060666273e663244135eabf29312793064ccb982cbee",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-evidence.json",
+          "sha256": "e3d797c325a237c0ff883415adc5825e908f12f1b7273291aaa38ba3896490e0"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/continuation-mysql.json",
+          "sha256": "1c1255f61ab639621bd1f2c2a5d23035ccbc1f8a01bde510a265827016c24340"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/verification.md",
+          "sha256": "dbb21b1d86556b3cdd9b1e1805e06281688323a499e99b02f458c0e0adddc422"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/product-final.json",
+          "sha256": "a6dfd3fbfde01493340eebfb82866c6ee9c445669b3c2ecf4dc64bf663aa7192"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-final.json",
+          "sha256": "fe6b25a64f07cb2fca77ad7625d1dcae533fe0116539266f5b860a30adef817a"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-space2.json",
+          "sha256": "2b08eae9aa4e296f9360caedca294f128b055de16cf75cbeebcadc002a8d1b64"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-passed.json",
+          "sha256": "2fbb56d0daaaef865d172507bbd57571d8ff2fa7857bdc6de504bfe4d7483476"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-recovery-fixed.json",
+          "sha256": "ba605fe8d0002b88549e6175cdd123fb39c711e650dad28438c35e35733da12e"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/chat-stopped.json",
+          "sha256": "afd3b1b076195069cca310742f1ebd7b77425e374b83acab37c9a364c895296b"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/revocation.json",
+          "sha256": "97d5a6c79b38549436128c6507bb08ce9f877aed3640370af17b0c33e27bdcdb"
+        },
+        {
+          "path": "openspec/changes/add-chat-isolated-acceptance-orchestration/evidence/implementation/product/role-access.json",
+          "sha256": "3a4dfd6805e6e8bcb7e643425d40d0c3991cec41d33592b84da10a8115ff3358"
+        }
+      ],
+      "duration_ms": 10,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 13,
+    "reused": 0,
+    "preflight_ms": 116,
+    "duration_ms": 39534,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

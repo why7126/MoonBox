@@ -1,7 +1,7 @@
 ---
 title: 治理脚本执行说明
 created_at: 2026-10-25 22:20:00
-updated_at: 2026-10-29 06:53:30
+updated_at: 2026-10-30 12:08:59
 ---
 
 # 治理脚本执行说明
@@ -50,3 +50,25 @@ Python 子命令使用 `[sys.executable, script, ...]`，shell 子命令使用�
 检查限定当前 Issue、其关联 Change、所属 Sprint 及原型引用的仓库内 HTML/CSS 依赖。语法边界、历史标题和根路径提示见 [Issue 生命周期规则](../rules/issues-lifecycle.md#10-迁移原型引用门禁)。单元测试只用临时文件树，不迁移真实 Issue。
 
 回归入口：`bash scripts/project-python.sh scripts/test_prototype_references.py`。
+
+## Git 隐私扫描
+
+运行 `bash scripts/project-python.sh scripts/git-check.py` 检查 staged 与 tracked 工作区内容。完整占位值及有限哈希、JSON 小数上下文见 `rules/security.md`；URL 同行内容仍检查，不使用目录豁免。环境变量允许完整变量引用、change-me 默认值或 Compose 必填提示；其他默认值仍检测。默认扫描保留现有 1 MiB 文本读取上限，并非 Git 历史审计或完整密钥识别器。
+
+回归：`bash scripts/project-python.sh -c 'import pytest; raise SystemExit(pytest.main(["tests/unit/test_git_check.py", "tests/unit/test_verify_docker_media_upload.py", "-q"]))'`。新增例外时同时增加可排除样本和邻接真实值反例。
+
+## 归档收尾判定
+
+`bash scripts/project-python.sh scripts/check-archive-finalization.py --change change-id` 只读检查唯一归档目录、关联 Issue 与 Sprint 文档的普通导航及明确当前正文。历史字面路径和代码示例保留，历史章节里的真实链接仍检查；矛盾的当前事实阻断，历史与当前混杂列为 review，均不自动改文档。
+
+CLI --finalize 在 sync/promote 后调用；产品协调器在 synced 后、completed 前调用，completed 重放也复核。driver.finalize 不重复执行此检查。中断保留原目录和 journal，已 synced 的重试仅验证，不重复合并或收尾写入。非 finalize 只报告 moved，检查失败不报告 finalized。历史 applied trace 的兼容事实沿用原恢复判定，不要求改写首次执行证据。
+
+## 归档元数据恢复与跨迭代同步
+
+已迁移归档的设计阶段 `acceptance.md` 若保留 `acceptance_status: not_started`，先运行 `bash scripts/project-python.sh scripts/restore-archive-metadata.py --change add-chat-isolated-acceptance-orchestration` 只读预检，再加 `--apply` 追加恢复记录。命令只在唯一归档、原恢复证明和完整验收证据通过时允许 `not_started` → `passed`，不覆盖失败/部分验收，不改原文或原恢复日志。
+
+记录位于 `openspec/archive/.archive-recovery/metadata/`，绑定原文、原日志、交付输入投影、完整验收清单。重复运行无变化；绑定漂移须调查，禁止删记录后重试绕过检查。收尾检查每次验证记录和原证据，缺失记录不会豁免旧状态。此辅助命令不授予归档权限；已授权的归档继续使用 `archive-change.sh --finalize`，跳过已完成规格合并。
+
+Workflow Sync 对当前 Sprint 和目标 Change 关联的 Issue 加载全部兄弟 Change，包括历史 Sprint；关联状态用于读取推导，不把兄弟纳入当前 Sprint。归档事件按关联成员同步子文档，不能因历史主 Change 不等于本次 Change 而跳过。收尾引用检查仅对裸路径按中文顿号断词，显式 Markdown 链接按原值验证。
+
+归档文档保留的 Issue 旧阶段引用仅在唯一同名 Issue、完成状态、双向 Change 归属、全部关联已归档及原归档恢复证明通过时解析至 archive 目录。迁移预检按同一源文件模拟，迁移后按唯一归档文件校验；活动文档和可变 Issue 仍须修正旧链接。缺文件、符号链接、重复身份或证明失配均阻断。原型裸路径不包含紧接的中文说明，也不将 prototype 开头的普通文档名截成原型目录。

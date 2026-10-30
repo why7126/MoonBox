@@ -1,0 +1,23 @@
+.object-archive-panel { border:1px solid var(--rc-border, var(--mb-border)); border-radius:6px; padding:16px; margin:12px 0; color:var(--rc-text, var(--mb-text)); background:var(--rc-panel, var(--mb-panel)); font-size:14px; line-height:1.5; min-width:0; }
+.object-archive-panel header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.object-archive-panel p { margin:8px 0; }
+.object-archive-panel article { border-top:1px solid var(--rc-border, var(--mb-border)); padding:12px 0; }
+.object-archive-panel button { border:1px solid var(--rc-border, var(--mb-border)); border-radius:4px; background:transparent; color:inherit; padding:6px 12px; cursor:pointer; }
+.object-archive-panel button:disabled { opacity:.5; cursor:default; }
+.object-archive-panel summary { cursor:pointer; }
+.object-archive-panel .object-archive-location { font-family:monospace; overflow-wrap:anywhere; }
+@media(max-width:600px) { .object-archive-panel header { flex-wrap:wrap; } }
+
+.chat-execution-panel .object-archive-panel { margin:12px 16px; flex-shrink:0; }
+
+/* Keep execution details beside the conversation, including the current object. */
+.requirement-center.chat-shell.chat-panel-open[data-theme] { grid-template-columns:var(--workbench-sidebar-width,224px) minmax(0,1fr) 398px; }
+.chat-shell > .chat-execution-panel { position:relative; inset:auto; width:auto; overflow:auto; }
+.chat-shell > .chat-execution-panel[hidden] { display:none; }
+.chat-shell > .chat-execution-panel .object-archive-panel header > div { display:block; }
+.chat-shell > .chat-execution-panel .object-archive-panel header { flex-wrap:wrap; gap:8px; }
+@media(max-width:1100px) {
+  .requirement-center.chat-shell.chat-panel-open[data-theme] { grid-template-columns:var(--workbench-sidebar-width,224px) minmax(0,1fr); }
+  .chat-shell > .chat-execution-panel:not([hidden]) { position:fixed; inset:0 0 0 auto; width:min(398px,100vw); z-index:30; box-shadow:var(--ops-shadow-popover); }
+}
+@media(max-width:640px) { .requirement-center.chat-shell.chat-panel-open[data-theme] { grid-template-columns:72px minmax(0,1fr); } }

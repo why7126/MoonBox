@@ -11,7 +11,7 @@ from urllib.parse import unquote, urlsplit
 
 TEXT_SUFFIXES = {'.md', '.html', '.htm', '.css', '.yaml', '.yml'}
 HISTORY = re.compile(r'^(?:\d+[.、 ]+)?(?:变更记录|历史记录|迁移记录|历史验收|历史验收记录|历史验收轮次)(?:\s|（|\(|$)')
-PATH = re.compile(r'(?:https?://)?(?:[\w.%+@~:-]+/)*prototype(?:/[\w./%+@~-]*)?(?![\w.])')
+PATH = re.compile(r'(?:https?://)?(?:[A-Za-z0-9_.%+@~:-]+/)*prototype(?:/[A-Za-z0-9_./%+@~-]*)?(?![A-Za-z0-9_.-])')
 
 
 @dataclass(frozen=True)
@@ -115,8 +115,9 @@ def references(path: Path, text: str) -> list[Reference]:
             if key in definitions:
                 values.append(definitions[key])
         # Do not extract truncated copies of paths already present in links.
+        explicit_values = tuple(values)
         for m in PATH.finditer(line):
-            if not any(m[0] in value for value in values):
+            if not any(m[0] in value for value in explicit_values):
                 values.append(m[0].rstrip('.'))
         refs.extend(Reference(number, value, context) for value in dict.fromkeys(values))
     return refs
@@ -209,7 +210,7 @@ def check_references(root: Path, source: Path, target: Path,
                 findings.append(Finding(display(path), ref.line, '[invalid-url]', '', 'invalid-reference', True))
                 continue
             decoded = unquote(url.path)
-            base = root if decoded.startswith(('issues/', 'openspec/', 'iterations/')) else path.parent
+            base = root if decoded.startswith(('issues/', 'openspec/', 'iterations/', 'docs/')) else path.parent
             resolved = lexical(base / decoded)
             relevant = is_resource or 'prototype' in decoded.split('/')
             if not path.is_relative_to(source):
@@ -240,6 +241,16 @@ def check_references(root: Path, source: Path, target: Path,
             after_base = root if base == root else mapped(path).parent
             after = lexical(after_base / decoded)
             actual = physical_after(after)
+            if actual is None or not actual.exists():
+                import sys
+                backend = str(Path(__file__).resolve().parents[2] / 'src/backend')
+                if backend not in sys.path:
+                    sys.path.insert(0, backend)
+                from app.governance.archive_issue_reference import resolve
+                retained = resolve(root, path, after, source=source, target=target)
+                if retained is not None:
+                    after = retained
+                    actual = physical_after(after)
             if not safe_path(resolved, root) or (actual is not None and not safe_path(actual, root)):
                 findings.append(Finding(display(path), ref.line, shown, display(after), 'unsafe-path', True))
                 continue

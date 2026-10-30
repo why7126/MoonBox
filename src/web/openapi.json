@@ -10523,6 +10523,146 @@
         }
       }
     },
+    "/api/v1/chat/archive-operations": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "只读查询当前对象的归档操作与诊断",
+        "operationId": "query_operations_api_v1_chat_archive_operations_get",
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "object_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:(?:REQ|BUG)-\\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$",
+              "title": "Object Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ObjectArchiveView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/archive-operations/resume": {
+      "post": {
+        "tags": [
+          "Governance"
+        ],
+        "summary": "显式续接原归档操作",
+        "operationId": "resume_operation_api_v1_chat_archive_operations_resume_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumeArchiveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ArchiveOperationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/requirement-center/capture-drafts": {
       "post": {
         "tags": [
@@ -16440,6 +16580,28 @@
         ],
         "title": "ApiResponse[MessagePage]"
       },
+      "ApiResponse_ObjectArchiveView_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ObjectArchiveView"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[ObjectArchiveView]"
+      },
       "ApiResponse_ObjectSessionResponse_": {
         "properties": {
           "code": {
@@ -17069,6 +17231,44 @@
         ],
         "title": "ApplicationRequest"
       },
+      "ArchiveFinding": {
+        "properties": {
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "relative_path": {
+            "type": "string",
+            "title": "Relative Path"
+          },
+          "line": {
+            "type": "integer",
+            "title": "Line"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason_code",
+          "kind",
+          "relative_path",
+          "line",
+          "message",
+          "requires_review"
+        ],
+        "title": "ArchiveFinding"
+      },
       "ArchiveObjectRequest": {
         "properties": {
           "space_id": {
@@ -17196,6 +17396,37 @@
           "confirmed"
         ],
         "title": "ArchiveRequest"
+      },
+      "ArchiveVerification": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "input_fingerprint": {
+            "type": "string",
+            "title": "Input Fingerprint"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/ArchiveFinding"
+            },
+            "type": "array",
+            "title": "Findings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checked_at",
+          "input_fingerprint",
+          "findings"
+        ],
+        "title": "ArchiveVerification"
       },
       "AutoVerificationStatus": {
         "properties": {
@@ -19452,6 +19683,106 @@
           "time_source"
         ],
         "title": "MessageRead"
+      },
+      "ObjectArchiveOperation": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "operation_kind": {
+            "type": "string",
+            "title": "Operation Kind"
+          },
+          "target_id": {
+            "type": "string",
+            "title": "Target Id"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/ArchiveVerification"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          },
+          "denial_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Denial Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "operation_kind",
+          "target_id",
+          "stage",
+          "revision",
+          "verification",
+          "allowed_actions"
+        ],
+        "title": "ObjectArchiveOperation"
+      },
+      "ObjectArchiveView": {
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "title": "Object Id"
+          },
+          "object_type": {
+            "type": "string",
+            "title": "Object Type"
+          },
+          "association_scope": {
+            "type": "string",
+            "title": "Association Scope"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectArchiveOperation"
+            },
+            "type": "array",
+            "title": "Operations"
+          },
+          "not_started_targets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Not Started Targets"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "object_id",
+          "object_type",
+          "association_scope",
+          "operations",
+          "not_started_targets",
+          "summary"
+        ],
+        "title": "ObjectArchiveView"
       },
       "ObjectSessionRequest": {
         "properties": {
@@ -22486,6 +22817,46 @@
           "byte_count"
         ],
         "title": "ResultSegmentRead"
+      },
+      "ResumeArchiveRequest": {
+        "properties": {
+          "space_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Space Id"
+          },
+          "repository_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Repository Id"
+          },
+          "object_id": {
+            "type": "string",
+            "pattern": "^(?:(?:REQ|BUG)-\\d{4}-[A-Za-z0-9_-]+|[a-z0-9][a-z0-9-]{0,100})$",
+            "title": "Object Id"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Operation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "space_id",
+          "repository_id",
+          "object_id",
+          "confirmed",
+          "operation_id"
+        ],
+        "title": "ResumeArchiveRequest"
       },
       "RetryCreate": {
         "properties": {

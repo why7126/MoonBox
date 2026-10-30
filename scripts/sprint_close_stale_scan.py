@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,8 @@ from workflow_sync.derive import derive_change_state, derive_issue
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src/backend'))
+from app.governance.archive_finalization import inspect_document, paragraphs, HISTORY, CONDITION, CURRENT
 SPRINT_FILES = ("sprint.yaml", "sprint.md", "release-note.md", "acceptance-report.md")
 CLOSED_CHANGE_STATES = frozenset({"applied", "archived"})
 ARCHIVED_CHANGE_STATE = "archived"
@@ -372,7 +375,14 @@ def build_report(sprint_id: str, *, root: Path = ROOT) -> SprintCloseStaleReport
         )
 
     for path in files:
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        text = path.read_text(encoding='utf-8')
+        for finding in inspect_document(root, path):
+            hits.append(StaleHit(severity='blocker', kind=finding['kind'], target=sprint.sprint_id,
+                                 file=finding['file'], line=finding['line'], context='',
+                                 reason='Sprint 导航未通过只读检查。', suggestion='核对引用目标；保留历史证据。'))
+        for line_no, line, heading in paragraphs(text):
+            if CONDITION.search(line) or (HISTORY.search(heading + line) and not CURRENT.search(heading + line)):
+                continue
             hits.extend(
                 scan_line(
                     line=line,
@@ -388,8 +398,14 @@ def build_report(sprint_id: str, *, root: Path = ROOT) -> SprintCloseStaleReport
     for issue_id, path in scoped_issue_files:
         lines = path.read_text(encoding="utf-8").splitlines()
         state_lines = current_issue_state_lines(path, lines)
+        derived = derived_issues.get(issue_id)
+        for finding in inspect_document(root, path, completed=bool(derived and derived.display_status == 'done')):
+            hits.append(StaleHit(severity='blocker', kind=finding['kind'], target=issue_id,
+                                 file=finding['file'], line=finding['line'], context='',
+                                 reason='当前正文或导航引用未通过收尾检查；review 项需证据复核。',
+                                 suggestion='保留历史原文，核对当前事实和导航目标后复验。'))
         for line_no, line in enumerate(lines, start=1):
-            hits.extend(
+            hits.extend(hit for hit in
                 scan_issue_line(
                     issue_id=issue_id,
                     line=line,
@@ -400,6 +416,7 @@ def build_report(sprint_id: str, *, root: Path = ROOT) -> SprintCloseStaleReport
                     derived_changes=derived_changes,
                     current_state_lines=state_lines,
                 )
+                if hit.kind != 'issue-subdocument-active-change-path'
             )
 
     return SprintCloseStaleReport(

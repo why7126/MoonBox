@@ -1,3 +1,5 @@
+import { governanceActionError } from "../workbench/governanceActionError";
+import { GovernanceError } from "../workbench/governanceApi";
 import type { ArchiveBlocker } from "./ArchiveBlockers";
 import { readValidFrontendSession, redirectToFrontendLogin } from "../../pages/home/frontendSession";
 import type { ConversationRead as GeneratedConversationRead, ConversationPage, TurnRead as GeneratedTurnRead } from "../../api/generated/chat";
@@ -14,7 +16,7 @@ export type ChatRepository = { id: string; space_id: string; branches?: BranchCa
 export type UploadedMaterial = { ref_id: string; kind: "image" | "file"; name: string; mime_type: string; size_bytes: number; status: string };
 export type Capabilities = { execution_ready: boolean; reason: string; reason_code?: string; repositories: ChatRepository[]; materials?: MaterialLimits; execution?: ExecutionCapabilities };
 export type Space = { id: string; name: string };
-export class ChatApiError extends Error { constructor(public status: number, message: string, public archiveBlockers: ArchiveBlocker[] = []) { super(message); } }
+export class ChatApiError extends Error { constructor(public status: number, message: string, public archiveBlockers: ArchiveBlocker[] = [], public archiveDiagnostics?: { reason?: string; operation_id?: string; findings?: import("../../api/generated/governance").ArchiveFinding[] }) { super(message); } }
 export function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
 }
@@ -30,7 +32,9 @@ function authError(message = "登录已失效，请重新登录") {
 }
 function chatStatusError(response: Response, body: any, fallback: string) {
   if (response.status === 401) return authError();
-  return new ChatApiError(response.status, response.status === 403 ? (body?.code === 2509 ? "关联对象不可访问，请检查对象状态或权限" : "无权访问当前空间或会话，请切换空间") : body?.message || fallback, parseArchiveBlockers(body?.data?.archive_blockers));
+  const governanceMessage = body?.code >= 2600 && body?.code < 2700
+    ? governanceActionError(new GovernanceError(body?.message || fallback, response.status, body.code, body?.data?.kind, undefined, body?.data)) : null;
+  return new ChatApiError(response.status, governanceMessage || (response.status === 403 ? (body?.code === 2509 ? "关联对象不可访问，请检查对象状态或权限" : "无权访问当前空间或会话，请切换空间") : body?.message || fallback), parseArchiveBlockers(body?.data?.archive_blockers), body?.data ? { reason: body.data.reason, operation_id: body.data.operation_id, findings: body.data.findings } : undefined);
 }
 export async function chatRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = readValidFrontendSession()?.access_token;

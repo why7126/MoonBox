@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-archive-recovery-metadata-sync",
+  "environment": "local-governance-regression-and-readonly-real-archive",
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "--check"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-REGRESSION",
+      "kind": "command",
+      "inputs": [
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/prototype_references.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_metadata.py",
+        "src/backend/app/governance/archive_issue_reference.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "scripts/restore-archive-metadata.py",
+        "tests/unit/test_archive_metadata.py",
+        "tests/unit/test_archive_issue_reference.py",
+        "tests/unit/test_archive_finalization.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "tests/unit/test_workflow_sync_multi_change.py",
+        "tests/unit/test_workflow_sync_collect.py",
+        "tests/unit/test_workflow_sync_patch.py",
+        "tests/unit/test_promote_issues_for_archive.py",
+        "scripts/test_prototype_references.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest;raise SystemExit(pytest.main(['tests/unit/test_archive_metadata.py', 'tests/unit/test_archive_issue_reference.py', 'tests/unit/test_archive_finalization.py', 'tests/unit/test_workflow_sync_engine.py', 'tests/unit/test_workflow_sync_multi_change.py', 'tests/unit/test_workflow_sync_collect.py', 'tests/unit/test_workflow_sync_patch.py', 'tests/unit/test_promote_issues_for_archive.py', 'scripts/test_prototype_references.py', '-q']))"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-CONTEXT",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        "rules/document-governance.md",
+        "scripts/README.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        "docs/standards/opsx-acceptance.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-openspec-language.py",
+        "rules/document-governance.md",
+        "scripts/README.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        "docs/standards/opsx-acceptance.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-openspec-language.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-directory-structure.py",
+        "rules/document-governance.md",
+        "scripts/README.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        "docs/standards/opsx-acceptance.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-directory-structure.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-REAL-CLOSURE",
+      "kind": "command",
+      "inputs": [
+        "scripts/check-archive-finalization.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/prototype_references.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_metadata.py",
+        "src/backend/app/governance/archive_issue_reference.py",
+        "src/backend/app/governance/archive_recovery.py",
+        "src/backend/app/governance/acceptance_evidence.py",
+        "scripts/restore-archive-metadata.py",
+        "issues/requirements/archive/REQ-0048-chat-isolated-acceptance-orchestration/trace.md",
+        "issues/requirements/archive/REQ-0048-chat-isolated-acceptance-orchestration/requirement.md",
+        "openspec/archive/.archive-recovery/add-chat-isolated-acceptance-orchestration.json",
+        "openspec/archive/.archive-recovery/metadata/add-chat-isolated-acceptance-orchestration.json",
+        "openspec/archive/2026-10-30-add-chat-isolated-acceptance-orchestration/acceptance.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/check-archive-finalization.py",
+        "--change",
+        "add-chat-isolated-acceptance-orchestration"
+      ],
+      "timeout_seconds": 120
+    }
+  ]
+}

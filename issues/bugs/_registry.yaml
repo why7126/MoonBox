@@ -1,5 +1,34 @@
-next_id: 70
+next_id: 72
 entries:
+- id: BUG-0071-change-summary-acceptance-check-entry-missing
+  status: pending_review
+  severity: high
+  owner: 产品团队
+  source: 用户 capture 授权与同会话 explore
+  related_requirement: null
+  related_bug: BUG-0054-change-card-blocked-reason-missing
+  related_bugs:
+  - BUG-0054-change-card-blocked-reason-missing
+  - BUG-0056-requirement-center-context-load-latency
+  iteration: null
+  title: "独立 Change 归档按钮禁用且缺少验收检查入口"
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0071-change-summary-acceptance-check-entry-missing/
+  created: '2026-10-30 09:38:45'
+  related_change: null
+- id: BUG-0070-standalone-change-updated-time-missing
+  title: "独立 Change 卡片更新时间缺失"
+  status: pending_review
+  severity: medium
+  owner: 产品团队
+  source: 用户 capture 授权与同会话 explore
+  lifecycle_stage: plan
+  path: issues/bugs/plan/BUG-0070-standalone-change-updated-time-missing/
+  created: '2026-10-30 09:37:37'
+  iteration: null
+  related_change: null
+  related_requirement: null
+  related_bug: null
 - id: BUG-0069-chat-interrupted-successor-proof-missing
   title: "Chat 中断缺少旧同步证明导致外部接续完成后仍受限"
   status: done
@@ -150,17 +179,17 @@ entries:
   related_change: fix-requirement-center-context-load-latency
 - id: BUG-0057-requirement-card-chat-navigation-latency
   title: "需求卡片动作准备会话导致进入聊天工作台等待过长"
-  status: enriching
+  status: done
   severity: high
   owner: 产品团队
   source: 用户授权与同会话 explore 证据
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0057-requirement-card-chat-navigation-latency/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0057-requirement-card-chat-navigation-latency/
   created: '2026-10-21 08:50:06'
   related_requirement: null
   related_bug: null
-  iteration: null
-  related_change: null
+  iteration: sprint-016
+  related_change: fix-object-session-preparation-latency
 - id: BUG-0058-chat-history-status-replay-request-amplification
   title: "聊天历史状态重建与重复读取导致加载迟缓"
   status: approved

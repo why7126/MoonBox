@@ -45,6 +45,8 @@ def identity():
 def authorize_space(db: Session, actor: str, space_id: str):
     row = db.execute(text('''SELECT s.id, s.expires_at FROM admin_spaces s WHERE s.id=:space
         AND s.status='ACTIVE' AND s.deleted_at IS NULL
+        AND EXISTS (SELECT 1 FROM admin_users u WHERE u.id=:actor
+          AND u.status='正常' AND u.deleted_at IS NULL)
         AND (s.owner_id=:actor OR EXISTS (SELECT 1 FROM admin_space_members m
           WHERE m.space_id=s.id AND m.user_id=:actor))'''),
         {'space': space_id, 'actor': actor}).first()
@@ -552,6 +554,8 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
         return replayed
     if row['archived']:
         raise ChatError(2504, '归档会话只读')
+    from app.governance.preparation import prepare_send
+    row = prepare_send(db, actor, row, prompt, client_id, request_id=request_id)
     if row['active_turn_id']:
         raise ChatError(2504, '原运行尚未终止或状态未知')
     from app.governance.preparation import check_send, execution_prompt_for_turn, prepare_command_snapshot

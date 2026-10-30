@@ -39,3 +39,19 @@ def test_runtime_disables_unbounded_daemon_logs_and_honors_stop(state,tmp_path):
     adapter.stopped.set()
     with pytest.raises(Conflict,match='cancelled'):adapter.command(['exec','owned','command'])
     assert len(calls)==1
+
+
+@pytest.mark.parametrize('subnet',['127.0.0.0/24','0.0.0.0/24','8.8.8.0/24','10.0.0.1/24','10.0.0.0/16','10.0.0.0/30','::1/128'])
+def test_network_rejects_non_private_or_unsafe_subnet(state,tmp_path,monkeypatch,subnet):
+    adapter=runtime(state,tmp_path)
+    monkeypatch.setenv('MOONBOX_ACCEPTANCE_SUBNET',subnet)
+    with pytest.raises(Conflict,match='acceptance_subnet_invalid'):adapter.create_network()
+
+
+def test_network_override_remains_internal_and_owned(state,tmp_path,monkeypatch):
+    adapter=runtime(state,tmp_path);calls=[]
+    adapter.engine=SimpleNamespace(label_args=lambda:['--label','owned=true'],network='owned-network')
+    monkeypatch.setenv('MOONBOX_ACCEPTANCE_SUBNET','10.248.48.0/28')
+    monkeypatch.setattr(adapter,'command',lambda args:calls.append(args))
+    adapter.create_network()
+    assert calls==[['network','create','--internal','--subnet','10.248.48.0/28','--label','owned=true','owned-network']]

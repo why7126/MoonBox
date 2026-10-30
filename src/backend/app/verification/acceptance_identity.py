@@ -28,7 +28,7 @@ class IdentityLease:
         path = self.root / ref
         expires = min(int(self.clock()) + 900, token['expires_at'])
         if expires <= self.clock(): raise Conflict('identity_expired')
-        payload = json.dumps({'username':'synthetic-' + ref, 'password':secrets.token_urlsafe(32),
+        payload = json.dumps({'username':'a' + ref[:31], 'password':secrets.token_urlsafe(32),
                               'role':role, 'expires_at':expires})
         descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
@@ -98,8 +98,9 @@ class CommandIdentityAdapter:
         if not self.current:return True
         def revoke(ref):
             try:
+                username=json.loads((self.leases.root/ref).read_text())['username']
                 self.engine.command(['exec','-i',self.engine.name+'-app',*self.template.data['identity_adapter']['revoke']],
-                    timeout=30,input=json.dumps({'identity_ref':ref,'username':'synthetic-'+ref}))
+                    timeout=30,input=json.dumps({'identity_ref':ref,'username':username}))
                 return True
             except Exception:return False
         clean=self.leases.revoke(self.token['attempt_id'],revoke_application=revoke,

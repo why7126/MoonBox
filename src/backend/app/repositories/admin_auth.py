@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.repositories.admin_users import audit, row_to_dict, utc_now
+from app.db.time_values import storage_time
 
 HASH_ITERATIONS = 120_000
 
@@ -78,7 +79,7 @@ def create_session(db: Session, user: dict, *, remember_me: bool = False) -> dic
             "id": session_id,
             "user_id": user["id"],
             "token_hash": token_hash(token),
-            "expires_at": expires_at,
+            "expires_at": storage_time(expires_at),
             "last_used_at": now,
             "created_at": now,
             "updated_at": now,

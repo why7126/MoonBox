@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-object-session-preparation-latency",
+  "issue_id": "BUG-0057-requirement-card-chat-navigation-latency",
+  "environment": "controlled-local-backend-and-browser",
+  "environment_contract": {
+    "deployment": "existing-local-moonbox",
+    "workspace_mode": "source",
+    "sample_scope": "copied-db-asgi-matrix-and-natural-browser",
+    "authorization_ref": "BUG-0057-authorized-short-maintenance",
+    "login_strategy": "existing-authorized-browser-session",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot"
+    ]
+  },
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "--check"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-01",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/verify-evidence.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-concurrent.json",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-environment.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-environment.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/browser-samples.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/diagnostic.json"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-02",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/verify-evidence.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/natural-browser.json",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/deployment/browser.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/deployment/audit.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/deployment/result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/deployment/check-performance.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/browser-samples.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/navigation-result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/diagnostic.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-navigation.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-environment.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "bash scripts/project-python.sh openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py && bash scripts/project-python.sh openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-navigation.py"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-warm.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-5.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-2.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-3.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-4.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-baseline-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-result.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-cold-1.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-environment.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/matrix-candidate-concurrent.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-matrix.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/browser-samples.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/diagnostic.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "同固定数据暖10/冷5/并发3×10入口旅程比较通过；自然浏览器导航10次通过；发送检查单列约5.45–8.81s，不承诺与轻量打开同等延迟"
+      },
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-03",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "src/backend/tests/test_object_chat_fast_open.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_governance_read_cache.py', 'src/backend/tests/test_context_snapshot_reuse.py', 'src/backend/tests/test_context_parallel_read.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_object_session_snapshot.py', 'src/backend/tests/test_preparation_trace_contention.py', 'src/backend/tests/test_verification_transaction.py', 'src/backend/tests/test_context_concurrent_repair.py', 'src/backend/tests/test_direct_completion.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_sprint_object.py', 'src/backend/tests/test_object_chat_fast_open.py', '-q']))"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-04",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "src/backend/tests/test_object_chat_fast_open.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_governance_read_cache.py', 'src/backend/tests/test_context_snapshot_reuse.py', 'src/backend/tests/test_context_parallel_read.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_object_session_snapshot.py', 'src/backend/tests/test_preparation_trace_contention.py', 'src/backend/tests/test_verification_transaction.py', 'src/backend/tests/test_context_concurrent_repair.py', 'src/backend/tests/test_direct_completion.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_sprint_object.py', 'src/backend/tests/test_object_chat_fast_open.py', '-q']))"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-05",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "src/backend/tests/test_object_chat_fast_open.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_governance_read_cache.py', 'src/backend/tests/test_context_snapshot_reuse.py', 'src/backend/tests/test_context_parallel_read.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_object_session_snapshot.py', 'src/backend/tests/test_preparation_trace_contention.py', 'src/backend/tests/test_verification_transaction.py', 'src/backend/tests/test_context_concurrent_repair.py', 'src/backend/tests/test_direct_completion.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_sprint_object.py', 'src/backend/tests/test_object_chat_fast_open.py', '-q']))"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-06",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/web/src",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/interaction-observation.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/verify-evidence.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/ready-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/rejected-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/conflict-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/send-progress.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/computed-style.txt"
+      ],
+      "argv": [
+        "bash",
+        "-lc",
+        "cd src/web && NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/object-chat-entry.test.tsx src/chat-workbench.test.tsx src/chat-composer.test.tsx src/requirement-center.test.tsx src/chat-capabilities-recovery.test.tsx src/governance.test.tsx"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/ready-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/rejected-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/conflict-1440.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/send-progress.png",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/computed-style.txt"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "当前本地真实打开、错误阶段发送拒绝、草稿保留与冲突选择已观察；打开失败重试和卸载迟到隔离由组件回归覆盖，未冒充真实故障轮次"
+      },
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-07",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "src/backend/tests/test_object_chat_fast_open.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_governance_read_cache.py', 'src/backend/tests/test_context_snapshot_reuse.py', 'src/backend/tests/test_context_parallel_read.py', 'src/backend/tests/test_chat_preparation_failure.py', 'src/backend/tests/test_object_session_snapshot.py', 'src/backend/tests/test_preparation_trace_contention.py', 'src/backend/tests/test_verification_transaction.py', 'src/backend/tests/test_context_concurrent_repair.py', 'src/backend/tests/test_direct_completion.py', 'src/backend/tests/test_governance_candidates.py', 'src/backend/tests/test_sprint_object.py', 'src/backend/tests/test_object_chat_fast_open.py', '-q']))"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    },
+    {
+      "id": "AC-08",
+      "kind": "command",
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "deduplicate": true,
+      "inputs": [
+        "src/backend/app/governance",
+        "src/backend/app/chat",
+        "src/backend/app/db/session.py",
+        "src/backend/tests/test_governance_read_cache.py",
+        "src/backend/tests/test_context_snapshot_reuse.py",
+        "src/backend/tests/test_context_parallel_read.py",
+        "src/backend/tests/test_chat_preparation_failure.py",
+        "src/backend/tests/test_object_session_snapshot.py",
+        "src/backend/tests/test_preparation_trace_contention.py",
+        "src/backend/tests/test_verification_transaction.py",
+        "src/backend/tests/test_context_concurrent_repair.py",
+        "src/backend/tests/test_direct_completion.py",
+        "src/backend/tests/test_governance_candidates.py",
+        "src/backend/tests/test_sprint_object.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_governance_scope.py",
+        "src/backend/tests/test_governance_writer.py",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/recovery.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/verify-evidence.py",
+        "issues/bugs/review/BUG-0057-requirement-card-chat-navigation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/health.json",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-health.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/check-health.py"
+      ],
+      "depends_on": [
+        "AC-04"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-object-session-preparation-latency/evidence/fast-open/health.json"
+      ],
+      "input_sections": {
+        "openspec/changes/fix-object-session-preparation-latency/acceptance.md": [
+          "## 性能契约",
+          "## 正确性与证据矩阵"
+        ]
+      }
+    }
+  ]
+}

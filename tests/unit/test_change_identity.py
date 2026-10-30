@@ -112,7 +112,7 @@ class IdentityTests(unittest.TestCase):
             (scripts / gate).write_text('')
         names = ('validate-directory-structure.py', 'validate-env-ignore-policy.py',
                  'validate-archive-evidence.py', 'sync-workflow-status.py',
-                 'promote-issues-for-archive.py', 'extract-ai-usage.py')
+                 'promote-issues-for-archive.py', 'check-archive-finalization.py', 'extract-ai-usage.py')
         for name in names:
             code = "from pathlib import Path\nwith Path('steps').open('a') as f: f.write(%r + '\\n')\n" % name
             if fail_validation and name == 'validate-archive-evidence.py':
@@ -132,7 +132,8 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual((self.root / 'steps').read_text().splitlines(), [
             'validate-directory-structure.py', 'validate-env-ignore-policy.py',
             'validate-archive-evidence.py', 'sync-workflow-status.py',
-            'promote-issues-for-archive.py', 'extract-ai-usage.py'])
+            'promote-issues-for-archive.py', 'check-archive-finalization.py', 'extract-ai-usage.py'])
+        self.assertIn('Archive finalized:', result.stdout)
 
     def test_archive_usage_resolves_iteration_from_sprint_scope(self):
         self.archive_fixture()
@@ -157,6 +158,25 @@ class IdentityTests(unittest.TestCase):
                                 cwd=self.root, capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('sync-workflow-status.py', (self.root / 'steps').read_text())
+
+    def test_finalization_failure_never_reports_complete(self):
+        self.archive_fixture()
+        self.change('archive/2026-09-01-add-governance', 'add-governance')
+        (self.root / 'scripts/check-archive-finalization.py').write_text('raise SystemExit(1)\n')
+        result = subprocess.run(['bash', 'scripts/archive-change.sh', 'add-governance', '--finalize'],
+                                cwd=self.root, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn('Archive finalized:', result.stdout)
+        self.assertNotIn('extract-ai-usage.py', (self.root / 'steps').read_text())
+
+    def test_move_only_report_does_not_claim_finalization(self):
+        self.archive_fixture()
+        self.change('archive/2026-09-01-add-governance', 'add-governance')
+        result = subprocess.run(['bash', 'scripts/archive-change.sh', 'add-governance'],
+                                cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Archive moved; finalization not checked:', result.stdout)
+        self.assertNotIn('check-archive-finalization.py', (self.root / 'steps').read_text())
 
     def test_active_archive_validates_directory_before_cli(self):
         self.archive_fixture()

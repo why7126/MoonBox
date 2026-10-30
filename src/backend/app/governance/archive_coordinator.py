@@ -21,6 +21,7 @@ from .controlled_successor import authority
 from .replacement_executor import ArchiveDriver
 from .writer import project_lock
 from . import scope
+from .archive_finalization import needs_finalize, require_finalized
 
 STAGES = ('claimed', 'merge_verified', 'move_verified', 'synced', 'completed')
 
@@ -121,6 +122,7 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
                     raise ValueError('archive_history_changed')
                 if not recovery_admission(project.root,change,source_root=project.source_root)['ready']:
                     raise ValueError('archive_history_changed')
+                require_finalized(project.root,change)
                 return {'operation_id':operation_id,'stage':'completed','replayed':True}
             driver=driver_type(project)
             if not row:
@@ -163,11 +165,12 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
             for stage in ('merge_verified','move_verified'):
                 row=assert_fence(db,project,operation_id,fence)
                 if STAGES.index(row['stage'])<STAGES.index(stage):checkpoint(db,project,operation_id,fence,stage)
-            if state!='synced':
+            if row['stage']!='synced' and (state!='synced' or needs_finalize(project.root,change)):
                 authorize_write(db,project,actor);assert_fence(db,project,operation_id,fence)
                 driver.finalize(change)
             row=assert_fence(db,project,operation_id,fence)
             if observe(project,row)!='synced':raise ValueError('archive_sync_unverified')
             if row['stage']=='move_verified':checkpoint(db,project,operation_id,fence,'synced')
+            require_finalized(project.root,change)
             authorize_write(db,project,actor);checkpoint(db,project,operation_id,fence,'completed')
         return {'operation_id':operation_id,'stage':'completed','replayed':False}

@@ -1,0 +1,25 @@
+{
+  "backend": {
+    "image": "sha256:afe791be79bfd8c4ae2fd737c959c6646610accc71fbe14c4d31cbee6c4baf02",
+    "tag": "moonbox-backend:bug0057-rollback-20261030"
+  },
+  "chat-worker": {
+    "image": "sha256:bd84bd3e4468da45bb78064b321386bc678dfe1412d5d28a08faf2e87bdc1e6d",
+    "tag": "moonbox-chat-worker:bug0057-rollback-20261030"
+  },
+  "governance-controller": {
+    "image": "sha256:afe791be79bfd8c4ae2fd737c959c6646610accc71fbe14c4d31cbee6c4baf02",
+    "tag": "moonbox-governance-controller:bug0057-rollback-20261030"
+  },
+  "web": {
+    "image": "sha256:3b05ef6a489dbd9d2380b2aa5ab1172ab2c47ec1e90dd5944972e4100b983ab1",
+    "tag": "moonbox-web:bug0057-rollback-20261030"
+  },
+  "executor": {
+    "image": "sha256:eac6e4e806342418eff0077ce7f351545fa6b76a757612ec7b9652f7dace846f",
+    "tag": "moonbox-chat-executor:bug0057-rollback-20261030"
+  },
+  "entry": "bash logs/bug0057-deploy/deploy.sh rollback",
+  "scope": "restore application images and static assets; preserve database and volumes",
+  "config_preflight": "passed; no rollback executed"
+}

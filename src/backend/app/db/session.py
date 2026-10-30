@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from pathlib import Path
+import re
 
-from sqlalchemy import create_engine, event, text
+from sqlalchemy import create_engine, event, text, inspect
 from sqlalchemy.engine import make_url
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -84,6 +85,20 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def _existing_mysql_index(connection, statement: str) -> bool:
+    match = re.fullmatch(r'CREATE INDEX ([a-z_]+) ON ([a-z_]+) \(([a-z_, ]+)\)', statement)
+    if connection.dialect.name != 'mysql' or not match:
+        return False
+    name, table, raw_columns = match.groups()
+    columns = [column.strip() for column in raw_columns.split(',')]
+    existing = next((index for index in inspect(connection).get_indexes(table) if index['name'] == name), None)
+    if existing is None:
+        return False
+    if existing['column_names'] != columns or existing.get('unique'):
+        raise ConfigurationError('数据库索引定义不一致：' + name)
+    return True
 
 
 def init_database() -> None:
@@ -431,6 +446,8 @@ def init_database() -> None:
 
     with engine.begin() as connection:
         for statement in statements:
+            if _existing_mysql_index(connection, statement):
+                continue
             try:
                 connection.execute(text(statement))
             except Exception as exc:

@@ -4,7 +4,7 @@ bug_id: BUG-0067-chat-stream-preview-premature-truncation
 status: done
 severity: medium
 created_at: '2026-10-26 20:08:41'
-updated_at: 2026-10-27 09:10:24
+updated_at: 2026-10-30 09:12:20
 owner: 产品团队
 source: 用户 bug-capture 授权及同会话只读探索
 lifecycle_stage: archive
@@ -28,7 +28,7 @@ lifecycle:
 
 ## 当前摘要
 
-用户已明确批准修复，评审通过，severity 保持 medium；根因证据门禁通过。已纳入 sprint-014；修复 Change 已 applied，9/9 验收通过，本地服务已更新，下一步可执行归档。
+当前缺陷状态为 done，归属 sprint-014。Change `fix-chat-stream-preview-premature-truncation` 已归档；已有验收记录见 [fix-chat-stream-preview-premature-truncation验收报告](../../../../openspec/archive/2026-10-27-fix-chat-stream-preview-premature-truncation/evidence/acceptance/20261026225142511044-12b2315e/summary.md)。 根因分析、历史事件与原验收证据保留；本次仅同步当前摘要，不重新执行原产品轮次。
 
 ## 变更记录
 

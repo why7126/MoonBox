@@ -15,7 +15,7 @@ from app.chat.schema import migrate, conversations, turns, events, diffs
 def chat(tmp_path,monkeypatch):
     engine=create_engine(os.environ.get('CHAT_TEST_DATABASE_URL',f'sqlite:///{tmp_path}/chat.db'))
     with engine.begin() as db:
-        db.execute(text('CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY)'))
+        db.execute(text("CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY, status VARCHAR(32) NOT NULL DEFAULT '正常', deleted_at VARCHAR(64))"))
         db.execute(text("CREATE TABLE admin_spaces (id VARCHAR(64) PRIMARY KEY, name VARCHAR(80) DEFAULT 'Test space', owner_id VARCHAR(64), status VARCHAR(24), deleted_at VARCHAR(32), expires_at VARCHAR(32))"))
         db.execute(text("CREATE TABLE admin_space_members (id VARCHAR(64) PRIMARY KEY, space_id VARCHAR(64), user_id VARCHAR(64), role VARCHAR(32) DEFAULT '查看者')"))
         db.execute(text("INSERT INTO admin_users (id) VALUES ('alice'),('bob')"))

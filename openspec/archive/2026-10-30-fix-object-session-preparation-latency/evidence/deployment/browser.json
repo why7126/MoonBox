@@ -1,0 +1,129 @@
+{
+  "samples": [
+    {
+      "warmup": true,
+      "click_utc": "2026-10-30T11:11:14.213Z",
+      "arrived": true,
+      "route_upper_bound_ms": null,
+      "limitation": "URL通配等待未匹配；随后DOM及实际URL证实已到达，不能用延迟观察作精确导航耗时",
+      "audit_request_id": "dd747257-cd26-46dd-8dc0-f6f8bbcff975",
+      "server_ms": 4171
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:11:53.288Z",
+      "arrived": true,
+      "route_upper_bound_ms": null,
+      "limitation": "定位器等待提前超时；后续观察到达，保留为计时缺口，不计入有效导航统计",
+      "audit_request_id": "1a632d2c-bf97-456b-8e43-6432ff3387fe",
+      "server_ms": 3288
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:12:15.965Z",
+      "route_upper_bound_ms": 7161,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 7242,
+      "audit_request_id": "42e2db92-a7c0-4950-9d64-5ee59f856940",
+      "server_ms": 7029
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:13:25.338Z",
+      "route_upper_bound_ms": 2880,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 2933,
+      "audit_request_id": "fa584ef9-e5df-4195-b40d-24ff5043ac2b",
+      "server_ms": 2788
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:13:29.796Z",
+      "route_upper_bound_ms": 2218,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 2253,
+      "audit_request_id": "85d51688-050d-4bcc-9aa9-f909d51e3435",
+      "server_ms": 2112
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:13:49.078Z",
+      "route_upper_bound_ms": 5522,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 5565,
+      "audit_request_id": "ec18dae8-8b92-4ba5-9fcb-517c92749ea9",
+      "server_ms": 5394
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:13:57.037Z",
+      "route_upper_bound_ms": 5067,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 5109,
+      "audit_request_id": "dff1905c-3e2c-4507-8f36-dfe0f23e120b",
+      "server_ms": 4940
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:14:21.432Z",
+      "route_upper_bound_ms": 6109,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 6168,
+      "audit_request_id": "3c28539e-a1c0-4c15-b0dc-09b2bcd40f3b",
+      "server_ms": 6013
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:14:30.383Z",
+      "route_upper_bound_ms": 5033,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 5088,
+      "audit_request_id": "74118da5-f95e-4d53-8f98-535190f56894",
+      "server_ms": 4928
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:15:13.685Z",
+      "route_upper_bound_ms": 7890,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 7956,
+      "audit_request_id": "6afdc947-a7b8-4f9c-8b84-e8a8ec0933a3",
+      "server_ms": 7522
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:15:26.480Z",
+      "route_upper_bound_ms": 8528,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 8637,
+      "audit_request_id": "f5669360-ed2e-413d-a8e6-60893d93c8eb",
+      "server_ms": 8369
+    },
+    {
+      "warmup": false,
+      "click_utc": "2026-10-30T11:15:37.842Z",
+      "route_upper_bound_ms": 5199,
+      "arrived": true,
+      "history_visible": true,
+      "history_upper_bound_ms": 5269,
+      "audit_request_id": "c55fc24c-ca20-443d-8b68-3927b2876d6b",
+      "server_ms": 5068
+    }
+  ],
+  "target": "BUG-0036-bug",
+  "action": "bug-complete",
+  "notes": [
+    "未发送模型任务",
+    "导航耗时为轮询观察上界；前两次等待工具未取得有效导航计时，未删除",
+    "看板未就绪导致一次fill失败，发生在点击前，不是准备请求失败"
+  ]
+}

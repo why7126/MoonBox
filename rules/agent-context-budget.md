@@ -4,11 +4,13 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-10-26 12:57:16
+updated_at: 2026-10-30 09:02:17
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
 # Agent 上下文预算治理
+
+归档完成报告复用共享收尾摘要，不重复执行 driver 或 wrapper 已完成的收尾。moved 与 finalized 分开；仅报告检查范围、阻断或复核项，历史正文不得为消除提示而批量改写。
 
 ## 1. 目标
 

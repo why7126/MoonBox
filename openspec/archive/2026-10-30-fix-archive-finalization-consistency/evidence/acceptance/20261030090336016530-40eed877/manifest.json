@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-finalization-consistency",
+  "run_id": "20261030090336016530-40eed877",
+  "created_at": "2026-10-30 09:03:45",
+  "source_revision": "7b05291440c9414bba97dbc76e488cb46b3fdbcd",
+  "environment": "local-synthetic-regression",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-ARCHIVE",
+      "fingerprint": "81c1e6602a506b1f82a91e6c025db6e35bb065cbee1b8d3edf9fec298ad0c1f6",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 9227,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-CONTEXT",
+      "fingerprint": "d748ac72c77d33734fab142c8d9a3683483a5885e20faab11e6743c2e31a2245",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "fingerprint": "93d2014595419e4062f7226f455fb2a49e0e6fc6d412182034fa3801f5e6fb08",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "fingerprint": "7fc1e584a0f56bdeb5220dbd168c957216acd198f45194168fbfaf45f39d0f70",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 0,
+    "reused": 3,
+    "preflight_ms": 42,
+    "duration_ms": 9283,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

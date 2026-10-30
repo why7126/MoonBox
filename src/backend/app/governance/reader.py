@@ -16,14 +16,14 @@ class ProjectReader:
     def __init__(self, db, actor, scope):
         self.db, self.actor, self.scope = db, actor, scope
 
-    def snapshot(self, *, summary=False):
+    def snapshot(self, *, summary=False, loader=None):
         from app.governance.writer import assert_readable, epoch
         before_epoch = epoch(self.db, self.scope)
         assert_readable(self.db, self.scope)
         from app.governance.read_snapshot import stable_read
         snapshot_start = perf_counter()
         options = {'profile': 'summary'} if summary else {}
-        result = stable_read(self.scope.root, self.scope.binding_revision, **options)
+        result = loader() if loader is not None else stable_read(self.scope.root, self.scope.binding_revision, **options)
         self.snapshot_ms = (perf_counter() - snapshot_start) * 1000
         # End the read transaction so MySQL REPEATABLE READ cannot hide a writer
         # that started after the first fence check. No writes are pending here.

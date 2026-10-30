@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-10-19 09:05:50
+updated_at: 2026-10-30 14:51:04
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -273,3 +273,19 @@ python scripts/sync-workflow-status.py --event <event> [--sprint auto] [--change
 Change trace的可选execution.schema_version=1保存started_at、completed_at、last_event；status由执行事实派生，Issue主状态仍in_sprint。opsx.start在实施前门禁后写入，opsx.progress不声明完成，opsx.apply在完成门禁后写入completed_at。旧条目兼容读取但不伪造时间，不批量重写历史终态。CLI与后端复用src/backend/app/governance/lifecycle.py的状态契约，索引和看板仅作投影。
 
 自动验收与归档编排统一遵循 [连续执行与恢复契约](../docs/standards/opsx-acceptance.md)：逐 AC 队列与检查点、局部阻塞隔离、待采集证据自主补齐、精确指纹、命令去重、环境样本契约和归档预演。存在可执行项不得仅输出 diagnostic 后停止；交付、证据与用量分别报告，wrapper 成功不重复收尾。
+
+## 归档当前文档收尾
+
+单项归档须在完成报告前通过共享只读收尾检查。范围为 Change 顶层治理文档、关联 Issue 子文档及所属 Sprint 导航；证据包原文不改写。普通 Markdown/引用式导航与明确仓库路径检查存在性和仓库边界；历史字面旧路径、代码样例不作为当前导航。明确当前状态与完成事实矛盾时阻断；日期历史与当前语义混杂时要求证据复核，不批量替换。部分交付父 Issue 沿用现有状态策略，不因子 Change 归档判为 done。
+
+## 受保护归档验收元数据恢复
+
+归档后原文与恢复日志保持不可覆盖。设计阶段验收映射的 `not_started` 仅可由 `restore-archive-metadata.py` 在原恢复证明与完整验收通过时追加受约束的 `passed` 投影；附加记录绑定原文、日志、交付输入及通过清单。收尾须重新验证所有绑定，任何漂移阻断，不将附加记录当作验收或授权来源。失败、部分交付及缺证状态不可通过此路径关闭。
+
+多 Change Issue 关闭前读取全部关联的实际状态，包含历史 Sprint；当前 Change 归档须同步关联 Issue 的主文档与子文档，不依赖单一主 Change 字段。引用扫描对裸路径使用中文标点分隔；显式链接保留完整路径，真实缺失不得忽略。
+
+归档文档保留的 Issue 旧阶段引用仅在唯一同名 Issue、完成状态、双向 Change 归属、全部关联已归档及原归档恢复证明通过时解析至 archive 目录。迁移预检按同一源文件模拟，迁移后按唯一归档文件校验；活动文档和可变 Issue 仍须修正旧链接。缺文件、符号链接、重复身份或证明失配均阻断。原型裸路径不包含紧接的中文说明，也不将 prototype 开头的普通文档名截成原型目录。
+
+## 根因调查文档分层
+
+根因当前结论、历史记录、证据保留和跨文档一致性遵循 `rules/root-cause-evidence.md` §4.1 及 `docs/standards/root-cause-diagnostics.md`，不以历史状态覆盖当前状态，不将诊断完成当作修复验收。

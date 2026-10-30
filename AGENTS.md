@@ -2,7 +2,7 @@
 purpose: AI 行为入口
 content: AI 开发流程入口、规则加载路由、OpenSpec 红线、目录与验证边界
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-26 12:57:16
+updated_at: 2026-10-30 09:02:17
 owner: MoonBox 产品团队
 ---
 
@@ -155,3 +155,5 @@ Change 创建与归档遵循 [Change 身份唯一性](rules/document-governance.
 `/explore` 按 `docs/standards/governance-feedback-loop.md` 的“探索反馈与统一维护交接”在会话中分类反馈；默认只读不落盘、不自动维护。明确切换 `/spec-opt` 后复用统一候选去重、评测及版本生效规则，项目知识与通用方法分开。维护时按需读取 `.agents/skills/explore/evals/cases.md`，不把静态校验宣称为真实行为改善。
 
 归档 Shell 的 Python 接入覆盖脚本、命令替换、管道和内联代码；统一入口、继承与隔离回归见 `scripts/README.md` 的“归档 Shell 解释器继承”。
+
+归档完整成功须通过共享收尾门禁；目录 moved 不等于 finalized。产品恢复与完成重放同样复核文档，历史证据只读，部分交付状态策略不因此改变。

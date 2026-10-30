@@ -1,0 +1,298 @@
+{
+  "schema_version": 2,
+  "mode": "isolated_asgi_copied_sqlite",
+  "scenario": "cold",
+  "database_fixture_sha256": "cb81d2b20b7b06ee7e92702e96e0745f9c3283aeae56214a3ae38596d3c3cfb0",
+  "resources": {
+    "cpus": 10,
+    "cpu_max": "max 100000",
+    "memory_max": "max"
+  },
+  "sampled_at": "2026-10-30T09:06:01.839398+00:00",
+  "samples": [
+    {
+      "error_type": null,
+      "sql_errors": [],
+      "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+      "request_id_matches_prepare": true,
+      "audit_matches": true,
+      "sql": {
+        "count": 38,
+        "total_ms": 21.813328086864203,
+        "max_ms": 12.929666030686349
+      },
+      "object_id": "BUG-0057-requirement-card-chat-navigation-latency",
+      "conversation_hash": "273b2da6fecbfcf1ca5354e345051fc503208798210fd0958b5dc0b0ed2831f0",
+      "http": 200,
+      "code": 0,
+      "branch": {
+        "action": "bug-opsx",
+        "execution_state": "idle",
+        "can_send": true,
+        "reused_conversation": true,
+        "reason_code": null
+      },
+      "total_ms": 4133.469,
+      "spans": [
+        {
+          "id": 1,
+          "parent": null,
+          "name": "prepare",
+          "start": 265170.041644314,
+          "end": 265174.00583442,
+          "duration_ms": 3964.19,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.508
+        },
+        {
+          "id": 2,
+          "parent": 1,
+          "name": "authorize",
+          "start": 265170.041746354,
+          "end": 265170.058899104,
+          "duration_ms": 17.153,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 17.153
+        },
+        {
+          "id": 3,
+          "parent": 1,
+          "name": "reader.snapshot",
+          "start": 265170.058965562,
+          "end": 265172.671534871,
+          "duration_ms": 2612.569,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 29.512
+        },
+        {
+          "id": 4,
+          "parent": 3,
+          "name": "reader.stable_read",
+          "start": 265170.087047538,
+          "files": 6851,
+          "bytes": 20306230,
+          "revision": "565cb22a1f6f507d190f2970e30edc03a994361fc7a12500679b98e2872d4377",
+          "end": 265172.669549224,
+          "duration_ms": 2582.502,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 298.705
+        },
+        {
+          "id": 5,
+          "parent": 4,
+          "name": "read_once",
+          "start": 265170.087667449,
+          "end": 265171.440677399,
+          "duration_ms": 1353.01,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 1353.01
+        },
+        {
+          "id": 6,
+          "parent": 4,
+          "name": "read_once",
+          "start": 265171.441654972,
+          "end": 265172.372441534,
+          "duration_ms": 930.787,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 930.787
+        },
+        {
+          "id": 7,
+          "parent": 3,
+          "name": "commit",
+          "start": 265172.669650431,
+          "end": 265172.669843179,
+          "duration_ms": 0.193,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.193
+        },
+        {
+          "id": 8,
+          "parent": 3,
+          "name": "authorize",
+          "start": 265172.671167208,
+          "end": 265172.671529704,
+          "duration_ms": 0.362,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.362
+        },
+        {
+          "id": 9,
+          "parent": 1,
+          "name": "resolve",
+          "start": 265172.671774035,
+          "end": 265172.712040685,
+          "duration_ms": 40.267,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 40.267
+        },
+        {
+          "id": 10,
+          "parent": 1,
+          "name": "reconcile",
+          "start": 265172.712060768,
+          "end": 265173.443141274,
+          "duration_ms": 731.081,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 114.036
+        },
+        {
+          "id": 11,
+          "parent": 10,
+          "name": "commit",
+          "start": 265172.713738627,
+          "end": 265172.71391975,
+          "duration_ms": 0.181,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.181
+        },
+        {
+          "id": 12,
+          "parent": 10,
+          "name": "reader.stable_read",
+          "start": 265172.722843913,
+          "files": 6851,
+          "bytes": 20306230,
+          "revision": "565cb22a1f6f507d190f2970e30edc03a994361fc7a12500679b98e2872d4377",
+          "end": 265173.339708115,
+          "duration_ms": 616.864,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 10.397
+        },
+        {
+          "id": 13,
+          "parent": 12,
+          "name": "read_once",
+          "start": 265172.723045286,
+          "end": 265173.329512589,
+          "duration_ms": 606.467,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 606.467
+        },
+        {
+          "id": 14,
+          "parent": 1,
+          "name": "visible_state",
+          "start": 265173.443156149,
+          "end": 265173.446458408,
+          "duration_ms": 3.302,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 3.302
+        },
+        {
+          "id": 15,
+          "parent": 1,
+          "name": "preflight",
+          "start": 265173.446467575,
+          "end": 265173.986791647,
+          "duration_ms": 540.324,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 70.345
+        },
+        {
+          "id": 16,
+          "parent": 15,
+          "name": "reader.snapshot",
+          "start": 265173.46584222,
+          "end": 265173.935821435,
+          "duration_ms": 469.979,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 2.387
+        },
+        {
+          "id": 17,
+          "parent": 16,
+          "name": "reader.stable_read",
+          "start": 265173.466899751,
+          "files": 6851,
+          "bytes": 20306230,
+          "revision": "565cb22a1f6f507d190f2970e30edc03a994361fc7a12500679b98e2872d4377",
+          "end": 265173.933902412,
+          "duration_ms": 467.003,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 5.23
+        },
+        {
+          "id": 18,
+          "parent": 17,
+          "name": "read_once",
+          "start": 265173.467031333,
+          "end": 265173.928804378,
+          "duration_ms": 461.773,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 461.773
+        },
+        {
+          "id": 19,
+          "parent": 16,
+          "name": "commit",
+          "start": 265173.933997078,
+          "end": 265173.934148409,
+          "duration_ms": 0.151,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.151
+        },
+        {
+          "id": 20,
+          "parent": 16,
+          "name": "authorize",
+          "start": 265173.935377314,
+          "end": 265173.93581506,
+          "duration_ms": 0.438,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.438
+        },
+        {
+          "id": 21,
+          "parent": 1,
+          "name": "find_conversation",
+          "start": 265173.986805272,
+          "end": 265173.990217155,
+          "duration_ms": 3.412,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 3.412
+        },
+        {
+          "id": 22,
+          "parent": 1,
+          "name": "trace",
+          "start": 265173.990230072,
+          "end": 265174.005725004,
+          "duration_ms": 15.495,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 15.495
+        },
+        {
+          "id": 23,
+          "parent": 1,
+          "name": "commit",
+          "start": 265174.005737671,
+          "end": 265174.005817461,
+          "duration_ms": 0.08,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 0.08
+        },
+        {
+          "id": 24,
+          "parent": null,
+          "name": "commit",
+          "start": 265174.007418654,
+          "end": 265174.013153348,
+          "duration_ms": 5.735,
+          "request_id": "b856d58c-b79f-41b7-aa34-d83ce261b67a",
+          "exclusive_ms": 5.735
+        }
+      ],
+      "blocked_actions": []
+    }
+  ],
+  "blocked_actions": [],
+  "executed_code_hashes": {
+    "snapshot": "4be8ddef4419ee17c1930f44417a2acb10899bb0ad84a19116f81cab91fab2ea",
+    "read_snapshot": "360185021e342f0e48bd2415e46772a9fdbfd5df6aa017d9a53bd80ef5d3365b",
+    "reader": "1b50cc9a05025d434c9cfe8455d564a22d356bf9c5f1d517dee2cf015ec90316",
+    "execution_context": "938e8b8d39430e9219957cb3a80d20421c7f9748da48f52ee435885e71a17151",
+    "preparation": "e3171fc3ec1228d7b6d85532878e978fbc7925c0516ddcf79f68cb3622f90293"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-git-privacy-context-detection",
+  "environment": "local",
+  "checks": [
+    {
+      "id": "AC-PRIVACY-CONTEXT",
+      "kind": "command",
+      "inputs": [
+        "scripts/git-check.py",
+        "tests/unit/test_git_check.py",
+        "tests/unit/test_verify_docker_media_upload.py",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main([\"tests/unit/test_git_check.py\", \"tests/unit/test_verify_docker_media_upload.py\", \"-q\"]))"
+      ],
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

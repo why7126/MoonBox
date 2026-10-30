@@ -4,6 +4,7 @@ Project-specific identity installation/revocation is an explicit trusted adapter
 Missing adapters block affected checks rather than inventing successful role tests.
 """
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -81,7 +82,7 @@ class DockerRuntime:
             actual=json.loads(self.command(['image','inspect',image]))[0]
             if actual['Id']!=image or actual['Os']+'/'+actual['Architecture']!=base['platform']:
                 raise Conflict('runtime_image_mismatch')
-        self.command(['network','create','--internal',*self.engine.label_args(),self.engine.network])
+        self.create_network()
         node=self.engine.name+'-node'
         try:
             version=self.command(['run','--rm','--name',node,'--network','none',*self.engine.label_args(),
@@ -102,13 +103,30 @@ class DockerRuntime:
                 self.failed_databases[backend]=str(error)
                 self.reset_database()
 
+    def create_network(self):
+        # Deployment-only override for hosts whose default address pools are full.
+        # Docker rejects overlaps; never remove or reuse another task's network.
+        args = []
+        subnet = os.getenv('MOONBOX_ACCEPTANCE_SUBNET')
+        if subnet:
+            try:
+                network = ipaddress.ip_network(subnet, strict=True)
+                private = [ipaddress.ip_network(value) for value in ('10.0.0.0/8','172.16.0.0/12','192.168.0.0/16')]
+                if (network.version != 4 or not any(network.subnet_of(block) for block in private)
+                        or network.prefixlen < 24 or network.prefixlen > 28):
+                    raise ValueError()
+            except ValueError:
+                raise Conflict('acceptance_subnet_invalid') from None
+            args = ['--subnet', str(network)]
+        self.command(['network','create','--internal',*args,*self.engine.label_args(),self.engine.network])
+
     def reset_database(self):
         """Unknown initialization is discarded, never replayed into its old DB."""
         try:self.identity_adapter.revoke_all()
         except Exception:pass
         if not self.engine.cleanup():raise Conflict('database_cleanup_unconfirmed')
         self.database=None
-        self.command(['network','create','--internal',*self.engine.label_args(),self.engine.network])
+        self.create_network()
 
     def start_database(self,backend):
         if self.database==backend:return
@@ -124,7 +142,10 @@ class DockerRuntime:
             private.write_text('MYSQL_DATABASE=candidate\nMYSQL_USER=candidate\nMYSQL_PASSWORD='+password+'\nMYSQL_ROOT_PASSWORD='+root_password+'\n')
             private.chmod(0o600)
             try:
-                self.command(engine.run_args(engine.name+'-db',base['mysql_image'],True)+['--env-file',str(private),base['mysql_image']])
+                # Disposable database has no replication or recovery consumers.
+                # Disabling binlog permits normal schema-owned trigger migrations
+                # without granting the application SUPER privileges.
+                self.command(engine.run_args(engine.name+'-db',base['mysql_image'],True)+['--env-file',str(private),base['mysql_image'],'--skip-log-bin'])
             finally:private.unlink(missing_ok=True)
             url='mysql+pymysql://candidate:'+password+'@'+engine.name+'-db/candidate'
         appenv=engine.root/'app.env'

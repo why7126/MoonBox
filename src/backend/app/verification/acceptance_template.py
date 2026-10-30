@@ -62,7 +62,9 @@ class AcceptanceTemplate:
                     or any(not isinstance(a,str) or not a or '\x00' in a or len(a)>4096 for a in argv)):
                 raise Conflict('identity_adapter_invalid')
         login=adapter['login']
-        if (not isinstance(login,dict) or set(login)!={'path','username_field','password_field'}
+        if (not isinstance(login,dict) or set(login) not in ({'path','username_field','password_field'}, {'path','username_field','password_field','mode'})
+                or login.get('mode','cookie') not in {'cookie','moonbox-session'}
+                or login.get('mode') == 'moonbox-session' and login.get('path') != '/api/v1/auth/login'
                 or not re.fullmatch(r'/[a-zA-Z0-9/_-]+',str(login['path']))
                 or any(not re.fullmatch(r'[a-zA-Z_][a-zA-Z0-9_]{0,63}',str(login[k])) for k in ('username_field','password_field'))):
             raise Conflict('identity_login_invalid')

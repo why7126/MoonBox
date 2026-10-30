@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-object-session-preparation-latency",
+  "run_id": "20261030180136594016-aab6af50",
+  "created_at": "2026-10-30 18:04:23",
+  "source_revision": "7b05291440c9414bba97dbc76e488cb46b3fdbcd",
+  "environment": "controlled-local-backend-and-browser",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-01",
+      "fingerprint": "9f7722ec5f83428f6c56176b26a3531e6bfd6bfd9d887c8448c818a239463a56",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-1.json",
+          "sha256": "3486ef00cf1a9739d9980ba0ab46686495c964a0380a6f29eac5a6a381fed85e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-2.json",
+          "sha256": "33a0fc8896919ca1204a3cb0ccb950ef1460a4bf71ea98b1bd1f7614fd120426"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-3.json",
+          "sha256": "b8c34456e041a27b59a8d11bcd90bbe14e7833bd7b8fa23cf76e3b1bb5ce1669"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-4.json",
+          "sha256": "36e15e9e1118d3827f9ceca93ae0408f6f63be7db262287609852a9d4f48e969"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-5.json",
+          "sha256": "f5c39ea2de3061e622658ab1006a736cae32563beff8a187612f7bfee1853d2c"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-warm.json",
+          "sha256": "3f4837c1fef33819f29b41d84b804ec03e7501ff4966cbe778954c3c564fc781"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-concurrent.json",
+          "sha256": "e0fe310d4b7a7d9fac1493cb371df6f282af3d754f13ee2f2f0e6bd0cf392109"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-1.json",
+          "sha256": "ab2082ad9f82296a5bf9f7f0afe7e45194c68a85198c2c4711b13e03d88ee7de"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-2.json",
+          "sha256": "af7846050a08670ee0b9c15958666ed6533601441a9bc560e9c24a76ddc39e9a"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-3.json",
+          "sha256": "15312a232cb854b5323974ce058d204b0e446e38469c4b153c1f1ad5601d313e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-4.json",
+          "sha256": "449a2c4da9b2e13f2921233432f034eaecf5159342a662a8654c484b6db81ab2"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-5.json",
+          "sha256": "4d79e5ea6d02e5fff9fe5f29d33ca8a0804663b515e98da78fad653c51757180"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-warm.json",
+          "sha256": "b5ffa34fe09d7626f0b4819e81b8edcc03a9205fe0a70aba8b16fc62f9d3358e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-concurrent.json",
+          "sha256": "9741becb9d09d65574c211fcbbfa7ae7a482c3b85fda8e040f0ac7323f9da616"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/natural-browser.json",
+          "sha256": "a8d7708c5fd28f820c73ab6f1280c7aa04f2553398ebcd3b8d3ff7fc477a926d"
+        }
+      ],
+      "duration_ms": 1013,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-02",
+      "fingerprint": "6eeec92d6aeb1ec2c20a1988e5188bcbdb0b39f87e590994121bdf5005c68e66",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-1.json",
+          "sha256": "3486ef00cf1a9739d9980ba0ab46686495c964a0380a6f29eac5a6a381fed85e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-2.json",
+          "sha256": "33a0fc8896919ca1204a3cb0ccb950ef1460a4bf71ea98b1bd1f7614fd120426"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-3.json",
+          "sha256": "b8c34456e041a27b59a8d11bcd90bbe14e7833bd7b8fa23cf76e3b1bb5ce1669"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-4.json",
+          "sha256": "36e15e9e1118d3827f9ceca93ae0408f6f63be7db262287609852a9d4f48e969"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-5.json",
+          "sha256": "f5c39ea2de3061e622658ab1006a736cae32563beff8a187612f7bfee1853d2c"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-warm.json",
+          "sha256": "3f4837c1fef33819f29b41d84b804ec03e7501ff4966cbe778954c3c564fc781"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-concurrent.json",
+          "sha256": "e0fe310d4b7a7d9fac1493cb371df6f282af3d754f13ee2f2f0e6bd0cf392109"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-1.json",
+          "sha256": "ab2082ad9f82296a5bf9f7f0afe7e45194c68a85198c2c4711b13e03d88ee7de"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-2.json",
+          "sha256": "af7846050a08670ee0b9c15958666ed6533601441a9bc560e9c24a76ddc39e9a"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-3.json",
+          "sha256": "15312a232cb854b5323974ce058d204b0e446e38469c4b153c1f1ad5601d313e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-4.json",
+          "sha256": "449a2c4da9b2e13f2921233432f034eaecf5159342a662a8654c484b6db81ab2"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-5.json",
+          "sha256": "4d79e5ea6d02e5fff9fe5f29d33ca8a0804663b515e98da78fad653c51757180"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-warm.json",
+          "sha256": "b5ffa34fe09d7626f0b4819e81b8edcc03a9205fe0a70aba8b16fc62f9d3358e"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-concurrent.json",
+          "sha256": "9741becb9d09d65574c211fcbbfa7ae7a482c3b85fda8e040f0ac7323f9da616"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/natural-browser.json",
+          "sha256": "a8d7708c5fd28f820c73ab6f1280c7aa04f2553398ebcd3b8d3ff7fc477a926d"
+        }
+      ],
+      "duration_ms": 1296,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-03",
+      "fingerprint": "6db87e4e73f51ce9b041c245ee8772f6df0907a052c93eac9c322d66b98267a6",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 120051,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-04",
+      "fingerprint": "401bd6326461736dd743c5e4351466a6e5f723e6a465fd19c0f15516c0b1d8b1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 57,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-05",
+      "fingerprint": "39be69c64a5bc6ab76d9f4a1b2197df261c8c4df334a9f2603617e3a376e3c03",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 69,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-06",
+      "fingerprint": "df1c495a33d03da80ff6d31c1532c35c1ebfa35c80d15803111924343e02c290",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/interaction-observation.json",
+          "sha256": "39e0a2731d3525b592866c3c50c9a2f376643d2fd34b2b378eac1095f142b4b8"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/failure-recovery.png",
+          "sha256": "804a52f5ea58e8f9fe921002151b27bbcb8b09e4f672110697403806dfeba41d"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/candidate-chat.png",
+          "sha256": "389662cb1b77ecefbec02fdf78cbeab7ba451724bf3fd9761e03ab37fac21b24"
+        },
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/cancelled-navigation.png",
+          "sha256": "ec777f1fb3ede6bdd5b7192f7a79454e82c99a155f88c52ac47ee60aefc8cfdc"
+        }
+      ],
+      "duration_ms": 42935,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-07",
+      "fingerprint": "fe515fb2408a38e4464235f9335fb506d085c65f375d7ad29d42dfa76330416d",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-08",
+      "fingerprint": "a1f5a6b823813cb2fd45551c9abc07e2d464b41cef25aa81befdef52e60f81aa",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/fix-object-session-preparation-latency/evidence/implementation/recovery.json",
+          "sha256": "7c4b37688537a132e03ffaa5d8db3043fe13e8e47eb4ec8a24380fea0b736620"
+        }
+      ],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 4,
+    "deduplicated": 2,
+    "reused": 2,
+    "preflight_ms": 2308,
+    "duration_ms": 168677,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

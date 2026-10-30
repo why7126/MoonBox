@@ -102,3 +102,23 @@ def test_acceptance_blocks_when_evidence_disk_capacity_is_low(monkeypatch, tmp_p
         run_browser_acceptance("sha256:" + "a" * 64, network="preview", target_url="http://web/",
             browser="firefox", viewports=[{"width": 390, "height": 844}], selectors=[],
             evidence_root=tmp_path, space_id="space", repository_id="repo", task_id=str(uuid4()))
+
+
+@pytest.mark.parametrize('mode,path,allowed',[
+    ('moonbox-session','/api/v1/auth/login',True),
+    ('moonbox-session','/other',False),('arbitrary-script','/api/v1/auth/login',False),
+    ('cookie','/login',True)])
+def test_product_login_is_explicit_and_never_embeds_credentials(monkeypatch,tmp_path,mode,path,allowed):
+    private=tmp_path/'identity';private.write_text('{"password":"private-test-value"}');private.chmod(0o600)
+    monkeypatch.setattr('app.verification.runner.shutil.which',lambda _: '/usr/bin/docker')
+    def run(command,**kwargs):
+        assert 'private-test-value' not in json.dumps([command,kwargs])
+        assert json.loads(kwargs['input'])['login']['mode']==mode
+        raise RuntimeError('validated_plan_reached_runner')
+    monkeypatch.setattr('app.verification.runner.subprocess.run',run)
+    params=dict(network='owned',target_url='http://owned/chat',browser='chromium',
+        viewports=[dict(width=390,height=844)],selectors=[],evidence_root=tmp_path,
+        space_id='space',repository_id='repo',task_id=str(uuid4()),identity_file=private,
+        login=dict(mode=mode,path=path,username_field='username',password_field='password'))
+    with pytest.raises(RuntimeError,match='validated_plan_reached_runner' if allowed else 'identity_login_invalid'):
+        run_browser_acceptance('sha256:'+'a'*64,**params)

@@ -59,7 +59,7 @@ function writeScopeReason(conversation: ConversationRead | null) {
   };
   return labels[code] || code || "写权限由主对象、空间角色和执行门禁自动判定。";
 }
-export function Composer({ conversation, capabilities, onSubmitted, initialDraft, onDraft, unavailableReason, draftState, onCreated, onBusyChange, spaceId, onReviewReplacement }: { spaceId?: string; unavailableReason?: string; initialDraft: string; onDraft: (value: string) => void; conversation: ConversationRead | null; capabilities: Capabilities | null; onSubmitted: () => void; draftState?: DraftState; onCreated?: (row: ConversationRead) => void; onBusyChange?: (busy: boolean) => void; onReviewReplacement?: (changeId: string) => void }) {
+export function Composer({ submissionBlockedReason, conversation, capabilities, onSubmitted, initialDraft, onDraft, unavailableReason, draftState, onCreated, onBusyChange, spaceId, onReviewReplacement }: { submissionBlockedReason?: string; spaceId?: string; unavailableReason?: string; initialDraft: string; onDraft: (value: string) => void; conversation: ConversationRead | null; capabilities: Capabilities | null; onSubmitted: () => void; draftState?: DraftState; onCreated?: (row: ConversationRead) => void; onBusyChange?: (busy: boolean) => void; onReviewReplacement?: (changeId: string) => void }) {
   const fallback = useRef<DraftState>({ text: initialDraft });
   const attempt = draftState || fallback.current;
   const [archiveBlockers, setArchiveBlockers] = useState<ArchiveBlocker[]>([]);
@@ -78,11 +78,11 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
   const branchRows = repositoryRow?.branches?.items || [];
   const defaultBranch = repositoryRow?.branches?.default || branchRows.find(row => row.is_default)?.name || "main";
   const branchName = branchRows.some(row => row.name === branch) ? branch : defaultBranch;
-  const disabled = !!conversation?.archived || !!conversation?.active_turn_id || !capabilities?.execution_ready || (!conversation && (!repository || !onCreated || !spaceId));
+  const disabled = !!submissionBlockedReason || !!conversation?.archived || !!conversation?.active_turn_id || !capabilities?.execution_ready || (!conversation && (!repository || !onCreated || !spaceId));
   const readyMaterials = materials.filter(item => item.status === "done");
   const hasUploading = materials.some(item => item.status === "uploading");
   const hasContent = !!draft.trim() || readyMaterials.length > 0;
-  const hint = unavailableReason || (!capabilities?.execution_ready ? capabilities?.reason || "执行服务未就绪 · 可先编写草稿" : conversation?.archived ? "已归档 · 只读" : conversation?.active_turn_id ? "原运行尚未终止 · 可先编写草稿" : !conversation && !repository ? "请选择本次对话使用的仓库" : hasUploading ? "文件上传中，完成后可发送" : "");
+  const hint = submissionBlockedReason || unavailableReason || (!capabilities?.execution_ready ? capabilities?.reason || "执行服务未就绪 · 可先编写草稿" : conversation?.archived ? "已归档 · 只读" : conversation?.active_turn_id ? "原运行尚未终止 · 可先编写草稿" : !conversation && !repository ? "请选择本次对话使用的仓库" : hasUploading ? "文件上传中，完成后可发送" : "");
   const scopeLabel = writeScopeLabel(conversation);
   useEffect(() => {
     const defaults = executionDefaults(capabilities);
@@ -332,6 +332,7 @@ export function Composer({ conversation, capabilities, onSubmitted, initialDraft
     setConfigMenu(configMenu === next ? null : next);
   }
   return <div className="chat-composer" data-testid="chat-composer" data-repository={repository} ref={composerRoot}>
+    {busy && <p role="status" data-testid="chat-send-progress">正在检查执行条件并提交，请勿重复发送</p>}
     {!conversation && <div className="chat-draft-repository">
       <label>分支 <select aria-label="会话分支" data-testid="chat-draft-branch" value={branchName} disabled={busy || !!attempt.creationId || !repositories.length} onChange={e => { setBranch(e.target.value); attempt.branch = e.target.value; }}>{branchRows.length ? branchRows.map(row => <option key={row.name} value={row.name}>{row.name}</option>) : <option value="main">main</option>}</select></label>
     </div>}

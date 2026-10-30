@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-archive-finalization-consistency",
+  "environment": "local-synthetic-regression",
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "--check"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-ARCHIVE",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_finalization.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_bootstrap_executor.py",
+        "scripts/check-archive-finalization.py",
+        "scripts/archive-change.sh",
+        "scripts/sprint_close_stale_scan.py",
+        "tests/unit/test_archive_finalization.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_bootstrap_executor.py",
+        "tests/unit/test_sprint_close_stale_history.py",
+        "tests/unit/test_change_identity.py",
+        "scripts/test_archive_python_entry.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import pytest; raise SystemExit(pytest.main(['tests/unit/test_archive_finalization.py', 'tests/unit/test_archive_coordinator.py', 'tests/unit/test_replacement_coordinator.py', 'tests/unit/test_replacement_bootstrap_executor.py', 'tests/unit/test_sprint_close_stale_history.py', 'tests/unit/test_change_identity.py', 'scripts/test_archive_python_entry.py', '-q']))"
+      ],
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-CONTEXT",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-agent-context-budget.py",
+        "rules/document-governance.md",
+        "rules/agent-context-budget.md",
+        "AGENTS.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        ".agents/skills/sprint-archive/SKILL.md",
+        "scripts/README.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-agent-context-budget.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-openspec-language.py",
+        "rules/document-governance.md",
+        "rules/agent-context-budget.md",
+        "AGENTS.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        ".agents/skills/sprint-archive/SKILL.md",
+        "scripts/README.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-openspec-language.py",
+        "--change",
+        "fix-archive-finalization-consistency"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "kind": "command",
+      "inputs": [
+        "scripts/validate-directory-structure.py",
+        "rules/document-governance.md",
+        "rules/agent-context-budget.md",
+        "AGENTS.md",
+        ".agents/skills/opsx-archive/SKILL.md",
+        ".agents/skills/sprint-archive/SKILL.md",
+        "scripts/README.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-directory-structure.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-REPAIR-DOCS",
+      "kind": "command",
+      "inputs": [
+        "scripts/sprint_close_stale_scan.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "openspec/changes/fix-archive-finalization-consistency/evidence/repair/protected-files.json",
+        "iterations/archive/sprint-014",
+        "iterations/archive/sprint-015",
+        "issues/bugs/archive/BUG-0056-requirement-center-context-load-latency/trace.md",
+        "issues/bugs/archive/BUG-0068-chat-database-lock-execution-interruption/trace.md",
+        "issues/bugs/archive/BUG-0066-chat-auto-verification-status-stale/trace.md",
+        "issues/bugs/archive/BUG-0065-chat-final-answer-duplicate-concatenation/trace.md",
+        "issues/bugs/archive/BUG-0067-chat-stream-preview-premature-truncation/trace.md",
+        "issues/requirements/archive/REQ-0054-workspace-recovery-points/requirement.md",
+        "issues/requirements/archive/REQ-0042-agent-runtime-version-space-isolation/requirement.md",
+        "issues/requirements/archive/REQ-0055-sprint-authorized-worktree-merge/requirement.md",
+        "issues/bugs/archive/BUG-0056-requirement-center-context-load-latency/bug.md",
+        "issues/bugs/archive/BUG-0067-chat-stream-preview-premature-truncation/acceptance.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys,json,hashlib; from pathlib import Path; sys.path.insert(0,'scripts'); from sprint_close_stale_scan import build_report; reports=[build_report(s) for s in ('sprint-014','sprint-015')]; assert all(r.ok for r in reports),[(r.sprint_id,r.blocker_count) for r in reports]; d=json.loads(Path('openspec/changes/fix-archive-finalization-consistency/evidence/repair/protected-files.json').read_text()); assert all(Path(p).is_file() and hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in d.items()); print('Sprint scans passed; protected files unchanged:',len(d))"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "AC-DOC-TITLES",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/fix-archive-finalization-consistency/proposal.md",
+        "openspec/changes/fix-archive-finalization-consistency/design.md",
+        "openspec/changes/fix-archive-finalization-consistency/tasks.md",
+        "openspec/changes/fix-archive-finalization-consistency/trace.md",
+        "openspec/changes/fix-archive-finalization-consistency/specs/archive-finalization-consistency/spec.md",
+        "openspec/changes/fix-archive-finalization-consistency/acceptance-fixes.md",
+        "scripts/validate-document-titles.py",
+        "src/backend/app/governance/titles.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--change",
+        "fix-archive-finalization-consistency"
+      ],
+      "timeout_seconds": 60,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

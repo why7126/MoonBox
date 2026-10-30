@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-finalization-consistency",
+  "run_id": "20261031072112806434-1d7d0d5e",
+  "created_at": "2026-10-31 07:21:28",
+  "source_revision": "7b05291440c9414bba97dbc76e488cb46b3fdbcd",
+  "environment": "local-synthetic-regression",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [
+    {
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC-ARCHIVE",
+      "fingerprint": "bab9d81a1d5bfa9d24352b5efb7d868f6931b904a89da348d2be682f3be0cb51",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 11638,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-CONTEXT",
+      "fingerprint": "ee56b071cf220dece64c2d5811b91dc8cc330de583b1d88e065485a935877c27",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 222,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-LANGUAGE",
+      "fingerprint": "4453f0eb6fd9ee616100783d2a7fd7685df5fe5bbcd44000ac914f9e24932303",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 76,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-DIRECTORY",
+      "fingerprint": "5b64d6c24247c20b6396ffa6f52285bbca47ecc58eec684b19e0a8e4e8592e98",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 808,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-REPAIR-DOCS",
+      "fingerprint": "ab3f89e3659d039e7671d09732f14ce4a52cc6922c753beed20107f8f27326bf",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 2624,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-DOC-TITLES",
+      "fingerprint": "02b84bed2c4a320ed363b74f27c591566dd5a3211114fce65bd07d68c3054e34",
+      "reused": true,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 0,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 5,
+    "deduplicated": 0,
+    "reused": 1,
+    "preflight_ms": 72,
+    "duration_ms": 15485,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

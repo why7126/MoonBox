@@ -219,6 +219,7 @@ archive_date="${archive_date:0:10}"
 if (( finalize )); then
   "$PYTHON_BIN" scripts/sync-workflow-status.py --event opsx.archive --change "$change_id" --sprint auto
   "$PYTHON_BIN" scripts/promote-issues-for-archive.py --change "$change_id" --reason "/opsx-archive $change_id"
+  "$PYTHON_BIN" scripts/check-archive-finalization.py --change "$change_id"
   resolved_sprint="$("$PYTHON_BIN" - "$change_id" <<'PYTHON'
 import sys
 sys.path.insert(0, 'scripts')
@@ -237,4 +238,8 @@ print(json.dumps({key: data[key] for key in keys if key in data}, ensure_ascii=F
 '
 fi
 
-echo "Archived OpenSpec change to ${target_dir#"$project_root/"}/"
+if (( finalize )); then
+  echo "Archive finalized: ${target_dir#"$project_root/"}/"
+else
+  echo "Archive moved; finalization not checked: ${target_dir#"$project_root/"}/"
+fi

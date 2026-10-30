@@ -248,6 +248,13 @@ def run_command(check: dict, root: Path) -> dict:
 
 
 def run_product_turn(check: dict, db_path: Path) -> dict:
+    if check.get('execution_proof')=='isolated_acceptance_v1':
+        from app.verification.acceptance_proof import read_proof
+        try:
+            proof=read_proof(db_path,check['turn_id'],check['operation_id'],check['acceptance_mode'],check.get('operation_status','passed'))
+        except (sqlite3.Error,ValueError,OSError):
+            return {'status':'blocked','reason':'native-acceptance-proof-unavailable','turn_id':check['turn_id']}
+        return {'status':'passed' if proof['verified'] else 'blocked',**proof}
     timeout = min(max(int(check.get("timeout_seconds", 180)), 1), 900)
     deadline = time.monotonic() + timeout
     while True:

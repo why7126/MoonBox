@@ -1,0 +1,86 @@
+{
+  "turns": [
+    {
+      "id": "2f07ff5a-941b-4b1c-9362-aeea72a21e64",
+      "conversation_id": "4309f83f-8959-5fe2-8e8d-4db02c5b8f80",
+      "status": "completed",
+      "error_code": null,
+      "created_at": "2026-10-30T02:56:41+00:00",
+      "updated_at": "2026-10-30T02:57:55+00:00"
+    }
+  ],
+  "operations": [
+    {
+      "id": "fa7c0a4e-44da-48f5-b7a1-ea4cfc573dad",
+      "source_turn_id": "2f07ff5a-941b-4b1c-9362-aeea72a21e64",
+      "space_id": "space-2",
+      "attempt_id": "377441bc-e6f2-45d0-8faa-c1a8bad8a035",
+      "status": "passed",
+      "cleanup_state": "released",
+      "resume_count": 0,
+      "cancel_requested": 0,
+      "reason_code": null,
+      "input_digest": "30c09af5695ab2460cbf31320ee2be47cf75c5c69c52d00e1eebe6686cf042d7"
+    }
+  ],
+  "checks": [
+    {
+      "attempt_id": "377441bc-e6f2-45d0-8faa-c1a8bad8a035",
+      "ac_id": "AC-LOCAL-MEMBER",
+      "status": "passed",
+      "reason_code": null,
+      "evidence_json": "{\"kind\": \"browser\", \"digest\": \"6d3ef3286bb2f8c2bb6fb9df40c839ad7b00c3cf43669ba42e4a16eccae6d134\", \"artifact_id\": \"AC-LOCAL-MEMBER\", \"environment_id\": \"377441bc-e6f2-45d0-8faa-c1a8bad8a035\", \"deployment_digest\": \"ac817e836678ace00819e53f9f09863f13bc81299335a0c6b5159deae291560c\"}"
+    },
+    {
+      "attempt_id": "377441bc-e6f2-45d0-8faa-c1a8bad8a035",
+      "ac_id": "AC-LOCAL-READER",
+      "status": "passed",
+      "reason_code": null,
+      "evidence_json": "{\"kind\": \"browser\", \"digest\": \"910fed2dae8d21293886a4070c0ed6d0d72136318e1f5e4924eaa31523600a1c\", \"artifact_id\": \"AC-LOCAL-READER\", \"environment_id\": \"377441bc-e6f2-45d0-8faa-c1a8bad8a035\", \"deployment_digest\": \"ac817e836678ace00819e53f9f09863f13bc81299335a0c6b5159deae291560c\"}"
+    }
+  ],
+  "tool_waits": [
+    {
+      "source_turn_id": "2f07ff5a-941b-4b1c-9362-aeea72a21e64",
+      "operation_id": "fa7c0a4e-44da-48f5-b7a1-ea4cfc573dad",
+      "state": "delivered",
+      "generation": 1
+    }
+  ],
+  "deliveries": [],
+  "archives": [
+    {
+      "operation_id": "fa7c0a4e-44da-48f5-b7a1-ea4cfc573dad",
+      "attempt_id": "377441bc-e6f2-45d0-8faa-c1a8bad8a035",
+      "state": "published",
+      "digest": "f92a5bc10a6926379f70d9d263e820ba1058c60022fdd324995ab8778a3e4613"
+    }
+  ],
+  "receipts": [
+    {
+      "turn_id": "2f07ff5a-941b-4b1c-9362-aeea72a21e64",
+      "executor_closed": 1,
+      "files_collected": 1
+    }
+  ],
+  "identities": [
+    {
+      "role": "member",
+      "revocation_state": "revoked"
+    },
+    {
+      "role": "reader",
+      "revocation_state": "revoked"
+    }
+  ],
+  "usage": [
+    {
+      "turn_id": "2f07ff5a-941b-4b1c-9362-aeea72a21e64",
+      "status": "settled",
+      "tokens": 0,
+      "actual_tokens": 34280
+    }
+  ],
+  "category": "real_product_model_round",
+  "database_rows_injected": false
+}

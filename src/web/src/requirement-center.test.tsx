@@ -1,3 +1,6 @@
+import { readObjectChatIntent } from "./pages/catalog/objectChatIntent";
+import { governanceActionError } from "./components/workbench/governanceActionError";
+import { GovernanceError } from "./components/workbench/governanceApi";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 // @ts-expect-error Vitest runs this assertion in Node, while the web tsconfig intentionally omits Node globals.
 import { readFileSync } from "node:fs";
@@ -799,10 +802,9 @@ describe("RequirementCenterPage", () => {
     expect((button as HTMLButtonElement).disabled).toBe(false);
     expect(screen.queryByText(/需核对测试与人工验收证据/)).toBeNull();
     fireEvent.click(button);
-    await waitFor(() => expect(calls).toHaveLength(1));
-    expect(calls[0]).toMatchObject({object_id:"valid-change",action:"opsx-archive"});
-    expect(sessionStorage.getItem("moonbox.governance.prompt:chat-valid-change")).toBe("/opsx-archive valid-change");
-    expect(window.location.pathname + window.location.search).toBe("/chat?space_id=moonbox-platform&conversation_id=chat-valid-change");
+    expect(calls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:"valid-change",text:"/opsx-archive valid-change"});
+    expect(location.pathname).toBe("/chat");
   });
 
   it.each([
@@ -812,81 +814,23 @@ describe("RequirementCenterPage", () => {
     [409, 2606, "源文件版本已变化 /private/tmp/private-file", "对象已更新，请刷新后重试"],
   ])("shows safe PRD feedback for write action status %s code %s", async (status, code, unsafeMessage, expected) => {
     const leakedBackendMessage = `${unsafeMessage}\nTraceback: private implementation detail\nREQ-9199-other-project`;
-    const row={id:"REQ-9517",type:"requirement",title:"错误反馈样本",priority:"P2",owner:"产品团队",source:"review",stage:"review-ready",documents:["capture.md","trace.md","requirement.md","acceptance.md","business-flow.md","user-stories.md"],action:{command:"/req-review REQ-9517 --approve",label:"发起评审"},updated_at:"now"};
-    stubFetch("fetch",vi.fn((input)=>String(input).endsWith("/object-sessions")
-      ? Promise.resolve({ok:false,status,json:async()=>({code,message:leakedBackendMessage,data:{kind:"governance_validation_failed"}})})
-      : Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})})));
-    render(<RequirementCenterPage/>);
-    await showAllSprintCards();
-    fireEvent.click(within((await screen.findByText("REQ-9517")).closest('[data-issue-id]') as HTMLElement).getByRole("button",{name:"发起评审 →"}));
-    await waitFor(()=>expect(document.querySelector(".rc-toast")?.textContent).toContain(expected));
-    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("/private/tmp/");
-    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("Traceback");
-    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("REQ-9199-other-project");
+    const message = governanceActionError(new GovernanceError(leakedBackendMessage, status, code, "governance_validation_failed"));
+    expect(message).toContain(expected);
+    expect(message).not.toContain("/private/tmp/");
+    expect(message).not.toContain("Traceback");
+    expect(message).not.toContain("REQ-9199-other-project");
   });
 
   it.each(["local_governance_dirty", "manifest_mismatch", "git_snapshot_unreadable"])("shows categorized workspace stale guidance for write action toasts: %s", async (reason) => {
-    const calls: unknown[] = [];
-    const row = {
-      id: "REQ-9500",
-      type: "requirement",
-      title: "事实源提示分层",
-      priority: "P1",
-      owner: "产品团队",
-      source: "review",
-      stage: "review-ready",
-      documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"],
-      action: { command: "/req-review REQ-9500 --approve", label: "发起评审" },
-      updated_at: "12:50",
-    };
-    stubFetch("fetch", vi.fn((input) => {
-      if (String(input).endsWith("/object-sessions")) {
-        calls.push(String(input));
-        return Promise.resolve({ ok: false, status: 409, json: async () => ({
-          code: 2606,
-          message: "需求/缺陷事实源存在未提交或未同步变更，执行器工作区暂不能看到最新事实源。",
-          data: { kind: "workspace_fact_source_stale", request_id: "request", reason, categories: ["需求/缺陷事实源", "OpenSpec 事实源"], roots: ["issues", "openspec"] },
-        }) });
-      }
-      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [row] } }) });
-    }));
-
-    render(<RequirementCenterPage />);
-    await showAllSprintCards();
-    const card = await screen.findByText("REQ-9500").then(() => document.querySelector('[data-issue-id="REQ-9500"]') as HTMLElement);
-    fireEvent.click(within(card).getByRole("button", { name: "发起评审 →" }));
-
-    await waitFor(() => expect(calls).toHaveLength(1));
-    await waitFor(() => expect(document.querySelector(".rc-toast")?.textContent).toContain("阻断范围：需求/缺陷事实源、OpenSpec 事实源"));
-    if (reason === "git_snapshot_unreadable") {
-      expect(document.querySelector(".rc-toast")?.textContent).toContain("Git 快照不可读");
-      expect(document.querySelector(".rc-toast")?.textContent).toContain("检查仓库 Git 状态和服务日志");
-    } else if (reason === "manifest_mismatch") {
-      expect(document.querySelector(".rc-toast")?.textContent).toContain("治理目录与源工作区内容不一致");
-      expect(document.querySelector(".rc-toast")?.textContent).toContain("无需提交 Git");
-    } else {
-      expect(document.querySelector(".rc-toast")?.textContent).toContain("请先提交或同步对应事实源");
-    }
-    expect(document.querySelector(".rc-toast")?.textContent).not.toContain("确认标准部署已更新");
+    const message = governanceActionError(new GovernanceError("内部详情",409,2606,"workspace_fact_source_stale",undefined,
+      {reason,categories:["需求/缺陷事实源","OpenSpec 事实源"]}));
+    expect(message).toContain("阻断范围：需求/缺陷事实源、OpenSpec 事实源");
+    expect(message).toContain(reason === "git_snapshot_unreadable" ? "Git 快照不可读" : reason === "manifest_mismatch" ? "无需提交 Git" : "请先提交或同步对应事实源");
   });
 
   it("treats workspace stale without reason as an outdated deployment hint", async () => {
-    const calls: unknown[] = [];
-    const row = { id: "REQ-9501", type: "requirement", title: "旧部署提示", priority: "P1", owner: "产品团队", source: "review", stage: "review-ready", documents: ["capture.md", "trace.md", "requirement.md", "acceptance.md", "business-flow.md", "user-stories.md"], action: { command: "/req-review REQ-9501 --approve", label: "发起评审" }, updated_at: "12:51" };
-    stubFetch("fetch", vi.fn((input) => {
-      if (String(input).endsWith("/object-sessions")) {
-        calls.push(String(input));
-        return Promise.resolve({ ok: false, status: 409, json: async () => ({ code: 2606, message: "执行器工作区快照不可校验，请确认标准部署已更新后重试", data: { kind: "workspace_fact_source_stale", request_id: "request" } }) });
-      }
-      return Promise.resolve({ ok: true, status: 200, json: async () => ({ data: { ...contextFixture, issues: [row] } }) });
-    }));
-    render(<RequirementCenterPage />);
-    await showAllSprintCards();
-    const card = await screen.findByText("REQ-9501").then(() => document.querySelector('[data-issue-id="REQ-9501"]') as HTMLElement);
-    fireEvent.click(within(card).getByRole("button", { name: "发起评审 →" }));
-    await waitFor(() => expect(calls).toHaveLength(1));
-    await waitFor(() => expect(document.querySelector(".rc-toast")?.textContent).toContain("运行服务未更新到最新治理门禁"));
-    expect(document.querySelector(".rc-toast")?.textContent).toContain("标准部署脚本");
+    expect(governanceActionError(new GovernanceError("内部详情",409,2606,"workspace_fact_source_stale")))
+      .toContain("运行服务未更新到最新治理门禁");
   });
 
   it("does not infer manual acceptance progress when no explicit manual task exists", async () => {
@@ -1875,9 +1819,8 @@ describe("RequirementCenterPage", () => {
     await screen.findByText(id);
     const card = document.querySelector(`[data-issue-id="${id}"]`) as HTMLElement;
     fireEvent.click(within(card).getByRole("button", { name: "加入迭代 →" }));
-    await waitFor(() => expect(objectSessionCalls).toHaveLength(1));
-    expect(objectSessionCalls[0]).toMatchObject({ object_id: id, action: "sprint-propose" });
-    expect(sessionStorage.getItem(`moonbox.governance.prompt:conv-${id}`)).toBe(`/sprint-propose ${flag} ${id}`);
+    expect(objectSessionCalls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:id,text:`/sprint-propose ${flag} ${id}`});
     expect(window.location.pathname).toBe("/chat");
   });
 
@@ -1955,9 +1898,8 @@ describe("RequirementCenterPage", () => {
     const bugCard = document.querySelector('[data-issue-id="BUG-0199"]') as HTMLElement;
     expect(within(bugCard).getByRole("button", { name: "Bug 分析" }).getAttribute("title")).toBe("/bug-explore BUG-0199");
     fireEvent.click(within(reqCard).getByRole("button", { name: "需求分析" }));
-    await waitFor(() => expect(objectSessionCalls).toHaveLength(1));
-    expect(objectSessionCalls[0]).toMatchObject({ object_id: "REQ-0199", action: "req-explore" });
-    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-req-explore")).toBe("/req-explore REQ-0199-capture-analysis");
+    expect(objectSessionCalls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:"REQ-0199",text:"/req-explore REQ-0199-capture-analysis"});
     expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 
@@ -2014,26 +1956,21 @@ describe("RequirementCenterPage", () => {
     expect(within(card).getByRole("button", {name: "查看进度 →"}).hasAttribute("disabled")).toBe(false);
   });
 
-  it.each([true, false])("handles a busy preparation race without overwriting drafts (visible=%s)", async visible => {
-    const fixture = { ...contextFixture, issues: [{
-      id: "BUG-0200", type: "bug", title: "执行竞争", owner: "团队", source: "capture",
-      stage: "capture", documents: ["capture.md", "trace.md"], updated_at: "20:16",
-    }] };
-    stubFetch("fetch", vi.fn(input => Promise.resolve({ok:true,status:200,json:async()=>({data:
-      String(input).endsWith("/governance-preparations")
-        ? { conversation_id: visible ? "original-run" : null, view_conversation_id: visible ? "original-run" : null, can_send:false,execution_state:"running",prompt:"" }
-        : fixture
-    })})));
-    sessionStorage.setItem("moonbox.governance.prompt:original-run", "保留的草稿");
-    render(<RequirementCenterPage />);
-    await showAllSprintCards();
-    await screen.findByText("BUG-0200");
-    const card = document.querySelector('[data-issue-id="BUG-0200"]') as HTMLElement;
-    fireEvent.click(within(card).getByRole("button", { name: "生成 Bug →" }));
-    await waitFor(() => expect(screen.getByText("对象正在执行，请查看当前执行")).toBeTruthy());
-    expect(new URLSearchParams(location.search).get("conversation_id")).toBe(visible ? "original-run" : null);
+  it("opens Chat immediately once without preparing a candidate or altering existing drafts", async () => {
+    const row={id:"BUG-0200",type:"bug",title:"快速打开",owner:"团队",stage:"capture",documents:["capture.md","trace.md"]};
+    const writes: string[]=[];
+    stubFetch("fetch",vi.fn((input,init)=>{
+      if(init?.method === "POST") writes.push(String(input));
+      return Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})});
+    }));
+    sessionStorage.setItem("moonbox.governance.prompt:original-run","保留的草稿");
+    render(<RequirementCenterPage/>);await showAllSprintCards();
+    const button=within((await screen.findByText("BUG-0200")).closest("article") as HTMLElement).getByRole("button",{name:"生成 Bug →"});
+    fireEvent.click(button);const first=readObjectChatIntent();fireEvent.click(button);
+    expect(location.pathname).toBe("/chat");expect(readObjectChatIntent()?.id).toBe(first?.id);
+    expect(first).toMatchObject({objectId:"BUG-0200",text:"/bug-generate BUG-0200"});
+    expect(writes).toHaveLength(0);
     expect(sessionStorage.getItem("moonbox.governance.prompt:original-run")).toBe("保留的草稿");
-    expect(sessionStorage.getItem("moonbox.governance.prompt:null")).toBeNull();
   });
 
   it("starts real bug-generate governance preparation for captured bugs", async () => {
@@ -2066,11 +2003,9 @@ describe("RequirementCenterPage", () => {
     const bugCard = await screen.findByText("BUG-0200").then(() => document.querySelector('[data-issue-id="BUG-0200"]') as HTMLElement);
     fireEvent.click(within(bugCard).getByRole("button", { name: "生成 Bug →" }));
 
-    await waitFor(() => expect(calls).toHaveLength(1));
-    expect(calls[0]).toMatchObject({ object_id: "BUG-0200", action: "bug-generate" });
-    expect((calls[0] as { idempotency_key?: string }).idempotency_key).toMatch(/^[A-Za-z0-9_-]+$/);
-    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-bug")).toBe("/bug-generate BUG-0200");
-    expect(sessionStorage.getItem("moonbox.governance.executionPrompt:conv-bug")).toBeNull();
+    expect(calls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:"BUG-0200",text:"/bug-generate BUG-0200"});
+    expect(location.pathname).toBe("/chat");
   });
 
   it("preserves real req-generate governance preparation for captured requirements", async () => {
@@ -2096,9 +2031,9 @@ describe("RequirementCenterPage", () => {
     const reqCard = await screen.findByText("REQ-0200").then(() => document.querySelector('[data-issue-id="REQ-0200"]') as HTMLElement);
     fireEvent.click(within(reqCard).getByRole("button", { name: "生成需求 →" }));
 
-    await waitFor(() => expect(calls).toHaveLength(1));
-    expect(calls[0]).toMatchObject({ object_id: "REQ-0200", action: "req-generate" });
-    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-req")).toBe("/req-generate REQ-0200-full-id");
+    expect(calls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:"REQ-0200",text:"/req-generate REQ-0200"});
+    expect(location.pathname).toBe("/chat");
   });
 
   it("keeps unknown governance commands in Codex without opening a product object session", async () => {
@@ -2281,9 +2216,8 @@ describe("RequirementCenterPage", () => {
 
     const reqCard = document.querySelector('[data-issue-id="REQ-9400"]') as HTMLElement;
     fireEvent.click(within(reqCard).getByRole("button", { name: "发起评审 →" }));
-    await waitFor(() => expect(calls).toHaveLength(1));
-    expect(calls[0]).toMatchObject({ object_id: "REQ-9400", action: "req-review" });
-    expect(sessionStorage.getItem("moonbox.governance.prompt:conv-review")).toBe("/req-review REQ-9400 --approve");
+    expect(calls).toHaveLength(0);
+    expect(readObjectChatIntent()).toMatchObject({objectId:"REQ-9400",text:"/req-review REQ-9400 --approve"});
     expect(screen.queryByRole("dialog", { name: "审阅治理成果" })).toBeNull();
   });
 

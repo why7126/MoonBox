@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-01 | failed | command | openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-1.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-2.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-3.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-4.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-cold-5.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-warm.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-baseline-concurrent.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-1.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-2.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-3.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-4.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-cold-5.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-warm.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/fixed-final-candidate-concurrent.json,openspec/changes/fix-object-session-preparation-latency/evidence/implementation/natural-browser.json |

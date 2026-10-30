@@ -2,7 +2,7 @@ import { readAccessToken } from "./workbenchAccount";
 import { isAbortError } from "../chat/chatApi";
 export type Project = { space_id: string; repository_id: string; status: "connected" | "unavailable"; readonly: boolean };
 export type Application = { id: string; state: string; phase: string; error_code?: string };
-export type GovernanceErrorDetails = { reason?: string; roots?: string[]; categories?: string[]; suggested_action?: string; dirty_count?: number };
+export type GovernanceErrorDetails = { operation_id?: string; findings?: import("../../api/generated/governance").ArchiveFinding[]; reason?: string; roots?: string[]; categories?: string[]; suggested_action?: string; dirty_count?: number };
 export class GovernanceError extends Error {
   constructor(message: string, public status: number, public code?: number, public kind?: string, public requestId?: string, public details?: GovernanceErrorDetails) { super(message); }
 }
@@ -23,6 +23,8 @@ export async function governanceRequest<T>(url: string, options: RequestInit = {
   const body = await response.json().catch(() => ({}));
   const data = body && typeof body.data === "object" ? body.data : undefined;
   const details = data ? {
+    operation_id: typeof data.operation_id === "string" ? data.operation_id : undefined,
+    findings: Array.isArray(data.findings) ? data.findings : undefined,
     reason: typeof data.reason === "string" ? data.reason : undefined,
     roots: Array.isArray(data.roots) ? data.roots.filter((item: unknown) => typeof item === "string") : undefined,
     categories: Array.isArray(data.categories) ? data.categories.filter((item: unknown) => typeof item === "string") : undefined,
@@ -44,7 +46,9 @@ export async function governanceTextRequest(url: string, options: RequestInit = 
     const body = await response.clone().json().catch(() => ({}));
     const data = body && typeof body.data === "object" ? body.data : undefined;
     const details = data ? {
-      reason: typeof data.reason === "string" ? data.reason : undefined,
+      operation_id: typeof data.operation_id === "string" ? data.operation_id : undefined,
+    findings: Array.isArray(data.findings) ? data.findings : undefined,
+    reason: typeof data.reason === "string" ? data.reason : undefined,
       roots: Array.isArray(data.roots) ? data.roots.filter((item: unknown) => typeof item === "string") : undefined,
       categories: Array.isArray(data.categories) ? data.categories.filter((item: unknown) => typeof item === "string") : undefined,
       suggested_action: typeof data.suggested_action === "string" ? data.suggested_action : undefined,

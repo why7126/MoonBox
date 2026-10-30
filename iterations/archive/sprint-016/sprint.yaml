@@ -1,0 +1,94 @@
+sprint_id: sprint-016
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-29 16:31:36'
+updated_at: '2026-10-30 22:43:28'
+start_date: '2026-10-29 16:31:36'
+end_date: '2026-11-12 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+  - REQ-0048-chat-isolated-acceptance-orchestration
+bugs:
+  - BUG-0057-requirement-card-chat-navigation-latency
+estimated_story_points: 31
+estimated_person_days: 32
+knowledge_intake:
+- action_id: S10-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 保留已归档依赖证据和完整需求未完成边界
+- action_id: S10-A002
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 成功、拒绝、恢复、真实产品和视觉分别签认
+- action_id: S11-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 剩余范围13人天估算，保留17人天缓冲，不重复计算已交付5人天
+- action_id: S12-A001
+  source: docs/knowledge-base/retrospectives/sprint-013-retrospective.md
+  scope: 治理脚本统一Python入口，资源回收可恢复
+- action_id: S15-A001
+  source: docs/knowledge-base/retrospectives/sprint-015-retrospective.md
+  scope: BUG-0057只同步当前Sprint，不重放旧归档事件；检查iteration与registry一致，不宣称修复通用重放问题
+- action_id: S15-A002
+  source: docs/knowledge-base/retrospectives/sprint-015-retrospective.md
+  scope: BUG-0057范围追加后校验YAML键唯一与Scope一致，不自动扩大脚本修复
+carryover_from: sprint-015
+scope_estimates:
+  - id: REQ-0048-chat-isolated-acceptance-orchestration
+    change: add-chat-isolated-acceptance-orchestration
+    requirement: REQ-0048-chat-isolated-acceptance-orchestration
+    size: XXL
+    story_points: 13
+    estimated_person_days: 13
+    rationale: 用户授权承接sprint-015剩余范围：环境模板及短期身份4、原操作续接停止撤权3、双库产品视觉回收验收6人天；复用已交付候选供应，保留17人天缓冲
+  - id: fix-git-privacy-context-detection
+    change: fix-git-privacy-context-detection
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 明确授权优化隐私扫描误报与漏报，含正反例测试及仓库对照
+  - id: fix-archive-finalization-consistency
+    change: fix-archive-finalization-consistency
+    size: M
+    story_points: 3
+    estimated_person_days: 3
+    rationale: 跨入口归档收尾与文档一致性第一批修复
+  - id: add-object-archive-diagnostics
+    change: add-object-archive-diagnostics
+    size: L
+    story_points: 5
+    estimated_person_days: 5
+    rationale: 用户授权追加对象级归档查询与诊断展示：诊断传播1、只读查询与授权1.5、前端与视觉1.5、真实跨入口验收1人天；依赖fix-archive-finalization-consistency；保留接口兼容、原操作授权和历史证据，不新增持久字段、不改变部分交付策略；22/30人天，缓冲8人天低于30%建议，不扩大范围
+  - id: fix-archive-recovery-metadata-sync
+    change: fix-archive-recovery-metadata-sync
+    size: S
+    story_points: 1
+    estimated_person_days: 1
+    rationale: 用户授权修复 REQ-0048 归档同步、受保护元数据恢复和引用冲突，保留证据并完成收尾
+  - id: improve-root-cause-evidence-closure
+    change: improve-root-cause-evidence-closure
+    size: S
+    story_points: 2
+    estimated_person_days: 1
+    rationale: 用户明确授权根因确认范围、诊断升级、正反例评测与当前历史文档分层；纯治理，不关联或推进 BUG 修复
+  - id: BUG-0057-requirement-card-chat-navigation-latency
+    change: fix-object-session-preparation-latency
+    bug: BUG-0057-requirement-card-chat-navigation-latency
+    size: L
+    story_points: 5
+    estimated_person_days: 8
+    rationale: 原5人天追加快速打开与发送最终检查3人天初估；容量保持30、其他任务不变，32/30超额风险已获授权；缓冲耗尽，不降低权限、一致性、幂等和验收门禁
+capacity_usage: 1.0667
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+
+changes:
+  - add-chat-isolated-acceptance-orchestration
+  - fix-git-privacy-context-detection
+  - fix-archive-finalization-consistency
+  - add-object-archive-diagnostics
+  - fix-archive-recovery-metadata-sync
+  - improve-root-cause-evidence-closure
+  - fix-object-session-preparation-latency

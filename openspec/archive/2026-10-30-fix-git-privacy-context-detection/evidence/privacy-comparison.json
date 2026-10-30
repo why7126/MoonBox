@@ -1,0 +1,23 @@
+{
+  "baseline_source": "HEAD tracked text, same content for both scanners",
+  "baseline_count": 327,
+  "baseline_rules": {
+    "privacy-phone": 323,
+    "privacy-email": 4
+  },
+  "original_findings_remaining_on_same_content": 2,
+  "original_findings_resolved_by_context": 325,
+  "baseline_classification": {
+    "hash_or_artifact_digest": 278,
+    "measurement_fraction": 44,
+    "escaped_python_decorator": 2,
+    "reserved_git_identity": 1,
+    "intentional_test_samples": 2
+  },
+  "worktree_scan": {
+    "files": 15413,
+    "errors": 0,
+    "warnings": 0
+  },
+  "test_source_adjustments": "Runtime assembly preserves fixtures; no directory exemptions."
+}

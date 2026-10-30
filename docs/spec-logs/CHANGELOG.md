@@ -2,11 +2,21 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-29 06:54:25
+updated_at: 2026-10-30 14:54:44
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-10-30 14:53:29 · governance · [根因确认范围与受控诊断治理复盘](20261030145329-governance-root-cause-closure.md)：范围、停止条件、诊断升级与历史分层。
+
+- 2026-10-30 12:10:50 · governance · [归档恢复状态与受保护引用一致性](20261030121050-governance-archive-recovery-metadata-sync.md)：REQ-0048 收尾通过，原证据与恢复日志不变。
+
+- 2026-10-30 11:00:00 · governance · [原生隔离验收证据接入](20261030110000-governance-native-acceptance-proof.md)：REQ-0048 原生工具事实只读签认，保留归集、身份、一次续接和预算门禁。
+
+- 2026-10-30 09:04:53 · governance · [归档收尾一致性第一批](20261030090453-governance-archive-finalization.md)：共享完成判定、普通导航与当前正文检查、恢复和报告回归，保留历史与部分交付策略。
+
+- 2026-10-30 08:56:21 · governance · [Git 隐私扫描上下文优化](20261030085621-governance-git-privacy-context.md)：有限上下文排误报，收窄 URL 与占位符豁免，补齐正反例验证。
 
 - 2026-10-29 06:54:25 · governance · [Issue 迁移原型引用保护](20261029065425-governance-issue-prototype-references.md)：原型入口与本地资源预检、后检、历史排除及只读预览回归。
 

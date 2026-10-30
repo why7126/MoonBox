@@ -87,7 +87,7 @@ def read_body(fd, size):
     return b''.join(chunks)
 
 
-def read_once(root, *, reuse=None, identities=None, workers=1, profile='full', byte_candidates=None):
+def read_once(root, *, reuse=None, identities=None, workers=1, profile='full', byte_candidates=None, root_fd=None):
     if profile not in ('full', 'summary'): raise ValueError('profile')
     if workers not in (1, 2, 4): raise ValueError('workers')
     files = {}; total = 0
@@ -176,7 +176,9 @@ def read_once(root, *, reuse=None, identities=None, workers=1, profile='full', b
             if pending: wait(pending)
         for future in pending:
             future.result()
-    fd = os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    # An internal caller may pin an already NOFOLLOW-opened directory while
+    # checking two authorized names for the same physical tree. Own only a dup.
+    fd = os.dup(root_fd) if root_fd is not None else os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     try:
         for name in ROOTS:
             if profile == 'summary' and name in ('docs', 'rules'): continue

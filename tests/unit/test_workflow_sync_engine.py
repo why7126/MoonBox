@@ -536,3 +536,43 @@ def test_archived_dependency_keeps_partial_issue_open(tmp_path):
     (tmp_path/'acceptance.md').write_text('---\nacceptance_status: partial\n---\n')
     change=DerivedChange('dependency','archived','archived','archived',1,1,issue.issue_id,None,'2026-10-29')
     assert derive_issue(issue,{'dependency':change},None).display_status=='in_sprint'
+
+
+@pytest.mark.parametrize('older_state,partial,expected', [
+    ('archived', False, 'done'), ('applied', False, 'in_sprint'),
+    ('proposed', False, 'in_sprint'), ('archived', True, 'in_sprint')])
+def test_change_only_archive_loads_cross_sprint_siblings(tmp_path, monkeypatch, older_state, partial, expected):
+    import scripts.workflow_sync.engine as e
+    import scripts.workflow_sync.title_gate as titles
+    issue = IssueRecord(issue_id='REQ-9114', kind='req', path=tmp_path / 'issue',
+                        trace_status='in_sprint', related_change='old-change',
+                        openspec_changes=[{'change_id': 'old-change'}, {'change_id': 'new-change'}])
+    issue.path.mkdir()
+    (issue.path / 'acceptance.md').write_text('---\nacceptance_status: '+('partial' if partial else 'passed')+'\n---\n')
+    sprint = SprintRecord('sprint-099', tmp_path / 'sprint', 'active', requirements=[issue.issue_id], changes=['new-change'])
+    monkeypatch.setattr(e, 'ROOT', tmp_path)
+    monkeypatch.setattr(titles, 'validate_generated', lambda *_: [])
+    monkeypatch.setattr(e, 'resolve_sprint_id', lambda *a, **k: ('sprint-099', None))
+    monkeypatch.setattr(e, 'load_sprint', lambda *_: sprint)
+    monkeypatch.setattr(e, 'load_all_issues', lambda: {issue.issue_id: issue})
+    monkeypatch.setattr(e, 'run_openspec_list', lambda: {})
+    loaded = []
+    def load(cid, *_):
+        loaded.append(cid)
+        return DerivedChange(cid, older_state if cid == 'old-change' else 'archived', '', '', 1, 1, issue.issue_id, None, None)
+    monkeypatch.setattr(e, 'load_change_record', load)
+    monkeypatch.setattr(e, 'derive_change_state', lambda rec: rec)
+    monkeypatch.setattr(e, 'sync_classification', lambda *a, **k: [])
+    for name in ('patch_sprint_md', 'patch_release_note', 'patch_acceptance_report', 'patch_issue_trace',
+                 'patch_registry_entry', 'patch_issue_changelog_index', 'patch_parent_requirement_bug_index'):
+        monkeypatch.setattr(e, name, lambda *a, **k: PatchResult('noop', False, ''))
+    captured = []
+    def sync(issue, derived, **kwargs):
+        captured.append(derived.display_status)
+        return SubdocumentSyncResult(issue_id=issue.issue_id)
+    monkeypatch.setattr(e, 'sync_issue_subdocuments', sync)
+    report = e.SyncEngine(dry_run=True).run(sprint_id='auto', event='opsx.archive', change_id='new-change')
+    assert report.ok, report.errors
+    assert set(loaded) == {'old-change', 'new-change'}
+    assert captured == [expected]
+    assert sprint.changes == ['new-change']

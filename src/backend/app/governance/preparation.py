@@ -78,6 +78,49 @@ def _ensure_executor_snapshot(project):
     return projected
 
 
+def _object_session_snapshot(db, actor, project):
+    """Read fresh source/projection bytes inside the reader's epoch/auth fence.
+
+    Retained bytes are only candidates for an independent complete safe read.
+    Never carry this result across reconciliation or another request boundary.
+    """
+    from app.governance.read_snapshot import stable_read
+    reader = ProjectReader(db, actor, project)
+
+    def load():
+        if getattr(project, 'source_root_unavailable', False):
+            raise _workspace_standard_deployment_outdated()
+        source_root = getattr(project, 'source_root', None) or project.root
+        # Identical authorized roots describe one tree, not two replicas.
+        if source_root == project.root:
+            return stable_read(project.root, project.binding_revision, parallel_cold=True)
+        from app.governance.read_snapshot import stable_alias_read
+        aliased = stable_alias_read(project.root, source_root, project.binding_revision, parallel_cold=True)
+        if aliased is not None:
+            return aliased
+        from app.governance.read_snapshot import read_workers
+        if read_workers() > 1:
+            # Independent replicas can overlap on sufficiently provisioned
+            # hosts. Every read still opens and validates all file bytes.
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                projected_read = pool.submit(stable_read, project.root, project.binding_revision)
+                source = stable_read(source_root, project.binding_revision)
+                projected = projected_read.result()
+        else:
+            projected = stable_read(project.root, project.binding_revision)
+            source = stable_read(source_root, project.binding_revision)
+        if source.revision != projected.revision:
+            projected = stable_read(project.root, project.binding_revision)
+        if source.revision != projected.revision:
+            raise service.ChatError(2606, '治理目录与源工作区内容不一致，请同步事实源后重试。',
+                409, kind='workspace_fact_source_stale',
+                details={'reason': 'manifest_mismatch', 'suggested_action': 'sync_governance_facts'})
+        return projected
+
+    return reader, reader.snapshot(loader=load)
+
+
 def _real_source_workspace(project, source, workspace):
     root=getattr(project,'source_root',None) or project.root
     try:
@@ -243,9 +286,7 @@ def _preflight_object_session_authorized(db, actor, project, object_id, action):
     name=_action_name(action)
     if name in READ_ONLY_OBJECT_ACTIONS:
         return relations.resolve_object(db,actor,project.space_id,project.repository_id,object_id)
-    _ensure_executor_snapshot(project)
-    reader=ProjectReader(db,actor,project)
-    snapshot=reader.snapshot()
+    reader, snapshot = _object_session_snapshot(db, actor, project)
     if object_id.startswith('sprint-') or name == 'sprint-archive':
         if name != 'sprint-archive':
             raise service.ChatError(2604, '该动作不适用于 Sprint 对象', 422)
@@ -369,7 +410,7 @@ def _current_workspace_candidate(db, cid, turn_id=None):
         .order_by(candidates.c.created_at.desc(), candidates.c.id.desc()).limit(1)).mappings().first()
 
 
-def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',request_id=None,idempotency_key=None):
+def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',request_id=None,idempotency_key=None,*,conversation_id=None):
     project=scope.authorize(db,actor,space_id,repository_id,write=True)
     _ensure_executor_snapshot(project)
     store.root()  # Fail before creating a conversation if private storage is unavailable.
@@ -395,7 +436,14 @@ def prepare(db,actor,space_id,repository_id,object_id,action='req-generate',requ
         allowed_stages = ('captured', 'exploring') if action == 'req-generate' else ('captured',)
         if metadata.get('status') not in allowed_stages or not baseline.files[f'{base}/capture.md'].strip(): raise ValueError()
     except (KeyError,ValueError): raise service.ChatError(2604,f"{spec['kind_cn']}需处于采集池且 capture、trace 完整",409)
-    parent=_latest_object_conversation(db,actor,space_id,repository_id,object_id)
+    parent=(service.conversation(db,actor,conversation_id) if conversation_id
+            else _latest_object_conversation(db,actor,space_id,repository_id,object_id))
+    if conversation_id:
+        primary=db.scalar(select(chat_relations.c.object_id).where(
+            chat_relations.c.conversation_id==conversation_id,chat_relations.c.role=='primary'))
+        if (parent['space_id']!=space_id or parent['repository_id']!=repository_id
+                or primary!=object_id or parent['archived']):
+            raise service.ChatError(2604,'生成命令必须匹配当前会话主对象',409)
     reused=bool(parent)
     from app.governance.execution_context import reconcile, visible_state
     reconcile(db, actor, project)
@@ -446,7 +494,7 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
     project=scope.authorize(db,actor,space_id,repository_id,write=action not in READ_ONLY_OBJECT_ACTIONS)
     from app.governance.execution_context import reconcile, visible_state
     if action not in READ_ONLY_OBJECT_ACTIONS:
-        _ensure_executor_snapshot(project)
+        _object_session_snapshot(db, actor, project)
     try:
         resolved = relations.resolve_object(db, actor, space_id, repository_id, object_id)
     except service.ChatError:
@@ -456,8 +504,13 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
             _preflight_object_session(db, actor, project, object_id, action)
         raise
     object_id = resolved['id']
-    reconcile(db, actor, project)
-    if object_id.startswith('sprint-'):
+    from app.governance.read_snapshot import stable_read
+    # Opening is read admission only. Final write admission and recovery run
+    # against fresh facts when the user actually submits a command.
+    if action != 'open-chat':
+        reconcile(db, actor, project,
+                  snapshot_loader=lambda: stable_read(project.root, project.binding_revision, parallel_cold=True))
+    if object_id.startswith('sprint-') and action != 'open-chat':
         from app.governance.execution_context import reconcile_external
         sprint_snapshot = ProjectReader(db, actor, project).snapshot()
         stage = 'done' if f'iterations/archive/{object_id}/sprint.yaml' in sprint_snapshot.files else 'sprint-planning'
@@ -465,7 +518,7 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
     state = visible_state(db, actor, project, object_id)
     if not state['can_send']:
         from app.governance.observability import trace
-        trace(db, request_id or str(uuid4()), 'conflict', actor=actor, request_id=request_id,
+        trace(db, request_id or str(uuid4()), 'conflict', actor=actor, request_id=request_id, serialize_sqlite=True,
               metadata={'object_id': object_id, 'action_type': action,
                         'result': state.get('reason_code') or 'object_busy'})
         db.commit()
@@ -483,7 +536,7 @@ def prepare_object_session(db,actor,space_id,repository_id,object_id,action='ope
         parent=service.create_conversation(db,actor,space_id,repository_id,f"{object_id} · {item['title']}",client_request_id=token)
         relations.set_relations(db,actor,parent['id'],object_id,[])
     from app.governance.observability import trace
-    trace(db,parent['id'],'prepared',actor=actor,request_id=request_id,
+    trace(db,parent['id'],'prepared',actor=actor,request_id=request_id,serialize_sqlite=True,
         metadata={'object_id':object_id,'action_type':action,'conversation_id':parent['id'],
             'result':'reused_conversation' if reused else 'new_conversation'})
     db.commit()
@@ -529,6 +582,36 @@ def _create_sprint_conversation(db, actor, project, item):
 def for_conversation(db,cid):
     return db.execute(select(candidates).where(candidates.c.conversation_id==cid)
         .order_by(candidates.c.created_at.desc(),candidates.c.id.desc())).mappings().first()
+
+
+def prepare_send(db, actor, parent, prompt, client_id, request_id=None):
+    """Final write checks; a fast-open response never grants execution rights."""
+    command = _write_command(prompt)
+    if not command:
+        return parent
+    action, object_id = command
+    project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
+    from app.governance.execution_context import reconcile, visible_state
+    reconcile(db, actor, project)
+    resolved = relations.resolve_object(db, actor, parent['space_id'], parent['repository_id'], object_id)
+    state = visible_state(db, actor, project, resolved['id'])
+    if not state['can_send']:
+        raise service.ChatError(2504, '对象正在执行或结果待核对，请查看原执行', 409,
+                                kind=state.get('reason_code') or 'object_busy')
+    parent = service.conversation(db, actor, parent['id'])
+    if parent['archived'] or parent['active_turn_id']:
+        raise service.ChatError(2504, '会话只读或原运行尚未终止', 409)
+    if action in ('req-generate', 'bug-generate'):
+        candidate = _current_prepared_candidate(db, parent['id'])
+        if candidate and (candidate['object_id'] != resolved['id'] or candidate['action'] != action):
+            raise service.ChatError(2604, '当前会话存在其他待发送治理动作，请先处理原动作', 409)
+        if not candidate:
+            result = prepare(db, actor, parent['space_id'], parent['repository_id'], resolved['id'],
+                             action=action, request_id=request_id, idempotency_key=client_id,
+                             conversation_id=parent['id'])
+            if result.get('can_send') is False or result.get('conversation_id') != parent['id']:
+                raise service.ChatError(2504, '对象状态已变化，请查看原执行', 409)
+    return parent
 
 
 def check_send(db,actor,parent):

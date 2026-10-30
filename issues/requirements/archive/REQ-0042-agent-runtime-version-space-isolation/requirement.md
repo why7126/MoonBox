@@ -9,7 +9,7 @@ source: capture.md 与同会话已确认探索
 priority: P1
 parent_requirement: null
 created_at: '2026-10-28 23:51:25'
-updated_at: 2026-10-29 16:26:13
+updated_at: 2026-10-30 09:12:20
 related_requirements:
 - REQ-0040-space-agent-model-reasoning-config
 - REQ-0054-workspace-recovery-points
@@ -154,10 +154,10 @@ product_data_collection_observability: applicable。affected_layers 为 Web、AP
 
 ## 11. 当前状态
 
-- 状态：in_sprint（已纳入 sprint-015）；P1。
-- 已完成：PRD、用户故事、业务流程、验收标准、追溯与交互原型拆解、需求评审。
-- 已创建 Change：`update-unified-workspace-runtime`；尚未实现与产品验收。
-- 下一步：`/opsx-apply REQ-0042-agent-runtime-version-space-isolation`。
+- 状态：done；已完成 sprint-015 交付，优先级 P1 保持不变。
+- 已完成：需求评审、实现、逐项验收与归档；既有能力边界和历史限制保留。
+- Change `update-unified-workspace-runtime` 已归档；已有验收记录见 [update-unified-workspace-runtime验收报告](../../../../openspec/archive/2026-10-29-update-unified-workspace-runtime/evidence/acceptance/20261029124936930594-377f0a36/summary.md)。
+- 后续：本需求无待执行开发或归档步骤；新的需求按独立流程处理。
 
 ## 实现一致性补充（2026-10-29）
 

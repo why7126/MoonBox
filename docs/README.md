@@ -2,7 +2,7 @@
 purpose: 文档入口
 content: MoonBox 文档导航
 created_at: 2026-07-29 22:55:00
-updated_at: 2026-10-26 12:57:16
+updated_at: 2026-10-30 14:51:04
 owner: MoonBox 产品团队
 ---
 
@@ -47,3 +47,5 @@ owner: MoonBox 产品团队
 - [探索反馈与统一维护交接](standards/governance-feedback-loop.md#探索反馈与统一维护交接)：explore 只读反馈、分类去重、维护评测及版本生效；[代表案例](../.agents/skills/explore/evals/cases.md)仅维护时读取。
 
 - [归档 Shell 解释器继承](../scripts/README.md#归档-shell-解释器继承)：承接统一 Python 入口，覆盖内部调用及隔离回归。
+
+- [根因诊断与证据闭环](standards/root-cause-diagnostics.md)：确认范围、停止条件、受控诊断与正反例评测。

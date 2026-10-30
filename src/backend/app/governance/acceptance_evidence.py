@@ -75,8 +75,15 @@ def read_plan(change_dir: Path) -> dict:
             if (check.get("turn_id") is not None and not ID.fullmatch(str(check["turn_id"]))) or not isinstance(check.get("command_contains"), str) or not check["command_contains"]:
                 raise ValueError(f"{name}: turn_id and command_contains required")
             proof = check.get("execution_proof", "command")
-            if proof not in {"command", "trusted_archive_v1"}:
+            if proof not in {"command", "trusted_archive_v1", "isolated_acceptance_v1"}:
                 raise ValueError(f"{name}: invalid execution proof")
+            if proof == "isolated_acceptance_v1":
+                from app.verification.acceptance_proof import MODES
+                if (not isinstance(check.get('operation_id'),str) or not ID.fullmatch(check['operation_id'])
+                        or check.get('acceptance_mode') not in MODES
+                        or check.get('operation_status','passed') not in {'passed','blocked','failed','cancelled'}
+                        or check['command_contains']!='moonbox_acceptance'):
+                    raise ValueError(f"{name}: invalid isolated acceptance proof")
             if proof == "trusted_archive_v1":
                 object_id = check.get("trusted_archive_object_id")
                 if (not isinstance(object_id, str) or not re.fullmatch(r"sprint-\d{3}", object_id)

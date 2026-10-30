@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "services": {
+    "backend": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:49a9deeae2a0f9a9362b87b59a4f55073072355ec3389df629942bb53dc33285",
+      "code_matches": true
+    },
+    "chat-worker": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:0671e4b522075320c4ce7606482654ff7ee48dc24c1340165da49750bb238ae4",
+      "code_matches": true
+    },
+    "governance-controller": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:49a9deeae2a0f9a9362b87b59a4f55073072355ec3389df629942bb53dc33285",
+      "code_matches": true
+    },
+    "replacement-signer-1": {
+      "status": "running",
+      "health": "healthy",
+      "image": "sha256:49a9deeae2a0f9a9362b87b59a4f55073072355ec3389df629942bb53dc33285",
+      "code_matches": true
+    },
+    "web": {
+      "status": "running",
+      "health": "not-configured",
+      "image": "sha256:e41a3a32f3af1400c0c2e12b2926b1cff7a798949c4288bce60b0cfcedc1416e"
+    }
+  },
+  "health_status": 200,
+  "web_manifest_matches": true,
+  "deployed_code_hashes": {
+    "preparation": "15bca43d369acfa68f059e1015f27760ade504db7eb98c905a2bdc7a0e772169",
+    "reader": "1b50cc9a05025d434c9cfe8455d564a22d356bf9c5f1d517dee2cf015ec90316",
+    "execution_context": "938e8b8d39430e9219957cb3a80d20421c7f9748da48f52ee435885e71a17151",
+    "snapshot": "4be8ddef4419ee17c1930f44417a2acb10899bb0ad84a19116f81cab91fab2ea",
+    "read_snapshot": "01a4e60f18cac6fb1e9455e92624414c3bb242a12449f8e8fc56d6e03a53561a",
+    "observability": "0115c893fe0790fa590c24f4b89a178994cda8c930fa83f847f109e647911d1e"
+  },
+  "executor_image": "sha256:90dbdb34ad0445e51801ab8db328e015e9f7e5e0b5de8a1571183cd5f43787d7",
+  "sample_count": 10,
+  "server_median_ms": 5231.0,
+  "server_max_ms": 8369,
+  "route_median_upper_ms": 5360.5,
+  "route_max_upper_ms": 8528,
+  "http_errors": 0,
+  "performance_target_passed": false,
+  "pairing": "unique ordered requests and click time windows, not browser response-header capture",
+  "rollback_script": "logs/bug0057-deploy/deploy.sh rollback",
+  "temporary_containers_created": 0,
+  "temporary_networks_created": 0,
+  "diagnostic_hook_absent": true
+}

@@ -36,7 +36,7 @@ export function RelationsBar({ conversation, onSaved, projectStatus }: { convers
     <span>主对象 <b>{value.primary?.id || "未关联"}</b>{!!value.references?.length && <span> · {value.references.length} 个引用</span>}</span>
     <button type="button" disabled={!conversation || !!conversation.archived || !!conversation.active_turn_id} data-testid="chat-relations-trigger" onClick={() => setOpen(true)}>管理关联</button>
   </div>{error && <p className="chat-error" role="alert">{error}</p>}
-    {open && conversation && <RelationsDialog conversationId={conversation.id} initial={value} initialCandidates={candidates} initialLoading={candidatesLoading} initialReason={candidatesReason} onClose={() => setOpen(false)} onSave={data => { setValue(data); setError(""); setOpen(false); onSaved?.(data); }} />}</>;
+    {open && conversation && <RelationsDialog conversationId={conversation.id} initial={value} initialCandidates={candidates} initialLoading={candidatesLoading} initialReason={candidatesReason} onClose={() => setOpen(false)} onSave={data => { setValue(data); setError(""); setOpen(false); onSaved?.(data); window.dispatchEvent(new Event("moonbox:object-relations-changed")); }} />}</>;
 }
 export function RelationsDialog({ conversationId, initial, initialCandidates = [], initialLoading = false, initialReason = "", onClose, onSave }: { conversationId: string; initial: Relations; initialCandidates?: ObjectItem[]; initialLoading?: boolean; initialReason?: string; onClose: () => void; onSave: (value: Relations) => void }) {
   const [primary, setPrimary] = useState(initial.primary?.id || ""), [references, setReferences] = useState(initial.references?.map(r => r.id) || []);

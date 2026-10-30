@@ -696,6 +696,11 @@ def test_all_write_object_session_actions_allow_dirty_matching_facts(chat,tmp_pa
         after[f'openspec/changes/{change}/trace.md']=front({
             'change_id':change,'requirement_id':OID,'status':stage,
         })
+        if action == 'opsx-archive':
+            after[f'{BASE}/acceptance.md'] = front(
+                {'acceptance_status': 'passed', 'manual_acceptance_status': 'accepted'},
+                '\n- [x] AC-01 隔离测试夹具已验收\n')
+            after[f'openspec/changes/{change}/verification.md'] = b'Isolated fixture verification passed.\n'
     for name,body in before.items():
         path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body)
     git(source,'init');git(source,'add','.');git(source,'-c','user.name=Test','-c','user.email=test@invalid','commit','-m','captured')
@@ -711,6 +716,9 @@ def test_all_write_object_session_actions_allow_dirty_matching_facts(chat,tmp_pa
     document=source/'docs/unrelated.md';document.parent.mkdir();document.write_text('uncommitted unrelated document')
     (source/'.env').write_text('SYNTHETIC_NOT_FOR_EXECUTOR=1')
     workspaces=tmp_path/'workspaces';workspaces.mkdir()
+    if action.endswith('review'):
+        from app.governance.recovery_capabilities import publish
+        publish('worker'); publish('controller')
     with factory() as db:
         prepared=prepare_object_session(db,'alice','space','repo',oid,action=action,idempotency_key=action)
         assert prepared['object_id']==oid
@@ -719,6 +727,9 @@ def test_all_write_object_session_actions_allow_dirty_matching_facts(chat,tmp_pa
         prepare_command_snapshot(db,'alice',parent,prompt,'command')
         tid=service.identity()
         db.execute(insert(turns).values(**tid,conversation_id=parent['id'],client_request_id='command',prompt=prompt,status='connecting'))
+        if action.endswith('review'):
+            from app.governance.preparation import bind_prepared_turn
+            bind_prepared_turn(db, parent['id'], tid['id'])
         db.execute(update(conversations).where(conversations.c.id==parent['id']).values(active_turn_id=tid['id']));db.commit()
         parent=service.conversation(db,'alice',parent['id'])
         workspace=prepare_workspace(source,workspaces,parent['id'])['path']
@@ -879,6 +890,15 @@ def test_opsx_object_session_requires_linked_change_at_action_stage(chat,tmp_pat
         prepared=prepare_object_session(db,'alice','space','repo',OID,action='opsx-apply',idempotency_key='start')
         assert prepared['object_id']==OID
     target.write_bytes(front({'change_id':change,'requirement_id':OID,'status':'applied'}))
+    # Applied alone is insufficient: retain the current archive evidence gate.
+    with factory() as db:
+        with pytest.raises(service.ChatError) as error:
+            prepare_object_session(db,'alice','space','repo',OID,action='opsx-archive',idempotency_key='missing-evidence')
+        assert error.value.code == 2604
+    (root / BASE / 'acceptance.md').write_bytes(front(
+        {'acceptance_status': 'passed', 'manual_acceptance_status': 'accepted'},
+        '\n- [x] AC-01 隔离测试夹具已验收\n'))
+    (target.parent / 'verification.md').write_text('Isolated fixture verification passed.\n')
     with factory() as db:
         prepared=prepare_object_session(db,'alice','space','repo',OID,action='opsx-archive',idempotency_key='archive-ready-stage')
         assert prepared['object_id']==OID

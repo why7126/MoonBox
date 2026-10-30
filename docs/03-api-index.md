@@ -586,3 +586,16 @@ REQ-0048新增 `GET /api/v1/chat/acceptance-operations/{operation_id}/evidence/a
 仅需求中心前缀下GET请求使用ASGI响应后的同一日志持久化流程；写操作及其他路由保持原审计时序。请求ID、日志字段、保留周期及失败告警不变。每进程最多16项延后任务，满额回退同步写入，不建立无界队列；取消响应的预留槽随响应释放。正常退出等待后台任务，强杀可能丢失未落库的只读日志，响应返回不代表日志已持久化。
 
 Server-Timing的request_audit表示响应前同步写入等待，request_audit_dispatch表示延后登记；实际延后写入耗时由相同request_id的requirement_center.deferred_audit日志记录，包含success和duration_ms。endpoint_overhead覆盖Reader返回后的收尾日志及响应对象构建。route_total由dependencies、total、endpoint_overhead、response_finalize、request_audit、request_audit_dispatch独占相加；实际后台审计时长不计入响应前总时长，也不称为零成本。正文/OpenAPI模型不变，无新增DB字段。
+
+## 对象级归档查询与原操作续接
+
+- `GET /api/v1/chat/archive-operations?space_id=…&repository_id=…&object_id=…`：授权后查询当前对象关联的普通、历史受控或 Sprint 归档操作；无记录不创建操作。返回 `association_scope=current_object`、`operations`、`not_started_targets` 和聚合摘要。
+- 操作分别返回已提交 `stage/revision`、当前 `verification`（时间、输入指纹、安全 findings）和建议动作。`completed` 不因当前文档残留而被改写；并发变化返回 stale 或读取错误，不能宣称当前通过。缺失执行占用依据时不开放续接。
+- `POST /api/v1/chat/archive-operations/resume`：显式 `confirmed=true`，携带项目、目标对象和 `operation_id`。只续接已有未完成原操作，服务端重新检查权限、原操作者、绑定与既有恢复门禁，不扩大多对象范围；已完成对象只读复核。
+- 既有归档执行响应保持兼容。409 增量保留 `archive_finalization_blocked`、安全 `operation_id/findings`；字段数量、路径与文案有界，凭据、绝对路径、manifest、围栏和原文不出站。在线 CLI 保留相同专属原因。
+- 沿用现有请求审计和 request_id。UI/执行事件仅提示刷新，不授予执行权限；不新增数据库字段、历史失败快照或遥测事件体系。
+
+
+### BUG-0057 快速打开返修（2026-10-30）
+
+对象会话 action=open-chat 仅进行读取准入及会话定位；写命令通过 turns 提交时执行最新治理准备，字段与错误码兼容。governance-preparations 保留原语义。

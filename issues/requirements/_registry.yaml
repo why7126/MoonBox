@@ -1,5 +1,19 @@
-next_id: 57
+next_id: 58
 entries:
+- id: REQ-0057-standalone-change-priority
+  title: "独立 Change 优先级定义与卡片展示"
+  status: pending_review
+  priority: P2
+  owner: 产品团队
+  source: 用户 capture 授权与同会话 explore
+  lifecycle_stage: plan
+  path: issues/requirements/plan/REQ-0057-standalone-change-priority/
+  created: '2026-10-30 09:37:37'
+  iteration: null
+  related_change: null
+  parent_requirement: REQ-0056-requirement-center-change-delivery-cards
+  related_requirements:
+  - REQ-0056-requirement-center-change-delivery-cards
 - id: REQ-0056-requirement-center-change-delivery-cards
   title: "需求中心交付阶段按 Change 独立成卡"
   status: pending_review
@@ -139,12 +153,12 @@ entries:
   - REQ-0039-requirement-center-card-chat-session-reuse
 - id: REQ-0048-chat-isolated-acceptance-orchestration
   title: "Chat 隔离验收环境编排与原操作续接"
-  status: in_sprint
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户确认 BUG-0045 探索拆分
-  lifecycle_stage: review
-  path: issues/requirements/review/REQ-0048-chat-isolated-acceptance-orchestration/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0048-chat-isolated-acceptance-orchestration/
   created: '2026-10-21 16:24:14'
   iteration: sprint-016
   related_change: add-chat-isolated-acceptance-orchestration

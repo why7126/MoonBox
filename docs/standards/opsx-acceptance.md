@@ -1,12 +1,14 @@
 ---
 purpose: OpenSpec 自动验收与证据包标准
 created_at: 2026-10-12 14:59:30
-updated_at: 2026-10-26 12:09:32
+updated_at: 2026-10-30 12:08:59
 ---
 
 # OpenSpec 自动验收与证据包
 
 ## 事实源
+
+原生 Chat 隔离验收工具可声明 `execution_proof: isolated_acceptance_v1`，固定 `command_contains: moonbox_acceptance` 作为能力标识，另提供 `turn_id`、`operation_id`、`acceptance_mode` 和可选 `operation_status`。该类型不搜索或伪造 shell 命令：只读已授权本机产品数据库，核对同一源轮次/会话/尝试、真实检查结果、执行关闭、文件归集和资源释放。模式 `live` 要求同代工具已确认消费；`continuation` 要求原失败终态、同尝试的一次关联完成及原预算确认；`stopped` 与 `recovered` 分别核对主动取消和权威停止回读，均不得出现自动续接。缺表、未知状态、失配或未归集均阻断。此证明不能替代 AC 其余场景或视觉签认；负向回归夹具始终标记为合成。
 
 `acceptance-plan.json` 是 Change 的逐 AC 执行计划；`evidence/acceptance/<run-id>/manifest.json` 是一次运行的机器结论；同目录 `summary.md` 是人类摘要。Issue `acceptance.md` 保存最终签认与链接，Change `trace.md` 保存简短入口，Sprint `acceptance-report.md` 只做聚合。原始产品 Chat、事件、数据库和本地 `logs/` 保持在其授权来源，不直接提交；长期证据仅保留脱敏投影。归档时整个证据目录随 Change 迁移。
 
@@ -154,3 +156,9 @@ manifest.metrics 记录本轮 duration_ms、preflight_ms、command_executions、
 部分交付计划还须提供非空 `scope_description` 与 `issue_ac_mapping`：每个 Change AC 明确映射到已有 Issue AC，Change 自身 `acceptance.md` 检查清单与计划完全一致。未声明部分范围时仍要求覆盖整个 Issue；部分范围的 ready 不代表其映射的完整 Issue AC 已通过。
 
 子交付的 Change 准入依据本地完整AC与有效证据，并保留恢复/规则合并门禁；Issue完整准入不把子交付AC计为完整AC。Issue验收为partial时，派生状态保持in_sprint，目录晋级不会因依赖Change归档而关闭父需求。
+
+## 归档后元数据恢复
+
+已归档的设计阶段验收映射可能保留 `not_started`，而最终证据位于完整验收清单。禁止为消除收尾冲突改写受保护文件或重置恢复日志。使用 `scripts/restore-archive-metadata.py` 预检，显式 `--apply` 追加绑定记录；收尾实时验证原恢复准入、原文与日志哈希、交付投影及完整通过清单，才读取 `passed` 投影。仅修复该历史初始状态；失败或部分验收不可转换。绑定失效维持阻塞，并保留现场。
+
+归档文档保留的 Issue 旧阶段引用仅在唯一同名 Issue、完成状态、双向 Change 归属、全部关联已归档及原归档恢复证明通过时解析至 archive 目录。迁移预检按同一源文件模拟，迁移后按唯一归档文件校验；活动文档和可变 Issue 仍须修正旧链接。缺文件、符号链接、重复身份或证明失配均阻断。原型裸路径不包含紧接的中文说明，也不将 prototype 开头的普通文档名截成原型目录。

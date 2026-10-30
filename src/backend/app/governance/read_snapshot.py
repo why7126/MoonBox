@@ -25,7 +25,7 @@ def clear():
 
 
 
-def read_workers():
+def read_workers(*, cold=False):
     """Avoid oversubscribing CPU-constrained deployments; unknown limits use serial."""
     try:
         capacity = len(os.sched_getaffinity(0))
@@ -37,16 +37,18 @@ def read_workers():
             capacity = min(capacity, int(quota) // period)
         # Two readers avoid the measured GIL/syscall scheduling overhead of
         # four while retaining I/O overlap. Leave headroom for live services.
+        if cold and capacity >= 8:
+            return 4
         return 2 if capacity >= 4 else 1
     except (AttributeError, OSError, ValueError):
         # cgroup v1, non-Linux and unreadable capacity retain the proven reader.
         return 1
 
 
-def stable_read(root, namespace, *, enabled=True, retries=3, profile='full'):
+def stable_read(root, namespace, *, enabled=True, retries=3, profile='full', root_fd=None, parallel_cold=False):
     if profile not in ('full', 'summary'): raise ValueError('profile')
     if not enabled:
-        return snapshot._stable(root, retries, lambda path: snapshot.read_once(path, profile=profile))
+        return snapshot._stable(root, retries, lambda path: snapshot.read_once(path, profile=profile, root_fd=root_fd))
     key = (str(root), namespace) if profile == 'full' else (str(root), namespace, profile)
     with _lock:
         previous = _versions.get(key)
@@ -67,10 +69,16 @@ def stable_read(root, namespace, *, enabled=True, retries=3, profile='full'):
         if reads == 1 and previous is not None:
             return previous[2].files
         options = {'profile': profile} if profile != 'full' else {}
+        if root_fd is not None:
+            options['root_fd'] = root_fd
         if profile == 'summary' and reuse:
             options['byte_candidates'] = reuse
+        # Object-session cold reads may schedule both independent full passes.
+        # Each pass finishes before the next begins; retries stay serial.
+        cold = parallel_cold and previous is None and reads <= 2
+        parallel = profile == 'summary' or (reads == 2 and len(reuse) >= 256)
         return snapshot.read_once(path, identities=identities,
-                                  workers=read_workers() if profile == 'summary' or (reads == 2 and len(reuse) >= 256) else 1, **options)
+                                  workers=read_workers(cold=True) if cold else read_workers() if parallel else 1, **options)
 
     result = snapshot._stable(root, retries, read,
                               known_snapshot=previous[2] if previous else None)
@@ -101,3 +109,34 @@ def stable_read(root, namespace, *, enabled=True, retries=3, profile='full'):
                 _versions.popitem(last=False)
             _versions[key] = (records, size, snapshot.Snapshot(dict(result.files), result.revision))
     return result
+
+
+def stable_alias_read(root, other_root, namespace, *, parallel_cold=False):
+    """Read aliases once, anchored to a directory descriptor; None for replicas.
+
+    Device/inode equality only identifies a directory, never validates content.
+    Every accepted file byte is still freshly read. Both names must resolve to
+    the pinned directory after reading; replacement or a link fails closed.
+    No descriptor or alias result is retained across calls.
+    """
+    from contextlib import ExitStack
+    import stat
+    from app.chat.service import ChatError
+    try:
+        with ExitStack() as resources:
+            descriptors = []
+            for path in (root, other_root):
+                fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                resources.callback(os.close, fd)
+                descriptors.append(fd)
+            identities = [(os.fstat(fd).st_dev, os.fstat(fd).st_ino) for fd in descriptors]
+            if identities[0] != identities[1]:
+                return None
+            result = stable_read(root, namespace, root_fd=descriptors[0], parallel_cold=parallel_cold)
+            for path in (root, other_root):
+                current = os.stat(path, follow_symlinks=False)
+                if not stat.S_ISDIR(current.st_mode) or (current.st_dev, current.st_ino) != identities[0]:
+                    raise ChatError(2603, '项目目录已变化，请重新读取完整快照', 503, kind='source_changing')
+            return result
+    except OSError:
+        raise ChatError(2603, '项目数据暂时无法读取，请稍后重试', 503, kind='source_unavailable') from None

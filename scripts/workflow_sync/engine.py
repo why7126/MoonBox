@@ -47,6 +47,25 @@ from .issue_stage import scan_stage_drift
 from .constants import ROOT
 
 
+def issue_change_ids(issue) -> set[str]:
+    return {cid for cid in [*(entry.get("change_id") for entry in issue.openspec_changes),
+                            *issue.related_changes, issue.related_change]
+            if isinstance(cid, str) and cid}
+
+
+def related_change_closure(change_ids, issues, issue_ids) -> set[str]:
+    """Read all siblings before deriving status, including earlier Sprints."""
+    result = set(change_ids)
+    while True:
+        before = set(result)
+        for iid, issue in issues.items():
+            linked = issue_change_ids(issue)
+            if iid in issue_ids or linked & result:
+                result.update(linked)
+        if result == before:
+            return result
+
+
 @dataclass
 class SyncReport:
     sprint_id: str | None = None
@@ -297,16 +316,9 @@ class SyncEngine:
         change_ids = set(sprint.changes if sprint else [])
         if change_id:
             change_ids.add(change_id)
-        for issue_id in (req_id, bug_id):
-            issue = issues.get(issue_id or "")
-            if not issue:
-                continue
-            for oc in issue.openspec_changes:
-                cid = oc.get("change_id")
-                if isinstance(cid, str):
-                    change_ids.add(cid)
-            if issue.related_change:
-                change_ids.add(issue.related_change)
+        scope_issues = set(sprint.requirements + sprint.bugs if sprint else [])
+        scope_issues.update(iid for iid in (req_id, bug_id) if iid)
+        change_ids = related_change_closure(change_ids, issues, scope_issues)
 
         change_records = {
             cid: load_change_record(cid, issues, openspec_data) for cid in sorted(change_ids)
@@ -417,7 +429,7 @@ class SyncEngine:
 
         classification_ids = {iid for iid in (req_id, bug_id) if iid in issues}
         if change_id:
-            classification_ids.update(iid for iid, value in derived_issues.items() if value.linked_change == change_id)
+            classification_ids.update(iid for iid, value in derived_issues.items() if change_id in issue_change_ids(issues[iid]))
         if event and event.startswith("sprint.") and sprint:
             classification_ids.update(iid for iid in issue_ids if iid in issues)
         for iid in classification_ids:
@@ -508,7 +520,7 @@ class SyncEngine:
             elif event == "sprint.propose":
                 should_sync_subdocuments = iid in {req_id, bug_id}
             elif event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.accept", "opsx.archive"}:
-                should_sync_subdocuments = bool(change_id and derived.linked_change == change_id)
+                should_sync_subdocuments = bool(change_id and change_id in issue_change_ids(issue))
             elif event == "sprint.archive":
                 should_sync_subdocuments = bool(sprint and iid in {*sprint.requirements, *sprint.bugs})
 
@@ -543,7 +555,7 @@ class SyncEngine:
             if (
                 (event and event.startswith("req.") and iid == req_id)
                 or (event and event.startswith("bug.") and iid == bug_id)
-                or (event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.accept", "opsx.archive"} and change_id and derived.linked_change == change_id)
+                or (event in {"opsx.start", "opsx.progress", "opsx.apply", "opsx.modify", "opsx.accept", "opsx.archive"} and change_id and change_id in issue_change_ids(issue))
                 or (event == "sprint.propose" and iid in {req_id, bug_id})
             ):
                 planned.append(

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "observed_cases": [
+    {
+      "case": "double-click",
+      "start_utc": "2026-10-30T09:32:44.086Z",
+      "arrived": true
+    },
+    {
+      "case": "leave-during-preparation",
+      "start_utc": "2026-10-30T09:33:26.185Z",
+      "was_pending": true,
+      "destination_path": "/requirements",
+      "result": "invalid-control:研发总览未离开需求中心"
+    },
+    {
+      "case": "navigate-away-during-preparation",
+      "start_utc": "2026-10-30T09:34:18.919Z",
+      "was_pending": true,
+      "destination_path": "/",
+      "method": "browser-navigation",
+      "stayed_away_after_response": true
+    },
+    {
+      "case": "brief-outage",
+      "start_utc": "2026-10-30T09:35:29.399Z",
+      "result": "request-resumed-successfully; not a failure-retry proof"
+    },
+    {
+      "case": "initial-fault-injection",
+      "start_utc": "2026-10-30T09:37:45.922Z",
+      "result": "fixture-short-id-did-not-match; request succeeded"
+    },
+    {
+      "case": "controlled-503",
+      "start_utc": "2026-10-30T09:39:52.653Z",
+      "safe_error_visible": false,
+      "remained_on_card": true,
+      "retry_enabled": true,
+      "initial_dom_feedback": "项目请求失败，请稍后重试",
+      "later_toast_auto_dismissed": true
+    },
+    {
+      "case": "retry-after-controlled-503",
+      "start_utc": "2026-10-30T09:40:03.762Z",
+      "arrived": true
+    },
+    {
+      "case": "controlled-503-screenshot",
+      "start_utc": "2026-10-30T09:41:01.007Z",
+      "safe_error_visible": true,
+      "remained_on_card": true,
+      "retry_enabled": true
+    },
+    {
+      "case": "retry-after-controlled-503-screenshot",
+      "start_utc": "2026-10-30T09:41:01.571Z",
+      "arrived": true
+    }
+  ],
+  "double_click_requests": 1,
+  "before_counts": {
+    "conversations": 2,
+    "turns": 4
+  },
+  "after_counts": {
+    "conversations": 2,
+    "turns": 4
+  },
+  "controlled_failures": [
+    {
+      "request_id": "884232f3-d7c4-4cda-a988-0d21f7b98a39",
+      "status_code": 503,
+      "duration_ms": 11,
+      "created_at": "2026-10-30T09:39:52+00:00"
+    },
+    {
+      "request_id": "79447cd2-c9bb-47ec-a613-5c045ad969b7",
+      "status_code": 503,
+      "duration_ms": 37,
+      "created_at": "2026-10-30T09:41:01+00:00"
+    }
+  ],
+  "successful_request_ids": [
+    "2240705f-a792-4372-b902-48fff7719fff",
+    "80213e0e-5bb3-4b11-b3dd-1c22fb5b7b60",
+    "2ba7ca5e-4b60-445c-be0f-9ad14984fef7",
+    "c30effcf-301d-4a45-ae04-1b990f80c093",
+    "24ddfb3f-953d-4e55-911d-1bacd2f869df",
+    "f6531624-f16e-4dd4-90a5-30521f8f04df",
+    "a38d7d02-27d8-4883-8e55-8d11efa46207",
+    "4828963b-d64f-4527-9f46-3bed6cf4d7c7",
+    "e9da6169-53ce-44ea-9f5d-d942ae10c540",
+    "3fb65fba-f211-47fb-95af-bd58a8c6ddce",
+    "a21a668e-a3e2-474d-bc4c-043de6676e7f",
+    "e28ab717-a880-4dd1-9c2d-1162e16b5602",
+    "177c49d6-83e4-478f-bbf5-419a927b339a",
+    "1c21ed99-9543-47e6-af69-7f707a75aecb",
+    "40527ad5-e812-4171-9f56-673ca1deb5b7",
+    "46b54d8b-2fb9-4c22-975a-e889d9f75dc1",
+    "840a79dd-ab2e-4644-87a2-45cf4918e0af",
+    "c406ffec-d68a-4f58-b5d8-b8ca4d96a767"
+  ],
+  "fault_marker_consumed": true,
+  "fault_hook_sha256": "8e12e6f0f604c19eebb20b1fedaa3e4db02fd405c94a96f9bcbcbe11edc21eed",
+  "limitations": [
+    "浏览器完整导航离开证明取消等待；React卸载迟到响应由合成回归单独覆盖。",
+    "研发总览/Spec未导航的尝试、短暂中断后成功的请求及初次未命中的故障注入均保留，不计作成功负例。",
+    "已进入后端的准备可以正常完成；取消不撤销业务准备，不发送模型轮次。"
+  ],
+  "screenshots": [
+    "candidate-chat.png",
+    "cancelled-navigation.png",
+    "failure-recovery.png"
+  ]
+}

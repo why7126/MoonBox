@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-git-privacy-context-detection",
+  "run_id": "20261030085539148440-40211107",
+  "created_at": "2026-10-30 08:55:39",
+  "source_revision": "7b05291440c9414bba97dbc76e488cb46b3fdbcd",
+  "environment": "local",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-PRIVACY-CONTEXT",
+      "fingerprint": "cbc0bc7a3676d922840d1086f3532304d171903ff2ef501b165f975dba64374a",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 701,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 1,
+    "duration_ms": 712,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

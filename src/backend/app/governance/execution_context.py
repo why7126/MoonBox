@@ -243,7 +243,7 @@ def visible_states(db, actor, project, object_ids):
     return result
 
 
-def reconcile(db, actor, project, *, operation_id=None, snapshot=None):
+def reconcile(db, actor, project, *, operation_id=None, snapshot=None, snapshot_loader=None):
     """Own the reconciliation boundary; never keep file work in a write transaction."""
     from app.governance.verification_transaction import VerificationPlan
     db.commit()
@@ -262,14 +262,15 @@ def reconcile(db, actor, project, *, operation_id=None, snapshot=None):
         turn = plan.execute(select(turns).where(turns.c.id == row['operation_id'])).mappings().first()
         if not turn or turn['status'] not in ('completed', 'failed', 'stopped', 'unknown'):
             continue
-        _reconcile_plan(plan, actor, project, operation_id=row['operation_id'], object_id=row['object_id'], snapshot=snapshot)
+        _reconcile_plan(plan, actor, project, operation_id=row['operation_id'], object_id=row['object_id'], snapshot=snapshot,
+                        snapshot_loader=snapshot_loader)
         if snapshot is not None and plan.statements and stable(project.root).revision != snapshot.revision:
             raise service.ChatError(2603, '项目文件已变化，请重新读取完整快照', 503)
         plan.apply(actor=actor, project=project,
                    expected={'object_id': row['object_id'], '_row': row}, turn=turn, expected_epoch=before_epoch)
 
 
-def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None, snapshot=None):
+def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None, snapshot=None, snapshot_loader=None):
     """Recheck terminal outcomes; never execute/retry a governance command here."""
     from app.governance.execution_validation import validate_result
     from app.governance.direct_command_journal import record_id
@@ -293,7 +294,9 @@ def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None, sn
         if turn['status'] == 'unknown':
             continue
         try:
-            snapshot = snapshot or stable(project.root)
+            # Load fresh complete bytes after the transaction boundary, never
+            # a retained snapshot from an earlier preparation stage.
+            snapshot = snapshot or (snapshot_loader() if snapshot_loader else stable(project.root))
             rejected = db.execute(select(governance_candidates).where(
                 governance_candidates.c.turn_id == row['operation_id'],
                 governance_candidates.c.object_id == row['object_id'],
@@ -311,7 +314,7 @@ def _reconcile_plan(db, actor, project, *, operation_id=None, object_id=None, sn
                 record = store.read(record_id(row['conversation_id'], turn['client_request_id']), 'operation')
             except (FileNotFoundError, WorkspaceError):
                 record = {}
-            snapshot = snapshot or stable(project.root)
+            snapshot = snapshot or (snapshot_loader() if snapshot_loader else stable(project.root))
             if (turn['status'] in ('completed', 'failed', 'stopped') and record.get('phase') == 'terminal'
                     and record.get('classification') == 'no_governance_write'
                     and record.get('final_revision') == snapshot.revision):

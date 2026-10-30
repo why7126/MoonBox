@@ -46,6 +46,7 @@ def prepare_proof(db,path,record,row,manifest,trust,project):
 
 
 def execute(db,*,actor,space_id,repository_id,manifest_hash,sign,driver_type=ArchiveDriver):
+    from .archive_finalization import needs_finalize, require_finalized
     project=scope.authorize(db,actor,space_id,repository_id,write=True)
     with project_lock(project):
         db.commit();project=scope.authorize(db,actor,space_id,repository_id,write=True)
@@ -79,6 +80,7 @@ def execute(db,*,actor,space_id,repository_id,manifest_hash,sign,driver_type=Arc
                 **journal_bindings(project.root,change)},historical=True)
             with authority(db,project,actor):
                 if not recovery_admission(project.root,change)['ready']:raise ValueError('bootstrap_history_changed')
+            require_finalized(project.root,change)
             return {'state':'active','revision':row['revision'],'operation_id':operation_id}
         driver=driver_type(project)
         if row['state']=='authorized':
@@ -116,7 +118,7 @@ def execute(db,*,actor,space_id,repository_id,manifest_hash,sign,driver_type=Arc
                 row=commit.assert_fence(db,project,operation_id,fence)
                 if STAGES.index(row['stage'])<STAGES.index(stage):
                     commit.checkpoint(db,project,operation_id,fence,stage,tree_hash(project.root/'openspec/specs'),manifest.expected_digest);db.commit()
-            if state!='synced':
+            if row['stage']!='synced' and (state!='synced' or needs_finalize(project.root,change)):
                 authorize_write(db,project,actor)
                 commit.assert_fence(db,project,operation_id,fence);driver.finalize(change)
             row=commit.assert_fence(db,project,operation_id,fence)
@@ -124,6 +126,7 @@ def execute(db,*,actor,space_id,repository_id,manifest_hash,sign,driver_type=Arc
                 raise ValueError('bootstrap_sync_unverified')
             if row['stage']=='move_verified':
                 commit.checkpoint(db,project,operation_id,fence,'synced',tree_hash(project.root/'openspec/specs'),manifest.expected_digest);db.commit()
+            require_finalized(project.root,change)
             authorize_write(db,project,actor)
             raw=path.read_bytes();record=strict_json(raw)
             if (record.get('installation')!=manifest.model_dump() or record.get('ops_receipt')!=ops

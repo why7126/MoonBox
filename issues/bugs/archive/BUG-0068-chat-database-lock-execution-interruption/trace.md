@@ -3,7 +3,7 @@ bug_id: BUG-0068-chat-database-lock-execution-interruption
 title: Chat 执行期间数据库锁竞争导致持久化失败与任务中断追溯记录
 status: done
 created_at: '2026-10-27 08:19:57'
-updated_at: 2026-10-27 09:09:47
+updated_at: 2026-10-30 09:12:20
 severity: high
 environment: docker
 owner: 产品团队
@@ -30,9 +30,7 @@ related_change: fix-chat-database-lock-execution-interruption
 
 ## 当前摘要
 
-根因 confirmed（现场机制），严重等级 high；已评审通过，状态 approved。缺陷主文档见 [缺陷说明](bug.md)，最新补证见 [根因分析](root-cause.md)，初始判重见 [缺陷记录](capture.md)。已评审并纳入sprint-014；已创建fix-chat-database-lock-execution-interruption，尚未实施修复。
-
-关联 BUG-0056-requirement-center-context-load-latency；原执行不重跑、不解除保护。历史失败事务与当前采样持锁来源分别记录。
+当前缺陷状态为 done，归属 sprint-014。Change `fix-chat-database-lock-execution-interruption` 已归档；已有验收记录见 [fix-chat-database-lock-execution-interruption验收报告](../../../../openspec/archive/2026-10-27-fix-chat-database-lock-execution-interruption/evidence/acceptance/20261027090443095634-888712c4/summary.md)。 根因分析、历史事件与原验收证据保留；本次仅同步当前摘要，不重新执行原产品轮次。 原执行不重跑、不解除保护；关联 BUG-0056 的现场与本缺陷证据分别记录。
 
 ## 变更记录
 

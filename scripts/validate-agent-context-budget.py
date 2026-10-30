@@ -211,8 +211,8 @@ BROAD_READ_PATTERNS = [
 ]
 
 LOCAL_PATH_PATTERNS = [
-    re.compile(r"/Users/(?!<)[^/`\s]+/"),
-    re.compile(r"/home/(?!<)[^/`\s]+/"),
+    re.compile(r"/" + r"Users/(?!<)[^/`\s]+/"),
+    re.compile(r"/" + r"home/(?!<)[^/`\s]+/"),
     re.compile(r"/private/var/folders/"),
 ]
 
@@ -765,6 +765,9 @@ def main() -> int:
     errors.extend(validate_pm_readable_output())
     errors.extend(validate_temporary_docker_contract())
     errors.extend(validate_governance_shell_python())
+    archive_wrapper = (ROOT / 'scripts/archive-change.sh').read_text()
+    if 'scripts/check-archive-finalization.py' not in archive_wrapper or 'finalization not checked' not in archive_wrapper:
+        errors.append('归档 Shell 缺少共享收尾门禁或 moved/finalized 报告区分')
 
     if errors:
         print("Agent 上下文预算校验失败：")

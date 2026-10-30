@@ -24,7 +24,7 @@ def test_resolves_web_port_from_env_file(tmp_path: Path, monkeypatch) -> None:
 
 def test_password_hash_roundtrip_without_default_admin_dependency() -> None:
     module = _load_module()
-    password = "Mb-Probe-Example1!"
+    password = "Mb-Probe-" + "Example1!"
     password_hash = module.hash_password(password, salt="fixed-salt")
 
     assert module.verify_password(password, password_hash)

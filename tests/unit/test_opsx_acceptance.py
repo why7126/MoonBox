@@ -48,6 +48,28 @@ def fixture(tmp_path: Path) -> tuple[Path, Path]:
     return tmp_path, change
 
 
+def test_native_acceptance_proof_plan_requires_fixed_identity(tmp_path):
+    import pytest
+    _,change=fixture(tmp_path)
+    path=change/'acceptance-plan.json'
+    plan=json.loads(path.read_text())
+    plan['checks'][0].update(kind='product_turn',turn_id='turn',command_contains='moonbox_acceptance',
+        execution_proof='isolated_acceptance_v1',operation_id='operation',acceptance_mode='continuation')
+    path.write_text(json.dumps(plan))
+    assert read_plan(change)['checks'][0]['execution_proof']=='isolated_acceptance_v1'
+    plan['checks'][0]['acceptance_mode']='infer-success'
+    path.write_text(json.dumps(plan))
+    with pytest.raises(ValueError,match='invalid isolated acceptance proof'):read_plan(change)
+
+
+def test_native_acceptance_missing_database_never_creates_file(tmp_path):
+    path=tmp_path/'missing.db'
+    result=run_product_turn(dict(execution_proof='isolated_acceptance_v1',turn_id='turn',
+        operation_id='operation',acceptance_mode='live'),path)
+    assert result['status']=='blocked'
+    assert not path.exists()
+
+
 def test_incremental_acceptance_only_invalidates_changed_ac(tmp_path):
     root, change = fixture(tmp_path)
     first = run_acceptance(root, "check-example", None)

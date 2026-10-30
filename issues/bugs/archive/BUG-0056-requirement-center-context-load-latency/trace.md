@@ -3,7 +3,7 @@ bug_id: BUG-0056-requirement-center-context-load-latency
 title: 需求中心首屏聚合请求耗时约二十七秒追溯记录
 status: done
 created_at: '2026-10-21 08:50:06'
-updated_at: 2026-10-30 08:28:28
+updated_at: 2026-10-30 09:12:20
 severity: high
 environment: local
 owner: 产品团队
@@ -30,7 +30,7 @@ related_change: fix-requirement-center-context-load-latency
 
 ## 当前摘要
 
-已补齐 [缺陷文档](bug.md)、[根因分析](root-cause.md)、[临时规避](workaround.md) 与 [验收标准](acceptance.md)，确认全量快照扫描、归档目录重复查找及逐卡注册表重复解析三个性能机制；两项只读对照结果一致。原始约27秒的完整分段归因、冷暖统计与修复回归仍待补证。[评审已通过](review.md)，保留 high；已纳入 sprint-014，状态为 in_sprint；已创建 fix-requirement-center-context-load-latency，状态为 proposed；实施与验收未开始。
+当前缺陷状态为 done，归属 sprint-014。Change `fix-requirement-center-context-load-latency` 已归档；已有验收记录见 [fix-requirement-center-context-load-latency验收报告](../../../../openspec/archive/2026-10-30-fix-requirement-center-context-load-latency/evidence/acceptance/20261030082746918344-3736ca43/summary.md)。 根因分析、历史事件与原验收证据保留；本次仅同步当前摘要，不重新执行原产品轮次。 性能样本、冷启动与历史失败限制以最终验证和返修记录为准，不将早期待补证描述整体改写为无条件通过。
 
 ## 关联调查
 

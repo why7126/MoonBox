@@ -21,6 +21,25 @@ from app.governance.archive_recovery import journal_path
 from app.chat.schema import governance_project_locks as locks
 
 
+def test_bootstrap_document_gate_resume_and_replay(bootstrap,monkeypatch):
+    from app.governance import archive_finalization as gate
+    c=bootstrap;checks=[];original=gate.require_finalized
+    def check(root,change):
+        checks.append(change)
+        return original(root,change)
+    monkeypatch.setattr(gate,'require_finalized',check)
+    doc=c.project.root/'issues/bugs/archive/BUG-0001-sample/bug.md'
+    doc.parent.mkdir(parents=True)
+    doc.write_text('---\nstatus: done\n---\nfix-sample\n当前交付状态：pending。')
+    with pytest.raises(ValueError,match='archive_finalization_blocked'):c.execute()
+    c.db.rollback();doc.write_text('---\nstatus: done\n---\nfix-sample\n')
+    assert c.execute()['state']=='active'
+    assert c.execute()['state']=='active'
+    assert len(checks)==3 and c.calls==['merge','move','sync']
+    doc.write_text('---\nstatus: done\n---\nfix-sample\n[证据](missing.md)')
+    with pytest.raises(ValueError,match='archive_finalization_blocked'):c.execute()
+
+
 @pytest.fixture
 def bootstrap(orchestration,monkeypatch):
     c=orchestration;value=c.value

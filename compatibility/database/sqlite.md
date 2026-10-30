@@ -343,3 +343,7 @@ BUG-0064新增chat_turn_recoveries和chat_recovery_resumes，采用通用字符�
 ## BUG-0068 核验锁竞争
 
 无效UPDATE也可能持有SQLite写事务，不能以rowcount=0推断没有锁。文件核验期间禁止持有写事务；短事务条件更新与失败回滚、200ms等待及连接归池恢复由隔离连接测试覆盖。不以启用WAL或无限超时代替事务修复。
+
+## 对象会话准备Trace并发
+
+BUG-0057：准备入口显式启用短观测事务的先写后读。SQLite在savepoint内先对Trace身份执行无值变化UPDATE取得写入意图，再读并更新Trace及追加span；避免先读后写的锁升级竞争。无需WAL、迁移或全局超时修改，文件验证不持有写锁，失败仍按原观测异常策略处理。

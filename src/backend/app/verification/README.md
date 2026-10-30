@@ -18,6 +18,8 @@ worker 每次处理工作前核对遗留环境；文件锁仍被控制器持有�
 
 ## Chat 隔离验收编排（REQ-0048，实施中）
 
+当前 MoonBox 的本机产品模板生成、固定镜像覆盖层、真实 Chat 与故障场景入口见 `../../tests/ACCEPTANCE_PRODUCT.md`。`identity_adapter.login.mode` 可省略（Cookie），或为 `moonbox-session`（固定真实登录路径与同源短期会话）；不接受其他模式。临时用户名为 32 字符随机引用，撤销使用私有租约保存的原用户名，兼容历史签发。浏览器镜像可固定设置 `MOONBOX_VERIFICATION_SYSTEM_CHROMIUM=1` 使用镜像内 `/usr/bin/chromium`，未设置时保持原 Playwright 浏览器路径。
+
 `acceptance_*` 在固定候选供应底座上增加持久操作、尝试、分项结果、资源预留和短期身份引用。HTTP 与 `moonbox_exec.acceptance_operation` 共用鉴权，浏览器只提交会话、来源轮次、Change、幂等键或当前版本号，不能传命令、镜像或路径。HTTP创建接收执行器已关闭且文件已归集的授权检查点；原生工具可在所属存活轮次内捕获独立检查点。`acceptance_tool.py` 实现一次发送及完成确认；`acceptance_delivery.py` 使用正常Chat准入事务建立最多一次关联续接，未知发送/执行、取消、撤权及预算不明均拒绝。
 
 部署须单独设置 `MOONBOX_ACCEPTANCE_TEMPLATE` 和 `MOONBOX_ACCEPTANCE_ROOT`，缺配置只将相关操作标为受阻。模板为 `moonbox-chat-acceptance-v1`，包含原候选 `base`、固定 Node 镜像、Python/Node/MySQL/Chromium/Firefox 实际版本、批准角色、逐 AC 的 argv/database/role、身份 issue/revoke/login 适配、部署摘要和 bounded-tmpfs 策略。仅 linux/arm64；amd64 未验证，不启用。模板应位于代码仓库外的部署受控目录，禁止组或其他人写入。验收目录应为独立私有目录，不能使用业务库、仓库或用户主目录。

@@ -29,6 +29,8 @@ class ProjectScope:
 def authorize(db, actor, space_id, repository_id, *, write=False):
     row = db.execute(text('''SELECT s.status, s.expires_at FROM admin_spaces s
       WHERE s.id=:space AND s.deleted_at IS NULL AND s.status IN ('ACTIVE','FROZEN')
+      AND EXISTS (SELECT 1 FROM admin_users u WHERE u.id=:actor
+        AND u.status='正常' AND u.deleted_at IS NULL)
       AND (s.owner_id=:actor OR EXISTS (SELECT 1 FROM admin_space_members m
       WHERE m.space_id=s.id AND m.user_id=:actor))'''), {'space':space_id,'actor':actor}).first()
     if not row:

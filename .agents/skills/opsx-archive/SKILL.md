@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-30 12:06:04
 ---
 
 # opsx-archive
@@ -199,3 +199,11 @@ wrapper 使用 Workflow Sync 的 resolve_sprint_id 按 Change 范围解析 Sprin
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 归档收尾报告
+
+wrapper 的 --finalize 在同步与迁移后执行 check-archive-finalization.py。只有 finalized 可报告完整归档成功；moved 仅表示目录移动，blocked/review 保留现场并按报告核对当前事实与引用，不改写历史证据。wrapper 成功后只核对摘要；产品入口由协调器完成同一检查，不再次调用。部分交付状态策略保持原规则。
+
+## 受保护验收元数据冲突恢复
+
+若唯一归档已迁移且原完整验收证据通过，但设计映射保留 `not_started`，使用 `bash scripts/project-python.sh scripts/restore-archive-metadata.py --change <change-id>` 预检，再以 `--apply` 追加绑定记录。保留原文与恢复日志，禁止改哈希或删日志绕过。记录失配或非初始状态继续阻断；修复通过后续跑原 `archive-change.sh --finalize`，不重复合并规格。跨 Sprint 关联 Change 由 Workflow Sync 完整读取；不能手动将未完成兄弟状态改为 archived。

@@ -4,7 +4,7 @@ title: Chat 最终回答相同内容重复保存并拼接展示追溯记录
 status: done
 severity: medium
 created_at: '2026-10-26 18:01:50'
-updated_at: 2026-10-26 19:54:50
+updated_at: 2026-10-30 09:12:20
 environment: local docker chat-platform
 owner: 产品团队
 source: 用户双条 bug-capture 授权及同会话只读探索
@@ -27,7 +27,7 @@ related_change: fix-chat-final-answer-duplicate-concatenation
 
 ## 当前摘要
 
-缺陷包已补齐，机制根因 confirmed，见 [根因分析](root-cause.md)。评审已通过，已纳入 sprint-014，状态为 in_sprint；已创建 fix-chat-final-answer-duplicate-concatenation，状态 applied；已完成实现，验收以最新证据包为准。
+当前缺陷状态为 done，归属 sprint-014。Change `fix-chat-final-answer-duplicate-concatenation` 已归档；已有验收记录见 [fix-chat-final-answer-duplicate-concatenation验收报告](../../../../openspec/archive/2026-10-26-fix-chat-final-answer-duplicate-concatenation/evidence/acceptance/20261026191542555621-1a457098/summary.md)。 根因分析、历史事件与原验收证据保留；本次仅同步当前摘要，不重新执行原产品轮次。
 
 ## 变更记录
 

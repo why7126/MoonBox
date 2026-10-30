@@ -146,7 +146,9 @@ def run_browser_acceptance(image_digest: str, *, network: str, target_url: str,
                 or info.st_size > 16384 or info.st_uid != os.getuid()):
             raise RunnerUnavailable('identity_media_invalid')
         trusted_directory(private.parent)
-        if (not isinstance(login, dict) or set(login) != {'path','username_field','password_field'}
+        if (not isinstance(login, dict) or set(login) not in ({'path','username_field','password_field'}, {'path','username_field','password_field','mode'})
+                or login.get('mode','cookie') not in {'cookie','moonbox-session'}
+                or login.get('mode') == 'moonbox-session' and login.get('path') != '/api/v1/auth/login'
                 or not re.fullmatch(r'/[a-zA-Z0-9/_-]+',str(login['path']))
                 or any(not re.fullmatch(r'[a-zA-Z_][a-zA-Z0-9_]{0,63}',str(login[key])) for key in ('username_field','password_field'))):
             raise RunnerUnavailable('identity_login_invalid')

@@ -674,8 +674,17 @@ API/worker 使用同一 `MOONBOX_CANDIDATE_ROOT` 持久受控目录和同一 Doc
 
 ## REQ-0048 Chat 隔离验收配置边界（实施中）
 
+本机 MoonBox 已提供可重复的隔离接入入口，见 `src/backend/tests/ACCEPTANCE_PRODUCT.md`。入口生成仓库外的私有批准模板和运行目录，固定镜像 ID、实际版本、源码摘要、迁移/种子、短期角色与逐项命令；不连接生产库或对象存储。API/worker 应共享此配置，仅用于独立测试服务。可选 `MOONBOX_ACCEPTANCE_SUBNET` 指定已核对无冲突的 RFC1918 /24 至 /28 子网，未指定则沿用 Docker 分配。`moonbox-session` 登录模式仅允许 `/api/v1/auth/login`，将短期会话限定写入同源浏览器存储；默认 Cookie 模式保持兼容。
+
+专属临时 MySQL 使用 `--skip-log-bin`，使本产品的数据库触发器迁移能以独立库账号运行，不授予全局 SUPER 权限。该设置仅属于无复制用途的验收容器，不是生产配置建议。当前真实产品矩阵覆盖 arm64、SQLite/MySQL、编辑者/查看者、Chromium/Firefox 和双视口；完整 Chat 异常续接与视觉门禁以 Change 的当前证据为准。
+
 新增可选 `MOONBOX_ACCEPTANCE_TEMPLATE`（部署受控批准JSON）和 `MOONBOX_ACCEPTANCE_ROOT`（独立私有运行目录）。未配置时相关验收操作受阻，不回退真实业务数据库、共享账号或任意项目命令。模板字段、期限、身份适配与当前限制见 `src/backend/app/verification/README.md`。API 与验证 worker 需要共享同一控制账本和受控目录，并连接已登记的同一 Docker daemon；本轮未修改生产环境或启动正式部署。
 
 当前授权验证范围为登记合成项目。真实产品模板与完整产品样本仍是上线前门禁；模型消费/续接和长期摘要转存已实现，机制证据见当前Change verification.md，不应将合成样本结果作为生产ready。原有固定候选模板及验证任务配置保持兼容。
 
 REQ-0048长期摘要写入复用 `MOONBOX_GOVERNANCE_STATE_ROOT` 项目锁，API与worker须共享当前授权项目文件系统及治理状态目录。新增线程的动态工具契约固定0.153.4；旧线程不注入协议不支持的参数。关联轮次保留原总期限与有限token余额；扫描每60秒执行，进程内游标分批遍历，坏记录不长期占据首批。
+
+
+### BUG-0057 快速打开本地验证结果
+
+实现与本地部署完成；10次真实导航观察上界中位数0.869s、最大1.311s，发送前完整检查仍约5.45–8.81s（3次受控副本样本）。权限、生命周期、Sprint、幂等与未知执行保护保留；历史精确归因不扩大。容量保持30、估算32，其他任务不变。证据与回滚见 `openspec/changes/fix-object-session-preparation-latency/acceptance-fixes.md`。最终就绪以最新验收清单为准，未正式归档。

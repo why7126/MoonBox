@@ -28,6 +28,7 @@ export function AcceptanceOperations({ conversationId }: { conversationId: strin
   const [busy, setBusy] = useState(false);
   const [evidence, setEvidence] = useState<{ ac_id: string; status: string; evidence: { kind?: string; digest?: string } }[] | null>(null);
   const mutation = useRef(false);
+  const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const scope = useRef(conversationId); scope.current = conversationId;
   const [refresh, setRefresh] = useState(0);
   useEffect(() => {
@@ -97,16 +98,16 @@ export function AcceptanceOperations({ conversationId }: { conversationId: strin
       </details>
       <div className="acceptance-actions" data-testid="acceptance-actions">
         {([['evidence', '查看证据'], ['archive-evidence', '长期摘要'], ['verify', '重新核验'], ['resume', '继续'], ['cleanup-retries', '重试清理']] as const).map(([name, label]) =>
-          item.allowed_actions.includes(name) && <Button key={name} variant="ghost" data-testid={`acceptance-${name}`} disabled={busy} onClick={() => void action(item, name)}>{label}</Button>)}
-        {item.allowed_actions.includes('stop') && <Button variant="ghost" data-testid="acceptance-stop" disabled={busy} onClick={() => setStopping(item)}>停止</Button>}
+          item.allowed_actions.includes(name) && <Button key={name} variant="ghost" data-testid={`acceptance-${name}`} disabled={busy} onClick={event => { returnFocusRef.current = event.currentTarget; void action(item, name); }}>{label}</Button>)}
+        {item.allowed_actions.includes('stop') && <Button variant="ghost" data-testid="acceptance-stop" disabled={busy} onClick={event => { returnFocusRef.current = event.currentTarget; setStopping(item); }}>停止</Button>}
       </div>
     </article>)}
-    {stopping && <ChatDialog title="停止本次验收" testId="acceptance-stop-dialog" busy={busy} onClose={() => setStopping(null)}
+    {stopping && <ChatDialog title="停止本次验收" testId="acceptance-stop-dialog" busy={busy} returnFocusRef={returnFocusRef} onClose={() => setStopping(null)}
       footer={<><Button variant="ghost" disabled={busy} onClick={() => setStopping(null)}>返回</Button><Button disabled={busy} onClick={() => void stop()}>{busy ? '正在停止…' : '确认停止'}</Button></>}>
       <p>停止后不会自动继续原操作。已有验收结果会保留，临时资源将进入回收流程。</p>
       {error && <p role="alert">{error}</p>}
     </ChatDialog>}
-    {evidence && <ChatDialog title="验收证据摘要" testId="acceptance-evidence-dialog" onClose={() => setEvidence(null)}>
+    {evidence && <ChatDialog title="验收证据摘要" testId="acceptance-evidence-dialog" returnFocusRef={returnFocusRef} onClose={() => setEvidence(null)}>
       {evidence.length ? <ul>{evidence.map((check, index) => <li key={`${check.ac_id}-${index}`}>{check.ac_id} · {checks[check.status] || '待核验'}
         <p>类别：{check.evidence.kind || '未记录'}</p><p className="acceptance-muted">摘要：{check.evidence.digest || '未记录'}</p></li>)}</ul> : <p>当前没有可读取的在线证据。</p>}
     </ChatDialog>}

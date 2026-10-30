@@ -19,6 +19,24 @@ from app.governance.archive_recovery import tree_hash
 from test_controlled_successor import scene, put
 
 
+def test_controlled_document_gate_resume_and_replay(orchestration,monkeypatch):
+    from app.governance import archive_finalization as gate
+    c=orchestration;checks=[];original=gate.require_finalized
+    def check(root,change):
+        checks.append(change)
+        return original(root,change)
+    monkeypatch.setattr(gate,'require_finalized',check)
+    doc=c.project.root/'issues/bugs/archive/BUG-0001-sample/bug.md'
+    put(doc,'---\nstatus: done\n---\nfix-sample\n当前交付状态：pending。')
+    with pytest.raises(ValueError,match='archive_finalization_blocked'):c.execute()
+    c.db.rollback();doc.write_text('---\nstatus: done\n---\nfix-sample\n')
+    assert c.execute()['stage']=='completed'
+    assert c.execute()['replayed']
+    assert len(checks)==3 and c.calls==['merge','move','sync']
+    doc.write_text('---\nstatus: done\n---\nfix-sample\n[证据](missing.md)')
+    with pytest.raises(ValueError,match='archive_finalization_blocked'):c.execute()
+
+
 def test_moved_edge_is_visible_only_to_original_fenced_operation(orchestration):
     c=orchestration;c.fault['at']='sign'
     with pytest.raises(OSError):c.execute()

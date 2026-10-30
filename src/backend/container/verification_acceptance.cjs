@@ -33,7 +33,9 @@ function validate(plan) {
     if (!Number.isInteger(viewport.width) || viewport.width < 320 || viewport.width > 3840 ||
         !Number.isInteger(viewport.height) || viewport.height < 320 || viewport.height > 2160) throw new Error('viewport_invalid');
   }
-  if (plan.login && (Object.keys(plan.login).sort().join(',') !== 'password_field,path,username_field' ||
+  if (plan.login && (!['password_field,path,username_field', 'mode,password_field,path,username_field'].includes(Object.keys(plan.login).sort().join(',')) ||
+      !['cookie', 'moonbox-session'].includes(plan.login.mode || 'cookie') ||
+      (plan.login.mode === 'moonbox-session' && plan.login.path !== '/api/v1/auth/login') ||
       !/^\/[a-zA-Z0-9/_-]+$/.test(plan.login.path) ||
       ![plan.login.username_field, plan.login.password_field].every(value => /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/.test(value)))) throw new Error('identity_login_invalid');
 }
@@ -42,7 +44,9 @@ async function main() {
   const plan = await readPlan();
   validate(plan);
   const type = playwright[plan.browser];
-  const browser = await type.launch({ headless: true, timeout: 20000 });
+  const executablePath = plan.browser === 'chromium' && process.env.MOONBOX_VERIFICATION_SYSTEM_CHROMIUM === '1'
+    ? '/usr/bin/chromium' : undefined;
+  const browser = await type.launch({ executablePath, headless: true, timeout: 20000 });
   const result = { category: 'real_browser', browser: plan.browser, browser_version: browser.version(), viewports: [] };
   try {
     for (const viewport of plan.viewports) {
@@ -58,6 +62,19 @@ async function main() {
             timeout: 10000, maxRedirects: 0,
           });
           if (!loginResponse.ok()) throw new Error('identity_login_failed');
+          if (plan.login.mode === 'moonbox-session') {
+            const body = await loginResponse.json();
+            const session = body && body.data;
+            if (!session || typeof session.access_token !== 'string' || !session.access_token ||
+                !session.user || typeof session.user.id !== 'string' ||
+                !Number.isFinite(Date.parse(session.expires_at)) || Date.parse(session.expires_at) <= Date.now()) {
+              throw new Error('identity_login_failed');
+            }
+            const origin = new URL(plan.url).origin;
+            await context.addInitScript(({ origin, session }) => {
+              if (location.origin === origin) localStorage.setItem('moonbox.session', JSON.stringify(session));
+            }, { origin, session });
+          }
         }
         const response = await page.goto(plan.url, { waitUntil: 'domcontentloaded', timeout: 20000 });
         if (!response || response.status() >= 400) throw new Error('target_response_failed');

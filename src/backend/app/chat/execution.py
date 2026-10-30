@@ -713,11 +713,10 @@ def reconcile_unknown(factory, tid, workspace, server_factory, *, recovery_lease
             db.execute(update(conversations).where(conversations.c.id==parent['id'],conversations.c.active_turn_id==tid).values(active_turn_id=None,updated_at=service.now()))
             from app.chat.admission import release_concurrency
             release_concurrency(db, tid)
-            from app.moonbox_core.sessions import bound as bound_workspace_id
-            from app.moonbox_core.workspaces import release
-            workspace_id = bound_workspace_id(db, parent['id'])
-            if workspace_id:
-                release(db, workspace_id, tid, row['generation'])
+            # Terminal authority does not prove file collection. Keep the write
+            # lock until completion.reconcile captures and publishes this turn's
+            # files after the recovery reader has closed; otherwise its join on
+            # write_locks loses the only pending collection record.
             from app.chat.schema import events
             from sqlalchemy import func
             seq=(db.scalar(select(func.max(events.c.sequence)).where(events.c.turn_id==tid)) or 0)+1

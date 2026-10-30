@@ -90,6 +90,7 @@ def prepare_proof(db, path, record, row, trust, project):
 
 
 def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_revision,proposal_digest,sign,driver_type=ArchiveDriver,request_id=None):
+    from .archive_finalization import needs_finalize, require_finalized
     project=scope.authorize(db,actor,space_id,repository_id,write=True)
     with project_lock(project):
         db.commit()
@@ -114,6 +115,7 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
                 certificate=verify(project.root,proposal.successor,archives[0],(proposal.capability,proposal.requirement),proposal.before,proposal.after)
                 if not recovery_admission(project.root,proposal.successor)['ready']:raise ValueError('archive_history_changed')
                 recheck(project.root,certificate)
+            require_finalized(project.root,proposal.successor)
             return {'operation_id':operation_id,'stage':'completed','replayed':True}
         driver=driver_type(project)
         path=proof_path(project.root,proposal.successor,(proposal.capability,proposal.requirement))
@@ -157,7 +159,7 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
                 if STAGES.index(operation['stage'])<STAGES.index(stage):
                     checkpoint(db,operation_id=operation_id,fence=fence,expected_revision=operation['revision'],stage=stage,
                         observed_hash=tree_hash(project.root/'openspec/specs'),request_id=request_id);db.commit()
-            if state!='synced':
+            if operation['stage']!='synced' and (state!='synced' or needs_finalize(project.root,proposal.successor)):
                 authorize_write(db,project,actor)
                 assert_fence(db,operation_id,fence);driver.finalize(proposal.successor)
             operation=assert_fence(db,operation_id,fence)
@@ -165,6 +167,7 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
             if operation['stage']=='move_verified':
                 checkpoint(db,operation_id=operation_id,fence=fence,expected_revision=operation['revision'],stage='synced',
                     observed_hash=tree_hash(project.root/'openspec/specs'),request_id=request_id);db.commit()
+            require_finalized(project.root,proposal.successor)
             authorize_write(db,project,actor)
             raw=path.read_bytes();record=strict_json(raw)
             if (record.get('proposal')!=proposal.model_dump() or record.get('authorization')!=receipt

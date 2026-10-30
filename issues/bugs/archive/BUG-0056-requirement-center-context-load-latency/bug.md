@@ -5,7 +5,7 @@ severity: high
 status: done
 owner: 产品团队
 created_at: '2026-10-21 09:02:26'
-updated_at: 2026-10-30 08:31:53
+updated_at: 2026-10-30 09:12:20
 discovered_at: '2026-10-21'
 environment: local docker chrome
 related_requirement: null
@@ -115,4 +115,4 @@ product_data_collection_observability:
 
 ## 当前交付状态
 
-已补齐 [根因分析](root-cause.md)、[临时规避](workaround.md) 和 [验收标准](acceptance.md)，根因证据与中文标题门禁已通过，已评审通过并纳入 sprint-014，当前状态为 in_sprint。三个瓶颈机制已确认，剩余证据边界保留；已创建 [修复Change](../../../../openspec/archive/2026-10-30-fix-requirement-center-context-load-latency/proposal.md)，尚未实施修复或完成验收。
+当前状态为 done，已完成实现、验收并归档至 sprint-014。Change `fix-requirement-center-context-load-latency` 已归档；已有验收记录见 [fix-requirement-center-context-load-latency验收报告](../../../../openspec/archive/2026-10-30-fix-requirement-center-context-load-latency/evidence/acceptance/20261030082746918344-3736ca43/summary.md)。 [根因分析](root-cause.md)、[临时规避](workaround.md) 与 [验收标准](acceptance.md) 保留；性能样本和适用限制以最终证据为准。

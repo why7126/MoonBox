@@ -310,8 +310,9 @@ def test_frontend_user_can_login_and_remains_blocked_from_admin_apis(api_client:
     assert login.json()["data"]["user"]["status"] == "正常"
 
     context = api_client.get("/api/v1/requirement-center/context", headers={"authorization": f"Bearer {token}"})
-    assert context.status_code == 200, context.text
-    assert context.json()["data"]["current_user"]["can_access_admin"] is False
+    # Context now requires an explicit space/repository binding. Authentication
+    # must not grant an implicit repository; admin access is checked below.
+    assert context.status_code == 422, context.text
 
     me = api_client.get("/api/v1/auth/me", headers={"authorization": f"Bearer {token}"})
     assert me.status_code == 200, me.text

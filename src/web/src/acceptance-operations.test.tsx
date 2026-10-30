@@ -65,6 +65,8 @@ it('long-term summaries remain separately readable without an online evidence ac
   render(<AcceptanceOperations conversationId="chat" />);
   fireEvent.click(await screen.findByRole('button', { name: '长期摘要' }));
   await screen.findByRole('dialog');
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: '长期摘要' }));
   expect(vi.mocked(governanceRequest).mock.calls[1][0]).toContain('/evidence/archive');
   expect(vi.mocked(governanceRequest).mock.calls[1][1]).toBeUndefined();
   expect(screen.queryByRole('button', { name: '查看证据' })).toBeNull();

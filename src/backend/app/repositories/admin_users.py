@@ -16,7 +16,8 @@ UNIFIED_AUTH_AVATAR_PREFIX = "/api/v1/auth/avatar/"
 
 
 def utc_now() -> str:
-    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    from app.db.time_values import storage_time
+    return storage_time(datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"))
 
 
 def normalize_avatar_url(avatar_url: str | None) -> str | None:
@@ -28,7 +29,8 @@ def normalize_avatar_url(avatar_url: str | None) -> str | None:
 
 
 def row_to_dict(row) -> dict:  # type: ignore[no-untyped-def]
-    data = dict(row._mapping)
+    from app.db.time_values import row_times
+    data = row_times(dict(row._mapping))
     data["is_system_superadmin"] = bool(data.get("is_system_superadmin"))
     data["avatar_url"] = normalize_avatar_url(data.get("avatar_url"))
     return data

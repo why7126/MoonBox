@@ -1,0 +1,117 @@
+{
+  "source": "isolated-deployed-real-tools",
+  "cli_normal": {
+    "stage": "completed",
+    "operations": [
+      {
+        "operation_id": "c384cb78-c198-5ba6-8336-79cd3ec60a76",
+        "stage": "completed",
+        "revision": null,
+        "replayed": true
+      }
+    ]
+  },
+  "cli_replay": {
+    "stage": "completed",
+    "operations": [
+      {
+        "operation_id": "c384cb78-c198-5ba6-8336-79cd3ec60a76",
+        "stage": "completed",
+        "revision": null,
+        "replayed": true
+      }
+    ]
+  },
+  "archive_hash_unchanged": true,
+  "product_normal": {
+    "stage": "completed",
+    "operations": [
+      {
+        "operation_id": "054b7a78-bd00-5645-aa97-9b894c3ac83b",
+        "stage": "completed",
+        "revision": null,
+        "replayed": true
+      }
+    ]
+  },
+  "move_failure": {
+    "reason": "archive_tool_failed",
+    "observation": "missing deployment source module; captured in session"
+  },
+  "move_checkpoint": {
+    "operation_id": "c38320fa-a7d4-573f-95ad-99d267121084",
+    "stage": "move_verified",
+    "observation": "read from isolated SQL before environment repair"
+  },
+  "move_resumed": {
+    "operation_id": "c38320fa-a7d4-573f-95ad-99d267121084",
+    "operation_kind": "ordinary",
+    "target_id": "fix-diag-cli",
+    "stage": "completed",
+    "revision": 7,
+    "verification": {
+      "status": "passed",
+      "checked_at": "2026-10-30T02:17:23.784858+00:00",
+      "input_fingerprint": "016168238a17bb5e64a19a7a42a837762c05dfee68945db7b757eb408f3e28fd",
+      "findings": []
+    },
+    "allowed_actions": [
+      "refresh"
+    ],
+    "denial_reason": null
+  },
+  "document_block": {
+    "kind": "archive_command_unverified",
+    "request_id": "b319984f-4ccd-49b7-ba14-800425f77019",
+    "operation_id": "c151f2e8-fc71-5238-9fbc-ac460f89508d",
+    "findings": [
+      {
+        "reason_code": "archive_finalization_blocked",
+        "kind": "missing-reference",
+        "relative_path": "issues/requirements/review/REQ-9001-diag-notes/acceptance.md",
+        "line": 5,
+        "message": "请核对当前文档与引用；历史过程保留。",
+        "requires_review": false
+      }
+    ],
+    "reason": "archive_finalization_blocked",
+    "suggested_action": "review_archive_blockers"
+  },
+  "document_checkpoint": {
+    "object_id": "fix-diag-block",
+    "object_type": "change",
+    "association_scope": "current_object",
+    "operations": [
+      {
+        "operation_id": "c151f2e8-fc71-5238-9fbc-ac460f89508d",
+        "operation_kind": "ordinary",
+        "target_id": "fix-diag-block",
+        "stage": "synced",
+        "revision": 5,
+        "verification": {
+          "status": "blocked",
+          "checked_at": "2026-10-30T02:17:23.876829+00:00",
+          "input_fingerprint": "016168238a17bb5e64a19a7a42a837762c05dfee68945db7b757eb408f3e28fd",
+          "findings": [
+            {
+              "reason_code": "archive_finalization_blocked",
+              "kind": "missing-reference",
+              "relative_path": "issues/requirements/review/REQ-9001-diag-notes/acceptance.md",
+              "line": 5,
+              "message": "请核对当前文档与引用；历史过程保留。",
+              "requires_review": false
+            }
+          ]
+        },
+        "allowed_actions": [
+          "refresh",
+          "resume"
+        ],
+        "denial_reason": null
+      }
+    ],
+    "not_started_targets": [],
+    "summary": "needs_attention"
+  },
+  "conversation_id": "0c69ad18-7e32-4d5f-85d8-60cf6bbe1668"
+}

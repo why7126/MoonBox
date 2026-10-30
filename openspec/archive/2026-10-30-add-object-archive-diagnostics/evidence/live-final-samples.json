@@ -1,0 +1,62 @@
+{
+  "source": "real-api-and-online-cli",
+  "api_first_success": {
+    "code": 0,
+    "message": "success",
+    "data": {
+      "stage": "completed",
+      "operations": [
+        {
+          "operation_id": "a88e0801-9529-5c7d-804a-3a92b5fd0597",
+          "stage": "completed",
+          "revision": null,
+          "replayed": false
+        }
+      ]
+    }
+  },
+  "cli_replay": {
+    "stage": "completed",
+    "operations": [
+      {
+        "operation_id": "a88e0801-9529-5c7d-804a-3a92b5fd0597",
+        "stage": "completed",
+        "revision": null,
+        "replayed": true
+      }
+    ]
+  },
+  "archive_hash_unchanged": true,
+  "block": {
+    "code": 2606,
+    "message": "归档收尾发现当前文档或引用问题，请修复后回读原操作。",
+    "data": {
+      "kind": "archive_command_unverified",
+      "request_id": "5b6b2a13-6fa4-4c5c-92f8-5d44dd97d357",
+      "operation_id": "943679da-5028-5636-86c5-954e9acca7ff",
+      "findings": [
+        {
+          "reason_code": "archive_finalization_blocked",
+          "kind": "missing-reference",
+          "relative_path": "issues/requirements/review/REQ-9001-diag-notes/sidebar.md",
+          "line": 2,
+          "message": "请核对当前文档与引用；历史过程保留。",
+          "requires_review": false
+        }
+      ],
+      "reason": "archive_finalization_blocked",
+      "suggested_action": "review_archive_blockers"
+    }
+  },
+  "wrong_original_denied": {
+    "code": 2606,
+    "message": "此对象已有归档操作，请使用原操作继续。",
+    "data": {
+      "kind": "archive_command_unverified",
+      "request_id": "cbbe0aac-bfc4-4e1e-9a1a-12daa348d4d1",
+      "operation_id": "wrong-original",
+      "reason": "original_operation_required",
+      "suggested_action": "retry_original_operation"
+    }
+  }
+}

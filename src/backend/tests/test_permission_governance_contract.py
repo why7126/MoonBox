@@ -47,10 +47,10 @@ class GovernancePermissionTests(unittest.TestCase):
                     db.execute(text('DROP TABLE admin_space_members'))
             self.addCleanup(clean_database)
         with self.engine.begin() as db:
-            db.execute(text('CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY)'))
+            db.execute(text("CREATE TABLE admin_users (id VARCHAR(64) PRIMARY KEY, status VARCHAR(32) NOT NULL DEFAULT '正常', deleted_at VARCHAR(64))"))
             db.execute(text('CREATE TABLE admin_spaces (id VARCHAR(64) PRIMARY KEY, owner_id VARCHAR(64), status VARCHAR(24), deleted_at VARCHAR(32), expires_at VARCHAR(32))'))
             db.execute(text('CREATE TABLE admin_space_members (id VARCHAR(64) PRIMARY KEY, space_id VARCHAR(64), user_id VARCHAR(64), role VARCHAR(32))'))
-            db.execute(text("INSERT INTO admin_users VALUES ('owner'),('reader')"))
+            db.execute(text("INSERT INTO admin_users (id) VALUES ('owner'),('reader')"))
             db.execute(text("INSERT INTO admin_spaces VALUES ('space','owner','ACTIVE',NULL,NULL)"))
             db.execute(text("INSERT INTO admin_space_members VALUES ('m','space','reader','查看者')"))
         migrate(self.engine)

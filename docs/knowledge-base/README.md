@@ -11,6 +11,7 @@ updated_at: 2026-10-30 08:37:47
 
 # 知识库使用说明
 
+- [会话准备延迟的证据边界与安全优化](incidents/20261030-object-session-preparation-latency.md)
 - [受控规则替代的验证与恢复经验](best-practices/20261022-controlled-rule-replacement.md)
 
 `docs/knowledge-base/` 保存跨 Sprint 可复用的经验、复盘、事故和最佳实践。它不是事后报告库；后续规划、需求完善和实现命令必须把这里的内容作为输入。
@@ -58,6 +59,7 @@ updated_at: 2026-10-30 08:37:47
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-016 | [Sprint-016 经验复盘](retrospectives/sprint-016-retrospective.md) | active | 4 |
 | sprint-015 | [Sprint-015 经验复盘](retrospectives/sprint-015-retrospective.md) | active | 8（另1项已纳入sprint-016） |
 | sprint-014 | [Sprint-014 经验复盘](retrospectives/sprint-014-retrospective.md) | active | 8（含7项前序承接） |
 | sprint-013 | [Sprint-013 经验复盘](retrospectives/sprint-013-retrospective.md) | active | 8（含6项前序承接） |
