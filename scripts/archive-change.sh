@@ -23,8 +23,8 @@ PY
 }
 
 run_language_gate() {
-  if [[ -f "scripts/validate-openspec-language.py" ]]; then
-    "$PYTHON_BIN" scripts/validate-openspec-language.py
+  if [[ -f "$archive_scripts/validate-openspec-language.py" ]]; then
+    "$PYTHON_BIN" "$archive_scripts/validate-openspec-language.py"
   fi
 }
 
@@ -154,6 +154,16 @@ PYTHON_BIN="$(bash "$archive_python_entry" -c 'import os; print(os.environ["PYTH
 export PYTHON_BIN
 export PYTHONDONTWRITEBYTECODE=1
 
+# The deployment configuration is outside Agent-writable repositories.
+archive_scripts="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+archive_route="$("$PYTHON_BIN" "$archive_scripts/archive-tool-route.py" --check)" || exit "$?"
+if [[ "$archive_route" != legacy && "${MOONBOX_ARCHIVE_ROUTED:-}" != 1 ]]; then
+  exec "$PYTHON_BIN" "$archive_scripts/archive-tool-route.py" --launch "$@"
+fi
+if [[ "${MOONBOX_ARCHIVE_ROUTED:-}" == 1 && "$archive_route" == legacy ]]; then
+  fail "archive_tool_configuration_missing"
+fi
+
 project_root="$(pwd)"
 if [[ -e "$project_root/openspec/archive/.controlled-successors" ]]; then
   fail "受控归档项目须通过在线共同提交入口执行；使用 scripts/controlled-archive.py，保留原对象与操作身份。离线脚本不能领取授权。"
@@ -164,25 +174,25 @@ active_dir="$project_root/openspec/changes/$change_id"
 target_dir="$canonical_root/$archive_date-$change_id"
 legacy_target_dir="$legacy_root/$archive_date-$change_id"
 
-"$PYTHON_BIN" scripts/validate-issue-acceptance-ready.py "$change_id" || fail "Issue acceptance gate blocked archive for $change_id"
-"$PYTHON_BIN" scripts/validate-change-delivery-evidence.py --change "$change_id" || fail "Change delivery evidence gate blocked archive for $change_id"
+"$PYTHON_BIN" "$archive_scripts/validate-issue-acceptance-ready.py" "$change_id" || fail "Issue acceptance gate blocked archive for $change_id"
+"$PYTHON_BIN" "$archive_scripts/validate-change-delivery-evidence.py" --change "$change_id" || fail "Change delivery evidence gate blocked archive for $change_id"
 
 if [[ -f "$active_dir/acceptance-plan.json" ]]; then
-  "$PYTHON_BIN" scripts/opsx_acceptance.py --change "$change_id" --readiness || fail "automated acceptance evidence is missing or stale for $change_id"
+  "$PYTHON_BIN" "$archive_scripts/opsx_acceptance.py" --change "$change_id" --readiness || fail "automated acceptance evidence is missing or stale for $change_id"
 fi
 
-"$PYTHON_BIN" scripts/validate-change-identity.py
+"$PYTHON_BIN" "$archive_scripts/validate-change-identity.py"
 run_language_gate
 relocate_legacy_archives "$canonical_root" "$legacy_root"
 
 mkdir -p "$canonical_root"
 if [[ -d "$active_dir" ]]; then
   [[ ! -e "$target_dir" ]] || fail "archive target already exists"
-  "$PYTHON_BIN" scripts/validate-directory-structure.py
-  recovery_mode="$("$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date")" || fail "archive recovery guard blocked $change_id"
+  "$PYTHON_BIN" "$archive_scripts/validate-directory-structure.py"
+  recovery_mode="$("$PYTHON_BIN" "$archive_scripts/archive-recovery-guard.py" "$change_id" "$archive_date")" || fail "archive recovery guard blocked $change_id"
   run_openspec_archive "$change_id" "$recovery_mode"
 else
-  "$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
+  "$PYTHON_BIN" "$archive_scripts/archive-recovery-guard.py" "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
   shopt -s nullglob
   matches=("$canonical_root"/????-??-??-"$change_id")
   shopt -u nullglob
@@ -210,19 +220,19 @@ archive_date="${archive_date:0:10}"
 
 [[ -d "$target_dir" ]] || fail "canonical archive target missing after archive: openspec/archive/$archive_date-$change_id"
 [[ ! -e "$active_dir" ]] || fail "active change still exists after archive: openspec/changes/$change_id"
-"$PYTHON_BIN" scripts/archive-recovery-guard.py "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
+"$PYTHON_BIN" "$archive_scripts/archive-recovery-guard.py" "$change_id" "$archive_date" >/dev/null || fail "archive recovery guard blocked $change_id"
 
-"$PYTHON_BIN" scripts/validate-directory-structure.py
-"$PYTHON_BIN" scripts/validate-env-ignore-policy.py
-"$PYTHON_BIN" scripts/validate-archive-evidence.py --change "$change_id" --archive-path "$target_dir"
+"$PYTHON_BIN" "$archive_scripts/validate-directory-structure.py"
+"$PYTHON_BIN" "$archive_scripts/validate-env-ignore-policy.py"
+"$PYTHON_BIN" "$archive_scripts/validate-archive-evidence.py" --change "$change_id" --archive-path "$target_dir"
 
 if (( finalize )); then
-  "$PYTHON_BIN" scripts/sync-workflow-status.py --event opsx.archive --change "$change_id" --sprint auto
-  "$PYTHON_BIN" scripts/promote-issues-for-archive.py --change "$change_id" --reason "/opsx-archive $change_id"
-  "$PYTHON_BIN" scripts/check-archive-finalization.py --change "$change_id"
-  resolved_sprint="$("$PYTHON_BIN" - "$change_id" <<'PYTHON'
+  "$PYTHON_BIN" "$archive_scripts/sync-workflow-status.py" --event opsx.archive --change "$change_id" --sprint auto
+  "$PYTHON_BIN" "$archive_scripts/promote-issues-for-archive.py" --change "$change_id" --reason "/opsx-archive $change_id"
+  "$PYTHON_BIN" "$archive_scripts/check-archive-finalization.py" --change "$change_id"
+  resolved_sprint="$("$PYTHON_BIN" - "$change_id" "$archive_scripts" <<'PYTHON'
 import sys
-sys.path.insert(0, 'scripts')
+sys.path.insert(0, sys.argv[2])
 from workflow_sync.collect import resolve_sprint_id
 sprint, _ = resolve_sprint_id('auto', event='opsx.archive', change_id=sys.argv[1])
 print(sprint or '')
@@ -230,7 +240,7 @@ PYTHON
 )"
   usage_arguments=(--post-command-hook --workflow-event opsx.archive --change "$change_id")
   if [[ -n "$resolved_sprint" ]]; then usage_arguments+=(--sprint "$resolved_sprint"); fi
-  "$PYTHON_BIN" scripts/extract-ai-usage.py "${usage_arguments[@]}" --json | "$PYTHON_BIN" -c '
+  "$PYTHON_BIN" "$archive_scripts/extract-ai-usage.py" "${usage_arguments[@]}" --json | "$PYTHON_BIN" -c '
 import json, sys
 data = json.load(sys.stdin)
 keys = ("status", "usage_mode", "command_run_count", "sprint_snapshot", "warning_count", "warnings", "recommended_action")

@@ -1,8 +1,9 @@
+import { sharedChatRead } from "./sharedChatRead";
 import { readValidFrontendSession, redirectToFrontendLogin } from "../../pages/home/frontendSession";
 import { ChatApiError, normalizeChatError } from "./chatApi";
 export type ChatEvent = { sequence: number; type: string; payload: unknown };
 /** Server emits finite replay pages. Every reconnect is authorized and resumes after a persisted cursor. */
-export async function readChatEvents(turnId: string, after: number, signal?: AbortSignal): Promise<ChatEvent[]> {
+async function fetchChatEvents(turnId: string, after: number, signal?: AbortSignal): Promise<ChatEvent[]> {
   const token = readValidFrontendSession()?.access_token;
   if (!token) {
     redirectToFrontendLogin();
@@ -33,4 +34,8 @@ export async function readChatEvents(turnId: string, after: number, signal?: Abo
     if (Number.isSafeInteger(sequence) && sequence > after && type && data) result.push({ sequence, type, payload: JSON.parse(data) });
   }
   return [...new Map(result.map(event => [event.sequence, event])).values()].sort((a, b) => a.sequence - b.sequence);
+}
+
+export function readChatEvents(turnId: string, after: number, signal?: AbortSignal): Promise<ChatEvent[]> {
+ return sharedChatRead(`events:${turnId}:${after}`, inner => fetchChatEvents(turnId, after, inner), signal);
 }

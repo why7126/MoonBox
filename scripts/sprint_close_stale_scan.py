@@ -12,8 +12,9 @@ from workflow_sync import collect
 from workflow_sync.derive import derive_change_state, derive_issue
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'src/backend'))
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
+sys.path.insert(0, str(TOOL_ROOT / 'src/backend'))
 from app.governance.archive_finalization import inspect_document, paragraphs, HISTORY, CONDITION, CURRENT
 SPRINT_FILES = ("sprint.yaml", "sprint.md", "release-note.md", "acceptance-report.md")
 CLOSED_CHANGE_STATES = frozenset({"applied", "archived"})
@@ -256,10 +257,19 @@ def scan_line(
                 )
             )
 
+    state_line = line
+    for issue_id in [*sprint.requirements, *sprint.bugs]:
+        issue = issues.get(issue_id)
+        short_id = "-".join(issue_id.split("-")[:2])
+        if issue and issue.title and (
+            _line_mentions_target(line, issue_id) or _line_mentions_target(line, short_id)
+        ):
+            state_line = state_line.replace(issue.title, "")
+
     for change_id, change in derived_changes.items():
         if not _line_mentions_target(line, change_id):
             continue
-        if change.state in CLOSED_CHANGE_STATES and _line_has_apply_wait(line):
+        if change.state in CLOSED_CHANGE_STATES and _line_has_apply_wait(state_line):
             hits.append(
                 StaleHit(
                     severity="blocker",
@@ -272,7 +282,7 @@ def scan_line(
                     suggestion=_manual_fix_suggestion(sprint.sprint_id),
                 )
             )
-        if change.state == ARCHIVED_CHANGE_STATE and (_line_has_archive_wait(line) or _line_has_stale_state_word(line)):
+        if change.state == ARCHIVED_CHANGE_STATE and (_line_has_archive_wait(state_line) or _line_has_stale_state_word(state_line)):
             hits.append(
                 StaleHit(
                     severity="blocker",

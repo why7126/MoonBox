@@ -33,12 +33,16 @@ def test_context_cannot_be_loaded_from_repository_file(tmp_path):
         with pytest.raises(ValueError,match='requires_pipe'):read_context(stream.fileno())
 
 
-def test_workflow_child_inherits_only_identity_and_fence(tmp_path,monkeypatch):
+@pytest.mark.parametrize('routed', [False, True])
+def test_workflow_child_inherits_only_identity_and_fence(tmp_path,monkeypatch,routed):
     project=SimpleNamespace(root=tmp_path,key='b'*64,space_id='space',repository_id='repo',binding_revision='a'*64)
-    driver=object.__new__(ArchiveDriver);driver.project=project
+    driver=object.__new__(ArchiveDriver);driver.project=project;driver.package=None
     monkeypatch.setattr(driver,'recheck_tools',lambda:None)
+    if routed: driver.package=SimpleNamespace(root=tmp_path/'deployed-tools')
     calls=[]
     def run(args,**kwargs):
+        assert kwargs['cwd']==tmp_path
+        if routed: assert kwargs['env']['PYTHONPATH']==str(tmp_path/'deployed-tools/src/backend')
         assert args[:3]==[sys.executable,'-m','app.governance.replacement_tool_context']
         assert args[4]=='sync-workflow-status.py'
         fd=int(args[3]);assert kwargs['pass_fds']==(fd,)
@@ -52,7 +56,7 @@ def test_workflow_child_inherits_only_identity_and_fence(tmp_path,monkeypatch):
 
 def test_timeout_preserves_safe_error_and_closes_inherited_fd(tmp_path,monkeypatch):
     project=SimpleNamespace(root=tmp_path,key='b'*64,space_id='space',repository_id='repo',binding_revision='a'*64)
-    driver=object.__new__(ArchiveDriver);driver.project=project
+    driver=object.__new__(ArchiveDriver);driver.project=project;driver.package=None
     monkeypatch.setattr(driver,'recheck_tools',lambda:None)
     fds=[]
     def timeout(args,**kwargs):

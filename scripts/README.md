@@ -1,7 +1,7 @@
 ---
 title: 治理脚本执行说明
 created_at: 2026-10-25 22:20:00
-updated_at: 2026-10-30 12:08:59
+updated_at: 2026-10-31 15:58:13
 ---
 
 # 治理脚本执行说明
@@ -72,3 +72,17 @@ CLI --finalize 在 sync/promote 后调用；产品协调器在 synced 后、comp
 Workflow Sync 对当前 Sprint 和目标 Change 关联的 Issue 加载全部兄弟 Change，包括历史 Sprint；关联状态用于读取推导，不把兄弟纳入当前 Sprint。归档事件按关联成员同步子文档，不能因历史主 Change 不等于本次 Change 而跳过。收尾引用检查仅对裸路径按中文顿号断词，显式 Markdown 链接按原值验证。
 
 归档文档保留的 Issue 旧阶段引用仅在唯一同名 Issue、完成状态、双向 Change 归属、全部关联已归档及原归档恢复证明通过时解析至 archive 目录。迁移预检按同一源文件模拟，迁移后按唯一归档文件校验；活动文档和可变 Issue 仍须修正旧链接。缺文件、符号链接、重复身份或证明失配均阻断。原型裸路径不包含紧接的中文说明，也不将 prototype 开头的普通文档名截成原型目录。
+
+## 独立 Change 初始状态门禁
+
+新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
+
+已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。
+
+## 独立归档工具包
+
+`build-archive-tools.py --output` 生成新只读制品及 manifest 摘要，不安装或覆盖现有部署；`archive-tool-route.py --check` 只读核验固定部署配置。`archive_runtime.py` 分开工具导入目录与业务事实根，未启用路由保留原默认值。Shell 归档入口的 Python 脚本及内联导入均来自同一工具目录，原业务 cwd 保持不变。
+
+回归入口：`src/backend/tests/test_archive_tools.py`、`scripts/test_archive_python_entry.py`。真实子容器验证入口 `verify-archive-tool-container.py` 要求先登记临时 Docker run，再提供 run、expires 和当前 Change 内输出路径；使用合成事实与已有镜像，不发送模型请求、不修改运行服务。验收结束按 temporary_docker cleanup/check 收尾。
+
+关闭扫描仅在同一行识别到 Issue 编号时排除其完整原始标题中的状态词；标题之外的待实现、待归档和中间态仍阻断，不得因同行出现 done 而跳过整行。

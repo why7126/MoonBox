@@ -23,8 +23,9 @@ import sprint_close_stale_scan
 from archive_evidence import validate_archive_evidence
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src/backend"))
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
+sys.path.insert(0, str(TOOL_ROOT / "src/backend"))
 from app.governance.sprint_archive_admission import close_blockers
 
 

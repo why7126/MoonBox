@@ -816,6 +816,7 @@ const actionCommandForStage = (issue: IssueCard, stageId: string) => {
 const actionForStage = (issue: IssueCard, stageId: string): IssueAction | undefined => {
   if (issue.type === "change") {
     const action = {
+      "sprint-planning": { label: "加入迭代", command: `/sprint-propose --change ${issue.id}` },
       "ready-dev": { label: "开始开发", command: `/opsx-apply ${issue.id}` },
       development: { label: "查看进度", command: `查看进度 ${issue.id}` },
       acceptance: { label: "完成 / 归档", command: `/opsx-archive ${issue.id}` },
@@ -838,7 +839,7 @@ const actionDisabledReason = (action: IssueAction | undefined) => action?.disabl
 const issueAction = (issue: IssueCard): IssueAction => {
   const fallback = actionForStage(issue, issue.stage);
   if (issue.type === "change") return {
-    ...(fallback || { command: "只读", label: "只读" }),
+    ...((issue.stage === "sprint-planning" ? issue.action : undefined) || fallback || { command: "只读", label: "只读" }),
     disabledReason: actionDisabledReason(issue.action) || fallback?.disabledReason,
   };
   return issue.action || fallback || { command: "只读", label: "只读" };
@@ -848,7 +849,7 @@ const actionDialogType = (issue: IssueCard, action?: AuxiliaryAction | IssueActi
   if (action?.label.includes("分析")) return "analysis";
   if (issue.stage === "planning") return "complete";
   if (issue.stage === "approved") return "sprint";
-  if (issue.stage === "sprint-planning") return "opsx";
+  if (issue.stage === "sprint-planning") return issue.type === "change" ? "sprint" : "opsx";
   if (issue.stage === "ready-dev") return "apply";
   if (issue.stage === "development") return "progress";
   return "command";
@@ -2023,10 +2024,12 @@ export function RequirementCenterPage() {
   const [openFilter, setOpenFilter] = useState<MultiFilterKey | null>(null);
   const [filterSearch, setFilterSearch] = useState<Record<MultiFilterKey, string>>({ stage: "", owner: "", level: "", sprint: "" });
   const [toast, setToast] = useState("");
+  const [assignmentIssueId, setAssignmentIssueId] = useState<string | null>(null);
   const [checkingObject, setCheckingObject] = useState<string | null>(null);
   const checkFlight = useRef<AbortController | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  useEffect(() => { setAssignmentIssueId(null); }, [project?.space_id, project?.repository_id, contextFailure]);
   const [syncLabel, setSyncLabel] = useState("正在读取项目连接");
   const projectRef = useRef<Project | null>(null);
   const requestedSpace = useRef("");
@@ -2328,6 +2331,7 @@ export function RequirementCenterPage() {
       setAgentOpen(false);
       setChoiceDialog({ type: "none" });
       setActionDialog({ type: "none" });
+      setAssignmentIssueId(null);
 
       closeDrawer();
     };
@@ -3098,6 +3102,10 @@ export function RequirementCenterPage() {
 
   const openIssueActionDialog = (issue: IssueCard, auxAction?: AuxiliaryAction) => {
     if (contextFailure) { setToast("请先重新加载项目数据"); return; }
+    if (!auxAction && issue.type === "change" && issueAction(issue).label === "核对归属") {
+      setAssignmentIssueId(issue.id);
+      return;
+    }
     if (issue.can_send === false && (auxAction || issue.stage !== "development")) {
       if (issue.view_conversation_id) viewExecution(issue);
       else setToast(issue.execution_state === "needs_review" ? "结果待核对，已产生的文档会保留" : "对象正在执行");
@@ -3297,7 +3305,7 @@ export function RequirementCenterPage() {
     const actionLabel = isEnriching ? "继续完善" : action.label || stageActionLabel[stage.id]?.[issue.type];
     const isDoneStage = stage.id === "done";
     const showArchive = issue.type === "change"
-      ? ["ready-dev", "development", "acceptance"].includes(stage.id) && (stage.id !== "acceptance" || !issue.testProgress || issue.testProgress[0] >= issue.testProgress[1])
+      ? ["sprint-planning", "ready-dev", "development", "acceptance"].includes(stage.id) && (stage.id !== "acceptance" || !issue.testProgress || issue.testProgress[0] >= issue.testProgress[1])
       : stage.id !== "unknown" && !isDoneStage && (stage.id !== "acceptance" || canArchive(issue));
     const isLocked = lockedActionId === issue.id;
     const documents = visibleIssueDocuments(stage, issue);
@@ -3330,6 +3338,7 @@ export function RequirementCenterPage() {
         <div className="rc-card-meta rc-card-tags">
           {levelTag && <span className={`${levelTag.className} rc-tag ${levelTag.value.toLowerCase()}`}>{levelTag.value}</span>}
           <span className="rc-owner-tag rc-tag" title={issue.owner}>{issue.owner}</span>
+          {issue.type === "change" && stage.id === "sprint-planning" && <span className="rc-tag" data-testid="change-sprint-status">{action.label === "加入迭代" ? "待纳入迭代" : "归属待核对"}</span>}
           <CardInfoTags facts={issue} disabled={!!contextFailure} onRootCause={() => {
             const document = issueDocumentEntries(issue).find(entry => entry.name === "root-cause.md" && (!entry.url || entry.url.includes("/issues/")));
             if (document) void openDocument(issue, document);
@@ -3449,7 +3458,7 @@ export function RequirementCenterPage() {
               </button>
             ))}
             {showArchive && (
-              <button className="primary" type="button" title={tip || action.command} disabled={isLocked || Boolean(tip) || (issue.can_send === false && issue.stage !== "development")} onClick={() => openIssueActionDialog(issue)}>
+              <button className="primary" data-testid="change-stage-action" type="button" title={tip || action.command} disabled={action.label === "核对归属" ? !!contextFailure : isLocked || Boolean(tip) || (issue.can_send === false && issue.stage !== "development")} onClick={() => openIssueActionDialog(issue)}>
                 {isLocked && <Loader2 size={13} aria-hidden="true" />} {actionLabel} →
               </button>
             )}
@@ -3994,6 +4003,24 @@ export function RequirementCenterPage() {
         </div>
       )}
 
+      {assignmentIssueId && !contextFailure && (() => {
+        const issue = context?.issues.find(item => item.id === assignmentIssueId);
+        if (!issue || issue.type !== "change" || issue.stage !== "sprint-planning" || issue.action?.label !== "核对归属") return null;
+        return <div className="rc-settings-mask rc-action-mask" onMouseDown={() => setAssignmentIssueId(null)}>
+          <section className="rc-flow-dialog rc-action-dialog" role="dialog" aria-modal="true" aria-label="核对 Sprint 归属" data-testid="change-sprint-diagnostic" onMouseDown={event => event.stopPropagation()}>
+            <header className="rc-dialog-head"><div><h2>核对 Sprint 归属</h2><p>{issue.id}</p></div></header>
+            <div className="rc-action-body">
+            <p>仅展示当前可见记录。请核对声明与迭代成员关系；此处不会修改归属。</p>
+            <ul>{(issue.drift_warnings || []).map((warning, index) => <li key={index}>{warning}</li>)}</ul>
+            </div><footer className="rc-dialog-actions"><button className="rc-secondary-action" type="button" onClick={() => {
+              setAssignmentIssueId(null);
+              const card = issues.find(item => item.id === issue.id);
+              const document = card && issueDocumentEntries(card).find(item => item.name === "trace.md");
+              if (card && document) void openDocument(card, document);
+            }}>查看 trace.md</button><button className="rc-secondary-action" type="button" onClick={() => setAssignmentIssueId(null)}>关闭</button></footer>
+          </section>
+        </div>;
+      })()}
       {drawer.type !== "none" && (
         <div className="rc-drawer-layer" role="presentation">
           <button className="rc-drawer-backdrop" type="button" aria-label="关闭右侧抽屉蒙层" onClick={closeDrawer} />

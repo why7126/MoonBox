@@ -1,25 +1,15 @@
+import { QuestionPanel } from "./QuestionPanel";
+import { readTurnSummary, type TurnSummary } from "./sharedChatRead";
 import { useConversationMessages, messageTime, type OrderedMessage } from "./useConversationMessages";
 import type { GovernanceCandidate } from "./GovernanceResult";
 import type { MessageRead as GeneratedMessageRead } from "../../api/generated/chat";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { Box, Check, CircleAlert, Copy, Sparkles } from "lucide-react";
 import { TurnActivity } from "./TurnActivity";
 import { SafeMarkdown } from "./SafeMarkdown";
-import { ChatApiError, normalizeChatError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef, type TurnRead } from "./chatApi";
-import { readChatEvents, type ChatEvent } from "./chatEvents";
+import { ChatApiError, normalizeChatError, chatRequest, fetchChatMaterialBlob, type ExecutionConfig, type MaterialRef } from "./chatApi";
 import { executionConfigLabel } from "./executionLabels";
 type Message = OrderedMessage & Pick<GeneratedMessageRead, "output_partial" | "output_truncated" | "output_source" | "output_truncation_reason"> & { id: string; turn_id?: string; role: string; content: string; created_at: string; materials?: MaterialRef[]; effective_config?: ExecutionConfig; config_fallback_reason?: string | null };
-type UsagePayload = {
-  total_tokens?: number;
-  input_tokens?: number;
-  output_tokens?: number;
-  reasoning_tokens?: number;
-  first_token_ms?: number;
-  first_token_latency_ms?: number;
-  duration_ms?: number;
-  reasoning_duration_ms?: number;
-  thinking_duration_ms?: number;
-};
 type CopyState = "idle" | "copied" | "failed";
 type PreviewMaterial = MaterialRef & { preview_url?: string };
 function skillDisplayName(value: string) {
@@ -115,9 +105,7 @@ function durationLabel(ms?: number) {
   if (seconds < 60) return `${seconds}秒`;
   return `${Math.floor(seconds / 60)}分钟${seconds % 60}秒`;
 }
-function latestUsage(events: ChatEvent[]) {
-  return events.filter(event => event.type === "execution.usage").map(event => event.payload as UsagePayload).filter(Boolean).slice(-1)[0];
-}
+
 async function copyText(text: string) {
   if (navigator.clipboard?.writeText) {
     try {
@@ -156,26 +144,32 @@ function CopyMessageButton({ text }: { text: string }) {
   return <button className={`chat-message-copy ${state}`} aria-label={label} title={label} onClick={async()=>setState(await copyText(text) ? "copied" : "failed")}><Icon size={13} aria-hidden="true"/></button>;
 }
 function AssistantMeta({ row, skills, displayContent }: { row: Message; skills: MaterialRef[]; displayContent: string }) {
-  const [events, setEvents] = useState<ChatEvent[]>([]);
-  const [turn, setTurn] = useState<TurnRead | null>(null);
+  const [turn, setTurn] = useState<TurnSummary | null>(null);
   useEffect(() => {
+    setTurn(null);
     if (!row.turn_id) return;
     const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout>, running = false;
     const load = async () => {
+      if (document.hidden || controller.signal.aborted || running) return;
+      running = true;
       try {
-        const [batch, state] = await Promise.all([
-          readChatEvents(row.turn_id!, 0, controller.signal),
-          chatRequest<TurnRead>(`/turns/${row.turn_id}`, { signal: controller.signal }),
-        ]);
-        if (!controller.signal.aborted) { setEvents(batch); setTurn(state); }
-      } catch {
-        if (!controller.signal.aborted) { setEvents([]); setTurn(null); }
-      }
+        const state = await readTurnSummary(row.turn_id!, controller.signal);
+        if (controller.signal.aborted) return;
+        setTurn(state);
+        if (!["completed", "failed", "stopped"].includes(state.status)) timer = setTimeout(load, 3000);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          setTurn(null);
+          if (!(e instanceof ChatApiError && [401, 403, 404].includes(e.status))) timer = setTimeout(load, 3000);
+        }
+      } finally { running = false; }
     };
-    void load();
-    return () => controller.abort();
+    const onVisible = () => { clearTimeout(timer); if (!document.hidden) void load(); };
+    void load(); document.addEventListener('visibilitychange', onVisible);
+    return () => { controller.abort(); clearTimeout(timer); document.removeEventListener('visibilitychange', onVisible); };
   }, [row.turn_id]);
-  const usage = latestUsage(events);
+  const usage = turn?.usage;
   const firstToken = durationLabel(usage?.first_token_latency_ms ?? usage?.first_token_ms);
   const reasoningDuration = durationLabel(usage?.reasoning_duration_ms ?? usage?.thinking_duration_ms);
   const usageDuration = durationLabel(usage?.duration_ms);
@@ -209,7 +203,7 @@ function UserMessageBody({ content, skills }: { content: string; skills: Materia
     {!!rest && <SafeMarkdown content={rest}/>}
   </>;
 }
-export function ConversationMessages({ conversationId, onTrace, rejectedGovernanceTurnIds = [], candidates = [], onDraft = () => {}, draftText = "" }: { candidates?: GovernanceCandidate[]; onDraft?: (text:string)=>void; draftText?:string; conversationId: string; onTrace?: (id: string) => void; rejectedGovernanceTurnIds?: string[] }) {
+export function ConversationMessages({ conversationId, onTrace, footer, rejectedGovernanceTurnIds = [], candidates = [], onDraft = () => {}, draftText = "" }: { footer?: ReactNode; candidates?: GovernanceCandidate[]; onDraft?: (text:string)=>void; draftText?:string; conversationId: string; onTrace?: (id: string) => void; rejectedGovernanceTurnIds?: string[] }) {
   const [preview, setPreview] = useState<PreviewMaterial | null>(null);
   const root = useRef<HTMLDivElement>(null), follow = useRef(true), [atBottom,setAtBottom] = useState(true);
   const { rows, more, loading, error, compatibility, loadOlder } = useConversationMessages<Message>(conversationId, () => {
@@ -258,7 +252,8 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
             </div>:<AssistantMeta row={row} skills={skills} displayContent={displayContent}/>}
           </div>
         </article>
-      </div>{row.role==="user"&&row.turn_id&&onTrace&&!assistantTurnIds.has(row.turn_id)&&
+      </div>{row.role==="user" && row.turn_id && <QuestionPanel turnId={row.turn_id}/>}
+      {row.role==="user"&&row.turn_id&&onTrace&&!assistantTurnIds.has(row.turn_id)&&
         <div className="chat-message-block turn-assistant" data-testid="chat-pending-assistant">
           <article className="chat-message">
             <span className="chat-assistant-avatar" aria-hidden="true"><Box size={15}/></span>
@@ -269,6 +264,7 @@ export function ConversationMessages({ conversationId, onTrace, rejectedGovernan
     })}
     {preview&&<MaterialPreviewDialog item={preview} onClose={()=>setPreview(null)}/>}
     {!atBottom && <button className="chat-jump-bottom" onClick={()=>{follow.current=true;root.current?.lastElementChild?.scrollIntoView?.({block:"end"});}}>回到最新消息</button>}
+    {footer}
     <div aria-hidden="true"/>
   </div>;
 }

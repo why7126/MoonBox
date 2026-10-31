@@ -10,7 +10,7 @@ import shutil
 import stat
 import subprocess
 from urllib.parse import urlsplit
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from app.chat.workspace import trusted_directory
 
@@ -29,7 +29,12 @@ def probe_browser_image(image_digest: str, *, timeout: int = 45) -> dict:
     if not docker:
         raise RunnerUnavailable("container_runtime_unavailable")
     seccomp = Path(__file__).parents[2] / "container" / "seccomp-codex.json"
-    command = [docker, "run", "--rm", "--init", "--network", "none", "--read-only",
+    probe_name = 'moonbox-browser-probe-' + uuid4().hex
+    labels = []
+    if os.getenv('MOONBOX_TEMP_RUN') and os.getenv('MOONBOX_TEMP_EXPIRES'):
+        labels = ['--label', 'moonbox.temp.managed=true', '--label', 'moonbox.temp.run='+os.environ['MOONBOX_TEMP_RUN'],
+                  '--label', 'moonbox.temp.expires='+os.environ['MOONBOX_TEMP_EXPIRES']]
+    command = [docker, "run", "--name", probe_name, *labels, "--init", "--network", "none", "--read-only",
                "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
                "--security-opt", f"seccomp={seccomp}",
                "--pids-limit", "128", "--memory", "1g", "--cpus", "1",
@@ -40,6 +45,12 @@ def probe_browser_image(image_digest: str, *, timeout: int = 45) -> dict:
         result = subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=False)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise RunnerUnavailable("browser_probe_failed") from exc
+    finally:
+        try:
+            cleanup = subprocess.run([docker, 'rm', '--force', probe_name], capture_output=True, timeout=10)
+            if cleanup.returncode: raise RunnerUnavailable('browser_probe_cleanup_unconfirmed')
+        except (OSError, subprocess.TimeoutExpired):
+            raise RunnerUnavailable('browser_probe_cleanup_unconfirmed') from None
     if result.returncode:
         raise RunnerUnavailable("browser_probe_failed")
     try:
@@ -126,7 +137,9 @@ def run_browser_acceptance(image_digest: str, *, network: str, target_url: str,
                "--network", network, "--read-only",
                "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
                "--security-opt", f"seccomp={seccomp}", "--pids-limit", "256", "--memory", "1g", "--cpus", "1",
-               "--tmpfs", "/tmp:rw,nosuid,size=128m", "--ulimit", "fsize=10485760:10485760", "--user", f"{os.getuid()}:{os.getgid()}",
+               # Chromium's shared-memory/profile files can exceed the screenshot cap.
+               # Bound those by tmpfs size; validate each exported screenshot below.
+               "--tmpfs", "/tmp:rw,nosuid,size=128m", "--ulimit", "fsize=134217728:134217728", "--user", f"{os.getuid()}:{os.getgid()}",
                "--env", "HOME=/tmp", "--env", "XDG_CACHE_HOME=/tmp",
                "--mount", f"type=bind,src={target},dst=/evidence"]
     for key, value in (lifecycle_labels or {}).items():

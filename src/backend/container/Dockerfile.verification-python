@@ -1,0 +1,12 @@
+# Dedicated test image; never install dependencies during an acceptance run.
+FROM python:3.12-slim
+WORKDIR /app
+RUN pip install --no-cache-dir uv==0.8.15
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --extra verification --no-dev
+ENV PATH="/app/.venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+COPY container/verification_python_probe.py /opt/moonbox/verification_python_probe.py
+RUN python /opt/moonbox/verification_python_probe.py
+COPY app ./app
+USER 10001:10001
+CMD ["python", "/opt/moonbox/verification_python_probe.py"]

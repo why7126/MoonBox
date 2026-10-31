@@ -3,7 +3,7 @@ purpose: 数据库兼容测试矩阵
 content: 数据库兼容范围、测试环境、Schema/迁移验证、CRUD、查询、事务、类型映射、性能、安全、CI 门禁和初始化生成规则
 update_method: 项目初始化时由用户输入参数生成；数据库类型、兼容目标、迁移策略、测试框架、部署环境或质量门禁变化时更新；后续由 AI 辅助更新并经人工 Review
 created_at: 2026-06-27 08:44:18
-updated_at: "2026-10-27 19:34:50"
+updated_at: "2026-10-31 11:58:51"
 owner: MoonBox
 status: draft
 note: 适用于 MoonBox 项目
@@ -344,3 +344,7 @@ SQLite核心五组171项通过，独立后继组49项包含规则和任务承接
 ## BUG-0056 后台维护引用查询
 
 SQLite与MySQL：移除测试库的两项新索引后运行真实migrate两次，验证ix_chat_snapshot_object与ix_chat_segment_object恢复、内容引用保留和孤儿回收一致；SQLite额外EXPLAIN断言两个相关子查询使用引用索引。SQLite在线备份另验证批次间独立连接成功提交且最终副本integrity_check通过。测试入口为test_chat_content_store.py和test_chat_backup.py，真实并发现场结果归属BUG-0056 Change。
+
+## 原轮次问答矩阵
+
+入口`src/backend/tests/test_chat_questions.py`支持CHAT_TEST_DATABASE_URL隔离MySQL或默认SQLite。覆盖幂等、并发答案、过期、终止、撤权、原请求回传、协议双阶段及诊断脱敏；`question_mysql_probe.py`要求QUESTION_DOCKER_RUN/QUESTION_DOCKER_EXPIRES来自临时环境登记，使用随机凭据、tmpfs数据库和finally清理，不连接真实数据库。两种数据库均重复执行Chat迁移，禁止用SQLite结果代替MySQL实测。

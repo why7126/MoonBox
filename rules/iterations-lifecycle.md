@@ -4,7 +4,7 @@ content: change / archive 两阶段目录职责、准入条件、迁移时机与
 source: 项目团队确认
 update_method: Sprint 流程或目录边界变化时同步更新
 created_at: 2026-06-27 23:45:00
-updated_at: '2026-10-17 16:40:21'
+updated_at: 2026-10-31 15:58:13
 note: 与 issues plan/review/archive 互补；机器索引仍为 sprint.yaml
 ---
 
@@ -191,3 +191,5 @@ python scripts/check-sprint-close-stale-scan.py --sprint <sprint-id>
 - 零、负数、空值、非数字或非有限数均为非法值，不能回退为默认值。估算仍需明确。
 - 调整使用 `python scripts/add-sprint-scope-item.py --sprint sprint-005 --capacity-person-days 30 --rationale "用户确认容量纠正"`；随后 Workflow Sync 刷新四件套，复核并清理目标 Sprint 中过时的容量风险说明。
 - 修改容量后重新计算占用、剩余缓冲及120%硬门禁；默认30不豁免门禁，低于30%缓冲仍提示风险。
+
+关闭扫描仅在同一行识别到 Issue 编号时排除其完整原始标题中的状态词；标题之外的待实现、待归档和中间态仍阻断，不得因同行出现 done 而跳过整行。

@@ -1,0 +1,735 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-history-read-lifecycle",
+  "issue_id": "BUG-0058-chat-history-status-replay-request-amplification",
+  "environment": "local-isolated-history",
+  "environment_contract": {
+    "deployment": "HEAD-baseline-vs-current-source-local-vite",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic-one-and-ten-turns-200-404-1001-events",
+    "authorization_ref": "BUG-0058-opsx-apply",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "synthetic-session-isolated-loopback",
+    "retry_limit": 1,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style",
+      "network",
+      "console"
+    ]
+  },
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "src/backend/tests/verify_history_read_evidence.py",
+      "--preflight"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "terminal"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "terminal",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "closed"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "closed",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "page200",
+          "page404",
+          "window1000",
+          "tail1001"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "page200",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg"
+            ]
+          },
+          {
+            "stage": "page404",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg"
+            ]
+          },
+          {
+            "stage": "window1000",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg"
+            ]
+          },
+          {
+            "stage": "tail1001",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "active-terminal"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "active-terminal",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "slow-complete"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "slow-complete",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      }
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/web/src",
+        "src/web/package.json",
+        "src/web/tsconfig.json",
+        "src/backend/app/chat",
+        "src/backend/app/api/v1/admin_auth.py",
+        "src/backend/tests/test_chat.py",
+        "src/backend/tests/test_chat_history_summary.py",
+        "src/backend/tests/verify_history_read_evidence.py",
+        "src/backend/tests/history_read_browser_fixture.py",
+        "src/web/tests/history-read-live.tsx",
+        "openspec/changes/fix-chat-history-read-lifecycle/design.md",
+        "openspec/changes/fix-chat-history-read-lifecycle/specs/chat-history-read-lifecycle/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_history_read_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-completed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/active-states.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/baseline-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-and-slow-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/closed-window.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/computed-style.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-1000-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-200-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-404-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-reuse.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/detail-tail-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-current-viewport.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-default.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-no-store.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/observations.json",
+        "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/terminal-stop.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "逐项合成回归与真实浏览器交互已核对，范围与限制见 verification.md"
+      },
+      "coverage": {
+        "stages": [
+          "footer"
+        ],
+        "viewports": [
+          "1440x1000"
+        ],
+        "samples": [
+          {
+            "stage": "footer",
+            "viewport": "1440x1000",
+            "artifacts": [
+              "openspec/changes/fix-chat-history-read-lifecycle/evidence/acceptance/browser/fixed-slow-1440.jpg"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

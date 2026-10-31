@@ -168,6 +168,13 @@ class DockerRuntime:
                 if self.stopped.wait(1):raise Conflict('cancelled')
         python=self.command(['exec',app,'python','-c','import platform;print(platform.python_version())'])
         if python!=self.template.data['runtime_versions']['python']:raise Conflict('python_version_mismatch')
+        # Test dependencies and the real thread pool must work in the target image.
+        from app.verification.python_probe import PYTHON_PROBE
+        try:
+            self.command(['exec',app,'python','-c',PYTHON_PROBE],timeout=10)
+        except Conflict as error:
+            if str(error) in {'cancelled','stage_budget_expired'}:raise
+            raise Conflict('python_test_runtime_unavailable') from None
         for step in ('migration','seed'):
             # A failed or interrupted migration is not replayed in an existing database.
             self.command(['exec',app,*base[step]],timeout=300)

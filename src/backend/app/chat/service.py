@@ -4,6 +4,7 @@ from app.chat.errors import ChatError
 from app.moonbox_worktree import WorktreeConflict
 
 import json
+import math
 import hashlib
 import re
 import subprocess
@@ -208,6 +209,27 @@ def public_turn(row):
     command = (row.get('prompt') or '').split(maxsplit=1)[0].removeprefix('/') if row.get('prompt') else ''
     data['direct_action'] = command if command in ACTIONS else None
     return data
+
+
+def turn_summary(db, actor, tid):
+    """Read authorized aggregate metadata without replaying output bodies."""
+    result = public_turn(turn(db, actor, tid))
+    result['tool_count'] = db.execute(select(func.count()).select_from(events).where(
+        events.c.turn_id == tid, events.c.event_type == 'execution.tool')).scalar_one()
+    result['event_sequence'] = db.execute(select(func.max(events.c.sequence)).where(events.c.turn_id == tid)).scalar_one() or 0
+    payload = db.execute(select(events.c.payload).where(
+        events.c.turn_id == tid, events.c.event_type == 'execution.usage'
+    ).order_by(events.c.sequence.desc()).limit(1)).scalar_one_or_none()
+    allowed = ('total_tokens', 'input_tokens', 'output_tokens', 'reasoning_tokens',
+               'first_token_ms', 'first_token_latency_ms', 'duration_ms',
+               'reasoning_duration_ms', 'thinking_duration_ms')
+    try:
+        usage = json.loads(payload) if payload else {}
+    except (TypeError, ValueError):
+        usage = {}
+    result['usage'] = {k: v for k, v in usage.items() if k in allowed
+                       and isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v >= 0} if isinstance(usage, dict) else {}
+    return result
 
 
 def material_capabilities():
@@ -531,7 +553,7 @@ def revalidate_uploaded_materials(db, actor, row, materials):
     return updated
 
 
-def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None, execution_config=None, request_id=None, admission_guard=None):
+def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None, execution_config=None, request_id=None, admission_guard=None, question_capable=False):
     prompt = (prompt or '').strip()
     materials = normalize_materials(images, skills)
     config = normalize_execution_config(execution_config)
@@ -567,7 +589,7 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
         from app.chat.settings import execution_limits
         return enqueue(db,actor,cid,client_id,prompt,execution_limits(),materials=materials,execution_config=config,
             request_id=request_id,budget_prompt=execution_prompt_for_turn(db,row,prompt),
-            governance_candidate_id=governance_candidate['id'] if governance_candidate else None,admission_guard=admission_guard)
+            governance_candidate_id=governance_candidate['id'] if governance_candidate else None,admission_guard=admission_guard,question_capable=question_capable)
     # Normal deployment stays closed; only the isolated launcher has a test gate.
     raise ChatError(2505, '执行服务尚未通过隔离与额度验收，暂不可发送', 503)
 
@@ -701,5 +723,5 @@ def request_retry(db, actor, tid, client_id, *, request_id=None):
         from app.chat.admission import enqueue
         from app.chat.settings import execution_limits
         original_materials = read_turn_materials(db, [tid]).get(tid, [])
-        return enqueue(db,actor,parent['id'],client_id,original['prompt'],execution_limits(),retry_of=tid,materials=original_materials,request_id=request_id)
+        return enqueue(db,actor,parent['id'],client_id,original['prompt'],execution_limits(),retry_of=tid,materials=original_materials,request_id=request_id,question_capable=bool(original.get('question_capable')))
     raise ChatError(2505,'执行服务尚未通过隔离与额度验收，暂不可重试',503)

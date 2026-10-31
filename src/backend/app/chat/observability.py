@@ -10,6 +10,7 @@ from app.chat.schema import audit,usage_events,task_traces,task_trace_spans
 EVENTS={'governance.recovery','governance.capture','governance.prepare','governance.apply','governance.document_save','chat.send','chat.stop','chat.retry','chat.session_create','chat.session_update','chat.session_delete','chat.relations_save','chat.image_add','chat.image_remove','chat.file_add','chat.file_remove','chat.skill_select','chat.skill_remove','chat.config_select'}
 EVENTS.update({'capture.upload','capture.organize','capture.review_save','capture.confirm','capture.retry'})
 EVENTS.update({'chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'})
+EVENTS.add('chat.question_answer')
 EVENTS.update({'workspace.action', 'workspace.view'})
 EVENTS.update({'acceptance.action','acceptance.verify','acceptance.evidence'})
 STAGES={'queued','connecting','running','completed','failed','stopped','unknown','stopping'}
@@ -17,7 +18,7 @@ STAGES={'queued','connecting','running','completed','failed','stopped','unknown'
 
 def behavior(db,event,actor,rid,result,client_type,resource=None):
     if event not in EVENTS or client_type not in ('web','api'):return
-    properties={key:value for key,value in (resource or {}).items() if key in ('turn_id','conversation_id','operation_id','candidate_id') and isinstance(value,str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}',value)}
+    properties={key:value for key,value in (resource or {}).items() if key in ('turn_id','conversation_id','operation_id','candidate_id','question_id') and isinstance(value,str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}',value)}
     for key in ('object_type','object_id','action_type','error_code','result'):
         value=(resource or {}).get(key)
         if isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', value):
@@ -41,7 +42,7 @@ def _metadata(value):
             result[key] = item
         elif key in ('agent','model','reasoning','config_fallback') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,80}', item):
             result[key] = item
-        elif key in ('material_boundary','storage_mode','object_type','object_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+        elif key in ('material_boundary','storage_mode','object_type','object_id','action_type','conversation_id','turn_id','question_id','request_id','candidate_id','result','error_code') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
             result[key] = item
     return json.dumps(result, ensure_ascii=False)
 
@@ -68,7 +69,7 @@ def trace(db,tid,stage,*,actor=None,request_id=None,metadata=None):
 
 def storage_span(db, tid, name, *, result='complete', metadata=None):
     """Bounded milestones only; never record paths, text, cursors or credentials."""
-    if name not in ('snapshot_scan', 'result_commit', 'resource_guard', 'recovery_check'): return
+    if name not in ('snapshot_scan', 'result_commit', 'resource_guard', 'recovery_check', 'question', 'verification_preflight'): return
     try:
         with db.begin_nested():
             trace_id = db.scalar(select(task_traces.c.task_trace_id).where(task_traces.c.turn_id == tid))

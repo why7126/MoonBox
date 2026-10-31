@@ -1892,3 +1892,22 @@ select.round-select.small {
 .chat-full-output-open { align-self: flex-start; width: fit-content; }
 [data-testid="turn-full-output"] button:disabled { opacity: .45; cursor: default; }
 .chat-full-output-open:focus-visible, [data-testid="turn-full-output"] button:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 2px; }
+
+/* 原轮次问答卡片：复用 Chat token，独立于普通新消息发送。 */
+.chat-question-list:empty { display: none; }
+.chat-question-list { margin: 16px 0; min-width: 0; }
+.chat-question-card { border: 1px solid var(--rc-border); border-radius: var(--ops-radius-md); background: var(--rc-panel); padding: 24px; margin: 12px 0; overflow-wrap: anywhere; }
+.chat-question-card h3 { margin: 0 0 8px; color: var(--rc-heading); font-size: 18px; }
+.chat-question-status { color: var(--rc-accent); font-size: 14px; margin: 8px 0; }
+.chat-question-help, .chat-question-option small { color: var(--rc-muted); font-size: 13px; }
+.chat-question-card fieldset { border: 0; padding: 0; margin: 20px 0; min-width: 0; }
+.chat-question-card legend { color: var(--rc-heading); font-size: 15px; line-height: 1.6; margin-bottom: 8px; }
+.chat-question-option { display: flex; gap: 10px; padding: 12px; border: 1px solid var(--rc-border); border-radius: var(--ops-radius-xs); margin: 8px 0; font-size: 14px; cursor: pointer; }
+.chat-question-option input { accent-color: var(--rc-accent); flex: 0 0 auto; margin-top: 5px; }
+.chat-question-option small { display: block; margin-top: 4px; }
+.chat-question-text { display: block; color: var(--rc-muted); font-size: 13px; margin-top: 14px; }
+.chat-question-text textarea { display: block; box-sizing: border-box; width: 100%; min-height: 80px; max-height: 240px; resize: vertical; margin-top: 8px; padding: 12px; border: 1px solid var(--rc-border); border-radius: var(--ops-radius-xs); background: var(--rc-bg); color: var(--rc-text); font: inherit; }
+.chat-question-card :is(textarea,input):focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 3px; }
+.chat-shell .chat-question-submit { background: var(--rc-accent); color: var(--rc-bg); padding: 10px 20px; border: 0; }
+.chat-question-card fieldset:disabled { opacity: .7; }
+@media (max-width: 600px) { .chat-question-card { padding: 16px; } .chat-shell .chat-question-submit { width: 100%; } }

@@ -112,6 +112,20 @@ def _change(files, cid, action, *, external=False, historical=False):
         return True
     if action in ('req-opsx', 'bug-opsx'):
         return not archived and trace.get('status') == 'proposed'
+    if action == 'sprint-propose':
+        if archived or trace.get('status') != 'proposed':
+            return False
+        # Completion requires actual inclusion; external planning is only a
+        # proposal fact and never proves that a Sprint write succeeded.
+        if external:
+            return True
+        sprint = trace.get('iteration')
+        plans = [(name, safe_load(body)) for name, body in files.items()
+                 if re.fullmatch(r'iterations/(change|archive)/sprint-\d{3,}/sprint.yaml', name)]
+        members = [(name, p) for name, p in plans if cid in (p.get('changes') or [])]
+        return (len(members) == 1 and members[0][0] == f'iterations/change/{sprint}/sprint.yaml'
+                and members[0][1].get('sprint_id') == sprint
+                and members[0][1].get('status') in ('planning', 'active', 'in_progress'))
     if action in ('opsx-apply', 'opsx-modify'):
         tasks = files[f'{base}/tasks.md'].decode()
         return (trace.get('status') == 'applied' and bool(re.search(r'^\s*- \[[xX]\]', tasks, re.M))

@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 from .constants import ROOT, ISSUE_DONE_STATUSES
+from archive_runtime import TOOL_ROOT
 from .execution import EVENTS, sync_lock, transition
 from dataclasses import dataclass, field, replace
 
@@ -245,7 +246,7 @@ class SyncEngine:
             try:
                 report = self._run(**kwargs)
                 if report.ok and not self.dry_run and not self.check and kwargs.get('event') == 'opsx.accept':
-                    backend = str(ROOT / 'src/backend')
+                    backend = str(TOOL_ROOT / 'src/backend')
                     if backend not in sys.path:
                         sys.path.insert(0, backend)
                     from app.governance.workflow_receipt import emit
@@ -305,7 +306,7 @@ class SyncEngine:
             return report
 
         if event == "sprint.archive" and sprint:
-            backend = str(ROOT / "src/backend")
+            backend = str(TOOL_ROOT / "src/backend")
             if backend not in sys.path:
                 sys.path.insert(0, backend)
             from app.governance.sprint_archive_admission import close_blockers
@@ -323,6 +324,20 @@ class SyncEngine:
         change_records = {
             cid: load_change_record(cid, issues, openspec_data) for cid in sorted(change_ids)
         }
+        if event == "opsx.propose":
+            from .initialization import initialize
+            record = change_records.get(change_id or "")
+            if record is None:
+                report.errors.append("Proposal requires an explicit Change")
+                return report
+            try:
+                before = dict(record.trace)
+                record.trace = initialize(ROOT, record, write=not (self.dry_run or self.check))
+                if before != record.trace:
+                    report.updated.append(PatchResult("openspec/changes/" + record.change_id + "/trace.md", True, event))
+            except ValueError as exc:
+                report.errors.append(str(exc))
+                return report
         selected_record = change_records.get(change_id or '')
         selected_trace = getattr(selected_record, 'trace', {})
         declared_ids = {selected_trace.get(key) for key in ('bug_id', 'requirement_id', 'req_id')
@@ -355,7 +370,7 @@ class SyncEngine:
                 if parse_frontmatter(read_text(issue.path / "trace.md")).get("iteration") != sprint.sprint_id:
                     report.errors.append("Issue iteration differs from Sprint")
                 if issue.kind == "bug":
-                    gate = subprocess.run([sys.executable, str(ROOT / "scripts/validate-root-cause-evidence.py"),
+                    gate = subprocess.run([sys.executable, str(TOOL_ROOT / "scripts/validate-root-cause-evidence.py"),
                                            "--bug", issue.issue_id], capture_output=True, text=True)
                     if gate.returncode:
                         report.errors.append("BUG root-cause evidence gate failed: " + issue.issue_id)

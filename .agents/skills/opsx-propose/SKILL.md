@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-25 22:25:00
+updated_at: 2026-10-31 07:54:35
 name: "opsx-propose"
 description: "Propose a new change - create it and generate all artifacts in one step"
 ---
@@ -184,3 +184,9 @@ bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.prop
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 独立 Change 初始状态门禁
+
+新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
+
+已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。

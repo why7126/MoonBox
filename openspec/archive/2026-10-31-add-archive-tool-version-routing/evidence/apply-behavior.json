@@ -1,0 +1,35 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "trace.md#验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "repair-fixture",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "evidence/container-routing.json"
+      ],
+      "tasks": [
+        {
+          "id": "final-acceptance",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

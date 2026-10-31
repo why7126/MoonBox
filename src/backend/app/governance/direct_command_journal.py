@@ -125,6 +125,9 @@ def completion_block_reason(conversation_id, client_id, workspace):
         return None
     try:
         files = read_once(workspace)
+        if not operation.get('object_id', '').startswith(('REQ-', 'BUG-')):
+            from app.governance.execution_validation import validate_result
+            return None if validate_result(files, operation['object_id'], 'sprint-propose') else 'sprint_source_invalid'
         paths = [name for name in files if re.fullmatch(
             r'iterations/(?:change|archive)/sprint-\d{3}/sprint\.yaml', name)]
         if not paths:

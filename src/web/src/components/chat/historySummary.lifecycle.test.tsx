@@ -1,0 +1,60 @@
+import { act, cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { ConversationMessages } from './ConversationMessages';
+import { TurnActivity } from './TurnActivity';
+import { chatRequest } from './chatApi';
+import { readChatEvents } from './chatEvents';
+let rows:any[]=[];
+vi.mock('./useConversationMessages',()=>({useConversationMessages:()=>({rows,more:false,loading:false,error:'',compatibility:false,loadOlder:()=>{}}),messageTime:()=> '08:00'}));
+vi.mock('./chatApi',async original=>({...await original<object>(),chatRequest:vi.fn()}));
+vi.mock('./chatEvents',()=>({readChatEvents:vi.fn()}));
+vi.mock('../../pages/home/frontendSession',()=>({readValidFrontendSession:()=>({access_token:'summary-test'})}));
+beforeEach(()=>{vi.clearAllMocks();vi.useFakeTimers();rows=[];vi.mocked(readChatEvents).mockResolvedValue([]);});
+afterEach(()=>{cleanup();vi.useRealTimers();});
+it.each([1,10])('shares terminal summaries across status/footer for %i turns without replay',async n=>{
+ rows=Array.from({length:n},(_,i)=>({id:`m${i}`,turn_id:`t${i}`,role:'assistant',content:'已保存的最终正文',created_at:'2026-10-01'}));
+ vi.mocked(chatRequest).mockResolvedValue({status:'completed',tool_count:402,usage:{total_tokens:404},created_at:'2026-10-01',updated_at:'2026-10-01'});
+ render(<ConversationMessages conversationId="c" onTrace={()=>{}}/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(0));
+ expect(chatRequest).toHaveBeenCalledTimes(n);expect(readChatEvents).not.toHaveBeenCalled();
+ expect(screen.getAllByText('Token 404')).toHaveLength(n);expect(screen.getAllByText('402 次工具调用')).toHaveLength(n);
+ await act(async()=>vi.advanceTimersByTimeAsync(15000));
+ expect(chatRequest).toHaveBeenCalledTimes(n);
+});
+it.each(['queued','running','stopping','unknown'])('refreshes %s until terminal and stops',async status=>{
+ vi.mocked(chatRequest).mockResolvedValueOnce({status,usage:{}}).mockResolvedValue({status:'completed',usage:{},tool_count:2});
+ render(<TurnActivity turnId={status} onTrace={()=>{}} hasBody/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(0));
+ expect(chatRequest).toHaveBeenCalledTimes(1);
+ await act(async()=>vi.advanceTimersByTimeAsync(3000));
+ expect(chatRequest).toHaveBeenCalledTimes(2);
+ await act(async()=>vi.advanceTimersByTimeAsync(15000));
+ expect(chatRequest).toHaveBeenCalledTimes(2);expect(readChatEvents).toHaveBeenCalledTimes(1);
+});
+it('pauses while hidden and reauthorizes once visible again',async()=>{
+ const hidden=vi.spyOn(document,'hidden','get').mockReturnValue(false);
+ vi.mocked(chatRequest).mockResolvedValue({status:'running',usage:{}});
+ render(<TurnActivity turnId="visibility" onTrace={()=>{}} hasBody/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(0));
+ hidden.mockReturnValue(true);
+ await act(async()=>{document.dispatchEvent(new Event('visibilitychange'));await vi.advanceTimersByTimeAsync(15000);});
+ expect(chatRequest).toHaveBeenCalledTimes(1);
+ hidden.mockReturnValue(false);
+ await act(async()=>{document.dispatchEvent(new Event('visibilitychange'));await Promise.resolve();});
+ expect(chatRequest).toHaveBeenCalledTimes(2);hidden.mockRestore();
+});
+it.each([401,403,404])('clears status after permission response %i and does not retry indefinitely',async status=>{
+ const {ChatApiError}=await import('./chatApi');
+ vi.mocked(chatRequest).mockResolvedValueOnce({status:'running',usage:{},tool_count:99}).mockRejectedValue(new ChatApiError(status,'记录不可访问'));
+ render(<TurnActivity turnId={`permission-${status}`} onTrace={()=>{}} hasBody/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(0));expect(screen.getByText('99 次工具调用')).toBeTruthy();
+ await act(async()=>vi.advanceTimersByTimeAsync(3000));
+ expect(screen.queryByText('99 次工具调用')).toBeNull();expect(screen.getByText('记录不可访问')).toBeTruthy();
+ await act(async()=>vi.advanceTimersByTimeAsync(15000));expect(chatRequest).toHaveBeenCalledTimes(2);
+});
+it('recovers from a transient error without pretending the failed read completed',async()=>{
+ vi.mocked(chatRequest).mockRejectedValueOnce(new Error('暂时断开')).mockResolvedValue({status:'completed',usage:{}});
+ render(<TurnActivity turnId="transient" onTrace={()=>{}} hasBody/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(0));expect(screen.queryByText('已完成')).toBeNull();
+ await act(async()=>vi.advanceTimersByTimeAsync(3000));expect(screen.getByText('已完成')).toBeTruthy();
+});

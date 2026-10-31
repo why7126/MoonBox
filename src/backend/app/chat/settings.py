@@ -210,3 +210,11 @@ def recovery_policy():
     if enabled not in ('true', 'false'): raise ValueError('invalid_recovery_enabled')
     defaults['enabled'] = enabled == 'true'
     return defaults
+
+
+def question_timeout():
+    """Finite human-input wait in seconds, configured only by deployment."""
+    value = os.environ.get('MOONBOX_CHAT_QUESTION_TIMEOUT_SECONDS', '900')
+    if not value.isdecimal() or not 30 <= int(value) <= 3600:
+        raise ValueError('invalid_question_timeout')
+    return int(value)

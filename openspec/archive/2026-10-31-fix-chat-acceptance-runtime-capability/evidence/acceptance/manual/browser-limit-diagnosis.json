@@ -1,0 +1,26 @@
+{
+  "category": "controlled_runtime_comparison",
+  "platform": "linux/arm64",
+  "initial_file_limit_bytes": 10485760,
+  "initial_result": "browser_closed_during_page_wait",
+  "comparison_file_limit_bytes": 134217728,
+  "comparison_result": "passed",
+  "checks": [
+    "AC-LOCAL-MEMBER",
+    "AC-LOCAL-NODE",
+    "AC-LOCAL-PYTEST"
+  ],
+  "browsers": [
+    "chromium",
+    "firefox"
+  ],
+  "unchanged_controls": [
+    "read_only_root",
+    "internal_network",
+    "memory_1GiB",
+    "tmpfs_128MiB",
+    "screenshot_10MiB"
+  ],
+  "cleanup": "released",
+  "scope": "synthetic_product_sample_not_model_round"
+}

@@ -69,6 +69,10 @@ def execute(db,*,actor,space_id,repository_id,sprint,operation_id,driver_type=Ar
         row=db.execute(select(operations).where(operations.c.scope_key==project.key,operations.c.change_id==sprint)).mappings().first()
         if row and (row['id']!=operation_id or row['actor_id']!=actor or row['binding_revision']!=project.binding_revision):
             raise ValueError('original_operation_required')
+        from .archive_tools import selected, check_binding
+        package = selected()
+        if row:
+            check_binding(json.loads(row['manifest']), package)
         with authority(db,project,actor):
             item=require_final(project.root,sprint,allow_closing=bool(row))
             current=fingerprint(project.root,item)
@@ -89,7 +93,8 @@ def execute(db,*,actor,space_id,repository_id,sprint,operation_id,driver_type=Ar
                     raise ValueError('sprint_inputs_changed')
             else:
                 manifest={'kind':'sprint_close','fingerprint':current,'closure_fingerprint':fingerprint(project.root,item,include_history=False),
-                    'release':'builtin-v2','policy':'builtin-v2'}
+                    'release':'builtin-v2','policy':'builtin-v2',
+                    'archive_tool_digest': package.digest if package else None}
             driver=driver_type(project)
             for name,args in (('validate-sprint-archive-readiness.py',['--sprint',sprint]),
                     ('validate-env-ignore-policy.py',[]),('check-sprint-close-stale-scan.py',['--sprint',sprint])):

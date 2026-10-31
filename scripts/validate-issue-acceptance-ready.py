@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
+from archive_runtime import repository_root
 
 import yaml
 
@@ -33,7 +34,7 @@ def readiness(root: Path, change: str) -> tuple[bool, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("change")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, default=repository_root(Path(__file__).resolve().parents[1]))
     args = parser.parse_args()
     ready, reason = readiness(args.root, args.change)
     print(("ACCEPTANCE_GATE_READY" if ready else "ACCEPTANCE_GATE_BLOCKED") + " " + reason)

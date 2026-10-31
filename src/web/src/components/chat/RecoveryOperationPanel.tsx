@@ -1,3 +1,4 @@
+import { sharedChatRead } from "./sharedChatRead";
 import {directVerificationReasons} from './directVerificationReasons';
 import { Button } from '../ui/Button';
 import './recovery-operation.css';
@@ -61,7 +62,7 @@ export function RecoveryOperationPanel({ operationId, onDraft, onCompleted, draf
     const sequence = ++readSequence.current;
     setLoading(true);
     try {
-      const value = await governanceRequest<RecoveryOperation>(`/api/v1/chat/governance-operations/${encodeURIComponent(operationId)}`, {signal});
+      const value = await sharedChatRead(`recovery:${operationId}`, inner => governanceRequest<RecoveryOperation>(`/api/v1/chat/governance-operations/${encodeURIComponent(operationId)}`, {signal: inner}), signal);
       if (signal?.aborted || !alive.current || sequence !== readSequence.current) return;
       if(latest.current && value.version < latest.current.version)return;
       latest.current=value; setOperation(value); observer.current?.(value); errorObserver.current?.(false); setError('');
@@ -76,12 +77,23 @@ export function RecoveryOperationPanel({ operationId, onDraft, onCompleted, draf
   }, [refresh]);
   useEffect(() => {
     const controller = new AbortController();
-    const recheck = () => { if(document.hidden)return;pollBudget.current=0;void refresh(controller.signal); };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let running = false, recheckPending = false;
+    const poll = async () => {
+      if (running || controller.signal.aborted || document.hidden || pollBudget.current >= 20) return;
+      running = true; ++pollBudget.current;
+      try { await refresh(controller.signal); }
+      finally {
+        running = false;
+        if (!controller.signal.aborted && !document.hidden && pollBudget.current < 20 && (recheckPending || latest.current?.state !== 'completed')) timer = setTimeout(poll, recheckPending ? 0 : 3000);
+        recheckPending = false;
+      }
+    };
+    const recheck = () => { clearTimeout(timer); if(document.hidden)return; pollBudget.current=0; if (running) recheckPending = true; else void poll(); };
     recheck();
-    const timer = setInterval(() => {if(document.hidden||++pollBudget.current>20||latest.current?.state==='completed')return;void refresh(controller.signal);},3000);
     document.addEventListener('visibilitychange',recheck);
     window.addEventListener('governance-operation-verified',recheck);
-    return () => {controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',recheck);window.removeEventListener('governance-operation-verified',recheck);};
+    return () => {controller.abort();clearTimeout(timer);document.removeEventListener('visibilitychange',recheck);window.removeEventListener('governance-operation-verified',recheck);};
   },[refresh,refreshKey]);
   const completed = operation?.state === 'completed';
   useEffect(() => { if (completed) completing.current?.(); }, [completed]);

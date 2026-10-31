@@ -137,6 +137,8 @@ export type TurnCreateSkillsItem = { [key: string]: unknown };
 export type TurnCreateExecutionConfig = { [key: string]: unknown } | null;
 
 export interface TurnCreate {
+  /** 客户端支持原轮次结构化问答卡片；仅能力声明，不授予权限 */
+  question_capable?: boolean;
   /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
   client_request_id: string;
   /** @maxLength 32000 */
@@ -181,6 +183,39 @@ export interface ApiResponseTurnRead {
   code?: number;
   message?: string;
   data: TurnRead;
+}
+
+export type TurnSummaryReadRequestedConfig = { [key: string]: unknown };
+
+export type TurnSummaryReadEffectiveConfig = { [key: string]: unknown };
+
+export type TurnSummaryReadUsage = {[key: string]: number};
+
+export interface TurnSummaryRead {
+  direct_action?: string | null;
+  id: string;
+  conversation_id: string;
+  client_request_id: string;
+  status: string;
+  retry_of: string | null;
+  error_code: string | null;
+  created_at: string;
+  updated_at: string;
+  image_count?: number | null;
+  file_count?: number | null;
+  skill_count?: number | null;
+  requested_config?: TurnSummaryReadRequestedConfig;
+  effective_config?: TurnSummaryReadEffectiveConfig;
+  config_fallback_reason?: string | null;
+  event_sequence: number;
+  tool_count: number;
+  usage?: TurnSummaryReadUsage;
+}
+
+export interface ApiResponseTurnSummaryRead {
+  code?: number;
+  message?: string;
+  data: TurnSummaryRead;
 }
 
 export interface BlockChangeRead {
@@ -293,6 +328,28 @@ export interface ApiResponseListDictStrStr {
   code?: number;
   message?: string;
   data: ApiResponseListDictStrStrDataItem[];
+}
+
+export interface RuntimeCapabilityRead {
+  name: string;
+  status: string;
+  reason_code: string | null;
+}
+
+export interface RuntimePreflightRead {
+  conversation_id: string;
+  checked_at: string;
+  environment_key: string | null;
+  template_key: string | null;
+  checks: RuntimeCapabilityRead[];
+  acceptance_passed: boolean;
+  status: string;
+}
+
+export interface ApiResponseRuntimePreflightRead {
+  code?: number;
+  message?: string;
+  data: RuntimePreflightRead;
 }
 
 export interface AcceptanceCreate {
@@ -500,6 +557,76 @@ export interface ApiResponseRecoveryRead {
 export interface RetryCreate {
   /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
   client_request_id: string;
+}
+
+export type QuestionReadStatus = typeof QuestionReadStatus[keyof typeof QuestionReadStatus];
+
+
+export const QuestionReadStatus = {
+  pending: 'pending',
+  answer_received: 'answer_received',
+  delivering: 'delivering',
+  delivered: 'delivered',
+  cancelled: 'cancelled',
+  expired: 'expired',
+  unrecoverable: 'unrecoverable',
+} as const;
+
+export interface QuestionOptionRead {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface QuestionItemRead {
+  id: string;
+  header: string;
+  question: string;
+  options: QuestionOptionRead[];
+  allow_text: boolean;
+}
+
+export interface QuestionRead {
+  id: string;
+  turn_id: string;
+  status: QuestionReadStatus;
+  version: number;
+  expires_at: string;
+  created_at: string;
+  questions: QuestionItemRead[];
+}
+
+export interface QuestionListRead {
+  items: QuestionRead[];
+  turn_status: string;
+}
+
+export interface ApiResponseQuestionListRead {
+  code?: number;
+  message?: string;
+  data: QuestionListRead;
+}
+
+export interface QuestionAnswerValue {
+  option_id?: string | null;
+  /** @maxLength 4000 */
+  text?: string;
+}
+
+export type QuestionAnswerCreateAnswers = {[key: string]: QuestionAnswerValue};
+
+export interface QuestionAnswerCreate {
+  /** @minimum 1 */
+  version: number;
+  /** @pattern ^[A-Za-z0-9_-]{1,64}$ */
+  idempotency_key: string;
+  answers: QuestionAnswerCreateAnswers;
+}
+
+export interface ApiResponseQuestionRead {
+  code?: number;
+  message?: string;
+  data: QuestionRead;
 }
 
 export type CapabilitiesApiV1ChatCapabilitiesGetParams = {
@@ -1556,6 +1683,76 @@ export const getTurnApiV1ChatTurnsTidGet = async (tid: string, options?: Request
 
 
 
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse200 = {
+  data: ApiResponseTurnSummaryRead
+  status: 200
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponseSuccess = (getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse200) & {
+  headers: Headers;
+};
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponseError = (getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse403 | getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse404 | getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse409 | getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse422 | getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse503) & {
+  headers: Headers;
+};
+
+export type getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse = (getTurnSummaryApiV1ChatTurnsTidSummaryGetResponseSuccess | getTurnSummaryApiV1ChatTurnsTidSummaryGetResponseError)
+
+export const getGetTurnSummaryApiV1ChatTurnsTidSummaryGetUrl = (tid: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${tid}/summary`
+}
+
+/**
+ * @summary 读取授权轮次状态与完整用量摘要
+ */
+export const getTurnSummaryApiV1ChatTurnsTidSummaryGet = async (tid: string, options?: RequestInit): Promise<getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse> => {
+
+  const res = await fetch(getGetTurnSummaryApiV1ChatTurnsTidSummaryGetUrl(tid),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getTurnSummaryApiV1ChatTurnsTidSummaryGetResponse
+}
+
+
+
 export type stopApiV1ChatTurnsTidInterruptPostResponse200 = {
   data: ApiResponseTurnRead
   status: 200
@@ -2154,6 +2351,76 @@ export const spacesApiV1ChatSpacesGet = async ( options?: RequestInit): Promise<
 
   const data: spacesApiV1ChatSpacesGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as spacesApiV1ChatSpacesGetResponse
+}
+
+
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse200 = {
+  data: ApiResponseRuntimePreflightRead
+  status: 200
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponseSuccess = (conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse200) & {
+  headers: Headers;
+};
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponseError = (conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse403 | conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse404 | conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse409 | conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse422 | conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse503) & {
+  headers: Headers;
+};
+
+export type conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse = (conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponseSuccess | conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponseError)
+
+export const getConversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetUrl = (cid: string,) => {
+
+
+
+
+  return `/api/v1/chat/conversations/${cid}/verification-preflight`
+}
+
+/**
+ * @summary 读取会话验收能力，配置就绪不代表验收通过
+ */
+export const conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGet = async (cid: string, options?: RequestInit): Promise<conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse> => {
+
+  const res = await fetch(getConversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetUrl(cid),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as conversationVerificationPreflightApiV1ChatConversationsCidVerificationPreflightGetResponse
 }
 
 
@@ -3847,4 +4114,153 @@ export const cleanupStatusApiV1ChatConversationsCidCleanupGet = async (cid: stri
 
   const data: cleanupStatusApiV1ChatConversationsCidCleanupGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as cleanupStatusApiV1ChatConversationsCidCleanupGetResponse
+}
+
+
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse200 = {
+  data: ApiResponseQuestionListRead
+  status: 200
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponseSuccess = (questionListApiV1ChatTurnsTidQuestionsGetResponse200) & {
+  headers: Headers;
+};
+export type questionListApiV1ChatTurnsTidQuestionsGetResponseError = (questionListApiV1ChatTurnsTidQuestionsGetResponse403 | questionListApiV1ChatTurnsTidQuestionsGetResponse404 | questionListApiV1ChatTurnsTidQuestionsGetResponse409 | questionListApiV1ChatTurnsTidQuestionsGetResponse422 | questionListApiV1ChatTurnsTidQuestionsGetResponse503) & {
+  headers: Headers;
+};
+
+export type questionListApiV1ChatTurnsTidQuestionsGetResponse = (questionListApiV1ChatTurnsTidQuestionsGetResponseSuccess | questionListApiV1ChatTurnsTidQuestionsGetResponseError)
+
+export const getQuestionListApiV1ChatTurnsTidQuestionsGetUrl = (tid: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${tid}/questions`
+}
+
+/**
+ * @summary 读取原轮次结构化问题及当前状态
+ */
+export const questionListApiV1ChatTurnsTidQuestionsGet = async (tid: string, options?: RequestInit): Promise<questionListApiV1ChatTurnsTidQuestionsGetResponse> => {
+
+  const res = await fetch(getQuestionListApiV1ChatTurnsTidQuestionsGetUrl(tid),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: questionListApiV1ChatTurnsTidQuestionsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as questionListApiV1ChatTurnsTidQuestionsGetResponse
+}
+
+
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse200 = {
+  data: ApiResponseQuestionRead
+  status: 200
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse503 = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponseSuccess = (questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse200) & {
+  headers: Headers;
+};
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponseError = (questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse403 | questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse404 | questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse409 | questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse422 | questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse503) & {
+  headers: Headers;
+};
+
+export type questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse = (questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponseSuccess | questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponseError)
+
+export const getQuestionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostUrl = (tid: string,
+    qid: string,) => {
+
+
+
+
+  return `/api/v1/chat/turns/${tid}/questions/${qid}/answers`
+}
+
+/**
+ * @summary 幂等回答原轮次问题，不启动新轮次
+ */
+export const questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPost = async (tid: string,
+    qid: string,
+    questionAnswerCreate: QuestionAnswerCreate, options?: RequestInit): Promise<questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getQuestionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostUrl(tid,qid),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(questionAnswerCreate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as questionAnswerApiV1ChatTurnsTidQuestionsQidAnswersPostResponse
 }

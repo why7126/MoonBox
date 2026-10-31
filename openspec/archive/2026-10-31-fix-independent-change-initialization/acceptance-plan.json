@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-independent-change-initialization",
+  "checks": [
+    {
+      "id": "AC-INIT",
+      "kind": "command",
+      "inputs": [
+        "scripts/workflow_sync/initialization.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/test_change_initialization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_change_initialization.py"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-independent-change-initialization/evidence/acceptance/product-observation.md",
+        "openspec/changes/fix-independent-change-initialization/evidence/acceptance/active-scan.md"
+      ]
+    },
+    {
+      "id": "AC-COMPAT",
+      "kind": "command",
+      "inputs": [
+        "scripts/workflow_sync/engine.py",
+        "src/backend/tests/test_change_visibility.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/test_workflow_sync_engine.py",
+        "src/backend/tests/test_change_visibility.py",
+        "-q"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "add-archive-tool-version-routing",
+  "environment": "local-and-isolated-docker",
+  "checks": [
+    {
+      "id": "AC-ROUTE",
+      "title": "可信包与业务根分离、失败关闭",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_tools.py",
+        "src/backend/app/governance/replacement_executor.py",
+        "src/backend/app/governance/replacement_tool_context.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_inputs.py",
+        "src/backend/app/governance/replacement_recovery.py",
+        "src/backend/app/chat/container_server.py",
+        "src/backend/app/chat/worker.py",
+        "scripts/archive_runtime.py",
+        "scripts/archive-tool-route.py",
+        "scripts/archive-change.sh",
+        "scripts/archive-recovery-guard.py",
+        "scripts/build-archive-tools.py",
+        "src/backend/tests/test_archive_tools.py",
+        "scripts/test_archive_python_entry.py",
+        "scripts/check-archive-finalization.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/promote-issues-for-archive.py",
+        "scripts/sprint_close_stale_scan.py",
+        "scripts/validate-archive-evidence.py",
+        "scripts/validate-change-delivery-evidence.py",
+        "scripts/validate-change-identity.py",
+        "scripts/validate-directory-structure.py",
+        "scripts/validate-env-ignore-policy.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "scripts/workflow_sync/constants.py",
+        "scripts/workflow_sync/engine.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_archive_tools.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "合成回归；真实容器另见AC-CONTAINER"
+      }
+    },
+    {
+      "id": "AC-COMPAT",
+      "title": "Shell默认兼容与解释器链",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_tools.py",
+        "src/backend/app/governance/replacement_executor.py",
+        "src/backend/app/governance/replacement_tool_context.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_inputs.py",
+        "src/backend/app/governance/replacement_recovery.py",
+        "src/backend/app/chat/container_server.py",
+        "src/backend/app/chat/worker.py",
+        "scripts/archive_runtime.py",
+        "scripts/archive-tool-route.py",
+        "scripts/archive-change.sh",
+        "scripts/archive-recovery-guard.py",
+        "scripts/build-archive-tools.py",
+        "src/backend/tests/test_archive_tools.py",
+        "scripts/test_archive_python_entry.py",
+        "scripts/check-archive-finalization.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/promote-issues-for-archive.py",
+        "scripts/sprint_close_stale_scan.py",
+        "scripts/validate-archive-evidence.py",
+        "scripts/validate-change-delivery-evidence.py",
+        "scripts/validate-change-identity.py",
+        "scripts/validate-directory-structure.py",
+        "scripts/validate-env-ignore-policy.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "scripts/workflow_sync/constants.py",
+        "scripts/workflow_sync/engine.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "scripts/test_archive_python_entry.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "合成回归；真实容器另见AC-CONTAINER"
+      }
+    },
+    {
+      "id": "AC-RECOVERY",
+      "title": "归档原权限、准入与历史保护",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_tools.py",
+        "src/backend/app/governance/replacement_executor.py",
+        "src/backend/app/governance/replacement_tool_context.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_inputs.py",
+        "src/backend/app/governance/replacement_recovery.py",
+        "src/backend/app/chat/container_server.py",
+        "src/backend/app/chat/worker.py",
+        "scripts/archive_runtime.py",
+        "scripts/archive-tool-route.py",
+        "scripts/archive-change.sh",
+        "scripts/archive-recovery-guard.py",
+        "scripts/build-archive-tools.py",
+        "src/backend/tests/test_archive_tools.py",
+        "scripts/test_archive_python_entry.py",
+        "scripts/check-archive-finalization.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/promote-issues-for-archive.py",
+        "scripts/sprint_close_stale_scan.py",
+        "scripts/validate-archive-evidence.py",
+        "scripts/validate-change-delivery-evidence.py",
+        "scripts/validate-change-identity.py",
+        "scripts/validate-directory-structure.py",
+        "scripts/validate-env-ignore-policy.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "scripts/workflow_sync/constants.py",
+        "scripts/workflow_sync/engine.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_tool_context.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_sprint_archive_coordinator.py",
+        "tests/unit/test_promote_issues_for_archive.py",
+        "tests/unit/test_workflow_sync_engine.py"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_archive_write_boundary.py",
+        "src/backend/tests/test_cross_entry_archive_admission.py",
+        "src/backend/tests/test_trusted_archive_chat.py",
+        "tests/unit/test_archive_coordinator.py",
+        "tests/unit/test_replacement_coordinator.py",
+        "tests/unit/test_replacement_tool_context.py",
+        "tests/unit/test_archive_baseline_transition.py",
+        "tests/unit/test_sprint_archive_coordinator.py",
+        "tests/unit/test_promote_issues_for_archive.py",
+        "tests/unit/test_workflow_sync_engine.py",
+        "-q"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "合成回归；真实容器另见AC-CONTAINER"
+      }
+    },
+    {
+      "id": "AC-CONTAINER",
+      "title": "真实CLI服务驱动与子容器摘要一致及负例",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_tools.py",
+        "src/backend/app/governance/replacement_executor.py",
+        "src/backend/app/governance/replacement_tool_context.py",
+        "src/backend/app/governance/archive_coordinator.py",
+        "src/backend/app/governance/sprint_archive_coordinator.py",
+        "src/backend/app/governance/replacement_coordinator.py",
+        "src/backend/app/governance/replacement_inputs.py",
+        "src/backend/app/governance/replacement_recovery.py",
+        "src/backend/app/chat/container_server.py",
+        "src/backend/app/chat/worker.py",
+        "scripts/archive_runtime.py",
+        "scripts/archive-tool-route.py",
+        "scripts/archive-change.sh",
+        "scripts/archive-recovery-guard.py",
+        "scripts/build-archive-tools.py",
+        "src/backend/tests/test_archive_tools.py",
+        "scripts/test_archive_python_entry.py",
+        "scripts/check-archive-finalization.py",
+        "scripts/opsx_acceptance.py",
+        "scripts/promote-issues-for-archive.py",
+        "scripts/sprint_close_stale_scan.py",
+        "scripts/validate-archive-evidence.py",
+        "scripts/validate-change-delivery-evidence.py",
+        "scripts/validate-change-identity.py",
+        "scripts/validate-directory-structure.py",
+        "scripts/validate-env-ignore-policy.py",
+        "scripts/validate-issue-acceptance-ready.py",
+        "scripts/validate-sprint-archive-readiness.py",
+        "scripts/workflow_sync/constants.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/verify-archive-tool-container.py",
+        "scripts/check-archive-tool-evidence.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/check-archive-tool-evidence.py"
+      ],
+      "artifacts": [
+        "openspec/changes/add-archive-tool-version-routing/evidence/container-routing.json"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "note": "真实Docker进程及生产子容器启动命令；合成业务事实，无模型轮次或正式部署"
+      }
+    },
+    {
+      "id": "AC-GOVERNANCE",
+      "title": "OpenSpec中文与结构",
+      "kind": "command",
+      "inputs": [
+        "openspec/changes/add-archive-tool-version-routing/design.md",
+        "openspec/changes/add-archive-tool-version-routing/proposal.md",
+        "openspec/changes/add-archive-tool-version-routing/specs/archive-tool-version-routing/spec.md",
+        "docs/02-deployment.md",
+        "rules/environment.md",
+        ".env.example"
+      ],
+      "argv": [
+        "bash",
+        "scripts/validate-openspec.sh",
+        "--change",
+        "add-archive-tool-version-routing",
+        "--residual-report"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

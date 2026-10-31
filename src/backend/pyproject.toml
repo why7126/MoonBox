@@ -18,3 +18,10 @@ dependencies = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[project.optional-dependencies]
+verification = [
+  "pytest==9.1.1",
+  "httpx==0.28.1",
+  "anyio==4.14.2",
+]

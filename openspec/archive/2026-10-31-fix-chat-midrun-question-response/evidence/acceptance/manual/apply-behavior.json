@@ -1,0 +1,35 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "work",
+      "evidence": [
+        "verification.md#验证记录"
+      ],
+      "tasks": [
+        {
+          "id": "backend",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#自检修复与证据边界"
+      ],
+      "tasks": [
+        {
+          "id": "queue-fix",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    }
+  ]
+}

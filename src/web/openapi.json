@@ -5041,6 +5041,123 @@
         }
       }
     },
+    "/api/v1/chat/turns/{tid}/summary": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "读取授权轮次状态与完整用量摘要",
+        "operationId": "get_turn_summary_api_v1_chat_turns__tid__summary_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_TurnSummaryRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chat/turns/{tid}/interrupt": {
       "post": {
         "tags": [
@@ -6076,6 +6193,123 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse_list_dict_str__str___"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/conversations/{cid}/verification-preflight": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "读取会话验收能力，配置就绪不代表验收通过",
+        "operationId": "conversation_verification_preflight_api_v1_chat_conversations__cid__verification_preflight_get",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cid"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_RuntimePreflightRead_"
                 }
               }
             }
@@ -8912,6 +9146,259 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/questions": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "读取原轮次结构化问题及当前状态",
+        "operationId": "question_list_api_v1_chat_turns__tid__questions_get",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_QuestionListRead_"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/turns/{tid}/questions/{qid}/answers": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "幂等回答原轮次问题，不启动新轮次",
+        "operationId": "question_answer_api_v1_chat_turns__tid__questions__qid__answers_post",
+        "parameters": [
+          {
+            "name": "tid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tid"
+            }
+          },
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Qid"
+            }
+          },
+          {
+            "name": "X-Chat-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选调用端归因标记web，不用于认证或授权",
+              "title": "X-Chat-Client"
+            },
+            "description": "可选调用端归因标记web，不用于认证或授权"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionAnswerCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_QuestionRead_"
                 }
               }
             }
@@ -16756,6 +17243,50 @@
         ],
         "title": "ApiResponse[PolicyStatus]"
       },
+      "ApiResponse_QuestionListRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/QuestionListRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[QuestionListRead]"
+      },
+      "ApiResponse_QuestionRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/QuestionRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[QuestionRead]"
+      },
       "ApiResponse_RecoveryAttemptResponse_": {
         "properties": {
           "code": {
@@ -16954,6 +17485,28 @@
         ],
         "title": "ApiResponse[ResultPageRead]"
       },
+      "ApiResponse_RuntimePreflightRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RuntimePreflightRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[RuntimePreflightRead]"
+      },
       "ApiResponse_SourceResult_": {
         "properties": {
           "code": {
@@ -16997,6 +17550,28 @@
           "data"
         ],
         "title": "ApiResponse[TurnRead]"
+      },
+      "ApiResponse_TurnSummaryRead_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TurnSummaryRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ApiResponse[TurnSummaryRead]"
       },
       "ApiResponse_WorkspaceList_": {
         "properties": {
@@ -20588,6 +21163,197 @@
         ],
         "title": "ProtectionRequest"
       },
+      "QuestionAnswerCreate": {
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Idempotency Key"
+          },
+          "answers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/QuestionAnswerValue"
+            },
+            "type": "object",
+            "maxProperties": 3,
+            "minProperties": 1,
+            "title": "Answers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "idempotency_key",
+          "answers"
+        ],
+        "title": "QuestionAnswerCreate"
+      },
+      "QuestionAnswerValue": {
+        "properties": {
+          "option_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Option Id"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Text",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "QuestionAnswerValue"
+      },
+      "QuestionItemRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "header": {
+            "type": "string",
+            "title": "Header"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionOptionRead"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "allow_text": {
+            "type": "boolean",
+            "title": "Allow Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "header",
+          "question",
+          "options",
+          "allow_text"
+        ],
+        "title": "QuestionItemRead"
+      },
+      "QuestionListRead": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "turn_status": {
+            "type": "string",
+            "title": "Turn Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "turn_status"
+        ],
+        "title": "QuestionListRead"
+      },
+      "QuestionOptionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description"
+        ],
+        "title": "QuestionOptionRead"
+      },
+      "QuestionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "turn_id": {
+            "type": "string",
+            "title": "Turn Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "answer_received",
+              "delivering",
+              "delivered",
+              "cancelled",
+              "expired",
+              "unrecoverable"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionItemRead"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "turn_id",
+          "status",
+          "version",
+          "expires_at",
+          "created_at",
+          "questions"
+        ],
+        "title": "QuestionRead"
+      },
       "RecoveryAttemptResponse": {
         "properties": {
           "operation_id": {
@@ -22909,6 +23675,96 @@
         ],
         "title": "RuleEdit"
       },
+      "RuntimeCapabilityRead": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "reason_code"
+        ],
+        "title": "RuntimeCapabilityRead"
+      },
+      "RuntimePreflightRead": {
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "title": "Conversation Id"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "environment_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Environment Key"
+          },
+          "template_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Key"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/RuntimeCapabilityRead"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "acceptance_passed": {
+            "type": "boolean",
+            "title": "Acceptance Passed"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "checked_at",
+          "environment_key",
+          "template_key",
+          "checks",
+          "acceptance_passed",
+          "status"
+        ],
+        "title": "RuntimePreflightRead"
+      },
       "SessionRequest": {
         "properties": {
           "space_id": {
@@ -23090,6 +23946,12 @@
       },
       "TurnCreate": {
         "properties": {
+          "question_capable": {
+            "type": "boolean",
+            "title": "Question Capable",
+            "description": "客户端支持原轮次结构化问答卡片；仅能力声明，不授予权限",
+            "default": false
+          },
           "client_request_id": {
             "type": "string",
             "pattern": "^[A-Za-z0-9_-]{1,64}$",
@@ -23267,6 +24129,150 @@
           "updated_at"
         ],
         "title": "TurnRead"
+      },
+      "TurnSummaryRead": {
+        "properties": {
+          "direct_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direct Action"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "conversation_id": {
+            "type": "string",
+            "title": "Conversation Id"
+          },
+          "client_request_id": {
+            "type": "string",
+            "title": "Client Request Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "retry_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Of"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "image_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Count"
+          },
+          "file_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Count"
+          },
+          "skill_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Count"
+          },
+          "requested_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Requested Config"
+          },
+          "effective_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Effective Config"
+          },
+          "config_fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config Fallback Reason"
+          },
+          "event_sequence": {
+            "type": "integer",
+            "title": "Event Sequence"
+          },
+          "tool_count": {
+            "type": "integer",
+            "title": "Tool Count"
+          },
+          "usage": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Usage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "conversation_id",
+          "client_request_id",
+          "status",
+          "retry_of",
+          "error_code",
+          "created_at",
+          "updated_at",
+          "event_sequence",
+          "tool_count"
+        ],
+        "title": "TurnSummaryRead"
       },
       "ValidationError": {
         "properties": {

@@ -157,3 +157,5 @@ Change 创建与归档遵循 [Change 身份唯一性](rules/document-governance.
 归档 Shell 的 Python 接入覆盖脚本、命令替换、管道和内联代码；统一入口、继承与隔离回归见 `scripts/README.md` 的“归档 Shell 解释器继承”。
 
 归档完整成功须通过共享收尾门禁；目录 moved 不等于 finalized。产品恢复与完成重放同样复核文档，历史证据只读，部分交付状态策略不因此改变。
+
+独立 Change 创建完成前遵循 `rules/document-governance.md` 的“独立 Change 初始状态门禁”，通过 opsx.propose 共享初始化与校验，不以同步零更新成功替代有效状态事实。

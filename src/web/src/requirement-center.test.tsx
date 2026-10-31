@@ -766,6 +766,39 @@ describe("RequirementCenterPage", () => {
       .toMatchObject({sprintId: 'sprint-007', conversationId: 'chat-sprint-007'});
   });
 
+  it("opens standalone Sprint planning with the full Change identity without writing scope", async () => {
+    const row = {id:"unassigned-change",type:"change",title:"待纳入变更",stage:"sprint-planning",owner:"产品",documents:[],
+      action:{label:"加入迭代",command:"/sprint-propose --change unassigned-change"}};
+    const fetcher=vi.fn((_input: RequestInfo | URL) => Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:[row]}})}));
+    stubFetch("fetch",fetcher); render(<RequirementCenterPage />);
+    fireEvent.click(await screen.findByRole("button",{name:"加入迭代 →"}));
+    expect(readObjectChatIntent()).toMatchObject({objectId:"unassigned-change",text:"/sprint-propose --change unassigned-change"});
+    expect(fetcher.mock.calls.every(call => !String(call[0]).includes("object-sessions"))).toBe(true);
+  });
+
+  it("shows standalone planning actions and keeps conflict diagnosis read-only", async () => {
+    const rows = [
+      {id:"unassigned-change",type:"change",title:"待排期变更",stage:"sprint-planning",owner:"产品",documents:["trace.md"],
+        action:{label:"加入迭代",command:"/sprint-propose --change unassigned-change",disabled_reason:"当前空间只读"}},
+      {id:"conflict-change",type:"change",title:"冲突变更",stage:"sprint-planning",owner:"产品",documents:["trace.md"],can_send:false,
+        action:{label:"核对归属",command:"核对归属 conflict-change",disabled_reason:"多个 Sprint 成员关系"},
+        drift_warnings:["多个 Sprint 成员关系", "声明归属：sprint-005", "可见成员归属：sprint-005、sprint-006"]},
+    ];
+    const fetcher = vi.fn(() => Promise.resolve({ok:true,status:200,json:async()=>({data:{...contextFixture,issues:rows}})}));
+    stubFetch("fetch", fetcher);
+    render(<RequirementCenterPage />);
+    await screen.findByText("unassigned-change");
+    expect(screen.getByText("待纳入迭代")).toBeTruthy();
+    expect((screen.getByRole("button",{name:"加入迭代 →"}) as HTMLButtonElement).disabled).toBe(true);
+    const before = fetcher.mock.calls.length;
+    fireEvent.click(screen.getByRole("button",{name:"核对归属 →"}));
+    const dialog = screen.getByRole("dialog",{name:"核对 Sprint 归属"});
+    expect(within(dialog).getByText("可见成员归属：sprint-005、sprint-006")).toBeTruthy();
+    expect(fetcher.mock.calls.length).toBe(before);
+    fireEvent.keyDown(document,{key:"Escape"});
+    expect(screen.queryByRole("dialog",{name:"核对 Sprint 归属"})).toBeNull();
+  });
+
   it("shows standalone stage actions, fails closed for writes and opens progress read-only", async () => {
     const rows = ["ready-dev", "development", "acceptance", "done"].map(stage => ({
       id: `independent-${stage}`, type: "change", title: `变更${stage}`, stage, priority: "", owner: "产品", documents: ["tasks.md"],

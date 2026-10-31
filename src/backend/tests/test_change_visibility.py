@@ -113,8 +113,10 @@ def context_database(chat):
 
 def test_http_permissions_readonly_sprint_and_refresh(context_database, tmp_path, monkeypatch):
     client, factory = context_database; root = fixture_tree(tmp_path / 'repo'); bind(monkeypatch, root)
-    change(root, iteration='sprint-005'); sprint = root / 'iterations/change/sprint-005'
-    write(sprint / 'sprint.yaml', 'changes: [sample-change]\n'); write(sprint / 'sprint.md', '# 本次迭代')
+    directory = change(root, iteration='sprint-005')
+    write(directory / 'design.md', '# 独立变更设计\n完整提案用于权限与只读验证。\n')
+    sprint = root / 'iterations/change/sprint-005'
+    write(sprint / 'sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n'); write(sprint / 'sprint.md', '# 本次迭代')
     route = BASE + '/changes/sample-change/documents/'
     assert client.get(route + 'sprint.md', params=QUERY).json()['data']['content'] == '# 本次迭代'
     response = client.get(BASE + '/context', params=QUERY)
@@ -144,6 +146,22 @@ def test_http_permissions_readonly_sprint_and_refresh(context_database, tmp_path
         db.execute(insert(object_access).values(space_id='space',repository_id='repo',object_id='REQ-0099-sample',user_id='bob',can_read=1)); db.commit()
     assert client.get(route + 'tasks.md', params=QUERY).status_code == 403
     assert client.get(BASE + '/context', params=QUERY).json()['data']['stats']['total'] == 0
+
+def test_http_missing_design_keeps_external_result_blocked(context_database, tmp_path, monkeypatch):
+    client, _ = context_database
+    root = fixture_tree(tmp_path / 'repo')
+    bind(monkeypatch, root)
+    directory = change(root, iteration='sprint-005')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n')
+    assert not (directory / 'design.md').exists()
+    response = client.get(BASE + '/context', params=QUERY)
+    assert response.status_code == 200
+    row = response.json()['data']['issues'][0]
+    assert row['action']['label'] == '开始开发'
+    assert row['action']['disabled_reason'] == '结果待核对'
+    assert row['can_send'] is False
+    assert row['execution_reason'] == 'external_result_unverified'
+
 
 def test_multiple_source_permission_and_conflict_api(context_database,tmp_path,monkeypatch):
     client, factory = context_database; root = fixture_tree(tmp_path / 'repo'); bind(monkeypatch, root)
@@ -230,7 +248,7 @@ def test_active_sprint_precedes_archive_without_backfill(tmp_path):
     root = fixture_tree(tmp_path); change(root, 'sample')
     archived = root / 'iterations/archive/sprint-005'; active = root / 'iterations/change/sprint-005'
     write(archived / 'sprint.yaml', 'changes: [sample]\n'); write(archived / 'sprint.md', '# 旧迭代\n')
-    write(active / 'sprint.yaml', 'changes: [sample]\n')
+    write(active / 'sprint.yaml', 'status: planning\nchanges: [sample]\n')
     row = cards(root).issues[0]
     assert row.sprint_id == 'sprint-005' and 'sprint.md' not in row.documents
     (active / 'sprint.yaml').unlink()
@@ -266,18 +284,18 @@ def test_completed_sprint_reverse_lookup_http(context_database, tmp_path, monkey
 
 def test_standalone_stage_actions_are_capability_gated(tmp_path):
     root = fixture_tree(tmp_path); directory = change(root)
-    for state, label, command in [('proposed', '开始开发', '/opsx-apply'), ('in_progress', '查看进度', '查看进度'), ('applied', '完成 / 归档', '/opsx-archive')]:
+    for state, label, command in [('proposed', '加入迭代', '/sprint-propose --change'), ('in_progress', '查看进度', '查看进度'), ('applied', '完成 / 归档', '/opsx-archive')]:
         write(directory / 'trace.md', '---\nstatus: ' + state + '\n---\n')
         action = cards(root).issues[0].action
         assert action.label == label and action.command == command + ' sample-change'
-        assert bool(action.disabled_reason) == (state != 'in_progress')
+        assert bool(action.disabled_reason) == (state == 'applied')
     write(directory / 'trace.md', '---\nstatus: unknown\n---\n')
     assert cards(root).issues[0].action is None
 
 
 def test_standalone_action_uses_actual_document_gates(tmp_path):
     root = fixture_tree(tmp_path); directory = change(root, iteration='sprint-005')
-    write(root / 'iterations/change/sprint-005/sprint.yaml', 'changes: [sample-change]\n')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n')
     assert cards(root).issues[0].action.disabled_reason is None
     write(directory / 'trace.md', '---\nstatus: applied\niteration: sprint-005\n---\n')
     assert '验收来源待核实' in cards(root).issues[0].action.disabled_reason
@@ -290,7 +308,7 @@ def test_standalone_action_uses_actual_document_gates(tmp_path):
 @pytest.mark.parametrize('heading', ['验证记录', '验收记录', '验收结果', '验证结果', '验证摘要', 'Validation Log', '实施与验证记录'])
 def test_change_delivery_trace_headings_are_evidence_sources(tmp_path, heading):
     root = fixture_tree(tmp_path); directory = change(root, iteration='sprint-005')
-    write(root / 'iterations/change/sprint-005/sprint.yaml', 'changes: [sample-change]\n')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n')
     trace = '---\nstatus: applied\niteration: sprint-005\n---\n'
     write(directory / 'trace.md', trace + f'# 交付\n## {heading}\n5项容量回归通过。\n')
     assert cards(root).issues[0].action.disabled_reason is None
@@ -298,7 +316,7 @@ def test_change_delivery_trace_headings_are_evidence_sources(tmp_path, heading):
 
 def test_change_delivery_sources_and_explicit_reference_boundaries(tmp_path):
     root = fixture_tree(tmp_path); directory = change(root, iteration='sprint-005')
-    write(root / 'iterations/change/sprint-005/sprint.yaml', 'changes: [sample-change]\n')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n')
     trace = '---\nstatus: applied\niteration: sprint-005\n---\n'
     write(directory / 'trace.md', trace)
     assert '验收来源待核实' in cards(root).issues[0].action.disabled_reason
@@ -347,3 +365,94 @@ def test_projection_tracks_unique_proposal_and_archive_ambiguity(tmp_path):
     shutil.copytree(archive, root/'openspec/archive/2026-09-14-business-title')
     row = cards(root).issues[0]
     assert row.display_title == '原需求' and row.title_warning
+
+@pytest.mark.parametrize('members,explicit,expected,label', [
+    ([], None, 'sprint-planning', '加入迭代'),
+    (['sprint-005'], None, 'ready-dev', '开始开发'),
+    (['sprint-005'], 'sprint-005', 'ready-dev', '开始开发'),
+    (['sprint-005', 'sprint-006'], 'sprint-005', 'sprint-planning', '核对归属'),
+    (['sprint-005'], 'sprint-099', 'sprint-planning', '核对归属'),
+    ([], 'sprint-099', 'sprint-planning', '核对归属'),
+])
+def test_standalone_sprint_projection_preserves_execution(tmp_path, members, explicit, expected, label):
+    root = fixture_tree(tmp_path)
+    execution = dict(schema_version=1, started_at=None, completed_at=None, last_event='opsx.propose')
+    directory = change(root, iteration=explicit, execution=execution)
+    before = (directory / 'trace.md').read_bytes()
+    for sid in members:
+        write(root / f'iterations/change/{sid}/sprint.yaml', f'sprint_id: {sid}\nstatus: planning\nchanges: [sample-change]\n')
+    row = cards(root).issues[0]
+    assert (row.stage, row.action.label) == (expected, label)
+    assert (directory / 'trace.md').read_bytes() == before
+    assert row.sprint_id == (members[0] if expected == 'ready-dev' else None)
+    if label == '加入迭代':
+        assert row.action.command == '/sprint-propose --change sample-change'
+    if label == '核对归属':
+        assert row.action.disabled_reason
+        hidden = cards(root, lambda oid: not oid.startswith('sprint-')).issues[0]
+        assert not any(sid in ' '.join(hidden.drift_warnings) for sid in members)
+
+
+def test_standalone_sprint_http_refresh_and_completion(context_database, tmp_path, monkeypatch):
+    from app.governance.execution_validation import validate_result
+    from app.governance.snapshot import read_once
+    client, _ = context_database
+    root = fixture_tree(tmp_path / 'repo'); bind(monkeypatch, root)
+    directory = change(root)
+    write(directory / 'design.md', '# 独立变更设计\n')
+    row = client.get(BASE + '/context', params=QUERY).json()['data']['issues'][0]
+    assert row['stage'] == 'sprint-planning' and row['can_send'] is True
+    assert row['action']['command'] == '/sprint-propose --change sample-change'
+    assert not validate_result(read_once(root), 'sample-change', 'sprint-propose')
+    write(root / 'iterations/change/sprint-005/sprint.yaml', 'sprint_id: sprint-005\nstatus: planning\nchanges: [sample-change]\n')
+    write(directory / 'trace.md', '---\nstatus: proposed\niteration: sprint-005\n---\n')
+    assert validate_result(read_once(root), 'sample-change', 'sprint-propose')
+    row = client.get(BASE + '/context', params=QUERY).json()['data']['issues'][0]
+    assert row['stage'] == 'ready-dev' and row['action']['label'] == '开始开发'
+    write(root / 'iterations/change/sprint-006/sprint.yaml', 'sprint_id: sprint-006\nstatus: planning\nchanges: [sample-change]\n')
+    assert not validate_result(read_once(root), 'sample-change', 'sprint-propose')
+    row = client.get(BASE + '/context', params=QUERY).json()['data']['issues'][0]
+    assert row['stage'] == 'sprint-planning' and row['action']['label'] == '核对归属'
+
+@pytest.mark.parametrize('membership', ['none', 'valid', 'conflict', 'invalid'])
+def test_standalone_join_preflight_is_write_authorized(tmp_path, membership):
+    from types import SimpleNamespace
+    from app.governance.preparation import _require_change_fact_source
+    from app.governance.snapshot import read_once
+    from app.chat.service import ChatError
+    root = fixture_tree(tmp_path)
+    change(root, iteration='sprint-099' if membership == 'invalid' else None)
+    for sid in ([] if membership in ('none', 'invalid') else ['sprint-005'] if membership == 'valid' else ['sprint-005', 'sprint-006']):
+        write(root / f'iterations/change/{sid}/sprint.yaml', f'status: planning\nchanges: [sample-change]\n')
+    calls = []
+    reader = SimpleNamespace(scope=SimpleNamespace(root=root), authorize_object=lambda *args, **kw: calls.append(kw))
+    snapshot = SimpleNamespace(files=read_once(root))
+    with service.using_governance_root(root):
+        if membership == 'none':
+            assert _require_change_fact_source(snapshot, reader, 'sample-change', 'sprint-propose')['id'] == 'sample-change'
+        else:
+            with pytest.raises(ChatError):
+                _require_change_fact_source(snapshot, reader, 'sample-change', 'sprint-propose')
+    assert calls == [{'change': True, 'write': True}]
+
+
+def test_standalone_join_command_preserves_identity():
+    from app.governance.preparation import _write_command
+    assert _write_command('/sprint-propose --change sample-change') == ('sprint-propose', 'sample-change')
+
+@pytest.mark.parametrize('membership', ['none', 'conflict', 'closed', 'wrong-id'])
+def test_standalone_development_admission_rejects_invalid_sprint(tmp_path, membership):
+    from types import SimpleNamespace
+    from app.governance.preparation import _require_change_fact_source
+    from app.governance.snapshot import read_once
+    from app.chat.service import ChatError
+    root = fixture_tree(tmp_path); change(root)
+    if membership != 'none':
+        write(root / 'iterations/change/sprint-005/sprint.yaml', yaml.safe_dump(dict(
+            sprint_id='sprint-099' if membership == 'wrong-id' else 'sprint-005',
+            status='closed' if membership == 'closed' else 'planning', changes=['sample-change'])))
+    if membership == 'conflict':
+        write(root / 'iterations/change/sprint-006/sprint.yaml', 'status: planning\nchanges: [sample-change]\n')
+    reader = SimpleNamespace(scope=SimpleNamespace(root=root), authorize_object=lambda *args, **kw: None)
+    with service.using_governance_root(root), pytest.raises(ChatError, match='唯一有效'):
+        _require_change_fact_source(SimpleNamespace(files=read_once(root)), reader, 'sample-change', 'opsx-apply')

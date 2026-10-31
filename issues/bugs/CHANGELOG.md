@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-31 06:31:26
+updated_at: 2026-10-31 15:49:19
 owner: MoonBox 产品团队
 ---
 
@@ -28,6 +28,7 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| BUG-0072-standalone-change-ready-dev-without-sprint | 独立 Change 未纳入迭代却提前显示待开发 | medium | done | archive | sprint-017 | fix-standalone-change-sprint-stage | 2026-10-31 10:53:17 | 无 | `issues/bugs/archive/BUG-0072-standalone-change-ready-dev-without-sprint/trace.md` |
 | BUG-0071-change-summary-acceptance-check-entry-missing | 独立 Change 归档按钮禁用且缺少验收检查入口 | high | pending_review | plan | 无 | 无 | 2026-10-30 09:49:12 | `/bug-review BUG-0071-change-summary-acceptance-check-entry-missing` | `issues/bugs/plan/BUG-0071-change-summary-acceptance-check-entry-missing/trace.md` |
 | BUG-0070-standalone-change-updated-time-missing | 独立 Change 卡片更新时间缺失 | medium | pending_review | plan | 无 | 无 | 2026-10-30 09:49:12 | `/bug-review BUG-0070-standalone-change-updated-time-missing` | `issues/bugs/plan/BUG-0070-standalone-change-updated-time-missing/trace.md` |
 | BUG-0069-chat-interrupted-successor-proof-missing | Chat 中断缺少旧同步证明导致外部接续完成后仍受限 | high | done | archive | sprint-014 | fix-chat-interrupted-successor-proof | 2026-10-27 18:44:34 | 无 | `issues/bugs/archive/BUG-0069-chat-interrupted-successor-proof-missing/trace.md` |
@@ -41,7 +42,7 @@ owner: MoonBox 产品团队
 | BUG-0061-cross-entry-continuation-guard-convergence | 产品执行受阻后 CLI 续接完成未收敛旧保护导致阶段回退与归档阻断 | high | done | archive | sprint-012 | fix-cross-entry-continuation-guard | 2026-10-27 16:03:11 | 无 | `issues/bugs/archive/BUG-0061-cross-entry-continuation-guard-convergence/trace.md` |
 | BUG-0060-direct-command-completion-proof-drift | Chat 治理命令同步后完成证明失效导致卡片滞留旧阶段 | high | done | archive | sprint-012 | fix-direct-command-completion-proof | 2026-10-21 14:09:30 | 无 | `issues/bugs/archive/BUG-0060-direct-command-completion-proof-drift/trace.md` |
 | BUG-0059-chat-governance-command-submit-latency | 聊天治理命令同步准备导致消息提交等待过长缺陷记录 | high | captured | plan | 无 | 无 | 2026-10-21 08:50:24 | `/bug-generate BUG-0059-chat-governance-command-submit-latency` | `issues/bugs/plan/BUG-0059-chat-governance-command-submit-latency/trace.md` |
-| BUG-0058-chat-history-status-replay-request-amplification | 聊天历史状态重建与重复读取导致加载迟缓 | high | approved | review | 无 | 无 | 2026-10-21 09:16:09 | `/sprint-propose --bug BUG-0058-chat-history-status-replay-request-amplification` | `issues/bugs/review/BUG-0058-chat-history-status-replay-request-amplification/trace.md` |
+| BUG-0058-chat-history-status-replay-request-amplification | 聊天历史状态重建与重复读取导致加载迟缓 | high | done | archive | sprint-017 | fix-chat-history-read-lifecycle | 2026-10-31 10:22:33 | 无 | `issues/bugs/archive/BUG-0058-chat-history-status-replay-request-amplification/trace.md` |
 | BUG-0057-requirement-card-chat-navigation-latency | 需求卡片动作准备会话导致进入聊天工作台等待过长 | high | done | archive | sprint-016 | fix-object-session-preparation-latency | 2026-10-31 06:31:26 | 无 | `issues/bugs/archive/BUG-0057-requirement-card-chat-navigation-latency/trace.md` |
 | BUG-0056-requirement-center-context-load-latency | 需求中心首屏聚合请求耗时约二十七秒 | high | done | archive | sprint-014 | fix-requirement-center-context-load-latency | 2026-10-30 08:28:29 | 无 | `issues/bugs/archive/BUG-0056-requirement-center-context-load-latency/trace.md` |
 | BUG-0055-chat-turn-message-order-inversion | Chat 同轮助手回复排在用户提问之前 | medium | done | archive | sprint-011 | fix-chat-turn-message-order | 2026-10-21 17:13:04 | 无 | `issues/bugs/archive/BUG-0055-chat-turn-message-order-inversion/trace.md` |
@@ -54,8 +55,8 @@ owner: MoonBox 产品团队
 | BUG-0049-archive-wrapper-workflow-sync-unrecognized | 归档包装脚本同步成功未识别导致看板停留验收中 | high | done | archive | sprint-010 | fix-archive-wrapper-workflow-sync-proof | 2026-10-20 08:13:22 | 无 | `issues/bugs/archive/BUG-0049-archive-wrapper-workflow-sync-unrecognized/trace.md` |
 | BUG-0048-chat-legacy-panel-cleanup-removes-conversation | 旧治理面板清理误删聊天会话区域 | high | done | archive | sprint-010 | fix-chat-legacy-panel-cleanup-boundary | 2026-10-19 22:43:50 | 无 | `issues/bugs/archive/BUG-0048-chat-legacy-panel-cleanup-removes-conversation/trace.md` |
 | BUG-0047-review-recovery-operation-record-missing | 评审恢复记录缺失导致成果未应用与卡片未流转 | high | done | archive | sprint-010 | fix-review-recovery-operation-record-missing | 2026-10-19 15:36:48 | 无 | `issues/bugs/archive/BUG-0047-review-recovery-operation-record-missing/trace.md` |
-| BUG-0045-chat-acceptance-runtime-capability-gap | Chat 命令执行环境缺少验收能力导致开发验收中断 | high | approved | review | 无 | 无 | 2026-10-21 16:24:33 | `/sprint-propose --bug BUG-0045-chat-acceptance-runtime-capability-gap` | `issues/bugs/review/BUG-0045-chat-acceptance-runtime-capability-gap/trace.md` |
-| BUG-0046-chat-midrun-question-response-unavailable | Chat 命令执行中提出问题但缺少可回答和续接入口 | high | approved | review | 无 | 无 | 2026-10-21 09:28:10 | `/sprint-propose --bug BUG-0046-chat-midrun-question-response-unavailable` | `issues/bugs/review/BUG-0046-chat-midrun-question-response-unavailable/trace.md` |
+| BUG-0045-chat-acceptance-runtime-capability-gap | Chat 命令执行环境缺少验收能力导致开发验收中断 | high | done | archive | sprint-017 | fix-chat-acceptance-runtime-capability | 2026-10-31 15:49:19 | 无 | `issues/bugs/archive/BUG-0045-chat-acceptance-runtime-capability-gap/trace.md` |
+| BUG-0046-chat-midrun-question-response-unavailable | Chat 命令执行中提出问题但缺少可回答和续接入口 | high | done | archive | sprint-017 | fix-chat-midrun-question-response | 2026-10-31 12:30:14 | 无 | `issues/bugs/archive/BUG-0046-chat-midrun-question-response-unavailable/trace.md` |
 | BUG-0044-requirement-stage-premature-transition-session-split | 需求中心阶段提前迁移并开放后续动作导致同一对象会话分裂 | high | done | archive | sprint-010 | fix-requirement-stage-completion-session-continuity | 2026-10-19 13:55:21 | 无 | `issues/bugs/archive/BUG-0044-requirement-stage-premature-transition-session-split/trace.md` |
 | BUG-0043-requirement-center-card-width-sprint-tag-wrap | 需求中心九阶段卡片宽度不足导致迭代标签换行 | low | done | archive | sprint-010 | fix-requirement-center-card-width-sprint-tag-wrap | 2026-10-19 10:16:35 | 无 | `issues/bugs/archive/BUG-0043-requirement-center-card-width-sprint-tag-wrap/trace.md` |
 | BUG-0042-chat-archive-issue-promote-retest-2 | Chat 关联 Issue 首次归档复验夹具 | low | done | archive | sprint-009 | fix-chat-archive-issue-promote-retest-2 | 2026-10-12 14:14:21 | 无 | `issues/bugs/archive/BUG-0042-chat-archive-issue-promote-retest-2/trace.md` |

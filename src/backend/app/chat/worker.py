@@ -30,6 +30,9 @@ def mark_stale_unknown(db, stale_seconds=120):
 
 
 def claim(db, worker_id):
+    from app.governance.archive_tools import worker_ready
+    if not worker_ready():
+        return None
     from sqlalchemy import exists
     from app.moonbox_core.schema import session_bindings, write_locks
     from app.moonbox_core.workspaces import acquire

@@ -39,7 +39,8 @@ from workflow_sync.issue_status_residuals import (  # noqa: E402
 from workflow_sync.patch import patch_issue_changelog_index, patch_registry_entry
 from workflow_sync.prototype_references import check_references  # noqa: E402
 
-ROOT = SCRIPTS_DIR.parent
+from archive_runtime import repository_root
+ROOT = repository_root(SCRIPTS_DIR.parent)
 PROMOTE_SCRIPT = SCRIPTS_DIR / "promote-issue-stage.py"
 DONE_STATUSES = frozenset({"done", "archived", "resolved", "closed", "completed"})
 PROMOTABLE_STAGES = frozenset({"review", "legacy"})

@@ -210,21 +210,29 @@ def main() -> None:
         for task_id in interrupted:
             subprocess.run([docker, "rm", "--force", "moonbox-verification-" + task_id],
                            capture_output=True, timeout=10, check=False)
-    image = os.environ["MOONBOX_VERIFICATION_IMAGE_ID"]
-    probe = probe_browser_image(image)
-    if (probe["node_version"] != os.environ["MOONBOX_VERIFICATION_NODE_VERSION"] or
-        probe["pnpm_version"] != os.environ["MOONBOX_VERIFICATION_PNPM_VERSION"]):
-        raise RuntimeError("verification_toolchain_mismatch")
+    image = os.environ.get("MOONBOX_VERIFICATION_IMAGE_ID", "")
+    capabilities = {'browser': {}, 'python': {}}
+    python_probe_stop = threading.Event()
+    def capability_probe():
+        nonlocal capabilities
+        from app.verification.worker_probe import inspect_worker_capabilities
+        while not python_probe_stop.is_set():
+            capabilities = inspect_worker_capabilities(image)
+            python_probe_stop.wait(60)
+    python_thread = threading.Thread(target=capability_probe, daemon=True)
+    python_thread.start()
     heartbeat_stop = threading.Event()
     def heartbeat():
         marker = state / "worker-ready.json"
         while not heartbeat_stop.is_set():
+            snapshot = capabilities
             temp = state / "worker-ready.tmp"
             temp.write_text(json.dumps({"time": time.time(), "image_digest": image,
-                "node_version": os.environ["MOONBOX_VERIFICATION_NODE_VERSION"],
-                "pnpm_version": os.environ["MOONBOX_VERIFICATION_PNPM_VERSION"],
-                "architecture": os.environ["MOONBOX_VERIFICATION_ARCH"],
-                "browsers": probe["versions"]}, sort_keys=True))
+                "node_version": os.environ.get("MOONBOX_VERIFICATION_NODE_VERSION", ""),
+                "pnpm_version": os.environ.get("MOONBOX_VERIFICATION_PNPM_VERSION", ""),
+                "architecture": os.environ.get("MOONBOX_VERIFICATION_ARCH", ""),
+                "browser_reason": snapshot["browser"].get("reason_code"),
+                "browsers": snapshot["browser"].get("versions", {}), "python": snapshot["python"]}, sort_keys=True))
             temp.chmod(0o600)
             os.replace(temp, marker)
             heartbeat_stop.wait(1)
@@ -286,6 +294,8 @@ def main() -> None:
                         continue
                 time.sleep(0.5)
     finally:
+        python_probe_stop.set()
+        python_thread.join(timeout=85)
         heartbeat_stop.set()
         heartbeat_thread.join(timeout=2)
         (state / "worker-ready.json").unlink(missing_ok=True)

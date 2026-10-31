@@ -1,0 +1,79 @@
+sprint_id: sprint-017
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-31 07:52:55'
+updated_at: '2026-10-31 15:56:47'
+start_date: '2026-10-31 07:52:55'
+end_date: '2026-11-14 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements: []
+estimated_story_points: 36
+estimated_person_days: 35.5
+changes:
+- fix-independent-change-initialization
+- fix-chat-history-read-lifecycle
+- fix-standalone-change-sprint-stage
+- add-archive-tool-version-routing
+- fix-chat-midrun-question-response
+- fix-chat-acceptance-runtime-capability
+- fix-sprint-close-title-classification
+scope_estimates:
+- id: fix-independent-change-initialization
+  change: fix-independent-change-initialization
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 用户授权独立Change状态初始化、幂等回归与产品验证，3/30人天
+- id: BUG-0058-chat-history-status-replay-request-amplification
+  change: fix-chat-history-read-lifecycle
+  bug: BUG-0058-chat-history-status-replay-request-amplification
+  size: L
+  story_points: 5
+  estimated_person_days: 5
+  rationale: 三处读取共享、隐藏详情生命周期、慢响应与权限回归及10项验收，估算5人天；保留延迟归因量化风险
+- id: BUG-0072-standalone-change-ready-dev-without-sprint
+  change: fix-standalone-change-sprint-stage
+  bug: BUG-0072-standalone-change-ready-dev-without-sprint
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 已批准：归属与分列1人天、加入迭代及只读诊断入口1人天、四类回归及真实浏览器验收1人天；保留准入与REQ/BUG流程
+- id: add-archive-tool-version-routing
+  change: add-archive-tool-version-routing
+  size: XL
+  story_points: 8
+  estimated_person_days: 8
+  rationale: 本轮授权纳入规划：入口与manifest契约2人天、Shell/Python/产品及Worker子容器路由3人天、负例恢复回滚与实际子容器验收2人天、部署诊断文档及验收证据1人天；合计8人天，Sprint共19/30人天，保留11人天缓冲；不含真实部署或归档
+- id: BUG-0046-chat-midrun-question-response-unavailable
+  change: fix-chat-midrun-question-response
+  bug: BUG-0046-chat-midrun-question-response-unavailable
+  size: XL
+  story_points: 8
+  estimated_person_days: 8
+  rationale: 执行中问答跨协议双阶段接入、专用回答接口与持久化、页面交互、授权幂等及恢复验证；暂估协议2、接口与状态2、页面1、回归及真实产品验收2、文档观测1人天，共8人天。与BUG-0045环境能力及REQ-0046结果提示保持边界。
+- id: BUG-0045-chat-acceptance-runtime-capability-gap
+  change: fix-chat-acceptance-runtime-capability
+  bug: BUG-0045-chat-acceptance-runtime-capability-gap
+  size: XL
+  story_points: 8
+  estimated_person_days: 8
+  rationale: 已批准现有验收能力接入：依赖与部署绑定2人天、能力预检及受控调用2人天、局部续接与观测1人天、安全负例和真实产品端到端验收2人天、文档1人天。合计35/30人天（116.7%），低于120%硬门禁但超容量5人天、无剩余缓冲；不再追加低优先级范围。独立测试应用/数据库/身份及生命周期由REQ-0048承接。
+- id: fix-sprint-close-title-classification
+  change: fix-sprint-close-title-classification
+  size: S
+  story_points: 1
+  estimated_person_days: 0.5
+  rationale: 用户授权修复关闭扫描标题误报并继续归档，范围限治理扫描与回归
+capacity_usage: 1.1833
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0
+bugs:
+- BUG-0058-chat-history-status-replay-request-amplification
+- BUG-0072-standalone-change-ready-dev-without-sprint
+- BUG-0046-chat-midrun-question-response-unavailable
+- BUG-0045-chat-acceptance-runtime-capability-gap
+knowledge_intake_actions:
+- S16-A004

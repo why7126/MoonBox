@@ -8,6 +8,8 @@ owner: MoonBox 产品团队
 
 # 规范工程变更历史
 
+- 2026-10-31 11:16:23 · governance · [归档工具独立版本路由](20261031111623-governance-archive-tool-version-routing.md)：只读工具包、跨入口摘要、恢复绑定与子容器验收。
+
 - 2026-10-30 14:53:29 · governance · [根因确认范围与受控诊断治理复盘](20261030145329-governance-root-cause-closure.md)：范围、停止条件、诊断升级与历史分层。
 
 - 2026-10-30 12:10:50 · governance · [归档恢复状态与受保护引用一致性](20261030121050-governance-archive-recovery-metadata-sync.md)：REQ-0048 收尾通过，原证据与恢复日志不变。

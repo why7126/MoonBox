@@ -110,6 +110,10 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
         row=db.execute(select(operations).where(operations.c.scope_key==project.key,operations.c.change_id==change)).mappings().first()
         if row and (row['id']!=operation_id or row['actor_id']!=actor or row['binding_revision']!=project.binding_revision):
             raise ValueError('original_operation_required')
+        from .archive_tools import selected, check_binding
+        package = selected()
+        if row:
+            check_binding(json.loads(row['manifest']), package)
         with authority(db,project,actor):
             if row and row['stage']=='completed':
                 manifest=json.loads(row['manifest']);folders=archive_paths(project.root,change)
@@ -139,7 +143,8 @@ def execute(db,*,actor,space_id,repository_id,change,operation_id,driver_type=Ar
                 manifest={'delta':tree_hash(folder/'specs'),'delivery':replacement_delivery_hash(folder),
                     'acceptance':evidence_digest(project,folder),
                     'baseline':tree_hash(project.root/'openspec/specs'),'expected':driver.prepare(change),
-                    'release':'builtin-v2','policy':'builtin-v2'}
+                    'release':'builtin-v2','policy':'builtin-v2',
+                    'archive_tool_digest': package.digest if package else None}
                 state='unmerged'
             else:
                 manifest=json.loads(row['manifest'])

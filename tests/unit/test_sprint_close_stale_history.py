@@ -64,3 +64,19 @@ def test_top_yaml_current_state_blocks(tmp_path):
     text = "```yaml\nstatus: applied\n```\n# 追溯\n历史 pending\n"
     hits = _hits(tmp_path, "trace.md", text)
     assert [(hit.kind, hit.line) for hit in hits] == [("issue-subdocument-stale-state", 2)]
+
+
+def test_issue_title_is_not_current_wait_but_remaining_text_is(tmp_path):
+    from sprint_close_stale_scan import scan_line
+    title = "独立 Change 未纳入迭代却提前显示待开发"
+    def check(line):
+        return scan_line(line=line, line_no=1, file_path=tmp_path / "sprint.md",
+            root=tmp_path, sprint=SimpleNamespace(requirements=[], bugs=[ISSUE], sprint_id="sprint-017"),
+            issues={ISSUE: SimpleNamespace(title=title, kind="bug")}, derived_issues={},
+            derived_changes={CHANGE: SimpleNamespace(state="archived")})
+    for identity in [ISSUE, "BUG-0001"]:
+        line = f"| {identity} | {title} | done | archived `{CHANGE}` |"
+        assert check(line) == []
+        assert any(h.kind == "stale-change-apply" for h in check(line + " 待实现"))
+        assert any(h.kind == "stale-change-apply" for h in check(line + " 待 `/opsx-apply`"))
+    assert check(f"{title} `{CHANGE}`")

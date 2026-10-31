@@ -29,6 +29,7 @@ turns = Table('chat_turns', metadata, *identity(),
     Column('prompt', LargeText, nullable=False), Column('retry_of', String(64)),
     Column('worker_id', String(64)), Column('generation', Integer, nullable=False, default=0),
     Column('heartbeat_at', String(32)), Column('executor_turn_id', String(128)),
+    Column('question_capable', Integer, nullable=False, server_default='0'),
     Column('error_code', String(64)), Column('reserved_bytes', BigInteger, nullable=False, default=0),
     Column('requested_config', Text, nullable=False, default='{}'),
     Column('effective_config', Text, nullable=False, default='{}'),
@@ -124,6 +125,10 @@ def migrate(engine):
     for table in acceptance_tables:
         if table not in CHAT_TABLES:
             CHAT_TABLES.append(table)
+    from app.chat.question_schema import TABLES as question_tables
+    for table in question_tables:
+        if table not in CHAT_TABLES:
+            CHAT_TABLES.append(table)
     metadata.create_all(engine, tables=CHAT_TABLES)
     from app.governance.replacement_schema import install_audit_guards
     install_audit_guards(engine)
@@ -136,6 +141,8 @@ def migrate(engine):
         if 'checks_deadline' not in acceptance_columns:
             connection.execute(text("ALTER TABLE verification_operations ADD COLUMN checks_deadline INTEGER"))
         turn_columns = {column['name'] for column in inspect(connection).get_columns('chat_turns')}
+        if 'question_capable' not in turn_columns:
+            connection.execute(text('ALTER TABLE chat_turns ADD COLUMN question_capable INTEGER NOT NULL DEFAULT 0'))
         if 'requested_config' not in turn_columns:
             connection.execute(text("ALTER TABLE chat_turns ADD COLUMN requested_config TEXT NOT NULL DEFAULT '{}'"))
         if 'effective_config' not in turn_columns:

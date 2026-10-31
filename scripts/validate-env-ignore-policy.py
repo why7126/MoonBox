@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
 
 MUST_BE_IGNORED = [
     ".env",

@@ -1,0 +1,455 @@
+{
+  "first": {
+    "cache": "no-store",
+    "sample": "1轮 / 404事件",
+    "body_ms": 19,
+    "status_ms": 31,
+    "elapsed_ms": 20002,
+    "requests": {
+      "/api/v1/chat/conversations/CONVERSATION/messages?page=1": {
+        "count": 7,
+        "bytes": 7189,
+        "duration": [
+          16,
+          8,
+          8,
+          9,
+          14,
+          13,
+          12
+        ],
+        "waiting": [
+          14,
+          7,
+          7,
+          8,
+          12,
+          12,
+          10
+        ],
+        "queue_connect": [
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/summary": {
+        "count": 4,
+        "bytes": 3508,
+        "duration": [
+          11,
+          8,
+          9,
+          8
+        ],
+        "waiting": [
+          9,
+          7,
+          8,
+          7
+        ],
+        "queue_connect": [
+          3,
+          1,
+          1,
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/conversations/CONVERSATION/turns": {
+        "count": 1,
+        "bytes": 767,
+        "duration": [
+          9
+        ],
+        "waiting": [
+          8
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=0": {
+        "count": 1,
+        "bytes": 17792,
+        "duration": [
+          12
+        ],
+        "waiting": [
+          11
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=200": {
+        "count": 1,
+        "bytes": 17900,
+        "duration": [
+          10
+        ],
+        "waiting": [
+          9
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=400": {
+        "count": 1,
+        "bytes": 645,
+        "duration": [
+          14
+        ],
+        "waiting": [
+          13
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/diff": {
+        "count": 1,
+        "bytes": 551,
+        "duration": [
+          22
+        ],
+        "waiting": [
+          14
+        ],
+        "queue_connect": [
+          8
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/context": {
+        "count": 1,
+        "bytes": 340,
+        "duration": [
+          20
+        ],
+        "waiting": [
+          12
+        ],
+        "queue_connect": [
+          8
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/conversations/CONVERSATION/relations": {
+        "count": 1,
+        "bytes": 370,
+        "duration": [
+          11
+        ],
+        "waiting": [
+          11
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      }
+    }
+  },
+  "reopen": {
+    "cache": "no-store",
+    "sample": "1轮 / 404事件",
+    "body_ms": 19,
+    "status_ms": 31,
+    "elapsed_ms": 133503,
+    "requests": {
+      "/api/v1/chat/conversations/CONVERSATION/messages?page=1": {
+        "count": 45,
+        "bytes": 46215,
+        "duration": [
+          16,
+          8,
+          8,
+          9,
+          14,
+          13,
+          12,
+          6,
+          19,
+          16,
+          16,
+          14,
+          17,
+          14,
+          13,
+          14,
+          13,
+          8,
+          8,
+          9,
+          13,
+          13,
+          14,
+          15,
+          14,
+          15,
+          13,
+          14,
+          15,
+          17,
+          18,
+          15,
+          18,
+          12,
+          10,
+          12,
+          13,
+          14,
+          17,
+          17,
+          17,
+          16,
+          28,
+          14,
+          17
+        ],
+        "waiting": [
+          14,
+          7,
+          7,
+          8,
+          12,
+          12,
+          10,
+          5,
+          17,
+          13,
+          13,
+          12,
+          15,
+          12,
+          11,
+          12,
+          12,
+          7,
+          7,
+          8,
+          11,
+          11,
+          12,
+          12,
+          12,
+          12,
+          11,
+          12,
+          13,
+          15,
+          15,
+          13,
+          16,
+          10,
+          9,
+          11,
+          11,
+          12,
+          15,
+          14,
+          14,
+          13,
+          25,
+          11,
+          13
+        ],
+        "queue_connect": [
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          2,
+          2,
+          2,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/summary": {
+        "count": 5,
+        "bytes": 4385,
+        "duration": [
+          11,
+          8,
+          9,
+          8,
+          27
+        ],
+        "waiting": [
+          9,
+          7,
+          8,
+          7,
+          6
+        ],
+        "queue_connect": [
+          3,
+          1,
+          1,
+          1,
+          21
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/conversations/CONVERSATION/turns": {
+        "count": 2,
+        "bytes": 1534,
+        "duration": [
+          9,
+          5
+        ],
+        "waiting": [
+          8,
+          4
+        ],
+        "queue_connect": [
+          1,
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=0": {
+        "count": 1,
+        "bytes": 17792,
+        "duration": [
+          12
+        ],
+        "waiting": [
+          11
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=200": {
+        "count": 1,
+        "bytes": 17900,
+        "duration": [
+          10
+        ],
+        "waiting": [
+          9
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/events?after=400": {
+        "count": 1,
+        "bytes": 645,
+        "duration": [
+          14
+        ],
+        "waiting": [
+          13
+        ],
+        "queue_connect": [
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/diff": {
+        "count": 2,
+        "bytes": 1102,
+        "duration": [
+          22,
+          10
+        ],
+        "waiting": [
+          14,
+          9
+        ],
+        "queue_connect": [
+          8,
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/turns/ROUND/context": {
+        "count": 2,
+        "bytes": 680,
+        "duration": [
+          20,
+          13
+        ],
+        "waiting": [
+          12,
+          12
+        ],
+        "queue_connect": [
+          8,
+          1
+        ],
+        "same_key_peak": 1
+      },
+      "/api/v1/chat/conversations/CONVERSATION/relations": {
+        "count": 2,
+        "bytes": 740,
+        "duration": [
+          11,
+          11
+        ],
+        "waiting": [
+          11,
+          4
+        ],
+        "queue_connect": [
+          1,
+          7
+        ],
+        "same_key_peak": 1
+      }
+    }
+  }
+}

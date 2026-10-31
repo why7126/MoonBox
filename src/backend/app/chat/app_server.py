@@ -23,6 +23,8 @@ class ExecutorError(RuntimeError):
 
 class AppServer:
     VERSION = 'codex-cli 0.153.4'
+    supports_questions = True
+    supports_runtime_preflight = True
     def __init__(self, executable, workspace, codex_home, *, home, write=False, timeout=30, permission_profile=None, effort=None, write_scope=None):
         self.workspace = trusted_directory(workspace)
         self.codex_home = trusted_directory(codex_home)
@@ -63,7 +65,7 @@ class AppServer:
         return 30
 
     def launch_command(self, executable):
-        return [str(executable), 'app-server', '--stdio', '-c', 'shell_environment_policy.inherit="none"']
+        return [str(executable), 'app-server', '--stdio', '-c', 'shell_environment_policy.inherit="none"', '-c', 'features.default_mode_request_user_input=true']
 
     def _normalize_write_scope(self, scope):
         if scope in ('implementation_write', 'write', True): return 'implementation_write'
@@ -131,10 +133,17 @@ class AppServer:
         from app.chat.recovery_runtime import timeout as recovery_timeout
         deadline = time.monotonic()+recovery_timeout(self.timeout)
         while True:
-            try: value = self._next(deadline)
+            try:
+                value = next((item for item in self.pending if item.get('id') == request_id and 'method' not in item), None)
+                if value is not None: self.pending.remove(value)
+                else: value = self._next(deadline)
             except ExecutorError as error:
                 if error.code == 'executor_timeout': raise ExecutorError('executor_timeout_'+method.replace('/', '_'))
                 raise
+            handled_at = time.monotonic()
+            if self._handle_question(value):
+                deadline += time.monotonic() - handled_at
+                continue
             if ('method' in value and 'id' in value and not
                     (getattr(self, 'acceptance_enabled', False) and value['method'] == 'item/tool/call')):
                 self._send({'id': value['id'], 'error': {'code': -32601, 'message': 'Interactive requests are not supported'}})
@@ -157,9 +166,14 @@ class AppServer:
             self._verify_thread(previous, thread_id)
             result = self.rpc('thread/resume', {'threadId': thread_id, **policy})
         else:
+            tools = []
+            if getattr(self, 'question_handler', None):
+                from app.chat.question_bridge import SPEC as question_spec
+                tools.append(question_spec)
             if getattr(self,'acceptance_enabled',False):
                 from app.verification.acceptance_tool import SPEC
-                policy['dynamicTools']=[SPEC]
+                tools.append(SPEC)
+            if tools: policy['dynamicTools'] = tools
             result = self.rpc('thread/start', policy)
         self._verify_thread(result.get('thread', {}), thread_id)
         return result['thread']['id']
@@ -208,9 +222,20 @@ class AppServer:
         self.rpc('thread/delete', {'threadId':thread_id})
         return True
 
+    def _handle_question(self, value):
+        if 'id' not in value or 'method' not in value: return False
+        handler = getattr(self, 'question_handler', None)
+        return bool(handler and handler(value))
+
     def event(self, timeout=1):
-        if self.pending: return self.pending.popleft()
-        try: return self._next(time.monotonic()+timeout)
+        try:
+            value = self.pending.popleft() if self.pending else self._next(time.monotonic()+timeout)
+            if self._handle_question(value): return None
+            if 'method' in value and 'id' in value and not (
+                    getattr(self, 'acceptance_enabled', False) and value['method'] == 'item/tool/call'):
+                self._send({'id': value['id'], 'error': {'code': -32601, 'message': 'Unsupported interactive request'}})
+                raise ExecutorError('executor_interactive_request')
+            return value
         except ExecutorError as error:
             if error.code == 'executor_timeout': return None
             raise

@@ -60,6 +60,13 @@ def expected_spec_hash(root: Path, change_id: str) -> str:
 
 
 def classify(root: Path, change_id: str, archive_date: str) -> str:
+    from app.governance.archive_tools import selected, check_binding
+    package = selected()
+    journal = root / 'openspec/archive/.archive-recovery' / f'{change_id}.json'
+    if journal.exists():
+        check_binding(read_record(journal), package)
+    elif package and archive_paths(root, change_id):
+        raise ValueError('archive_tool_version_unproven')
     state = recovery_state(root, change_id, archive_date)
     if state['mode'] == 'merge' and state['chain']:
         # Admission is read-only. At the actual merge boundary, rebase the
@@ -98,6 +105,7 @@ def classify(root: Path, change_id: str, archive_date: str) -> str:
     if tree_hash(specs) != baseline or tree_hash(active) != active_hash:
         raise ValueError('archive preparation inputs changed')
     record = {'schema_version': 4, 'input_projection': 1,
+              'archive_tool_digest': package.digest if package else None,
               'delivery_input_hash': input_hash,
               'change_id': change_id, 'archive_date': archive_date,
               'active_change_hash': active_hash, 'delta_hash': tree_hash(active / 'specs'),
@@ -121,6 +129,8 @@ def reprepare(root: Path, change_id: str) -> None:
     journal = root / 'openspec/archive/.archive-recovery' / f'{change_id}.json'
     original = journal.read_bytes()
     record = read_record(journal)
+    from app.governance.archive_tools import selected, check_binding
+    check_binding(record, selected())
     active = root / 'openspec/changes' / change_id
     if not active.is_dir() or archive_paths(root, change_id):
         raise ValueError('reprepare requires a unique active Change and no archive')

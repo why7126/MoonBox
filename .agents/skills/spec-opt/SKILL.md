@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-10-26 12:16:48
+updated_at: 2026-10-31 07:54:35
 name: spec-opt
 description: 规范优化 - 新增或修改项目治理规范、技能命令、文档索引与治理脚本
 ---
@@ -186,3 +186,9 @@ bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.appl
 ## explore 维护交接
 
 接到 explore 改进请求时，按 `docs/standards/governance-feedback-loop.md` 的“探索反馈与统一维护交接”核对反馈分类、已有规则、候选去重、脱敏证据与最小改动。复用统一治理机制，不为 Skill 新建私有台账。仅维护时读取 `.agents/skills/explore/evals/cases.md`；先定义旧版/候选版对照与不适用反例，分别报告静态、合成及真实行为证据。验证通过后记录版本生效方式与 observing 状态；不把未执行的模型评测或用量缺失宣称为收益确认。
+
+## 独立 Change 初始状态门禁
+
+新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
+
+已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。

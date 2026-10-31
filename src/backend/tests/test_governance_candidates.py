@@ -318,7 +318,7 @@ def test_prepare_object_session_supports_change_reuse(chat,tmp_path,monkeypatch)
     monkeypatch.setenv('MOONBOX_GOVERNANCE_STATE_ROOT',str(private));bind(monkeypatch,source)
     change='add-local-governance'
     trace=front({'change_id':change,'title':'本地治理变更','status':'proposed'},'# 本地治理变更\n\n变更追溯。')
-    for name,body in {f'openspec/changes/{change}/trace.md':trace,'issues/requirements/_registry.yaml':b'entries: []\n','issues/bugs/_registry.yaml':b'entries: []\n'}.items():
+    for name,body in {f'openspec/changes/{change}/trace.md':trace,'iterations/change/sprint-001/sprint.yaml':b'sprint_id: sprint-001\nstatus: planning\nchanges: [add-local-governance]\n','issues/requirements/_registry.yaml':b'entries: []\n','issues/bugs/_registry.yaml':b'entries: []\n'}.items():
         path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body)
     git(source,'init');git(source,'add','.');git(source,'-c','user.name=Test','-c','user.email=test@invalid','commit','-m','baseline')
     with factory() as db:

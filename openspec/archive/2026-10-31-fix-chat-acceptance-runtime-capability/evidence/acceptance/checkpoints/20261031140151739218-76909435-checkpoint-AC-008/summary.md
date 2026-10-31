@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-008 | passed | command,file_state | openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json,openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json,openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json,openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json,openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json |

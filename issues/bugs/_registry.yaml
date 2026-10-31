@@ -1,5 +1,17 @@
-next_id: 72
+next_id: 73
 entries:
+- id: BUG-0072-standalone-change-ready-dev-without-sprint
+  title: "独立 Change 未纳入迭代却提前显示待开发"
+  status: done
+  severity: medium
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0072-standalone-change-ready-dev-without-sprint/
+  owner: 产品团队
+  created: '2026-10-31 08:14:12'
+  related_requirement: null
+  related_bug: BUG-0039-standalone-change-sprint-membership-false-warning
+  related_change: fix-standalone-change-sprint-stage
+  iteration: sprint-017
 - id: BUG-0071-change-summary-acceptance-check-entry-missing
   status: pending_review
   severity: high
@@ -192,17 +204,17 @@ entries:
   related_change: fix-object-session-preparation-latency
 - id: BUG-0058-chat-history-status-replay-request-amplification
   title: "聊天历史状态重建与重复读取导致加载迟缓"
-  status: approved
+  status: done
   severity: high
   owner: 产品团队
   source: 用户授权与同会话 explore 证据
-  lifecycle_stage: review
-  path: issues/bugs/review/BUG-0058-chat-history-status-replay-request-amplification/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0058-chat-history-status-replay-request-amplification/
   created: '2026-10-21 08:50:06'
   related_requirement: null
   related_bug: null
-  iteration: null
-  related_change: null
+  iteration: sprint-017
+  related_change: fix-chat-history-read-lifecycle
 - id: BUG-0059-chat-governance-command-submit-latency
   title: "聊天治理命令同步准备导致消息提交等待过长缺陷记录"
   status: captured
@@ -331,29 +343,29 @@ entries:
   - REQ-0027-requirement-center-command-chain-realization
 - id: BUG-0045-chat-acceptance-runtime-capability-gap
   title: "Chat 命令执行环境缺少验收能力导致开发验收中断"
-  status: approved
+  status: done
   severity: high
   owner: 产品团队
   source: 用户截图与同会话反馈
-  lifecycle_stage: review
-  path: issues/bugs/review/BUG-0045-chat-acceptance-runtime-capability-gap/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0045-chat-acceptance-runtime-capability-gap/
   created: '2026-10-19 11:24:41'
-  iteration: null
-  related_change: null
+  iteration: sprint-017
+  related_change: fix-chat-acceptance-runtime-capability
   reporter: user
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0046-chat-midrun-question-response-unavailable
 - id: BUG-0046-chat-midrun-question-response-unavailable
   title: "Chat 命令执行中提出问题但缺少可回答和续接入口"
-  status: approved
+  status: done
   severity: high
   owner: 产品团队
   source: 用户截图与同会话反馈
-  lifecycle_stage: review
-  path: issues/bugs/review/BUG-0046-chat-midrun-question-response-unavailable/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0046-chat-midrun-question-response-unavailable/
   created: '2026-10-19 11:24:41'
-  iteration: null
-  related_change: null
+  iteration: sprint-017
+  related_change: fix-chat-midrun-question-response
   reporter: user
   related_requirement: REQ-0025-chat-workbench
   related_bug: BUG-0045-chat-acceptance-runtime-capability-gap

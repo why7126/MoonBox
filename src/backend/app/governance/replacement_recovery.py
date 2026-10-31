@@ -12,6 +12,19 @@ from app.chat.schema import governance_project_locks as locks
 from .archive_recovery import tree_hash, archive_paths, delta_operations, verify_delta_effects, completed_archive, delivery_input_hash
 
 
+def bound_inputs_match(project, proposal, operation):
+    from .archive_tools import selected, operation_binding
+    from .replacement_inputs import fingerprint
+    import hashlib, json
+    package = selected()
+    operation_binding(project.root, operation['id'], package, recorded=operation['input_hash'])
+    if package:
+        path = project.root / 'openspec/archive/.archive-tool-bindings' / (hashlib.sha256(operation['id'].encode()).hexdigest() + '.json')
+        # Binding sidecars are excluded from the input fingerprint below.
+        return json.loads(path.read_bytes())['original'] == fingerprint(project, proposal)
+    return fingerprint(project, proposal) == operation['input_hash']
+
+
 def observe(project, proposal, operation):
     root=project.root
     active=root/'openspec/changes'/proposal.successor
@@ -26,7 +39,7 @@ def observe(project, proposal, operation):
     if actual!=operation['expected_hash']:
         if operation['stage']=='claimed' and active.is_dir():
             from .replacement_inputs import fingerprint
-            if fingerprint(project,proposal)==operation['input_hash']:
+            if bound_inputs_match(project, proposal, operation):
                 return 'unmerged'
         raise ValueError('archive_result_unknown')
     verify_delta_effects(folder/'specs',root/'openspec/specs')

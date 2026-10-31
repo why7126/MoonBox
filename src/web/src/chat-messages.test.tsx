@@ -43,6 +43,7 @@ const messagesPayload = {
 
 function stubMessagesFetch() {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+    if (url.includes("/questions")) return new Response(JSON.stringify({ code: 0, data: { items: [] } }));
     if (url.includes("/events")) return new Response([
       'id: 1',
       'event: execution.usage',
@@ -51,13 +52,14 @@ function stubMessagesFetch() {
       '',
     ].join("\n"), { headers: { "Content-Type": "text/event-stream" } });
     if (url.includes("/materials/img/content")) return new Response(new Blob(["image"], { type: "image/png" }));
-    if (url.includes("/turns/t2")) return new Response(JSON.stringify({ code: 0, data: { id: "t2", status: "completed", created_at: "2026-09-18T10:35:00Z", updated_at: "2026-09-18T10:35:02Z" } }));
+    if (url.includes("/turns/t2")) return new Response(JSON.stringify({ code: 0, data: { id: "t2", status: "completed", usage: { total_tokens: 321, duration_ms: 1500, reasoning_duration_ms: 832 }, created_at: "2026-09-18T10:35:00Z", updated_at: "2026-09-18T10:35:02Z" } }));
     return new Response(JSON.stringify(messagesPayload));
   }));
 }
 
 function stubRunningAssistantFetch() {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+    if (url.includes("/questions")) return new Response(JSON.stringify({ code: 0, data: { items: [] } }));
     if (url.includes("/events")) return new Response([
       'id: 1',
       'event: execution.output',
@@ -255,7 +257,9 @@ it("hides governance execution context from visible user messages", async () => 
   localStorage.setItem("moonbox.session", JSON.stringify({ access_token: "synthetic" }));
   const writeText = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => url.includes("/questions")
+    ? new Response(JSON.stringify({ code: 0, data: { items: [] } }))
+    : new Response(JSON.stringify({
     code: 0,
     data: {
       items: [{

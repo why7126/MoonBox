@@ -108,6 +108,7 @@ class ChatRoute(APIRoute):
                                     ('/api/v1/chat/turns/{tid}/files/{file_id}/content','GET'):'chat.file_content',
                                     ('/api/v1/chat/turns/{tid}/files/{file_id}/blocks','GET'):'chat.file_content',
                                     ('/api/v1/chat/turns/{tid}/recovery','POST'):'chat.recovery',
+                                    ('/api/v1/chat/turns/{tid}/questions/{qid}/answers','POST'):'chat.question_answer',
                                     ('/api/v1/requirement-center/captures','POST'):'governance.capture',
                                     ('/api/v1/chat/governance-preparations','POST'):'governance.prepare',
                                     ('/api/v1/chat/object-sessions','POST'):'governance.prepare',
@@ -129,6 +130,9 @@ class ChatRoute(APIRoute):
                                         payload=json.loads(response.body).get('data',{})
                                         if event in ('chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.recovery'):
                                             resource['turn_id'] = request.path_params.get('tid')
+                                        elif event == 'chat.question_answer':
+                                            resource['turn_id'] = request.path_params.get('tid')
+                                            resource['question_id'] = request.path_params.get('qid')
                                         elif event == 'governance.recovery':resource['operation_id']=payload.get('operation_id')
                                         elif event == 'governance.capture':resource['operation_id']=payload.get('id')
                                         elif event == 'governance.prepare':
@@ -232,6 +236,7 @@ class ConversationPatch(BaseModel):
         return v
 
 class TurnCreate(BaseModel):
+    question_capable: bool = Field(default=False, description="客户端支持原轮次结构化问答卡片；仅能力声明，不授予权限")
     client_request_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
     prompt: str = Field(default='',max_length=32000)
     attachments: list[dict] = Field(default_factory=list,max_length=5,description="客户端已选择图片的引用登记摘要，不包含二进制")
@@ -280,6 +285,12 @@ class TurnRead(BaseModel):
     requested_config: dict = Field(default_factory=dict)
     effective_config: dict = Field(default_factory=dict)
     config_fallback_reason: str | None = None
+
+
+class TurnSummaryRead(TurnRead):
+    event_sequence: int
+    tool_count: int
+    usage: dict[str, float] = Field(default_factory=dict)
 
 
 class BehaviorEventCreate(BaseModel):
@@ -360,7 +371,7 @@ def delete(cid: str,expected_hash: str|None=Query(None,pattern=r'^[a-f0-9]{64}$'
 
 @router.post('/conversations/{cid}/turns',response_model=ApiResponse[TurnRead],summary='幂等提交轮次（执行门禁未通过时拒绝）')
 def send(cid: str,payload: TurnCreate,request: Request,uid: str=Depends(actor),db: Session=Depends(get_db)):
-    return ApiResponse(data=service.request_turn(db,uid,cid,payload.client_request_id,payload.prompt,images=payload.attachments,skills=payload.skills,execution_config=payload.execution_config,request_id=request.state.chat_request_id))
+    return ApiResponse(data=service.request_turn(db,uid,cid,payload.client_request_id,payload.prompt,images=payload.attachments,skills=payload.skills,execution_config=payload.execution_config,request_id=request.state.chat_request_id,question_capable=payload.question_capable))
 
 @router.get('/conversations/{cid}/turns',response_model=ApiResponse[dict],summary='读取轮次列表')
 def history(cid: str,page: int=Query(1,ge=1,le=10000),page_size: int=Query(20,ge=1,le=100),uid: str=Depends(actor),db: Session=Depends(get_db)):
@@ -371,6 +382,11 @@ def history(cid: str,page: int=Query(1,ge=1,le=10000),page_size: int=Query(20,ge
 @router.get('/turns/{tid}',response_model=ApiResponse[TurnRead],summary='读取真实轮次状态')
 def get_turn(tid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
     return ApiResponse(data=service.public_turn(service.turn(db,uid,tid)))
+
+@router.get('/turns/{tid}/summary', response_model=ApiResponse[TurnSummaryRead], summary='读取授权轮次状态与完整用量摘要')
+def get_turn_summary(tid: str, response: Response, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    response.headers["Cache-Control"] = "private, no-store"
+    return ApiResponse(data=service.turn_summary(db, uid, tid))
 
 @router.post('/turns/{tid}/interrupt',response_model=ApiResponse[TurnRead],summary='请求中止当前运行')
 def stop(tid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
@@ -497,6 +513,29 @@ def spaces(uid: str=Depends(actor),db: Session=Depends(get_db)):
         except service.ChatError:continue
         result.append({'id':row['id'],'name':row['name']})
     return ApiResponse(data=result)
+
+
+class RuntimeCapabilityRead(BaseModel):
+    name: str
+    status: str
+    reason_code: str | None
+
+
+class RuntimePreflightRead(BaseModel):
+    conversation_id: str
+    checked_at: str
+    environment_key: str | None
+    template_key: str | None
+    checks: list[RuntimeCapabilityRead]
+    acceptance_passed: bool
+    status: str
+
+
+@router.get('/conversations/{cid}/verification-preflight', response_model=ApiResponse[RuntimePreflightRead],
+            summary='读取会话验收能力，配置就绪不代表验收通过')
+def conversation_verification_preflight(cid: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.verification.chat_preflight import inspect_conversation
+    return ApiResponse(data=inspect_conversation(db,uid,cid))
 
 
 @router.get('/verification-environments/preflight', response_model=ApiResponse[dict], summary='预检授权项目的浏览器验证环境')
@@ -763,3 +802,53 @@ def deletion_check(cid: str,uid: str=Depends(actor),db: Session=Depends(get_db))
 def cleanup_status(cid: str,uid: str=Depends(actor),db: Session=Depends(get_db)):
     from app.chat.cleanup import status
     return ApiResponse(data=status(db,uid,cid))
+
+
+class QuestionAnswerValue(BaseModel):
+    model_config = {'extra': 'forbid'}
+    option_id: str | None = Field(default=None, max_length=8)
+    text: str = Field(default='', max_length=4000)
+
+class QuestionAnswerCreate(BaseModel):
+    model_config = {'extra': 'forbid'}
+    version: int = Field(ge=1)
+    idempotency_key: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
+    answers: dict[str, QuestionAnswerValue] = Field(min_length=1, max_length=3)
+
+class QuestionOptionRead(BaseModel):
+    id: str
+    label: str
+    description: str
+
+class QuestionItemRead(BaseModel):
+    id: str
+    header: str
+    question: str
+    options: list[QuestionOptionRead]
+    allow_text: bool
+
+class QuestionRead(BaseModel):
+    id: str
+    turn_id: str
+    status: Literal['pending', 'answer_received', 'delivering', 'delivered', 'cancelled', 'expired', 'unrecoverable']
+    version: int
+    expires_at: str
+    created_at: str
+    questions: list[QuestionItemRead]
+
+class QuestionListRead(BaseModel):
+    items: list[QuestionRead]
+    turn_status: str
+
+@router.get('/turns/{tid}/questions', response_model=ApiResponse[QuestionListRead], summary='读取原轮次结构化问题及当前状态')
+def question_list(tid: str, uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.questions import list_questions
+    return ApiResponse(data=list_questions(db, uid, tid))
+
+@router.post('/turns/{tid}/questions/{qid}/answers', response_model=ApiResponse[QuestionRead], summary='幂等回答原轮次问题，不启动新轮次')
+def question_answer(tid: str, qid: str, payload: QuestionAnswerCreate, request: Request,
+                    uid: str=Depends(actor), db: Session=Depends(get_db)):
+    from app.chat.questions import submit
+    return ApiResponse(data=submit(db, uid, tid, qid, payload.version, payload.idempotency_key,
+        {key: value.model_dump() for key, value in payload.answers.items()},
+        getattr(request.state, 'chat_request_id', None)))

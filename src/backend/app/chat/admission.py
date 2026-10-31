@@ -18,7 +18,7 @@ def _account(db, key):
             pass
 
 
-def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None, budget_prompt=None, governance_candidate_id=None, admission_guard=None):
+def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materials=None, execution_config=None, request_id=None, budget_prompt=None, governance_candidate_id=None, admission_guard=None, question_capable=False):
     """Caller must first verify the isolated executor. This function never starts a process."""
     materials = materials or []
     execution_config = execution_config or service.normalize_execution_config()
@@ -88,7 +88,7 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
         if admission_guard is not None:
             admission_guard(db,tid)
         db.execute(insert(turns).values(**token, conversation_id=cid, client_request_id=client_id,
-            status='queued', prompt=prompt, retry_of=retry_of, generation=0, reserved_bytes=reserve_bytes,
+            status='queued', prompt=prompt, retry_of=retry_of, question_capable=int(question_capable), generation=0, reserved_bytes=reserve_bytes,
             requested_config=json.dumps(execution_config['requested'], ensure_ascii=False, sort_keys=True),
             effective_config=json.dumps(execution_config['effective'], ensure_ascii=False, sort_keys=True),
             config_fallback_reason=execution_config.get('fallback_reason')))

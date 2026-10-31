@@ -1,0 +1,40 @@
+import { act, cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { RecoveryOperationPanel } from './RecoveryOperationPanel';
+import { governanceRequest } from '../workbench/governanceApi';
+vi.mock('../workbench/governanceApi',()=>({governanceRequest:vi.fn()}));
+vi.mock('../../pages/home/frontendSession',()=>({readValidFrontendSession:()=>({access_token:'recovery-test'})}));
+const done={id:'op',state:'completed',version:2,stage:'complete',allowed_actions:[],verification_actions:[],historical_result:'verified'};
+beforeEach(()=>{vi.clearAllMocks();vi.useFakeTimers();});
+afterEach(()=>{cleanup();vi.useRealTimers();});
+it('waits for a slow response, never overlaps, displays completion and stops polling',async()=>{
+ let resolve!:(v:any)=>void;
+ vi.mocked(governanceRequest).mockImplementation(()=>new Promise(r=>{resolve=r;}));
+ const observed=vi.fn();render(<RecoveryOperationPanel operationId="slow" onDraft={()=>{}} onOperation={observed}/>);
+ await act(async()=>vi.advanceTimersByTimeAsync(15000));
+ expect(governanceRequest).toHaveBeenCalledTimes(1);
+ await act(async()=>resolve(done));
+ expect(observed).toHaveBeenLastCalledWith(done);
+ expect((screen.getByTestId('recovery-refresh') as HTMLButtonElement).disabled).toBe(false);
+ await act(async()=>vi.advanceTimersByTimeAsync(15000));
+ expect(governanceRequest).toHaveBeenCalledTimes(1);
+});
+it('coalesces verification notifications into one fresh read after the current request',async()=>{
+ let resolve!:(v:any)=>void;
+ vi.mocked(governanceRequest).mockImplementationOnce(()=>new Promise(r=>{resolve=r;})).mockResolvedValue(done);
+ const observed=vi.fn();render(<RecoveryOperationPanel operationId="notifications" onDraft={()=>{}} onOperation={observed}/>);
+ await act(async()=>{await Promise.resolve();window.dispatchEvent(new Event('governance-operation-verified'));window.dispatchEvent(new Event('governance-operation-verified'));});
+ expect(governanceRequest).toHaveBeenCalledTimes(1);
+ await act(async()=>{resolve({...done,version:1});});
+ await act(async()=>vi.advanceTimersByTimeAsync(1));
+ expect(governanceRequest).toHaveBeenCalledTimes(2);expect(observed).toHaveBeenLastCalledWith(done);
+});
+it('does not let an old operation replace the new operation',async()=>{
+ let resolve!:(v:any)=>void;
+ vi.mocked(governanceRequest).mockImplementationOnce(()=>new Promise(r=>{resolve=r;})).mockResolvedValue({...done,id:'new'});
+ const observed=vi.fn();const {rerender}=render(<RecoveryOperationPanel operationId="old" onDraft={()=>{}} onOperation={observed}/>);
+ await act(async()=>{await Promise.resolve();});
+ rerender(<RecoveryOperationPanel operationId="new" onDraft={()=>{}} onOperation={observed}/>);
+ await act(async()=>{await Promise.resolve();resolve({...done,id:'old'});});
+ expect(observed).toHaveBeenLastCalledWith({...done,id:'new'});
+});

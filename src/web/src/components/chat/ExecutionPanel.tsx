@@ -1,3 +1,5 @@
+import { readTurnSummary } from "./sharedChatRead";
+import { readValidFrontendSession } from "../../pages/home/frontendSession";
 import { ObjectArchivePanel } from "./ObjectArchivePanel";
 import { useEffect, useRef, useState } from "react";
 import { DiffView, type DiffData } from "./DiffView";
@@ -20,6 +22,9 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
   const [events, setEvents] = useState<ChatEvent[]>([]), [diff, setDiff] = useState<DiffData | null>(null);
   const [error, setError] = useState(""), [busy, setBusy] = useState(false), [retry, setRetry] = useState(0);
   const [context, setContext] = useState<ContextItem[]>([]);
+  // One bounded window, scoped to this mounted panel. Re-authorize before any reuse.
+  const windowCache = useRef<{key: string; revision: string; events: ChatEvent[]; more: boolean} | null>(null);
+  useEffect(() => { setEventAfter(0); windowCache.current = null; }, [conversation?.id]);
   const stopping = useRef(false);
   const retrying = useRef(false), retryRequest = useRef<{ turn: string; id: string } | null>(null);
   const [confirmStop, setConfirmStop] = useState<string | null>(null);
@@ -27,35 +32,58 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
   useEffect(() => { if (focusTurn) { setEventAfter(0); setSelected(focusTurn); } }, [focusTurn, focusVersion]);
   useEffect(() => {
     setTurns([]); setSelected(""); setError("");
-    if (!conversation) return;
+    if (!conversation || !visible) return;
     const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
       try {
         const data = await chatRequest<{ items: TurnRead[] }>(`/conversations/${conversation.id}/turns`, { signal: controller.signal });
         if (controller.signal.aborted) return;
-        setTurns(data.items); setSelected(current => data.items.some(t => t.id === current) ? current : data.items[0]?.id || "");
-        timer = setTimeout(poll, 3000);
+        setTurns(data.items); setSelected(current => data.items.some(t => t.id === current) ? current : data.items.some(t => t.id === focusTurn) ? focusTurn! : data.items[0]?.id || "");
+        if (data.items.some(t => !["completed", "failed", "stopped"].includes(t.status))) timer = setTimeout(poll, 3000);
       } catch (e) { if (!controller.signal.aborted) { setTurns([]); setSelected(""); setEvents([]); setDiff(null); setContext([]); setError(traceMessage(e)); } }
     };
     void poll(); return () => { controller.abort(); clearTimeout(timer); };
-  }, [conversation?.id, retry]);
+  }, [conversation?.id, conversation?.active_turn_id, retry, visible]);
   useEffect(() => {
     setEvents([]); setDiff(null); setContext([]); setMoreEvents(false);
-    if (!selected) return;
-    const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>, cursor = eventAfter, loaded = 0;
+    if (!selected || !visible) return;
+    const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>, cursor = eventAfter;
+    let accumulated: ChatEvent[] = [];
     const poll = async () => {
       try {
-        const batch = await readChatEvents(selected, cursor, controller.signal);
-        const snapshot = await chatRequest<DiffData>(`/turns/${selected}/diff`, { signal: controller.signal });
-        const references = await chatRequest<ContextItem[]>(`/turns/${selected}/context`, { signal: controller.signal });
+        const summary = await readTurnSummary(selected, controller.signal);
         if (controller.signal.aborted) return;
-        setContext(Array.isArray(references) ? references : []);
-        if (batch.length) { cursor = batch[batch.length - 1].sequence; loaded += batch.length; setEvents(current => [...current, ...batch]); }
-        setDiff(snapshot); if (loaded >= 1000) { setMoreEvents(true); return; } timer = setTimeout(poll, batch.length === 200 ? 0 : 3000);
-      } catch (e) { if (!controller.signal.aborted) { setEvents([]); setDiff(null); setContext([]); setError(traceMessage(e)); } }
+        const terminal = ["completed", "failed", "stopped"].includes(summary.status);
+        const key = JSON.stringify([readValidFrontendSession()?.access_token, conversation?.id, selected, eventAfter, retry]);
+        const revision = `${summary.updated_at}:${summary.event_sequence}`;
+        const cached = windowCache.current;
+        const reused = terminal && cached?.key === key && cached.revision === revision;
+        if (reused) {
+          accumulated = cached.events; cursor = accumulated[accumulated.length - 1]?.sequence || eventAfter;
+          setEvents(accumulated); setMoreEvents(cached.more);
+        }
+        const received = !reused && (cursor < summary.event_sequence || !terminal) ? await readChatEvents(selected, cursor, controller.signal) : [];
+        const batch = received.slice(0, 1000 - accumulated.length);
+        if (controller.signal.aborted) return;
+        if (batch.length) { cursor = batch[batch.length - 1].sequence; accumulated = [...accumulated, ...batch]; setEvents(accumulated); }
+        // Drain pages without repeatedly fetching the same ancillary details.
+        if (batch.length === 200 && accumulated.length < 1000 && (!terminal || cursor < summary.event_sequence)) {
+          timer = setTimeout(poll, 0); return;
+        }
+        const [snapshot, references] = await Promise.all([
+          chatRequest<DiffData>(`/turns/${selected}/diff`, { signal: controller.signal }),
+          chatRequest<ContextItem[]>(`/turns/${selected}/context`, { signal: controller.signal }),
+        ]);
+        if (controller.signal.aborted) return;
+        const items = Array.isArray(references) ? references : [];
+        const more = accumulated.length >= 1000 && (cursor < summary.event_sequence || !terminal);
+        setDiff(snapshot); setContext(items); setMoreEvents(more); setError("");
+        if (terminal) windowCache.current = {key, revision, events: accumulated, more};
+        else if (!more) timer = setTimeout(poll, 3000);
+      } catch (e) { if (!controller.signal.aborted) { windowCache.current = null; setEvents([]); setDiff(null); setContext([]); setError(traceMessage(e)); } }
     };
     void poll(); return () => { controller.abort(); clearTimeout(timer); };
-  }, [selected, retry, eventAfter]);
+  }, [selected, retry, eventAfter, visible, conversation?.id]);
   const stop = async () => {
     if (!active || active.id !== confirmStop || stopping.current) return;
     stopping.current = true; setBusy(true); setError("");
@@ -78,7 +106,7 @@ export function ExecutionPanel({ conversation, executionReady = false, focusTurn
   }
   return <>
     <ObjectArchivePanel conversation={conversation} visible={visible} refreshKey={`${conversation?.active_turn_id || ""}:${events[events.length - 1]?.sequence || 0}:${turns.map(t => `${t.id}:${t.status}`).join(",")}:${retry}`} />
-    {selectedTurn && <SavedResults key={selectedTurn.id} turnId={selectedTurn.id} status={selectedTurn.status} reason={selectedTurn.error_code} />}
+    {visible && selectedTurn && <SavedResults key={selectedTurn.id} turnId={selectedTurn.id} status={selectedTurn.status} reason={selectedTurn.error_code} />}
     {active?.status === "unknown" && <p className="chat-error">原运行状态尚未确认，暂不能发起新运行。</p>}
     {error && <div role="alert" className="chat-error">{error}<button onClick={() => setRetry(value => value + 1)}>重新连接</button></div>}
     {selectedTurn?.error_code && <p className="chat-error">{selectedTurn.error_code === "result_or_token_limit" ? "本轮达到输出或Token预留上限，已记录内容保留，后续输出可能截断。" : selectedTurn.error_code === "reconciled_usage_pending" || selectedTurn.error_code === "usage_unavailable" ? "执行已结束，用量尚待核实，额度预留暂未释放。" : "本轮存在执行或结果异常，请结合事件和差异记录检查。"}</p>}

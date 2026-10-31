@@ -2,7 +2,7 @@
 purpose: 数据库设计
 content: MoonBox SQLite 初始数据域与迁移治理
 created_at: 2026-07-29 22:55:00
-updated_at: "2026-10-27 19:34:50"
+updated_at: "2026-10-31 11:58:51"
 owner: MoonBox 产品团队
 ---
 
@@ -371,3 +371,15 @@ REQ-0048续接新增三表：`verification_result_deliveries`（operation唯一�
 ### BUG-0057 对象会话准备观测写入
 
 对象会话准备的prepared/conflict Trace在SQLite中先于读取取得写入意图：同一savepoint内对既有turn_id身份执行不改变updated_at值的参数化UPDATE，再沿用既有Trace/span记录。避免两条延迟事务读完后同时升级写锁；写事务不跨文件扫描。仅准备入口显式启用，其他调用及MySQL沿用原顺序。无表、索引、字段、迁移或保留周期变化，不改业务幂等、权限及状态围栏；观测异常仍不覆盖业务响应。
+
+## Chat 执行中问题与答案
+
+chat_questions通过统一Chat迁移增量创建，保存问题ID、turn_id外键、worker_id/generation围栏、协议request_key SHA256、executor_turn_id、状态/version、questions_json、必要answer_json、idempotency_key、expires_at及审计时间。唯一约束(turn_id,generation,request_key)，索引(turn_id,created_at)。问题字段与答案采用SQLite Text/MySQL LONGTEXT；身份及UTC时间字符串沿用现有Chat约定。
+
+chat_turns.question_capable为INTEGER NOT NULL DEFAULT 0，旧轮次默认不支持问答；增量迁移重复运行安全。回答/停止竞争通过turn行更新锁及问题状态条件更新处理；delivery先记录delivering再写协议，崩溃不自动重放。pending/answer_received可过期，无法恢复句柄标记unrecoverable；delivered不承诺模型消费或任务完成。
+
+业务答案仅受权访问，用于原请求消费；不进入日志和分析表，随Chat历史删除，备份保留/删除沿用现有Chat备份删除契约。回滚兼容保留表及能力列，先核实活跃请求，禁止默认破坏性删表。
+
+### BUG-0045 验收能力诊断
+
+本次不新增数据库结构：会话级能力检查为只读快照，不持久化模板内容；执行前结果沿用Task Trace脱敏span。验证任务、检查点、幂等、续接和证据继续使用既有verification/acceptance表及其清理语义。worker的Python能力标记存部署私有心跳目录，绑定模板摘要且90秒失效，不作为业务验收结果。

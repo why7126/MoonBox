@@ -1,0 +1,9 @@
+# Supply an approved immutable Linux project dependency image containing
+# /app/src/web/{node_modules,pnpm-lock.yaml}; never use host node_modules.
+ARG FRONTEND_DEPENDENCY_IMAGE
+FROM ${FRONTEND_DEPENDENCY_IMAGE}
+COPY src/backend/container/verification_frontend_check.cjs /opt/moonbox/frontend-check.cjs
+USER 10001:10001
+WORKDIR /tmp
+ENTRYPOINT []
+CMD ["node", "--version"]

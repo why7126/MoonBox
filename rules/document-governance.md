@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-10-30 14:51:04
+updated_at: 2026-10-31 07:54:35
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -289,3 +289,9 @@ Change trace的可选execution.schema_version=1保存started_at、completed_at�
 ## 根因调查文档分层
 
 根因当前结论、历史记录、证据保留和跨文档一致性遵循 `rules/root-cause-evidence.md` §4.1 及 `docs/standards/root-cause-diagnostics.md`，不以历史状态覆盖当前状态，不将诊断完成当作修复验收。
+
+## 独立 Change 初始状态门禁
+
+新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
+
+已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。

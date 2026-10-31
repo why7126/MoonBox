@@ -46,8 +46,9 @@ if os.environ.get('FAIL_GATE') == name: sys.exit(8)
 if name == 'archive-recovery-guard.py': print('normal')
 elif name == 'extract-ai-usage.py': print(json.dumps({'status':'ok','usage_mode':'unavailable','command_run_count':1}))
 '''
-        for name in set(re.findall(r'scripts/([\w-]+\.py)', (scripts / 'archive-change.sh').read_text())):
+        for name in set(re.findall(r'(?:scripts|archive_scripts)/([\w-]+\.py)', (scripts / 'archive-change.sh').read_text())):
             (scripts / name).write_text(gate)
+        (scripts / 'archive-tool-route.py').write_text("print('legacy')\n")
         collect = scripts / 'workflow_sync/collect.py'
         collect.parent.mkdir()
         collect.write_text("def resolve_sprint_id(*args, **kwargs): return 'sprint-014', None\n")

@@ -243,7 +243,7 @@ export function Composer({ submissionBlockedReason, conversation, capabilities, 
         target = await chatRequest<ConversationRead>("/conversations", { method: "POST", body: JSON.stringify({ space_id: spaceId, repository_id: repository, branch_name: branchName, title: (draft.trim() || readyMaterials[0]?.name || "新会话").slice(0,80), client_request_id: attempt.creationId }) });
         attempt.conversation = target;
       }
-      const turn = await chatRequest<TurnRead>(`/conversations/${target.id}/turns`, { method: "POST", body: JSON.stringify({ prompt: attempt.request.prompt, client_request_id: attempt.request.id,
+      const turn = await chatRequest<TurnRead>(`/conversations/${target.id}/turns`, { method: "POST", body: JSON.stringify({ question_capable: true, prompt: attempt.request.prompt, client_request_id: attempt.request.id,
         attachments: readyMaterials.map(item => ({ ref_id: item.ref_id, kind: item.kind, name: item.name, mime_type: item.mime_type, size_bytes: item.size_bytes })),
         skills: skills.map(item => ({ id: item.id, name: item.name, summary: item.summary, source: item.source, digest: item.digest })),
         execution_config: executionConfig }) });

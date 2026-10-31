@@ -228,8 +228,6 @@ def _matches_change_source(metadata, object_id):
 def _require_change_fact_source(snapshot, reader, object_id, action):
     if action not in ISSUE_ACTION_FALLBACKS or object_id.startswith(('REQ-','BUG-')):
         return None
-    if action=='sprint-propose':
-        raise service.ChatError(2604,'加入迭代只能用于需求或缺陷对象',422,kind='governance_validation_failed')
     if action == 'opsx-archive' and f'openspec/changes/{object_id}/trace.md' not in snapshot.files:
         from app.governance.direct_command_journal import archive_spec_drift
         root = reader.scope.root
@@ -255,6 +253,18 @@ def _require_change_fact_source(snapshot, reader, object_id, action):
                     return {'id': object_id, 'path': base, 'title': item['title'],
                             'status': 'archive_pending'}
     reader.authorize_object(snapshot,object_id,change=True,write=True)
+    if action in ('sprint-propose', 'opsx-apply'):
+        from app.governance.change_index import ChangeIndex
+        index = ChangeIndex(reader.scope.root)
+        record = index.records.get(object_id)
+        if action == 'sprint-propose' and (not record or record.issue_ids or record.invalid_source
+                or record.stage != 'sprint-planning'
+                or index.sprint_assignment(record)[0] != 'unassigned'):
+            raise service.ChatError(2604, 'Change 不处于待纳入迭代状态，请核对归属', 409, kind='governance_validation_failed')
+        if (action == 'opsx-apply' and record and not record.issue_ids
+                and record.stage in ('ready-dev', 'sprint-planning')
+                and index.sprint_assignment(record)[0] != 'valid'):
+            raise service.ChatError(2604, '缺少唯一有效的 Sprint 归属，请先核对迭代', 409, kind='governance_validation_failed')
     base=f'openspec/changes/{object_id}'
     trace=snapshot.files.get(f'{base}/trace.md') or snapshot.files.get(f'{base}/proposal.md')
     if not trace:
@@ -675,7 +685,7 @@ def _write_command(prompt):
         raise service.ChatError(2604, '请使用完整的 /sprint-archive sprint-xxx 命令', 422)
     if action not in {*ISSUE_ACTION_RULES,*ISSUE_ACTION_FALLBACKS,'req-generate','bug-generate','sprint-archive'}:
         return None
-    args=[part for part in parts[1:] if part not in ('--req','--bug')]
+    args=[part for part in parts[1:] if part not in ('--req','--bug','--change')]
     if not args:
         raise service.ChatError(2604,'治理命令缺少对象标识',422,kind='governance_validation_failed')
     return action,args[0]

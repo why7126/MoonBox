@@ -82,7 +82,7 @@ def worker():
                     run_claim(factory,token,workspace,
                         lambda path:persistent_container_server(path,root/'runtime',root/'auth.json'),max_seconds=900)
                 chat_job=threading.Thread(target=execute);chat_job.start()
-        if acceptance_job is None or not acceptance_job.is_alive():
+        if os.getenv('MOONBOX_PRODUCT_RUNTIME_PREFLIGHT') != '1' and (acceptance_job is None or not acceptance_job.is_alive()):
             oid=acceptance_worker.next_queued(factory)
             if oid:
                 acceptance_job=threading.Thread(target=acceptance_worker.run_one,args=(factory,oid,'isolated-acceptance-worker'))
@@ -106,7 +106,7 @@ def main():
     product=Path(os.environ['MOONBOX_PRODUCT_PREPARED'])
     space=os.environ.get('MOONBOX_PRODUCT_SPACE','space')
     if space not in {'space','space-2'}:raise ValueError('isolated_space_required')
-    keep={'MOONBOX_TEMP_RUN','MOONBOX_TEMP_EXPIRES','MOONBOX_ACCEPTANCE_SUBNET','MOONBOX_PRODUCT_ACCEPTANCE_LIVE','MOONBOX_PRODUCT_PREPARED'}
+    keep={'MOONBOX_TEMP_RUN','MOONBOX_TEMP_EXPIRES','MOONBOX_ACCEPTANCE_SUBNET','MOONBOX_PRODUCT_ACCEPTANCE_LIVE','MOONBOX_PRODUCT_PREPARED','MOONBOX_PRODUCT_RUNTIME_PREFLIGHT','MOONBOX_PRODUCT_CHAT_MANUAL'}
     for name in list(os.environ):
         if name.startswith(('MOONBOX_','DATABASE_','MYSQL_','SQLITE_','OBJECT_STORAGE_','ADMIN_','APP_')) and name not in keep:
             del os.environ[name]
@@ -141,6 +141,18 @@ def main():
     limits={**LIMITS,'user_monthly_tokens':2000000,'space_monthly_tokens':2000000,'turn_reserved_tokens':150000,
         'user_storage_bytes':512000000,'space_storage_bytes':512000000,'turn_reserved_bytes':32000000}
     binding=dict(id='repo',space_id=space,source_root=str(source),governance_root=str(source),workspace_root=str(root/'workspaces'),workspace_mode='copy')
+    if os.getenv('MOONBOX_PRODUCT_RUNTIME_PREFLIGHT') == '1':
+        from app.verification.runner import probe_browser_image
+        image=template['base']['browser_image']
+        probe=probe_browser_image(image)
+        binding['verification_project_subdir']='src/web'
+        for name in ('verification','artifacts','evidence'):(root/name).mkdir(mode=0o700)
+        os.environ.update(MOONBOX_VERIFICATION_STATE_ROOT=str(root/'verification'),
+            MOONBOX_VERIFICATION_ARTIFACT_ROOT=str(root/'artifacts'),
+            MOONBOX_VERIFICATION_EVIDENCE_ROOT=str(root/'evidence'),
+            MOONBOX_VERIFICATION_IMAGE_ID=image,MOONBOX_VERIFICATION_OS='linux',
+            MOONBOX_VERIFICATION_ARCH='arm64',MOONBOX_VERIFICATION_NODE_VERSION=probe['node_version'],
+            MOONBOX_VERIFICATION_PNPM_VERSION=probe['pnpm_version'])
     os.environ.update(APP_ENV='isolated-test',CHAT_LIVE_ISOLATED_PROBE='1',APP_SECRET_KEY=secrets.token_urlsafe(32),
         DATABASE_TYPE='sqlite',DATABASE_URL='sqlite:///'+str(root/'chat.db'),SQLITE_DATABASE_URL='sqlite:///'+str(root/'chat.db'),
         ADMIN_INITIAL_PASSWORD=secrets.token_urlsafe(32),ADMIN_SPACE_APPLICATION_DEMO_SEED='false',OBJECT_STORAGE_ENDPOINT='127.0.0.1:1',
@@ -170,15 +182,18 @@ def main():
     children=[]
     try:
         shutil.copyfile(auth,root/'auth.json');(root/'auth.json').chmod(0o600)
-        for mode in ('worker','serve'):
+        modes=('worker','serve','verification') if os.getenv('MOONBOX_PRODUCT_RUNTIME_PREFLIGHT')=='1' else ('worker','serve')
+        for mode in modes:
             children.append(subprocess.Popen([sys.executable,__file__,mode],stdout=(root/(mode+'.log')).open('w'),stderr=subprocess.STDOUT))
         deadline=time.time()+30
         while not (root/'worker-ready.json').exists():
             if time.time()>deadline:raise RuntimeError('worker_not_ready')
             time.sleep(.2)
-        with get_session_factory()() as db:
-            turn=service.request_turn(db,'alice',chat['id'],'local-acceptance-turn',
-                '这是本机隔离 MoonBox 的产品验收。立即调用 moonbox_acceptance 工具一次，不要运行 shell，不要修改任何文件。等待真实工具结果后，用中文简述检查结果和资源回收结果，然后结束。')
+        turn={'id':None}
+        if os.getenv('MOONBOX_PRODUCT_CHAT_MANUAL') != '1':
+            with get_session_factory()() as db:
+                turn=service.request_turn(db,'alice',chat['id'],'local-acceptance-turn',
+                    '这是本机隔离 MoonBox 的产品验收。立即调用 moonbox_acceptance 工具一次，不要运行 shell，不要修改任何文件。等待真实工具结果后，用中文简述检查结果和资源回收结果，然后结束。')
         (root/'ids.json').write_text(json.dumps(dict(conversation_id=chat['id'],turn_id=turn['id'],workspace_id=ws['id'])))
         print(json.dumps({'root':str(root),'url':'http://127.0.0.1:39048/chat?conversation_id='+chat['id'],'turn':turn['id']}),flush=True)
         for line in sys.stdin:
@@ -202,6 +217,9 @@ def main():
 if __name__=='__main__':
     mode=sys.argv[1] if len(sys.argv)>1 else 'main'
     if mode=='worker':worker()
+    elif mode=='verification':
+        from app.verification.worker import main as verification_main
+        verification_main()
     elif mode=='serve':
         from app.main import app
         from fastapi.responses import FileResponse

@@ -1,0 +1,766 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-chat-acceptance-runtime-capability",
+  "issue_id": "BUG-0045-chat-acceptance-runtime-capability-gap",
+  "environment": "local-isolated-moonbox-runtime",
+  "environment_contract": {
+    "deployment": "current-source-pinned-linux-arm64-images",
+    "workspace_mode": "isolated",
+    "sample_scope": "synthetic-identities-real-product-worker-model-and-dual-browser",
+    "authorization_ref": "BUG-0045-opsx-apply-local-deployment-confirmed",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "disposable-loopback-account-private-model-auth",
+    "retry_limit": 1,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "src/backend/tests/verify_runtime_capability_evidence.py",
+      "--preflight"
+    ]
+  ],
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      },
+      "execution_proof": "isolated_acceptance_v1",
+      "turn_id": "277c9b68-d03d-4443-a607-44023d172029",
+      "operation_id": "84c76ca1-d6d8-4033-8407-0e5bdb5afa54",
+      "acceptance_mode": "live",
+      "command_contains": "moonbox_acceptance"
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/computed-styles.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/unavailable-1440.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/unavailable-390.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/configured-1440.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/configured-390.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/error-1440.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/error-390.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/loading-1440.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/loading-390.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-0-chromium-1440x900.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-1-chromium-390x844.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-8-firefox-1440x900.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-9-firefox-390x844.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-1440.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-390.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-390-bottom.png",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-style.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-390-style.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-completed.png"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      },
+      "coverage": {
+        "stages": [
+          "unavailable",
+          "configured",
+          "error",
+          "loading",
+          "product-target-chromium",
+          "product-target-firefox",
+          "product-chat-preflight"
+        ],
+        "viewports": [
+          "1440",
+          "390"
+        ],
+        "samples": [
+          {
+            "stage": "unavailable",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/unavailable-1440.png"
+            ]
+          },
+          {
+            "stage": "unavailable",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/unavailable-390.png"
+            ]
+          },
+          {
+            "stage": "configured",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/configured-1440.png"
+            ]
+          },
+          {
+            "stage": "configured",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/configured-390.png"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/error-1440.png"
+            ]
+          },
+          {
+            "stage": "error",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/error-390.png"
+            ]
+          },
+          {
+            "stage": "loading",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/loading-1440.png"
+            ]
+          },
+          {
+            "stage": "loading",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/loading-390.png"
+            ]
+          },
+          {
+            "stage": "product-target-chromium",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-0-chromium-1440x900.png"
+            ]
+          },
+          {
+            "stage": "product-target-chromium",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-1-chromium-390x844.png"
+            ]
+          },
+          {
+            "stage": "product-target-firefox",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-8-firefox-1440x900.png"
+            ]
+          },
+          {
+            "stage": "product-target-firefox",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-9-firefox-390x844.png"
+            ]
+          },
+          {
+            "stage": "product-chat-preflight",
+            "viewport": "1440",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-1440.png"
+            ]
+          },
+          {
+            "stage": "product-chat-preflight",
+            "viewport": "390",
+            "artifacts": [
+              "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/browser/product-preflight-390.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      }
+    },
+    {
+      "id": "AC-010",
+      "kind": "product_turn",
+      "inputs": [
+        "src/backend/app/verification/chat_preflight.py",
+        "src/backend/app/verification/worker_probe.py",
+        "src/backend/app/verification/python_probe.py",
+        "src/backend/app/verification/worker.py",
+        "src/backend/app/verification/runner.py",
+        "src/backend/app/verification/acceptance_runtime.py",
+        "src/backend/app/chat/execution.py",
+        "src/backend/app/chat/api.py",
+        "src/backend/app/chat/app_server.py",
+        "src/backend/app/chat/observability.py",
+        "src/backend/pyproject.toml",
+        "src/backend/uv.lock",
+        "src/backend/container/Dockerfile.verification-python",
+        "src/backend/container/Dockerfile.verification-frontend",
+        "src/backend/container/verification_frontend_check.cjs",
+        "src/backend/tests/verify_runtime_capability_evidence.py",
+        "src/backend/tests/acceptance_python_check.py",
+        "src/backend/tests/acceptance_product_live.py",
+        "src/backend/tests/acceptance_chat_live.py",
+        "src/web/src/components/chat/RuntimePreflight.tsx",
+        "src/web/src/components/chat/RuntimePreflight.test.tsx",
+        "src/web/src/components/chat/runtime-preflight.css",
+        "src/web/src/api/generated/chat.ts",
+        "src/web/pnpm-lock.yaml",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/design.md",
+        "src/web/src/pages/catalog/ChatWorkbenchPage.tsx",
+        "src/web/src/components/chat/ConversationMessages.tsx",
+        "src/web/src/chat-messages.test.tsx"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "src/backend/tests/verify_runtime_capability_evidence.py"
+      ],
+      "deduplicate": true,
+      "timeout_seconds": 120,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/regression.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/python-runtime.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/mysql.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/product-matrix.json",
+        "openspec/changes/fix-chat-acceptance-runtime-capability/evidence/acceptance/manual/chat-result.json"
+      ],
+      "collection": {
+        "state": "collected"
+      },
+      "required_sample": {
+        "status": "passed",
+        "reason": "授权本机独立样本真实Chat同轮及当前源码指纹验证通过"
+      },
+      "execution_proof": "isolated_acceptance_v1",
+      "turn_id": "277c9b68-d03d-4443-a607-44023d172029",
+      "operation_id": "84c76ca1-d6d8-4033-8407-0e5bdb5afa54",
+      "acceptance_mode": "live",
+      "command_contains": "moonbox_acceptance"
+    }
+  ]
+}

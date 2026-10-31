@@ -5,8 +5,9 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'src/backend'))
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
+sys.path.insert(0, str(TOOL_ROOT / 'src/backend'))
 from app.governance.archive_finalization import build_report
 
 

@@ -9,8 +9,9 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-BACKEND_SRC = ROOT / "src" / "backend"
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
+BACKEND_SRC = TOOL_ROOT / "src" / "backend"
 if str(BACKEND_SRC) not in sys.path:
     sys.path.insert(0, str(BACKEND_SRC))
 

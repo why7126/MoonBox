@@ -16,7 +16,8 @@ if str(SCRIPT_DIR) not in sys.path:
 from archive_evidence import validate_archive_evidence
 
 
-ROOT = Path(__file__).resolve().parents[1]
+from archive_runtime import repository_root
+ROOT = repository_root(Path(__file__).resolve().parents[1])
 
 
 def render_markdown(result) -> str:

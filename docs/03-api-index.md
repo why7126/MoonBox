@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: "2026-10-29 18:44:23"
+updated_at: "2026-10-31 11:58:51"
 owner: MoonBox 产品团队
 ---
 
@@ -599,3 +599,25 @@ Server-Timing的request_audit表示响应前同步写入等待，request_audit_d
 ### BUG-0057 快速打开返修（2026-10-30）
 
 对象会话 action=open-chat 仅进行读取准入及会话定位；写命令通过 turns 提交时执行最新治理准备，字段与错误码兼容。governance-preparations 保留原语义。
+
+## BUG-0058 聊天历史只读摘要
+
+`GET /api/v1/chat/turns/{tid}/summary` 在原 `TurnRead` 上返回 `tool_count`、`event_sequence` 与 `usage`。前者统计整轮工具事件，序号用于判断详情窗口版本；用量只取末尾用量事件的数值白名单，缺失返回空对象。接口逐次执行原轮次本人/有效空间授权，返回 `Cache-Control: private, no-store`，不包含事件正文或工具参数。状态与消息页脚共享在途读取；详情展开后才读取事件、diff、context。OpenAPI/Orval Chat 已同步，无数据库迁移，现有请求日志和 request_id 继续适用。
+
+### 独立 Change 的 Sprint 准入投影（BUG-0072）
+
+需求中心现有 context 接口的独立 `proposed` Change 按归属投影：未分配显示 `sprint-planning`，`action` 为“加入迭代”；唯一有效活动 Sprint 显示 `ready-dev`；多重、声明不一致或失效归属保持 `sprint-planning`，`blocked` 和 `drift_warnings` 给出原因，主动作“核对归属”为前端只读诊断。诊断中的 Sprint 标识按对象可见性过滤。REQ/BUG 关联卡和已启动阶段沿用原投影。
+
+对象会话复用 `/sprint-propose --change` 入口，准备与发送时校验目标仍未排期且具有写权限；`opsx-apply` 对尚未启动的独立 Change 继续校验唯一有效归属。命令完成校验要求活动 Sprint 的实际成员及 trace 声明一致，不以打开会话或投影成功认定纳入完成。复用既有字段和请求结构，无 OpenAPI schema、Orval 客户端或数据库迁移变更。
+
+## Chat 原轮次结构化问答（BUG-0046）
+
+GET `/api/v1/chat/turns/{tid}/questions`读取本人授权轮次问题与turn_status；POST `/api/v1/chat/turns/{tid}/questions/{qid}/answers`提交version、idempotency_key和answers（问题ID映射option_id/text）。每次校验当前账号、空间、会话、对象与原轮次；归档只读不允许回答。2520/422为非法答案，2521/409为版本或状态冲突；无权与不存在沿用2501/2502。
+
+答案接收不创建新轮次，普通新命令互斥保持；answer_received仅接收，delivering表示回传不确定窗口，delivered仅确认写入原协议通道，不代表任务完成。相同幂等键和内容返回原结果，冲突答案拒绝。返回不包含答案原文或私有协议句柄。TurnCreate.question_capable默认false，新Web显式true；能力声明不授予执行权限。
+
+请求日志沿用可信request_id；Web记录chat.question_answer行为，直接API不伪造页面事件；Question阶段Task Trace关联问题与轮次，不记录答案原文。OpenAPI来源app.chat.api，Orval生成chat.ts。
+
+### Chat 验收能力预检
+
+`GET /api/v1/chat/conversations/{cid}/verification-preflight`：当前会话权限校验后返回能力列表、稳定原因、检查时间、环境/模板摘要。无请求体，不接受命令、目标URL或路径。`acceptance_passed`固定为false；配置与探针就绪都不能证明业务验收通过。无权/绑定撤销保持403/404，前端手动重新检查，不后台轮询。OpenAPI及Orval同步；执行前Task Trace记录脱敏预检结果，沿用原请求日志、权限及保留策略。

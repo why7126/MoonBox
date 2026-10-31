@@ -50,7 +50,8 @@ def main():
             raise ValueError('tool_project_changed')
         # The trusted subprocess validates the current actor and fence. A
         # retired per-project installation record is not an archive gate.
-        ArchiveDriver._trusted(project.root / 'scripts')
+        driver = ArchiveDriver(project)
+        driver.recheck_tools()
         if context['operation_id']:
             from sqlalchemy import select
             from .replacement_schema import commits
@@ -71,7 +72,7 @@ def main():
                 else:
                     from .replacement_bootstrap_commit import assert_fence
                 assert_fence(db, project, context['operation_id'], context['fence'])
-        script = project.root / 'scripts' / sys.argv[2]
+        script = driver.scripts / sys.argv[2]
         sys.argv = [str(script), *sys.argv[3:]]
         sys.path.insert(0, str(script.parent))
         with authority(db, project, context['actor'], context['operation_id'], context['fence']):

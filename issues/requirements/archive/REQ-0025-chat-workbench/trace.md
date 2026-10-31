@@ -3,7 +3,7 @@ requirement_id: REQ-0025-chat-workbench
 title: 实现 Chat 工作台功能
 status: done
 created_at: 2026-09-08 08:50:32
-updated_at: 2026-10-26 10:23:49
+updated_at: 2026-10-31 15:49:19
 lifecycle_stage: archive
 lifecycle:
   captured: 2026-09-08 08:50:32
@@ -15,7 +15,7 @@ iteration: sprint-004
 openspec_changes:
   - change_id: add-chat-workbench-codex
     type: add
-    status: archived
+    status: proposed
 related_requirements:
 - REQ-0020-requirement-center-card-document-actions-ai-chat
 - REQ-0023-product-workbench-modern-ops-visual-system
@@ -258,5 +258,5 @@ product_data_collection_observability：status=applicable；affected_layers=[req
 | BUG-0030-chat-assistant-output-missing-from-conversation | high | done | fix-chat-assistant-output-missing-from-conversation | Chat 工作台已有助手输出事件但对话正文为空 |
 | BUG-0031-requirement-card-chat-skill-token-missing | medium | captured | — | 需求卡片跳转 Chat 后治理技能未显示为标签 |
 | BUG-0032-chat-session-deletion-precheck-blocked | high | captured | — | 删除会话预检提示工作区状态不可确认且确认按钮不可用 |
-| BUG-0045-chat-acceptance-runtime-capability-gap | high | approved | — | Chat 命令执行环境缺少验收能力导致开发验收中断 |
-| BUG-0046-chat-midrun-question-response-unavailable | high | approved | — | Chat 命令执行中提出问题但缺少可回答和续接入口 |
+| BUG-0045-chat-acceptance-runtime-capability-gap | high | done | fix-chat-acceptance-runtime-capability | Chat 命令执行环境缺少验收能力导致开发验收中断 |
+| BUG-0046-chat-midrun-question-response-unavailable | high | done | fix-chat-midrun-question-response | Chat 命令执行中提出问题但缺少可回答和续接入口 |

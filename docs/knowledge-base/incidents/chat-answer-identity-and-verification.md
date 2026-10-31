@@ -1,7 +1,7 @@
 ---
 title: Chat 最终答案身份与自动核验状态经验
 created_at: '2026-10-26 19:18:57'
-updated_at: '2026-10-26 19:18:57'
+updated_at: 2026-10-31 16:03:32
 ---
 
 # Chat 最终答案身份与自动核验状态经验
@@ -17,5 +17,20 @@ BUG-0065正常完成和恢复使用不同来源前缀，相同答案穿透来源
 SQLite、MySQL及前端回归通过；隔离真实浏览器通过HTTP观察后台自动确认，未点击核验或调用模型。原问题会话刷新后正文显示一份。历史上游item身份未完整留存，不据此断言每次真实重复都来自同一原因。
 
 ## 追溯
-- [回答修复验收](../../../openspec/changes/fix-chat-final-answer-duplicate-concatenation/acceptance.md)
-- [核验刷新验收](../../../openspec/changes/fix-chat-auto-verification-status-stale/acceptance.md)
+- [回答修复验收](../../../openspec/archive/2026-10-26-fix-chat-final-answer-duplicate-concatenation/acceptance.md)
+- [核验刷新验收](../../../openspec/archive/2026-10-26-fix-chat-auto-verification-status-stale/acceptance.md)
+
+## 执行中问题回传的补充经验（BUG-0046）
+
+问题、答案接收、协议投递和任务完成是四个事实。回答必须绑定原轮次、执行实例及请求身份；投递前持久化不确定窗口，丢失原句柄时安全受阻，不自动重放。RPC等待与事件循环共用读者，等待用户时也要保留交错ACK及终态通知；回归使用产品实际ByteQueue，普通queue替身不足以证明接口兼容。恢复前还须复核已确认写权限没有降级。
+
+证据：[问答修复验证](../../../openspec/archive/2026-10-31-fix-chat-midrun-question-response/verification.md)。合成故障与真实同轮模型消费分别签认；默认模式提问开关及旧客户端能力协商必须在固定版本核验。
+
+
+## 验收能力与结果的补充经验（BUG-0045）
+
+依赖已声明、镜像已构建、worker在线和业务验收通过是不同事实。Python需在目标镜像实际导入测试依赖并调用AnyIO线程池；前端需带锁文件匹配的Linux依赖及项目Vitest配置。只读容器运行Vitest要将源码副本放入有限tmpfs并关闭缓存，不能把缓存写入失败归因为Rollup缺失。
+
+探针失败不应结束整个验证worker，独立能力仍可探测和调度；探针容器超时后按本次确切名称回收，回收未确认保留独立错误。旧验证通道绑定与隔离验收模板分开诊断，不能从一条通道未就绪推断所有工具不可用。静态配置永远不作验收通过证据。当前实现和证据入口见[能力修复Change](../../../openspec/archive/2026-10-31-fix-chat-acceptance-runtime-capability/trace.md)，真实产品闭环以该Change最终验收记录为准。
+
+真实页面运行比仅启动浏览器探针更强：本次10MiB进程文件限制导致页面加载阶段浏览器关闭，调整到原有128MiB临时盘上限后同样本通过；证据导出仍保持每张10MiB校验。性能或安全限制应按作用对象区分，不能将截图配额误用于浏览器内部文件。

@@ -14,3 +14,13 @@ Chat 持续保存不扩大执行容器权限。容器使用 `--memory 1g --memor
 
 
 BUG-0064恢复路径增加有限退避、独立槽及成功预检短缓存；普通执行仍执行原预检。控制器只转交受信Unix Docker endpoint，执行容器仍无socket。配置、运维续接和回滚见[部署说明](../../../docs/02-deployment.md#chat-未知轮次有界恢复bug-0064)。
+
+## 专用 Python 验收镜像
+
+`Dockerfile.verification-python`通过uv锁文件安装`verification`额外依赖，构建和运行探针均实际调用AnyIO线程池。该镜像用于受控验证，不向Chat执行器开放网络。Node依赖必须由项目锁文件和平台匹配的制品供应；组件测试需同时携带项目Vitest配置，不能把配置缺失误判为Rollup依赖故障。部署用实际镜像摘要固定身份。
+
+
+`Dockerfile.verification-frontend`从已批准且固定摘要的Linux项目依赖镜像构建，要求`/app/src/web`包含目标平台node_modules及pnpm-lock.yaml。构建上下文为仓库根，`FRONTEND_DEPENDENCY_IMAGE`显式提供已校验摘要；依赖可来自现有Web构建阶段，不能复制宿主依赖。受控模板只声明`node /opt/moonbox/frontend-check.cjs`和批准的测试相对路径。入口逐字比对候选与制品锁文件，复制候选源码及Vitest配置到有限tmpfs，关闭Vitest缓存，根文件系统及依赖保持只读。Node版本、OS/架构和镜像摘要由验收模板及运行器检查；运行阶段不安装依赖。
+
+
+浏览器进程文件上限与输出截图上限分别控制：进程使用128MiB文件上限及128MiB临时盘，截图仍逐个核验不超过10MiB。不能把10MiB截图配额套到浏览器全部文件，否则启动探针虽通过，实际页面加载仍可能关闭浏览器。此次单变量隔离复验证实调整该限制后同一页面及双浏览器检查通过；只读根、内部网络、内存和进程限制保持原约束。

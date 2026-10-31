@@ -1,0 +1,32 @@
+{
+  "visual_review": "passed",
+  "reviewer": "Codex browser observation",
+  "viewport": "1440x1000",
+  "current_viewport": "1440x1000",
+  "states": [
+    "queued",
+    "running",
+    "unknown",
+    "stopping",
+    "completed"
+  ],
+  "scope": "real components and real chat APIs with synthetic SQLite; slow recovery response is controlled fixture",
+  "baseline_commit": "5353f79300d6a4bcbe33959a20dc6580c3f2fe20",
+  "source_sha256": {
+    "src/backend/app/chat/api.py": "99615248b2b947b16bb130eee658ef35562b06193528dbece56a5c66fbd16723",
+    "src/backend/app/chat/service.py": "97e537427d3275a8ddab18d03994d589cea801ea1f90a467e0e029895f1b65a5",
+    "src/web/src/components/chat/sharedChatRead.ts": "e6529c3475deac03a3969998d5bb8438b16d132789741b9430593d28203d5967",
+    "src/web/src/components/chat/chatEvents.ts": "f243517391fd043136de9b1bbc9359ea9cc8baa6ea5211830a8fd4e5a6cfed8b",
+    "src/web/src/components/chat/TurnActivity.tsx": "881e3632292f85fb2a7f92291de8480fd452bc850ecbbe9a0c21140240efd8a3",
+    "src/web/src/components/chat/ConversationMessages.tsx": "c20d5c793cde67347f0738930144a45fbcc2e617a90d2c2060b2976d5cea75d3",
+    "src/web/src/components/chat/ExecutionPanel.tsx": "d901040c1e68e20506dba864dcb945420229b85b9457cd7c4e45af26220c930f",
+    "src/web/src/components/chat/RecoveryOperationPanel.tsx": "1996764114c29605f7d4f9c518cfa4137104d6f7618b6a7adc6609a629f22337"
+  },
+  "limitations": [
+    "Existing product image was observed read-only, not redeployed.",
+    "No actual model run; no production latency claim.",
+    "ResourceTiming waiting and queue/connection intervals are not a full DevTools Stalled breakdown.",
+    "No matched server request_id timing sample; server processing fraction unknown.",
+    "Cache-disabled comparison forces fetch no-store for API requests; bundle startup excluded."
+  ]
+}

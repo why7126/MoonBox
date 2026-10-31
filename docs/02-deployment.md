@@ -2,7 +2,7 @@
 purpose: 部署说明
 content: MoonBox 本地 docker-compose 部署、端口和环境变量边界
 created_at: 2026-07-29 22:55:00
-updated_at: "2026-10-27 23:32:32"
+updated_at: "2026-10-31 11:58:51"
 owner: MoonBox 产品团队
 ---
 
@@ -688,3 +688,32 @@ REQ-0048长期摘要写入复用 `MOONBOX_GOVERNANCE_STATE_ROOT` 项目锁，API
 ### BUG-0057 快速打开本地验证结果
 
 实现与本地部署完成；10次真实导航观察上界中位数0.869s、最大1.311s，发送前完整检查仍约5.45–8.81s（3次受控副本样本）。权限、生命周期、Sprint、幂等与未知执行保护保留；历史精确归因不扩大。容量保持30、估算32，其他任务不变。证据与回滚见 `openspec/changes/fix-object-session-preparation-latency/acceptance-fixes.md`。最终就绪以最新验收清单为准，未正式归档。
+
+## 归档工具独立版本路由
+
+可选配置固定在 `/etc/moonbox/archive-tools.json`，不能通过请求参数、Chat 参数或环境变量切换工具根。未安装配置时保留工作区工具选择；配置存在但错误、可写、符号链接、缺文件或摘要不符时失败关闭。配置及祖先目录须对运行身份不可写；工具包通过只读挂载提供，服务和 Worker 使用同一份配置及 manifest 摘要。
+
+构建使用 `bash scripts/project-python.sh scripts/build-archive-tools.py --output /tmp/moonbox-archive-tools-build`，输出 manifest SHA256；目标必须不存在。制品包含 scripts、后端 app 模块和规则，不含数据库、env、日志、客户数据、前端或运行时依赖。构建不安装、不部署。运维审核制品后安装只读包；Python、Node、OpenSpec 及依赖仍由匹配的已审核运行镜像提供。配置 JSON 四字段为 `schema_version: 1`、`root`（服务内只读包目录）、`host_root`（Docker daemon 可见的同包宿主路径）、`digest`（manifest 文件 SHA256）。禁止把业务工作区作为工具包或可写配置来源。
+
+Worker 从受控配置读取 host_root，将工具包显式只读挂载到实际子容器 `/opt/moonbox/archive-tools`，并挂载只读的子容器配置。实际 app-server 启动前再次核对完整清单、逐文件摘要及只读属性；父容器验证不能替代子容器验证。运行时私有目录继续与 Agent 隔离，工具包不携带凭据。业务 cwd、project.root、source_root、actor、原操作 ID 及 fence 不变；脚本路径和受控 Python 导入来自工具包。
+
+普通归档及 Sprint 关闭在原操作 manifest 保存 `archive_tool_digest`；受控归档使用原 input_hash 绑定只含摘要与操作标识的私有 sidecar；CLI 恢复日志保存相同 digest。恢复与完成重放均核验原版本，历史操作没有版本证明时不猜测兼容、不回写补造。回滚须恢复同一工具包与运行镜像组合；缺少执行器时停止新任务领取，保留 unknown、占用和历史证据，不能以清空状态恢复运行。
+
+诊断码：`archive_tool_configuration_invalid`（配置格式）、`archive_tools_not_trusted`（写权限/链接）、`archive_tool_digest_mismatch`（漂移）、`archive_tool_inventory_mismatch`（缺包/多余文件）、`archive_tool_version_unproven`（恢复版本无法证明）。诊断不返回宿主路径。只读检查为 `bash scripts/project-python.sh scripts/archive-tool-route.py --check`。启用、切换和回滚均须另行部署授权；本次实现不修改真实环境。
+
+## Chat 执行中问答部署兼容
+
+固定执行器codex-cli 0.153.4，启动显式启用features.default_mode_request_user_input；仅服务端已绑定且客户端声明question_capable的轮次启用问答桥接。新线程注册moonbox_question，历史线程可用原生request_user_input。升级顺序：兼容数据库迁移与API→Worker→Web；旧客户端默认关闭交互，不应无限等待无法提交的问题。
+
+MOONBOX_CHAT_QUESTION_TIMEOUT_SECONDS默认900秒，范围30–3600；设置非法值拒绝问题创建，部署前应核验。用户取消、运行总超时、撤权、句柄丢失及投递不确定均不得自动启动新写轮次。回滚先停止新问答准入并核实原任务，保留问题记录和新增表；不得通过修改completed状态释放未知运行。
+
+### Chat 验收能力修复（BUG-0045）
+
+Chat 会话的验收环境检查只读展示现有项目验证服务、依赖制品及批准模板；`configured` 表示配置存在，不代表实际探针或验收通过。缺失项只限制相关验证，不阻止独立开发。旧线程未取得原生验收工具时明确报告限制，不通过提示词扩大权限。
+
+Python 验收使用 `src/backend/container/Dockerfile.verification-python`，由 `uv.lock` 与 `verification` extra 固定 pytest/httpx/AnyIO；构建时和实际验收应用容器中均执行真实线程探针，十秒外层超时，失败保留 `python_test_runtime_unavailable`。部署按实际镜像摘要写入已有批准模板，不能仅改版本字符串或在运行中联网补装。浏览器继续使用既有专用 runner；项目绑定显式指定 `src/web`、固定Node/pnpm/架构、授权目标与测试声明，不复用宿主node_modules。
+
+本修复不自动更改真实部署配置、网络和凭证。先准备镜像与绑定，再确认worker/模板/存储和目标版本，最后执行独立产品样本；回滚关闭新增准入并保留在途任务与证据，不重放未知执行。
+
+
+浏览器进程文件上限与输出截图上限分别控制：进程使用128MiB文件上限及128MiB临时盘，截图仍逐个核验不超过10MiB。不能把10MiB截图配额套到浏览器全部文件，否则启动探针虽通过，实际页面加载仍可能关闭浏览器。此次单变量隔离复验证实调整该限制后同一页面及双浏览器检查通过；只读根、内部网络、内存和进程限制保持原约束。

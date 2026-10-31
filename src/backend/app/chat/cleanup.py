@@ -80,6 +80,8 @@ def delete_history(db,actor,cid,expected_hash=None):
     for key in (f'user:{actor}',f"space:{parent['space_id']}"):
         row=db.execute(select(usage_accounts).where(usage_accounts.c.id==key)).mappings().first()
         if row:db.execute(update(usage_accounts).where(usage_accounts.c.id==key).values(used_bytes=max(0,row['used_bytes']-used)))
+    from app.chat.question_schema import questions
+    db.execute(delete(questions).where(questions.c.turn_id.in_(ids)))
     for table in (events,messages,snapshots,diffs,reservations):db.execute(delete(table).where(table.c.turn_id.in_(ids)))
     from app.chat.recovery_schema import recoveries, resumes
     for table in (resumes, recoveries):

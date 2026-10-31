@@ -15,7 +15,7 @@ from .replacement_proof import parse,canonical,digest,strict_json
 from .replacement_trust import load
 from .replacement_inputs import validate,fingerprint
 from .replacement_commit import claim,assert_fence,checkpoint,STAGES
-from .replacement_recovery import observe,resume
+from .replacement_recovery import observe,resume,bound_inputs_match
 from .controlled_successor import authority,proof_path
 from .replacement_executor import ArchiveDriver
 from .archive_admission import change_acceptance
@@ -103,6 +103,10 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
         operation=db.execute(select(commits).where(commits.c.id==operation_id)).mappings().first()
         if operation and (operation['proposal_id']!=proposal_id or operation['scope_key']!=project.key):
             raise ValueError('archive_operation_mismatch')
+        from .archive_tools import selected, operation_binding
+        package = selected()
+        if operation:
+            operation_binding(project.root, operation_id, package, recorded=operation['input_hash'])
         if operation and operation['stage']=='completed':
             # Completed operations may have valid later successors; verify the
             # whole chain instead of demanding the original global tree hash.
@@ -130,7 +134,7 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
                 driver.validate_static(proposal.successor)
                 expected=driver.prepare(proposal.successor)
             operation=claim(db,project=project,proposal_id=proposal_id,revision=row['revision'],actor=actor,
-                operation_id=operation_id,input_hash=fingerprint(project,proposal),expected_hash=expected,trust=trust,request_id=request_id)
+                operation_id=operation_id,input_hash=operation_binding(project.root, operation_id, package, original=fingerprint(project,proposal)),expected_hash=expected,trust=trust,request_id=request_id)
             db.commit()
             state='unmerged';fence=operation['fence']
         else:
@@ -145,7 +149,7 @@ def execute(db,*,actor,space_id,repository_id,proposal_id,operation_id,expected_
                 validate(project,proposal,trust)
                 admission=change_acceptance(project.root,proposal.successor,source_root=project.source_root)
                 if not admission['ready']:raise ValueError('independent_archive_gate_blocked')
-                if fingerprint(project,proposal)!=operation['input_hash']:raise ValueError('archive_inputs_changed')
+                if not bound_inputs_match(project, proposal, operation):raise ValueError('archive_inputs_changed')
                 driver.recheck_tools();assert_fence(db,operation_id,fence)
                 driver.merge_and_move(proposal.successor)
                 state=observe(project,proposal,operation)

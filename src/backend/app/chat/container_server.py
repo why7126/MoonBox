@@ -91,8 +91,22 @@ class ContainerAppServer(AppServer):
         if inspected.returncode or not re.fullmatch(r'sha256:[0-9a-f]{64}', inspected.stdout.strip()):
             raise ExecutorError('container_runtime_unavailable')
         self.IMAGE = inspected.stdout.strip()
+        from app.governance.archive_tools import selected
+        try:
+            self.archive_package = selected()
+        except ValueError as error:
+            raise ExecutorError(str(error)) from None
         self.mounts = ['--mount', f'type=bind,src={workspace},dst=/work',
                        '--mount', f'type=bind,src={runtime},dst=/runtime']
+        if self.archive_package:
+            from app.governance.archive_tools import MOUNT
+            package = self.archive_package
+            configuration = runtime / 'archive-tools.json'
+            configuration.write_text(json.dumps({'schema_version': 1, 'root': MOUNT,
+                'host_root': MOUNT, 'digest': package.digest}))
+            configuration.chmod(0o444)
+            self.mounts += ['--mount', f'type=bind,src={package.host_root},dst={MOUNT},readonly',
+                '--mount', f'type=bind,src={configuration},dst=/etc/moonbox/archive-tools.json,readonly']
         if git_view:
             self.mounts += ['--mount', f'type=bind,src={git_view[0]},dst=/git,readonly',
                            '--mount', f'type=bind,src={git_view[1]},dst=/work/.git,readonly']
@@ -128,10 +142,24 @@ class ContainerAppServer(AppServer):
         # A cold Docker start can exceed the local CLI's 30-second limit.
         return recovery_runtime.timeout(180)
 
+    def archive_launch(self):
+        if not getattr(self, 'archive_package', None):
+            return ['codex', 'app-server', '--stdio', '-c', 'shell_environment_policy.inherit="none"', '-c', 'features.default_mode_request_user_input=true']
+        from app.governance.archive_tools import MOUNT, selected
+        if selected() != self.archive_package:
+            raise ExecutorError('archive_tool_changed')
+        # Validation executes inside the actual app-server container before Codex.
+        probe = ('import sys,os;sys.path.insert(0,' + repr(MOUNT + '/src/backend') + ');'
+                 'from app.governance.archive_tools import selected;'
+                 'p=selected();assert p is not None and p.digest==' + repr(self.archive_package.digest) + ';'
+                 'os.execvp("codex",["codex","app-server","--stdio","-c",'
+                 '\'shell_environment_policy.inherit="none"\',"-c","features.default_mode_request_user_input=true"])')
+        return ['python', '-B', '-c', probe]
+
     def launch_command(self, executable):
         return [self.docker,'run','--rm','--init','--interactive','--name',self.container_name,
                 *self.recovery_labels(), '--label','moonbox.chat.platform=true' if os.environ.get('MOONBOX_CHAT_EXECUTION_MODE')=='local-codex' else 'moonbox.chat.test=true',*self.options(), self.IMAGE,
-                'codex','app-server','--stdio','-c','shell_environment_policy.inherit="none"']
+                *self.archive_launch()]
 
     def recovery_labels(self):
         return self.recovery_context.labels() if self.recovery_context else []
@@ -289,6 +317,8 @@ def refresh_auth(auth_source, runtime, auth):
 
 def preflight_key(workspace, runtime, auth_source):
     """No raw identity or credential bytes leave this in-memory digest."""
+    from app.governance.archive_tools import selected
+    package = selected()
     source = Path(auth_source)
     if source.is_symlink() or not source.is_file() or source.stat().st_uid != os.getuid():
         raise ExecutorError('container_auth_source_invalid')
@@ -299,7 +329,7 @@ def preflight_key(workspace, runtime, auth_source):
     stats = [(str(path), path.stat().st_dev, path.stat().st_ino, path.stat().st_mode)
              for path in (workspace, workspace/'.git', runtime)]
     policy = Path(__file__).read_bytes() + (Path(__file__).parents[2]/'container/seccomp-codex.json').read_bytes()
-    return hashlib.sha256(result.stdout.encode() + repr(stats).encode() + policy +
+    return hashlib.sha256(result.stdout.encode() + repr(stats).encode() + policy + (package.digest.encode() if package else b'legacy') +
                           (runtime/'config.toml').read_bytes() + source.read_bytes()).hexdigest()
 
 

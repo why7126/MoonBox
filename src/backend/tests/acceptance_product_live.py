@@ -40,6 +40,7 @@ def main():
     class DiagnosticProcess(original_popen):
         def __init__(self, *args, **kwargs):
             self.diagnostic_stream = kwargs.get('stderr')
+            self.diagnostic_stdout = kwargs.get('stdout')
             self.diagnostic_saved = False
             super().__init__(*args, **kwargs)
         def poll(self):
@@ -52,6 +53,11 @@ def main():
                 path = root / ('diagnostic-' + str(self.pid) + '.log')
                 path.write_bytes(data if isinstance(data, bytes) else data.encode())
                 path.chmod(0o600)
+                output=self.diagnostic_stdout
+                if hasattr(output,'seek') and not output.closed:
+                    position=output.tell();output.seek(0);data=output.read(32768);output.seek(position)
+                    path=root/('diagnostic-output-'+str(self.pid)+'.log')
+                    path.write_bytes(data if isinstance(data,bytes) else data.encode());path.chmod(0o600)
             return code
     subprocess.Popen = DiagnosticProcess
     original_run = subprocess.run
@@ -77,8 +83,13 @@ def main():
     source = root / 'source'
     source.mkdir()
     files = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z', 'src/backend/app'], cwd=project).decode().split('\0')
-    files += ['src/backend/pyproject.toml', 'src/backend/tests/acceptance_product_adapter.py',
-              'src/backend/tests/acceptance_product_server.py','src/backend/app/db/time_values.py']
+    files += ['src/backend/pyproject.toml', 'src/backend/uv.lock', 'src/backend/tests/acceptance_product_adapter.py',
+              'src/backend/tests/acceptance_product_server.py','src/backend/app/db/time_values.py',
+              'src/backend/tests/acceptance_python_check.py']
+    if os.environ.get('MOONBOX_PRODUCT_TEST_FRONTEND') == '1':
+        files += subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard','-z',
+            'src/web/src'],cwd=project).decode().split('\0')
+        files += ['src/web/package.json','src/web/pnpm-lock.yaml','src/web/vitest.config.ts','src/web/tsconfig.json']
     manifest = {}
     for relative in sorted(set(filter(None, files))):
         original = project / relative
@@ -94,18 +105,19 @@ def main():
     subprocess.run(['git','-C',str(source),'-c','user.name=Local Acceptance','-c','user.email=acceptance@example.invalid','commit','-qm','Isolated MoonBox product snapshot'], check=True)
     head = subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'], text=True).strip()
     images = {}
-    for key, tag in {'python':'moonbox-backend:req0048-product','mysql':'mysql:8.4','browser':'moonbox-verification:req0048-product','node':'node:24-trixie-slim'}.items():
+    image_tags = json.loads(os.environ.get('MOONBOX_PRODUCT_TEST_IMAGES', '{}')) or {'python':'moonbox-backend:req0048-product','mysql':'mysql:8.4','browser':'moonbox-verification:req0048-product','node':'node:24-trixie-slim'}
+    for key, tag in image_tags.items():
         images[key] = subprocess.check_output(['docker','image','inspect','--format','{{.Id}}',tag], text=True).strip()
     argv = lambda action: ['python','tests/acceptance_product_adapter.py',action]
     base = dict(schema_version=1,template='moonbox-web-python-v1',platform='linux/arm64',
         python_image=images['python'],mysql_image=images['mysql'],browser_image=images['browser'],
         source_subdir='src/backend',app_module='tests.acceptance_product_server:app',health_path='/chat',
-        lock_path='src/backend/pyproject.toml',lock_digest=manifest['src/backend/pyproject.toml'],
+        lock_path='src/backend/uv.lock',lock_digest=manifest['src/backend/uv.lock'],
         migration=argv('migrate'),seed=argv('seed'),checks=[argv('check')],browser='chromium',
         viewports=[dict(width=1440,height=900),dict(width=390,height=844)],selectors=['[data-testid="chat-shell"]'],
         steps=[{'action':'expect_visible','selector':'[data-testid="chat-shell"]'}])
     template = AcceptanceTemplate.parse(dict(schema_version=1,template='moonbox-chat-acceptance-v1',base=base,
-        node_image=images['node'],runtime_versions=dict(python='3.12.15',node='24.22.0',mysql='8.4.13',chromium='156.0.8078.73',firefox='153.0'),
+        node_image=images['node'],runtime_versions=json.loads(os.environ['MOONBOX_PRODUCT_TEST_VERSIONS']) if os.environ.get('MOONBOX_PRODUCT_TEST_VERSIONS') else dict(python='3.12.15',node='24.22.0',mysql='8.4.13',chromium='156.0.8078.73',firefox='153.0'),
         roles=['member','reader'],checks={
             'AC-LOCAL-MEMBER':dict(argv=argv('check'),database='sqlite',role='member'),
             'AC-LOCAL-READER':dict(argv=argv('check'),database='mysql',role='reader')},
@@ -116,6 +128,12 @@ def main():
     if selected_database:
         if selected_database not in {'sqlite','mysql'}:raise ValueError('invalid_database')
         template.data['checks']={key:value for key,value in template.data['checks'].items() if value['database']==selected_database}
+    if os.environ.get('MOONBOX_PRODUCT_TEST_FRONTEND') == '1':
+        template.data['checks']['AC-LOCAL-PYTEST'] = dict(argv=['python','-m','pytest','-q',
+            '-p','no:cacheprovider','tests/acceptance_python_check.py'],database='sqlite',role='member')
+        template.data['checks']['AC-LOCAL-NODE'] = dict(argv=['node','/opt/moonbox/frontend-check.cjs',
+            'src/components/chat/RuntimePreflight.test.tsx','src/chat-messages.test.tsx'],database='sqlite',role='member')
+        AcceptanceTemplate.parse(template.data)
     template_path.write_text(json.dumps(template.data,indent=2))
     template_path.chmod(0o600)
     (root/'activate.sh').write_text('export MOONBOX_ACCEPTANCE_TEMPLATE='+str(template_path)+'\nexport MOONBOX_ACCEPTANCE_ROOT='+str(root/'environments')+'\nexport MOONBOX_ACCEPTANCE_SUBNET=10.248.48.0/28\n')

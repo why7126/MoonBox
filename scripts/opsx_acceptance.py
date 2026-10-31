@@ -19,8 +19,9 @@ from pathlib import Path
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src/backend"))
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
+sys.path.insert(0, str(TOOL_ROOT / "src/backend"))
 from app.governance.acceptance_evidence import (
     acceptance_manifests, artifact_path, artifacts_match, change_path, effects, fingerprint, fingerprint_input, input_bytes, latest_manifest, ordered_checks, read_plan, readiness, sample_ready, visual_coverage_problems, within
 )

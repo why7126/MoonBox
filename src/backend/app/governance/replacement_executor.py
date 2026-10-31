@@ -19,7 +19,9 @@ class ArchiveDriver:
         entry=shutil.which('openspec')
         if not entry: raise ValueError('archive_tool_unavailable')
         self.openspec=Path(entry).resolve()
-        self.scripts=project.root/'scripts'
+        from .archive_tools import selected
+        self.package = selected()
+        self.scripts = self.package.scripts if self.package else project.root/'scripts'
         self._trusted(self.openspec.parent.parent)
         self._trusted(self.scripts)
         self.tool_hash=tree_hash(self.openspec.parent.parent)
@@ -33,6 +35,11 @@ class ArchiveDriver:
             raise ValueError('archive_tools_not_trusted')
 
     def recheck_tools(self):
+        if self.package:
+            from .archive_tools import selected
+            current = selected()
+            if current != self.package:
+                raise ValueError('archive_tool_changed')
         self._trusted(self.openspec.parent.parent);self._trusted(self.scripts)
         if tree_hash(self.openspec.parent.parent)!=self.tool_hash or tree_hash(self.scripts)!=self.script_hash:
             raise ValueError('archive_tool_changed')
@@ -58,11 +65,18 @@ class ArchiveDriver:
                 os.close(write_fd)
             args = [sys.executable, '-m', 'app.governance.replacement_tool_context',
                     str(read_fd), Path(args[1]).name, *args[2:]]
+        environment = dict(os.environ)
+        if self.package:
+            environment['MOONBOX_ARCHIVE_ROUTED'] = '1'
+            environment['PYTHONDONTWRITEBYTECODE'] = '1'
+            environment['PYTHONPATH'] = str(self.package.root / 'src/backend')
+        else:
+            environment['PYTHONPATH'] = os.pathsep.join(filter(None, (
+                str(Path(__file__).resolve().parents[2]), os.environ.get('PYTHONPATH'))))
         try:
             result=subprocess.run(args,cwd=root,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=180,
                 pass_fds=() if read_fd is None else (read_fd,),
-                env={**os.environ, 'PYTHONPATH': os.pathsep.join(filter(None, (
-                    str(Path(__file__).resolve().parents[2]), os.environ.get('PYTHONPATH'))))})
+                env=environment)
         except subprocess.TimeoutExpired:
             raise ValueError('archive_tool_timeout') from None
         finally:

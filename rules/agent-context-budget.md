@@ -4,7 +4,7 @@ content: 约束 AI 读取范围、搜索排除、Harness/模板工程噪音、�
 source: 实际项目 Token 复盘后迁移为 Harness 模板规则
 update_method: Agent 工作流、Harness 模板、技能命令或上下文预算策略变化时更新
 created_at: 2026-07-08 09:26:36
-updated_at: 2026-10-30 09:02:17
+updated_at: 2026-10-31 07:54:35
 note: 所有 Agent 命令与普通开发任务均应遵守，优先级高于单个技能中的宽泛读取建议
 ---
 
@@ -189,3 +189,9 @@ explore 持续改进遵循 `docs/standards/governance-feedback-loop.md` 的“�
 ## 归档 Shell 统一解释器
 
 `archive-change.sh` 必须在治理副作用前通过既有 `scripts/project-python.sh` 选取并预检解释器，导出 `PYTHON_BIN`；内部脚本、命令替换、管道和 heredoc 均使用该解释器，禁止裸 python/python3 回退。中央校验对纳管归档脚本执行词法检查，行为证明由 `scripts/test_archive_python_entry.py` 提供。此门禁不宣称已迁移或完整解析其他 shell。统一入口支持 `-c` 与 `-`，不新增第二套选择逻辑。
+
+## 独立 Change 初始状态门禁
+
+新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
+
+已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。

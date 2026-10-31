@@ -28,7 +28,7 @@ def test_probe_rejects_unpinned_or_failed_image(monkeypatch):
     with pytest.raises(RunnerUnavailable, match="runner_image_unpinned"):
         probe_browser_image("latest")
     monkeypatch.setattr("app.verification.runner.shutil.which", lambda _: "/usr/bin/docker")
-    monkeypatch.setattr("app.verification.runner.subprocess.run", lambda *a, **k: SimpleNamespace(returncode=1, stdout=""))
+    monkeypatch.setattr("app.verification.runner.subprocess.run", lambda argv, **k: SimpleNamespace(returncode=0 if argv[1]=="rm" else 1, stdout=""))
     with pytest.raises(RunnerUnavailable, match="browser_probe_failed"):
         probe_browser_image("sha256:" + "a" * 64)
 
@@ -56,6 +56,7 @@ def test_acceptance_isolated_evidence_and_rejects_client_target(monkeypatch, tmp
     assert first["category"] == "real_browser" and second["category"] == "real_browser"
     assert commands[0][commands[0].index("--mount") + 1] != commands[1][commands[1].index("--mount") + 1]
     assert "--read-only" in commands[0] and "--interactive" in commands[0]
+    assert commands[0][commands[0].index('--ulimit') + 1] == 'fsize=134217728:134217728'
     assert commands[0][commands[0].index("--pids-limit") + 1] == "256"
     with pytest.raises(RunnerUnavailable, match="target_invalid"):
         run_browser_acceptance("sha256:" + "a" * 64, space_id="space-a", **{**params, "target_url": "file:///etc/passwd"})
@@ -122,3 +123,17 @@ def test_product_login_is_explicit_and_never_embeds_credentials(monkeypatch,tmp_
         login=dict(mode=mode,path=path,username_field='username',password_field='password'))
     with pytest.raises(RuntimeError,match='validated_plan_reached_runner' if allowed else 'identity_login_invalid'):
         run_browser_acceptance('sha256:'+'a'*64,**params)
+
+
+def test_probe_timeout_removes_exact_container(monkeypatch):
+    import subprocess
+    calls=[]
+    monkeypatch.setattr('app.verification.runner.shutil.which',lambda _: '/usr/bin/docker')
+    def run(argv,**kwargs):
+        calls.append(argv)
+        if argv[1]=='run':raise subprocess.TimeoutExpired(argv,45)
+        return SimpleNamespace(returncode=0)
+    monkeypatch.setattr('app.verification.runner.subprocess.run',run)
+    with pytest.raises(RunnerUnavailable,match='browser_probe_failed'):
+        probe_browser_image('sha256:'+'a'*64)
+    assert calls[1][-1]==calls[0][calls[0].index('--name')+1]

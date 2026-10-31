@@ -7,7 +7,8 @@ import subprocess
 from change_identity import validate as validate_change_identity
 from runtime_tool_mounts import is_ephemeral_tool_mount, repository_tool_paths
 
-ROOT = Path(__file__).resolve().parents[1]
+from archive_runtime import repository_root, TOOL_ROOT
+ROOT = repository_root(Path(__file__).resolve().parents[1])
 
 REQUIRED_PATHS = [
     "AGENTS.md",

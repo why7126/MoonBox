@@ -1,0 +1,73 @@
+{
+  "cache": "no-store",
+  "sample": "10轮 / 404事件",
+  "body_ms": 21,
+  "status_ms": 76,
+  "elapsed_ms": 12002,
+  "requests": {
+    "/api/v1/chat/conversations/CONVERSATION/messages?page=1": {
+      "count": 4,
+      "bytes": 26360,
+      "duration": [
+        17,
+        16,
+        15,
+        16
+      ],
+      "waiting": [
+        15,
+        14,
+        13,
+        14
+      ],
+      "queue_connect": [
+        2,
+        1,
+        1,
+        2
+      ],
+      "same_key_peak": 1
+    },
+    "/api/v1/chat/turns/ROUND/summary": {
+      "count": 10,
+      "bytes": 8770,
+      "duration": [
+        20,
+        26,
+        32,
+        33,
+        24,
+        36,
+        39,
+        53,
+        41,
+        41
+      ],
+      "waiting": [
+        18,
+        23,
+        29,
+        30,
+        20,
+        15,
+        35,
+        30,
+        15,
+        9
+      ],
+      "queue_connect": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        20,
+        3,
+        24,
+        26,
+        32
+      ],
+      "same_key_peak": 1
+    }
+  }
+}

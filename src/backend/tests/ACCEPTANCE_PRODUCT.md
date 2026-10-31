@@ -52,3 +52,10 @@ PYTHONPATH=src/backend:src/backend/tests bash scripts/project-python.sh src/back
 适配器在私有状态目录记录临时账号截止时间，每次实际应用请求前撤销到期会话并冻结到期账号。矩阵使用独立短期账号验证到期后重新登录401，另验证普通会话过期401、后台越权403、只读写入与跨空间拒绝。数据库检查包括JSON、排序/分页、保存点回滚；MySQL追加字符集/排序规则/UTC。SQLite探针在HTTP登录之前释放自己的事务，避免验收脚本锁住登录会话写入。
 
 `MOONBOX_PRODUCT_SPACE=space-2` 可选择另一个独立空间绑定；每次运行新建控制器，不能据此宣称同一共享账本的并发测试。共享账本竞争由登记MySQL测试和集中事务回归覆盖。`acceptance_chat_scenario.py revocation` 仅冻结一次性测试用户作为真实撤权输入，不注入执行终态；随后检查资源释放和无关联续接。
+
+
+## BUG-0045 运行能力复验
+
+`MOONBOX_PRODUCT_TEST_IMAGES`和`MOONBOX_PRODUCT_TEST_VERSIONS`接受测试专用JSON映射，显式选择本机已检查的Python、MySQL、浏览器和Node镜像及实际版本；运行器仍核验不可变摘要和真实版本。`MOONBOX_PRODUCT_TEST_FRONTEND=1`额外复制当前Web源码、锁文件与Vitest配置，并添加受控组件测试入口。Python锁文件固定为uv.lock。覆盖参数仅用于本机合成验收，不更改正式配置。
+
+`MOONBOX_PRODUCT_RUNTIME_PREFLIGHT=1`让Chat样本启动真实verification worker，使用正确src/web绑定及实际浏览器探针版本；原测试循环不再自行调度验收。该模式的worker心跳、Python探针和验收结果均来自产品实现。旧验证通道未准备制品或绑定外部目标时仍显示未就绪，不能因此伪报隔离模板不可用；隔离模板的实际结果单独记录。

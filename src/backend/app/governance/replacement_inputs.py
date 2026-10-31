@@ -70,7 +70,7 @@ def fingerprint(project, proposal):
             raise ValueError('unsafe_archive_configuration')
         config[name] = hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
     return digest({'specs': tree_hash(project.root / 'openspec/specs'),
-                   'archives': tree_hash(project.root / 'openspec/archive'),
+                   'archives': archive_input_tree(project.root / 'openspec/archive'),
                    'candidate': tree_hash(project.root / 'openspec/changes' / proposal.successor),
                    'issues': tree_hash(project.root / 'issues'),
                    'iterations': tree_hash(project.root / 'iterations'), 'configuration': config,
@@ -105,4 +105,22 @@ def replacement_delivery_hash(folder):
             execution.pop('last_event',None);meta['execution']=execution
             raw=json.dumps(meta,sort_keys=True,ensure_ascii=False,default=str).encode()
         h.update(rel.encode()+b'\0'+hashlib.sha256(raw).digest())
+    return h.hexdigest()
+
+
+def archive_input_tree(root):
+    from .archive_recovery import tree_hash
+    if root.is_symlink():
+        raise ValueError('unsafe_archive_path')
+    if not (root / '.archive-tool-bindings').exists():
+        return tree_hash(root)
+    import hashlib
+    h = hashlib.sha256()
+    # Match tree_hash's exact stream while excluding only new tool bindings.
+    for path in sorted(root.rglob('*')):
+        if path.relative_to(root).parts[0] == '.archive-tool-bindings':
+            continue
+        if path.is_symlink(): raise ValueError('unsafe_archive_path')
+        if path.is_file():
+            h.update(path.relative_to(root).as_posix().encode() + b'\0' + hashlib.sha256(path.read_bytes()).digest())
     return h.hexdigest()

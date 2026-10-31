@@ -153,6 +153,8 @@ class ChangeIndex:
                         except (ValueError, TypeError):
                             state = None
                     record.stage = {'proposed': 'ready-dev', 'in_progress': 'development', 'applied': 'acceptance'}.get(state, 'unknown')
+                    if record.stage == 'ready-dev' and not record.issue_ids and self.sprint_assignment(record)[0] != 'valid':
+                        record.stage = 'sprint-planning'
             elif record.directories:
                 record.source_kind = 'conflict'
 
@@ -187,11 +189,31 @@ class ChangeIndex:
             source_kind=record.source_kind, task_progress=progress, document_entries=self.documents(record), warnings=self.warnings(record))
 
     def sprint_id(self, record: ChangeRecord) -> str | None:
+        if not record.issue_ids and record.stage in ('ready-dev', 'sprint-planning'):
+            return self.sprint_assignment(record)[1]
         members = self.sprint_memberships.get(record.id, set())
         explicit = record.trace.get('iteration')
         if explicit not in (None, ''):
             return explicit if isinstance(explicit, str) and explicit in members else None
         return next(iter(members)) if len(members) == 1 else None
+
+    def sprint_assignment(self, record: ChangeRecord) -> tuple[str, str | None, str]:
+        """Classify proposed standalone membership without changing lifecycle facts."""
+        members = self.sprint_memberships.get(record.id, set())
+        explicit = record.trace.get('iteration')
+        if not members and explicit in (None, ''):
+            return 'unassigned', None, '待纳入迭代'
+        if len(members) > 1:
+            return 'conflict', None, '多个 Sprint 成员关系，所属迭代待核实'
+        if len(members) != 1 or (explicit not in (None, '') and (not isinstance(explicit, str) or explicit not in members)):
+            return 'invalid', None, 'Sprint 声明与成员关系不一致或已失效'
+        sid = next(iter(members))
+        directory = self.sprint_directories[sid]
+        plan = legacy._read_yaml(directory / 'sprint.yaml')
+        if (directory.parent.name != 'change' or plan.get('sprint_id', sid) != sid
+                or plan.get('status') not in ('planning', 'active', 'in_progress')):
+            return 'invalid', None, 'Sprint 已关闭或状态无效'
+        return 'valid', sid, ''
 
     def sprint_document(self, record: ChangeRecord, document_name: str = 'sprint.md') -> Path | None:
         if document_name not in legacy.SPRINT_DOCUMENT_NAMES:
@@ -262,6 +284,11 @@ class ChangeIndex:
         return '验收来源待核实：未找到交付验证记录'
 
     def action(self, record: ChangeRecord) -> RequirementCenterAction | None:
+        if record.stage == 'sprint-planning' and not record.issue_ids:
+            kind, _, reason = self.sprint_assignment(record)
+            if kind == 'unassigned':
+                return RequirementCenterAction(command=f'/sprint-propose --change {record.id}', label='加入迭代')
+            return RequirementCenterAction(command=f'核对归属 {record.id}', label='核对归属', disabled_reason=reason)
         if record.stage == 'development':
             return RequirementCenterAction(command=f'查看进度 {record.id}', label='查看进度')
         if record.stage not in ('ready-dev', 'acceptance'):
@@ -321,6 +348,13 @@ class ChangeIndex:
                 continue
             documents = self.documents(record)
             tasks = legacy._change_tasks([record.id]) if record.directory else None
+            warnings = self.warnings(record)
+            if record.stage == 'sprint-planning':
+                warnings.append(self.sprint_assignment(record)[2])
+                explicit = record.trace.get('iteration')
+                warnings.append('声明归属：' + (explicit if isinstance(explicit, str) and re.fullmatch(r'sprint-\d{3,}', explicit) and can_read(explicit) else '无声明或不可见'))
+                visible_members = sorted(sid for sid in self.sprint_memberships.get(record.id, set()) if can_read(sid))
+                warnings.append('可见成员归属：' + ('、'.join(visible_members) or '无'))
             cards.append(RequirementCenterIssue(id=record.id, type='change', title=record.title or record.id,
                 priority='', owner=legacy._owner_name(record.trace.get('owner')),
                 owner_key=legacy._owner_key(record.trace.get('owner')), source=record.source_kind,
@@ -328,7 +362,9 @@ class ChangeIndex:
                 detail_url='', updated_at=legacy._updated_at(record.trace.get('updated_at') or record.trace.get('created_at')),
                 tasks=tasks, task_progress=(tasks.done, tasks.total) if tasks else None,
                 sprint_id=self.sprint_id(record), action=self.action(record),
-                drift_warnings=self.warnings(record)))
+                blocked=(self.sprint_assignment(record)[2] if record.stage == 'sprint-planning'
+                         and self.sprint_assignment(record)[0] != 'unassigned' else None),
+                drift_warnings=warnings))
         for card in cards:
             if card.type == 'change':
                 self.apply_card_metadata(card, card.id, card.sprint_id, [], None)
