@@ -1,7 +1,7 @@
 ---
 title: 治理脚本执行说明
 created_at: 2026-10-25 22:20:00
-updated_at: 2026-10-31 15:58:13
+updated_at: '2026-11-01 00:11:44'
 ---
 
 # 治理脚本执行说明
@@ -86,3 +86,22 @@ Workflow Sync 对当前 Sprint 和目标 Change 关联的 Issue 加载全部兄�
 回归入口：`src/backend/tests/test_archive_tools.py`、`scripts/test_archive_python_entry.py`。真实子容器验证入口 `verify-archive-tool-container.py` 要求先登记临时 Docker run，再提供 run、expires 和当前 Change 内输出路径；使用合成事实与已有镜像，不发送模型请求、不修改运行服务。验收结束按 temporary_docker cleanup/check 收尾。
 
 关闭扫描仅在同一行识别到 Issue 编号时排除其完整原始标题中的状态词；标题之外的待实现、待归档和中间态仍阻断，不得因同行出现 done 而跳过整行。
+
+
+## 证明绑定的归档收尾恢复
+
+仅唯一已迁移归档、原恢复证明和完整验收有效时，可用 `scripts/restore-archive-finalization.py --change` 加目标Change ID预检；显式 `--apply` 排他追加恢复记录，随后续跑原 `archive-change.sh --finalize`。此入口仅投影proposal的初始proposed状态，以及已关闭且双向归属的来源Issue指向自身Change活动目录的旧导航。目标必须是唯一归档中的同一文件，未完成兄弟、未知路径、符号链接与失败状态不豁免。
+
+记录保存在 `openspec/archive/.archive-recovery/finalization/`，绑定原始恢复日志、交付输入、完整通过清单、来源与目标字节。共享产品/CLI收尾检查每次重新验证，不改写原文、正式规格或原恢复日志；记录失配、并发变化及重复身份继续阻断，不删除或覆盖记录后重试。普通正文矛盾仍须处理，恢复记录不是新增验收或归档授权。历史导航的有效目的地可在恢复记录的projections查看，原文保留为历史输入。
+
+归档前声明恢复：唯一归档trace的“验收结论”若包含完整句子“无正式归档授权，本次未归档”，同一恢复入口可追加绑定全文哈希、段落行号及完整验收的历史投影。仅消除此句冲突，同段失败、未知措辞、非目标文件/章节仍保留原门禁；原文与恢复证明不改写。
+
+提案历史引用恢复：同一入口也支持proposal背景中的固定完整句式：Issue编号、归档同步后的验收声明引用及共享收尾误判说明。匹配限定整句并绑定全文，不豁免同句新增内容或相邻当前断言，未知措辞继续阻断。
+
+### 独立 Change 分级回归
+
+`bash scripts/project-python.sh scripts/test_change_classification_workflow.py` 在自动回收的临时仓库执行真实 OpenSpec CLI 与 opsx.propose，验证 fix/非 fix 分级完成、重试不改写和 pending 拒绝。评估由样本 Agent 材料给出，不调用产品 Chat、不创建正式业务样本。
+
+## 来源追溯补充证明
+
+原恢复证明绑定的来源trace因追加已关闭缺陷索引变化时，使用restore-archive-finalization.py的--original-trace提供原证明哈希匹配的原文，预检后加--apply。独立记录位于.archive-recovery/finalization/trace-supplements，保留原证明和当前文档。仅允许末尾关联缺陷表及updated_at变化，BUG需已关闭、反向关联且Change唯一归档；其他绑定、正文、证据或补证变化继续阻断。补证不能覆盖，不能代替验收或归档授权。

@@ -92,6 +92,10 @@ class ChatRoute(APIRoute):
                                         audit_metadata[key] = value
                         except Exception:
                             audit_metadata = {}
+                        if response is not None and response.status_code < 400 and self.path.startswith('/api/v1/requirement-center/changes/{change_id}/documents/'):
+                            reader = getattr(request.state, 'governance_reader', None)
+                            from app.governance.observability import _metadata as safe_delivery_metadata
+                            audit_metadata.update(json.loads(safe_delivery_metadata(getattr(reader, 'delivery_context', {}))))
                         metadata = dict(audit_metadata)
                         with get_session_factory()() as db:
                             audit_identity = service.identity()
@@ -115,6 +119,8 @@ class ChatRoute(APIRoute):
                                     ('/api/v1/chat/governance-candidates/{candidate_id}/applications','POST'):'governance.apply'})
                                 if self.path.startswith('/api/v1/requirement-center/') and request.method=='PUT':
                                     names[(self.path,request.method)]='governance.document_save'
+                                if self.path == '/api/v1/requirement-center/changes/{change_id}/documents/{document_name}' and request.method == 'GET' and request.headers.get('X-Delivery-Action') == 'document-open':
+                                    names[(self.path,request.method)] = 'governance.document_open'
                                 if self.path.startswith('/api/v1/chat/workspaces'):
                                     names[(self.path,request.method)] = 'workspace.action' if request.method == 'POST' else 'workspace.view'
                                 if self.path.startswith('/api/v1/chat/acceptance-operations'):
@@ -151,6 +157,10 @@ class ChatRoute(APIRoute):
                                                 resource[key]=effective.get(key)
                                             if payload.get('config_fallback_reason'):
                                                 resource['config_fallback']='applied'
+                                            from app.chat.schema import task_traces
+                                            summary = json.loads(db.scalar(select(task_traces.c.metadata).where(task_traces.c.turn_id == payload.get('id'))) or '{}')
+                                            from app.governance.observability import _metadata as safe_delivery_metadata
+                                            resource.update(json.loads(safe_delivery_metadata({key:summary[key] for key in ('target_change_id','source_issue_ids') if key in summary})))
                                         elif event.startswith('workspace.'):
                                             resource['operation_id'] = payload.get('id')
                                             resource['action_type'] = self.name
@@ -160,6 +170,12 @@ class ChatRoute(APIRoute):
                                             resource['action_type']=request.path_params.get('action_name') or self.name
                                         else:resource['conversation_id']=payload.get('id') or request.path_params.get('cid')
                                     metadata={**metadata, **{key:value for key,value in resource.items() if key in ('image_count','file_count','skill_count','agent','model','reasoning','config_fallback') and value is not None}}
+                                    if success and event in ('governance.document_open', 'governance.document_save'):
+                                        reader = getattr(request.state, 'governance_reader', None)
+                                        from app.governance.observability import _metadata as safe_delivery_metadata
+                                        delivery = json.loads(safe_delivery_metadata(getattr(reader, 'delivery_context', {})))
+                                        resource.update(delivery)
+                                        metadata.update(delivery)
                                     behavior(db,event,request.state.chat_actor,rid,'success' if success else 'failure','web',resource)
                             if metadata != audit_metadata:
                                 # Update only the row just inserted. request_id is

@@ -47,3 +47,22 @@
 
 .rc-task-navigation-target { outline: 2px solid var(--rc-accent); outline-offset: 5px; border-radius: 4px; scroll-margin-block: 24px; }
 [data-task-navigation] { overflow-wrap: anywhere; }
+
+/* Delivery identity: retain the existing card scale and allow complete IDs. */
+.rc-card-sources { display: flex; flex-wrap: wrap; gap: 4px 8px; min-width: 0; }
+.rc-card-sources > button { padding: 0; border: 0; background: none; color: inherit; text-align: left; min-width: 0; }
+.rc-card-sources strong, .rc-change-id-row strong { overflow-wrap: anywhere; }
+.rc-card-sources > button:disabled { opacity: 1; }
+.rc-change-id-row { margin-top: 4px; }
+.rc-doc-group .rc-doc-source { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.rc-delivery-confirmation .rc-action-body { overflow-wrap: anywhere; }
+.rc-delivery-confirmation select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.rc-delivery-confirmation .rc-action-command { white-space: normal; overflow-wrap: anywhere; }
+.rc-delivery-mask { padding: 16px; }
+.rc-delivery-confirmation .rc-dialog-actions > p,
+.rc-delivery-confirmation .rc-secondary-action { white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 480px) {
+  .requirement-center .rc-board { grid-template-columns: repeat(9, min(380px, calc(100vw - 104px))); }
+  .rc-delivery-confirmation .rc-dialog-actions { flex-wrap: wrap; }
+  .rc-delivery-confirmation .rc-dialog-actions > div { width: 100%; justify-content: flex-end; }
+}

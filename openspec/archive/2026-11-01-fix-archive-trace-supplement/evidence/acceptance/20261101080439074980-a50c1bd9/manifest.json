@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-trace-supplement",
+  "run_id": "20261101080439074980-a50c1bd9",
+  "created_at": "2026-11-01 08:05:07",
+  "source_revision": "ea79eccdac8dbf1de7fbd3f1afe707573ccea942",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "0d33436c2d102aab0b0493df8d231aebeb293b699e3a888d95964cf4e12de260",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 1695,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "a302c618c8a7a3f2f803632cb399b498158843849f0407c724ec9c96925570e2",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [],
+      "duration_ms": 26407,
+      "evidence_kinds": [
+        "command"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 2,
+    "deduplicated": 0,
+    "reused": 0,
+    "preflight_ms": 1,
+    "duration_ms": 28115,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

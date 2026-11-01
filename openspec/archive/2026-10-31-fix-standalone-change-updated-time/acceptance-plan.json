@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-standalone-change-updated-time",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys,pytest; sys.path[:0]=['src/backend','src/backend/tests']; raise SystemExit(pytest.main(['-q','tests/unit/test_workflow_execution.py','tests/unit/test_workflow_sync_patch.py','scripts/test_change_initialization.py','src/backend/tests/test_change_time.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','src/backend/tests/test_change_priority.py']))"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys,pytest; sys.path[:0]=['src/backend','src/backend/tests']; raise SystemExit(pytest.main(['-q','tests/unit/test_workflow_execution.py','tests/unit/test_workflow_sync_patch.py','scripts/test_change_initialization.py','src/backend/tests/test_change_time.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','src/backend/tests/test_change_priority.py']))"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys,pytest; sys.path[:0]=['src/backend','src/backend/tests']; raise SystemExit(pytest.main(['-q','tests/unit/test_workflow_execution.py','tests/unit/test_workflow_sync_patch.py','scripts/test_change_initialization.py','src/backend/tests/test_change_time.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','src/backend/tests/test_change_priority.py']))"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys,pytest; sys.path[:0]=['src/backend','src/backend/tests']; raise SystemExit(pytest.main(['-q','tests/unit/test_workflow_execution.py','tests/unit/test_workflow_sync_patch.py','scripts/test_change_initialization.py','src/backend/tests/test_change_time.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','src/backend/tests/test_change_priority.py']))"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/CardTime.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/card-time.test.tsx",
+        "src/web/src/preview/change-time.tsx",
+        "src/web/src/styles/globals.css",
+        "src/web/src/styles/project-governance.css"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "export NODE_OPTIONS=--no-experimental-webstorage; cd src/web; ./node_modules/.bin/vitest run src/card-time.test.tsx src/change-priority.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx && ./node_modules/.bin/tsc -b"
+      ],
+      "timeout_seconds": 180,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md",
+        "src/web/src/pages/catalog/CardTime.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/src/card-time.test.tsx",
+        "src/web/src/preview/change-time.tsx",
+        "src/web/src/styles/globals.css",
+        "src/web/src/styles/project-governance.css"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import json; from pathlib import Path; rows=json.loads(Path('openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json').read_text()); assert len(rows)>=21; assert all(r['whiteSpace']=='nowrap' for r in rows); print('视觉样式记录完整；截图语义见签认记录')"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-dark-1440.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-dark-390.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-light-1440.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-light-390.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-dark-1440.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-dark-390.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-1440-missing.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-1440.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-390-missing.png",
+        "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-390.png"
+      ],
+      "preflight": [
+        [
+          "bash",
+          "scripts/project-python.sh",
+          "-c",
+          "from pathlib import Path; import urllib.request; assert Path('src/web/node_modules/@playwright/test').exists(); assert urllib.request.urlopen('http://localhost:39002/requirements',timeout=10).status==200; print('浏览器依赖与本地产品入口可用；工具实测截图已采集')"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "product-dark",
+          "product-light",
+          "synthetic-dark",
+          "synthetic-light"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "product-dark",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-dark-1440.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "product-dark",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-dark-390.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "product-light",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-light-1440.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "product-light",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/product-light-390.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "synthetic-dark",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-dark-1440.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "synthetic-dark",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-dark-390.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "synthetic-light",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-1440.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          },
+          {
+            "stage": "synthetic-light",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/synthetic-light-390.png",
+              "openspec/changes/fix-standalone-change-updated-time/evidence/visual/computed-style.json"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_time.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "scripts/workflow_sync/execution.py",
+        "scripts/workflow_sync/timefmt.py",
+        "scripts/workflow_sync/patch.py",
+        "scripts/workflow_sync/initialization.py",
+        "tests/unit/test_workflow_execution.py",
+        "src/backend/tests/test_change_time.py",
+        "openspec/changes/fix-standalone-change-updated-time/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/changes/fix-standalone-change-updated-time/design.md",
+        "docs/03-api-index.md",
+        "rules/document-governance.md",
+        "src/web/openapi.json",
+        "src/web/src/api/generated/governance.ts"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--change",
+        "fix-standalone-change-updated-time"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-standalone-change-updated-time/verification.md"
+      ],
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ]
+    }
+  ]
+}

@@ -120,7 +120,7 @@ def enqueue(db,actor,project,key,request,record,candidate_id=None,request_id=Non
     try:
         db.execute(insert(applications).values(**row))
         from app.governance.observability import trace
-        trace(db,row['id'],'queued',actor=actor,request_id=request_id)
+        trace(db,row['id'],'queued',actor=actor,request_id=request_id,metadata=record.get('delivery_context'))
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -166,6 +166,8 @@ def _enqueue_document(reader,name,object_id,document_name,content,expected_versi
     request={'object':actual_id,'document':document_name,'content_hash':version(content),'expected_version':expected_version,'task_toggle':task_toggle}
     record={'before':{p:b.decode() for p,b in snapshot.files.items()},'after':changes,'kind':'document',
         'object_id':actual_id,'document_name':document_name,'content':content,'task_toggle':task_toggle,'function':name}
+    if is_change:
+        record['delivery_context'] = getattr(reader, 'delivery_context', {})
     return enqueue(reader.db,reader.actor,project,key,request,record,request_id=request_id)
 
 
@@ -407,7 +409,7 @@ def process(db,oid,*,after_write=None,recovery_fence=None):
             if current!=expected: raise ValueError('source_conflict')
             reader=ProjectReader(db,row['actor_id'],project)
             if record['kind'] not in ('capture', 'capture_batch'):
-                authorized = reader.authorize_object(Snapshot(before,digest(before)),record['object_id'],change=record.get('function')=='update_requirement_center_change_document',write=True)
+                authorized = reader.authorize_object(Snapshot(before,digest(before)),record['object_id'],change=record.get('function')=='update_requirement_center_change_document' or record['kind']=='change-priority',write=True)
                 if record.get('function') == 'update_requirement_center_change_document' and not authorized:
                     raise ValueError('standalone_change_readonly')
             if record['kind'] in ('req-generate','bug-generate','req-complete','bug-complete','req-review','bug-review'):
@@ -418,6 +420,13 @@ def process(db,oid,*,after_write=None,recovery_fence=None):
                 if result['manifest_hash']!=candidate['manifest_hash']: raise ValueError('candidate_changed')
             elif record['kind'] in ('capture', 'capture_batch'):
                 if not record.get('planned') or not record.get('object_id'): raise ValueError('invalid_capture_plan')
+            elif record['kind'] == 'change-priority':
+                from app.governance.change_priority import plan
+                with materialize(Snapshot(before,digest(before))) as root,legacy.using_governance_root(root):
+                    planned = plan(root, record['object_id'], record['priority'], record['expected_version'],
+                                   row['actor_id'], record['timestamp'])
+                    if planned != record['after']:
+                        raise ValueError('write_set_changed')
             else:
                 # Reapply legacy capability/task-toggle validation to the original immutable input.
                 with materialize(Snapshot(before,digest(before))) as root,legacy.using_governance_root(root):

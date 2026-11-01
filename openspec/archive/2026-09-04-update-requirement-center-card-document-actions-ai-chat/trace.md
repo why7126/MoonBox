@@ -1,6 +1,6 @@
 ---
 change_id: update-requirement-center-card-document-actions-ai-chat
-status: in_progress
+status: archived
 type: update
 source_requirement: REQ-0020-requirement-center-card-document-actions-ai-chat
 sprint: sprint-003

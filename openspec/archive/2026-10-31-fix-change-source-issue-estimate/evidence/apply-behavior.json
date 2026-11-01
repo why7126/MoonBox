@@ -1,0 +1,50 @@
+{
+  "source": "observed",
+  "records": [
+    {
+      "trigger": "test_failure",
+      "evidence": [
+        "verification.md#机制与测试证据"
+      ],
+      "tasks": [
+        {
+          "id": "repair-fixture",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "evidence/acceptance/visual-review.md"
+      ],
+      "tasks": [
+        {
+          "id": "acceptance",
+          "state": "pending",
+          "deps": []
+        }
+      ],
+      "gates_passed": false,
+      "action": "continue"
+    },
+    {
+      "trigger": "work",
+      "evidence": [
+        "trace.md#验收结论"
+      ],
+      "tasks": [
+        {
+          "id": "acceptance",
+          "state": "done",
+          "deps": []
+        }
+      ],
+      "gates_passed": true,
+      "action": "complete"
+    }
+  ]
+}

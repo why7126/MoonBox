@@ -1,6 +1,7 @@
 export type CardInfoFacts = {
   type: string;
   estimated_person_days?: number | null;
+  estimate_source_issue_id?: string | null;
   estimate_status?: "available" | "missing" | "conflict" | "invalid";
   root_cause_state?: "absent" | "pending" | "confirmed";
   root_cause_reason?: "missing" | "conflict" | "invalid" | null;
@@ -20,7 +21,7 @@ export function CardInfoTags({ facts, onRootCause, disabled = false }: {
       onClick={event => { event.stopPropagation(); onRootCause(); }}>
       {facts.root_cause_state === "confirmed" ? "根因已确认" : "根因待确认"}
     </button>}
-    {showDays && <span className={`rc-tag rc-person-days-tag rc-effort-${size?.toLowerCase()}`} data-testid="person-days-tag" title={`${size} · 预估开发${days}人天`}>
+    {showDays && <span className={`rc-tag rc-person-days-tag rc-effort-${size?.toLowerCase()}`} data-testid="person-days-tag" title={`${size} · 预估开发${days}人天${facts.estimate_source_issue_id ? `（引用来源 ${facts.estimate_source_issue_id}，非实际耗时）` : ''}`}>
       {size}<span className="rc-effort-separator">·</span>{days}人天
     </span>}
   </>;

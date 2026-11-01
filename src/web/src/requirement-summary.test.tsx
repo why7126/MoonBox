@@ -12,26 +12,21 @@ const ok=(data:unknown)=>({ok:true,status:200,json:async()=>({code:0,data})});
 beforeEach(()=>{vi.useFakeTimers();localStorage.setItem('moonbox.session',JSON.stringify({access_token:'test',username:'tester'}));});
 afterEach(()=>{cleanup();vi.useRealTimers();vi.unstubAllGlobals();localStorage.clear();});
 
-it('卡片移除状态详情与检查入口，刷新仍只加载摘要且静置不全量轮询',async()=>{
-  const fetcher=vi.fn(async(input:RequestInfo|URL)=>{
-    const url=String(input);
-    if(url.includes('/projects'))return ok({...context,projects:[{space_id:'space',repository_id:'repo',status:'connected',readonly:false}]});
-    return ok(url.includes('object_id=')?{...context,issues:[{...card,checks_deferred:false,acceptance_blocked_reason:'证据缺失'}]}:context);
-  });
+it('验收卡不显示检查行且保留摘要加载和刷新策略',async()=>{
+  const fetcher=vi.fn(async(input:RequestInfo|URL)=>String(input).includes('/projects')
+    ?ok({...context,projects:[{space_id:'space',repository_id:'repo',status:'connected',readonly:false}]}) :ok(context));
   vi.stubGlobal('fetch',fetcher);
   await act(async()=>{render(<RequirementCenterPage/>);});
   expect(screen.getByText('摘要卡片')).toBeTruthy();
-  expect(fetcher.mock.calls.filter(([url])=>String(url).includes('/context'))).toHaveLength(1);
-  expect(String(fetcher.mock.calls.find(([url])=>String(url).includes('/context'))?.[0])).toContain('view=summary');
+  expect(screen.queryByTestId('acceptance-check')).toBeNull();
+  expect(screen.queryByTestId('acceptance-readiness')).toBeNull();
+  expect(screen.queryByRole('button',{name:'检查验收条件'})).toBeNull();
+  expect(screen.queryByRole('dialog',{name:'归档准备'})).toBeNull();
   await act(async()=>{await vi.advanceTimersByTimeAsync(35000);});
   expect(fetcher.mock.calls.filter(([url])=>String(url).includes('/context'))).toHaveLength(1);
-  expect(screen.queryByText('状态详情')).toBeNull();
-  expect(screen.queryByRole('button',{name:'检查最新结果'})).toBeNull();
-  expect(screen.queryByText('验收待检查')).toBeNull();
   await act(async()=>{fireEvent.click(screen.getByRole('button',{name:'刷新需求中心'}));});
-  expect(screen.queryByRole('button',{name:'检查最新结果'})).toBeNull();
-  expect(screen.queryByText('验收待检查')).toBeNull();
-  expect(fetcher.mock.calls.some(([url])=>String(url).includes('object_id=') || String(url).includes('completion-verification'))).toBe(false);
+  expect(fetcher.mock.calls.filter(([url])=>String(url).includes('view=summary'))).toHaveLength(2);
+  expect(fetcher.mock.calls.some(([url])=>String(url).includes('object_id='))).toBe(false);
 });
 
 it('活动执行仅查询轻量状态',async()=>{
@@ -46,4 +41,21 @@ it('活动执行仅查询轻量状态',async()=>{
   await act(async()=>{await vi.advanceTimersByTimeAsync(30000);});
   expect(fetcher.mock.calls.filter(([url])=>String(url).includes('/context'))).toHaveLength(1);
   expect(fetcher.mock.calls.filter(([url])=>String(url).includes('/status?')).length).toBeGreaterThan(0);
+});
+
+it('既有迭代检查仍可调用，失败后可重试且不新增弹窗',async()=>{
+  let checks=0;
+  const data={...context,current_iteration_capacity:[{sprint_id:'sprint-018',archive_readiness:{safe_summary:'归档条件待检查'}}]};
+  const fetcher=vi.fn(async(input:RequestInfo|URL)=>{
+    const url=String(input);
+    if(url.includes('/projects'))return ok({...data,projects:[{space_id:'space',repository_id:'repo',status:'connected',readonly:false}]});
+    if(url.includes('/context')&&!url.includes('view=summary')){checks++;if(checks===1)throw new Error('network');}
+    return ok(data);
+  });
+  vi.stubGlobal('fetch',fetcher);
+  await act(async()=>{render(<RequirementCenterPage/>);});
+  await act(async()=>{fireEvent.click(screen.getByRole('button',{name:'检查迭代归档条件'}));});
+  await act(async()=>{fireEvent.click(screen.getByRole('button',{name:'检查迭代归档条件'}));});
+  expect(checks).toBe(2);
+  expect(screen.queryByTestId('acceptance-check')).toBeNull();
 });

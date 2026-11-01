@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-quoted-history",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_closure_restoration.py",
+        "src/backend/app/governance/archive_finalization.py",
+        "tests/unit/test_archive_closure_restoration.py",
+        "tests/unit/test_archive_finalization.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path[:0]=['src/backend','scripts'];import pytest;raise SystemExit(pytest.main(['tests/unit/test_archive_closure_restoration.py','tests/unit/test_archive_finalization.py','-q']))"
+      ]
+    }
+  ]
+}

@@ -52,6 +52,49 @@ export interface RequirementCenterReadError {
   data?: RequirementCenterReadFailureDetails | null;
 }
 
+export type RequirementCenterIssueCardKind = typeof RequirementCenterIssueCardKind[keyof typeof RequirementCenterIssueCardKind];
+
+
+export const RequirementCenterIssueCardKind = {
+  issue: 'issue',
+  delivery: 'delivery',
+} as const;
+
+export type RequirementCenterSourceType = typeof RequirementCenterSourceType[keyof typeof RequirementCenterSourceType];
+
+
+export const RequirementCenterSourceType = {
+  requirement: 'requirement',
+  bug: 'bug',
+} as const;
+
+export interface RequirementCenterDocumentCapability {
+  readable?: boolean;
+  human_editable?: boolean;
+  ai_mutable?: boolean;
+  task_toggle_only?: boolean;
+  reason?: string;
+}
+
+export interface RequirementCenterDocument {
+  name: string;
+  type: string;
+  open_mode: string;
+  status?: string;
+  label: string;
+  url?: string | null;
+  editable?: boolean;
+  capability?: RequirementCenterDocumentCapability;
+}
+
+export interface RequirementCenterSource {
+  id: string;
+  type: RequirementCenterSourceType;
+  title: string;
+  status?: string | null;
+  document_entries?: RequirementCenterDocument[];
+}
+
 export type RequirementCenterIssueEstimateStatus = typeof RequirementCenterIssueEstimateStatus[keyof typeof RequirementCenterIssueEstimateStatus];
 
 
@@ -80,25 +123,6 @@ export const RequirementCenterIssueRootCauseReason = {
   invalid: 'invalid',
 } as const;
 
-export interface RequirementCenterDocumentCapability {
-  readable?: boolean;
-  human_editable?: boolean;
-  ai_mutable?: boolean;
-  task_toggle_only?: boolean;
-  reason?: string;
-}
-
-export interface RequirementCenterDocument {
-  name: string;
-  type: string;
-  open_mode: string;
-  status?: string;
-  label: string;
-  url?: string | null;
-  editable?: boolean;
-  capability?: RequirementCenterDocumentCapability;
-}
-
 export interface RequirementCenterChangeSummary {
   warnings?: string[];
   id: string;
@@ -108,6 +132,32 @@ export interface RequirementCenterChangeSummary {
   task_progress?: [number, number] | null;
   document_entries?: RequirementCenterDocument[];
 }
+
+export type RequirementCenterIssuePriorityState = typeof RequirementCenterIssuePriorityState[keyof typeof RequirementCenterIssuePriorityState];
+
+
+export const RequirementCenterIssuePriorityState = {
+  valid: 'valid',
+  missing: 'missing',
+  invalid: 'invalid',
+} as const;
+
+export type RequirementCenterIssueClassificationDimension = typeof RequirementCenterIssueClassificationDimension[keyof typeof RequirementCenterIssueClassificationDimension] | null;
+
+
+export const RequirementCenterIssueClassificationDimension = {
+  priority: 'priority',
+  severity: 'severity',
+} as const;
+
+export type RequirementCenterIssueClassificationState = typeof RequirementCenterIssueClassificationState[keyof typeof RequirementCenterIssueClassificationState];
+
+
+export const RequirementCenterIssueClassificationState = {
+  valid: 'valid',
+  missing: 'missing',
+  invalid: 'invalid',
+} as const;
 
 export interface RequirementCenterAction {
   command: string;
@@ -123,7 +173,21 @@ export interface RequirementCenterTasks {
   source?: string | null;
 }
 
+export type RequirementCenterIssueCardTimeSource = typeof RequirementCenterIssueCardTimeSource[keyof typeof RequirementCenterIssueCardTimeSource] | null;
+
+
+export const RequirementCenterIssueCardTimeSource = {
+  updated: 'updated',
+  created: 'created',
+  execution_completed: 'execution_completed',
+  execution_started: 'execution_started',
+  missing: 'missing',
+} as const;
+
 export interface RequirementCenterIssue {
+  card_kind?: RequirementCenterIssueCardKind;
+  target_change_id?: string | null;
+  source_issues?: RequirementCenterSource[];
   /** 当前卡片完整治理身份，用于受权状态查询 */
   object_id?: string | null;
   /** 摘要未执行深度核验；不代表通过，动作入口仍重新校验 */
@@ -134,6 +198,8 @@ export interface RequirementCenterIssue {
   /** 对象有效 Sprint Scope 的预估开发人天；缺失不填零 */
   estimated_person_days?: number | null;
   estimate_status?: RequirementCenterIssueEstimateStatus;
+  /** 唯一来源 Issue 估算引用；自身估算或不可用时为空 */
+  estimate_source_issue_id?: string | null;
   root_cause_state?: RequirementCenterIssueRootCauseState;
   root_cause_reason?: RequirementCenterIssueRootCauseReason;
   verification_operation_id?: string | null;
@@ -157,6 +223,11 @@ export interface RequirementCenterIssue {
   type: string;
   title: string;
   priority?: string;
+  priority_state?: RequirementCenterIssuePriorityState;
+  classification_dimension?: RequirementCenterIssueClassificationDimension;
+  classification_state?: RequirementCenterIssueClassificationState;
+  priority_version?: string | null;
+  can_edit_priority?: boolean;
   severity?: string;
   owner: string;
   /** 负责人稳定筛选键，不用于认证授权 */
@@ -174,6 +245,8 @@ export interface RequirementCenterIssue {
   action?: RequirementCenterAction | null;
   tasks?: RequirementCenterTasks | null;
   updated_at: string;
+  card_time?: string | null;
+  card_time_source?: RequirementCenterIssueCardTimeSource;
   blocked?: string | null;
   sprint_id?: string | null;
   task_progress?: [number, number] | null;
@@ -457,6 +530,31 @@ export interface RequirementCenterCaptureCreate {
      * @minLength 1
      * @maxLength 64
      * @pattern ^[A-Za-z0-9_-]+$
+     */
+  idempotency_key: string;
+}
+
+export type ChangePriorityUpdatePriority = typeof ChangePriorityUpdatePriority[keyof typeof ChangePriorityUpdatePriority];
+
+
+export const ChangePriorityUpdatePriority = {
+  P0: 'P0',
+  P1: 'P1',
+  P2: 'P2',
+  P3: 'P3',
+} as const;
+
+export interface ChangePriorityUpdate {
+  priority: ChangePriorityUpdatePriority;
+  /**
+     * @minLength 64
+     * @maxLength 64
+     * @pattern ^[0-9a-f]+$
+     */
+  expected_version: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
      */
   idempotency_key: string;
 }
@@ -1369,6 +1467,19 @@ space_id: string;
 repository_id: string;
 };
 
+export type UpdateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutParams = {
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+space_id: string;
+/**
+ * @minLength 1
+ * @maxLength 64
+ */
+repository_id: string;
+};
+
 export type ListingApiV1ChatReplacementProposalsGetParams = {
 space_id: string;
 repository_id: string;
@@ -2133,6 +2244,77 @@ export const captureReadinessApiV1RequirementCenterCaptureReadinessGet = async (
 
   const data: captureReadinessApiV1RequirementCenterCaptureReadinessGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as captureReadinessApiV1RequirementCenterCaptureReadinessGetResponse
+}
+
+
+
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse202 = {
+  data: ApiResponseDict
+  status: 202
+}
+
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse503 = {
+  data: RequirementCenterReadError
+  status: 503
+}
+
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponseSuccess = (updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse202) & {
+  headers: Headers;
+};
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponseError = (updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse422 | updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse503) & {
+  headers: Headers;
+};
+
+export type updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse = (updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponseSuccess | updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponseError)
+
+export const getUpdateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutUrl = (changeId: string,
+    params: UpdateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/requirement-center/changes/${changeId}/priority?${stringifiedParams}` : `/api/v1/requirement-center/changes/${changeId}/priority`
+}
+
+/**
+ * @summary 提交独立变更优先级调整
+ */
+export const updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPut = async (changeId: string,
+    changePriorityUpdate: ChangePriorityUpdate,
+    params: UpdateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutParams, options?: RequestInit): Promise<updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+const res = await fetch(getUpdateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutUrl(changeId,params),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(changePriorityUpdate)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateChangePriorityApiV1RequirementCenterChangesChangeIdPriorityPutResponse
 }
 
 

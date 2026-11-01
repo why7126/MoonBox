@@ -1,0 +1,50 @@
+import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {afterEach,it,expect,vi} from 'vitest';
+import {ChangePriorityEditor} from './pages/catalog/ChangePriorityEditor';
+import {governanceRequest,waitApplication,GovernanceError} from './components/workbench/governanceApi';
+vi.mock('./components/workbench/governanceApi',async original => ({...await original<typeof import('./components/workbench/governanceApi')>(),governanceRequest:vi.fn(),waitApplication:vi.fn()}));
+afterEach(()=>{cleanup();vi.clearAllMocks()});
+const props={id:'standalone',priority:'P2',version:'a'.repeat(64),project:{space_id:'space',repository_id:'repo',status:'connected' as const,readonly:false}};
+it('waits for async success before refreshing and closing',async()=>{
+ vi.mocked(governanceRequest).mockResolvedValue({id:'operation',state:'pending'});
+ vi.mocked(waitApplication).mockResolvedValue({id:'operation',state:'applied',phase:'verified'});
+ const saved=vi.fn().mockResolvedValue(undefined);
+ render(<ChangePriorityEditor {...props} onSaved={saved}/>);
+ fireEvent.click(screen.getByText('设置优先级'));
+ fireEvent.change(screen.getByRole('combobox'),{target:{value:'P1'}});
+ fireEvent.click(screen.getByText('保存'));
+ await waitFor(()=>expect(saved).toHaveBeenCalledOnce());
+ expect(screen.queryByRole('combobox')).toBeNull();
+});
+it('keeps selection on conflict and reloads without forced overwrite',async()=>{
+ vi.mocked(governanceRequest).mockRejectedValueOnce(new GovernanceError('版本冲突',409)).mockResolvedValueOnce({version:'b'.repeat(64),content:'test'});
+ render(<ChangePriorityEditor {...props} onSaved={vi.fn()}/>);
+ fireEvent.click(screen.getByText('设置优先级'));
+ fireEvent.change(screen.getByRole('combobox'),{target:{value:'P0'}});
+ fireEvent.click(screen.getByText('保存'));
+ await screen.findByText('重载最新值');
+ expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('P0');
+ fireEvent.click(screen.getByText('重载最新值'));
+ await screen.findByText('已重载，请重新选择优先级。');
+ expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('');
+});
+it('escape cancels without a request and restores focus',()=>{
+ render(<ChangePriorityEditor {...props} onSaved={vi.fn()}/>);
+ fireEvent.click(screen.getByText('设置优先级'));
+ fireEvent.keyDown(screen.getByRole('combobox'),{key:'Escape'});
+ expect(governanceRequest).not.toHaveBeenCalled();
+ expect(document.activeElement).toBe(screen.getByText('设置优先级'));
+});
+it('ignores a late operation after cancellation',async()=>{
+ let resolve!: (value: any)=>void;
+ vi.mocked(governanceRequest).mockReturnValue(new Promise(r=>{resolve=r}));
+ const saved=vi.fn();
+ render(<ChangePriorityEditor {...props} onSaved={saved}/>);
+ fireEvent.click(screen.getByText('设置优先级'));
+ fireEvent.click(screen.getByText('保存'));
+ fireEvent.click(screen.getByText('关闭'));
+ resolve({id:'late',state:'pending'});
+ await new Promise(r=>setTimeout(r,0));
+ expect(saved).not.toHaveBeenCalled();
+ expect(screen.queryByRole('combobox')).toBeNull();
+});

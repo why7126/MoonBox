@@ -80,13 +80,15 @@ def paragraphs(text: str):
         yield start, ' '.join(buffer), ' / '.join(headings)
 
 
-def current_claims(text: str, *, completed: bool) -> list[dict]:
+def current_claims(text: str, *, completed: bool, historical_sentences: tuple = ()) -> list[dict]:
     if not completed:
         return []
     hits = []
     for line, paragraph, heading in paragraphs(text):
         # Evaluate individual assertions, so a negated sentence cannot exempt its neighbour.
         for sentence in re.split(r'[。；;]', paragraph):
+            if (line, sentence.strip()) in historical_sentences:
+                continue
             current_section = re.search(r'(?:^| / )(?:实施验证摘要|验收结论)$', heading)
             if not (CURRENT.search(sentence + ' ' + heading) or current_section) or not STALE.search(sentence):
                 continue
@@ -123,10 +125,23 @@ def inspect_document(root: Path, path: Path, *, completed: bool = False) -> list
     if not safe_path(root, path):
         return [{'file': relative, 'line': 0, 'kind': 'unsafe-document', 'severity': 'blocker'}]
     text = path.read_text(encoding='utf-8')
-    hits = [dict(hit, file=relative) for hit in current_claims(text, completed=completed)]
+    hits = []
+    from .archive_closure_restoration import document_projection
+    try:
+        projections = document_projection(root, path)
+    except (OSError, ValueError, TypeError, KeyError, yaml.YAMLError):
+        projections = []
+        hits.append({'file': relative, 'line': 0, 'kind': 'closure-restoration-invalid', 'severity': 'blocker'})
+    historical_sentences = tuple((row['line'], row['historical_sentence'])
+                                for row in projections if 'historical_sentence' in row)
+    hits.extend(dict(hit, file=relative) for hit in current_claims(
+        text, completed=completed, historical_sentences=historical_sentences))
     if completed:
         field = 'acceptance_status' if path.name == 'acceptance.md' else 'status'
         value = metadata(path).get(field)
+        for row in projections:
+            if row.get('field') == field and row.get('from') == value:
+                value = row['to']
         if path.name == 'acceptance.md' and path.parent.parent == root / 'openspec/archive':
             from .archive_metadata import restored_acceptance_status
             try:
@@ -147,6 +162,9 @@ def inspect_document(root: Path, path: Path, *, completed: bool = False) -> list
             continue
         base = root if re.match(r'^(openspec|issues|iterations|docs)/', raw) else path.parent
         target = Path(os.path.abspath(base / raw))
+        for row in projections:
+            if row.get('from_path') == raw:
+                target = root / row['to_path']
         if not target.exists():
             from .archive_issue_reference import resolve
             target = resolve(root, path, target) or target

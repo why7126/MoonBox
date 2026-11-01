@@ -2,7 +2,7 @@
 purpose: 需求当前态看板索引
 content: 每个 REQ 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-31 07:38:22
+updated_at: 2026-11-01 01:06:08
 owner: MoonBox 产品团队
 ---
 
@@ -28,8 +28,10 @@ owner: MoonBox 产品团队
 
 | REQ | 标题 | 当前状态 | 阶段 | 优先级 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
-| REQ-0057-standalone-change-priority | 独立 Change 优先级定义与卡片展示 | pending_review | plan | P2 | 无 | 无 | 2026-10-30 09:49:11 | `/req-review REQ-0057-standalone-change-priority` | `issues/requirements/plan/REQ-0057-standalone-change-priority/trace.md` |
-| REQ-0056-requirement-center-change-delivery-cards | 需求中心交付阶段按 Change 独立成卡 | pending_review | plan | P1 | 无 | 无 | 2026-10-29 18:40:34 | `/req-review REQ-0056-requirement-center-change-delivery-cards` | `issues/requirements/plan/REQ-0056-requirement-center-change-delivery-cards/trace.md` |
+| REQ-0059-standalone-change-auto-classification | 独立 Change 创建时自动分级与卡片只读展示 | done | archive | P2 | sprint-018 | update-standalone-change-auto-classification | 2026-11-01 01:06:08 | 无 | `issues/requirements/archive/REQ-0059-standalone-change-auto-classification/trace.md` |
+| REQ-0058-acceptance-card-check-entry-simplification | 验收中卡片检查入口展示简化 | done | archive | P2 | sprint-018 | update-acceptance-card-check-entry | 2026-11-01 00:26:33 | 无 | `issues/requirements/archive/REQ-0058-acceptance-card-check-entry-simplification/trace.md` |
+| REQ-0057-standalone-change-priority | 独立 Change 优先级定义与卡片展示 | done | archive | P2 | sprint-018 | add-standalone-change-priority | 2026-10-31 22:15:28 | 无 | `issues/requirements/archive/REQ-0057-standalone-change-priority/trace.md` |
+| REQ-0056-requirement-center-change-delivery-cards | 需求中心交付阶段按 Change 独立成卡 | done | archive | P1 | sprint-018 | add-change-delivery-cards | 2026-10-31 19:42:21 | 无 | `issues/requirements/archive/REQ-0056-requirement-center-change-delivery-cards/trace.md` |
 | REQ-0055-sprint-authorized-worktree-merge | 继承迭代操作权限的工作区成果确认合入 | done | archive | P1 | sprint-015 | add-sprint-authorized-worktree-merge | 2026-10-29 13:05:33 | 无 | `issues/requirements/archive/REQ-0055-sprint-authorized-worktree-merge/trace.md` |
 | REQ-0054-workspace-recovery-points | 工作区恢复点复用保留与冲突恢复 | done | archive | P1 | sprint-015 | add-workspace-recovery-points | 2026-10-29 13:04:47 | 无 | `issues/requirements/archive/REQ-0054-workspace-recovery-points/trace.md` |
 | REQ-0053-chat-scalable-execution-storage | Chat 无默认运营配额与大规模工作区持续执行 | done | archive | P1 | sprint-013 | update-chat-scalable-execution-storage | 2026-10-26 10:45:33 | 无 | `issues/requirements/archive/REQ-0053-chat-scalable-execution-storage/trace.md` |

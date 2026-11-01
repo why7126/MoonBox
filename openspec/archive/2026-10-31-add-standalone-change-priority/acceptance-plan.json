@@ -1,0 +1,1758 @@
+{
+  "schema_version": 1,
+  "change_id": "add-standalone-change-priority",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-012",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json"
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-XCUT-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-XCUT-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-XCUT-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-XCUT-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/web/src/pages/catalog/ChangePriorityEditor.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx"
+      ],
+      "argv": [
+        "src/backend/.venv/bin/python",
+        "-m",
+        "pytest",
+        "src/backend/tests/test_change_priority.py",
+        "-q"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png",
+        "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+      ],
+      "preflight": [
+        [
+          "src/backend/.venv/bin/python",
+          "-c",
+          "import pathlib; assert pathlib.Path(\"src/web/node_modules/@playwright/test\").exists()"
+        ]
+      ],
+      "coverage": {
+        "stages": [
+          "light-open",
+          "dark-open",
+          "light-error",
+          "dark-error",
+          "light-saving",
+          "dark-saving",
+          "light-conflict",
+          "dark-conflict"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "light-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png"
+            ]
+          },
+          {
+            "stage": "light-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png"
+            ]
+          },
+          {
+            "stage": "dark-open",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png"
+            ]
+          },
+          {
+            "stage": "light-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png"
+            ]
+          },
+          {
+            "stage": "dark-error",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png"
+            ]
+          },
+          {
+            "stage": "light-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "dark-saving",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "light-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png"
+            ]
+          },
+          {
+            "stage": "dark-conflict",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

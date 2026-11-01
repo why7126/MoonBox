@@ -1,7 +1,7 @@
 ---
 purpose: OpenSpec 自动验收与证据包标准
 created_at: 2026-10-12 14:59:30
-updated_at: 2026-10-30 12:08:59
+updated_at: 2026-10-31 20:00:25
 ---
 
 # OpenSpec 自动验收与证据包
@@ -162,3 +162,10 @@ manifest.metrics 记录本轮 duration_ms、preflight_ms、command_executions、
 已归档的设计阶段验收映射可能保留 `not_started`，而最终证据位于完整验收清单。禁止为消除收尾冲突改写受保护文件或重置恢复日志。使用 `scripts/restore-archive-metadata.py` 预检，显式 `--apply` 追加绑定记录；收尾实时验证原恢复准入、原文与日志哈希、交付投影及完整通过清单，才读取 `passed` 投影。仅修复该历史初始状态；失败或部分验收不可转换。绑定失效维持阻塞，并保留现场。
 
 归档文档保留的 Issue 旧阶段引用仅在唯一同名 Issue、完成状态、双向 Change 归属、全部关联已归档及原归档恢复证明通过时解析至 archive 目录。迁移预检按同一源文件模拟，迁移后按唯一归档文件校验；活动文档和可变 Issue 仍须修正旧链接。缺文件、符号链接、重复身份或证明失配均阻断。原型裸路径不包含紧接的中文说明，也不将 prototype 开头的普通文档名截成原型目录。
+
+
+## 证明绑定的归档收尾恢复
+
+仅唯一已迁移归档、原恢复证明和完整验收有效时，可用 `scripts/restore-archive-finalization.py --change` 加目标Change ID预检；显式 `--apply` 排他追加恢复记录，随后续跑原 `archive-change.sh --finalize`。此入口仅投影proposal的初始proposed状态，以及已关闭且双向归属的来源Issue指向自身Change活动目录的旧导航。目标必须是唯一归档中的同一文件，未完成兄弟、未知路径、符号链接与失败状态不豁免。
+
+记录保存在 `openspec/archive/.archive-recovery/finalization/`，绑定原始恢复日志、交付输入、完整通过清单、来源与目标字节。共享产品/CLI收尾检查每次重新验证，不改写原文、正式规格或原恢复日志；记录失配、并发变化及重复身份继续阻断，不删除或覆盖记录后重试。普通正文矛盾仍须处理，恢复记录不是新增验收或归档授权。历史导航的有效目的地可在恢复记录的projections查看，原文保留为历史输入。

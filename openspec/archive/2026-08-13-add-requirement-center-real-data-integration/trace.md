@@ -1,6 +1,6 @@
 ---
 change_id: add-requirement-center-real-data-integration
-status: applied
+status: archived
 source_requirement: REQ-0013-requirement-center-real-data-integration
 source_sprint: sprint-002
 created_at: 2026-08-10 22:12:00

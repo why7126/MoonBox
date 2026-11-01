@@ -22,6 +22,7 @@ export function useObjectChatEntry(space: string, select: (row: ConversationRead
             object_id: intent.objectId, action: 'open-chat', idempotency_key: intent.id }),
         });
         if (controller.signal.aborted) return;
+        if (!/^(REQ-|BUG-|sprint-)/.test(intent.objectId) && result.object_id !== intent.objectId) throw new Error('交付会话目标不匹配，草稿已保留，请刷新后重试');
         const cid = result.conversation_id || result.view_conversation_id;
         if (!cid) throw new Error('对象暂不可打开，草稿已保留，请稍后重试');
         const row = await chatRequest<ConversationRead>(`/conversations/${encodeURIComponent(cid)}`, { signal: controller.signal });

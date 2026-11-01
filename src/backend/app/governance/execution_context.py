@@ -17,9 +17,9 @@ def fingerprint(prompt, materials, config):
 
 
 def replay(db, actor, parent, prompt, client_id, materials, config):
-    from app.governance.preparation import _write_command
+    from app.governance.preparation import bound_write_command
     from app.chat.relations import resolve_object
-    command = _write_command(prompt)
+    command = bound_write_command(db, actor, parent, prompt)
     if not command:
         return None
     project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
@@ -91,6 +91,13 @@ def stage_map(snapshot):
     with cached_materialize(snapshot, ('execution-guard', snapshot.revision)) as root:
         with legacy.using_governance_root(root, immutable=True, registry_index=identities):
             result = {canonical_id(snapshot, item.id, identities): item.stage for item in legacy.build_requirement_center_context().issues}
+            # Board projection suppresses delivered Issue cards, but execution
+            # guards still lock their whole-scope identities alongside Change.
+            from app.governance.change_index import ChangeIndex
+            index = ChangeIndex(root)
+            for oid in index.entries:
+                if oid not in result:
+                    result[oid] = index.source_card(oid)[0].stage
             import re
             for name, body in snapshot.files.items():
                 match = re.fullmatch(r'iterations/(change|archive)/(sprint-\d{3})/sprint.yaml', name)
@@ -102,9 +109,9 @@ def stage_map(snapshot):
 
 def prepare(db, actor, parent, prompt, client_id=None):
     """Resolve and authorize before admission starts its write transaction."""
-    from app.governance.preparation import _write_command, _preflight_object_session
+    from app.governance.preparation import bound_write_command, _preflight_object_session
     from app.governance.reader import ProjectReader
-    command = _write_command(prompt)
+    command = bound_write_command(db, actor, parent, prompt)
     if not command:
         return None
     action, oid = command
@@ -130,6 +137,7 @@ def prepare(db, actor, parent, prompt, client_id=None):
         prepare_journal(parent['id'], client_id, action, oid, snapshot.revision)
     return {'scope_key': project.key, 'action': action,
             'baseline_revision': snapshot.revision,
+            'delivery_context': ({'target_change_id': oid, 'source_issue_ids': [key for key in ids if key != oid]} if not oid.startswith(('REQ-', 'BUG-', 'sprint-')) else {}),
             'objects': [(key, stages.get(key, 'unknown')) for key in sorted(set(ids))]}
 
 

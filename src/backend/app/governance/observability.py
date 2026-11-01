@@ -13,8 +13,10 @@ STAGES={'retained','released','cleanup_blocked','prepared','running','pending','
 def _metadata(value):
     result={}
     for key,item in (value or {}).items():
-        if key in ('operation_id','attempt_id','application_id','object_type','object_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item,str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+        if key in ('operation_id','attempt_id','application_id','object_type','object_id','target_change_id','action_type','conversation_id','turn_id','candidate_id','result','error_code') and isinstance(item,str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
             result[key]=item
+        elif key == 'source_issue_ids' and isinstance(item, list) and len(item) <= 32 and all(isinstance(v, str) and re.fullmatch(r'(REQ|BUG)-\d{4}-[a-z0-9-]{1,110}', v) for v in item):
+            result[key] = item
     return json.dumps(result,ensure_ascii=False)
 
 

@@ -3,21 +3,22 @@
 Resolve relationships before applying visibility. Unknown references are never
 reclassified as independent objects, and archived copies never fill active gaps.
 """
+from app.governance.change_time import card_time
+from app.governance.change_classification import classification
 from app.governance.card_metadata import estimate_metadata, root_cause_metadata
-from app.governance.titles import read_title, project_title
+from app.governance.titles import read_title
 from dataclasses import dataclass, field
-from copy import deepcopy
 from pathlib import Path
 import re
 from collections.abc import Callable
 
 import yaml
 
-from app.governance.lifecycle import change_state, aggregate_states
+from app.governance.lifecycle import change_state
 from app.services import requirement_center as legacy
 from app.schemas.requirement_center import (
     RequirementCenterAction, RequirementCenterChangeSummary, RequirementCenterDocument,
-    RequirementCenterDocumentCapability, RequirementCenterIssue,
+    RequirementCenterDocumentCapability, RequirementCenterIssue, RequirementCenterSource,
 )
 
 CHANGE_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
@@ -47,8 +48,7 @@ class ChangeRecord:
     title: str | None = None
 
     def visible(self, can_read: Callable[[str], bool]) -> bool:
-        return not self.invalid_source and all(can_read(i) for i in self.issue_ids) and (
-            bool(self.issue_ids) or can_read(self.id))
+        return not self.invalid_source and can_read(self.id) and all(can_read(i) for i in self.issue_ids)
 
 
 def chinese_title(directory: Path, trace: dict) -> str | None:
@@ -153,7 +153,7 @@ class ChangeIndex:
                         except (ValueError, TypeError):
                             state = None
                     record.stage = {'proposed': 'ready-dev', 'in_progress': 'development', 'applied': 'acceptance'}.get(state, 'unknown')
-                    if record.stage == 'ready-dev' and not record.issue_ids and self.sprint_assignment(record)[0] != 'valid':
+                    if record.stage == 'ready-dev' and self.sprint_assignment(record)[0] != 'valid':
                         record.stage = 'sprint-planning'
             elif record.directories:
                 record.source_kind = 'conflict'
@@ -284,7 +284,7 @@ class ChangeIndex:
         return '验收来源待核实：未找到交付验证记录'
 
     def action(self, record: ChangeRecord) -> RequirementCenterAction | None:
-        if record.stage == 'sprint-planning' and not record.issue_ids:
+        if record.stage == 'sprint-planning':
             kind, _, reason = self.sprint_assignment(record)
             if kind == 'unassigned':
                 return RequirementCenterAction(command=f'/sprint-propose --change {record.id}', label='加入迭代')
@@ -301,73 +301,134 @@ class ChangeIndex:
             reason = reason or '缺少唯一有效的 Sprint 归属'
         return RequirementCenterAction(command=f'/{command} {record.id}', label=label, disabled_reason=reason)
 
+    def delivery_acceptance_progress(self, record: ChangeRecord):
+        """Only current evidence for this delivery can contribute passed counts."""
+        if legacy._SUMMARY_READ.get() or record.directory is None:
+            return None
+        if not (record.directory / 'acceptance-plan.json').is_file():
+            return None
+        from app.governance.acceptance_evidence import read_plan
+        try:
+            plan = read_plan(record.directory)
+            if self.acceptance_source_reason(record) is None:
+                total = len(plan['checks'])
+                return total, total
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+        # Missing/stale evidence is unknown, never copied from the parent
+        # signoff or inferred from task checkboxes.
+        return None
+
+    def source_card(self, oid):
+        kind, entry = self.entries[oid]
+        issue_dir = legacy._safe_issue_dir(entry.get('path'))
+        trace = legacy._frontmatter(issue_dir / 'trace.md') if issue_dir else {}
+        card = legacy._build_issue(kind, entry, changes_override=[],
+                                   status_override=trace.get('status') or entry.get('status'))
+        main = issue_dir / ('requirement.md' if kind == 'requirement' else 'bug.md') if issue_dir else None
+        card.title = (read_title(main) if main else None) or card.title
+        card.display_title = card.title
+        card.object_id = oid
+        return card, issue_dir, trace
+
     def cards(self, can_read: Callable[[str], bool], *, selected_object=None) -> list[RequirementCenterIssue]:
         visible = {cid: record for cid, record in self.records.items() if record.visible(can_read)}
         cards = []
+        source_data = {}
+        def source_for(oid):
+            if oid not in source_data:
+                source_data[oid] = self.source_card(oid)
+            return source_data[oid]
         for oid, (kind, entry) in self.entries.items():
             if selected_object is not None and oid != selected_object:
                 continue
             if not can_read(oid):
                 continue
-            related = [record for record in visible.values() if oid in record.issue_ids]
-            # No evidence in current data model selects among multiple Changes.
-            current = related[0] if len(related) == 1 else None
-            issue_dir = legacy._safe_issue_dir(entry.get('path'))
-            trace = legacy._frontmatter(issue_dir / 'trace.md') if issue_dir else {}
-            status = trace.get('status') or entry.get('status')
-            if related and status not in ('done', 'archived'):
-                states = [{'ready-dev': 'proposed', 'development': 'in_progress', 'acceptance': 'applied', 'done': 'archived'}.get(r.stage, 'unknown') for r in related]
-                status = 'unknown' if 'unknown' in states else aggregate_states(states)
-            card = legacy._build_issue(kind, entry, changes_override=[current.id] if current else [], status_override=status)
-            card.related_changes = [self.summary(r) for r in related]
-            # Each projection is independently mutable (URLs gain scope later).
-            card.current_change = deepcopy(card.related_changes[0]) if current else None
-            card.change_warning = '多个 Change，当前项待核实' if len(related) > 1 else None
-            if current:
-                # Keep terminal Issue facts; otherwise Change status is explicit.
-                issue_dir = legacy._safe_issue_dir(entry.get('path'))
-                trace = legacy._frontmatter(issue_dir / 'trace.md') if issue_dir else {}
-                if (trace.get('status') or entry.get('status')) not in ('done', 'archived'):
-                    card.stage = current.stage
-                card.drift_warnings.extend(self.warnings(current))
-            main_path = issue_dir / ('requirement.md' if kind == 'requirement' else 'bug.md') if issue_dir else None
-            card.title = (read_title(main_path) if main_path else None) or card.title
-            card.display_title, card.title_source, card.title_warning = project_title(
-                card.stage, entry.get('title'), oid, main_path,
-                current.directory / 'proposal.md' if current and current.directory else None)
-            if current and current.directory is None:
-                card.title_warning = 'Change 归档版本待核实，已回退 Issue 业务标题'
-            # Resolve the source independently of stage-specific sprint-tag visibility.
+            related = [r for r in visible.values() if oid in r.issue_ids]
+            # Explicit Issue detail keeps whole-scope facts. The board never
+            # duplicates an Issue aggregate beside its valid delivery cards.
+            if selected_object is None and any(r.directory and r.stage != 'unknown' for r in related):
+                continue
+            card, issue_dir, trace = source_for(oid)
+            if selected_object is None and any(oid in r.issue_ids for r in self.records.values()):
+                card.change_warning = '关联交付待核实，请核对来源和权限'
+                card.title_warning = card.change_warning
+                card.action = RequirementCenterAction(command='', label='核对关联', disabled_reason=card.change_warning)
             sid = trace.get('iteration') or entry.get('target_iteration') or entry.get('iteration')
-            self.apply_card_metadata(card, oid, sid, [r.id for r in related], issue_dir)
+            self.apply_card_metadata(card, oid, sid, [], issue_dir)
             cards.append(card)
         for record in visible.values():
             if selected_object is not None and record.id != selected_object:
                 continue
-            if record.issue_ids:
+            # Missing/conflicting linked records stay in source diagnostics.
+            if record.issue_ids and (not record.directory or record.stage == 'unknown'):
                 continue
             documents = self.documents(record)
             tasks = legacy._change_tasks([record.id]) if record.directory else None
+            classified = legacy._classified_change_tasks([record.id])
             warnings = self.warnings(record)
+            sources = []
+            source_cards = []
+            for oid in sorted(record.issue_ids):
+                source, _, _ = source_for(oid)
+                source_cards.append(source)
+                sources.append(RequirementCenterSource(id=oid, type=source.type, title=source.title,
+                    status=source.status, document_entries=[d.model_copy(deep=True) for d in source.document_entries
+                        if d.name not in legacy.SPRINT_DOCUMENT_NAMES and d.url and '/issues/' in d.url]))
             if record.stage == 'sprint-planning':
                 warnings.append(self.sprint_assignment(record)[2])
-                explicit = record.trace.get('iteration')
-                warnings.append('声明归属：' + (explicit if isinstance(explicit, str) and re.fullmatch(r'sprint-\d{3,}', explicit) and can_read(explicit) else '无声明或不可见'))
-                visible_members = sorted(sid for sid in self.sprint_memberships.get(record.id, set()) if can_read(sid))
-                warnings.append('可见成员归属：' + ('、'.join(visible_members) or '无'))
-            cards.append(RequirementCenterIssue(id=record.id, type='change', title=record.title or record.id,
-                priority='', owner=legacy._owner_name(record.trace.get('owner')),
+            action = self.action(record)
+            if sources and action and record.stage != 'development':
+                # Chat keeps this Change as its primary object. The server
+                # validates the source and binds its command to that identity.
+                if record.stage == 'sprint-planning':
+                    action.disabled_reason = '请从来源事项核对 Sprint 归属'
+                if len(sources) == 1:
+                    action.command = action.command.replace(record.id, sources[0].id)
+                else:
+                    action.command = ''
+                    action.requires_choice = 'source_issue'
+            card = RequirementCenterIssue(id=record.id, type='change', card_kind='delivery',
+                target_change_id=record.id, source_issues=sources, title=record.title or record.id,
+                display_title=record.title or record.id, title_source='proposal.md' if record.title else 'change_id',
+                current_change=self.summary(record),
+                priority=(record.trace.get('priority') if record.trace.get('priority') in ('P0', 'P1', 'P2', 'P3') else ''), owner=legacy._owner_name(record.trace.get('owner')),
                 owner_key=legacy._owner_key(record.trace.get('owner')), source=record.source_kind,
                 stage=record.stage, documents=[d.name for d in documents], document_entries=documents,
                 detail_url='', updated_at=legacy._updated_at(record.trace.get('updated_at') or record.trace.get('created_at')),
-                tasks=tasks, task_progress=(tasks.done, tasks.total) if tasks else None,
-                sprint_id=self.sprint_id(record), action=self.action(record),
+                tasks=tasks, task_progress=(classified.development.progress if record.stage == 'acceptance' and classified.has_progress else (tasks.done, tasks.total) if tasks else None),
+                test_progress=classified.test.progress if classified.has_progress else None,
+                manual_acceptance_progress=self.delivery_acceptance_progress(record) if record.stage in ('acceptance', 'done') else None,
+                sprint_id=self.sprint_id(record), action=action,
+                acceptance_blocked_reason=self.acceptance_source_reason(record) if record.stage == 'acceptance' else None,
                 blocked=(self.sprint_assignment(record)[2] if record.stage == 'sprint-planning'
                          and self.sprint_assignment(record)[0] != 'unassigned' else None),
-                drift_warnings=warnings))
-        for card in cards:
-            if card.type == 'change':
-                self.apply_card_metadata(card, card.id, card.sprint_id, [], None)
+                drift_warnings=warnings)
+            if not record.issue_ids:
+                for key, value in card_time(record.trace).items():
+                    setattr(card, key, value)
+                level = classification(record.id, record.trace)
+                for key, value in level.items():
+                    setattr(card, key, value)
+                card.priority_state = level['classification_state']
+                card.can_edit_priority = False
+            # Shared source metadata is allowed only when unanimous; never use
+            # sorting order to choose an owner, classification or action source.
+            for name in ('priority', 'severity', 'owner', 'owner_key'):
+                values = {getattr(source, name) for source in source_cards}
+                if len(values) == 1:
+                    setattr(card, name, values.pop())
+                elif len(values) > 1:
+                    card.drift_warnings.append('来源元信息不一致：' + name)
+            if len(source_cards) == 1 and source_cards[0].type == 'bug':
+                issue_dir = legacy._safe_issue_dir(self.entries[sources[0].id][1].get('path'))
+                if issue_dir:
+                    for name, value in _root_cause_fields(issue_dir).items():
+                        setattr(card, name, value)
+            if record.stage == 'done' and any(source.status not in ('done', 'archived') for source in sources):
+                card.completion_hint = '子交付已完成；来源仍有未交付范围'
+            self.apply_card_metadata(card, card.id, card.sprint_id, [], None)
+            cards.append(card)
         return cards
 
     def apply_card_metadata(self, card, object_id, sprint_id, changes, issue_dir):
@@ -376,7 +437,16 @@ class ChangeIndex:
             sprint = legacy._borrow_yaml(directory / 'sprint.yaml')
             key = {'requirement': 'requirements', 'bug': 'bugs', 'change': 'changes'}[card.type]
             if object_id in (sprint.get(key) or []):
-                for name, value in estimate_metadata(sprint.get('scope_estimates'), object_id, changes).items():
+                source_issue_id = None
+                record = self.records.get(object_id) if card.type == 'change' else None
+                if record and not record.invalid_source and len(record.issue_ids) == 1:
+                    oid = next(iter(record.issue_ids))
+                    source_key = 'requirements' if oid.startswith('REQ-') else 'bugs'
+                    related = {r.id for r in self.records.values() if oid in r.issue_ids}
+                    if related == {object_id} and oid in (sprint.get(source_key) or []):
+                        source_issue_id = oid
+                for name, value in estimate_metadata(sprint.get('scope_estimates'), object_id, changes,
+                                                     source_issue_id=source_issue_id).items():
                     setattr(card, name, value)
         if card.type == 'bug' and issue_dir:
             for name, value in _root_cause_fields(issue_dir).items():

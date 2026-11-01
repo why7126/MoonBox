@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "sample": "isolated synthetic repository; real product API, worker and fixed container executor",
+  "turn": {
+    "id": "7201e6e7-167f-4076-84d2-7677bfcaa6b5",
+    "status": "stopped",
+    "error_code": null,
+    "retry_of": null
+  },
+  "target_events": [
+    {
+      "phase": "started",
+      "target": "synthetic-alpha",
+      "exit_code": null
+    }
+  ],
+  "alpha_started": true,
+  "beta_untouched": true,
+  "same_target_retry": "409 governance_object_busy: original stopped result requires verification",
+  "changed_target_retry": {
+    "error": 409,
+    "body": {
+      "code": 2604,
+      "message": "重试目标与原交付不一致",
+      "data": {
+        "kind": "delivery_target_mismatch",
+        "request_id": "419d15fd-7515-4e86-b0c5-31d7538ce48b"
+      }
+    }
+  },
+  "turn_count": 1,
+  "limits": "Observed interruption and refused retargeted retry; successful same-target continuation is not claimed."
+}

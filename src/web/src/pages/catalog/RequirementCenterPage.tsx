@@ -1,5 +1,8 @@
+import { CardTime, type CardTimeFacts } from "./CardTime";
+import { DeliveryCardIdentity, type DeliverySource } from "./DeliveryCardIdentity";
 import { governanceActionError } from "../../components/workbench/governanceActionError";
 import { openObjectChat } from "./objectChatIntent";
+import { DeliveryActionDialog } from "./DeliveryActionDialog";
 import { CardInfoTags, type CardInfoFacts } from "./CardInfoTags";
 import {type VerificationFacts} from "../../components/chat/OperationVerification";
 import { storeSprintArchiveIntent } from "./sprintArchiveIntent";
@@ -82,7 +85,11 @@ type Stage = {
 
 type ChangeSummary = { id: string; title: string | null; stage: string; source_kind: string; task_progress?: [number, number] | null; document_entries?: IssueDocument[]; warnings?: string[] };
 
-type IssueCard = VerificationFacts & CardInfoFacts & {
+type IssueCard = VerificationFacts & CardInfoFacts & CardTimeFacts & {
+  card_kind?: "issue" | "delivery";
+  target_change_id?: string | null;
+  source_issues?: (DeliverySource & { status?: string; document_entries?: IssueDocument[] })[];
+
   checks_deferred?: boolean;
   object_id?: string;
   delivery_workspace_id?: string | null;
@@ -103,6 +110,11 @@ type IssueCard = VerificationFacts & CardInfoFacts & {
   type: CardType;
   title: string;
   priority?: "P0" | "P1" | "P2" | "P3" | "";
+  priority_state?: "valid" | "missing" | "invalid";
+  priority_version?: string | null;
+  can_edit_priority?: boolean;
+  classification_dimension?: "priority" | "severity" | null;
+  classification_state?: "valid" | "missing" | "invalid";
   severity?: "blocker" | "critical" | "high" | "medium" | "low" | "";
   owner: string;
   ownerKey?: string;
@@ -166,6 +178,7 @@ type IssueAction = {
 type AuxiliaryAction = {
   command: string;
   label: string;
+  disabledReason?: string;
 };
 
 type IssueTasks = {
@@ -410,8 +423,12 @@ const sprintFilterStatusLabel = (option?: SprintFilterOption): SprintFilterStatu
 };
 
 const issueLevelFilterValue = (issue: IssueCard) => {
-  if (issue.type === "requirement" && issue.priority) return `requirement:${issue.priority}`;
-  if (issue.type === "bug" && issue.severity) return `bug:${issue.severity}`;
+  if (issue.type === "change" && !issue.source_issues?.length) {
+    const severity = issue.classification_dimension === "severity";
+    return `${severity ? "change-severity" : "change"}:${(severity ? issue.severity : issue.priority) || issue.classification_state || issue.priority_state || "missing"}`;
+  }
+  if ((issue.type === "requirement" || issue.source_issues?.some(source => source.type === "requirement")) && issue.priority) return `requirement:${issue.priority}`;
+  if ((issue.type === "bug" || issue.source_issues?.some(source => source.type === "bug")) && issue.severity) return `bug:${issue.severity}`;
   return "";
 };
 
@@ -839,7 +856,8 @@ const actionDisabledReason = (action: IssueAction | undefined) => action?.disabl
 const issueAction = (issue: IssueCard): IssueAction => {
   const fallback = actionForStage(issue, issue.stage);
   if (issue.type === "change") return {
-    ...((issue.stage === "sprint-planning" ? issue.action : undefined) || fallback || { command: "只读", label: "只读" }),
+    ...(issue.action || fallback || { command: "只读", label: "只读" }),
+    label: issue.stage === "sprint-planning" ? (issue.action?.label || fallback?.label || "只读") : (fallback?.label || "只读"),
     disabledReason: actionDisabledReason(issue.action) || fallback?.disabledReason,
   };
   return issue.action || fallback || { command: "只读", label: "只读" };
@@ -977,6 +995,7 @@ const productGovernanceCommandCapabilities: Record<string, ProductGovernanceCapa
   "req-opsx": "real_object_session_write",
   "bug-opsx": "real_object_session_write",
   "opsx-apply": "real_object_session_write",
+  "opsx-modify": "real_object_session_write",
   "opsx-archive": "real_object_session_write",
   "req-explore": "display_only",
   "bug-explore": "display_only",
@@ -1042,7 +1061,7 @@ const drawerTitle = (drawer: DrawerState) => {
 };
 
 const drawerIssueSubtitle = (drawer: Extract<DrawerState, { type: "markdown" }>) => (
-  `${drawer.issue.priority} · ${drawer.issue.owner}负责 · ${stageTitleById.get(drawer.issue.stage) || drawer.issue.stage}`
+  `${drawer.issue.target_change_id || drawer.issue.priority} · ${drawer.issue.owner}负责 · ${stageTitleById.get(drawer.issue.stage) || drawer.issue.stage}`
 );
 
 const visibleSprintId = (issue: IssueCard) => (sprintVisibleStages.has(issue.stage) ? issue.sprintId : undefined);
@@ -1065,6 +1084,10 @@ const progressFocusLabel: Record<ProgressFocus, string> = {
 
 
 const auxiliaryActions = (issue: IssueCard): AuxiliaryAction[] => {
+  if (issue.card_kind === "delivery" && issue.stage === "acceptance") return [
+    {command:`/opsx-modify ${issue.source_issues?.length === 1 ? issue.source_issues[0].id : issue.id}`,label:"返修"},
+    {command:`/opsx-accept ${issue.id}`,label:"自动验收",disabledReason:"当前产品执行器尚未支持明确目标的自动验收入口"},
+  ];
   if (issue.type === "change" || issue.stage === "unknown") return [];
   if (issue.stage !== "capture") return [];
   const fullId = issue.action?.command.match(/\b(?:REQ|BUG)-\d{4}-[A-Za-z0-9_-]+\b/)?.[0] || issue.id;
@@ -1830,10 +1853,17 @@ function normalizeArchiveReadiness(readiness: ArchiveReadiness | null): ArchiveR
 }
 
 function issueLevelTag(issue: IssueCard) {
-  if (issue.type === "bug") {
+  if (issue.type === "change" && !issue.source_issues?.length) {
+    const severity = issue.classification_dimension === "severity";
+    const label = severity ? "严重性" : "优先级";
+    const state = issue.classification_state || issue.priority_state;
+    const value = severity ? issue.severity : issue.priority;
+    return { value: state === "invalid" ? `${label}待核实` : value ? `${label} ${value}` : `${label}待评估`, className: severity ? `rc-severity-tag ${value || ""}` : `rc-priority-tag ${value?.toLowerCase() || ""}` };
+  }
+  if (issue.type === "bug" || issue.source_issues?.every(source => source.type === "bug") && issue.source_issues.length > 0) {
     return issue.severity ? { value: issue.severity, className: `rc-severity-tag ${issue.severity}` } : null;
   }
-  if (issue.type === "requirement") {
+  if (issue.type === "requirement" || issue.source_issues?.every(source => source.type === "requirement") && issue.source_issues.length > 0) {
     return issue.priority ? { value: issue.priority, className: `rc-priority-tag ${issue.priority.toLowerCase()}` } : null;
   }
   return null;
@@ -2027,6 +2057,7 @@ export function RequirementCenterPage() {
   const [assignmentIssueId, setAssignmentIssueId] = useState<string | null>(null);
   const [checkingObject, setCheckingObject] = useState<string | null>(null);
   const checkFlight = useRef<AbortController | null>(null);
+  const [checkErrors, setCheckErrors] = useState<Record<string, string>>({});
   const [project, setProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(() => { setAssignmentIssueId(null); }, [project?.space_id, project?.repository_id, contextFailure]);
@@ -2070,6 +2101,10 @@ export function RequirementCenterPage() {
   const [drawer, setDrawer] = useState<DrawerState>({ type: "none" });
   const drawerRef = useRef(drawer); drawerRef.current = drawer;
   const drawerTriggerRef = useRef<HTMLElement | null>(null);
+  const drawerElementRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (drawer.type !== 'none') drawerElementRef.current?.querySelector<HTMLButtonElement>('[aria-label="关闭右侧抽屉"]')?.focus();
+  }, [drawer.type !== 'none']);
   const [drawerWidth, setDrawerWidth] = useState(760);
   const [isDrawerFullscreen, setIsDrawerFullscreen] = useState(false);
   const [markdownUploadState, setMarkdownUploadState] = useState<MarkdownUploadState>("idle");
@@ -2077,6 +2112,7 @@ export function RequirementCenterPage() {
   const [markdownMetadataOpen, setMarkdownMetadataOpen] = useState(false);
   const [choiceDialog, setChoiceDialog] = useState<ChoiceDialog>({ type: "none" });
   const [actionDialog, setActionDialog] = useState<ActionDialog>({ type: "none" });
+  const [deliveryAction, setDeliveryAction] = useState<{issue:IssueCard;action:IssueAction;project:Project}|null>(null);
   const sprintPreparation = useRef<string | null>(null);
   useEffect(() => () => { sprintPreparation.current = null; }, []);
   const [lockedActionId, setLockedActionId] = useState("");
@@ -2145,7 +2181,7 @@ export function RequirementCenterPage() {
     setDrawer({ type: "none" });
     const trigger = drawerTriggerRef.current;
     drawerTriggerRef.current = null;
-    requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus(); });
+    requestAnimationFrame(() => { if (drawerRef.current.type === 'none' && trigger?.isConnected) trigger.focus(); });
   }, [drawer, isDirtyMarkdownDrawer]);
 
   const beginDrawerResize = (event: MouseEvent<HTMLButtonElement>) => {
@@ -2161,6 +2197,7 @@ export function RequirementCenterPage() {
     const run = async () => {
     const epoch = ++requestEpoch.current;
     checkFlight.current?.abort();
+    checkFlight.current = null; setCheckingObject(null); setCheckErrors({});
     contextController.current?.abort();
     const controller = new AbortController(); contextController.current = controller;
     const current = () => epoch === requestEpoch.current && !controller.signal.aborted;
@@ -2293,15 +2330,21 @@ export function RequirementCenterPage() {
 
   const checkObject = async (objectId?: string) => {
     const selected = projectRef.current;
-    if (!selected || checkingObject !== null) return;
+    if (!selected || checkFlight.current || checkingObject !== null) return;
     const epoch = requestEpoch.current;
     const controller = new AbortController(); checkFlight.current = controller;
     setCheckingObject(objectId || "sprints");
+    if (objectId) setCheckErrors(value => ({ ...value, [objectId]: "" }));
     try {
       const query = objectId ? `?object_id=${encodeURIComponent(objectId)}` : "";
-      const data = await governanceRequest<RequirementCenterContext>(scopedUrl(`/api/v1/requirement-center/context${query}`, selected), { signal: controller.signal });
+      const behaviorId = objectId ? crypto.randomUUID() : null;
+      const data = await governanceRequest<RequirementCenterContext>(scopedUrl(`/api/v1/requirement-center/context${query}`, selected), {
+        signal: controller.signal,
+        ...(behaviorId ? { headers: { "X-Behavior-Event-ID": behaviorId, "X-Behavior-Trace-ID": behaviorId } } : {}),
+      });
       if (controller.signal.aborted || epoch !== requestEpoch.current) return;
       const checked = normalizeContext(data, readFrontendSession()?.username);
+      if (objectId && !checked.issues.some(item => (item.object_id || item.id) === objectId)) throw new Error("对象检查结果已失效，请刷新后重试");
       setContext(value => value ? {
         ...value,
         currentIterationCapacity: checked.currentIterationCapacity,
@@ -2309,6 +2352,7 @@ export function RequirementCenterPage() {
       } : value);
     } catch (error) {
       if (controller.signal.aborted || epoch !== requestEpoch.current) return;
+      if (objectId) setCheckErrors(value => ({ ...value, [objectId]: "检查失败，请重试；持续失败请刷新页面。" }));
       setToast(error instanceof Error ? error.message : "检查未完成，请重试");
       if (error instanceof GovernanceError && [401, 403].includes(error.status)) void loadContext("refresh");
     } finally {
@@ -2331,6 +2375,7 @@ export function RequirementCenterPage() {
       setAgentOpen(false);
       setChoiceDialog({ type: "none" });
       setActionDialog({ type: "none" });
+      setDeliveryAction(null);
       setAssignmentIssueId(null);
 
       closeDrawer();
@@ -2421,6 +2466,8 @@ export function RequirementCenterPage() {
     ...option, meta: option.value === currentOwnerKey ? "当前用户" : undefined,
   })), [issues, currentOwnerKey]);
   const levelOptions: MultiFilterOption[] = useMemo(() => [
+    ...["blocker", "critical", "high", "medium", "low", "missing", "invalid"].map(level => ({value: `change-severity:${level}`, label: level === "missing" ? "待评估" : level === "invalid" ? "待核实" : level, group: "独立变更严重性"})),
+    ...["P0","P1","P2","P3","missing","invalid"].map(level => ({value: `change:${level}`, label: level === "missing" ? "待评估" : level === "invalid" ? "待核实" : level, group: "独立变更优先级"})),
     ...(["P0", "P1", "P2", "P3"] as const).map((priority) => ({
       value: `requirement:${priority}`,
       label: `${priority} ${{ P0: "最高", P1: "高", P2: "中", P3: "低" }[priority]}`,
@@ -2662,10 +2709,13 @@ export function RequirementCenterPage() {
     return issues.filter((issue) => {
       const sprintId = effectiveSprintId(issue);
       const explicitSprintId = issue.sprintId || visibleSprintId(issue) || "";
-      const matchesType = typeFilter === "all" || issue.type === typeFilter;
+      const matchesType = typeFilter === "all" || (typeFilter === "change"
+        ? issue.type === "change" && !issue.source_issues?.length
+        : issue.type === typeFilter || issue.source_issues?.some(source => source.type === typeFilter));
       const matchesSearch =
         !query ||
         issue.id.toLowerCase().includes(query) ||
+        issue.source_issues?.some(source => source.id.toLowerCase().includes(query) || source.title.toLowerCase().includes(query)) ||
         issue.title.toLowerCase().includes(query) ||
         (issue.display_title ?? "").toLowerCase().includes(query) ||
         issue.related_changes?.some(change => change.id.toLowerCase().includes(query) || change.title?.toLowerCase().includes(query)) ||
@@ -2689,14 +2739,19 @@ export function RequirementCenterPage() {
   const diagnosticIssues = filteredCandidates.filter(issue => issue.stage === "unknown");
 
   const completionValue = (cardType: CardType) => {
-    const scoped = filteredIssues.filter((issue) => issue.type === cardType);
-    return {
-      completed: scoped.filter((issue) => issue.stage === "done").length,
-      total: scoped.length,
-    };
+    const objects = new Map<string, boolean>();
+    for (const issue of filteredIssues) {
+      if (issue.type === cardType && !(cardType === "change" && issue.source_issues?.length)) {
+        objects.set(issue.object_id || issue.id, issue.stage === "done");
+      }
+      for (const source of issue.source_issues || []) {
+        if (source.type === cardType) objects.set(source.id, source.status === "done" || source.status === "archived");
+      }
+    }
+    return { completed: [...objects.values()].filter(Boolean).length, total: objects.size };
   };
   const stats: MetricStat[] = [
-    { label: "全部对象", value: filteredIssues.length, description: "当前筛选条件下可见的需求、Bug 和独立 Change 总数。" },
+    { label: "全部对象", value: filteredIssues.length, description: "当前筛选条件下的前期事项与独立交付卡片总数；来源需求和缺陷另行去重。" },
     { label: "需求", value: completionValue("requirement"), description: "当前筛选条件下，已完成需求数 / 需求总数。", testId: "requirement-completion-metric" },
     { label: "Bug", value: completionValue("bug"), description: "当前筛选条件下，已完成 Bug 数 / Bug 总数。", testId: "bug-completion-metric" },
     { label: "独立 Change", value: completionValue("change"), description: "当前筛选条件下，已完成独立 Change 数 / 独立 Change 总数。", testId: "change-completion-metric" },
@@ -2795,7 +2850,7 @@ export function RequirementCenterPage() {
     try {
       documentFlight.current = flightKey;
       if (!selectedProject) throw new Error("项目未连接");
-      const data = await governanceRequest<{ content: string; version: string }>(scopedUrl(document.url || `/api/v1/requirement-center/issues/${issue.id}/documents/${document.name}`, selectedProject));
+      const data = await governanceRequest<{ content: string; version: string }>(scopedUrl(document.url || `/api/v1/requirement-center/issues/${issue.id}/documents/${document.name}`, selectedProject), {headers: {"X-Delivery-Action": "document-open"}});
       if (epoch !== documentEpoch.current || selectedProject.space_id !== projectRef.current?.space_id || selectedProject.repository_id !== projectRef.current?.repository_id) return;
       setDrawer({ type: "markdown", issue, document, focus, version: data.version, content: data.content, draft: parseMarkdownFrontmatter(data.content).body, loading: false, saving: false, error: "", mode: "preview", dirty: false });
     } catch (error) {
@@ -2826,7 +2881,10 @@ export function RequirementCenterPage() {
   };
 
   const openIssueAcceptance = (issue: IssueCard) => {
-    const document = issueDocumentEntries(issue).find(entry => entry.name === "acceptance.md" && (!entry.url || entry.url.includes("/issues/")));
+    const document = issue.type === "change"
+      ? issueDocumentEntries(issue).find(entry => ["acceptance.md", "verification.md"].includes(entry.name))
+        || issueDocumentEntries(issue).find(entry => entry.name === "trace.md")
+      : issueDocumentEntries(issue).find(entry => entry.name === "acceptance.md" && (!entry.url || entry.url.includes("/issues/")));
     if (!document) { setToast(`${issue.id} 未关联 Issue acceptance.md，无法打开验收。`); return; }
     void openDocument(issue, document);
   };
@@ -3119,6 +3177,10 @@ export function RequirementCenterPage() {
       const target = projectRef.current;
       if (!target || target.readonly || lockedActionId || objectPreparation.current) { setToast("项目不可写或正在准备会话"); return; }
       const selectedAction = auxAction || issueAction(issue);
+      if (issue.card_kind === "delivery" && issue.source_issues?.length && ["ready-dev", "acceptance"].includes(issue.stage)) {
+        setDeliveryAction({issue,action:selectedAction,project:target});
+        return;
+      }
       const capability = productGovernanceCapability(issue, selectedAction);
       if (capability === "codex_command_only") {
         setToast(unsupportedProductActionMessage(issue, selectedAction));
@@ -3298,7 +3360,9 @@ export function RequirementCenterPage() {
 
   const renderIssueCard = (stage: Stage, issue: IssueCard) => {
     const action = issueAction(issue);
-    const tip = issue.historical_result === "verified" && issue.execution_state === "needs_review"
+    const tip = stage.id === "acceptance" && (issue.checks_deferred === true || !!issue.acceptanceBlockedReason || checkingObject === (issue.object_id || issue.id) || checkErrors[issue.object_id || issue.id])
+      ? "验收检查尚未成功，请完成检查后再归档"
+      : issue.historical_result === "verified" && issue.execution_state === "needs_review"
       ? "下一步暂不可执行 · 历史成果保留"
       : blockedTip(stage.id, issue, action);
     const isEnriching = stage.id === "planning" && issue.status === "enriching";
@@ -3328,24 +3392,35 @@ export function RequirementCenterPage() {
     const auxActions = auxiliaryActions(issue);
     const levelTag = issueLevelTag(issue);
 
+    const sourceType = issue.source_issues?.length && issue.source_issues.every(source => source.type === issue.source_issues![0].type) ? issue.source_issues[0].type : issue.type;
     return (
-      <article className={`rc-card ${issue.type}`} data-issue-id={issue.id} key={issue.id}>
-        <div className="rc-card-top">
-          <strong>{issue.id}</strong>
-          {visibleSprintId(issue) && <span className="rc-sprint-tag">{visibleSprintId(issue)}</span>}
-        </div>
-        <button className="rc-card-title" title={issue.title_warning || undefined} type="button" onClick={() => openIssueDetail(issue)}>{issue.display_title || issue.title}</button>
+      <article className={`rc-card ${sourceType}`} data-testid={issue.card_kind === "delivery" ? "rc-delivery-card" : "rc-issue-card"} data-issue-id={issue.id} data-change-id={issue.target_change_id || undefined} key={issue.id}>
+        <DeliveryCardIdentity id={issue.id} changeId={issue.target_change_id} sources={issue.source_issues} sprintId={visibleSprintId(issue)} onSource={source => {
+          const entry = issue.source_issues?.find(item => item.id === source.id);
+          const document = entry?.document_entries?.find(doc => doc.name === (source.type === "bug" ? "bug.md" : "requirement.md"));
+          if (document) void openDocument(issue, document);
+          else setToast("来源文档暂不可用，请刷新后重试");
+        }}>
+          <button className="rc-card-title" title={issue.title_warning || undefined} type="button" onClick={() => openIssueDetail(issue)}>{issue.display_title || issue.title}</button>
+        </DeliveryCardIdentity>
         <div className="rc-card-meta rc-card-tags">
           {levelTag && <span className={`${levelTag.className} rc-tag ${levelTag.value.toLowerCase()}`}>{levelTag.value}</span>}
-          <span className="rc-owner-tag rc-tag" title={issue.owner}>{issue.owner}</span>
+          <span className="rc-owner-tag rc-tag" title={issue.owner}>{issue.type === "change" && !issue.source_issues?.length && (!issue.owner || issue.owner === "未分配") ? "负责人未分配" : issue.owner}</span>
           {issue.type === "change" && stage.id === "sprint-planning" && <span className="rc-tag" data-testid="change-sprint-status">{action.label === "加入迭代" ? "待纳入迭代" : "归属待核对"}</span>}
-          <CardInfoTags facts={issue} disabled={!!contextFailure} onRootCause={() => {
-            const document = issueDocumentEntries(issue).find(entry => entry.name === "root-cause.md" && (!entry.url || entry.url.includes("/issues/")));
+          <CardInfoTags facts={{...issue, type: sourceType}} disabled={!!contextFailure} onRootCause={() => {
+            const document = [...issueDocumentEntries(issue), ...(issue.source_issues?.flatMap(source => source.document_entries || []) || [])].find(entry => entry.name === "root-cause.md" && (!entry.url || entry.url.includes("/issues/")));
             if (document) void openDocument(issue, document);
             else setToast("根因文档暂不可用，请刷新后重试。");
           }} />
+          {issue.card_kind === "delivery" && issue.estimate_status !== "available" && <span className="rc-tag" data-testid="rc-estimate-pending">{issue.estimate_status === "conflict" || issue.estimate_status === "invalid" ? "估算待核实" : "人力待估算"}</span>}
         </div>
-        <div className="rc-docs" aria-label={`${issue.id} 关联文档`}>
+        <div className="rc-docs" data-testid="rc-docs" aria-label={`${issue.id} 关联文档`}>
+          {issue.source_issues?.map(source => <div className="rc-doc-group" role="group" aria-label={`Issue ${source.id} 文档`} key={source.id}>
+            <span className="rc-doc-source" title={source.id}>Issue{issue.source_issues!.length > 1 ? ` ${source.id}` : ""}</span>
+            {source.document_entries?.map(document => <span className="rc-doc-item" key={document.url || document.name}>
+              <button type="button" onClick={() => void openDocument(issue, document)}>{document.label || document.name}</button>
+            </span>)}
+          </div>)}
           {ownDocuments.length > 0 && (
             <div className="rc-doc-group" role="group" aria-label={issue.type === "change" ? "Change 文档" : "Issue 文档"}>
               <span className="rc-doc-source">{issue.type === "change" ? "Change" : "Issue"}</span>
@@ -3391,9 +3466,7 @@ export function RequirementCenterPage() {
           )}
         </div>
         {isEnriching && issue.completion_hint && <p className="rc-blocked" data-testid="issue-completion-hint">{issue.completion_hint}</p>}
-        {stage.id === "acceptance" && (!issue.acceptancePendingCount || !manualProgress) && issue.acceptanceBlockedReason && issue.acceptanceBlockedReason !== "验收待检查" && (
-          <p className="rc-blocked" data-testid="acceptance-readiness">{issue.acceptanceBlockedReason}</p>
-        )}
+
         {issue.delivery_workspace_id && <p className="rc-progress" data-testid="delivery-workspace-status">工作区 {issue.delivery_workspace_id.slice(0, 8)} · {issue.workspace_execution_state === "occupied" ? "执行中" : "空闲"} · {({developing:"开发中",prepared:"候选已建立",validating:"组合验证中",validation_blocked:"组合验证未通过",validated:"待确认合入",integrated:"已合入主线"} as Record<string,string>)[issue.integration_state || ""] || "待交付"}</p>}
         {issue.type === "change" && !issue.taskProgress && <p className="rc-progress">任务进度未知</p>}
         {tip && tip !== "验收待检查" && !(stage.id === "acceptance" && tip === issue.acceptanceBlockedReason) ? (
@@ -3437,8 +3510,9 @@ export function RequirementCenterPage() {
             )}
           </div>
         )}
+        {issue.card_kind === "delivery" && issue.completion_hint && <p className="rc-progress" data-testid="rc-source-completion">{issue.completion_hint}</p>}
         <footer>
-          <span className="rc-updated">{/^\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}$/.test(issue.updatedAt || "") ? `更新 ${issue.updatedAt}` : "更新时间未知"}</span>
+          <CardTime {...issue} />
           <span className="rc-card-actions" aria-label={`${issue.id} 卡片动作`}>
             {issue.can_send === false && issue.view_conversation_id && (
               <button type="button" className="secondary" data-testid="view-execution" onClick={() => viewExecution(issue)}>查看执行</button>
@@ -3447,9 +3521,9 @@ export function RequirementCenterPage() {
               <button
                 className="secondary"
                 key={auxAction.command}
-                disabled={issue.can_send === false}
+                disabled={issue.can_send === false || Boolean(auxAction.disabledReason) || project?.readonly}
                 type="button"
-                title={auxAction.command}
+                title={auxAction.disabledReason || ((issue.source_issues?.length || 0) > 1 ? "选择来源事项后确认当前交付命令" : auxAction.command)}
                 onClick={() => {
                   openIssueActionDialog(issue, auxAction);
                 }}
@@ -3902,6 +3976,18 @@ export function RequirementCenterPage() {
       {captureOpen && <CaptureDialog project={project} contextFailure={Boolean(contextFailure)} existingIssues={issues as CaptureExistingIssue[]} onClose={closeCapture} onCreated={() => loadContext("refresh")} />}
 
       {renderActionDialog()}
+      {deliveryAction && <DeliveryActionDialog key={deliveryAction.issue.id} changeId={deliveryAction.issue.id} sources={deliveryAction.issue.source_issues || []}
+        project={`${deliveryAction.project.space_id} / ${deliveryAction.project.repository_id}`} label={deliveryAction.action.label}
+        command={deliveryAction.action.command.split(' ')[0] || (deliveryAction.issue.stage === "ready-dev" ? "/opsx-apply" : "/opsx-archive")} onClose={()=>setDeliveryAction(null)}
+        onContinue={sourceId=>{
+          const current = context?.issues.find(item=>item.id===deliveryAction.issue.id);
+          const target = projectRef.current;
+          const command = deliveryAction.action.command.split(' ')[0] || (deliveryAction.issue.stage === 'ready-dev' ? '/opsx-apply' : '/opsx-archive');
+          if(contextFailure || !target || target.readonly || target.space_id!==deliveryAction.project.space_id || target.repository_id!==deliveryAction.project.repository_id || !current || current.stage!==deliveryAction.issue.stage || !current.source_issues?.some(source=>source.id===sourceId) || (command!=='/opsx-modify' && actionDisabledReason(current.action)) || current.can_send===false){setDeliveryAction(null);setToast("交付目标或权限已变化，请刷新后重试");return;}
+          setLockedActionId(current.id);
+          openObjectChat({id:crypto.randomUUID(),spaceId:target.space_id,repositoryId:target.repository_id,objectId:current.id,title:current.title,text:`${command} ${sourceId}`});
+          setDeliveryAction(null);
+        }} />}
 
       {choiceDialog.type !== "none" && (
         <div className="rc-settings-mask" role="presentation" onMouseDown={() => setChoiceDialog({ type: "none" })}>
@@ -4024,7 +4110,12 @@ export function RequirementCenterPage() {
       {drawer.type !== "none" && (
         <div className="rc-drawer-layer" role="presentation">
           <button className="rc-drawer-backdrop" type="button" aria-label="关闭右侧抽屉蒙层" onClick={closeDrawer} />
-          <aside data-testid={drawer.type === "markdown" && drawer.document.name === "root-cause.md" ? "root-cause-document" : undefined} className={`rc-drawer${isDrawerFullscreen ? " fullscreen" : ""}`} style={isDrawerFullscreen ? undefined : { width: drawerWidth }} role="dialog" aria-modal="true" aria-label={drawerTitle(drawer)} onMouseDown={(event) => event.stopPropagation()}>
+          <aside ref={drawerElementRef} data-testid={drawer.type === "markdown" && drawer.document.name === "root-cause.md" ? "root-cause-document" : undefined} className={`rc-drawer${isDrawerFullscreen ? " fullscreen" : ""}`} style={isDrawerFullscreen ? undefined : { width: drawerWidth }} role="dialog" aria-modal="true" aria-label={drawerTitle(drawer)} onMouseDown={(event) => event.stopPropagation()} onKeyDown={event => {
+            if (event.key !== 'Tab') return;
+            const nodes = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex="0"]')).filter(node => node.getClientRects().length > 0);
+            if (event.shiftKey && document.activeElement === nodes[0]) { event.preventDefault(); nodes[nodes.length - 1]?.focus(); }
+            else if (!event.shiftKey && document.activeElement === nodes[nodes.length - 1]) { event.preventDefault(); nodes[0]?.focus(); }
+          }}>
             {!isDrawerFullscreen && <button className="rc-drawer-resizer" type="button" aria-label="调整右侧抽屉宽度" onMouseDown={beginDrawerResize} />}
             <header className="rc-drawer-head">
               {drawer.type === "markdown" ? (

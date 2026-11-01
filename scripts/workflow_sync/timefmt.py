@@ -53,6 +53,7 @@ def touch_frontmatter(
     *,
     force_created: bool = False,
     bump_updated: bool = True,
+    preserve_missing_created: bool = False,
 ) -> tuple[str, bool]:
     """Ensure created_at / updated_at exist and optionally bump updated_at."""
 
@@ -60,7 +61,8 @@ def touch_frontmatter(
     if not text.startswith("---"):
         wrapped = (
             "---\n"
-            f"created_at: {now}\n"
+            + ("" if preserve_missing_created else f"created_at: {now}\n")
+            +
             f"updated_at: {now}\n"
             "---\n\n"
             f"{text.lstrip()}"
@@ -93,7 +95,7 @@ def touch_frontmatter(
             continue
         out.append(line)
 
-    if not has_created:
+    if not has_created and not preserve_missing_created:
         out.append(f"created_at: {now}")
     if not has_updated:
         out.append(f"updated_at: {now}")

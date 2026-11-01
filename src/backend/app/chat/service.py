@@ -564,6 +564,8 @@ def request_turn(db, actor, cid, client_id, prompt, *, images=None, skills=None,
     materials = revalidate_skill_materials(db, actor, row, materials)
     previous = db.execute(select(turns).where(turns.c.conversation_id == cid, turns.c.client_request_id == client_id)).mappings().first()
     if previous:
+        from app.governance.preparation import assert_delivery_replay_identity
+        assert_delivery_replay_identity(db, row, previous)
         previous_materials = read_turn_materials(db, [previous['id']]).get(previous['id'], [])
         if previous['prompt'] != prompt or material_fingerprint(previous_materials) != material_fingerprint(materials) or not same_requested_config(previous.get('requested_config'), config['requested']):
             raise ChatError(2504, '同一请求标识不能用于不同输入')
@@ -715,9 +717,24 @@ def request_retry(db, actor, tid, client_id, *, request_id=None):
     previous=db.execute(select(turns).where(turns.c.conversation_id==parent['id'],turns.c.client_request_id==client_id)).mappings().first()
     if previous:
         if previous['retry_of'] != tid: raise ChatError(2504,'同一请求标识不能用于不同重试')
+        from app.governance.preparation import assert_delivery_replay_identity
+        assert_delivery_replay_identity(db, parent, original)
         return public_turn(previous)
     if original['status'] not in ('failed','stopped') or parent['active_turn_id'] or parent['archived']:
         raise ChatError(2506,'原运行未确认失败或停止，或会话当前不可重试')
+    from app.governance.preparation import _write_command, _command_baseline_id, bound_write_command, prepare_command_snapshot
+    command = _write_command(original['prompt'])
+    if command and command[0] in ('opsx-apply', 'opsx-modify', 'opsx-archive'):
+        from app.governance import store
+        try:
+            baseline = store.read(_command_baseline_id(parent['id'], original['client_request_id']), 'baseline')
+        except (OSError, ValueError):
+            raise ChatError(2604, '原交付执行上下文缺失，不能猜测重试目标', 409, kind='delivery_target_required') from None
+        if baseline.get('source_issue_id'):
+            effective = bound_write_command(db, actor, parent, original['prompt'])
+            if effective != (baseline['action'], baseline['object_id']) or command[1] != baseline['source_issue_id']:
+                raise ChatError(2604, '重试目标与原交付不一致', 409, kind='delivery_target_mismatch')
+            prepare_command_snapshot(db, actor, parent, original['prompt'], client_id)
     from app.chat.isolated import allowed
     if allowed(db,actor,parent['space_id'],parent['repository_id']):
         from app.chat.admission import enqueue

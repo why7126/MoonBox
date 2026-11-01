@@ -54,6 +54,14 @@ def get_requirement_center_status(
     visibility = RequestVisibility(reader.db, reader.actor, reader.scope)
     if any(not visibility.visible(value) for value in object_ids):
         raise ChatError(2601, '对象不存在或无权访问', 403)
+    # Delivery IDs inherit source authorization, including on direct polling.
+    delivery_ids = [oid for oid in object_ids if not oid.startswith(('REQ-', 'BUG-', 'sprint-'))]
+    if delivery_ids:
+        from app.governance.snapshot import cached_materialize
+        snapshot = reader.snapshot(summary=True)
+        with cached_materialize(snapshot, (str(reader.scope.root), reader.scope.binding_revision, True)) as root, legacy.using_governance_root(root):
+            for object_id in delivery_ids:
+                reader.authorize_object(snapshot, object_id, root=root, change=True)
     states = visible_states(reader.db, reader.actor, reader.scope, object_ids)
     overlays = delivery_overlay(reader.db, reader.scope.space_id, reader.scope.repository_id, object_ids)
     items = [{'object_id': oid, **state, **overlays.get(oid, {})} for oid, (_, state) in states.items()]
@@ -108,6 +116,9 @@ def get_requirement_center_context(
     try:
         request.state.governance_endpoint_started = monotonic()
         response = ApiResponse(data=reader.call("build_requirement_center_context", current_user=current_user, db=db, summary=view == 'summary', check_object_id=object_id))
+        if object_id and view == 'full':
+            from app.governance.acceptance_observability import record_check
+            record_check(db, request, str(current_user['id']))
         request.state.governance_endpoint_finished = monotonic()
         return response
     except OSError as exc:
@@ -278,3 +289,17 @@ def create_capture(payload: RequirementCenterCaptureCreate, request: Request, re
 def capture_readiness(reader: ProjectReader = Depends(get_reader)):
     from app.governance.readiness import status
     return ApiResponse(data=status(reader.db, reader.scope))
+
+
+from app.schemas.requirement_center import ChangePriorityUpdate
+
+
+@router.put("/changes/{change_id}/priority", response_model=ApiResponse[dict], status_code=202,
+            summary="提交独立变更优先级调整")
+def update_change_priority(request: Request, change_id: str, payload: ChangePriorityUpdate,
+                           reader: ProjectReader = Depends(get_reader)):
+    from app.governance.change_priority import enqueue_priority
+    result = enqueue_priority(reader, change_id, payload.priority, payload.expected_version, payload.idempotency_key)
+    from app.governance.acceptance_observability import record_check
+    record_check(reader.db, request, reader.actor, event_name="requirement_center.priority_save")
+    return ApiResponse(data=result)

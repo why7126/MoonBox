@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "fix-change-source-issue-estimate",
+  "environment_contract": {
+    "deployment": "local-test-39002",
+    "workspace_mode": "source",
+    "sample_scope": "现有BUG-0070归档卡片及合成负向回归",
+    "authorization_ref": "本轮用户确认更新现有本地测试服务",
+    "login_strategy": "Firefox已有会话，不导出凭据",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/openapi.json",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "coverage": {
+        "stages": [
+          "done"
+        ],
+        "viewports": [
+          "1440x800",
+          "390x800"
+        ],
+        "samples": [
+          {
+            "stage": "done",
+            "viewport": "1440x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "bash",
+          "-c",
+          "command -v curl >/dev/null && curl -fsS -o /dev/null http://localhost:39002"
+        ]
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/openapi.json",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "coverage": {
+        "stages": [
+          "done"
+        ],
+        "viewports": [
+          "1440x800",
+          "390x800"
+        ],
+        "samples": [
+          {
+            "stage": "done",
+            "viewport": "1440x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "bash",
+          "-c",
+          "command -v curl >/dev/null && curl -fsS -o /dev/null http://localhost:39002"
+        ]
+      ]
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "src/web/src/pages/catalog/CardInfoTags.tsx",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/card-info-tags.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "src/web/src/api/generated/governance.ts",
+        "src/web/openapi.json",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+        "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+      ],
+      "required_sample": {
+        "status": "passed"
+      },
+      "coverage": {
+        "stages": [
+          "done"
+        ],
+        "viewports": [
+          "1440x800",
+          "390x800"
+        ],
+        "samples": [
+          {
+            "stage": "done",
+            "viewport": "1440x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-1440.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/desktop-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390x800",
+            "artifacts": [
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-390.png",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/mobile-style.txt",
+              "openspec/changes/fix-change-source-issue-estimate/evidence/acceptance/visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "bash",
+          "-c",
+          "command -v curl >/dev/null && curl -fsS -o /dev/null http://localhost:39002"
+        ]
+      ]
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/card_metadata.py",
+        "src/backend/app/governance/change_index.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/backend/tests/test_change_source_estimate.py",
+        "src/backend/tests/test_delivery_cards.py",
+        "src/backend/tests/test_change_visibility.py",
+        "src/backend/tests/test_requirement_summary.py",
+        "openspec/changes/fix-change-source-issue-estimate/specs/web-catalog-requirement-center-real-data/spec.md",
+        "openspec/specs/web-catalog-requirement-center-real-data/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys; sys.path.insert(0,'src/backend'); import pytest; raise SystemExit(pytest.main(['src/backend/tests/test_change_source_estimate.py','src/backend/tests/test_delivery_cards.py','src/backend/tests/test_change_visibility.py','src/backend/tests/test_requirement_summary.py','-q']))"
+      ],
+      "timeout_seconds": 120,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command"
+      ]
+    }
+  ]
+}

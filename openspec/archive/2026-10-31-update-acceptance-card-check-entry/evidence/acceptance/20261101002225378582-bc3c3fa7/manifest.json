@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "change_id": "update-acceptance-card-check-entry",
+  "run_id": "20261101002225378582-bc3c3fa7",
+  "created_at": "2026-11-01 00:22:27",
+  "source_revision": "ea79eccdac8dbf1de7fbd3f1afe707573ccea942",
+  "environment": "unspecified",
+  "scope": "complete",
+  "status": "passed",
+  "preflight": [],
+  "checks": [
+    {
+      "id": "AC-001",
+      "fingerprint": "9d1136709358c8f5a3e0235a64332b0eb1068aad542fe7183b7e0a0900d6c13d",
+      "reused": false,
+      "deduplicated": false,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 1862,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-002",
+      "fingerprint": "c98f31ee90fc8c74618a3540f290690cee3405116239cc52ba89aa12cd8d91bc",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-003",
+      "fingerprint": "d83e095ff66c80b7321726fbed900db77ae1bcc43901e02d9a389ffee42f3980",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-004",
+      "fingerprint": "b8b60628ab08bf85a986a2d6af4dcfa5f317f59d55b2e20c92ed8cf1f6aaac3e",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-XCUT-001",
+      "fingerprint": "147d318305f6c35f9bd0b9732acf6268b0756ccc28a2898708c61232273b5ff7",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "fingerprint": "97c3581f28e06e84caf610a8b85baf970dd08edc139bafb8a6933ca5a90706e1",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "fingerprint": "2f9c2881744ce9ca6421bf34e412edb37200c7ea5400ea33cda14f8705eb4b06",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 2,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "fingerprint": "008a82d62740bcba6fd461deec1a604cd03ddd8eaa4a0bd46796f3eee2dfdd37",
+      "reused": false,
+      "deduplicated": true,
+      "status": "passed",
+      "reason": "exit-code",
+      "exit_code": 0,
+      "attempts": 1,
+      "effect_problems": [],
+      "artifacts": [
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+          "sha256": "9da862507e6dd26bade0a96fbbe5af19e043c4b63e8890fe944b478fc53b3e00"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+          "sha256": "e48996d5e3423da622e393dd3f8918c3a4e5ee7ab8023842e72697a7a71b29fb"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+          "sha256": "4048769e5e24c6c4717fae77dccc113ac33030725d7d8e1cae1924870120b832"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+          "sha256": "60fadab13e72dd73ba8b98d1e0f2df1307950421d95bac4a2a246b1d006fa71b"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+          "sha256": "42f29b6f83a41fce3fdc504baf55975cebe161813de23386a096b3b6a6a1a4fc"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+          "sha256": "eb5b78a2fcafbb7ba330121ed79e5f9c1b26de9452bc345c8af385a3770c5923"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+          "sha256": "c34bb29421710ab40ea4babe0d29f562395ce5010b963b3b6b6d719eb7304bd0"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+          "sha256": "bb42a54d119d5173ff60a32e118db19de5522090e2f2701d60d4b9e09f78ea56"
+        },
+        {
+          "path": "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png",
+          "sha256": "147c1cb8814879006425b929868fbbcb21d1bad34b92d5427056ff23926c61cb"
+        }
+      ],
+      "duration_ms": 3,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "collection_state": "passed"
+    }
+  ],
+  "metrics": {
+    "command_executions": 1,
+    "deduplicated": 7,
+    "reused": 0,
+    "preflight_ms": 5,
+    "duration_ms": 1989,
+    "blocked": 0,
+    "failed": 0
+  },
+  "activity": {
+    "status": "unavailable"
+  }
+}

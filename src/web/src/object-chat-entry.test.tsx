@@ -71,3 +71,14 @@ it('retries a failed opening with the same identity and ignores abandoned respon
   await act(async () => complete({ conversation_id: 'late-chat' }));
   expect(selected).not.toHaveBeenCalled(); expect(readObjectChatIntent()?.text).toBe(intent.text);
 });
+
+it('rejects a delivery response for a sibling before loading its conversation', async () => {
+  openObjectChat({...intent,objectId:'first-delivery',text:'/opsx-apply REQ-0001-source'});
+  const selected=vi.fn();
+  vi.mocked(chatRequest).mockResolvedValue({object_id:'second-delivery',conversation_id:'wrong-chat'} as never);
+  const view=renderHook(()=>useObjectChatEntry('space',selected));
+  await waitFor(()=>expect(view.result.current.error).toContain('交付会话目标不匹配'));
+  expect(selected).not.toHaveBeenCalled();
+  expect(chatRequest).toHaveBeenCalledTimes(1);
+  expect(readObjectChatIntent()?.objectId).toBe('first-delivery');
+});

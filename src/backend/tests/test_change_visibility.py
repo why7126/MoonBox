@@ -56,14 +56,16 @@ def test_bidirectional_dedup_and_multi_current(tmp_path):
     first = cards(root)
     assert len(first.issues) == 1 and first.stats.standalone_changes == 0
     row = first.issues[0]
-    assert row.id == 'REQ-0099' and row.title == '原需求'
+    assert row.id == 'one' and row.title == '中文业务标题'
+    assert row.source_issues[0].title == '原需求'
     assert row.current_change.id == 'one' and row.current_change.title == '中文业务标题'
-    assert row.stage == 'ready-dev' and row.task_progress == (1, 1)
+    assert row.stage == 'sprint-planning' and row.task_progress == (1, 1)
     change(root, 'two', requirement='REQ-0099')
-    row = cards(root).issues[0]
-    assert row.current_change is None and len(row.related_changes) == 2
-    assert row.change_warning == '多个 Change，当前项待核实'
-    assert row.tasks is None and row.title == '原需求' and row.stage == 'ready-dev'
+    rows = cards(root).issues
+    assert {row.id for row in rows} == {'one', 'two'}
+    assert all(row.current_change.id == row.id and row.tasks is not None for row in rows)
+    assert cards(root).stats.requirements == 1
+
 
 def test_hidden_sources_never_become_independent(tmp_path):
     root = fixture_tree(tmp_path); issue(root)
@@ -353,7 +355,7 @@ def test_projection_tracks_unique_proposal_and_archive_ambiguity(tmp_path):
     write(directory/'proposal.md', '# 提案独立业务目标\n')
     row = cards(root).issues[0]
     assert row.display_title == '提案独立业务目标' and row.title_source == 'proposal.md'
-    assert row.title == '原需求'
+    assert row.title == '提案独立业务目标'
     write(directory/'trace.md', '---\nstatus: applied\ntitle: 错误追溯业务标题\n---\n# 错误追溯业务标题\n')
     write(directory/'design.md', '# 错误设计业务标题\n')
     assert cards(root).issues[0].display_title == '提案独立业务目标'

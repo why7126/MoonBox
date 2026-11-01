@@ -2,11 +2,15 @@
 purpose: 规范工程变更历史
 content: 记录 docs/spec-logs 下规范、脚本、命令、目录边界和校验规则的更新日志索引
 created_at: 2026-08-08 20:53:52
-updated_at: 2026-10-30 14:54:44
+updated_at: '2026-11-01 00:57:00'
 owner: MoonBox 产品团队
 ---
 
 # 规范工程变更历史
+
+- 2026-11-01 00:12:15 · governance · [提案历史引用恢复](20261101001215-governance-archive-quoted-history.md)：77项回归与真实归档收尾通过，历史证据保持不变。
+
+- 2026-11-01 00:06:57 · governance · [归档历史声明恢复](20261101000657-governance-archive-historical-closure.md)：证明绑定的精确句子历史投影；BUG-0073收尾finalized，70项回归通过。
 
 - 2026-10-31 11:16:23 · governance · [归档工具独立版本路由](20261031111623-governance-archive-tool-version-routing.md)：只读工具包、跨入口摘要、恢复绑定与子容器验收。
 
@@ -181,3 +185,7 @@ owner: MoonBox 产品团队
 - 2026-10-23 governance：[后继兼容证明取消硬门禁](20261023211000-governance-successor-proof-optional.md)。
 
 - 2026-10-26 11:09:08：[归档规格末尾空行补证](20261026110908-governance-archive-newline-proof.md)，修复 sprint-013 历史证明与引用，保留原记录。
+
+- 2026-10-31 21:45:00 | governance | [独立 Change 分级治理实施记录](20261031214500-governance-standalone-change-priority.md)
+
+- 2026-11-01：REQ-0059 独立 Change 创建分级与只读卡片；见 [治理同步](20261101005700-governance-standalone-change-classification.md)。

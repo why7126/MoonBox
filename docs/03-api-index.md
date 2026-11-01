@@ -2,7 +2,7 @@
 purpose: API 索引
 content: MoonBox REST API 模块、契约治理和客户端生成规则
 created_at: 2026-07-29 22:55:00
-updated_at: "2026-10-31 11:58:51"
+updated_at: '2026-11-01 00:57:00'
 owner: MoonBox 产品团队
 ---
 
@@ -621,3 +621,36 @@ GET `/api/v1/chat/turns/{tid}/questions`读取本人授权轮次问题与turn_st
 ### Chat 验收能力预检
 
 `GET /api/v1/chat/conversations/{cid}/verification-preflight`：当前会话权限校验后返回能力列表、稳定原因、检查时间、环境/模板摘要。无请求体，不接受命令、目标URL或路径。`acceptance_passed`固定为false；配置与探针就绪都不能证明业务验收通过。无权/绑定撤销保持403/404，前端手动重新检查，不后台轮询。OpenAPI及Orval同步；执行前Task Trace记录脱敏预检结果，沿用原请求日志、权限及保留策略。
+
+
+## 需求中心独立交付卡片（REQ-0056）
+
+`context.issues[]` 新增 `card_kind`（issue/delivery）、`target_change_id` 与 `source_issues[]`（完整id、type、title、status及授权文档）。交付卡的 `id`/`object_id` 为明确 Change，`document_entries` 仅含自身 Change 与自身 Sprint；来源文档从 `source_issues[].document_entries` 读取。早期 Issue 卡保留原契约，显式查询 Issue 详情仍返回整体验收范围。
+
+列表总数按卡片计，requirements/bugs按完整来源身份去重，standalone_changes仅计无来源Change。估算只接受明确Change估算，不能复制Issue总量；已归档交付不推导来源已完成。
+
+Change文档及状态轮询须同时通过自身与来源权限。多Change来源的旧阶段命令返回409（delivery_target_required），不会任取关联Change。交付卡通过明确的 Change 主对象会话传递目标；不支持目标传递的自动验收入口禁用并解释原因。API客户端已重新生成；无数据库结构或部署参数变化。
+
+当前 Change 主对象会话可接收完整来源 `opsx-apply`、`opsx-modify`、`opsx-archive` 命令。服务端将经关系校验的目标写入命令基线与日志，保留 source_issue_id；重试、工作区初始化、发送和执行权限判定重验目标。阶段写入还要求当前有效 Sprint 同时包含目标 Change 与所选来源，读取与显示不会因此扩大写权。新卡片支持开发/返修/归档目标确认，Sprint归属不明确时仍禁用相关入口。文档查看携带固定 `X-Delivery-Action: document-open` 标记，授权成功后的行为和请求记录只保存 target_change_id/source_issue_ids；直接API不生成界面事件，任务写入沿用相同受控目标摘要，无正文、Prompt或凭据。
+
+### 单卡验收条件只读检查
+
+BUG-0071复用 `GET /api/v1/requirement-center/context?object_id=...` 完整读取；`space_id`、`repository_id` 沿用现有作用域，省略view默认full。摘要首屏继续使用view=summary。只检查授权目标，不执行验收计划、不发送Agent消息、不归档。
+
+Web显式检查可携带 `X-Behavior-Event-ID`、`X-Behavior-Trace-ID`（各1至64位字母、数字、下划线或连字符）；后端记录requirement_center.acceptance_check行为与服务端请求ID，非法或缺失标识忽略，观测失败不影响读取。直接API不伪造行为事件。响应schema未变，无需重新生成客户端。归档授权和提交时证据复核仍独立执行。
+
+## 独立 Change 优先级（REQ-0057，实施中）
+PUT /api/v1/requirement-center/changes/{change_id}/priority：经项目写权限、对象可见性、独立来源、活动目录、维护窗口与expected_version校验后返回202操作标识；请求包含priority（P0—P3）和idempotency_key。沿既有操作查询等待applied再回读，冲突409、无权/只读403、非法输入422、维护窗口未就绪503。通用Change文档编辑权限不扩展；同值不刷新业务时间。OpenAPI及Orval为字段契约来源，尚待完整产品验收。
+
+
+### 独立 Change 卡片时间来源（BUG-0070）
+
+需求中心 context 摘要/完整响应的 RequirementCenterIssue 新增可选 card_time（带时区 ISO 字符串或 null）与 card_time_source（updated、created、execution_completed、execution_started、missing 或 null）。仅无来源 Issue 的独立 Change 填充；REQ/BUG 与其交付卡保留原契约。合法来源按更新时间、创建时间、执行完成、执行开始依次选取；字段非法跳过，全缺失为 missing。updated_at 保持原兼容投影，不以执行时间覆盖。读取不更新文件，不新增深度检查、权限或日志字段。Web 以 Asia/Shanghai 格式化并标注来源。OpenAPI 与 Orval 生成物同步。
+
+### Change 来源估算引用（BUG-0073）
+
+`context` 的 full/summary 共用 `estimate_source_issue_id`（字符串或 null）。Change 自身估算优先，非法或冲突不回退；无自身记录时，仅在完整关系索引（包括隐藏、归档与缺目录关联）证明单一来源、单一交付，且来源和 Change 均在有效 Sprint 范围、scope 的来源记录明确绑定该 Change 时引用。来源值同样校验有限非负数；重复一致去重，冲突不猜测。引用成功时返回已授权来源 ID，标签提示引用来源及非实际耗时；自身估算和不可用状态返回 null。权限在投影前按 Change 及全部来源校验，不因隐藏关系制造唯一性。Sprint容量仍读取原 scope，不从卡片累计；不新增数据库字段、请求、行为事件或 Task Trace，沿用既有请求关联、脱敏与保留周期。OpenAPI/Orval 已同步。
+
+### 独立 Change 自动分级与只读卡片
+context 的独立交付卡新增 classification_dimension（priority/severity）与 classification_state（valid/missing/invalid）。fix 使用 severity，其余使用 priority；缺失待评估、非法或类型冲突待核实。can_edit_priority 恒为 false，旧 priority_version 不再用于界面编辑。来源 Issue 分级及授权不变。
+旧 PUT priority 保留非 fix 兼容路径；fix、显式类型非法或与 fix- 前缀冲突返回 409/2606，不入队，异步执行时再次检查。既有权限、维护窗口、版本、来源和归档校验不变。前端不再发送此保存请求。无新增数据库迁移、部署服务或对象存储读写；OpenAPI/Orval 客户端同步。

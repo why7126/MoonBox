@@ -1,0 +1,8 @@
+---
+title: 验收续接检查点
+---
+
+# 验收续接检查点
+
+结论：blocked。
+| AC-XCUT-004 | passed | command,visual | openspec/changes/add-standalone-change-priority/evidence/visual/http-result.json,openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-open.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-light-open.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-open.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-open.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-error.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-light-error.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-error.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-error.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-saving.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-light-saving.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-saving.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-saving.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-light-conflict.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-light-conflict.png,openspec/changes/add-standalone-change-priority/evidence/visual/1440-dark-conflict.png,openspec/changes/add-standalone-change-priority/evidence/visual/390-dark-conflict.png |

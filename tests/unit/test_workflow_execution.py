@@ -169,3 +169,64 @@ def test_projection_failure_keeps_fact_and_retry_repairs(change, monkeypatch):
     result=engine.SyncEngine().run(event='opsx.start',change_id=record.change_id)
     assert not result.errors and len(result.updated)==3
     assert path.read_text()==started
+
+
+def test_missing_time_is_inserted_only_for_effective_transition(change, monkeypatch):
+    root, path, record = change
+    path.write_text('---\nstatus: proposed\n---\n# 保留正文\n')
+    monkeypatch.setattr('scripts.workflow_sync.timefmt.now_shanghai', lambda: '2026-10-31 12:00:00')
+    transition(root, record, 'opsx.start', write=True)
+    first = path.read_text()
+    assert 'updated_at: 2026-10-31 12:00:00' in first
+    assert 'created_at:' not in first
+    monkeypatch.setattr('scripts.workflow_sync.timefmt.now_shanghai', lambda: '2026-11-01 13:00:00')
+    transition(root, record, 'opsx.start', write=True)
+    assert path.read_text() == first
+    record.tasks.done = 2
+    transition(root, record, 'opsx.apply', write=True)
+    completed = path.read_text()
+    assert 'updated_at: 2026-11-01 13:00:00' in completed
+    transition(root, record, 'opsx.apply', write=True)
+    assert path.read_text() == completed
+
+
+def test_business_edit_preserves_missing_created_and_execution(change):
+    from scripts.workflow_sync.timefmt import touch_frontmatter
+    _, path, _ = change
+    original='---\nstatus: applied\nexecution:\n  completed_at: 2026-10-31 12:00:00\n---\n# 返修结果\n'
+    updated, changed=touch_frontmatter(original,preserve_missing_created=True)
+    assert changed and 'updated_at:' in updated and 'created_at:' not in updated
+    assert 'completed_at: 2026-10-31 12:00:00' in updated
+
+
+@pytest.mark.parametrize("event,status", [("opsx.modify", "applied"), ("opsx.archive", "archived")])
+def test_change_document_write_and_replay_keep_first_completion(change, event, status):
+    from scripts.workflow_sync.patch import persist_markdown
+    _, path, _ = change
+    original = "---\nstatus: applied\nexecution:\n  completed_at: 2026-10-31 12:00:00\n---\n# 原事实\n"
+    path.write_text(original)
+    assert not persist_markdown(path, original, original, True)
+    assert path.read_text() == original
+    changed = original.replace("status: applied", "status: " + status) + "\n" + event + " 真实业务记录\n"
+    assert persist_markdown(path, changed, original, True)
+    result = path.read_text()
+    assert "updated_at:" in result and "created_at:" not in result
+    assert "completed_at: 2026-10-31 12:00:00" in result
+    assert not persist_markdown(path, result, result, True)
+    assert path.read_text() == result
+
+
+
+def test_changed_task_progress_updates_time_but_same_progress_does_not(change,monkeypatch):
+    root,path,record=change
+    transition(root,record,'opsx.start',write=True)
+    transition(root,record,'opsx.progress',write=True)
+    before=path.read_text()
+    monkeypatch.setattr('scripts.workflow_sync.timefmt.now_shanghai',lambda:'2026-11-02 11:22:33')
+    transition(root,record,'opsx.progress',write=True)
+    assert path.read_text()==before
+    record.tasks.done=1
+    transition(root,record,'opsx.progress',write=True)
+    assert 'updated_at: 2026-11-02 11:22:33' in path.read_text()
+    assert 'execution_tasks: 1/2' in path.read_text()
+    assert 'created_at: 2026-09-12 00:00:00' in path.read_text()

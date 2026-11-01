@@ -1,7 +1,7 @@
 ---
 name: "opsx-archive"
 description: "Archive a completed OpenSpec change"
-updated_at: 2026-10-30 12:06:04
+updated_at: 2026-11-01 00:11:52
 ---
 
 # opsx-archive
@@ -207,3 +207,9 @@ wrapper 的 --finalize 在同步与迁移后执行 check-archive-finalization.py
 ## 受保护验收元数据冲突恢复
 
 若唯一归档已迁移且原完整验收证据通过，但设计映射保留 `not_started`，使用 `bash scripts/project-python.sh scripts/restore-archive-metadata.py --change <change-id>` 预检，再以 `--apply` 追加绑定记录。保留原文与恢复日志，禁止改哈希或删日志绕过。记录失配或非初始状态继续阻断；修复通过后续跑原 `archive-change.sh --finalize`，不重复合并规格。跨 Sprint 关联 Change 由 Workflow Sync 完整读取；不能手动将未完成兄弟状态改为 archived。
+
+若收尾阻塞为 proposal 初始 `proposed` 状态或已关闭来源 Issue 指向自身 Change 的旧活动目录导航，使用 `bash scripts/project-python.sh scripts/restore-archive-finalization.py --change <change-id>` 预检，在已有恢复授权内以 `--apply` 追加证明绑定的投影，再续跑原 wrapper。此入口不修改归档原文、正式规格或原恢复日志；唯一身份、来源闭合、完整验收、原恢复证明、来源和目标字节须保持有效。失败状态、部分交付、未完成兄弟、越界、符号链接、未知冲突或记录失配仍阻断，不删记录绕过。
+
+已完成归档的trace验收结论保留精确历史句子“无正式归档授权，本次未归档”时，可在当前恢复授权内使用同一restore-archive-finalization预检与--apply入口追加历史投影，再续跑wrapper；同段其他冲突、证明失配或未知措辞继续阻断，不修改历史原文。
+
+提案背景中以Issue编号、归档同步、精确验收声明引用及共享校验误判说明构成的完整历史句式，也可经同一恢复入口追加证明绑定投影。仅豁免匹配整句，其他句子、未知措辞、失败状态及绑定失配继续阻断。

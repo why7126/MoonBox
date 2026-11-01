@@ -152,3 +152,9 @@ After completing all artifacts, summarize:
 ## 面向用户的表达
 
 面向用户的输出遵循 `rules/language.md` 的“产品经理视角沟通”：先讲业务结果和用户影响，优先日常语言，必要技术术语随文解释；决策说明体验、成本、时间和风险。
+
+## 独立 Change 创建时自动分级
+
+无REQ/BUG来源时，创建Agent先基于提案与证据评估，在trace Frontmatter写change_type: fix/non_fix；fix写severity（blocker/critical/high/medium/low），其他写priority（P0/P1/P2/P3）。classification包含state: assessed、dimension: severity/priority、rationale、非空evidence_refs、evaluated_at（秒级时间）、evaluated_by。名称使用fix-时类型为fix；不将关键词或前缀当作等级依据。
+
+材料不足先自主补证，仍不足写state: pending和缺口，不填统一默认等级。opsx.propose必须成功后才报告创建完整完成；共享完成校验失败保留草稿，继续补齐依据。来源Issue继承分级，不创建镜像；重试不覆盖有效评估，不重写历史归档。卡片只展示，后续重评通过授权治理流程记录理由和历史。规则见rules/document-governance.md“独立 Change 分级”。

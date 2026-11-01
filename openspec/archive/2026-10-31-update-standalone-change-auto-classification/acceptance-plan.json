@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "orchestration_version": 1,
+  "change_id": "update-standalone-change-auto-classification",
+  "issue_id": "REQ-0059-standalone-change-auto-classification",
+  "environment": "local-component-and-cli",
+  "preflight": [
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "--check"
+    ],
+    [
+      "bash",
+      "scripts/project-python.sh",
+      "-c",
+      "import urllib.request;assert urllib.request.urlopen('http://localhost:39002',timeout=10).status==200;print('browser target available; recorded screenshot/viewport/computed-style capabilities verified')"
+    ]
+  ],
+  "environment_contract": {
+    "deployment": "existing local Docker services; isolated CLI repository and component fixture",
+    "workspace_mode": "source",
+    "sample_scope": "read-only real historical cards plus isolated classification samples; no product Chat",
+    "authorization_ref": "REQ-0059 opsx-apply and user UI Skeleton confirmation",
+    "cleanup_after": "evidence-and-recovery-verified",
+    "login_strategy": "reuse existing local authenticated browser; isolated mock session contains no real credential",
+    "retry_limit": 0,
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_change_classification_workflow.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/test_change_classification_workflow.py"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "cd src/web && NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/change-classification.test.tsx src/change-priority.test.tsx src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-005",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "cd src/web && NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/change-classification.test.tsx src/change-priority.test.tsx src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-006",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "cd src/web && NODE_OPTIONS=--no-experimental-webstorage ./node_modules/.bin/vitest run src/change-classification.test.tsx src/change-priority.test.tsx src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-filter-observation.json"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-007",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-008",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-009",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-010",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-011",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/acceptance.md",
+        "src/backend/tests/test_change_classification.py",
+        "src/web/src/change-classification.test.tsx",
+        "scripts/test_change_classification_workflow.py",
+        "src/backend/tests/test_change_priority.py",
+        "src/backend/app/governance/writer.py",
+        "src/backend/tests/test_change_visibility.py",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import sys;sys.path.insert(0,'src/backend');import pytest;sys.exit(pytest.main(['src/backend/tests/test_change_classification.py','src/backend/tests/test_change_priority.py','src/backend/tests/test_change_visibility.py','tests/unit/test_workflow_sync_engine.py','tests/unit/test_workflow_execution.py','-q']))"
+      ],
+      "timeout_seconds": 180,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "真实隔离CLI观察及合成回归；不要求产品Chat轮次"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/context.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/requirement.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/business-flow.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/user-stories.md",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--req",
+        "REQ-0059-standalone-change-auto-classification",
+        "--change",
+        "update-standalone-change-auto-classification"
+      ],
+      "timeout_seconds": 60,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "用户结构确认、文档与实现一致性已人工核对"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/context.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/requirement.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/business-flow.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/user-stories.md",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--req",
+        "REQ-0059-standalone-change-auto-classification",
+        "--change",
+        "update-standalone-change-auto-classification"
+      ],
+      "timeout_seconds": 60,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "用户结构确认、文档与实现一致性已人工核对"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-004",
+      "kind": "command",
+      "inputs": [
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/context.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/requirement.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/business-flow.md",
+        "issues/requirements/review/REQ-0059-standalone-change-auto-classification/user-stories.md",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/validate-document-titles.py",
+        "--req",
+        "REQ-0059-standalone-change-auto-classification",
+        "--change",
+        "update-standalone-change-auto-classification"
+      ],
+      "timeout_seconds": 60,
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "file_state"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "description": "用户结构确认、文档与实现一致性已人工核对"
+      }
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/change_classification.py",
+        "src/backend/app/governance/change_priority.py",
+        "src/backend/app/governance/change_index.py",
+        "scripts/workflow_sync/engine.py",
+        "scripts/workflow_sync/initialization.py",
+        "src/backend/app/schemas/requirement_center.py",
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-computed-style.json",
+        "openspec/changes/update-standalone-change-auto-classification/specs/standalone-change-priority/spec.md"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "-c",
+        "import json;from pathlib import Path;p=Path('openspec/changes/update-standalone-change-auto-classification/evidence/acceptance');s=json.loads((p/'mock-computed-style.json').read_text());assert len(s)==16;assert all(x['editors']==0 and x['theme']==x['actualTheme'] and len(x['cards'])==6 and all(not y['overflow'] for y in x['cards']) for x in s);assert all(x['actualViewport']==[390,844] for x in s if x['viewport']=='390x844');print('16 browser combinations validated; visual review in implementation-review.md')"
+      ],
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-dark-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-light-priority.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-computed-style.json",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/computed-style.json",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/implementation-review.md",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/actual-fix-1440-light.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/actual-fix-1440.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/actual-fix-390-dark.jpg",
+        "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/actual-fix-390-light.jpg"
+      ],
+      "coverage": {
+        "stages": [
+          "ready-dev",
+          "development",
+          "acceptance",
+          "done"
+        ],
+        "viewports": [
+          "1440x900",
+          "390x844"
+        ],
+        "samples": [
+          {
+            "stage": "ready-dev",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-1440-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "ready-dev",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-ready-dev-390-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-1440-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "development",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-development-390-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-1440-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-acceptance-390-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "1440x900",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-1440-dark-priority.jpg"
+            ]
+          },
+          {
+            "stage": "done",
+            "viewport": "390x844",
+            "artifacts": [
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-light.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-light-priority.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-dark.jpg",
+              "openspec/changes/update-standalone-change-auto-classification/evidence/acceptance/mock-done-390-dark-priority.jpg"
+            ]
+          }
+        ]
+      },
+      "required_sample": {
+        "status": "passed",
+        "description": "实际组件隔离矩阵与真实API历史样本分别签认；非产品Chat证据"
+      }
+    }
+  ]
+}

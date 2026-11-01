@@ -21,3 +21,10 @@ it.each([[0,'S'],[.5,'S'],[1,'S'],[1.01,'M'],[3,'M'],[3.01,'L'],[5,'L'],[5.01,'X
 it.each([null,undefined,-1,NaN,Infinity,'3',true])('hides invalid effort %s',days=>{
  render(<CardInfoTags facts={{type:'bug',estimate_status:'available',estimated_person_days:days as number}} onRootCause={()=>{}}/>);expect(screen.queryByTestId('person-days-tag')).toBeNull();
 });
+it('identifies the source estimate without presenting it as actual time',()=>{
+ render(<CardInfoTags facts={{type:'change',estimate_status:'available',estimated_person_days:3,estimate_source_issue_id:'BUG-0070-sample'}} onRootCause={()=>{}}/>);
+ const tag=screen.getByTestId('person-days-tag');
+ expect(tag.textContent).toBe('M·3人天');
+ expect(tag.title).toContain('引用来源 BUG-0070-sample');
+ expect(tag.title).toContain('非实际耗时');
+});

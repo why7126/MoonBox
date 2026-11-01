@@ -21,8 +21,9 @@ class PatchResult:
 
 def persist_markdown(path: Path, text: str, original: str, write: bool) -> bool:
     changed = text != original
-    if write:
-        text, ts_changed = touch_frontmatter(text, bump_updated=changed)
+    change_trace = path.name == "trace.md" and "openspec" in path.parts
+    if write and (changed or not change_trace):
+        text, ts_changed = touch_frontmatter(text, bump_updated=changed, preserve_missing_created=change_trace)
         changed = changed or ts_changed
         if changed:
             atomic_write(path, text, original)

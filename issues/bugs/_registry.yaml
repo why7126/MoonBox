@@ -1,5 +1,17 @@
-next_id: 73
+next_id: 74
 entries:
+- id: BUG-0073-change-source-issue-estimate-missing
+  title: "Change 卡片未展示来源 Issue 已有人力估算"
+  status: done
+  severity: medium
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0073-change-source-issue-estimate-missing/
+  owner: 产品团队
+  created: '2026-10-31 23:08:26'
+  iteration: sprint-018
+  related_requirement: REQ-0056-requirement-center-change-delivery-cards
+  related_bug: BUG-0070-standalone-change-updated-time-missing
+  related_change: fix-change-source-issue-estimate
 - id: BUG-0072-standalone-change-ready-dev-without-sprint
   title: "独立 Change 未纳入迭代却提前显示待开发"
   status: done
@@ -13,7 +25,7 @@ entries:
   related_change: fix-standalone-change-sprint-stage
   iteration: sprint-017
 - id: BUG-0071-change-summary-acceptance-check-entry-missing
-  status: pending_review
+  status: done
   severity: high
   owner: 产品团队
   source: 用户 capture 授权与同会话 explore
@@ -22,23 +34,23 @@ entries:
   related_bugs:
   - BUG-0054-change-card-blocked-reason-missing
   - BUG-0056-requirement-center-context-load-latency
-  iteration: null
+  iteration: sprint-018
   title: "独立 Change 归档按钮禁用且缺少验收检查入口"
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0071-change-summary-acceptance-check-entry-missing/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0071-change-summary-acceptance-check-entry-missing/
   created: '2026-10-30 09:38:45'
-  related_change: null
+  related_change: fix-change-summary-acceptance-check-entry
 - id: BUG-0070-standalone-change-updated-time-missing
   title: "独立 Change 卡片更新时间缺失"
-  status: pending_review
+  status: done
   severity: medium
   owner: 产品团队
   source: 用户 capture 授权与同会话 explore
-  lifecycle_stage: plan
-  path: issues/bugs/plan/BUG-0070-standalone-change-updated-time-missing/
+  lifecycle_stage: archive
+  path: issues/bugs/archive/BUG-0070-standalone-change-updated-time-missing/
   created: '2026-10-30 09:37:37'
-  iteration: null
-  related_change: null
+  iteration: sprint-018
+  related_change: fix-standalone-change-updated-time
   related_requirement: null
   related_bug: null
 - id: BUG-0069-chat-interrupted-successor-proof-missing

@@ -333,6 +333,14 @@ class SyncEngine:
             try:
                 before = dict(record.trace)
                 record.trace = initialize(ROOT, record, write=not (self.dry_run or self.check))
+                # Creation completion requires an evidence-backed assessment only
+                # for independent proposals; old execution/archival is unaffected.
+                if not record.linked_req and not record.linked_bug:
+                    from app.governance.change_classification import validate_assessment
+                    source_keys = ('requirement', 'requirement_id', 'req_id', 'source_requirement', 'requirements', 'bug', 'bug_id', 'source_bug', 'bugs', 'source_issue', 'source_issues')
+                    if any(record.trace.get(key) for key in source_keys):
+                        raise ValueError('Change 来源未解析，不能按独立对象完成创建')
+                    validate_assessment(record.change_id, record.trace)
                 if before != record.trace:
                     report.updated.append(PatchResult("openspec/changes/" + record.change_id + "/trace.md", True, event))
             except ValueError as exc:

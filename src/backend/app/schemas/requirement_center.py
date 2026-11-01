@@ -33,7 +33,19 @@ class RequirementCenterChangeSummary(BaseModel):
     document_entries: list[RequirementCenterDocument] = Field(default_factory=list)
 
 
+class RequirementCenterSource(BaseModel):
+    id: str
+    type: Literal["requirement", "bug"]
+    title: str
+    status: str | None = None
+    document_entries: list[RequirementCenterDocument] = Field(default_factory=list)
+
+
 class RequirementCenterIssue(BaseModel):
+    card_kind: Literal["issue", "delivery"] = "issue"
+    target_change_id: str | None = None
+    source_issues: list[RequirementCenterSource] = Field(default_factory=list)
+
     object_id: str | None = Field(default=None, description='当前卡片完整治理身份，用于受权状态查询')
     checks_deferred: bool = Field(default=False, description='摘要未执行深度核验；不代表通过，动作入口仍重新校验')
     delivery_workspace_id: str | None = None
@@ -41,6 +53,7 @@ class RequirementCenterIssue(BaseModel):
     integration_state: str | None = None
     estimated_person_days: float | None = Field(default=None, description="对象有效 Sprint Scope 的预估开发人天；缺失不填零")
     estimate_status: Literal["available", "missing", "conflict", "invalid"] = "missing"
+    estimate_source_issue_id: str | None = Field(default=None, description="唯一来源 Issue 估算引用；自身估算或不可用时为空")
     root_cause_state: Literal["absent", "pending", "confirmed"] = "absent"
     root_cause_reason: Literal["missing", "conflict", "invalid"] | None = None
     verification_operation_id: str | None = None
@@ -64,6 +77,11 @@ class RequirementCenterIssue(BaseModel):
     type: str
     title: str
     priority: str = ""
+    priority_state: Literal["valid", "missing", "invalid"] = "missing"
+    classification_dimension: Literal["priority", "severity"] | None = None
+    classification_state: Literal["valid", "missing", "invalid"] = "missing"
+    priority_version: str | None = None
+    can_edit_priority: bool = False
     severity: str = ""
     owner: str
     owner_key: str | None = Field(default=None, description="负责人稳定筛选键，不用于认证授权")
@@ -79,6 +97,8 @@ class RequirementCenterIssue(BaseModel):
     action: RequirementCenterAction | None = None
     tasks: RequirementCenterTasks | None = None
     updated_at: str
+    card_time: str | None = None
+    card_time_source: Literal["updated", "created", "execution_completed", "execution_started", "missing"] | None = None
     blocked: str | None = None
     sprint_id: str | None = None
     task_progress: tuple[int, int] | None = None
@@ -250,3 +270,9 @@ class RequirementCenterCaptureCreate(BaseModel):
         if not business_title(value) or any(ord(char) < 32 for char in value):
             raise ValueError("标题须为有效中文业务标题，不能包含控制字符")
         return value
+
+
+class ChangePriorityUpdate(BaseModel):
+    priority: Literal["P0", "P1", "P2", "P3"]
+    expected_version: str = Field(min_length=64, max_length=64, pattern=r"^[0-9a-f]+$")
+    idempotency_key: str = Field(min_length=1, max_length=200)

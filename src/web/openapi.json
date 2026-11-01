@@ -3440,6 +3440,106 @@
         }
       }
     },
+    "/api/v1/requirement-center/changes/{change_id}/priority": {
+      "put": {
+        "tags": [
+          "requirement-center"
+        ],
+        "summary": "提交独立变更优先级调整",
+        "operationId": "update_change_priority_api_v1_requirement_center_changes__change_id__priority_put",
+        "parameters": [
+          {
+            "name": "change_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
+            }
+          },
+          {
+            "name": "space_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Space Id"
+            }
+          },
+          {
+            "name": "repository_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Repository Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePriorityUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_dict_"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequirementCenterReadError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/catalog/workspace-applications/create": {
       "post": {
         "tags": [
@@ -18634,6 +18734,40 @@
         ],
         "title": "CatalogSpaceCreateResult"
       },
+      "ChangePriorityUpdate": {
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": [
+              "P0",
+              "P1",
+              "P2",
+              "P3"
+            ],
+            "title": "Priority"
+          },
+          "expected_version": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]+$",
+            "title": "Expected Version"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "priority",
+          "expected_version",
+          "idempotency_key"
+        ],
+        "title": "ChangePriorityUpdate"
+      },
       "CleanupRequest": {
         "properties": {
           "space_id": {
@@ -22591,6 +22725,33 @@
       },
       "RequirementCenterIssue": {
         "properties": {
+          "card_kind": {
+            "type": "string",
+            "enum": [
+              "issue",
+              "delivery"
+            ],
+            "title": "Card Kind",
+            "default": "issue"
+          },
+          "target_change_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Change Id"
+          },
+          "source_issues": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementCenterSource"
+            },
+            "type": "array",
+            "title": "Source Issues"
+          },
           "object_id": {
             "anyOf": [
               {
@@ -22664,6 +22825,18 @@
             ],
             "title": "Estimate Status",
             "default": "missing"
+          },
+          "estimate_source_issue_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimate Source Issue Id",
+            "description": "唯一来源 Issue 估算引用；自身估算或不可用时为空"
           },
           "root_cause_state": {
             "type": "string",
@@ -22864,6 +23037,57 @@
             "title": "Priority",
             "default": ""
           },
+          "priority_state": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "missing",
+              "invalid"
+            ],
+            "title": "Priority State",
+            "default": "missing"
+          },
+          "classification_dimension": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "priority",
+                  "severity"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification Dimension"
+          },
+          "classification_state": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "missing",
+              "invalid"
+            ],
+            "title": "Classification State",
+            "default": "missing"
+          },
+          "priority_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Version"
+          },
+          "can_edit_priority": {
+            "type": "boolean",
+            "title": "Can Edit Priority",
+            "default": false
+          },
           "severity": {
             "type": "string",
             "title": "Severity",
@@ -22979,6 +23203,35 @@
           "updated_at": {
             "type": "string",
             "title": "Updated At"
+          },
+          "card_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Time"
+          },
+          "card_time_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "updated",
+                  "created",
+                  "execution_completed",
+                  "execution_started",
+                  "missing"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Time Source"
           },
           "blocked": {
             "anyOf": [
@@ -23159,6 +23412,51 @@
           "request_id"
         ],
         "title": "RequirementCenterReadFailureDetails"
+      },
+      "RequirementCenterSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "requirement",
+              "bug"
+            ],
+            "title": "Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "document_entries": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementCenterDocument"
+            },
+            "type": "array",
+            "title": "Document Entries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "title"
+        ],
+        "title": "RequirementCenterSource"
       },
       "RequirementCenterSprintMetrics": {
         "properties": {

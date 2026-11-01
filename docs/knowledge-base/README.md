@@ -6,7 +6,7 @@ source: workflow governance
 update_method: Sprint 复盘、best-practice 或命令门禁变化时更新
 owner: 项目负责人
 status: active
-updated_at: 2026-10-31 16:03:16
+updated_at: 2026-11-01 08:10:00
 ---
 
 # 知识库使用说明
@@ -59,6 +59,7 @@ updated_at: 2026-10-31 16:03:16
 
 | Sprint | 复盘 | 状态 | Open 行动项 |
 |---|---|---|---:|
+| sprint-018 | [Sprint-018 经验复盘](retrospectives/sprint-018-retrospective.md) | active | 6（含5项前序承接） |
 | sprint-017 | [Sprint-017 经验复盘](retrospectives/sprint-017-retrospective.md) | active | 5（含3项前序承接） |
 | sprint-016 | [Sprint-016 经验复盘](retrospectives/sprint-016-retrospective.md) | active | 4 |
 | sprint-015 | [Sprint-015 经验复盘](retrospectives/sprint-015-retrospective.md) | active | 8（另1项已纳入sprint-016） |
@@ -114,3 +115,5 @@ updated_at: 2026-10-31 16:03:16
 - [无旧成功证明的中断接续复发](incidents/20261027-interrupted-successor-proof.md)：BUG-0069，可信启动基线、独立后继收据、完整差异覆盖与历史保留。
 
 - [依赖子交付与迭代承接实践](best-practices/partial-delivery-sprint-handoff.md)：父需求partial、历史交付保留、当前归属及重放限制。
+
+- [历史归档证明与后续同步经验](incidents/20261101-archive-proof-and-later-sync.md)：合法追加补证、同步副作用和关闭后复核。

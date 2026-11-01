@@ -1,0 +1,114 @@
+sprint_id: sprint-018
+status: completed
+lifecycle_stage: archive
+created_at: '2026-10-31 16:25:02'
+updated_at: '2026-11-01 08:02:58'
+start_date: '2026-10-31 16:25:02'
+end_date: '2026-11-14 18:00:00'
+capacity_person_days: 30
+capacity:
+  developers: 1
+  testers: 1
+requirements:
+- REQ-0056-requirement-center-change-delivery-cards
+- REQ-0057-standalone-change-priority
+- REQ-0058-acceptance-card-check-entry-simplification
+- REQ-0059-standalone-change-auto-classification
+bugs:
+- BUG-0071-change-summary-acceptance-check-entry-missing
+- BUG-0070-standalone-change-updated-time-missing
+- BUG-0073-change-source-issue-estimate-missing
+estimated_story_points: 34
+estimated_person_days: 31.5
+scope_estimates:
+- id: REQ-0056-requirement-center-change-delivery-cards
+  change: add-change-delivery-cards
+  requirement: REQ-0056-requirement-center-change-delivery-cards
+  size: XL
+  story_points: 8
+  estimated_person_days: 8
+  rationale: 暂估：卡片身份及统计投影2人天、卡片交互与原型对齐2人天、操作目标/权限/恢复2人天、回归视觉与文档证据2人天。总8/30人天，缓冲22人天；不包含新增执行器或历史治理修复。
+- id: add-proof-bound-archive-finalization-recovery
+  change: add-proof-bound-archive-finalization-recovery
+  size: S
+  story_points: 1
+  estimated_person_days: 1
+  rationale: 用户授权修复REQ-0056归档收尾恢复机制，保留历史证据
+- id: BUG-0071-change-summary-acceptance-check-entry-missing
+  change: fix-change-summary-acceptance-check-entry
+  bug: BUG-0071-change-summary-acceptance-check-entry-missing
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 暂估3人天：对象级只读检查及权限版本校验1人天、卡片状态与重试交互1人天、观测关联及视觉回归1人天；保持摘要性能，检查不自动归档。追加后12/30人天，缓冲18人天，承接S17-A002容量经验。
+- id: REQ-0057-standalone-change-priority
+  change: add-standalone-change-priority
+  requirement: REQ-0057-standalone-change-priority
+  size: L
+  story_points: 5
+  estimated_person_days: 5
+  rationale: 暂估5人天：分级事实源与治理契约1天、API权限并发审计1天、卡片编辑筛选1天、功能及视觉验收与文档2天；复用已交付REQ-0056。追加后17/30人天，缓冲13天（43.3%），承接S17-A002。
+- id: BUG-0070-standalone-change-updated-time-missing
+  change: fix-standalone-change-updated-time
+  bug: BUG-0070-standalone-change-updated-time-missing
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 暂估3人天：时间事实源与同步兼容1天、卡片投影及缺口说明0.5天、幂等与历史保护回归及视觉文档1.5天；追加后20/30人天，缓冲10天（33.3%），承接S17-A002，不扩大到优先级和验收检查入口。
+- id: REQ-0058-acceptance-card-check-entry-simplification
+  change: update-acceptance-card-check-entry
+  requirement: REQ-0058-acceptance-card-check-entry-simplification
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 暂估3人天：检查准备面板与卡片调整1天、权限版本与迟到响应回归1天、双视口视觉及文档证据1天；追加后23/30人天，缓冲7天23.3%，低于30%建议线，保留容量不追加其他范围。承接S17-A002，复用原型门禁和S16-A001投影回归。
+- id: BUG-0073-change-source-issue-estimate-missing
+  change: fix-change-source-issue-estimate
+  bug: BUG-0073-change-source-issue-estimate-missing
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 暂估3人天：唯一估算归属与冲突处理1天、后端前端边界回归1天、真实卡片与容量一致性及文档1天；追加后26/30人天，剩4天13.3%，低于30%缓冲建议线。保留显式容量，承接S17-A002，后续新增范围需重算，不自动复制Issue总量。
+- id: fix-archive-historical-closure
+  change: fix-archive-historical-closure
+  size: S
+  story_points: 2
+  estimated_person_days: 1
+  rationale: 修复BUG-0073归档历史描述收尾恢复，保留原证据
+- id: fix-archive-quoted-history
+  change: fix-archive-quoted-history
+  size: S
+  story_points: 1
+  estimated_person_days: 0.5
+  rationale: 补齐提案历史问题引用的证明绑定恢复
+- id: REQ-0059-standalone-change-auto-classification
+  change: update-standalone-change-auto-classification
+  requirement: REQ-0059-standalone-change-auto-classification
+  size: M
+  story_points: 3
+  estimated_person_days: 3
+  rationale: 暂估3人天：自动评估与治理契约1天，接口及卡片调整1天，回归视觉及文档1天。复用已归档REQ-0057，承接S17-A002容量经验与原型门禁。追加后30.5/30人天，占101.7%，无剩余缓冲，低于120%硬门禁；保持显式容量，若出现超支优先延后本P2需求，不自动移出范围。
+- id: fix-archive-trace-supplement
+  change: fix-archive-trace-supplement
+  size: S
+  story_points: 2
+  estimated_person_days: 1
+  rationale: 用户授权修复归档来源追溯补充证明；保持原证据和严格门禁
+knowledge_intake_actions:
+- S16-A001
+- S17-A002
+changes:
+- add-change-delivery-cards
+- add-proof-bound-archive-finalization-recovery
+- fix-change-summary-acceptance-check-entry
+- add-standalone-change-priority
+- fix-standalone-change-updated-time
+- update-acceptance-card-check-entry
+- fix-change-source-issue-estimate
+- fix-archive-historical-closure
+- fix-archive-quoted-history
+- update-standalone-change-auto-classification
+- fix-archive-trace-supplement
+capacity_usage: 1.05
+fix_buffer_person_days: 0
+fix_buffer_ratio: 0

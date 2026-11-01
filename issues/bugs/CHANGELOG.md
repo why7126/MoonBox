@@ -2,7 +2,7 @@
 purpose: 缺陷当前态看板索引
 content: 每个 BUG 一行记录当前状态、下一步和事实源路径
 created_at: 2026-08-10 08:59:32
-updated_at: 2026-10-31 15:49:19
+updated_at: 2026-11-01 00:02:00
 owner: MoonBox 产品团队
 ---
 
@@ -28,9 +28,10 @@ owner: MoonBox 产品团队
 
 | BUG | 标题 | 严重等级 | 当前状态 | 阶段 | 关联 Sprint | 关联 Change | 最近更新时间 | 下一步 | 事实源 |
 |---|---|---|---|---|---|---|---|---|---|
+| BUG-0073-change-source-issue-estimate-missing | Change 卡片未展示来源 Issue 已有人力估算 | medium | done | archive | sprint-018 | fix-change-source-issue-estimate | 2026-11-01 00:02:00 | 无 | `issues/bugs/archive/BUG-0073-change-source-issue-estimate-missing/trace.md` |
 | BUG-0072-standalone-change-ready-dev-without-sprint | 独立 Change 未纳入迭代却提前显示待开发 | medium | done | archive | sprint-017 | fix-standalone-change-sprint-stage | 2026-10-31 10:53:17 | 无 | `issues/bugs/archive/BUG-0072-standalone-change-ready-dev-without-sprint/trace.md` |
-| BUG-0071-change-summary-acceptance-check-entry-missing | 独立 Change 归档按钮禁用且缺少验收检查入口 | high | pending_review | plan | 无 | 无 | 2026-10-30 09:49:12 | `/bug-review BUG-0071-change-summary-acceptance-check-entry-missing` | `issues/bugs/plan/BUG-0071-change-summary-acceptance-check-entry-missing/trace.md` |
-| BUG-0070-standalone-change-updated-time-missing | 独立 Change 卡片更新时间缺失 | medium | pending_review | plan | 无 | 无 | 2026-10-30 09:49:12 | `/bug-review BUG-0070-standalone-change-updated-time-missing` | `issues/bugs/plan/BUG-0070-standalone-change-updated-time-missing/trace.md` |
+| BUG-0071-change-summary-acceptance-check-entry-missing | 独立 Change 归档按钮禁用且缺少验收检查入口 | high | done | archive | sprint-018 | fix-change-summary-acceptance-check-entry | 2026-10-31 21:08:31 | 无 | `issues/bugs/archive/BUG-0071-change-summary-acceptance-check-entry-missing/trace.md` |
+| BUG-0070-standalone-change-updated-time-missing | 独立 Change 卡片更新时间缺失 | medium | done | archive | sprint-018 | fix-standalone-change-updated-time | 2026-10-31 23:01:58 | 无 | `issues/bugs/archive/BUG-0070-standalone-change-updated-time-missing/trace.md` |
 | BUG-0069-chat-interrupted-successor-proof-missing | Chat 中断缺少旧同步证明导致外部接续完成后仍受限 | high | done | archive | sprint-014 | fix-chat-interrupted-successor-proof | 2026-10-27 18:44:34 | 无 | `issues/bugs/archive/BUG-0069-chat-interrupted-successor-proof-missing/trace.md` |
 | BUG-0068-chat-database-lock-execution-interruption | Chat 执行期间数据库锁竞争导致持久化失败与任务中断 | high | done | archive | sprint-014 | fix-chat-database-lock-execution-interruption | 2026-10-27 09:09:48 | 无 | `issues/bugs/archive/BUG-0068-chat-database-lock-execution-interruption/trace.md` |
 | BUG-0067-chat-stream-preview-premature-truncation | Chat 流式正文预览过早截断并误导提示输出不完整 | medium | done | archive | sprint-014 | fix-chat-stream-preview-premature-truncation | 2026-10-27 09:10:25 | 无 | `issues/bugs/archive/BUG-0067-chat-stream-preview-premature-truncation/trace.md` |

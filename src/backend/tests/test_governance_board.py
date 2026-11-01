@@ -173,9 +173,9 @@ def test_change_index_keeps_same_named_issue_and_change_documents(tmp_path):
     write(change / "proposal.md", "---\ntitle: 修复验收入口\n---\n# 修复验收入口")
     write(change / "acceptance.md", "# Change acceptance")
     with service.using_governance_root(tmp_path):
-        card = next(item for item in ChangeIndex(tmp_path).cards(lambda _: True) if item.id == "BUG-0099")
-        issue_doc = next(doc for doc in card.document_entries if doc.name == "acceptance.md")
-        change_doc = next(doc for doc in card.related_changes[0].document_entries if doc.name == "acceptance.md")
+        card = next(item for item in ChangeIndex(tmp_path).cards(lambda _: True) if item.id == "validation")
+        issue_doc = next(doc for doc in card.source_issues[0].document_entries if doc.name == "acceptance.md")
+        change_doc = next(doc for doc in card.document_entries if doc.name == "acceptance.md")
         assert issue_doc.url == f"/api/v1/requirement-center/issues/{oid}/documents/acceptance.md"
         assert change_doc.url == "/api/v1/requirement-center/changes/validation/documents/acceptance.md"
         assert service.read_requirement_center_change_document("validation", "acceptance.md")[0] == "# Change acceptance"

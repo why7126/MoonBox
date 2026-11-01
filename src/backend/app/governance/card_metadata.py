@@ -9,7 +9,7 @@ ROOT_STATES = {'unknown', 'hypothesis', 'probable', 'confirmed'}
 PLACEHOLDER = re.compile(r'^(?:待(?:填写|补充|分析|完善|确认)|暂无|无|未填写|TBD|TODO|N/?A|[-—.…]+)(?:[。.!！\s]*)$', re.I)
 
 
-def estimate_metadata(scope: Any, object_id: str, changes: list[str]) -> dict:
+def estimate_metadata(scope: Any, object_id: str, changes: list[str], *, source_issue_id: str | None = None) -> dict:
     """Prefer an explicit object total; never silently sum incomplete partitions."""
     def result(status, value=None):
         return {'estimated_person_days': value, 'estimate_status': status}
@@ -25,6 +25,29 @@ def estimate_metadata(scope: Any, object_id: str, changes: list[str]) -> dict:
     if not isinstance(scope, list):
         return result('missing')
     rows = [r for r in scope if isinstance(r, dict)]
+    if not object_id.startswith(('REQ-', 'BUG-')):
+        # A source Issue row with a `change` link is still an Issue estimate.
+        parts = [r for r in rows if r.get('id') == object_id or
+                 (not r.get('id') and r.get('change') == object_id)]
+        if any(r.get('change') not in (None, '', object_id) for r in parts):
+            return result('conflict')
+        if parts:
+            return value(parts)
+        # The caller proves unique, authorized ownership using the complete
+        # relationship index, including hidden and archived siblings.
+        if source_issue_id is None:
+            return result('missing')
+        totals = [r for r in rows if r.get('id') == source_issue_id]
+        if not totals:
+            return result('missing')
+        if any(r.get('change') != object_id or
+               any(r.get(k) not in (None, '', source_issue_id) for k in ('requirement', 'bug'))
+               for r in totals):
+            return result('conflict')
+        metadata = value(totals)
+        if metadata['estimate_status'] == 'available':
+            metadata['estimate_source_issue_id'] = source_issue_id
+        return metadata
     totals = [r for r in rows if r.get('id') == object_id]
     if totals:
         # Contradictory explicit ownership is never an authoritative total.

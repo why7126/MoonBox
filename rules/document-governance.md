@@ -4,7 +4,7 @@ content: docs、issues、iterations、openspec 的生成、更新、同步与归
 source: AI自动生成初稿，项目团队确认
 update_method: 研发流程变化时由AI辅助更新，人工Review后合并
 created_at: 2026-06-13 00:00:00
-updated_at: 2026-10-31 07:54:35
+updated_at: '2026-11-01 00:57:00'
 note: AI执行需求、BUG、技术改造前必须读取；优先级高于普通文档说明
 ---
 
@@ -295,3 +295,26 @@ Change trace的可选execution.schema_version=1保存started_at、completed_at�
 新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
 
 已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。
+
+
+## 证明绑定的归档收尾恢复
+
+仅唯一已迁移归档、原恢复证明和完整验收有效时，可用 `scripts/restore-archive-finalization.py --change` 加目标Change ID预检；显式 `--apply` 排他追加恢复记录，随后续跑原 `archive-change.sh --finalize`。此入口仅投影proposal的初始proposed状态，以及已关闭且双向归属的来源Issue指向自身Change活动目录的旧导航。目标必须是唯一归档中的同一文件，未完成兄弟、未知路径、符号链接与失败状态不豁免。
+
+记录保存在 `openspec/archive/.archive-recovery/finalization/`，绑定原始恢复日志、交付输入、完整通过清单、来源与目标字节。共享产品/CLI收尾检查每次重新验证，不改写原文、正式规格或原恢复日志；记录失配、并发变化及重复身份继续阻断，不删除或覆盖记录后重试。普通正文矛盾仍须处理，恢复记录不是新增验收或归档授权。历史导航的有效目的地可在恢复记录的projections查看，原文保留为历史输入。
+
+## 独立 Change 分级
+无来源Issue的独立Change创建时由Agent基于影响范围、阻断程度、业务价值和紧迫性自动评估；trace.change_type为fix/non_fix，分别保存severity（blocker/critical/high/medium/low）或priority（P0/P1/P2/P3）。classification记录state、dimension、rationale、evidence_refs、evaluated_at、evaluated_by；opsx.propose共用校验器检查完整性，pending不得报告创建完整成功。两创建技能遵循相同契约，信息不足先自主补证，仍不足保留草稿及缺口。
+旧对象缺类型仅按完整fix-前缀兼容；显式类型与名称冲突待核实。卡片只读，缺失待评估、非法待核实，不提供分级编辑。旧priority与history保留但fix不据此显示严重性，不机械映射或批量回填，不新增历史开发或归档门禁。关联Issue后展示来源分级并停止独立写入，归档只读。
+旧priority API为非fix兼容路径，保留维护窗口、权限、版本和必要审计；fix或冲突拒绝，异步落盘前再次校验。治理重评按正确维度记录理由与历史，必要审计不可降级为可选遥测；通用独立Change文档仍只读。
+
+
+## Change 业务时间与历史兼容
+
+新建 Change 的 created_at/updated_at 记录真实创建事件；已存在 trace 的有效内容或状态变更刷新 updated_at，保留合法 created_at 与首次 execution.completed_at。旧 trace 缺创建时间时不以本次维护时刻补造创建历史。无实际变化重放、读取和目录搬迁不构成业务更新。
+
+顶层 execution_tasks 仅记录执行事件观测的任务完成数/总数，用于识别 progress 实际变化；不替代 execution 的首次开始/完成事实。
+
+Workflow Sync 执行转换通过 touch_frontmatter(preserve_missing_created=True) 补缺 updated_at；返修与归档前的真实文档变更可通过 persist_markdown 共享写入器维护时间，同文重放不写。opsx.modify/opsx.archive 投影同步本身不能推断代码或文档是否发生真实业务变化，也不作为补造时间的依据。归档后证据保持只读，不为卡片展示追写时间。
+
+独立 Change 显示依次选择合法 updated_at、created_at、execution.completed_at、execution.started_at，并标注真实来源；全部缺失或非法时显示“时间未记录”。不得将执行时间、查询时间、文件mtime或复制时间冒充 updated_at。API 的 card_time 使用带时区 ISO 时间，前端按 Asia/Shanghai 展示；这是传输表示，治理文档时间仍遵循本章标准。

@@ -191,3 +191,21 @@ def test_status_reads_no_files_and_rechecks_access(chat, tmp_path, monkeypatch):
     assert client.get('/api/v1/requirement-center/status', params=params).status_code == 403
     params['object_ids'] = ['../private']
     assert client.get('/api/v1/requirement-center/status', params=params).status_code == 403
+
+
+def test_explicit_check_behavior_is_optional_and_correlated(chat, tmp_path, monkeypatch):
+    from sqlalchemy import select
+    from app.chat.schema import usage_events
+    client, factory = chat
+    bind(monkeypatch, tree(tmp_path / 'repo'))
+    params = {'space_id': 'space', 'repository_id': 'repo', 'object_id': 'BUG-0099'}
+    headers = {'X-Chat-Client': 'web', 'X-Behavior-Event-ID': 'check-event', 'X-Behavior-Trace-ID': 'check-chain'}
+    response = client.get('/api/v1/requirement-center/context', params=params, headers=headers)
+    assert response.status_code == 200
+    with factory() as db:
+        row = db.execute(select(usage_events).where(usage_events.c.behavior_event_id == 'check-event')).mappings().one()
+        assert row['event_name'] == 'requirement_center.acceptance_check'
+        assert row['parent_request_id']
+        assert row['properties'] == '{"behavior_trace_id": "check-chain"}'
+    # Duplicate telemetry cannot turn a successful read into a failure.
+    assert client.get('/api/v1/requirement-center/context', params=params, headers=headers).status_code == 200

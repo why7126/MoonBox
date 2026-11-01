@@ -291,10 +291,10 @@ def test_reader_rejects_snapshot_if_writer_finishes_during_read(writing,monkeypa
     from app.governance.snapshot import Snapshot,digest
     oid=queue(writing);factory,project,before,after,_=writing
     partial={**before,'issues/requirements/_registry.yaml':after['issues/requirements/_registry.yaml']}
-    def concurrent_snapshot(root):
+    def concurrent_snapshot(root, *_args, **_kwargs):
         with factory() as worker:assert process(worker,oid)['state']=='applied'
         return Snapshot(partial,digest(partial))
-    monkeypatch.setattr('app.governance.reader.stable',concurrent_snapshot)
+    monkeypatch.setattr('app.governance.read_snapshot.stable_read',concurrent_snapshot)
     with factory() as reader:
         with pytest.raises(ChatError):ProjectReader(reader,'alice',project).snapshot()
 

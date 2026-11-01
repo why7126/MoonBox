@@ -29,6 +29,15 @@ def write_policy(db, actor, parent, *, evidence=None):
     oid=db.scalar(select(relations.c.object_id).where(relations.c.conversation_id==parent['id'],relations.c.role=='primary'))
     if not oid:
         return {**base, 'reason_code': 'primary_object_required'}
+    if not oid.startswith(('REQ-', 'BUG-', 'sprint-')) and parent.get('active_turn_id'):
+        active = db.execute(select(turns).where(turns.c.id == parent['active_turn_id'])).mappings().first()
+        from app.governance.preparation import _write_command, CHANGE_ACTION_STATUSES
+        try:
+            command = _write_command(active['prompt']) if active else None
+        except service.ChatError:
+            return {**base, 'reason_code': 'delivery_context_invalid'}
+        if command and command[0] in CHANGE_ACTION_STATUSES and command[1].startswith(('REQ-', 'BUG-')):
+            return _bound_delivery_policy(db, actor, parent, active, oid, evidence=evidence)
     # Captured requirements may edit only their isolated prepared workspace.
     # The trusted collector still validates the full workspace and exact four-file result.
     from app.governance.preparation import _candidate_for_turn, _current_workspace_candidate
@@ -78,6 +87,39 @@ def write_policy(db, actor, parent, *, evidence=None):
         return {**base, 'reason_code': error.code}
     except (service.ChatError,ValueError,TypeError,KeyError,IndexError,StopIteration,yaml.YAMLError):
         return {**base, 'reason_code': 'governance_facts_invalid'}
+
+
+def _bound_delivery_policy(db, actor, parent, active, target, *, evidence=None):
+    """Grant a phase scope only from the persisted, reauthorized delivery binding."""
+    denied = {'write_scope': WRITE_SCOPE_READ_ONLY, 'reason_code': 'delivery_context_invalid'}
+    try:
+        from app.governance import preparation, store, scope
+        from app.governance.change_index import ChangeIndex
+        from app.governance.snapshot import materialize
+        from app.services.requirement_center import using_governance_root
+        preparation.assert_delivery_replay_identity(db, parent, active)
+        action, resolved = preparation.bound_write_command(db, actor, parent, active['prompt'])
+        baseline = store.read(preparation._command_baseline_id(parent['id'], active['client_request_id']), 'baseline')
+        if resolved != target or baseline.get('object_id') != target or baseline.get('action') != action or not baseline.get('source_issue_id'):
+            return denied
+        project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
+        reader, snapshot = preparation._object_session_snapshot(db, actor, project)
+        preparation._require_change_fact_source(snapshot, reader, target, action)
+        with materialize(snapshot) as root, using_governance_root(root):
+            index = ChangeIndex(root); record = index.records.get(target)
+            if not record or index.sprint_assignment(record)[0] != 'valid':
+                return denied
+            sid = index.sprint_assignment(record)[1]
+            plan = yaml.safe_load(_read_file(root, f'iterations/change/{sid}/sprint.yaml'))
+            members = plan.get('requirements', []) + plan.get('bugs', []) if isinstance(plan, dict) else []
+            if baseline['source_issue_id'] not in members or plan.get('status') in ('completed', 'closed', 'archived'):
+                return denied
+        if evidence is not None:
+            evidence.update(object_id=target, change_id=target, sprint_id=sid)
+        return {'write_scope': WRITE_SCOPE_ARCHIVE if action == 'opsx-archive' else WRITE_SCOPE_IMPLEMENTATION,
+                'reason_code': 'bound_delivery_command'}
+    except (service.ChatError, OSError, ValueError, TypeError, KeyError, yaml.YAMLError):
+        return denied
 
 
 def _actor_can_write_space(db, actor, space_id):

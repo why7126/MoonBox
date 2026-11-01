@@ -129,7 +129,7 @@ def _real_source_workspace(project, source, workspace):
         return False
 
 
-def _require_issue_fact_source(snapshot, object_id, action, root=None):
+def _require_issue_fact_source(snapshot, object_id, action, root=None, *, target_change_id=None):
     rule=ISSUE_ACTION_RULES.get(action) or ISSUE_ACTION_FALLBACKS.get(action)
     if not rule:
         return None
@@ -186,6 +186,18 @@ def _require_issue_fact_source(snapshot, object_id, action, root=None):
     if action in CHANGE_ACTION_STATUSES:
         from app.governance.archive_admission import linked_changes
         links=linked_changes(entry, trace_meta)
+        bound_record = None
+        if target_change_id is not None and root is not None:
+            from app.governance.change_index import ChangeIndex
+            bound_record = ChangeIndex(root).records.get(target_change_id)
+            if not bound_record or object_id not in bound_record.issue_ids or bound_record.invalid_source:
+                raise service.ChatError(2604, '来源与交付目标不匹配，已阻断发送', 409, kind='delivery_target_mismatch')
+            links = [target_change_id]
+        # A source-only command cannot select one delivery from several, even
+        # when only one happens to be eligible today. Retries must not drift.
+        if len(set(links)) > 1:
+            raise service.ChatError(2604, '来源关联多个 Change，请使用明确交付目标；当前入口不支持目标选择',
+                                    409, kind='delivery_target_required')
         eligible=False
         for change_id in links:
             if not isinstance(change_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',change_id):
@@ -194,7 +206,7 @@ def _require_issue_fact_source(snapshot, object_id, action, root=None):
                 change_meta,_=frontmatter(snapshot.files[f'openspec/changes/{change_id}/trace.md'])
             except (KeyError,ValueError):
                 continue
-            if _matches_change_source(change_meta, object_id) and change_meta.get('status') in CHANGE_ACTION_STATUSES[action]:
+            if (bound_record is not None or _matches_change_source(change_meta, object_id)) and change_meta.get('status') in CHANGE_ACTION_STATUSES[action]:
                 eligible=True
                 break
         if not eligible and action == 'opsx-archive' and root is not None and len(links) == 1:
@@ -295,6 +307,9 @@ def _preflight_object_session(db, actor, project, object_id, action):
 def _preflight_object_session_authorized(db, actor, project, object_id, action):
     name=_action_name(action)
     if name in READ_ONLY_OBJECT_ACTIONS:
+        if not object_id.startswith(('REQ-', 'BUG-', 'sprint-')):
+            reader = ProjectReader(db, actor, project)
+            reader.authorize_object(reader.snapshot(summary=True), object_id, change=True)
         return relations.resolve_object(db,actor,project.space_id,project.repository_id,object_id)
     reader, snapshot = _object_session_snapshot(db, actor, project)
     if object_id.startswith('sprint-') or name == 'sprint-archive':
@@ -596,7 +611,7 @@ def for_conversation(db,cid):
 
 def prepare_send(db, actor, parent, prompt, client_id, request_id=None):
     """Final write checks; a fast-open response never grants execution rights."""
-    command = _write_command(prompt)
+    command = bound_write_command(db, actor, parent, prompt)
     if not command:
         return parent
     action, object_id = command
@@ -640,6 +655,23 @@ def check_send(db,actor,parent):
 
 
 def execution_prompt_for_turn(db,parent,stored_prompt):
+    command = _write_command(stored_prompt)
+    primary = db.scalar(select(chat_relations.c.object_id).where(chat_relations.c.conversation_id == parent['id'], chat_relations.c.role == 'primary')) if command and command[0] in CHANGE_ACTION_STATUSES else None
+    if command and command[0] in CHANGE_ACTION_STATUSES and command[1].startswith(('REQ-', 'BUG-')) and primary and not primary.startswith(('REQ-', 'BUG-', 'sprint-')) and parent.get('active_turn_id'):
+        turn = db.execute(select(turns).where(turns.c.id == parent['active_turn_id'])).mappings().first()
+        if turn:
+            baseline = store.read(_command_baseline_id(parent['id'], turn['client_request_id']), 'baseline')
+            source_id = baseline.get('source_issue_id')
+            if source_id:
+                effective = bound_write_command(db, parent['owner_id'], parent, stored_prompt)
+                if effective != (baseline['action'], baseline['object_id']) or command[1] != source_id:
+                    raise service.ChatError(2604, '交付执行上下文已变化', 409, kind='delivery_target_mismatch')
+                # Use the already-supported explicit Change command internally;
+                # no new CLI flag and no sibling selection delegated to the model.
+                suffix = (stored_prompt or '').strip().split(None, 2)
+                detail = ' ' + suffix[2] if len(suffix) > 2 else ''
+                return f"/{baseline['action']} {baseline['object_id']}{detail}\n\n来源命令：/{baseline['action']} {source_id}。" \
+                    f"服务端已绑定交付目标 {baseline['object_id']}；仅处理此 Change，保留来源 Issue 完整身份，不操作兄弟 Change。"
     if re.fullmatch(r'/sprint-archive\s+sprint-\d{3}', (stored_prompt or '').strip()):
         return stored_prompt + '\n\n执行约束：遵循 sprint-archive 技能，重新检查完整范围、权限、验收签署和文档门禁。' \
             '不得代替用户签署，不得使用 --force；已归档 Change 只核验，不重复合并。' \
@@ -695,6 +727,51 @@ def _command_baseline_id(cid,client_id):
     return str(uuid5(NAMESPACE_URL,f'moonbox.command-baseline.v1:{cid}:{client_id}'))
 
 
+def bound_write_command(db, actor, parent, prompt):
+    """Resolve a source command only through the authorized primary delivery.
+
+    The visible command retains its Issue identity. The durable command journal,
+    guards and workspace baseline use the explicit primary Change identity.
+    """
+    command = _write_command(prompt)
+    if not command or command[0] not in CHANGE_ACTION_STATUSES:
+        return command
+    primary = db.scalar(select(chat_relations.c.object_id).where(
+        chat_relations.c.conversation_id == parent['id'], chat_relations.c.role == 'primary'))
+    if not primary or primary.startswith(('REQ-', 'BUG-', 'sprint-')):
+        return command
+    action, source_id = command
+    if not source_id.startswith(('REQ-', 'BUG-')):
+        if source_id != primary:
+            raise service.ChatError(2604, '命令与会话交付目标不一致', 409, kind='delivery_target_mismatch')
+        return command
+    project = scope.authorize(db, actor, parent['space_id'], parent['repository_id'], write=True)
+    reader, snapshot = _object_session_snapshot(db, actor, project)
+    reader.authorize_object(snapshot, primary, change=True, write=True)
+    reader.authorize_object(snapshot, source_id, write=True)
+    from app.governance.snapshot import materialize
+    from app.services.requirement_center import using_governance_root
+    with materialize(snapshot) as root, using_governance_root(root):
+        _require_issue_fact_source(snapshot, source_id, action, root, target_change_id=primary)
+    return action, primary
+
+
+def assert_delivery_replay_identity(db, parent, turn):
+    """Returning a prior receipt must not present A as the current target B."""
+    command = _write_command(turn['prompt'])
+    if not command or command[0] not in CHANGE_ACTION_STATUSES:
+        return
+    primary = db.scalar(select(chat_relations.c.object_id).where(chat_relations.c.conversation_id == parent['id'], chat_relations.c.role == 'primary'))
+    try:
+        baseline = store.read(_command_baseline_id(parent['id'], turn['client_request_id']), 'baseline')
+    except (OSError, ValueError):
+        if primary and not primary.startswith(('REQ-', 'BUG-', 'sprint-')) and command[1].startswith(('REQ-', 'BUG-')):
+            raise service.ChatError(2604, '原交付执行上下文缺失', 409, kind='delivery_target_required') from None
+        return
+    if baseline.get('source_issue_id') and (primary != baseline['object_id'] or command[1] != baseline['source_issue_id']):
+        raise service.ChatError(2604, '原执行与当前交付目标不一致', 409, kind='delivery_target_mismatch')
+
+
 def _send_baseline(db, actor, parent, object_id, action):
     """Retry only read-side races, before creating any durable command record."""
     last_reason = 'concurrent_update'
@@ -722,7 +799,7 @@ def _send_baseline(db, actor, parent, object_id, action):
 
 
 def prepare_command_snapshot(db,actor,parent,prompt,client_id):
-    command=_write_command(prompt)
+    command=bound_write_command(db,actor,parent,prompt)
     if not command:
         return
     action,object_id=command
@@ -747,6 +824,9 @@ def prepare_command_snapshot(db,actor,parent,prompt,client_id):
         'binding_revision': project.binding_revision,
         'files': {name: body.decode() for name, body in baseline.files.items()},
     }
+    visible_command = _write_command(prompt)
+    if visible_command and visible_command[1] != item['id']:
+        expected['source_issue_id'] = visible_command[1]
     try:
         if (store.root() / rid).exists():
             # A failed enqueue can leave durable evidence without a DB turn.
@@ -788,6 +868,10 @@ def _initialize_command_workspace(db,parent,source,workspace):
     if not turn or not _write_command(turn['prompt']):
         return
     baseline=store.read(_command_baseline_id(parent['id'],turn['client_request_id']),'baseline')
+    if baseline.get('source_issue_id'):
+        effective = bound_write_command(db, parent['owner_id'], parent, turn['prompt'])
+        if effective != (baseline['action'], baseline['object_id']) or _write_command(turn['prompt'])[1] != baseline['source_issue_id']:
+            raise service.ChatError(2604, '交付恢复目标已变化', 409, kind='delivery_target_mismatch')
     project=scope.authorize(db,parent['owner_id'],parent['space_id'],parent['repository_id'],write=True)
     _preflight_object_session(db,parent['owner_id'],project,baseline['object_id'],baseline['action'])
     reader=ProjectReader(db,parent['owner_id'],project)

@@ -1,0 +1,644 @@
+{
+  "schema_version": 1,
+  "change_id": "update-acceptance-card-check-entry",
+  "environment_contract": {
+    "deployment": "req58-isolated-local",
+    "workspace_mode": "isolated",
+    "sample_scope": "两个合成交付卡：独立Change与BUG来源；不改正式事项",
+    "authorization_ref": "用户选择使用隔离测试样本完成验收",
+    "login_strategy": "临时隔离测试账号，凭证不持久化至证据",
+    "retry_limit": 0,
+    "cleanup_after": "evidence-and-recovery-verified",
+    "browser_capabilities": [
+      "screenshot",
+      "viewport",
+      "computed_style"
+    ]
+  },
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-004",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-XCUT-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-001",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-002",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    },
+    {
+      "id": "AC-PROTOTYPE-003",
+      "kind": "command",
+      "inputs": [
+        "src/web/src/pages/catalog/RequirementCenterPage.tsx",
+        "src/web/src/requirement-summary.test.tsx",
+        "src/web/src/delivery-action.test.tsx",
+        "src/web/src/delivery-cards.test.tsx",
+        "openspec/changes/update-acceptance-card-check-entry/specs/web-catalog-requirement-center-real-data/spec.md",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/prototype.html",
+        "issues/requirements/review/REQ-0058-acceptance-card-check-entry-simplification/prototype/web/context.md"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "NODE_OPTIONS=--no-experimental-webstorage node src/web/node_modules/vitest/vitest.mjs run src/requirement-summary.test.tsx src/delivery-action.test.tsx src/delivery-cards.test.tsx --root src/web"
+      ],
+      "deduplicate": true,
+      "evidence_kinds": [
+        "command",
+        "visual"
+      ],
+      "artifacts": [
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.png",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-check.txt",
+        "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-existing-rework.png"
+      ],
+      "required_sample": {
+        "status": "passed",
+        "reason": "用户授权隔离真实前后端合成事项，两种来源卡片双视口及原流程签认通过"
+      },
+      "coverage": {
+        "stages": [
+          "acceptance"
+        ],
+        "viewports": [
+          "1440x1100",
+          "390x1100"
+        ],
+        "samples": [
+          {
+            "stage": "acceptance",
+            "viewport": "1440x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-1440-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          },
+          {
+            "stage": "acceptance",
+            "viewport": "390x1100",
+            "artifacts": [
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-standalone.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-source.png",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/isolated-390-style.json",
+              "openspec/changes/update-acceptance-card-check-entry/evidence/acceptance/real-card-visual-review.md"
+            ]
+          }
+        ]
+      },
+      "preflight": [
+        [
+          "curl",
+          "--fail",
+          "--silent",
+          "--output",
+          "/dev/null",
+          "http://127.0.0.1:39029/login"
+        ]
+      ]
+    }
+  ]
+}

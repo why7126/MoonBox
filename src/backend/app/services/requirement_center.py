@@ -179,9 +179,9 @@ def build_requirement_center_context(
     issues.sort(key=lambda item: item.updated_at, reverse=True)
     stats = RequirementCenterStats(
         total=len(issues),
-        standalone_changes=sum(1 for item in issues if item.type == "change"),
-        requirements=sum(1 for item in issues if item.type == "requirement"),
-        bugs=sum(1 for item in issues if item.type == "bug"),
+        standalone_changes=sum(1 for item in issues if item.type == "change" and not item.source_issues),
+        requirements=len({source.id for item in issues for source in item.source_issues if source.type == "requirement"} | {item.object_id or item.id for item in issues if item.type == "requirement"}),
+        bugs=len({source.id for item in issues for source in item.source_issues if source.type == "bug"} | {item.object_id or item.id for item in issues if item.type == "bug"}),
         blocked=sum(1 for item in issues if item.blocked),
         drift=sum(1 for item in issues if item.drift_warnings),
     )

@@ -107,7 +107,7 @@ def enqueue(db, actor, cid, client_id, prompt, limits, *, retry_of=None, materia
         db.execute(insert(messages).values(**service.identity(), turn_id=tid, role='user', content=service.material_message(prompt, materials)))
         from app.chat.observability import trace
         trace(db,tid,'queued',actor=actor,request_id=request_id,
-            metadata={**service.material_counts(materials), **service.execution_config_metadata(execution_config)})
+            metadata={**service.material_counts(materials), **service.execution_config_metadata(execution_config), **((guard_context or {}).get('delivery_context', {}))})
         if guard_context:
             from app.governance.execution_guard import observe
             for oid, _ in guard_context['objects']:

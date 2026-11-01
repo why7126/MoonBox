@@ -13,16 +13,20 @@ EVENTS.update({'chat.result_page', 'chat.file_page', 'chat.file_content', 'chat.
 EVENTS.add('chat.question_answer')
 EVENTS.update({'workspace.action', 'workspace.view'})
 EVENTS.update({'acceptance.action','acceptance.verify','acceptance.evidence'})
+EVENTS.add('governance.document_open')
 STAGES={'queued','connecting','running','completed','failed','stopped','unknown','stopping'}
 
 
 def behavior(db,event,actor,rid,result,client_type,resource=None):
     if event not in EVENTS or client_type not in ('web','api'):return
     properties={key:value for key,value in (resource or {}).items() if key in ('turn_id','conversation_id','operation_id','candidate_id','question_id') and isinstance(value,str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}',value)}
-    for key in ('object_type','object_id','action_type','error_code','result'):
+    for key in ('object_type','object_id','target_change_id','action_type','error_code','result'):
         value=(resource or {}).get(key)
         if isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', value):
             properties[key]=value
+    sources = (resource or {}).get('source_issue_ids')
+    if isinstance(sources, list) and len(sources) <= 32 and all(isinstance(v, str) and re.fullmatch(r'(REQ|BUG)-\d{4}-[a-z0-9-]{1,110}', v) for v in sources):
+        properties['source_issue_ids'] = sources
     for key in ('image_count','file_count','skill_count'):
         value=(resource or {}).get(key)
         if type(value) is int and 0 <= value <= 100:
@@ -42,7 +46,9 @@ def _metadata(value):
             result[key] = item
         elif key in ('agent','model','reasoning','config_fallback') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,80}', item):
             result[key] = item
-        elif key in ('material_boundary','storage_mode','object_type','object_id','action_type','conversation_id','turn_id','question_id','request_id','candidate_id','result','error_code') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+        elif key in ('material_boundary','storage_mode','object_type','object_id','target_change_id','action_type','conversation_id','turn_id','question_id','request_id','candidate_id','result','error_code') and isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', item):
+            result[key] = item
+        elif key == 'source_issue_ids' and isinstance(item, list) and len(item) <= 32 and all(isinstance(v, str) and re.fullmatch(r'(REQ|BUG)-\d{4}-[a-z0-9-]{1,110}', v) for v in item):
             result[key] = item
     return json.dumps(result, ensure_ascii=False)
 

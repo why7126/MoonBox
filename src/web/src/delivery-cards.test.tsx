@@ -1,0 +1,26 @@
+import {cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
+import {afterEach,it,expect,vi} from 'vitest';
+import {RequirementCenterPage} from './pages/catalog/RequirementCenterPage';
+import {deliveryFixture,previewResponse} from './preview/delivery-fixture';
+afterEach(()=>{cleanup();vi.unstubAllGlobals();localStorage.clear();});
+it('keeps sibling tasks, source documents and parent completion separate',async()=>{
+ const fetcher=vi.fn(async(input:RequestInfo|URL)=>new Response(JSON.stringify({data:previewResponse(input)}),{headers:{'Content-Type':'application/json'}}));
+ vi.stubGlobal('fetch',fetcher);render(<RequirementCenterPage/>);
+ await waitFor(()=>expect(screen.getByLabelText('打开筛选条件')).toBeTruthy());
+ await waitFor(()=>expect(screen.getByTestId('requirement-filter-trigger-sprint').textContent).toContain('默认 Sprint 范围'));
+ fireEvent.click(screen.getByLabelText('打开筛选条件'));
+ fireEvent.click(screen.getByTestId('requirement-filter-trigger-sprint'));
+ fireEvent.click(screen.getByTestId('requirement-filter-clear-sprint'));
+ await waitFor(()=>expect(screen.getAllByTestId('rc-delivery-card').length).toBe(3));
+ const cards=screen.getAllByTestId('rc-delivery-card');
+ const first=cards.find(card=>card.getAttribute('data-change-id')==='add-chat-validation-orchestration')!;
+ fireEvent.click(within(first).getByRole('button',{name:'研发 1/2'}));
+ await waitFor(()=>expect(fetcher.mock.calls.some(([url])=>String(url).includes('/changes/add-chat-validation-orchestration/documents/tasks.md'))).toBe(true));
+ expect(fetcher.mock.calls.some(([url])=>String(url).includes('/changes/add-isolated-candidate-validation/documents/tasks.md'))).toBe(false);
+ fireEvent.click(screen.getByRole('button',{name:'关闭右侧抽屉'}));
+ fireEvent.click(within(first).getByRole('button',{name:'查看来源 '+deliveryFixture.issues[0].sources[0].id}));
+ await waitFor(()=>expect(fetcher.mock.calls.some(([url])=>String(url).includes('/issues/REQ-0048-chat-isolated-acceptance-orchestration/documents/requirement.md'))).toBe(true));
+ expect(document.activeElement).toBe(screen.getByRole('button',{name:'关闭右侧抽屉'}));
+ expect(screen.getByLabelText('需求已完成 0 个，总体 1 个')).toBeTruthy();
+ expect(screen.getAllByTestId('rc-source-completion').length).toBe(1);
+});

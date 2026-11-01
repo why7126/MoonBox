@@ -63,6 +63,7 @@ class ProjectReader:
                     legacy._frontmatter(root / entry['path'] / 'trace.md'))]
                 if record.issue_ids and not linked:
                     raise ChatError(2601, '该 Change 入口仅支持读取', 403)
+            self.delivery_context = {'target_change_id': object_id, 'source_issue_ids': sorted(record.issue_ids)}
             return linked
         else:
             entries = [entry for entry in entries if entry['id']==object_id or '-'.join(entry['id'].split('-')[:2])==object_id]
@@ -220,9 +221,13 @@ class ProjectReader:
             start = perf_counter()
             query=urlencode({'space_id':self.scope.space_id,'repository_id':self.scope.repository_id})
             for issue in result.issues:
+                if self.scope.readonly:
+                    issue.can_edit_priority = False
                 if issue.type == 'change' and issue.action and issue.stage != 'development' and self.scope.readonly:
                     issue.action.disabled_reason = '当前空间只读' + ('；' + issue.action.disabled_reason if issue.action.disabled_reason else '')
                 documents = list(issue.document_entries)
+                for source in issue.source_issues:
+                    documents.extend(source.document_entries)
                 for change in issue.related_changes:
                     documents.extend(change.document_entries)
                 if issue.current_change:

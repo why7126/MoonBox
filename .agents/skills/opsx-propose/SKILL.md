@@ -190,3 +190,9 @@ bash scripts/project-python.sh scripts/sync-workflow-status.py --event opsx.prop
 新建或复用活动 Change 后、进入实施前，运行 Workflow Sync 的 opsx.propose 事件并传入实际 Change ID。共享初始化器建立缺失的 trace.md，写入 proposed、execution.schema_version: 1、空 started_at/completed_at 和 last_event: opsx.propose。登记时间不冒充原始创建或执行时间。
 
 已有合法状态和来源关联保持不变，包括旧版执行记录；非法状态、身份冲突、执行状态不一致及已有任务进度却缺失 trace 时阻断，先核实历史。dry-run 不写入，重复执行不回退状态。提案可暂未纳入 Sprint，但实施仍执行 Sprint 门禁。创建完成以有效状态记录为准，不能仅以 CLI 产物齐全或同步退出码为准。回归入口为 `bash scripts/project-python.sh scripts/test_change_initialization.py`。
+
+## 独立 Change 创建时自动分级
+
+无REQ/BUG来源时，创建Agent先基于提案与证据评估，在trace Frontmatter写change_type: fix/non_fix；fix写severity（blocker/critical/high/medium/low），其他写priority（P0/P1/P2/P3）。classification包含state: assessed、dimension: severity/priority、rationale、非空evidence_refs、evaluated_at（秒级时间）、evaluated_by。名称使用fix-时类型为fix；不将关键词或前缀当作等级依据。
+
+材料不足先自主补证，仍不足写state: pending和缺口，不填统一默认等级。opsx.propose必须成功后才报告创建完整完成；共享完成校验失败保留草稿，继续补齐依据。来源Issue继承分级，不创建镜像；重试不覆盖有效评估，不重写历史归档。卡片只展示，后续重评通过授权治理流程记录理由和历史。规则见rules/document-governance.md“独立 Change 分级”。

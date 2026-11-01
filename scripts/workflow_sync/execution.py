@@ -13,7 +13,7 @@ from pathlib import Path
 from .shared import change_state, execution_metadata
 
 from .collect import parse_frontmatter_yaml, read_text
-from .timefmt import now_shanghai
+from .timefmt import now_shanghai, touch_frontmatter
 
 EVENTS = {"opsx.start", "opsx.progress", "opsx.apply"}
 
@@ -72,6 +72,8 @@ def transition(root: Path, record, event: str, *, write: bool) -> dict:
         return trace
     if event != "opsx.start" and not (execution or {}).get("started_at"):
         raise ValueError("Run opsx.start before progress/completion")
+    previous_execution = dict(execution or {})
+    previous_status = trace.get("status")
     execution = dict(execution or {})
     if not execution.get("schema_version"):
         execution["schema_version"] = 1
@@ -88,6 +90,11 @@ def transition(root: Path, record, event: str, *, write: bool) -> dict:
         execution["last_event"] = event
     trace["execution"] = execution
     trace["status"] = change_state(trace, record.tasks.done, record.tasks.total)
+    progress = f"{record.tasks.done}/{record.tasks.total}"
+    if (execution == previous_execution and trace["status"] == previous_status
+            and trace.get("execution_tasks") == progress):
+        return trace
+    trace["execution_tasks"] = progress
     match = re.match(r"^---\n(.*?)\n---", original, re.S)
     if not match:
         raise ValueError("Change trace frontmatter missing")
@@ -95,9 +102,13 @@ def transition(root: Path, record, event: str, *, write: bool) -> dict:
     block = re.sub(r"^status:.*$", "status: " + trace["status"], block, flags=re.M)
     if not re.search(r"^status:", block, re.M):
         block += "status: " + trace["status"] + "\n"
+    block = re.sub(r"^execution_tasks:.*\n?", "", block, flags=re.M)
+    block += f"execution_tasks: {progress}\n"
     block += "execution:\n" + "".join(f"  {key}: {value if value is not None else 'null'}\n" for key, value in execution.items())
     updated = original[:match.start(1)] + block.rstrip("\n") + original[match.end(1):]
-    if updated != original and write:
-        updated = re.sub(r"^updated_at:.*$", "updated_at: " + now_shanghai(), updated, count=1, flags=re.M)
-        atomic_write(path, updated, original)
+    if updated != original:
+        updated, _ = touch_frontmatter(updated, preserve_missing_created=True)
+        trace["updated_at"] = parse_frontmatter_yaml(updated).get("updated_at")
+        if write:
+            atomic_write(path, updated, original)
     return trace

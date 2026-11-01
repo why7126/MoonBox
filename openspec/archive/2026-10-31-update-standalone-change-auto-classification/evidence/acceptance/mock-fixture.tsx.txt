@@ -1,0 +1,11 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import './src/styles/globals.css';
+import './src/styles/tokens.generated.css';
+import {RequirementCenterPage} from './src/pages/catalog/RequirementCenterPage';
+const params=new URLSearchParams(location.search),stage=params.get('stage')||'ready-dev',theme=params.get('theme')||'light';
+document.documentElement.setAttribute('data-theme',theme);localStorage.clear();localStorage.setItem('moonbox.ui.preferences',JSON.stringify({theme}));localStorage.setItem('moonbox.session',JSON.stringify({access_token:'isolated-test',username:'visual-test'}));
+const rows=[['fix-valid','severity','valid','high'],['fix-missing','severity','missing',''],['fix-invalid','severity','invalid',''],['update-valid','priority','valid','P2'],['update-missing','priority','missing',''],['update-invalid','priority','invalid','']].map(([id,dimension,state,value])=>({id,type:'change',card_kind:'delivery',source_issues:[],title:`隔离样本 ${id}`,stage,owner:'验收样本',documents:[],document_entries:[],classification_dimension:dimension,classification_state:state,[dimension]:value,can_edit_priority:true,priority_version:'legacy',estimate_status:'available',estimated_person_days:1,estimate_size:'S'}));
+const data={current_user:{name:'验收样本'},workspaces:[{workspace_id:'space',name:'隔离样本'}],selected_workspace_id:'space',issues:rows,stats:{total:6,requirements:0,bugs:0,blocked:0,drift:0},projects:[{space_id:'space',repository_id:'repo',status:'connected',readonly:false}]};
+window.fetch=async()=>new Response(JSON.stringify({code:0,data}),{status:200,headers:{'Content-Type':'application/json'}});
+createRoot(document.getElementById('root')!).render(<><aside style={{padding:8}}>隔离 Mock 视觉样本；非真实业务数据。<label>阶段<select value={stage} onChange={e=>{params.set('stage',e.target.value);location.search=params.toString()}}>{['ready-dev','development','acceptance','done'].map(s=><option key={s}>{s}</option>)}</select></label><label>主题<select value={theme} onChange={e=>{params.set('theme',e.target.value);location.search=params.toString()}}>{['light','dark'].map(s=><option key={s}>{s}</option>)}</select></label></aside><RequirementCenterPage/></>);

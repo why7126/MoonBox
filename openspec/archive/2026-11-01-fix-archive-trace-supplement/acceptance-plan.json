@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "change_id": "fix-archive-trace-supplement",
+  "checks": [
+    {
+      "id": "AC-001",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_trace_supplement.py",
+        "src/backend/app/governance/archive_closure_restoration.py",
+        "scripts/restore-archive-finalization.py",
+        "tests/unit/test_archive_closure_restoration.py"
+      ],
+      "argv": [
+        "bash",
+        "-c",
+        "PYTHONPATH=src/backend:scripts src/backend/.venv/bin/python -m pytest tests/unit/test_archive_closure_restoration.py -q"
+      ]
+    },
+    {
+      "id": "AC-002",
+      "kind": "command",
+      "inputs": [
+        "src/backend/app/governance/archive_trace_supplement.py",
+        "src/backend/app/governance/archive_closure_restoration.py",
+        "scripts/restore-archive-finalization.py",
+        "tests/unit/test_archive_closure_restoration.py"
+      ],
+      "argv": [
+        "bash",
+        "scripts/project-python.sh",
+        "scripts/check-archive-finalization.py",
+        "--change",
+        "add-change-delivery-cards"
+      ]
+    }
+  ]
+}

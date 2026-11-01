@@ -234,7 +234,14 @@ def upsert_acceptance_block(
         evidence=evidence,
     ).rstrip()
     pattern = re.compile(r"^## 验收结果回填\s*\n.*?(?=^## |\Z)", re.MULTILINE | re.DOTALL)
-    if pattern.search(text):
+    existing = pattern.search(text)
+    if existing:
+        # Replaying an unchanged result must preserve its original signoff time
+        # and byte identity, including evidence-bound archived documents.
+        def without_time(value: str) -> str:
+            return re.sub(r"^accepted_at:.*$", "accepted_at: <retained>", value.strip(), flags=re.MULTILINE)
+        if without_time(existing.group()) == without_time(block):
+            return text, False
         new_text = pattern.sub(block + "\n\n", text, count=1)
         return new_text, new_text != text
     suffix = "" if text.endswith("\n") else "\n"

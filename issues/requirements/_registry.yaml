@@ -1,30 +1,56 @@
-next_id: 58
+next_id: 60
 entries:
+- id: REQ-0059-standalone-change-auto-classification
+  title: "独立 Change 创建时自动分级与卡片只读展示"
+  status: done
+  priority: P2
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0059-standalone-change-auto-classification/
+  owner: 产品团队
+  created: '2026-11-01 00:19:33'
+  iteration: sprint-018
+  related_changes: []
+  parent_requirement: REQ-0057-standalone-change-priority
+  related_requirements:
+  - REQ-0057-standalone-change-priority
+  related_change: update-standalone-change-auto-classification
+- id: REQ-0058-acceptance-card-check-entry-simplification
+  title: "验收中卡片检查入口展示简化"
+  status: done
+  priority: P2
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0058-acceptance-card-check-entry-simplification/
+  owner: 产品团队
+  created: '2026-10-31 23:08:26'
+  iteration: sprint-018
+  related_requirement: REQ-0056-requirement-center-change-delivery-cards
+  related_bug: BUG-0071-change-summary-acceptance-check-entry-missing
+  related_change: update-acceptance-card-check-entry
 - id: REQ-0057-standalone-change-priority
   title: "独立 Change 优先级定义与卡片展示"
-  status: pending_review
+  status: done
   priority: P2
   owner: 产品团队
   source: 用户 capture 授权与同会话 explore
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0057-standalone-change-priority/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0057-standalone-change-priority/
   created: '2026-10-30 09:37:37'
-  iteration: null
-  related_change: null
+  iteration: sprint-018
+  related_change: add-standalone-change-priority
   parent_requirement: REQ-0056-requirement-center-change-delivery-cards
   related_requirements:
   - REQ-0056-requirement-center-change-delivery-cards
 - id: REQ-0056-requirement-center-change-delivery-cards
   title: "需求中心交付阶段按 Change 独立成卡"
-  status: pending_review
+  status: done
   priority: P1
   owner: 产品团队
   source: 用户确认与同会话 explore
-  lifecycle_stage: plan
-  path: issues/requirements/plan/REQ-0056-requirement-center-change-delivery-cards/
+  lifecycle_stage: archive
+  path: issues/requirements/archive/REQ-0056-requirement-center-change-delivery-cards/
   created: '2026-10-29 18:19:44'
-  iteration: null
-  related_change: null
+  iteration: sprint-018
+  related_change: add-change-delivery-cards
   related_changes: []
   type: feature
   requester: user

@@ -1,0 +1,10 @@
+.change-priority-editor { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rc-border, #DDE3EE); font-size: 14px; line-height: 1.45; }
+.change-priority-editor p { margin: 12px 0; }
+.change-priority-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.change-priority-editor button, .change-priority-editor select { padding: 9px 12px; border: 1px solid var(--rc-border, #DDE3EE); border-radius: 2px; }
+.change-priority-actions button:first-child { background: var(--rc-accent, #B9832E); color: #101828; }
+
+.change-priority-editor button, .change-priority-editor select { color: var(--rc-text); background: var(--rc-panel); font: inherit; }
+.change-priority-actions button:first-child { background: var(--rc-accent); color: #101828; }
+.change-priority-editor button:disabled { opacity: .5; cursor: not-allowed; }
+.change-priority-editor button:focus-visible, .change-priority-editor select:focus-visible { outline: 2px solid var(--rc-accent); outline-offset: 3px; }
